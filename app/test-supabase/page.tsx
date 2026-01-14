@@ -35,14 +35,15 @@ export default function TestSupabase() {
 
         // 即使表不存在，如果连接成功，error 会是特定的错误类型
         if (error) {
-          // 如果是 "relation does not exist" 错误，说明连接成功但表不存在（这是正常的）
-          if (error.code === 'PGRST116' || error.message.includes('does not exist')) {
+          // 如果是 "table not found" 错误，说明连接成功但表不存在（这是正常的）
+          if (error.code === 'PGRST116' || error.code === 'PGRST205' || 
+              error.message.includes('does not exist') || error.message.includes('Could not find')) {
             setStatus('success')
             setMessage('✅ Supabase 连接成功！')
             setDetails({
               url: supabaseUrl,
               keyPrefix: supabaseKey.substring(0, 20) + '...',
-              error: '表不存在（这是正常的，说明连接成功）',
+              note: '测试表不存在（这是正常的，说明数据库连接成功）',
               errorCode: error.code
             })
           } else {
