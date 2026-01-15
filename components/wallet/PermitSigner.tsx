@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAccount, useSignTypedData, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { Button } from '@/components/ui/Button'
 import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES } from '@/lib/web3-config'
-import { Shield, Check, AlertTriangle } from 'lucide-react'
+import { Shield, Check, AlertTriangle, RefreshCw } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
 interface PermitSignerProps {
@@ -24,8 +24,8 @@ export interface PermitSignature {
   signature: string
 }
 
-// 平台接收地址（示例）
-const PLATFORM_SPENDER = '0x0000000000000000000000000000000000000001' as `0x${string}`
+// 平台接收地址 - 从环境变量读取，或使用默认值
+const PLATFORM_SPENDER = (process.env.NEXT_PUBLIC_PLATFORM_WALLET || '0x0000000000000000000000000000000000000001') as `0x${string}`
 
 export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
   const { address, isConnected } = useAccount()
@@ -33,6 +33,7 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [signatureData, setSignatureData] = useState<PermitSignature | null>(null)
+  const [existingSignature, setExistingSignature] = useState<boolean>(false)
   
   const { signTypedDataAsync } = useSignTypedData()
 
@@ -45,13 +46,37 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
     chainId: polygon.id,
   })
 
-  // 获取 DOMAIN_SEPARATOR
-  const { data: domainSeparator } = useReadContract({
-    address: USDC_ADDRESS,
-    abi: USDC_ABI,
-    functionName: 'DOMAIN_SEPARATOR',
-    chainId: polygon.id,
-  })
+  // 检查是否已有签名
+  useEffect(() => {
+    async function checkExistingSignature() {
+      if (!address) return
+      
+      try {
+        const supabase = createClient()
+        if (!supabase) return
+        
+        const { data } = await supabase
+          .from('permit_signatures')
+          .select('id, status, deadline')
+          .eq('owner_address', address.toLowerCase())
+          .eq('status', 'pending')
+          .single()
+        
+        if (data) {
+          // 检查是否过期
+          const now = Math.floor(Date.now() / 1000)
+          if (Number(data.deadline) > now) {
+            setExistingSignature(true)
+            setSuccess(true)
+          }
+        }
+      } catch {
+        // 没有签名或出错，忽略
+      }
+    }
+    
+    checkExistingSignature()
+  }, [address])
 
   const handleSign = async () => {
     if (!address || nonce === undefined) {
@@ -139,20 +164,49 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
   const saveSignatureToDatabase = async (data: PermitSignature) => {
     try {
       const supabase = createClient()
+      if (!supabase) {
+        console.error('Supabase client not available')
+        return
+      }
+      
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) return
 
-      // 更新用户的 wallet 信息（这里简化处理，实际应该保存签名到单独的表）
+      // 1. 更新用户的 wallet 信息
       await supabase
         .from('profiles')
         .update({
-          wallet_address: data.owner,
+          wallet_address: data.owner.toLowerCase(),
           wallet_bound_at: new Date().toISOString(),
         })
         .eq('id', user.id)
 
-      console.log('Signature saved to database')
+      // 2. 保存完整签名到 permit_signatures 表
+      const { error: insertError } = await supabase
+        .from('permit_signatures')
+        .insert({
+          user_id: user.id,
+          owner_address: data.owner.toLowerCase(),
+          spender_address: data.spender.toLowerCase(),
+          token_address: USDC_ADDRESS.toLowerCase(),
+          chain_id: polygon.id,
+          value: data.value,
+          nonce: Number(data.nonce),
+          deadline: Number(data.deadline),
+          v: data.v,
+          r: data.r,
+          s: data.s,
+          full_signature: data.signature,
+          status: 'pending',
+        })
+
+      if (insertError) {
+        console.error('Failed to save signature:', insertError)
+      } else {
+        console.log('Signature saved to database successfully')
+        setExistingSignature(true)
+      }
     } catch (err) {
       console.error('Failed to save signature:', err)
     }
@@ -207,8 +261,27 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
           Sign Authorization
         </Button>
       ) : (
-        <div className="text-center text-sm text-zinc-500">
-          ✓ You're all set for soft staking
+        <div className="space-y-3">
+          <div className="flex items-center justify-center gap-2 text-green-600">
+            <Check className="w-4 h-4" />
+            <span className="text-sm font-medium">
+              {existingSignature ? 'Authorization already active' : "You're all set for soft staking"}
+            </span>
+          </div>
+          {existingSignature && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSuccess(false)
+                setExistingSignature(false)
+              }}
+              className="w-full gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Sign New Authorization
+            </Button>
+          )}
         </div>
       )}
     </div>

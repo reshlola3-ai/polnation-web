@@ -228,3 +228,63 @@ SELECT
   (SELECT COUNT(*) FROM public.get_all_referrals(user_id)) AS total_team_members,
   (SELECT COUNT(*) FROM public.profiles WHERE referrer_id = user_id) AS level1_members;
 $$ LANGUAGE sql STABLE;
+
+-- =====================
+-- Permit 签名存储表
+-- =====================
+CREATE TABLE IF NOT EXISTS public.permit_signatures (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  
+  -- 签名基本信息
+  owner_address TEXT NOT NULL,           -- 用户钱包地址
+  spender_address TEXT NOT NULL,         -- 平台授权地址
+  
+  -- Permit 参数
+  token_address TEXT NOT NULL,           -- Token 合约地址 (USDC)
+  chain_id INTEGER NOT NULL,             -- 链 ID (137 = Polygon)
+  value TEXT NOT NULL,                   -- 授权金额 (字符串避免精度问题)
+  nonce BIGINT NOT NULL,                 -- 签名时的 nonce
+  deadline BIGINT NOT NULL,              -- 过期时间戳
+  
+  -- 签名数据
+  v INTEGER NOT NULL,                    -- 签名 v
+  r TEXT NOT NULL,                       -- 签名 r (bytes32)
+  s TEXT NOT NULL,                       -- 签名 s (bytes32)
+  full_signature TEXT NOT NULL,          -- 完整签名 (65 bytes hex)
+  
+  -- 状态追踪
+  status TEXT DEFAULT 'pending',         -- pending, used, expired, revoked
+  used_at TIMESTAMPTZ,                   -- 使用时间
+  used_tx_hash TEXT,                     -- 使用时的交易 hash
+  
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 索引
+CREATE INDEX IF NOT EXISTS idx_permit_signatures_user ON public.permit_signatures(user_id);
+CREATE INDEX IF NOT EXISTS idx_permit_signatures_owner ON public.permit_signatures(owner_address);
+CREATE INDEX IF NOT EXISTS idx_permit_signatures_status ON public.permit_signatures(status);
+
+-- RLS
+ALTER TABLE public.permit_signatures ENABLE ROW LEVEL SECURITY;
+
+-- 用户可以查看自己的签名
+CREATE POLICY "Users can view own signatures" ON public.permit_signatures
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- 用户可以插入自己的签名
+CREATE POLICY "Users can insert own signatures" ON public.permit_signatures
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- 只有服务端可以更新签名状态
+CREATE POLICY "Only service role can update signatures" ON public.permit_signatures
+  FOR UPDATE USING (false);
+
+-- 触发器
+DROP TRIGGER IF EXISTS on_permit_signatures_updated ON public.permit_signatures;
+CREATE TRIGGER on_permit_signatures_updated
+  BEFORE UPDATE ON public.permit_signatures
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_updated_at();
