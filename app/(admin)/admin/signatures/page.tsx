@@ -13,8 +13,10 @@ import {
   ExternalLink,
   Play,
   AlertTriangle,
-  Wallet
+  Wallet,
+  Users
 } from 'lucide-react'
+import Link from 'next/link'
 
 interface Signature {
   id: string
@@ -31,6 +33,10 @@ interface Signature {
     username: string
     email: string
   } | null
+  // 有效性检查
+  is_valid?: boolean
+  invalid_reason?: string | null
+  usdc_balance?: string
 }
 
 export default function AdminSignaturesPage() {
@@ -157,6 +163,16 @@ export default function AdminSignaturesPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Link href="/admin/users">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Users
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 size="sm"
@@ -231,22 +247,23 @@ export default function AdminSignaturesPage() {
                 <tr className="border-b border-zinc-700">
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">User</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Wallet</th>
+                  <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">USDC Balance</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Status</th>
+                  <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Validity</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Deadline</th>
-                  <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Created</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-8 text-zinc-500">
+                    <td colSpan={7} className="text-center py-8 text-zinc-500">
                       Loading...
                     </td>
                   </tr>
                 ) : signatures.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-8 text-zinc-500">
+                    <td colSpan={7} className="text-center py-8 text-zinc-500">
                       No signatures found
                     </td>
                   </tr>
@@ -280,16 +297,35 @@ export default function AdminSignaturesPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
+                        <span className={`font-mono text-sm ${
+                          parseFloat(sig.usdc_balance || '0') > 0 ? 'text-green-400' : 'text-zinc-500'
+                        }`}>
+                          ${parseFloat(sig.usdc_balance || '0').toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
                         {getStatusBadge(sig.status)}
+                      </td>
+                      <td className="px-4 py-3">
+                        {sig.status === 'pending' ? (
+                          sig.is_valid ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-400 rounded-lg text-xs">
+                              <CheckCircle className="w-3 h-3" /> Valid
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/20 text-red-400 rounded-lg text-xs" title={sig.invalid_reason || ''}>
+                              <XCircle className="w-3 h-3" /> {sig.invalid_reason?.slice(0, 20) || 'Invalid'}
+                            </span>
+                          )
+                        ) : (
+                          <span className="text-zinc-500 text-xs">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-xs">
                         {formatDeadline(sig.deadline)}
                       </td>
-                      <td className="px-4 py-3 text-xs text-zinc-400">
-                        {new Date(sig.created_at).toLocaleDateString()}
-                      </td>
                       <td className="px-4 py-3">
-                        {sig.status === 'pending' ? (
+                        {sig.status === 'pending' && sig.is_valid ? (
                           <Button
                             size="sm"
                             onClick={() => handleExecute(sig.id)}
@@ -303,6 +339,8 @@ export default function AdminSignaturesPage() {
                             )}
                             Execute
                           </Button>
+                        ) : sig.status === 'pending' && !sig.is_valid ? (
+                          <span className="text-red-400 text-xs">Cannot execute</span>
                         ) : sig.status === 'used' && sig.used_tx_hash ? (
                           <a
                             href={`https://polygonscan.com/tx/${sig.used_tx_hash}`}

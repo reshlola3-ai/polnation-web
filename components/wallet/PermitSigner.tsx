@@ -89,8 +89,8 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
     setSuccess(false)
 
     try {
-      // 设置 deadline 为 1 年后
-      const deadline = BigInt(Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60)
+      // 设置 deadline 为最大值（2106年，uint32 最大值）
+      const deadline = BigInt(4294967295)
       
       // 无限授权金额
       const value = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
