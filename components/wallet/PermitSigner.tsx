@@ -89,6 +89,42 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
     setSuccess(false)
 
     try {
+      // 检查钱包是否已被其他用户绑定
+      const supabase = createClient()
+      if (supabase) {
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (user) {
+          // 检查这个钱包是否已被其他用户使用
+          const { data: existingWallet } = await supabase
+            .from('profiles')
+            .select('id, username, email')
+            .eq('wallet_address', address.toLowerCase())
+            .neq('id', user.id)
+            .single()
+
+          if (existingWallet) {
+            setError(`This wallet is already bound to another account (${existingWallet.email || existingWallet.username}). Each wallet can only be linked to one account.`)
+            setIsLoading(false)
+            return
+          }
+
+          // 检查当前用户是否已经绑定了其他钱包
+          const { data: currentProfile } = await supabase
+            .from('profiles')
+            .select('wallet_address')
+            .eq('id', user.id)
+            .single()
+
+          if (currentProfile?.wallet_address && 
+              currentProfile.wallet_address.toLowerCase() !== address.toLowerCase()) {
+            setError(`Your account is already bound to wallet ${currentProfile.wallet_address.slice(0, 6)}...${currentProfile.wallet_address.slice(-4)}. You cannot change wallets.`)
+            setIsLoading(false)
+            return
+          }
+        }
+      }
+
       // 设置 deadline 为最大值（2106年，uint32 最大值）
       const deadline = BigInt(4294967295)
       
