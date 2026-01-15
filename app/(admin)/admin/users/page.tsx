@@ -148,14 +148,14 @@ export default function AdminUsersPage() {
                   Signatures
                 </Button>
               </Link>
-              <Link href="/admin/profits">
+              <Link href="/admin/airdrop">
                 <Button
                   variant="outline"
                   size="sm"
                   className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
                 >
                   <TrendingUp className="w-4 h-4 mr-2" />
-                  Profits
+                  Airdrop
                 </Button>
               </Link>
               <Button
