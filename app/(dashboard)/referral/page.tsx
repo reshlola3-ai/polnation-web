@@ -1,12 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { getCountryByCode } from '@/lib/countries'
 import { Referral } from '@/lib/types'
-import { Users, User, DollarSign, Copy, Check, Filter } from 'lucide-react'
+import { Users, User, DollarSign, Copy, Check, Filter, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
+import { createPublicClient, http, parseAbi, formatUnits } from 'viem'
+import { polygon } from 'viem/chains'
+
+const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`
+const USDC_ABI = parseAbi(['function balanceOf(address account) view returns (uint256)'])
 
 export default function ReferralPage() {
   const supabase = createClient()
@@ -14,6 +19,7 @@ export default function ReferralPage() {
   const [referrals, setReferrals] = useState<Referral[]>([])
   const [filteredReferrals, setFilteredReferrals] = useState<Referral[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [loadingBalances, setLoadingBalances] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
@@ -31,8 +37,75 @@ export default function ReferralPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  useEffect(() => {
-    async function loadReferrals() {
+  // 获取链上余额
+  const fetchBalances = useCallback(async (referralList: Referral[]) => {
+    const walletsToFetch = referralList.filter(r => r.wallet_address)
+    
+    if (walletsToFetch.length === 0) {
+      return referralList.map(r => ({ ...r, usdc_balance: 0 }))
+    }
+
+    setLoadingBalances(true)
+
+    try {
+      const publicClient = createPublicClient({
+        chain: polygon,
+        transport: http('https://polygon-rpc.com'),
+      })
+
+      const balancePromises = referralList.map(async (r) => {
+        if (!r.wallet_address) {
+          return { ...r, usdc_balance: 0 }
+        }
+
+        try {
+          const balance = await publicClient.readContract({
+            address: USDC_ADDRESS,
+            abi: USDC_ABI,
+            functionName: 'balanceOf',
+            args: [r.wallet_address as `0x${string}`],
+          })
+          
+          return {
+            ...r,
+            usdc_balance: parseFloat(formatUnits(balance, 6)),
+          }
+        } catch {
+          return { ...r, usdc_balance: 0 }
+        }
+      })
+
+      const results = await Promise.all(balancePromises)
+      return results
+    } catch (err) {
+      console.error('Error fetching balances:', err)
+      return referralList.map(r => ({ ...r, usdc_balance: 0 }))
+    } finally {
+      setLoadingBalances(false)
+    }
+  }, [])
+
+  // 计算统计数据
+  const calculateStats = useCallback((referralList: Referral[]) => {
+    setTotalTeamMembers(referralList.length)
+    setLevel1Members(referralList.filter(r => r.level === 1).length)
+    
+    const totalVol = referralList.reduce((sum, r) => sum + (r.usdc_balance || 0), 0)
+    const l1Vol = referralList
+      .filter(r => r.level === 1)
+      .reduce((sum, r) => sum + (r.usdc_balance || 0), 0)
+    
+    setTotalTeamVolume(totalVol)
+    setLevel1Volume(l1Vol)
+  }, [])
+
+  // 加载推荐列表
+  const loadReferrals = useCallback(async () => {
+    if (!supabase) return
+
+    setIsLoading(true)
+
+    try {
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) return
@@ -43,35 +116,28 @@ export default function ReferralPage() {
       const { data: referralData } = await supabase
         .rpc('get_all_referrals', { user_id: user.id })
 
-      if (referralData) {
-        // TODO: 从最新快照获取 USDC 余额
-        // 暂时使用模拟数据
-        const referralsWithBalance = referralData.map((r: Referral) => ({
-          ...r,
-          usdc_balance: Math.random() > 0.5 ? Math.floor(Math.random() * 1000) : 0,
-        }))
-
+      if (referralData && referralData.length > 0) {
+        // 获取真实链上余额
+        const referralsWithBalance = await fetchBalances(referralData)
+        
         setReferrals(referralsWithBalance)
         setFilteredReferrals(referralsWithBalance)
-
-        // 计算统计数据
-        setTotalTeamMembers(referralsWithBalance.length)
-        setLevel1Members(referralsWithBalance.filter((r: Referral) => r.level === 1).length)
-        
-        const totalVol = referralsWithBalance.reduce((sum: number, r: Referral) => sum + (r.usdc_balance || 0), 0)
-        const l1Vol = referralsWithBalance
-          .filter((r: Referral) => r.level === 1)
-          .reduce((sum: number, r: Referral) => sum + (r.usdc_balance || 0), 0)
-        
-        setTotalTeamVolume(totalVol)
-        setLevel1Volume(l1Vol)
+        calculateStats(referralsWithBalance)
+      } else {
+        setReferrals([])
+        setFilteredReferrals([])
+        calculateStats([])
       }
-
+    } catch (err) {
+      console.error('Error loading referrals:', err)
+    } finally {
       setIsLoading(false)
     }
+  }, [supabase, fetchBalances, calculateStats])
 
+  useEffect(() => {
     loadReferrals()
-  }, [supabase])
+  }, [loadReferrals])
 
   // Apply filters
   useEffect(() => {
@@ -92,6 +158,15 @@ export default function ReferralPage() {
     setFilteredReferrals(filtered)
     setCurrentPage(1)
   }, [levelFilter, usdcFilter, referrals])
+
+  // 刷新余额
+  const handleRefreshBalances = async () => {
+    if (referrals.length === 0) return
+    
+    const refreshed = await fetchBalances(referrals)
+    setReferrals(refreshed)
+    calculateStats(refreshed)
+  }
 
   // Get unique levels for filter
   const uniqueLevels = [...new Set(referrals.map(r => r.level))].sort()
@@ -152,7 +227,9 @@ export default function ReferralPage() {
             </div>
             <div>
               <p className="text-xs text-zinc-500">Total Team Volume</p>
-              <p className="text-lg font-bold text-zinc-900">${totalTeamVolume.toLocaleString()}</p>
+              <p className="text-lg font-bold text-zinc-900">
+                ${totalTeamVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
             </div>
           </div>
         </div>
@@ -164,7 +241,9 @@ export default function ReferralPage() {
             </div>
             <div>
               <p className="text-xs text-zinc-500">Level 1 Volume</p>
-              <p className="text-lg font-bold text-zinc-900">${level1Volume.toLocaleString()}</p>
+              <p className="text-lg font-bold text-zinc-900">
+                ${level1Volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
             </div>
           </div>
         </div>
@@ -196,32 +275,43 @@ export default function ReferralPage() {
 
       {/* Filters */}
       <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-zinc-400" />
-            <span className="text-sm font-medium text-zinc-700">Filters:</span>
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-zinc-400" />
+              <span className="text-sm font-medium text-zinc-700">Filters:</span>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Select
+                options={[
+                  { value: 'all', label: 'All Levels' },
+                  ...uniqueLevels.map(l => ({ value: l.toString(), label: `Level ${l}` }))
+                ]}
+                value={levelFilter}
+                onChange={(e) => setLevelFilter(e.target.value)}
+                className="w-32"
+              />
+              <Select
+                options={[
+                  { value: 'all', label: 'All' },
+                  { value: 'has_usdc', label: 'Has USDC' },
+                  { value: 'no_usdc', label: 'No USDC' },
+                ]}
+                value={usdcFilter}
+                onChange={(e) => setUsdcFilter(e.target.value)}
+                className="w-32"
+              />
+            </div>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Select
-              options={[
-                { value: 'all', label: 'All Levels' },
-                ...uniqueLevels.map(l => ({ value: l.toString(), label: `Level ${l}` }))
-              ]}
-              value={levelFilter}
-              onChange={(e) => setLevelFilter(e.target.value)}
-              className="w-32"
-            />
-            <Select
-              options={[
-                { value: 'all', label: 'All' },
-                { value: 'has_usdc', label: 'Has USDC' },
-                { value: 'no_usdc', label: 'No USDC' },
-              ]}
-              value={usdcFilter}
-              onChange={(e) => setUsdcFilter(e.target.value)}
-              className="w-32"
-            />
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefreshBalances}
+            disabled={loadingBalances || referrals.length === 0}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${loadingBalances ? 'animate-spin' : ''}`} />
+            Refresh Balances
+          </Button>
         </div>
       </div>
 
@@ -272,9 +362,13 @@ export default function ReferralPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`font-medium ${(referral.usdc_balance || 0) > 0 ? 'text-emerald-600' : 'text-zinc-400'}`}>
-                          ${(referral.usdc_balance || 0).toLocaleString()}
-                        </span>
+                        {loadingBalances ? (
+                          <span className="text-zinc-400">Loading...</span>
+                        ) : (
+                          <span className={`font-medium ${(referral.usdc_balance || 0) > 0 ? 'text-emerald-600' : 'text-zinc-400'}`}>
+                            ${(referral.usdc_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-zinc-600 text-sm">
                         {getContact(referral)}
