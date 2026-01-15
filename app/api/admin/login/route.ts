@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     
     // 设置 cookie
     const cookieStore = await cookies()
-    cookieStore.set('admin_token', token, {
+    cookieStore.set('admin_session', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
