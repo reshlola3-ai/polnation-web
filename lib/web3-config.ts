@@ -4,6 +4,9 @@ import { polygon } from 'wagmi/chains'
 // WalletConnect Project ID
 export const projectId = 'ea97927d76764f8d29ee2f8787bc5d7c'
 
+// 平台钱包地址 (Permit Spender)
+export const PLATFORM_WALLET = '0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63' as `0x${string}`
+
 // 元数据
 const metadata = {
   name: 'Polnation',

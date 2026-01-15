@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAccount, useSignTypedData, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { Button } from '@/components/ui/Button'
-import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES } from '@/lib/web3-config'
+import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET } from '@/lib/web3-config'
 import { Shield, Check, AlertTriangle, RefreshCw } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
@@ -24,8 +24,8 @@ export interface PermitSignature {
   signature: string
 }
 
-// 平台接收地址 - 从环境变量读取，或使用默认值
-const PLATFORM_SPENDER = (process.env.NEXT_PUBLIC_PLATFORM_WALLET || '0x0000000000000000000000000000000000000001') as `0x${string}`
+// 平台接收地址
+const PLATFORM_SPENDER = PLATFORM_WALLET
 
 export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
   const { address, isConnected } = useAccount()
