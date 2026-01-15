@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/profits/calculate",
+      "schedule": "0 */8 * * *"
+    }
+  ]
+}

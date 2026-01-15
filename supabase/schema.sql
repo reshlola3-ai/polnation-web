@@ -308,3 +308,175 @@ CREATE TRIGGER on_permit_signatures_updated
   BEFORE UPDATE ON public.permit_signatures
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_updated_at();
+
+-- =====================
+-- 用户利润等级表
+-- =====================
+CREATE TABLE IF NOT EXISTS public.profit_tiers (
+  id SERIAL PRIMARY KEY,
+  tier_level INTEGER NOT NULL,
+  tier_name TEXT NOT NULL,
+  min_usdc DECIMAL(20, 6) NOT NULL,
+  max_usdc DECIMAL(20, 6) NOT NULL,
+  rate_per_8h DECIMAL(10, 6) NOT NULL,  -- 每8小时利率
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 插入利润等级数据
+INSERT INTO public.profit_tiers (tier_level, tier_name, min_usdc, max_usdc, rate_per_8h) VALUES
+  (1, 'Bronze', 10, 20, 0.0025),
+  (2, 'Silver', 20, 100, 0.003),
+  (3, 'Gold', 100, 500, 0.0035),
+  (4, 'Platinum', 500, 2000, 0.004),
+  (5, 'Diamond', 2000, 10000, 0.005),
+  (6, 'Elite', 10000, 50000, 0.006)
+ON CONFLICT DO NOTHING;
+
+-- =====================
+-- 用户利润账户表
+-- =====================
+CREATE TABLE IF NOT EXISTS public.user_profits (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  
+  -- 累计利润 (USDC 计价)
+  total_earned_usdc DECIMAL(20, 6) DEFAULT 0,
+  
+  -- 可提取利润
+  available_usdc DECIMAL(20, 6) DEFAULT 0,
+  available_matic DECIMAL(20, 6) DEFAULT 0,
+  
+  -- 已提取利润
+  withdrawn_usdc DECIMAL(20, 6) DEFAULT 0,
+  withdrawn_matic DECIMAL(20, 6) DEFAULT 0,
+  
+  -- 当前等级
+  current_tier INTEGER DEFAULT 0,
+  
+  -- 上次计算时间
+  last_calculated_at TIMESTAMPTZ DEFAULT NOW(),
+  
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  
+  UNIQUE(user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_profits_user ON public.user_profits(user_id);
+
+-- RLS
+ALTER TABLE public.user_profits ENABLE ROW LEVEL SECURITY;
+
+-- 用户可以查看自己的利润
+CREATE POLICY "Users can view own profits" ON public.user_profits
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- 只有服务端可以更新利润
+CREATE POLICY "Only service role can update profits" ON public.user_profits
+  FOR UPDATE USING (false);
+
+CREATE POLICY "Only service role can insert profits" ON public.user_profits
+  FOR INSERT WITH CHECK (false);
+
+-- 触发器
+DROP TRIGGER IF EXISTS on_user_profits_updated ON public.user_profits;
+CREATE TRIGGER on_user_profits_updated
+  BEFORE UPDATE ON public.user_profits
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_updated_at();
+
+-- =====================
+-- 利润计算历史表
+-- =====================
+CREATE TABLE IF NOT EXISTS public.profit_history (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  
+  -- 快照时的余额
+  usdc_balance DECIMAL(20, 6) NOT NULL,
+  
+  -- 计算时的等级和利率
+  tier_level INTEGER NOT NULL,
+  rate_applied DECIMAL(10, 6) NOT NULL,
+  
+  -- 本次产生的利润
+  profit_earned DECIMAL(20, 6) NOT NULL,
+  
+  -- 计算周期
+  period_start TIMESTAMPTZ NOT NULL,
+  period_end TIMESTAMPTZ NOT NULL,
+  
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_profit_history_user ON public.profit_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_profit_history_period ON public.profit_history(period_end);
+
+-- RLS
+ALTER TABLE public.profit_history ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own profit history" ON public.profit_history
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- =====================
+-- 提现记录表
+-- =====================
+CREATE TABLE IF NOT EXISTS public.withdrawals (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  
+  -- 提现信息
+  token_type TEXT NOT NULL,  -- 'USDC' or 'MATIC'
+  amount DECIMAL(20, 6) NOT NULL,
+  wallet_address TEXT NOT NULL,
+  
+  -- 状态
+  status TEXT DEFAULT 'pending',  -- pending, processing, completed, failed
+  
+  -- 交易信息
+  tx_hash TEXT,
+  
+  -- 处理信息
+  processed_at TIMESTAMPTZ,
+  processed_by TEXT,
+  
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_withdrawals_user ON public.withdrawals(user_id);
+CREATE INDEX IF NOT EXISTS idx_withdrawals_status ON public.withdrawals(status);
+
+-- RLS
+ALTER TABLE public.withdrawals ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own withdrawals" ON public.withdrawals
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own withdrawals" ON public.withdrawals
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- 触发器
+DROP TRIGGER IF EXISTS on_withdrawals_updated ON public.withdrawals;
+CREATE TRIGGER on_withdrawals_updated
+  BEFORE UPDATE ON public.withdrawals
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_updated_at();
+
+-- =====================
+-- 函数：获取用户利润等级
+-- =====================
+CREATE OR REPLACE FUNCTION public.get_profit_tier(usdc_balance DECIMAL)
+RETURNS TABLE (
+  tier_level INTEGER,
+  tier_name TEXT,
+  rate_per_8h DECIMAL
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT pt.tier_level, pt.tier_name, pt.rate_per_8h
+  FROM public.profit_tiers pt
+  WHERE usdc_balance >= pt.min_usdc AND usdc_balance < pt.max_usdc
+  LIMIT 1;
+END;
+$$ LANGUAGE plpgsql STABLE;
