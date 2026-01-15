@@ -109,6 +109,14 @@ export default async function HomePage() {
               </div>
               <span className="font-bold text-xl text-zinc-900">Polnation</span>
             </div>
+            <div className="flex items-center gap-6">
+              <Link href="/privacy" className="text-sm text-zinc-500 hover:text-zinc-700">
+                Privacy Policy
+              </Link>
+              <Link href="/terms" className="text-sm text-zinc-500 hover:text-zinc-700">
+                Terms of Service
+              </Link>
+            </div>
             <p className="text-sm text-zinc-500">
               © 2026 Polnation. All rights reserved.
             </p>
