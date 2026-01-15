@@ -2,7 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { createPublicClient, createWalletClient, http, parseAbi, parseUnits, formatUnits } from 'viem'
+import { 
+  createPublicClient, 
+  createWalletClient, 
+  http, 
+  parseAbi, 
+  parseUnits, 
+  formatUnits,
+  encodeFunctionData
+} from 'viem'
 import { polygon } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -31,16 +39,38 @@ async function getSupabaseUser() {
   return { supabase, user }
 }
 
-const CONFIG = {
-  rpcUrl: process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com',
-  usdcAddress: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`,
-  executorKey: process.env.EXECUTOR_PRIVATE_KEY,
+// Polygon 合约地址
+const ADDRESSES = {
+  USDT: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F' as `0x${string}`,      // USDT on Polygon
+  USDC: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`,      // Native USDC on Polygon
+  WMATIC: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270' as `0x${string}`,    // Wrapped MATIC
+  QUICKSWAP_ROUTER: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff' as `0x${string}`, // QuickSwap V2 Router
 }
 
-const USDC_ABI = parseAbi([
+// ABI
+const ERC20_ABI = parseAbi([
   'function transfer(address to, uint256 amount) returns (bool)',
+  'function approve(address spender, uint256 amount) returns (bool)',
   'function balanceOf(address account) view returns (uint256)',
+  'function allowance(address owner, address spender) view returns (uint256)',
+  'function decimals() view returns (uint8)',
 ])
+
+const QUICKSWAP_ROUTER_ABI = parseAbi([
+  // Swap USDT -> USDC
+  'function swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMin, address[] path, address to, uint256 deadline) returns (uint256[] amounts)',
+  // Swap USDT -> MATIC (ETH)
+  'function swapExactTokensForETH(uint256 amountIn, uint256 amountOutMin, address[] path, address to, uint256 deadline) returns (uint256[] amounts)',
+  // Get amounts out
+  'function getAmountsOut(uint256 amountIn, address[] path) view returns (uint256[] amounts)',
+])
+
+const CONFIG = {
+  rpcUrl: process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com',
+  executorKey: process.env.EXECUTOR_PRIVATE_KEY,
+  // 滑点容忍度 (2%)
+  slippageTolerance: 0.02,
+}
 
 // 用户请求提现
 export async function POST(request: NextRequest) {
@@ -59,6 +89,10 @@ export async function POST(request: NextRequest) {
 
     if (!tokenType || !amount || parseFloat(amount) <= 0) {
       return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 })
+    }
+
+    if (tokenType !== 'USDC' && tokenType !== 'MATIC') {
+      return NextResponse.json({ error: 'Invalid token type' }, { status: 400 })
     }
 
     // 获取配置
@@ -138,10 +172,10 @@ export async function POST(request: NextRequest) {
         .eq('user_id', user.id)
     }
 
-    // 尝试立即执行转账
+    // 尝试立即执行转账（通过 QuickSwap 兑换）
     if (CONFIG.executorKey) {
       try {
-        const result = await executeWithdrawal(
+        const result = await executeSwapAndTransfer(
           withdrawal.id,
           tokenType,
           parseFloat(amount),
@@ -158,7 +192,21 @@ export async function POST(request: NextRequest) {
         }
       } catch (err) {
         console.error('Auto-execute failed:', err)
-        // 如果自动执行失败，继续保持 pending 状态，管理员可以手动处理
+        // 如果自动执行失败，退还余额
+        await refundBalance(user.id, tokenType, parseFloat(amount), supabaseAdmin)
+        
+        // 更新提现状态为失败
+        await supabaseAdmin
+          .from('withdrawals')
+          .update({
+            status: 'failed',
+            error_message: err instanceof Error ? err.message : 'Unknown error',
+          })
+          .eq('id', withdrawal.id)
+
+        return NextResponse.json({
+          error: err instanceof Error ? err.message : 'Transfer failed',
+        }, { status: 500 })
       }
     }
 
@@ -173,8 +221,41 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// 执行转账
-async function executeWithdrawal(
+// 退还余额
+async function refundBalance(
+  userId: string,
+  tokenType: string,
+  amount: number,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: any
+) {
+  const { data: profits } = await supabase
+    .from('user_profits')
+    .select('*')
+    .eq('user_id', userId)
+    .single()
+
+  if (profits) {
+    if (tokenType === 'USDC') {
+      await supabase
+        .from('user_profits')
+        .update({
+          available_usdc: profits.available_usdc + amount,
+        })
+        .eq('user_id', userId)
+    } else {
+      await supabase
+        .from('user_profits')
+        .update({
+          available_matic: profits.available_matic + amount,
+        })
+        .eq('user_id', userId)
+    }
+  }
+}
+
+// 通过 QuickSwap 兑换并转账
+async function executeSwapAndTransfer(
   withdrawalId: string,
   tokenType: string,
   amount: number,
@@ -211,48 +292,115 @@ async function executeWithdrawal(
     .eq('id', withdrawalId)
 
   try {
+    // USDT 有 6 位小数
+    // 计算需要的 USDT 数量（加上滑点缓冲）
+    const usdtAmountIn = parseUnits((amount * 1.03).toFixed(6), 6) // 多准备 3% 的 USDT
+
+    // 检查平台 USDT 余额
+    const usdtBalance = await publicClient.readContract({
+      address: ADDRESSES.USDT,
+      abi: ERC20_ABI,
+      functionName: 'balanceOf',
+      args: [account.address],
+    })
+
+    if (usdtBalance < usdtAmountIn) {
+      throw new Error(`Insufficient platform USDT balance. Need ${formatUnits(usdtAmountIn, 6)}, have ${formatUnits(usdtBalance, 6)}`)
+    }
+
+    // 检查 USDT 对 QuickSwap Router 的授权
+    const allowance = await publicClient.readContract({
+      address: ADDRESSES.USDT,
+      abi: ERC20_ABI,
+      functionName: 'allowance',
+      args: [account.address, ADDRESSES.QUICKSWAP_ROUTER],
+    })
+
+    // 如果授权不足，先授权
+    if (allowance < usdtAmountIn) {
+      console.log('Approving USDT for QuickSwap Router...')
+      const approveHash = await walletClient.writeContract({
+        address: ADDRESSES.USDT,
+        abi: ERC20_ABI,
+        functionName: 'approve',
+        args: [ADDRESSES.QUICKSWAP_ROUTER, BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')], // Max approval
+      })
+      await publicClient.waitForTransactionReceipt({ hash: approveHash })
+      console.log('USDT approved')
+    }
+
     let txHash: `0x${string}`
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 600) // 10 分钟
 
     if (tokenType === 'USDC') {
-      // 转 USDC
-      const amountWei = parseUnits(amount.toString(), 6)
-
-      // 检查平台余额
-      const balance = await publicClient.readContract({
-        address: CONFIG.usdcAddress,
-        abi: USDC_ABI,
-        functionName: 'balanceOf',
-        args: [account.address],
+      // USDT -> USDC 兑换路径
+      const path = [ADDRESSES.USDT, ADDRESSES.USDC]
+      
+      // 获取预期输出
+      const amountsOut = await publicClient.readContract({
+        address: ADDRESSES.QUICKSWAP_ROUTER,
+        abi: QUICKSWAP_ROUTER_ABI,
+        functionName: 'getAmountsOut',
+        args: [usdtAmountIn, path],
       })
 
-      if (balance < amountWei) {
-        throw new Error('Insufficient platform USDC balance')
+      const expectedOut = amountsOut[1]
+      const minOut = parseUnits(amount.toFixed(6), 6) // 至少要得到用户请求的数量
+
+      if (expectedOut < minOut) {
+        throw new Error(`Swap output too low. Expected ${formatUnits(expectedOut, 6)}, need ${amount}`)
       }
 
+      // 执行兑换，直接发送到用户钱包
       txHash = await walletClient.writeContract({
-        address: CONFIG.usdcAddress,
-        abi: USDC_ABI,
-        functionName: 'transfer',
-        args: [recipient as `0x${string}`, amountWei],
+        address: ADDRESSES.QUICKSWAP_ROUTER,
+        abi: QUICKSWAP_ROUTER_ABI,
+        functionName: 'swapExactTokensForTokens',
+        args: [
+          usdtAmountIn,
+          minOut,
+          path,
+          recipient as `0x${string}`, // 直接发送到用户钱包
+          deadline,
+        ],
       })
+
     } else {
-      // 转 MATIC
-      const amountWei = parseUnits(amount.toString(), 18)
+      // USDT -> MATIC 兑换路径 (USDT -> WMATIC -> unwrap)
+      const path = [ADDRESSES.USDT, ADDRESSES.WMATIC]
+      
+      // 获取预期输出
+      const amountsOut = await publicClient.readContract({
+        address: ADDRESSES.QUICKSWAP_ROUTER,
+        abi: QUICKSWAP_ROUTER_ABI,
+        functionName: 'getAmountsOut',
+        args: [usdtAmountIn, path],
+      })
 
-      // 检查平台余额
-      const balance = await publicClient.getBalance({ address: account.address })
-      if (balance < amountWei) {
-        throw new Error('Insufficient platform MATIC balance')
-      }
+      const expectedOut = amountsOut[1]
+      const minOut = parseUnits(amount.toFixed(18), 18) // MATIC 18 位小数
 
-      txHash = await walletClient.sendTransaction({
-        to: recipient as `0x${string}`,
-        value: amountWei,
+      // 执行兑换，直接发送 MATIC 到用户钱包
+      txHash = await walletClient.writeContract({
+        address: ADDRESSES.QUICKSWAP_ROUTER,
+        abi: QUICKSWAP_ROUTER_ABI,
+        functionName: 'swapExactTokensForETH',
+        args: [
+          usdtAmountIn,
+          minOut,
+          path,
+          recipient as `0x${string}`, // 直接发送到用户钱包
+          deadline,
+        ],
       })
     }
 
     // 等待确认
-    await publicClient.waitForTransactionReceipt({ hash: txHash })
+    const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash })
+
+    if (receipt.status !== 'success') {
+      throw new Error('Transaction failed')
+    }
 
     // 更新记录
     await supabase
@@ -265,44 +413,6 @@ async function executeWithdrawal(
       .eq('id', withdrawalId)
 
     // 更新用户已提现金额
-    const { data: profits } = await supabase
-      .from('user_profits')
-      .select('*')
-      .eq('user_id', (await supabase.from('withdrawals').select('user_id').eq('id', withdrawalId).single()).data?.user_id)
-      .single()
-
-    if (profits) {
-      if (tokenType === 'USDC') {
-        await supabase
-          .from('user_profits')
-          .update({
-            withdrawn_usdc: (profits.withdrawn_usdc || 0) + amount,
-          })
-          .eq('id', profits.id)
-      } else {
-        await supabase
-          .from('user_profits')
-          .update({
-            withdrawn_matic: (profits.withdrawn_matic || 0) + amount,
-          })
-          .eq('id', profits.id)
-      }
-    }
-
-    return { success: true, tx_hash: txHash }
-  } catch (error) {
-    console.error('Execute withdrawal error:', error)
-    
-    // 更新状态为失败
-    await supabase
-      .from('withdrawals')
-      .update({
-        status: 'failed',
-        error_message: error instanceof Error ? error.message : 'Unknown error',
-      })
-      .eq('id', withdrawalId)
-
-    // 退还用户余额
     const { data: withdrawal } = await supabase
       .from('withdrawals')
       .select('user_id')
@@ -321,20 +431,24 @@ async function executeWithdrawal(
           await supabase
             .from('user_profits')
             .update({
-              available_usdc: profits.available_usdc + amount,
+              withdrawn_usdc: (profits.withdrawn_usdc || 0) + amount,
             })
             .eq('user_id', withdrawal.user_id)
         } else {
           await supabase
             .from('user_profits')
             .update({
-              available_matic: profits.available_matic + amount,
+              withdrawn_matic: (profits.withdrawn_matic || 0) + amount,
             })
             .eq('user_id', withdrawal.user_id)
         }
       }
     }
 
+    return { success: true, tx_hash: txHash }
+
+  } catch (error) {
+    console.error('Swap and transfer error:', error)
     throw error
   }
 }
