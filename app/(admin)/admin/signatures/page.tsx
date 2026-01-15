@@ -14,7 +14,8 @@ import {
   Play,
   AlertTriangle,
   Wallet,
-  Users
+  Users,
+  TrendingUp
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -171,6 +172,16 @@ export default function AdminSignaturesPage() {
                 >
                   <Users className="w-4 h-4 mr-2" />
                   Users
+                </Button>
+              </Link>
+              <Link href="/admin/profits">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                >
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Profits
                 </Button>
               </Link>
               <Button
