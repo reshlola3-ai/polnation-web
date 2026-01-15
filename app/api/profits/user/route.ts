@@ -76,6 +76,17 @@ export async function GET() {
       .order('created_at', { ascending: false })
       .limit(10)
 
+    // 获取佣金记录（最近20条）
+    const { data: commissions } = await supabaseAdmin
+      .from('referral_commissions')
+      .select(`
+        *,
+        source_user:profiles!referral_commissions_source_user_id_fkey(username, email)
+      `)
+      .eq('beneficiary_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20)
+
     // 计算下次发放时间
     let nextDistribution = null
     if (config?.last_distribution_at) {
@@ -95,6 +106,7 @@ export async function GET() {
     return NextResponse.json({
       profits: profits || {
         total_earned_usdc: 0,
+        total_commission_earned: 0,
         available_usdc: 0,
         available_matic: 0,
         withdrawn_usdc: 0,
@@ -102,6 +114,7 @@ export async function GET() {
         current_tier: null,
       },
       history: history || [],
+      commissions: commissions || [],
       withdrawals: withdrawals || [],
       tiers: tiers || [],
       config: {

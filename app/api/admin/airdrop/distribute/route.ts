@@ -9,7 +9,18 @@ function getSupabaseAdmin() {
   return createClient(url, key)
 }
 
-// 确认发放（将利润写入用户账户）
+interface CommissionRate {
+  level: number
+  rate_percent: number
+  is_active: boolean
+}
+
+interface UplineInfo {
+  upline_id: string
+  level: number
+}
+
+// 确认发放（将利润写入用户账户 + 推荐佣金）
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
   const adminSession = cookieStore.get('admin_session')
@@ -57,9 +68,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No calculations to distribute' }, { status: 400 })
     }
 
+    // 获取推荐佣金比例
+    const { data: commissionRates } = await supabase
+      .from('referral_commission_rates')
+      .select('*')
+      .eq('is_active', true)
+      .order('level')
+
+    const ratesMap = new Map<number, number>()
+    if (commissionRates) {
+      commissionRates.forEach((r: CommissionRate) => {
+        ratesMap.set(r.level, r.rate_percent)
+      })
+    }
+
     const now = new Date().toISOString()
     let distributedCount = 0
     let totalDistributed = 0
+    let totalCommissions = 0
+    let commissionCount = 0
 
     // 为每个用户发放利润
     for (const calc of calculations) {
@@ -118,6 +145,77 @@ export async function POST(request: NextRequest) {
         distributedCount++
         totalDistributed += calc.profit_usdc
 
+        // ========== 计算并发放推荐佣金 ==========
+        if (ratesMap.size > 0 && calc.profit_usdc > 0) {
+          // 获取用户的上线链
+          const { data: uplineChain } = await supabase
+            .rpc('get_upline_chain', { 
+              user_id: calc.user_id,
+              max_levels: 6
+            })
+
+          if (uplineChain && uplineChain.length > 0) {
+            for (const upline of uplineChain as UplineInfo[]) {
+              const rate = ratesMap.get(upline.level)
+              if (!rate) continue
+
+              // 计算佣金
+              const commissionAmount = calc.profit_usdc * (rate / 100)
+              
+              if (commissionAmount <= 0) continue
+
+              // 记录佣金
+              await supabase
+                .from('referral_commissions')
+                .insert({
+                  beneficiary_id: upline.upline_id,
+                  source_user_id: calc.user_id,
+                  round_id: round_id,
+                  level: upline.level,
+                  source_profit: calc.profit_usdc,
+                  commission_rate: rate,
+                  commission_amount: commissionAmount,
+                  is_credited: true,
+                })
+
+              // 获取上线的利润记录
+              const { data: uplineProfit } = await supabase
+                .from('user_profits')
+                .select('*')
+                .eq('user_id', upline.upline_id)
+                .single()
+
+              if (uplineProfit) {
+                // 更新上线的佣金余额
+                await supabase
+                  .from('user_profits')
+                  .update({
+                    total_commission_earned: (uplineProfit.total_commission_earned || 0) + commissionAmount,
+                    available_usdc: uplineProfit.available_usdc + commissionAmount,
+                    updated_at: now,
+                  })
+                  .eq('user_id', upline.upline_id)
+              } else {
+                // 创建上线的利润记录
+                await supabase
+                  .from('user_profits')
+                  .insert({
+                    user_id: upline.upline_id,
+                    total_earned_usdc: 0,
+                    total_commission_earned: commissionAmount,
+                    available_usdc: commissionAmount,
+                    available_matic: 0,
+                    withdrawn_usdc: 0,
+                    withdrawn_matic: 0,
+                  })
+              }
+
+              totalCommissions += commissionAmount
+              commissionCount++
+            }
+          }
+        }
+
       } catch (err) {
         console.error(`Error distributing to user ${calc.user_id}:`, err)
       }
@@ -146,6 +244,8 @@ export async function POST(request: NextRequest) {
       success: true,
       distributed_count: distributedCount,
       total_distributed: totalDistributed.toFixed(6),
+      commission_count: commissionCount,
+      total_commissions: totalCommissions.toFixed(6),
     })
   } catch (error) {
     console.error('Distribute error:', error)
@@ -173,6 +273,12 @@ export async function DELETE(request: NextRequest) {
     if (!round_id) {
       return NextResponse.json({ error: 'round_id is required' }, { status: 400 })
     }
+
+    // 删除佣金记录
+    await supabase
+      .from('referral_commissions')
+      .delete()
+      .eq('round_id', round_id)
 
     // 删除计算结果
     await supabase

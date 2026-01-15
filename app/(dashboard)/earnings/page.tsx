@@ -14,7 +14,8 @@ import {
   CheckCircle,
   Loader2,
   ExternalLink,
-  Timer
+  Timer,
+  Users
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { useAccount, useReadContract } from 'wagmi'
@@ -32,11 +33,25 @@ interface ProfitTier {
 
 interface ProfitData {
   total_earned_usdc: number
+  total_commission_earned: number
   available_usdc: number
   available_matic: number
   withdrawn_usdc: number
   withdrawn_matic: number
   current_tier: number | null
+}
+
+interface CommissionItem {
+  id: string
+  level: number
+  source_profit: number
+  commission_rate: number
+  commission_amount: number
+  created_at: string
+  source_user: {
+    username: string
+    email: string
+  } | null
 }
 
 interface HistoryItem {
@@ -70,6 +85,7 @@ export default function EarningsPage() {
   const [tiers, setTiers] = useState<ProfitTier[]>([])
   const [config, setConfig] = useState<ConfigData | null>(null)
   const [history, setHistory] = useState<HistoryItem[]>([])
+  const [commissions, setCommissions] = useState<CommissionItem[]>([])
   const [withdrawals, setWithdrawals] = useState<WithdrawalItem[]>([])
   const [nextDistribution, setNextDistribution] = useState<{ next_at: string; seconds_remaining: number } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -102,6 +118,7 @@ export default function EarningsPage() {
         const data = await res.json()
         setProfits(data.profits)
         setHistory(data.history)
+        setCommissions(data.commissions || [])
         setWithdrawals(data.withdrawals)
         setTiers(data.tiers)
         setConfig(data.config)
@@ -324,16 +341,30 @@ export default function EarningsPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-xs text-zinc-500">累计收益</p>
+              <p className="text-xs text-zinc-500">Staking 收益</p>
               <p className="text-lg font-bold text-zinc-900">
                 ${(profits?.total_earned_usdc || 0).toFixed(4)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+              <Users className="w-5 h-5 text-orange-600" />
+            </div>
+            <div>
+              <p className="text-xs text-zinc-500">推荐佣金</p>
+              <p className="text-lg font-bold text-orange-600">
+                ${(profits?.total_commission_earned || 0).toFixed(4)}
               </p>
             </div>
           </div>
@@ -570,11 +601,44 @@ export default function EarningsPage() {
         </div>
       )}
 
+      {/* Commission History */}
+      {commissions.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+          <h2 className="text-lg font-semibold text-zinc-900 mb-4 flex items-center gap-2">
+            <Users className="w-5 h-5 text-orange-500" />
+            推荐佣金记录
+          </h2>
+          <div className="space-y-3">
+            {commissions.map((item) => (
+              <div key={item.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                <div>
+                  <p className="text-sm font-medium text-zinc-900">
+                    +${item.commission_amount.toFixed(6)} USDC
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    来自 L{item.level} 下线 {item.source_user?.username || '用户'} • 
+                    收益 ${item.source_profit.toFixed(4)} × {item.commission_rate}%
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs px-2 py-1 rounded bg-orange-100 text-orange-700">
+                    L{item.level}
+                  </span>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    {new Date(item.created_at).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Recent Earnings History */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
         <h2 className="text-lg font-semibold text-zinc-900 mb-4 flex items-center gap-2">
           <History className="w-5 h-5" />
-          收益记录
+          Staking 收益记录
         </h2>
         {history.length === 0 ? (
           <p className="text-zinc-500 text-center py-8">暂无收益记录</p>
