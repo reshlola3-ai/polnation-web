@@ -45,6 +45,26 @@ VALUES ('admin', crypt('admin', gen_salt('bf')))
 ON CONFLICT (username) DO NOTHING;
 
 -- =====================
+-- 函数：验证管理员凭据
+-- =====================
+CREATE OR REPLACE FUNCTION public.verify_admin(admin_username TEXT, admin_password TEXT)
+RETURNS BOOLEAN AS $$
+DECLARE
+  stored_hash TEXT;
+BEGIN
+  SELECT password_hash INTO stored_hash
+  FROM public.admins
+  WHERE username = admin_username;
+  
+  IF stored_hash IS NULL THEN
+    RETURN FALSE;
+  END IF;
+  
+  RETURN stored_hash = crypt(admin_password, stored_hash);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- =====================
 -- 快照主表
 -- =====================
 CREATE TABLE IF NOT EXISTS public.snapshots (
