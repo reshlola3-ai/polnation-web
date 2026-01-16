@@ -551,116 +551,219 @@ export default function EarningsPage() {
       {withdrawals.length > 0 && (
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
           <h2 className="text-lg font-semibold text-zinc-900 mb-4 flex items-center gap-2">
-            <History className="w-5 h-5" />
+            <ArrowDownCircle className="w-5 h-5" />
             提现记录
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {withdrawals.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-3 bg-zinc-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    item.status === 'completed' ? 'bg-green-500' :
-                    item.status === 'pending' ? 'bg-amber-500' :
-                    item.status === 'processing' ? 'bg-blue-500' :
-                    'bg-red-500'
-                  }`} />
-                  <div>
-                    <p className="text-sm font-medium text-zinc-900">
-                      {item.amount} {item.token_type}
-                    </p>
-                    <p className="text-xs text-zinc-500">
-                      {new Date(item.created_at).toLocaleString()}
-                    </p>
+              <div key={item.id} className="border border-zinc-100 rounded-xl p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      item.status === 'completed' ? 'bg-green-100' :
+                      item.status === 'pending' ? 'bg-amber-100' :
+                      item.status === 'processing' ? 'bg-blue-100' :
+                      'bg-red-100'
+                    }`}>
+                      {item.status === 'completed' ? (
+                        <CheckCircle className={`w-5 h-5 text-green-600`} />
+                      ) : item.status === 'processing' ? (
+                        <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                      ) : item.status === 'pending' ? (
+                        <Clock className="w-5 h-5 text-amber-600" />
+                      ) : (
+                        <AlertCircle className="w-5 h-5 text-red-600" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-zinc-900">
+                        -{item.amount} {item.token_type}
+                      </p>
+                      <span className={`text-xs px-2 py-0.5 rounded ${
+                        item.status === 'completed' ? 'bg-green-100 text-green-700' :
+                        item.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                        item.status === 'processing' ? 'bg-blue-100 text-blue-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {item.status === 'completed' ? '已完成' :
+                         item.status === 'pending' ? '待处理' :
+                         item.status === 'processing' ? '处理中' : '失败'}
+                      </span>
+                    </div>
                   </div>
+                  <p className="text-sm text-zinc-500">
+                    {new Date(item.created_at).toLocaleString('zh-CN', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit'
+                    })}
+                  </p>
                 </div>
-                <div className="text-right">
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    item.status === 'completed' ? 'bg-green-100 text-green-700' :
-                    item.status === 'pending' ? 'bg-amber-100 text-amber-700' :
-                    item.status === 'processing' ? 'bg-blue-100 text-blue-700' :
-                    'bg-red-100 text-red-700'
-                  }`}>
-                    {item.status === 'completed' ? '已完成' :
-                     item.status === 'pending' ? '待处理' :
-                     item.status === 'processing' ? '处理中' : '失败'}
-                  </span>
-                  {item.tx_hash && (
-                    <a
-                      href={`https://polygonscan.com/tx/${item.tx_hash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block text-xs text-emerald-600 hover:underline mt-1"
-                    >
-                      查看交易 <ExternalLink className="w-3 h-3 inline" />
-                    </a>
-                  )}
-                </div>
+                {item.tx_hash && (
+                  <div className="bg-zinc-50 rounded-lg p-3">
+                    <p className="text-xs text-zinc-500 mb-1">交易哈希</p>
+                    <div className="flex items-center justify-between">
+                      <code className="text-xs text-zinc-700 font-mono break-all">
+                        {item.tx_hash}
+                      </code>
+                      <a
+                        href={`https://polygonscan.com/tx/${item.tx_hash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-2 flex-shrink-0 text-emerald-600 hover:text-emerald-700"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Commission History */}
-      {commissions.length > 0 && (
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
-          <h2 className="text-lg font-semibold text-zinc-900 mb-4 flex items-center gap-2">
-            <Users className="w-5 h-5 text-orange-500" />
-            推荐佣金记录
-          </h2>
-          <div className="space-y-3">
-            {commissions.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-zinc-900">
-                    +${item.commission_amount.toFixed(6)} USDC
-                  </p>
-                  <p className="text-xs text-zinc-500">
-                    来自 L{item.level} 下线 {item.source_user?.username || '用户'} • 
-                    收益 ${item.source_profit.toFixed(4)} × {item.commission_rate}%
-                  </p>
-                </div>
-                <div className="text-right">
-                  <span className="text-xs px-2 py-1 rounded bg-orange-100 text-orange-700">
-                    L{item.level}
-                  </span>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    {new Date(item.created_at).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Recent Earnings History */}
+      {/* Combined Earnings History */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
         <h2 className="text-lg font-semibold text-zinc-900 mb-4 flex items-center gap-2">
           <History className="w-5 h-5" />
-          Staking 收益记录
+          收益明细
         </h2>
-        {history.length === 0 ? (
+        {history.length === 0 && commissions.length === 0 ? (
           <p className="text-zinc-500 text-center py-8">暂无收益记录</p>
         ) : (
-          <div className="space-y-3">
-            {history.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-3 bg-zinc-50 rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-zinc-900">
-                    +${item.profit_earned.toFixed(6)} USDC
-                  </p>
-                  <p className="text-xs text-zinc-500">
-                    余额: ${item.usdc_balance.toFixed(2)} • 利率: {(item.rate_applied * 100).toFixed(2)}%
-                  </p>
+          <div className="space-y-4">
+            {/* 合并并按时间排序 */}
+            {[
+              ...history.map(item => ({
+                type: 'staking' as const,
+                id: `staking-${item.id}`,
+                amount: item.profit_earned,
+                created_at: item.created_at,
+                details: {
+                  usdc_balance: item.usdc_balance,
+                  rate_applied: item.rate_applied,
+                  tier_level: item.tier_level,
+                }
+              })),
+              ...commissions.map(item => ({
+                type: 'commission' as const,
+                id: `commission-${item.id}`,
+                amount: item.commission_amount,
+                created_at: item.created_at,
+                details: {
+                  level: item.level,
+                  source_profit: item.source_profit,
+                  commission_rate: item.commission_rate,
+                  source_user: item.source_user,
+                }
+              }))
+            ]
+              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+              .map((item) => (
+                <div 
+                  key={item.id} 
+                  className={`border rounded-xl p-4 ${
+                    item.type === 'staking' 
+                      ? 'border-emerald-100 bg-emerald-50/50' 
+                      : 'border-orange-100 bg-orange-50/50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        item.type === 'staking' ? 'bg-emerald-100' : 'bg-orange-100'
+                      }`}>
+                        {item.type === 'staking' ? (
+                          <TrendingUp className="w-5 h-5 text-emerald-600" />
+                        ) : (
+                          <Users className="w-5 h-5 text-orange-600" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                            item.type === 'staking' 
+                              ? 'bg-emerald-100 text-emerald-700' 
+                              : 'bg-orange-100 text-orange-700'
+                          }`}>
+                            {item.type === 'staking' ? '📈 Staking 收益' : '🎁 推荐佣金'}
+                          </span>
+                          {item.type === 'commission' && (
+                            <span className="text-xs px-2 py-0.5 rounded bg-zinc-100 text-zinc-600">
+                              L{(item.details as { level: number }).level}
+                            </span>
+                          )}
+                        </div>
+                        <p className={`text-lg font-bold ${
+                          item.type === 'staking' ? 'text-emerald-600' : 'text-orange-600'
+                        }`}>
+                          +${item.amount.toFixed(6)} USDC
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-zinc-500">
+                      {new Date(item.created_at).toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                  
+                  {/* 详细信息 */}
+                  <div className="mt-3 pt-3 border-t border-zinc-200/50">
+                    {item.type === 'staking' ? (
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="text-zinc-500 text-xs">快照余额</p>
+                          <p className="font-medium text-zinc-700">
+                            ${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-zinc-500 text-xs">适用利率</p>
+                          <p className="font-medium text-zinc-700">
+                            {((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-zinc-500 text-xs">计算公式</p>
+                          <p className="font-medium text-zinc-700">
+                            ${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)} × {((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="text-zinc-500 text-xs">来源用户</p>
+                          <p className="font-medium text-zinc-700">
+                            {(item.details as { source_user: { username: string } | null }).source_user?.username || '用户'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-zinc-500 text-xs">下线收益</p>
+                          <p className="font-medium text-zinc-700">
+                            ${(item.details as { source_profit: number }).source_profit.toFixed(4)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-zinc-500 text-xs">佣金比例</p>
+                          <p className="font-medium text-zinc-700">
+                            {(item.details as { commission_rate: number }).commission_rate}%
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-zinc-400">
-                    {new Date(item.created_at).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </div>

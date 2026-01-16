@@ -60,32 +60,39 @@ export async function GET() {
       .eq('user_id', user.id)
       .single()
 
-    // 获取利润历史（最近20条）
+    // 获取利润历史（最近50条）
     const { data: history } = await supabaseAdmin
       .from('profit_history')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(20)
+      .limit(50)
 
-    // 获取提现记录
+    // 获取提现记录（最近30条）
     const { data: withdrawals } = await supabaseAdmin
       .from('withdrawals')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(10)
+      .limit(30)
 
-    // 获取佣金记录（最近20条）
-    const { data: commissions } = await supabaseAdmin
-      .from('referral_commissions')
-      .select(`
-        *,
-        source_user:profiles!referral_commissions_source_user_id_fkey(username, email)
-      `)
-      .eq('beneficiary_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(20)
+    // 获取佣金记录（最近50条）
+    let commissions = null
+    try {
+      const { data } = await supabaseAdmin
+        .from('referral_commissions')
+        .select(`
+          *,
+          source_user:profiles!referral_commissions_source_user_id_fkey(username, email)
+        `)
+        .eq('beneficiary_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50)
+      commissions = data
+    } catch {
+      // 表可能不存在
+      commissions = []
+    }
 
     // 计算下次发放时间
     let nextDistribution = null
