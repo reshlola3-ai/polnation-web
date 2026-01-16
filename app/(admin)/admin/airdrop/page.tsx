@@ -103,6 +103,13 @@ export default function AirdropPage() {
     round_id: string
     total_users: number
     total_usdc: string
+    estimated_commissions: string
+    commission_details: Array<{
+      beneficiary: string
+      source: string
+      level: string
+      amount: string
+    }>
     calculations: Calculation[]
   } | null>(null)
 
@@ -185,9 +192,14 @@ export default function AirdropPage() {
         round_id: data.round_id,
         total_users: data.total_users,
         total_usdc: data.total_usdc,
+        estimated_commissions: data.estimated_commissions || '0',
+        commission_details: data.commission_details || [],
         calculations: data.calculations,
       })
-      setSuccess(`计算完成！${data.total_users} 位用户，总利润: $${data.total_usdc}`)
+      const commissionMsg = parseFloat(data.estimated_commissions || '0') > 0 
+        ? `，预计佣金: $${data.estimated_commissions}` 
+        : ''
+      setSuccess(`计算完成！${data.total_users} 位用户，总利润: $${data.total_usdc}${commissionMsg}`)
       fetchData()
     } catch {
       setError('Network error')
@@ -216,7 +228,10 @@ export default function AirdropPage() {
         return
       }
 
-      setSuccess(`发放成功！${data.distributed_count} 位用户，总计: $${data.total_distributed}`)
+      const commissionMsg = parseFloat(data.total_commissions || '0') > 0 
+        ? `，佣金: $${parseFloat(data.total_commissions).toFixed(6)} (${data.commission_count}笔)` 
+        : ''
+      setSuccess(`发放成功！${data.distributed_count} 位用户，总计: $${data.total_distributed}${commissionMsg}`)
       setPreviewResult(null)
       fetchData()
     } catch {
@@ -471,7 +486,7 @@ export default function AirdropPage() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-3 gap-4 mb-4">
                     <div className="bg-zinc-700/50 rounded-lg p-3">
                       <p className="text-zinc-400 text-xs">用户数</p>
                       <p className="text-xl font-bold text-white">{previewResult.total_users}</p>
@@ -480,36 +495,85 @@ export default function AirdropPage() {
                       <p className="text-zinc-400 text-xs">总利润</p>
                       <p className="text-xl font-bold text-emerald-400">${previewResult.total_usdc}</p>
                     </div>
+                    <div className="bg-zinc-700/50 rounded-lg p-3">
+                      <p className="text-zinc-400 text-xs">预计佣金</p>
+                      <p className="text-xl font-bold text-amber-400">${previewResult.estimated_commissions}</p>
+                    </div>
                   </div>
-                  <div className="max-h-64 overflow-y-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="text-zinc-400 text-xs">
-                          <th className="text-left py-2">用户</th>
-                          <th className="text-right py-2">余额</th>
-                          <th className="text-right py-2">等级</th>
-                          <th className="text-right py-2">利润</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {previewResult.calculations.map((calc) => (
-                          <tr key={calc.user_id} className="border-t border-zinc-700/50">
-                            <td className="py-2">
-                              <p className="text-white">{calc.username}</p>
-                              <p className="text-zinc-500 text-xs">{calc.email}</p>
-                            </td>
-                            <td className="text-right text-zinc-300">${calc.usdc_balance}</td>
-                            <td className="text-right">
-                              <span className="text-xs px-2 py-0.5 bg-zinc-700 rounded text-zinc-300">
-                                {calc.tier} ({calc.rate})
-                              </span>
-                            </td>
-                            <td className="text-right text-emerald-400 font-mono">+${calc.profit}</td>
+
+                  {/* 用户利润列表 */}
+                  <div className="mb-4">
+                    <h4 className="text-zinc-300 text-sm font-medium mb-2">📊 用户收益明细</h4>
+                    <div className="max-h-48 overflow-y-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="text-zinc-400 text-xs">
+                            <th className="text-left py-2">用户</th>
+                            <th className="text-right py-2">余额</th>
+                            <th className="text-right py-2">等级</th>
+                            <th className="text-right py-2">利润</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {previewResult.calculations.map((calc) => (
+                            <tr key={calc.user_id} className="border-t border-zinc-700/50">
+                              <td className="py-2">
+                                <p className="text-white">{calc.username}</p>
+                                <p className="text-zinc-500 text-xs">{calc.email}</p>
+                              </td>
+                              <td className="text-right text-zinc-300">${calc.usdc_balance}</td>
+                              <td className="text-right">
+                                <span className="text-xs px-2 py-0.5 bg-zinc-700 rounded text-zinc-300">
+                                  {calc.tier} ({calc.rate})
+                                </span>
+                              </td>
+                              <td className="text-right text-emerald-400 font-mono">+${calc.profit}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
+
+                  {/* 推荐佣金预览 */}
+                  {previewResult.commission_details && previewResult.commission_details.length > 0 && (
+                    <div>
+                      <h4 className="text-zinc-300 text-sm font-medium mb-2">🎁 推荐佣金明细</h4>
+                      <div className="max-h-48 overflow-y-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="text-zinc-400 text-xs">
+                              <th className="text-left py-2">获益者</th>
+                              <th className="text-left py-2">来源</th>
+                              <th className="text-right py-2">等级</th>
+                              <th className="text-right py-2">佣金</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {previewResult.commission_details.map((comm, idx) => (
+                              <tr key={idx} className="border-t border-zinc-700/50">
+                                <td className="py-2 text-white">{comm.beneficiary}</td>
+                                <td className="py-2 text-zinc-400">{comm.source}</td>
+                                <td className="text-right">
+                                  <span className="text-xs px-2 py-0.5 bg-amber-700/30 rounded text-amber-300">
+                                    {comm.level}
+                                  </span>
+                                </td>
+                                <td className="text-right text-amber-400 font-mono">+${comm.amount}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 如果没有佣金，显示提示 */}
+                  {(!previewResult.commission_details || previewResult.commission_details.length === 0) && (
+                    <div className="text-zinc-500 text-sm text-center py-3 border-t border-zinc-700/50">
+                      💡 暂无推荐佣金（可能用户没有上线关系或未配置佣金比例）
+                    </div>
+                  )}
                 </div>
               </div>
             )}

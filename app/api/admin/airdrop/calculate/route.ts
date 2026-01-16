@@ -187,11 +187,75 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', round.id)
 
+    // 计算预计佣金
+    const { data: commissionRates } = await supabase
+      .from('referral_commission_rates')
+      .select('*')
+      .eq('is_active', true)
+      .order('level')
+
+    let estimatedCommissions = 0
+    const commissionDetails: Array<{
+      beneficiary_username: string
+      source_username: string
+      level: number
+      amount: number
+    }> = []
+
+    if (commissionRates && commissionRates.length > 0) {
+      const ratesMap = new Map<number, number>()
+      commissionRates.forEach((r: { level: number; rate_percent: number }) => {
+        ratesMap.set(r.level, r.rate_percent)
+      })
+
+      for (const calc of calculations) {
+        // 获取用户的上线链
+        const { data: uplineChain } = await supabase
+          .rpc('get_upline_chain', { 
+            user_id: calc.user_id,
+            max_levels: 6
+          })
+
+        if (uplineChain && uplineChain.length > 0) {
+          for (const upline of uplineChain as { upline_id: string; level: number }[]) {
+            const rate = ratesMap.get(upline.level)
+            if (!rate) continue
+
+            const commissionAmount = calc.profit_usdc * (rate / 100)
+            if (commissionAmount <= 0) continue
+
+            estimatedCommissions += commissionAmount
+
+            // 获取上线用户名
+            const { data: uplineProfile } = await supabase
+              .from('profiles')
+              .select('username')
+              .eq('id', upline.upline_id)
+              .single()
+
+            commissionDetails.push({
+              beneficiary_username: uplineProfile?.username || 'Unknown',
+              source_username: calc.username || calc.email,
+              level: upline.level,
+              amount: commissionAmount,
+            })
+          }
+        }
+      }
+    }
+
     return NextResponse.json({
       success: true,
       round_id: round.id,
       total_users: calculations.length,
       total_usdc: totalUsdc.toFixed(6),
+      estimated_commissions: estimatedCommissions.toFixed(6),
+      commission_details: commissionDetails.map(c => ({
+        beneficiary: c.beneficiary_username,
+        source: c.source_username,
+        level: `L${c.level}`,
+        amount: c.amount.toFixed(6),
+      })),
       calculations: calculations.map(c => ({
         user_id: c.user_id,
         username: c.username,
