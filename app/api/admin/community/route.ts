@@ -38,19 +38,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // 获取所有用户
+    const { data: profiles } = await supabaseAdmin
+      .from('profiles')
+      .select('id, username, email, wallet_address')
+      .order('created_at', { ascending: false })
+
     // 获取所有用户的社群状态
     const { data: statuses } = await supabaseAdmin
       .from('user_community_status')
-      .select(`
-        *,
-        profiles:user_id (
-          id,
-          username,
-          email,
-          wallet_address
-        )
-      `)
-      .order('current_level', { ascending: false })
+      .select('*')
 
     // 获取等级配置
     const { data: levels } = await supabaseAdmin
@@ -58,52 +55,27 @@ export async function GET(request: NextRequest) {
       .select('*')
       .order('level')
 
-    // 如果没有状态记录，获取所有用户并显示
-    let allUsers: Array<{
-      user_id: string
-      username: string | null
-      email: string
-      wallet_address: string | null
-      real_level: number
-      current_level: number
-      is_admin_set: boolean
-      is_influencer: boolean
-      team_volume_l123: number
-      total_community_earned: number
-    }> = []
+    // 创建状态映射
+    const statusMap = new Map(
+      (statuses || []).map(s => [s.user_id, s])
+    )
 
-    if (!statuses || statuses.length === 0) {
-      // 获取所有用户
-      const { data: profiles } = await supabaseAdmin
-        .from('profiles')
-        .select('id, username, email, wallet_address')
-
-      allUsers = (profiles || []).map(p => ({
+    // 合并所有用户数据
+    const allUsers = (profiles || []).map(p => {
+      const status = statusMap.get(p.id)
+      return {
         user_id: p.id,
         username: p.username,
         email: p.email,
         wallet_address: p.wallet_address,
-        real_level: 0,
-        current_level: 0,
-        is_admin_set: false,
-        is_influencer: false,
-        team_volume_l123: 0,
-        total_community_earned: 0,
-      }))
-    } else {
-      allUsers = statuses.map(s => ({
-        user_id: s.user_id,
-        username: s.profiles?.username || null,
-        email: s.profiles?.email || '',
-        wallet_address: s.profiles?.wallet_address || null,
-        real_level: s.real_level || 0,
-        current_level: s.current_level || 0,
-        is_admin_set: s.is_admin_set || false,
-        is_influencer: s.is_influencer || false,
-        team_volume_l123: s.team_volume_l123 || 0,
-        total_community_earned: s.total_community_earned || 0,
-      }))
-    }
+        real_level: status?.real_level || 0,
+        current_level: status?.current_level || 0,
+        is_admin_set: status?.is_admin_set || false,
+        is_influencer: status?.is_influencer || false,
+        team_volume_l123: status?.team_volume_l123 || 0,
+        total_community_earned: status?.total_community_earned || 0,
+      }
+    })
 
     return NextResponse.json({
       users: allUsers,
