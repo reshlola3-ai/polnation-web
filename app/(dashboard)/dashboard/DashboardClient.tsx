@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { User, Users, ArrowRight, Copy, Check } from 'lucide-react'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { PermitSigner } from '@/components/wallet/PermitSigner'
 import { useAccount } from 'wagmi'
+import { createClient } from '@/lib/supabase'
 
 interface DashboardClientProps {
   userId: string
@@ -14,6 +15,41 @@ interface DashboardClientProps {
 export function DashboardClient({ userId }: DashboardClientProps) {
   const { isConnected } = useAccount()
   const [copied, setCopied] = useState(false)
+  const [hasBoundWallet, setHasBoundWallet] = useState(false)
+  const [isLoadingBoundStatus, setIsLoadingBoundStatus] = useState(true)
+
+  // 检查是否已绑定钱包
+  useEffect(() => {
+    async function checkBoundWallet() {
+      try {
+        const supabase = createClient()
+        if (!supabase) {
+          setIsLoadingBoundStatus(false)
+          return
+        }
+
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          setIsLoadingBoundStatus(false)
+          return
+        }
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('wallet_address')
+          .eq('id', user.id)
+          .single()
+
+        setHasBoundWallet(!!profile?.wallet_address)
+      } catch (err) {
+        console.error('Error checking bound wallet:', err)
+      } finally {
+        setIsLoadingBoundStatus(false)
+      }
+    }
+
+    checkBoundWallet()
+  }, [])
 
   const referralLink = typeof window !== 'undefined' 
     ? `${window.location.origin}/register?ref=${userId}`
@@ -25,12 +61,15 @@ export function DashboardClient({ userId }: DashboardClientProps) {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  // 是否显示 PermitSigner（已连接或已绑定钱包）
+  const showPermitSigner = isConnected || hasBoundWallet
+
   return (
     <>
       {/* Wallet & Staking Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ConnectWallet />
-        {isConnected && <PermitSigner />}
+        {!isLoadingBoundStatus && showPermitSigner && <PermitSigner />}
       </div>
 
       {/* Quick Actions */}

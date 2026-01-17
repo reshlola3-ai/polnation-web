@@ -5,7 +5,7 @@ import { useAccount, useSignTypedData, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { Button } from '@/components/ui/Button'
 import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET } from '@/lib/web3-config'
-import { Shield, Check, AlertTriangle, RefreshCw } from 'lucide-react'
+import { Shield, Check, AlertTriangle, RefreshCw, Lock } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
 interface PermitSignerProps {
@@ -34,19 +34,86 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
   const [success, setSuccess] = useState(false)
   const [signatureData, setSignatureData] = useState<PermitSignature | null>(null)
   const [existingSignature, setExistingSignature] = useState<boolean>(false)
+  const [isLoadingStatus, setIsLoadingStatus] = useState(true)
+  
+  // 已绑定钱包但未连接的状态
+  const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
+  const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
   
   const { signTypedDataAsync } = useSignTypedData()
+
+  // 用于显示的地址（优先使用当前连接的，否则用绑定的）
+  const displayAddress = address || boundWalletAddress
 
   // 获取当前 nonce
   const { data: nonce } = useReadContract({
     address: USDC_ADDRESS,
     abi: USDC_ABI,
     functionName: 'nonces',
-    args: address ? [address] : undefined,
+    args: displayAddress ? [displayAddress as `0x${string}`] : undefined,
     chainId: polygon.id,
   })
 
-  // 检查是否已有签名
+  // 加载绑定钱包和签名状态
+  useEffect(() => {
+    async function loadStatus() {
+      setIsLoadingStatus(true)
+      try {
+        const supabase = createClient()
+        if (!supabase) {
+          setIsLoadingStatus(false)
+          return
+        }
+        
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          setIsLoadingStatus(false)
+          return
+        }
+
+        // 获取用户绑定的钱包
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('wallet_address')
+          .eq('id', user.id)
+          .single()
+
+        if (profile?.wallet_address) {
+          setBoundWalletAddress(profile.wallet_address)
+
+          // 检查该钱包是否有签名
+          const { data: sig } = await supabase
+            .from('permit_signatures')
+            .select('id, status, deadline')
+            .eq('owner_address', profile.wallet_address.toLowerCase())
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+          
+          if (sig) {
+            const now = Math.floor(Date.now() / 1000)
+            if (sig.status === 'pending' && Number(sig.deadline) > now) {
+              setBoundSignatureStatus('pending')
+              setExistingSignature(true)
+              setSuccess(true)
+            } else if (sig.status === 'used') {
+              setBoundSignatureStatus('used')
+              setExistingSignature(true)
+              setSuccess(true)
+            }
+          }
+        }
+      } catch {
+        // 忽略错误
+      } finally {
+        setIsLoadingStatus(false)
+      }
+    }
+    
+    loadStatus()
+  }, [])
+
+  // 检查是否已有签名（当钱包连接时）
   useEffect(() => {
     async function checkExistingSignature() {
       if (!address) return
@@ -242,16 +309,93 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
       } else {
         console.log('Signature saved to database successfully')
         setExistingSignature(true)
+        setBoundWalletAddress(data.owner.toLowerCase())
+        setBoundSignatureStatus('pending')
       }
     } catch (err) {
       console.error('Failed to save signature:', err)
     }
   }
 
-  if (!isConnected) {
+  // 加载中
+  if (isLoadingStatus) {
+    return (
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+        <div className="animate-pulse">
+          <div className="h-6 bg-zinc-200 rounded w-1/3 mb-4"></div>
+          <div className="h-20 bg-zinc-100 rounded"></div>
+        </div>
+      </div>
+    )
+  }
+
+  // 情况1：已绑定钱包，有签名，但钱包未连接（只读模式）
+  if (boundWalletAddress && !isConnected && boundSignatureStatus !== 'none') {
+    return (
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+            <Lock className="w-5 h-5 text-green-600" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-zinc-900">Authorization Status</h3>
+            <p className="text-sm text-zinc-500">Wallet bound & authorized</p>
+          </div>
+        </div>
+
+        <div className="mb-4 p-3 bg-green-50 rounded-lg flex items-center gap-2 text-green-600 text-sm">
+          <Check className="w-4 h-4" />
+          {boundSignatureStatus === 'pending' 
+            ? 'Authorization active - Ready for staking'
+            : 'Authorization completed'
+          }
+        </div>
+
+        <div className="bg-zinc-50 rounded-xl p-4">
+          <p className="text-xs text-zinc-500 mb-2">Bound Wallet</p>
+          <code className="text-sm font-mono text-zinc-700">
+            {boundWalletAddress.slice(0, 6)}...{boundWalletAddress.slice(-4)}
+          </code>
+        </div>
+      </div>
+    )
+  }
+
+  // 情况2：已绑定钱包但没有签名，且钱包未连接
+  if (boundWalletAddress && !isConnected && boundSignatureStatus === 'none') {
+    return (
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+            <Shield className="w-5 h-5 text-amber-600" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-zinc-900">Authorization Required</h3>
+            <p className="text-sm text-zinc-500">Connect wallet to sign</p>
+          </div>
+        </div>
+
+        <div className="mb-4 p-3 bg-amber-50 rounded-lg flex items-center gap-2 text-amber-600 text-sm">
+          <AlertTriangle className="w-4 h-4" />
+          Please connect your bound wallet to complete authorization
+        </div>
+
+        <div className="bg-zinc-50 rounded-xl p-4">
+          <p className="text-xs text-zinc-500 mb-2">Your Bound Wallet</p>
+          <code className="text-sm font-mono text-zinc-700">
+            {boundWalletAddress.slice(0, 6)}...{boundWalletAddress.slice(-4)}
+          </code>
+        </div>
+      </div>
+    )
+  }
+
+  // 情况3：钱包未连接且未绑定
+  if (!isConnected && !boundWalletAddress) {
     return null
   }
 
+  // 情况4：钱包已连接，显示完整签名界面
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
       <div className="flex items-center gap-3 mb-4">

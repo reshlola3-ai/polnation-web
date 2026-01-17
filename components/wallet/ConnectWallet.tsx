@@ -5,10 +5,15 @@ import { useAccount, useDisconnect, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
-import { Wallet, LogOut, ExternalLink, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Wallet, LogOut, ExternalLink, AlertTriangle, CheckCircle, Link2 } from 'lucide-react'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
 import { createClient } from '@/lib/supabase'
+
+interface BoundWalletInfo {
+  address: string
+  boundAt: string
+}
 
 export function ConnectWallet() {
   const { open } = useWeb3Modal()
@@ -18,18 +23,64 @@ export function ConnectWallet() {
   const [boundUser, setBoundUser] = useState<string | null>(null)
   const [yourBoundWallet, setYourBoundWallet] = useState<string | null>(null)
   
-  // 获取 USDC 余额
+  // 新增：已绑定钱包信息（从数据库读取）
+  const [boundWalletInfo, setBoundWalletInfo] = useState<BoundWalletInfo | null>(null)
+  const [isLoadingBoundWallet, setIsLoadingBoundWallet] = useState(true)
+
+  // 要显示的钱包地址（优先使用已绑定的，否则用当前连接的）
+  const displayAddress = boundWalletInfo?.address || address
+
+  // 获取 USDC 余额（使用要显示的地址）
   const { data: usdcBalanceRaw, isLoading: isBalanceLoading } = useReadContract({
     address: USDC_ADDRESS,
     abi: USDC_ABI,
     functionName: 'balanceOf',
-    args: address ? [address] : undefined,
+    args: displayAddress ? [displayAddress as `0x${string}`] : undefined,
     chainId: polygon.id,
   })
 
   const usdcBalance = usdcBalanceRaw ? formatUnits(usdcBalanceRaw, 6) : '0'
 
-  // 检查钱包绑定状态
+  // 页面加载时检查是否已有绑定的钱包
+  useEffect(() => {
+    async function loadBoundWallet() {
+      setIsLoadingBoundWallet(true)
+      try {
+        const supabase = createClient()
+        if (!supabase) {
+          setIsLoadingBoundWallet(false)
+          return
+        }
+
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          setIsLoadingBoundWallet(false)
+          return
+        }
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('wallet_address, wallet_bound_at')
+          .eq('id', user.id)
+          .single()
+
+        if (profile?.wallet_address) {
+          setBoundWalletInfo({
+            address: profile.wallet_address,
+            boundAt: profile.wallet_bound_at,
+          })
+        }
+      } catch (err) {
+        console.error('Error loading bound wallet:', err)
+      } finally {
+        setIsLoadingBoundWallet(false)
+      }
+    }
+
+    loadBoundWallet()
+  }, [])
+
+  // 检查钱包绑定状态（当用户连接新钱包时）
   useEffect(() => {
     async function checkWalletBinding() {
       if (!address) {
@@ -95,28 +146,115 @@ export function ConnectWallet() {
     checkWalletBinding()
   }, [address])
 
-  if (!isConnected) {
+  // 加载中状态
+  if (isLoadingBoundWallet) {
     return (
-      <Button onClick={() => open()} className="gap-2">
-        <Wallet className="w-4 h-4" />
-        Connect Wallet
-      </Button>
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+        <div className="animate-pulse">
+          <div className="h-6 bg-zinc-200 rounded w-1/3 mb-4"></div>
+          <div className="h-20 bg-zinc-100 rounded"></div>
+        </div>
+      </div>
     )
   }
 
+  // 情况1：用户已有绑定的钱包，无需再连接
+  if (boundWalletInfo && !isConnected) {
+    return (
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-zinc-900">Wallet Bound</h3>
+          <div className="flex items-center gap-1 text-green-500">
+            <Link2 className="w-4 h-4" />
+            <span className="text-xs">Linked</span>
+          </div>
+        </div>
+
+        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-500" />
+            <p className="text-sm font-medium text-green-700">Wallet Permanently Bound</p>
+          </div>
+          <p className="text-xs text-green-600 mt-1">
+            Your account is linked to this wallet. No need to reconnect.
+          </p>
+        </div>
+
+        {/* 地址 */}
+        <div className="mb-4">
+          <p className="text-xs text-zinc-500 mb-1">Bound Address</p>
+          <div className="flex items-center gap-2">
+            <code className="text-sm font-mono text-zinc-700 bg-zinc-50 px-2 py-1 rounded">
+              {boundWalletInfo.address.slice(0, 6)}...{boundWalletInfo.address.slice(-4)}
+            </code>
+            <a
+              href={`https://polygonscan.com/address/${boundWalletInfo.address}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-400 hover:text-emerald-600 transition-colors"
+            >
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+        {/* 绑定时间 */}
+        {boundWalletInfo.boundAt && (
+          <div className="mb-4">
+            <p className="text-xs text-zinc-500 mb-1">Bound At</p>
+            <p className="text-sm text-zinc-700">
+              {new Date(boundWalletInfo.boundAt).toLocaleString()}
+            </p>
+          </div>
+        )}
+
+        {/* USDC 余额 */}
+        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4">
+          <p className="text-xs text-zinc-500 mb-1">USDC Balance</p>
+          {isBalanceLoading ? (
+            <div className="animate-pulse h-8 bg-zinc-200 rounded w-24" />
+          ) : (
+            <p className="text-2xl font-bold text-emerald-600">
+              ${Number(usdcBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // 情况2：未绑定钱包，显示连接按钮
+  if (!isConnected && !boundWalletInfo) {
+    return (
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+        <h3 className="font-semibold text-zinc-900 mb-4">Connect Your Wallet</h3>
+        <p className="text-sm text-zinc-500 mb-4">
+          Connect and bind your wallet to start staking. Once bound, the wallet is permanently linked to your account.
+        </p>
+        <Button onClick={() => open()} className="gap-2 w-full">
+          <Wallet className="w-4 h-4" />
+          Connect Wallet
+        </Button>
+      </div>
+    )
+  }
+
+  // 情况3：钱包已连接，显示详细信息
   const isWrongNetwork = chain?.id !== polygon.id
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-zinc-900">Wallet Connected</h3>
-        <button
-          onClick={() => disconnect()}
-          className="text-zinc-400 hover:text-zinc-600 transition-colors"
-          title="Disconnect"
-        >
-          <LogOut className="w-4 h-4" />
-        </button>
+        {!boundWalletInfo && (
+          <button
+            onClick={() => disconnect()}
+            className="text-zinc-400 hover:text-zinc-600 transition-colors"
+            title="Disconnect"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* 钱包绑定状态警告 */}
@@ -142,7 +280,7 @@ export function ConnectWallet() {
         <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
           <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-500" />
-            <p className="text-sm font-medium text-green-700">Wallet Verified</p>
+            <p className="text-sm font-medium text-green-700">Wallet Verified & Bound</p>
           </div>
         </div>
       )}
@@ -153,7 +291,7 @@ export function ConnectWallet() {
             <Wallet className="w-5 h-5 text-blue-500" />
             <p className="text-sm font-medium text-blue-700">Ready to Bind</p>
           </div>
-          <p className="text-xs text-blue-600 mt-1">Sign authorization to bind this wallet to your account.</p>
+          <p className="text-xs text-blue-600 mt-1">Sign authorization to permanently bind this wallet to your account.</p>
         </div>
       )}
 
