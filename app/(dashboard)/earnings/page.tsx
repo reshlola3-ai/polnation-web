@@ -123,31 +123,33 @@ export default function EarningsPage() {
     ? (parseFloat(withdrawAmount) / polPrice).toFixed(4)
     : '0'
 
-  // 获取 POL 价格 (使用 Polygonscan API)
+  // 获取 POL 价格
   const fetchPolPrice = useCallback(async () => {
     try {
-      // 从 Polygonscan 获取 MATIC/POL 价格
-      const res = await fetch('https://api.polygonscan.com/api?module=stats&action=maticprice&apikey=XE6S22TS8EKJVSQAR44E8NB7D5CF8ZCXAV')
+      // 使用 CoinGecko API 获取 POL/MATIC 价格
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=matic-network&vs_currencies=usd', {
+        headers: {
+          'Accept': 'application/json',
+        },
+      })
       if (res.ok) {
         const data = await res.json()
-        if (data.status === '1' && data.result?.maticusd) {
-          setPolPrice(parseFloat(data.result.maticusd))
+        if (data['matic-network']?.usd) {
+          setPolPrice(data['matic-network'].usd)
+          return
+        }
+      }
+      
+      // 备用：使用 Binance API
+      const binanceRes = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=MATICUSDT')
+      if (binanceRes.ok) {
+        const binanceData = await binanceRes.json()
+        if (binanceData?.price) {
+          setPolPrice(parseFloat(binanceData.price))
         }
       }
     } catch (err) {
       console.error('Failed to fetch POL price:', err)
-      // 如果 Polygonscan 失败，尝试 CoinGecko 作为备用
-      try {
-        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=matic-network&vs_currencies=usd')
-        if (res.ok) {
-          const data = await res.json()
-          if (data['matic-network']?.usd) {
-            setPolPrice(data['matic-network'].usd)
-          }
-        }
-      } catch {
-        console.error('Backup price fetch also failed')
-      }
     }
   }, [])
 
