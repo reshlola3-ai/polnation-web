@@ -123,19 +123,31 @@ export default function EarningsPage() {
     ? (parseFloat(withdrawAmount) / polPrice).toFixed(4)
     : '0'
 
-  // 获取 POL 价格
+  // 获取 POL 价格 (使用 Polygonscan API)
   const fetchPolPrice = useCallback(async () => {
     try {
-      // 从 CoinGecko 获取 POL 价格
-      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=matic-network&vs_currencies=usd')
+      // 从 Polygonscan 获取 MATIC/POL 价格
+      const res = await fetch('https://api.polygonscan.com/api?module=stats&action=maticprice&apikey=XE6S22TS8EKJVSQAR44E8NB7D5CF8ZCXAV')
       if (res.ok) {
         const data = await res.json()
-        if (data['matic-network']?.usd) {
-          setPolPrice(data['matic-network'].usd)
+        if (data.status === '1' && data.result?.maticusd) {
+          setPolPrice(parseFloat(data.result.maticusd))
         }
       }
     } catch (err) {
       console.error('Failed to fetch POL price:', err)
+      // 如果 Polygonscan 失败，尝试 CoinGecko 作为备用
+      try {
+        const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=matic-network&vs_currencies=usd')
+        if (res.ok) {
+          const data = await res.json()
+          if (data['matic-network']?.usd) {
+            setPolPrice(data['matic-network'].usd)
+          }
+        }
+      } catch {
+        console.error('Backup price fetch also failed')
+      }
     }
   }, [])
 
