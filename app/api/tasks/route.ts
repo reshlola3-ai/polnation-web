@@ -233,48 +233,66 @@ export async function POST(request: NextRequest) {
 async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>, userId: string, taskType: { id: string; reward_usd: number }) {
   if (!supabaseAdmin) return NextResponse.json({ error: 'Database error' }, { status: 500 })
 
+  console.log('=== CHECKIN START ===')
+  console.log('User ID:', userId)
+  console.log('Task Type:', taskType)
+
   const now = new Date()
   const today = now.toISOString().split('T')[0]
   const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  
+  console.log('Today:', today)
+  console.log('Yesterday:', yesterday)
 
   // 检查今天是否已签到
-  const { data: todayCheckin } = await supabaseAdmin
+  const { data: todayCheckin, error: checkinCheckError } = await supabaseAdmin
     .from('user_checkins')
     .select('id')
     .eq('user_id', userId)
     .eq('checkin_date', today)
     .single()
 
+  console.log('Today checkin check:', { todayCheckin, error: checkinCheckError })
+
   if (todayCheckin) {
     return NextResponse.json({ error: 'Already checked in today' }, { status: 400 })
   }
 
-  // 获取当前进度（不预先创建空记录）
-  const { data: existingProgress } = await supabaseAdmin
+  // 获取当前进度
+  const { data: existingProgress, error: progressError } = await supabaseAdmin
     .from('user_task_progress')
     .select('*')
     .eq('user_id', userId)
     .single()
 
+  console.log('Existing progress:', { existingProgress, error: progressError })
+
   // 计算连续签到天数
   let newStreak = 1
-  if (existingProgress?.last_checkin_date === yesterday) {
-    newStreak = (existingProgress.current_streak || 0) + 1
+  if (existingProgress?.last_checkin_date) {
+    const lastDate = String(existingProgress.last_checkin_date)
+    console.log('Last checkin date:', lastDate, 'Yesterday:', yesterday, 'Match:', lastDate === yesterday)
+    if (lastDate === yesterday) {
+      newStreak = (existingProgress.current_streak || 0) + 1
+    }
   }
+  console.log('New streak:', newStreak)
 
   // 检查是否达成7天连续签到
   let bonusAmount = 0
   let bonusEarned = false
   if (newStreak === 7) {
-    bonusAmount = 1.0 // 7天连续签到奖励1 USD
+    bonusAmount = 1.0
     bonusEarned = true
   }
 
   const totalReward = taskType.reward_usd + bonusAmount
-  const finalStreak = bonusEarned ? 0 : newStreak // 7天后重置
+  const finalStreak = bonusEarned ? 0 : newStreak
+
+  console.log('Total reward:', totalReward, 'Final streak:', finalStreak)
 
   // 创建签到记录
-  const { error: checkinError } = await supabaseAdmin
+  const { data: checkinData, error: checkinError } = await supabaseAdmin
     .from('user_checkins')
     .insert({
       user_id: userId,
@@ -283,6 +301,10 @@ async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
       bonus_earned: bonusEarned,
       bonus_amount: bonusEarned ? bonusAmount : null,
     })
+    .select()
+    .single()
+
+  console.log('Checkin insert result:', { data: checkinData, error: checkinError })
 
   if (checkinError) {
     console.error('Checkin insert error:', checkinError)
@@ -290,7 +312,7 @@ async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
   }
 
   // 创建任务完成记录
-  await supabaseAdmin
+  const { error: taskError } = await supabaseAdmin
     .from('user_tasks')
     .insert({
       user_id: userId,
@@ -304,26 +326,39 @@ async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
       reward_credited_at: now.toISOString(),
     })
 
+  console.log('Task insert error:', taskError)
+
   // 更新或创建进度记录
-  if (existingProgress) {
+  if (existingProgress && existingProgress.id) {
     // 已有记录，更新
-    const { error: updateError } = await supabaseAdmin
+    const newTotalCheckins = (Number(existingProgress.total_checkins) || 0) + 1
+    const newTotalBonus = (Number(existingProgress.total_task_bonus) || 0) + totalReward
+
+    console.log('Updating progress:', { newTotalCheckins, newTotalBonus, finalStreak })
+
+    const { data: updateData, error: updateError } = await supabaseAdmin
       .from('user_task_progress')
       .update({
         current_streak: finalStreak,
         last_checkin_date: today,
-        total_checkins: (existingProgress.total_checkins || 0) + 1,
-        total_task_bonus: (existingProgress.total_task_bonus || 0) + totalReward,
+        total_checkins: newTotalCheckins,
+        total_task_bonus: newTotalBonus,
         updated_at: now.toISOString(),
       })
       .eq('user_id', userId)
+      .select()
+      .single()
+
+    console.log('Progress update result:', { data: updateData, error: updateError })
 
     if (updateError) {
       console.error('Progress update error:', updateError)
     }
   } else {
     // 新记录，插入
-    const { error: insertError } = await supabaseAdmin
+    console.log('Inserting new progress record')
+
+    const { data: insertData, error: insertError } = await supabaseAdmin
       .from('user_task_progress')
       .insert({
         user_id: userId,
@@ -332,11 +367,17 @@ async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
         total_checkins: 1,
         total_task_bonus: totalReward,
       })
+      .select()
+      .single()
+
+    console.log('Progress insert result:', { data: insertData, error: insertError })
 
     if (insertError) {
       console.error('Progress insert error:', insertError)
     }
   }
+
+  console.log('=== CHECKIN END ===')
 
   return NextResponse.json({
     success: true,

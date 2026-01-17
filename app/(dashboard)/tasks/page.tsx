@@ -220,70 +220,75 @@ export default function TasksPage() {
 
           {/* 红包内容 - 签到进度 */}
           <div className="bg-gradient-to-b from-amber-50 to-orange-50 px-6 py-5">
-            {/* 7天签到格子 */}
-            <div className="flex items-center justify-between gap-2 mb-4">
+            {/* 7天签到格子 - 带独立线段 */}
+            <div className="flex items-center mb-4">
               {[1, 2, 3, 4, 5, 6, 7].map((day) => {
                 const isCompleted = day <= progress.current_streak
                 const isToday = day === progress.current_streak + 1
                 const isBonus = day === 7
+                // 线段是否完成（当前天完成后，到下一天的线段变色）
+                const lineCompleted = day < progress.current_streak
 
                 return (
-                  <div key={day} className="flex-1 flex flex-col items-center">
-                    {/* 圆点/红包图标 */}
-                    <div className={`
-                      w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-all
-                      ${isBonus ? (
-                        isCompleted 
-                          ? 'bg-gradient-to-br from-yellow-400 to-yellow-500 shadow-lg scale-110' 
-                          : 'bg-gradient-to-br from-red-500 to-red-600 shadow-md'
-                      ) : (
-                        isCompleted 
-                          ? 'bg-gradient-to-br from-red-500 to-red-600 shadow-md' 
-                          : isToday 
-                            ? 'bg-white border-2 border-red-400 border-dashed'
-                            : 'bg-zinc-200'
-                      )}
-                    `}>
-                      {isBonus ? (
-                        // 第7天红包图标
-                        <div className="text-center">
-                          {isCompleted ? (
-                            <span className="text-lg">🧧</span>
-                          ) : (
-                            <Gift className="w-5 h-5 text-yellow-300" />
-                          )}
-                        </div>
-                      ) : isCompleted ? (
-                        <CheckCircle className="w-5 h-5 text-white" />
-                      ) : isToday ? (
-                        <Circle className="w-5 h-5 text-red-400" />
-                      ) : (
-                        <Circle className="w-5 h-5 text-zinc-400" />
-                      )}
+                  <div key={day} className="flex-1 flex items-center">
+                    {/* 签到格子 */}
+                    <div className="flex flex-col items-center">
+                      {/* 圆点/红包图标 */}
+                      <div className={`
+                        w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-all
+                        ${isBonus ? (
+                          isCompleted 
+                            ? 'bg-gradient-to-br from-yellow-400 to-yellow-500 shadow-lg scale-110' 
+                            : 'bg-gradient-to-br from-red-500 to-red-600 shadow-md'
+                        ) : (
+                          isCompleted 
+                            ? 'bg-gradient-to-br from-red-500 to-red-600 shadow-md' 
+                            : isToday 
+                              ? 'bg-white border-2 border-red-400 border-dashed'
+                              : 'bg-zinc-200'
+                        )}
+                      `}>
+                        {isBonus ? (
+                          <div className="text-center">
+                            {isCompleted ? (
+                              <span className="text-lg">🧧</span>
+                            ) : (
+                              <Gift className="w-5 h-5 text-yellow-300" />
+                            )}
+                          </div>
+                        ) : isCompleted ? (
+                          <CheckCircle className="w-5 h-5 text-white" />
+                        ) : isToday ? (
+                          <Circle className="w-5 h-5 text-red-400" />
+                        ) : (
+                          <Circle className="w-5 h-5 text-zinc-400" />
+                        )}
+                      </div>
+                      {/* 天数标签 */}
+                      <span className={`text-xs font-medium ${
+                        isCompleted ? 'text-red-600' : isToday ? 'text-red-500' : 'text-zinc-400'
+                      }`}>
+                        {isBonus ? '红包' : `${day}天`}
+                      </span>
+                      {/* 奖励金额 */}
+                      <span className={`text-xs ${
+                        isCompleted ? 'text-emerald-600' : 'text-zinc-400'
+                      }`}>
+                        {isBonus ? '+$1.0' : `+$${checkinTask.reward_usd}`}
+                      </span>
                     </div>
-                    {/* 天数标签 */}
-                    <span className={`text-xs font-medium ${
-                      isCompleted ? 'text-red-600' : isToday ? 'text-red-500' : 'text-zinc-400'
-                    }`}>
-                      {isBonus ? '红包' : `${day}天`}
-                    </span>
-                    {/* 奖励金额 */}
-                    <span className={`text-xs ${
-                      isCompleted ? 'text-emerald-600' : 'text-zinc-400'
-                    }`}>
-                      {isBonus ? '+$1.0' : `+$${checkinTask.reward_usd}`}
-                    </span>
+                    
+                    {/* 连接线段（最后一个不需要） */}
+                    {day < 7 && (
+                      <div className={`flex-1 h-1 mx-1 rounded-full transition-all duration-300 ${
+                        lineCompleted 
+                          ? 'bg-gradient-to-r from-red-500 to-red-400' 
+                          : 'bg-zinc-200'
+                      }`} style={{ marginTop: '-32px' }} />
+                    )}
                   </div>
                 )
               })}
-            </div>
-
-            {/* 进度条连接线 */}
-            <div className="relative h-1 bg-zinc-200 rounded-full mx-5 -mt-[72px] mb-16">
-              <div 
-                className="absolute h-full bg-gradient-to-r from-red-500 to-red-400 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(100, (progress.current_streak / 6) * 100)}%` }}
-              />
             </div>
 
             {/* 统计信息 */}
