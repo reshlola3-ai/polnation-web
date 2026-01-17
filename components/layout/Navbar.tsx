@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { Menu, X, User as UserIcon, Users, LogOut, Wallet, TrendingUp, Crown } from 'lucide-react'
+import { Menu, X, User as UserIcon, Users, LogOut, Wallet, TrendingUp, Crown, ClipboardList } from 'lucide-react'
 
 interface NavbarProps {
   user: User | null
@@ -25,6 +25,7 @@ export function Navbar({ user }: NavbarProps) {
 
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard', icon: Wallet },
+    { href: '/tasks', label: 'Tasks', icon: ClipboardList },
     { href: '/earnings', label: 'Earnings', icon: TrendingUp },
     { href: '/community', label: 'Community', icon: Crown },
     { href: '/profile', label: 'Profile', icon: UserIcon },
