@@ -525,17 +525,33 @@ export default function EarningsPage() {
             </div>
             <p className="text-xs text-zinc-400 mt-1">
               可用: ${totalAvailable.toFixed(4)}
+              {withdrawType === 'POL' && polPrice > 0 && (
+                <span className="text-purple-600 ml-2">
+                  ≈ {(totalAvailable / polPrice).toFixed(4)} POL
+                </span>
+              )}
             </p>
             
             {/* POL 换算显示 */}
-            {withdrawType === 'POL' && withdrawAmount && parseFloat(withdrawAmount) > 0 && (
-              <div className="mt-2 p-2 bg-purple-50 rounded-lg">
-                <p className="text-sm text-purple-700">
-                  ≈ <span className="font-bold">{polAmount}</span> POL
-                </p>
-                <p className="text-xs text-purple-500">
-                  当前价格: ${ polPrice.toFixed(4)}/POL
-                </p>
+            {withdrawType === 'POL' && (
+              <div className="mt-2 p-3 bg-purple-50 rounded-lg border border-purple-100">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-purple-600">当前 POL 价格</span>
+                  <span className="text-sm font-semibold text-purple-700">${polPrice.toFixed(4)}</span>
+                </div>
+                {withdrawAmount && parseFloat(withdrawAmount) > 0 ? (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-purple-600">您将收到</span>
+                    <span className="text-lg font-bold text-purple-700">{polAmount} POL</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-purple-600">最多可提取</span>
+                    <span className="text-lg font-bold text-purple-700">
+                      {(totalAvailable / polPrice).toFixed(4)} POL
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </div>
