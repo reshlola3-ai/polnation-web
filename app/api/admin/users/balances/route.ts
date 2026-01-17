@@ -15,11 +15,11 @@ function getSupabaseAdmin() {
   return createClient(url, key)
 }
 
-// 验证管理员 token
+// 验证管理员 session
 async function verifyAdmin() {
   const cookieStore = await cookies()
-  const token = cookieStore.get('admin_token')?.value
-  return !!token
+  const session = cookieStore.get('admin_session')?.value
+  return !!session
 }
 
 const CONFIG = {
