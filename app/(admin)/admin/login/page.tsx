@@ -69,7 +69,7 @@ export default function AdminLoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="admin"
-              className="bg-zinc-900/50 border-zinc-700 text-white placeholder:text-zinc-500"
+              className="bg-zinc-900/50 border-zinc-700 !text-white placeholder:text-zinc-500"
             />
             <Input
               label="Password"
@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="bg-zinc-900/50 border-zinc-700 text-white placeholder:text-zinc-500"
+              className="bg-zinc-900/50 border-zinc-700 !text-white placeholder:text-zinc-500"
             />
             <Button
               type="submit"
