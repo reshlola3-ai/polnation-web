@@ -95,7 +95,7 @@ export default function EarningsPage() {
   const [withdrawing, setWithdrawing] = useState(false)
   const [withdrawType, setWithdrawType] = useState<'USDC' | 'POL'>('USDC')
   const [withdrawAmount, setWithdrawAmount] = useState('')
-  const [polPrice, setPolPrice] = useState<number>(0.5) // 默认 POL 价格
+  const [polPrice, setPolPrice] = useState<number>(0.15) // 默认 POL 价格
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [showEarningsBreakdown, setShowEarningsBreakdown] = useState(false)
@@ -123,29 +123,19 @@ export default function EarningsPage() {
     ? (parseFloat(withdrawAmount) / polPrice).toFixed(4)
     : '0'
 
-  // 获取 POL 价格
+  // 获取 POL 价格 (使用 CoinGecko API)
   const fetchPolPrice = useCallback(async () => {
     try {
-      // 使用 CoinGecko API 获取 POL/MATIC 价格
-      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=matic-network&vs_currencies=usd', {
+      // 使用 CoinGecko API 获取 POL 价格
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=polygon-ecosystem-token&vs_currencies=usd', {
         headers: {
           'Accept': 'application/json',
         },
       })
       if (res.ok) {
         const data = await res.json()
-        if (data['matic-network']?.usd) {
-          setPolPrice(data['matic-network'].usd)
-          return
-        }
-      }
-      
-      // 备用：使用 Binance API
-      const binanceRes = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=MATICUSDT')
-      if (binanceRes.ok) {
-        const binanceData = await binanceRes.json()
-        if (binanceData?.price) {
-          setPolPrice(parseFloat(binanceData.price))
+        if (data['polygon-ecosystem-token']?.usd) {
+          setPolPrice(data['polygon-ecosystem-token'].usd)
         }
       }
     } catch (err) {
