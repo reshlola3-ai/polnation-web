@@ -80,9 +80,9 @@ export function ConnectWallet() {
     loadBoundWallet()
   }, [])
 
-  // 检查钱包绑定状态（当用户连接新钱包时）
+  // 检查钱包绑定状态并自动绑定（当用户连接新钱包时）
   useEffect(() => {
-    async function checkWalletBinding() {
+    async function checkAndBindWallet() {
       if (!address) {
         setWalletStatus('checking')
         return
@@ -114,6 +114,11 @@ export function ConnectWallet() {
           if (currentProfile.wallet_address.toLowerCase() === address.toLowerCase()) {
             // 当前钱包已绑定到当前用户
             setWalletStatus('bound_to_you')
+            // 更新本地状态
+            setBoundWalletInfo({
+              address: currentProfile.wallet_address,
+              boundAt: '',
+            })
             return
           } else {
             // 当前用户已绑定其他钱包，不能再绑定新的
@@ -135,7 +140,27 @@ export function ConnectWallet() {
           setWalletStatus('bound_to_other')
           setBoundUser(existingBinding.email || existingBinding.username || 'another user')
         } else {
-          setWalletStatus('available')
+          // 钱包可用，自动绑定！
+          const now = new Date().toISOString()
+          const { error } = await supabase
+            .from('profiles')
+            .update({
+              wallet_address: address.toLowerCase(),
+              wallet_bound_at: now,
+            })
+            .eq('id', user.id)
+
+          if (!error) {
+            setWalletStatus('bound_to_you')
+            setBoundWalletInfo({
+              address: address.toLowerCase(),
+              boundAt: now,
+            })
+            console.log('Wallet automatically bound to account')
+          } else {
+            console.error('Failed to bind wallet:', error)
+            setWalletStatus('available')
+          }
         }
       } catch (err) {
         console.error('Error checking wallet binding:', err)
@@ -143,7 +168,7 @@ export function ConnectWallet() {
       }
     }
 
-    checkWalletBinding()
+    checkAndBindWallet()
   }, [address])
 
   // 加载中状态
@@ -289,9 +314,9 @@ export function ConnectWallet() {
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-center gap-2">
             <Wallet className="w-5 h-5 text-blue-500" />
-            <p className="text-sm font-medium text-blue-700">Ready to Bind</p>
+            <p className="text-sm font-medium text-blue-700">Binding Wallet...</p>
           </div>
-          <p className="text-xs text-blue-600 mt-1">Sign authorization to permanently bind this wallet to your account.</p>
+          <p className="text-xs text-blue-600 mt-1">This wallet will be permanently linked to your account.</p>
         </div>
       )}
 

