@@ -249,26 +249,17 @@ async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
     return NextResponse.json({ error: 'Already checked in today' }, { status: 400 })
   }
 
-  // 获取当前进度
-  let { data: progress } = await supabaseAdmin
+  // 获取当前进度（不预先创建空记录）
+  const { data: existingProgress } = await supabaseAdmin
     .from('user_task_progress')
     .select('*')
     .eq('user_id', userId)
     .single()
 
-  if (!progress) {
-    const { data: newProgress } = await supabaseAdmin
-      .from('user_task_progress')
-      .insert({ user_id: userId })
-      .select()
-      .single()
-    progress = newProgress
-  }
-
   // 计算连续签到天数
   let newStreak = 1
-  if (progress?.last_checkin_date === yesterday) {
-    newStreak = (progress?.current_streak || 0) + 1
+  if (existingProgress?.last_checkin_date === yesterday) {
+    newStreak = (existingProgress.current_streak || 0) + 1
   }
 
   // 检查是否达成7天连续签到
@@ -280,9 +271,10 @@ async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
   }
 
   const totalReward = taskType.reward_usd + bonusAmount
+  const finalStreak = bonusEarned ? 0 : newStreak // 7天后重置
 
   // 创建签到记录
-  await supabaseAdmin
+  const { error: checkinError } = await supabaseAdmin
     .from('user_checkins')
     .insert({
       user_id: userId,
@@ -291,6 +283,11 @@ async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
       bonus_earned: bonusEarned,
       bonus_amount: bonusEarned ? bonusAmount : null,
     })
+
+  if (checkinError) {
+    console.error('Checkin insert error:', checkinError)
+    return NextResponse.json({ error: 'Failed to create checkin record' }, { status: 500 })
+  }
 
   // 创建任务完成记录
   await supabaseAdmin
@@ -307,21 +304,43 @@ async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
       reward_credited_at: now.toISOString(),
     })
 
-  // 更新进度
-  await supabaseAdmin
-    .from('user_task_progress')
-    .upsert({
-      user_id: userId,
-      current_streak: bonusEarned ? 0 : newStreak, // 达成7天后重置
-      last_checkin_date: today,
-      total_checkins: (progress?.total_checkins || 0) + 1,
-      total_task_bonus: (progress?.total_task_bonus || 0) + totalReward,
-      updated_at: now.toISOString(),
-    })
+  // 更新或创建进度记录
+  if (existingProgress) {
+    // 已有记录，更新
+    const { error: updateError } = await supabaseAdmin
+      .from('user_task_progress')
+      .update({
+        current_streak: finalStreak,
+        last_checkin_date: today,
+        total_checkins: (existingProgress.total_checkins || 0) + 1,
+        total_task_bonus: (existingProgress.total_task_bonus || 0) + totalReward,
+        updated_at: now.toISOString(),
+      })
+      .eq('user_id', userId)
+
+    if (updateError) {
+      console.error('Progress update error:', updateError)
+    }
+  } else {
+    // 新记录，插入
+    const { error: insertError } = await supabaseAdmin
+      .from('user_task_progress')
+      .insert({
+        user_id: userId,
+        current_streak: finalStreak,
+        last_checkin_date: today,
+        total_checkins: 1,
+        total_task_bonus: totalReward,
+      })
+
+    if (insertError) {
+      console.error('Progress insert error:', insertError)
+    }
+  }
 
   return NextResponse.json({
     success: true,
-    streak: bonusEarned ? 0 : newStreak,
+    streak: finalStreak,
     reward: taskType.reward_usd,
     bonus: bonusEarned ? bonusAmount : 0,
     total_reward: totalReward,
@@ -337,17 +356,26 @@ async function updateTaskProgress(supabaseAdmin: ReturnType<typeof getSupabaseAd
 
   const { data: progress } = await supabaseAdmin
     .from('user_task_progress')
-    .select('total_task_bonus')
+    .select('*')
     .eq('user_id', userId)
     .single()
 
-  await supabaseAdmin
-    .from('user_task_progress')
-    .upsert({
-      user_id: userId,
-      total_task_bonus: (progress?.total_task_bonus || 0) + rewardAmount,
-      updated_at: new Date().toISOString(),
-    })
+  if (progress) {
+    await supabaseAdmin
+      .from('user_task_progress')
+      .update({
+        total_task_bonus: (progress.total_task_bonus || 0) + rewardAmount,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', userId)
+  } else {
+    await supabaseAdmin
+      .from('user_task_progress')
+      .insert({
+        user_id: userId,
+        total_task_bonus: rewardAmount,
+      })
+  }
 }
 
 // 检查URL是否包含关键词
