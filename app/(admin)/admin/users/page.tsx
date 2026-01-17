@@ -16,7 +16,8 @@ import {
   ChevronDown,
   ChevronUp,
   FileSignature,
-  TrendingUp
+  TrendingUp,
+  Crown
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -156,6 +157,16 @@ export default function AdminUsersPage() {
                 >
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Airdrop
+                </Button>
+              </Link>
+              <Link href="/admin/community">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  Community
                 </Button>
               </Link>
               <Button
