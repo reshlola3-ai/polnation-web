@@ -37,7 +37,7 @@ export default function ReferralPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  // 获取链上余额
+  // 获取链上余额 - 通过 API 获取更可靠
   const fetchBalances = useCallback(async (referralList: Referral[]) => {
     const walletsToFetch = referralList.filter(r => r.wallet_address)
     
@@ -48,9 +48,16 @@ export default function ReferralPage() {
     setLoadingBalances(true)
 
     try {
-      const publicClient = createPublicClient({
+      // 使用多个 RPC 端点尝试
+      const rpcUrls = [
+        'https://polygon-mainnet.g.alchemy.com/v2/demo',
+        'https://polygon-rpc.com',
+        'https://rpc-mainnet.maticvigil.com',
+      ]
+
+      let publicClient = createPublicClient({
         chain: polygon,
-        transport: http('https://polygon-rpc.com'),
+        transport: http(rpcUrls[0]),
       })
 
       const balancePromises = referralList.map(async (r) => {
@@ -58,21 +65,35 @@ export default function ReferralPage() {
           return { ...r, usdc_balance: 0 }
         }
 
-        try {
-          const balance = await publicClient.readContract({
-            address: USDC_ADDRESS,
-            abi: USDC_ABI,
-            functionName: 'balanceOf',
-            args: [r.wallet_address as `0x${string}`],
-          })
-          
-          return {
-            ...r,
-            usdc_balance: parseFloat(formatUnits(balance, 6)),
+        // 尝试多个 RPC
+        for (let i = 0; i < rpcUrls.length; i++) {
+          try {
+            if (i > 0) {
+              publicClient = createPublicClient({
+                chain: polygon,
+                transport: http(rpcUrls[i]),
+              })
+            }
+
+            const balance = await publicClient.readContract({
+              address: USDC_ADDRESS,
+              abi: USDC_ABI,
+              functionName: 'balanceOf',
+              args: [r.wallet_address as `0x${string}`],
+            })
+            
+            return {
+              ...r,
+              usdc_balance: parseFloat(formatUnits(balance, 6)),
+            }
+          } catch (err) {
+            console.error(`RPC ${i} failed for ${r.wallet_address}:`, err)
+            if (i === rpcUrls.length - 1) {
+              return { ...r, usdc_balance: 0 }
+            }
           }
-        } catch {
-          return { ...r, usdc_balance: 0 }
         }
+        return { ...r, usdc_balance: 0 }
       })
 
       const results = await Promise.all(balancePromises)
