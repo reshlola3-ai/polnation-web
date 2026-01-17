@@ -126,6 +126,18 @@ export async function GET(request: NextRequest) {
     // 计算 L1+L2+L3 团队 volume
     const teamVolume = await calculateTeamVolumeL123(user.id, supabaseAdmin)
 
+    // 获取任务奖励进度
+    const { data: taskProgress } = await supabaseAdmin
+      .from('user_task_progress')
+      .select('total_task_bonus')
+      .eq('user_id', user.id)
+      .single()
+    
+    const taskBonus = taskProgress?.total_task_bonus || 0
+    
+    // 有效解锁进度 = 团队volume + 任务奖励
+    const effectiveVolume = teamVolume + taskBonus
+
     // 更新缓存的 volume
     await supabaseAdmin
       .from('user_community_status')
@@ -135,14 +147,14 @@ export async function GET(request: NextRequest) {
       })
       .eq('user_id', user.id)
 
-    // 计算真实等级
+    // 计算真实等级（使用有效解锁进度）
     let realLevel = 0
     for (const level of levels || []) {
       const unlockVolume = status?.is_influencer 
         ? level.unlock_volume_influencer 
         : level.unlock_volume_normal
       
-      if (teamVolume >= unlockVolume) {
+      if (effectiveVolume >= unlockVolume) {
         realLevel = level.level
       } else {
         break
@@ -215,7 +227,9 @@ export async function GET(request: NextRequest) {
       currentLevelInfo,
       nextLevelInfo,
       nextUnlockVolume,
-      volumeToNextLevel: Math.max(0, nextUnlockVolume - teamVolume),
+      effectiveVolume,
+      taskBonus,
+      volumeToNextLevel: Math.max(0, nextUnlockVolume - effectiveVolume),
       claimedLevels,
       claimableLevels,
       dailyEarnings,

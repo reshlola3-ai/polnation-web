@@ -54,6 +54,8 @@ export default function CommunityPage() {
   const [claimableLevels, setClaimableLevels] = useState<number[]>([])
   const [dailyEarnings, setDailyEarnings] = useState<DailyEarning[]>([])
   const [dailyEarningAmount, setDailyEarningAmount] = useState(0)
+  const [effectiveVolume, setEffectiveVolume] = useState(0)
+  const [taskBonus, setTaskBonus] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [claiming, setClaiming] = useState<number | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -74,6 +76,8 @@ export default function CommunityPage() {
         setClaimableLevels(data.claimableLevels || [])
         setDailyEarnings(data.dailyEarnings || [])
         setDailyEarningAmount(data.dailyEarningAmount || 0)
+        setEffectiveVolume(data.effectiveVolume || 0)
+        setTaskBonus(data.taskBonus || 0)
       }
     } catch (err) {
       console.error('Failed to fetch status:', err)
@@ -146,7 +150,7 @@ export default function CommunityPage() {
   }
 
   const progressPercent = nextUnlockVolume > 0 
-    ? Math.min(100, ((status?.team_volume_l123 || 0) / nextUnlockVolume) * 100)
+    ? Math.min(100, (effectiveVolume / nextUnlockVolume) * 100)
     : 100
 
   return (
@@ -227,9 +231,9 @@ export default function CommunityPage() {
         {nextLevelInfo && (
           <div className="bg-white/10 backdrop-blur rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-white/80 text-sm">升级进度</span>
+              <span className="text-white/80 text-sm">解锁进度</span>
               <span className="text-white font-medium">
-                ${(status?.team_volume_l123 || 0).toFixed(2)} / ${nextUnlockVolume.toFixed(2)}
+                ${effectiveVolume.toFixed(2)} / ${nextUnlockVolume.toFixed(2)}
               </span>
             </div>
             <div className="h-3 bg-white/20 rounded-full overflow-hidden mb-2">
@@ -238,13 +242,20 @@ export default function CommunityPage() {
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-white/70">
-                L1+L2+L3 团队 Volume
-              </span>
-              <span className="text-white">
-                还需 <span className="font-bold">${volumeToNextLevel.toFixed(2)}</span> 升级到 {nextLevelInfo.name}
-              </span>
+            <div className="flex flex-col gap-1 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-white/70">
+                  团队 Volume: ${(status?.team_volume_l123 || 0).toFixed(2)}
+                </span>
+                <span className="text-white/70">
+                  任务奖励: ${taskBonus.toFixed(2)}
+                </span>
+              </div>
+              <div className="flex items-center justify-end">
+                <span className="text-white">
+                  还需 <span className="font-bold">${volumeToNextLevel.toFixed(2)}</span> 升级到 {nextLevelInfo.name}
+                </span>
+              </div>
             </div>
           </div>
         )}
@@ -257,7 +268,21 @@ export default function CommunityPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-100">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+              <Zap className="w-6 h-6 text-indigo-600" />
+            </div>
+            <div>
+              <p className="text-sm text-zinc-500">有效解锁进度</p>
+              <p className="text-2xl font-bold text-indigo-600">
+                ${effectiveVolume.toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-100">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -274,13 +299,13 @@ export default function CommunityPage() {
 
         <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-100">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-emerald-600" />
+            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+              <Gift className="w-6 h-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm text-zinc-500">社群累计收益</p>
-              <p className="text-2xl font-bold text-emerald-600">
-                ${(status?.total_community_earned || 0).toFixed(2)}
+              <p className="text-sm text-zinc-500">任务奖励进度</p>
+              <p className="text-2xl font-bold text-purple-600">
+                ${taskBonus.toFixed(2)}
               </p>
             </div>
           </div>
@@ -288,13 +313,13 @@ export default function CommunityPage() {
 
         <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-100">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-              <Gift className="w-6 h-6 text-purple-600" />
+            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-emerald-600" />
             </div>
             <div>
-              <p className="text-sm text-zinc-500">可领取奖励池</p>
-              <p className="text-2xl font-bold text-purple-600">
-                {claimableLevels.length} 个
+              <p className="text-sm text-zinc-500">社群累计收益</p>
+              <p className="text-2xl font-bold text-emerald-600">
+                ${(status?.total_community_earned || 0).toFixed(2)}
               </p>
             </div>
           </div>
@@ -448,7 +473,11 @@ export default function CommunityPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-zinc-600">
           <div className="flex items-start gap-2">
             <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5" />
-            <p>当您的 L1+L2+L3 下线总 Staking Volume 达到条件时，自动解锁对应等级</p>
+            <p><strong>解锁进度</strong> = L1-L3 团队 Volume + 任务奖励进度</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5" />
+            <p>完成 <a href="/tasks" className="text-emerald-600 hover:underline">任务中心</a> 的任务可增加解锁进度</p>
           </div>
           <div className="flex items-start gap-2">
             <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5" />
@@ -461,6 +490,10 @@ export default function CommunityPage() {
           <div className="flex items-start gap-2">
             <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5" />
             <p>Influencer 用户的解锁条件减半，更容易升级</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <ChevronRight className="w-4 h-4 text-purple-500 mt-0.5" />
+            <p>连续签到 7 天可获得 $1 额外解锁进度奖励！</p>
           </div>
         </div>
       </div>
