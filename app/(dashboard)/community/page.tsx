@@ -1,0 +1,469 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { 
+  Users, 
+  Trophy, 
+  TrendingUp, 
+  Gift, 
+  Lock, 
+  Unlock,
+  ChevronRight,
+  RefreshCw,
+  CheckCircle,
+  Star,
+  Zap,
+  Crown
+} from 'lucide-react'
+import { Button } from '@/components/ui/Button'
+
+interface CommunityLevel {
+  level: number
+  name: string
+  reward_pool: number
+  daily_rate: number
+  unlock_volume_normal: number
+  unlock_volume_influencer: number
+}
+
+interface CommunityStatus {
+  real_level: number
+  current_level: number
+  is_admin_set: boolean
+  is_influencer: boolean
+  team_volume_l123: number
+  total_community_earned: number
+}
+
+interface DailyEarning {
+  id: string
+  earning_date: string
+  level: number
+  earning_amount: number
+  is_credited: boolean
+}
+
+export default function CommunityPage() {
+  const [status, setStatus] = useState<CommunityStatus | null>(null)
+  const [levels, setLevels] = useState<CommunityLevel[]>([])
+  const [currentLevelInfo, setCurrentLevelInfo] = useState<CommunityLevel | null>(null)
+  const [nextLevelInfo, setNextLevelInfo] = useState<CommunityLevel | null>(null)
+  const [nextUnlockVolume, setNextUnlockVolume] = useState(0)
+  const [volumeToNextLevel, setVolumeToNextLevel] = useState(0)
+  const [claimedLevels, setClaimedLevels] = useState<number[]>([])
+  const [claimableLevels, setClaimableLevels] = useState<number[]>([])
+  const [dailyEarnings, setDailyEarnings] = useState<DailyEarning[]>([])
+  const [dailyEarningAmount, setDailyEarningAmount] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
+  const [claiming, setClaiming] = useState<number | null>(null)
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
+  const fetchStatus = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const res = await fetch('/api/community/status')
+      if (res.ok) {
+        const data = await res.json()
+        setStatus(data.status)
+        setLevels(data.levels || [])
+        setCurrentLevelInfo(data.currentLevelInfo)
+        setNextLevelInfo(data.nextLevelInfo)
+        setNextUnlockVolume(data.nextUnlockVolume)
+        setVolumeToNextLevel(data.volumeToNextLevel)
+        setClaimedLevels(data.claimedLevels || [])
+        setClaimableLevels(data.claimableLevels || [])
+        setDailyEarnings(data.dailyEarnings || [])
+        setDailyEarningAmount(data.dailyEarningAmount || 0)
+      }
+    } catch (err) {
+      console.error('Failed to fetch status:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchStatus()
+  }, [fetchStatus])
+
+  const handleClaim = async (level: number) => {
+    setClaiming(level)
+    setMessage(null)
+
+    try {
+      const res = await fetch('/api/community/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ level }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setMessage({ type: 'error', text: data.error || 'Claim failed' })
+        return
+      }
+
+      setMessage({ type: 'success', text: data.message })
+      fetchStatus()
+    } catch {
+      setMessage({ type: 'error', text: 'Network error' })
+    } finally {
+      setClaiming(null)
+    }
+  }
+
+  const getLevelIcon = (level: number) => {
+    switch (level) {
+      case 1: return <Star className="w-5 h-5" />
+      case 2: return <Star className="w-5 h-5" />
+      case 3: return <Trophy className="w-5 h-5" />
+      case 4: return <Crown className="w-5 h-5" />
+      case 5: return <Zap className="w-5 h-5" />
+      case 6: return <Crown className="w-5 h-5" />
+      default: return <Star className="w-5 h-5" />
+    }
+  }
+
+  const getLevelColor = (level: number) => {
+    switch (level) {
+      case 1: return 'from-amber-600 to-amber-700' // Bronze
+      case 2: return 'from-slate-400 to-slate-500' // Silver
+      case 3: return 'from-yellow-500 to-amber-500' // Gold
+      case 4: return 'from-cyan-400 to-blue-500' // Platinum
+      case 5: return 'from-purple-500 to-pink-500' // Diamond
+      case 6: return 'from-rose-500 to-red-600' // Elite
+      default: return 'from-zinc-500 to-zinc-600'
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
+      </div>
+    )
+  }
+
+  const progressPercent = nextUnlockVolume > 0 
+    ? Math.min(100, ((status?.team_volume_l123 || 0) / nextUnlockVolume) * 100)
+    : 100
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-zinc-900">社群账户</h1>
+          <p className="text-zinc-500">团队激励奖励系统</p>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={fetchStatus}
+          disabled={isLoading}
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          刷新
+        </Button>
+      </div>
+
+      {/* Message */}
+      {message && (
+        <div className={`p-4 rounded-xl flex items-center gap-3 ${
+          message.type === 'success' 
+            ? 'bg-green-50 text-green-700 border border-green-200' 
+            : 'bg-red-50 text-red-700 border border-red-200'
+        }`}>
+          {message.type === 'success' ? (
+            <CheckCircle className="w-5 h-5" />
+          ) : (
+            <Lock className="w-5 h-5" />
+          )}
+          {message.text}
+        </div>
+      )}
+
+      {/* Current Level Card */}
+      <div className={`bg-gradient-to-br ${currentLevelInfo ? getLevelColor(currentLevelInfo.level) : 'from-zinc-600 to-zinc-700'} rounded-2xl p-6 text-white shadow-xl`}>
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              {status?.is_influencer && (
+                <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium">
+                  ⭐ Influencer
+                </span>
+              )}
+              {status?.is_admin_set && (
+                <span className="px-2 py-0.5 bg-amber-500/30 rounded-full text-xs font-medium">
+                  🎁 特邀等级
+                </span>
+              )}
+            </div>
+            <p className="text-white/70 text-sm">当前等级</p>
+            <p className="text-4xl font-bold flex items-center gap-3">
+              {currentLevelInfo ? (
+                <>
+                  {getLevelIcon(currentLevelInfo.level)}
+                  {currentLevelInfo.name}
+                </>
+              ) : (
+                '未解锁'
+              )}
+            </p>
+          </div>
+          {currentLevelInfo && currentLevelInfo.daily_rate > 0 && (
+            <div className="text-right">
+              <p className="text-white/70 text-sm">每日收益</p>
+              <p className="text-3xl font-bold">${dailyEarningAmount.toFixed(2)}</p>
+              <p className="text-white/70 text-xs">
+                {currentLevelInfo.reward_pool} × {(currentLevelInfo.daily_rate * 100).toFixed(1)}%
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Progress to Next Level */}
+        {nextLevelInfo && (
+          <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-white/80 text-sm">升级进度</span>
+              <span className="text-white font-medium">
+                ${(status?.team_volume_l123 || 0).toFixed(2)} / ${nextUnlockVolume.toFixed(2)}
+              </span>
+            </div>
+            <div className="h-3 bg-white/20 rounded-full overflow-hidden mb-2">
+              <div 
+                className="h-full bg-white rounded-full transition-all duration-500"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-white/70">
+                L1+L2+L3 团队 Volume
+              </span>
+              <span className="text-white">
+                还需 <span className="font-bold">${volumeToNextLevel.toFixed(2)}</span> 升级到 {nextLevelInfo.name}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {!nextLevelInfo && status?.current_level === 6 && (
+          <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
+            <p className="text-white font-medium">🎉 恭喜！您已达到最高等级</p>
+          </div>
+        )}
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-100">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <Users className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm text-zinc-500">L1-L3 团队 Volume</p>
+              <p className="text-2xl font-bold text-zinc-900">
+                ${(status?.team_volume_l123 || 0).toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-100">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-emerald-600" />
+            </div>
+            <div>
+              <p className="text-sm text-zinc-500">社群累计收益</p>
+              <p className="text-2xl font-bold text-emerald-600">
+                ${(status?.total_community_earned || 0).toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-100">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+              <Gift className="w-6 h-6 text-purple-600" />
+            </div>
+            <div>
+              <p className="text-sm text-zinc-500">可领取奖励池</p>
+              <p className="text-2xl font-bold text-purple-600">
+                {claimableLevels.length} 个
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* All Levels */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+        <h2 className="text-lg font-semibold text-zinc-900 mb-4 flex items-center gap-2">
+          <Trophy className="w-5 h-5" />
+          等级一览
+        </h2>
+
+        <div className="space-y-3">
+          {levels.map((level) => {
+            const isUnlocked = (status?.real_level || 0) >= level.level
+            const isCurrent = status?.current_level === level.level
+            const isClaimed = claimedLevels.includes(level.level)
+            const canClaim = claimableLevels.includes(level.level)
+            const unlockVolume = status?.is_influencer 
+              ? level.unlock_volume_influencer 
+              : level.unlock_volume_normal
+
+            return (
+              <div 
+                key={level.level}
+                className={`relative rounded-xl p-4 border-2 transition-all ${
+                  isCurrent 
+                    ? 'border-emerald-500 bg-emerald-50' 
+                    : isUnlocked 
+                      ? 'border-zinc-200 bg-zinc-50' 
+                      : 'border-zinc-100 bg-white opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${getLevelColor(level.level)} text-white`}>
+                      {getLevelIcon(level.level)}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-zinc-900">
+                          Level {level.level} - {level.name}
+                        </span>
+                        {isCurrent && (
+                          <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs rounded-full">
+                            当前
+                          </span>
+                        )}
+                        {isClaimed && (
+                          <span className="px-2 py-0.5 bg-zinc-500 text-white text-xs rounded-full">
+                            已领取
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-zinc-500 mt-1">
+                        <span>奖励池: <span className="font-medium text-zinc-700">${level.reward_pool}</span></span>
+                        <span>日收益率: <span className="font-medium text-zinc-700">{(level.daily_rate * 100).toFixed(1)}%</span></span>
+                        <span>解锁条件: <span className="font-medium text-zinc-700">${unlockVolume}</span></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {isUnlocked ? (
+                      <Unlock className="w-5 h-5 text-emerald-500" />
+                    ) : (
+                      <Lock className="w-5 h-5 text-zinc-400" />
+                    )}
+
+                    {canClaim && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleClaim(level.level)}
+                        disabled={claiming === level.level}
+                        className="bg-purple-500 hover:bg-purple-600"
+                      >
+                        {claiming === level.level ? (
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Gift className="w-4 h-4 mr-1" />
+                            领取 ${level.reward_pool}
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Daily earning for current level */}
+                {isCurrent && level.daily_rate > 0 && (
+                  <div className="mt-3 pt-3 border-t border-zinc-200 flex items-center justify-between text-sm">
+                    <span className="text-zinc-500">每日收益</span>
+                    <span className="font-semibold text-emerald-600">
+                      +${(level.reward_pool * level.daily_rate).toFixed(2)} USDC/天
+                    </span>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Daily Earnings History */}
+      {dailyEarnings.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+          <h2 className="text-lg font-semibold text-zinc-900 mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5" />
+            每日收益记录
+          </h2>
+          <div className="space-y-2">
+            {dailyEarnings.map((earning) => (
+              <div 
+                key={earning.id}
+                className="flex items-center justify-between py-3 border-b border-zinc-100 last:border-0"
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br ${getLevelColor(earning.level)} text-white text-xs`}>
+                    L{earning.level}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-zinc-900">
+                      Level {earning.level} 每日收益
+                    </p>
+                    <p className="text-xs text-zinc-500">
+                      {new Date(earning.earning_date).toLocaleDateString('zh-CN')}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold text-emerald-600">
+                    +${earning.earning_amount.toFixed(4)}
+                  </p>
+                  {earning.is_credited ? (
+                    <span className="text-xs text-zinc-400">已入账</span>
+                  ) : (
+                    <span className="text-xs text-amber-500">待入账</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* How it works */}
+      <div className="bg-gradient-to-br from-zinc-50 to-zinc-100 rounded-2xl p-6 border border-zinc-200">
+        <h2 className="text-lg font-semibold text-zinc-900 mb-4">💡 社群账户说明</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-zinc-600">
+          <div className="flex items-start gap-2">
+            <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5" />
+            <p>当您的 L1+L2+L3 下线总 Staking Volume 达到条件时，自动解锁对应等级</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5" />
+            <p>解锁等级后，奖励池开始按每日利率产生收益，自动进入利润账户</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5" />
+            <p>升级到下一等级后，可以领取前一等级的奖励池金额</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5" />
+            <p>Influencer 用户的解锁条件减半，更容易升级</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
