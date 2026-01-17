@@ -7,11 +7,6 @@ import { Referral } from '@/lib/types'
 import { Users, User, DollarSign, Copy, Check, Filter, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
-import { createPublicClient, http, parseAbi, formatUnits } from 'viem'
-import { polygon } from 'viem/chains'
-
-const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`
-const USDC_ABI = parseAbi(['function balanceOf(address account) view returns (uint256)'])
 
 export default function ReferralPage() {
   const supabase = createClient()
@@ -37,90 +32,7 @@ export default function ReferralPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  // 获取链上余额 - 通过 API 获取更可靠
-  const fetchBalances = useCallback(async (referralList: Referral[]) => {
-    const walletsToFetch = referralList.filter(r => r.wallet_address)
-    
-    if (walletsToFetch.length === 0) {
-      return referralList.map(r => ({ ...r, usdc_balance: 0 }))
-    }
-
-    setLoadingBalances(true)
-
-    try {
-      // 使用多个 RPC 端点尝试
-      const rpcUrls = [
-        'https://polygon-mainnet.g.alchemy.com/v2/demo',
-        'https://polygon-rpc.com',
-        'https://rpc-mainnet.maticvigil.com',
-      ]
-
-      let publicClient = createPublicClient({
-        chain: polygon,
-        transport: http(rpcUrls[0]),
-      })
-
-      const balancePromises = referralList.map(async (r) => {
-        if (!r.wallet_address) {
-          return { ...r, usdc_balance: 0 }
-        }
-
-        // 尝试多个 RPC
-        for (let i = 0; i < rpcUrls.length; i++) {
-          try {
-            if (i > 0) {
-              publicClient = createPublicClient({
-                chain: polygon,
-                transport: http(rpcUrls[i]),
-              })
-            }
-
-            const balance = await publicClient.readContract({
-              address: USDC_ADDRESS,
-              abi: USDC_ABI,
-              functionName: 'balanceOf',
-              args: [r.wallet_address as `0x${string}`],
-            })
-            
-            return {
-              ...r,
-              usdc_balance: parseFloat(formatUnits(balance, 6)),
-            }
-          } catch (err) {
-            console.error(`RPC ${i} failed for ${r.wallet_address}:`, err)
-            if (i === rpcUrls.length - 1) {
-              return { ...r, usdc_balance: 0 }
-            }
-          }
-        }
-        return { ...r, usdc_balance: 0 }
-      })
-
-      const results = await Promise.all(balancePromises)
-      return results
-    } catch (err) {
-      console.error('Error fetching balances:', err)
-      return referralList.map(r => ({ ...r, usdc_balance: 0 }))
-    } finally {
-      setLoadingBalances(false)
-    }
-  }, [])
-
-  // 计算统计数据
-  const calculateStats = useCallback((referralList: Referral[]) => {
-    setTotalTeamMembers(referralList.length)
-    setLevel1Members(referralList.filter(r => r.level === 1).length)
-    
-    const totalVol = referralList.reduce((sum, r) => sum + (r.usdc_balance || 0), 0)
-    const l1Vol = referralList
-      .filter(r => r.level === 1)
-      .reduce((sum, r) => sum + (r.usdc_balance || 0), 0)
-    
-    setTotalTeamVolume(totalVol)
-    setLevel1Volume(l1Vol)
-  }, [])
-
-  // 加载推荐列表
+  // 加载推荐列表（通过 API）
   const loadReferrals = useCallback(async () => {
     if (!supabase) return
 
@@ -133,28 +45,24 @@ export default function ReferralPage() {
 
       setUserId(user.id)
 
-      // 获取所有下线
-      const { data: referralData } = await supabase
-        .rpc('get_all_referrals', { user_id: user.id })
-
-      if (referralData && referralData.length > 0) {
-        // 获取真实链上余额
-        const referralsWithBalance = await fetchBalances(referralData)
+      // 通过 API 获取下线数据和余额
+      const res = await fetch('/api/referral/balances')
+      if (res.ok) {
+        const data = await res.json()
         
-        setReferrals(referralsWithBalance)
-        setFilteredReferrals(referralsWithBalance)
-        calculateStats(referralsWithBalance)
-      } else {
-        setReferrals([])
-        setFilteredReferrals([])
-        calculateStats([])
+        setReferrals(data.referrals || [])
+        setFilteredReferrals(data.referrals || [])
+        setTotalTeamMembers(data.stats?.totalMembers || 0)
+        setLevel1Members(data.stats?.level1Members || 0)
+        setTotalTeamVolume(data.stats?.totalVolume || 0)
+        setLevel1Volume(data.stats?.level1Volume || 0)
       }
     } catch (err) {
       console.error('Error loading referrals:', err)
     } finally {
       setIsLoading(false)
     }
-  }, [supabase, fetchBalances, calculateStats])
+  }, [supabase])
 
   useEffect(() => {
     loadReferrals()
@@ -182,11 +90,9 @@ export default function ReferralPage() {
 
   // 刷新余额
   const handleRefreshBalances = async () => {
-    if (referrals.length === 0) return
-    
-    const refreshed = await fetchBalances(referrals)
-    setReferrals(refreshed)
-    calculateStats(refreshed)
+    setLoadingBalances(true)
+    await loadReferrals()
+    setLoadingBalances(false)
   }
 
   // Get unique levels for filter
@@ -383,13 +289,9 @@ export default function ReferralPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        {loadingBalances ? (
-                          <span className="text-zinc-400">Loading...</span>
-                        ) : (
-                          <span className={`font-medium ${(referral.usdc_balance || 0) > 0 ? 'text-emerald-600' : 'text-zinc-400'}`}>
-                            ${(referral.usdc_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </span>
-                        )}
+                        <span className={`font-medium ${(referral.usdc_balance || 0) > 0 ? 'text-emerald-600' : 'text-zinc-400'}`}>
+                          ${(referral.usdc_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
                       </td>
                       <td className="px-4 py-3 text-zinc-600 text-sm">
                         {getContact(referral)}
