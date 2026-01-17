@@ -15,7 +15,9 @@ import {
   Loader2,
   ExternalLink,
   Timer,
-  Users
+  Users,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { useAccount, useReadContract } from 'wagmi'
@@ -67,6 +69,7 @@ interface WithdrawalItem {
   id: string
   token_type: string
   amount: number
+  usd_amount?: number
   status: string
   created_at: string
   tx_hash: string | null
@@ -90,10 +93,12 @@ export default function EarningsPage() {
   const [nextDistribution, setNextDistribution] = useState<{ next_at: string; seconds_remaining: number } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [withdrawing, setWithdrawing] = useState(false)
-  const [withdrawType, setWithdrawType] = useState<'USDC' | 'MATIC'>('USDC')
+  const [withdrawType, setWithdrawType] = useState<'USDC' | 'POL'>('USDC')
   const [withdrawAmount, setWithdrawAmount] = useState('')
+  const [polPrice, setPolPrice] = useState<number>(0.5) // 默认 POL 价格
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showEarningsBreakdown, setShowEarningsBreakdown] = useState(false)
 
   // 获取链上 USDC 余额
   const { data: usdcBalanceRaw } = useReadContract({
@@ -109,6 +114,30 @@ export default function EarningsPage() {
   // 获取当前等级
   const currentTier = tiers.find(t => usdcBalance >= t.min_usdc && usdcBalance < t.max_usdc)
   const nextTier = currentTier ? tiers.find(t => t.level === currentTier.level + 1) : tiers[0]
+
+  // 可提现总金额（美元）
+  const totalAvailable = (profits?.available_usdc || 0)
+
+  // 计算 POL 数量
+  const polAmount = withdrawAmount && polPrice > 0 
+    ? (parseFloat(withdrawAmount) / polPrice).toFixed(4)
+    : '0'
+
+  // 获取 POL 价格
+  const fetchPolPrice = useCallback(async () => {
+    try {
+      // 从 CoinGecko 获取 POL 价格
+      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=matic-network&vs_currencies=usd')
+      if (res.ok) {
+        const data = await res.json()
+        if (data['matic-network']?.usd) {
+          setPolPrice(data['matic-network'].usd)
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch POL price:', err)
+    }
+  }, [])
 
   const fetchProfits = useCallback(async () => {
     setIsLoading(true)
@@ -133,7 +162,8 @@ export default function EarningsPage() {
 
   useEffect(() => {
     fetchProfits()
-  }, [fetchProfits])
+    fetchPolPrice()
+  }, [fetchProfits, fetchPolPrice])
 
   // 倒计时更新
   useEffect(() => {
@@ -158,20 +188,14 @@ export default function EarningsPage() {
       return
     }
 
-    const minAmount = withdrawType === 'USDC' 
-      ? (config?.min_withdrawal_usdc || 0.1)
-      : (config?.min_withdrawal_matic || 0.1)
+    const minAmount = config?.min_withdrawal_usdc || 0.1
 
     if (parseFloat(withdrawAmount) < minAmount) {
-      setError(`最低提现金额为 ${minAmount} ${withdrawType}`)
+      setError(`最低提现金额为 $${minAmount}`)
       return
     }
 
-    const available = withdrawType === 'USDC' 
-      ? (profits?.available_usdc || 0) 
-      : (profits?.available_matic || 0)
-
-    if (parseFloat(withdrawAmount) > available) {
+    if (parseFloat(withdrawAmount) > totalAvailable) {
       setError('余额不足')
       return
     }
@@ -187,6 +211,7 @@ export default function EarningsPage() {
         body: JSON.stringify({
           tokenType: withdrawType,
           amount: withdrawAmount,
+          polAmount: withdrawType === 'POL' ? polAmount : undefined,
         }),
       })
 
@@ -340,76 +365,91 @@ export default function EarningsPage() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
+      {/* Stats Cards - 简化版 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Staking 收益 */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-green-600" />
+            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <p className="text-xs text-zinc-500">Staking 收益</p>
-              <p className="text-lg font-bold text-zinc-900">
+              <p className="text-sm text-zinc-500">Staking 收益</p>
+              <p className="text-2xl font-bold text-zinc-900">
                 ${(profits?.total_earned_usdc || 0).toFixed(4)}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
+        {/* 推荐佣金 */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-100">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Users className="w-5 h-5 text-orange-600" />
+            <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+              <Users className="w-6 h-6 text-orange-600" />
             </div>
             <div>
-              <p className="text-xs text-zinc-500">推荐佣金</p>
-              <p className="text-lg font-bold text-orange-600">
+              <p className="text-sm text-zinc-500">推荐佣金</p>
+              <p className="text-2xl font-bold text-orange-600">
                 ${(profits?.total_commission_earned || 0).toFixed(4)}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-emerald-600" />
+        {/* 可提现金额 - 可点击展开 */}
+        <div 
+          className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-5 shadow-sm border border-emerald-200 cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setShowEarningsBreakdown(!showEarningsBreakdown)}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center">
+                <DollarSign className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-emerald-700">可提现金额</p>
+                <p className="text-2xl font-bold text-emerald-600">
+                  ${totalAvailable.toFixed(4)}
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-zinc-500">可提现 USDC</p>
-              <p className="text-lg font-bold text-emerald-600">
-                ${(profits?.available_usdc || 0).toFixed(4)}
-              </p>
-            </div>
+            {showEarningsBreakdown ? (
+              <ChevronUp className="w-5 h-5 text-emerald-600" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-emerald-600" />
+            )}
           </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-purple-600" />
+          
+          {/* 展开的详情 */}
+          {showEarningsBreakdown && (
+            <div className="mt-4 pt-4 border-t border-emerald-200 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-emerald-700">Staking 收益</span>
+                <span className="font-semibold text-zinc-700">
+                  ${(profits?.total_earned_usdc || 0).toFixed(4)}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-emerald-700">推荐佣金</span>
+                <span className="font-semibold text-zinc-700">
+                  ${(profits?.total_commission_earned || 0).toFixed(4)}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-emerald-700">已提现</span>
+                <span className="font-semibold text-red-500">
+                  -${(profits?.withdrawn_usdc || 0).toFixed(4)}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm pt-2 border-t border-emerald-200">
+                <span className="text-emerald-700 font-medium">可用余额</span>
+                <span className="font-bold text-emerald-600">
+                  ${totalAvailable.toFixed(4)}
+                </span>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-zinc-500">可提现 MATIC</p>
-              <p className="text-lg font-bold text-purple-600">
-                {(profits?.available_matic || 0).toFixed(4)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-zinc-100 rounded-lg flex items-center justify-center">
-              <ArrowDownCircle className="w-5 h-5 text-zinc-600" />
-            </div>
-            <div>
-              <p className="text-xs text-zinc-500">已提现</p>
-              <p className="text-lg font-bold text-zinc-900">
-                ${((profits?.withdrawn_usdc || 0) + (profits?.withdrawn_matic || 0)).toFixed(4)}
-              </p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -437,27 +477,33 @@ export default function EarningsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Token Type */}
           <div>
-            <label className="text-sm text-zinc-500 mb-2 block">代币</label>
+            <label className="text-sm text-zinc-500 mb-2 block">提现代币</label>
             <div className="flex gap-2">
               <button
                 onClick={() => setWithdrawType('USDC')}
-                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                   withdrawType === 'USDC'
-                    ? 'bg-emerald-500 text-white'
+                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/25'
                     : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
                 }`}
               >
-                USDC
+                <div className="flex flex-col items-center">
+                  <span className="text-lg mb-1">💵</span>
+                  <span>USDC</span>
+                </div>
               </button>
               <button
-                onClick={() => setWithdrawType('MATIC')}
-                className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  withdrawType === 'MATIC'
-                    ? 'bg-purple-500 text-white'
+                onClick={() => setWithdrawType('POL')}
+                className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+                  withdrawType === 'POL'
+                    ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/25'
                     : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
                 }`}
               >
-                MATIC
+                <div className="flex flex-col items-center">
+                  <span className="text-lg mb-1">🟣</span>
+                  <span>POL</span>
+                </div>
               </button>
             </div>
           </div>
@@ -465,39 +511,58 @@ export default function EarningsPage() {
           {/* Amount */}
           <div>
             <label className="text-sm text-zinc-500 mb-2 block">
-              金额 (可用: {withdrawType === 'USDC' 
-                ? `$${(profits?.available_usdc || 0).toFixed(4)}`
-                : `${(profits?.available_matic || 0).toFixed(4)} MATIC`
-              })
+              提现金额 (美元)
             </label>
-            <input
-              type="number"
-              value={withdrawAmount}
-              onChange={(e) => setWithdrawAmount(e.target.value)}
-              placeholder={`最低 ${withdrawType === 'USDC' ? config?.min_withdrawal_usdc : config?.min_withdrawal_matic}`}
-              className="w-full px-4 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">$</span>
+              <input
+                type="number"
+                value={withdrawAmount}
+                onChange={(e) => setWithdrawAmount(e.target.value)}
+                placeholder={`最低 ${config?.min_withdrawal_usdc || 0.1}`}
+                className="w-full pl-7 pr-4 py-3 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+            <p className="text-xs text-zinc-400 mt-1">
+              可用: ${totalAvailable.toFixed(4)}
+            </p>
+            
+            {/* POL 换算显示 */}
+            {withdrawType === 'POL' && withdrawAmount && parseFloat(withdrawAmount) > 0 && (
+              <div className="mt-2 p-2 bg-purple-50 rounded-lg">
+                <p className="text-sm text-purple-700">
+                  ≈ <span className="font-bold">{polAmount}</span> POL
+                </p>
+                <p className="text-xs text-purple-500">
+                  当前价格: ${ polPrice.toFixed(4)}/POL
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Submit */}
           <div className="flex items-end">
             <Button
               onClick={handleWithdraw}
-              disabled={withdrawing || !withdrawAmount}
-              className="w-full"
+              disabled={withdrawing || !withdrawAmount || parseFloat(withdrawAmount) <= 0}
+              className={`w-full py-3 ${
+                withdrawType === 'POL' 
+                  ? 'bg-purple-500 hover:bg-purple-600' 
+                  : 'bg-emerald-500 hover:bg-emerald-600'
+              }`}
             >
               {withdrawing ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               ) : (
                 <ArrowDownCircle className="w-4 h-4 mr-2" />
               )}
-              提现
+              {withdrawType === 'POL' ? `提现 ${polAmount} POL` : '提现 USDC'}
             </Button>
           </div>
         </div>
 
-        <p className="text-xs text-zinc-400 mt-3">
-          最低提现: USDC ${config?.min_withdrawal_usdc || 0.1} / MATIC {config?.min_withdrawal_matic || 0.1}
+        <p className="text-xs text-zinc-400 mt-4">
+          💡 选择 POL 提现时，系统会自动将等值美元兑换为 POL 发送到您的钱包
         </p>
       </div>
 
@@ -578,6 +643,11 @@ export default function EarningsPage() {
                     <div>
                       <p className="text-lg font-semibold text-zinc-900">
                         -{item.amount} {item.token_type}
+                        {item.usd_amount && (
+                          <span className="text-sm text-zinc-500 ml-2">
+                            (${item.usd_amount.toFixed(2)})
+                          </span>
+                        )}
                       </p>
                       <span className={`text-xs px-2 py-0.5 rounded ${
                         item.status === 'completed' ? 'bg-green-100 text-green-700' :
