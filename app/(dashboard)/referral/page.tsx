@@ -154,7 +154,7 @@ export default function ReferralPage() {
             </div>
             <div>
               <p className="text-xs text-zinc-500">Total Team Volume</p>
-              <p className="text-lg font-bold text-white">
+              <p className="text-lg font-bold text-white currency">
                 ${totalTeamVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
@@ -168,7 +168,7 @@ export default function ReferralPage() {
             </div>
             <div>
               <p className="text-xs text-zinc-500">Level 1 Volume</p>
-              <p className="text-lg font-bold text-white">
+              <p className="text-lg font-bold text-white currency">
                 ${level1Volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
@@ -182,7 +182,7 @@ export default function ReferralPage() {
             </div>
             <div>
               <p className="text-xs text-zinc-500">Total Team</p>
-              <p className="text-lg font-bold text-white">{totalTeamMembers}</p>
+              <p className="text-lg font-bold text-white stat-number">{totalTeamMembers}</p>
             </div>
           </div>
         </div>
@@ -194,7 +194,7 @@ export default function ReferralPage() {
             </div>
             <div>
               <p className="text-xs text-zinc-500">Direct Referrals</p>
-              <p className="text-lg font-bold text-white">{level1Members}</p>
+              <p className="text-lg font-bold text-white stat-number">{level1Members}</p>
             </div>
           </div>
         </div>

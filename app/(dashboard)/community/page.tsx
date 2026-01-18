@@ -219,8 +219,8 @@ export default function CommunityPage() {
           {currentLevelInfo && currentLevelInfo.daily_rate > 0 && (
             <div className="text-right">
               <p className="text-white/70 text-sm">每日收益</p>
-              <p className="text-3xl font-bold">${dailyEarningAmount.toFixed(2)}</p>
-              <p className="text-white/70 text-xs">
+              <p className="text-3xl font-bold currency">${dailyEarningAmount.toFixed(2)}</p>
+              <p className="text-white/70 text-xs font-mono">
                 {currentLevelInfo.reward_pool} × {(currentLevelInfo.daily_rate * 100).toFixed(1)}%
               </p>
             </div>
@@ -232,7 +232,7 @@ export default function CommunityPage() {
           <div className="bg-white/10 backdrop-blur rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-white/80 text-sm">解锁进度</span>
-              <span className="text-white font-medium">
+              <span className="text-white font-medium currency">
                 ${effectiveVolume.toFixed(2)} / ${nextUnlockVolume.toFixed(2)}
               </span>
             </div>
@@ -245,15 +245,15 @@ export default function CommunityPage() {
             <div className="flex flex-col gap-1 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-white/70">
-                  团队 Volume: ${(status?.team_volume_l123 || 0).toFixed(2)}
+                  团队 Volume: <span className="currency">${(status?.team_volume_l123 || 0).toFixed(2)}</span>
                 </span>
                 <span className="text-white/70">
-                  任务奖励: ${taskBonus.toFixed(2)}
+                  任务奖励: <span className="currency">${taskBonus.toFixed(2)}</span>
                 </span>
               </div>
               <div className="flex items-center justify-end">
                 <span className="text-white">
-                  还需 <span className="font-bold">${volumeToNextLevel.toFixed(2)}</span> 升级到 {nextLevelInfo.name}
+                  还需 <span className="font-bold currency">${volumeToNextLevel.toFixed(2)}</span> 升级到 {nextLevelInfo.name}
                 </span>
               </div>
             </div>
@@ -276,7 +276,7 @@ export default function CommunityPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-500">有效解锁进度</p>
-              <p className="text-2xl font-bold text-indigo-600">
+              <p className="text-2xl font-bold text-indigo-600 currency">
                 ${effectiveVolume.toFixed(2)}
               </p>
             </div>
@@ -290,7 +290,7 @@ export default function CommunityPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-500">L1-L3 团队 Volume</p>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-2xl font-bold text-white currency">
                 ${(status?.team_volume_l123 || 0).toFixed(2)}
               </p>
             </div>
@@ -304,7 +304,7 @@ export default function CommunityPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-500">任务奖励进度</p>
-              <p className="text-2xl font-bold text-purple-600">
+              <p className="text-2xl font-bold text-purple-600 currency">
                 ${taskBonus.toFixed(2)}
               </p>
             </div>
@@ -318,7 +318,7 @@ export default function CommunityPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-500">社群累计收益</p>
-              <p className="text-2xl font-bold text-emerald-400">
+              <p className="text-2xl font-bold text-emerald-400 currency">
                 ${(status?.total_community_earned || 0).toFixed(2)}
               </p>
             </div>
@@ -376,9 +376,9 @@ export default function CommunityPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-zinc-500 mt-1">
-                        <span>奖励池: <span className="font-medium text-zinc-300">${level.reward_pool}</span></span>
-                        <span>日收益率: <span className="font-medium text-zinc-300">{(level.daily_rate * 100).toFixed(1)}%</span></span>
-                        <span>解锁条件: <span className="font-medium text-zinc-300">${unlockVolume}</span></span>
+                        <span>奖励池: <span className="font-medium text-zinc-300 currency">${level.reward_pool}</span></span>
+                        <span>日收益率: <span className="font-medium text-zinc-300 percentage">{(level.daily_rate * 100).toFixed(1)}%</span></span>
+                        <span>解锁条件: <span className="font-medium text-zinc-300 currency">${unlockVolume}</span></span>
                       </div>
                     </div>
                   </div>

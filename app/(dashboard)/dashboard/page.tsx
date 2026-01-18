@@ -88,7 +88,7 @@ export default async function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-500">Total Team</p>
-              <p className="text-2xl font-bold text-white">{stats.total_team_members}</p>
+              <p className="text-2xl font-bold text-white stat-number">{stats.total_team_members}</p>
             </div>
           </div>
         </div>
@@ -101,7 +101,7 @@ export default async function DashboardPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-500">Direct Referrals</p>
-              <p className="text-2xl font-bold text-white">{stats.level1_members}</p>
+              <p className="text-2xl font-bold text-white stat-number">{stats.level1_members}</p>
             </div>
           </div>
         </div>

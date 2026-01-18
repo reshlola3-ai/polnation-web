@@ -168,15 +168,15 @@ export default function TasksPage() {
         <div className="relative z-10 flex items-center justify-between">
           <div>
             <p className="text-purple-200 text-sm">Total Task Bonus</p>
-            <p className="text-3xl font-bold text-white">${progress.total_task_bonus.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-white currency">${progress.total_task_bonus.toFixed(2)}</p>
             <p className="text-purple-200 text-xs mt-1">Added to your unlock progress</p>
           </div>
           <div className="text-right">
             <div className="flex items-center gap-2 mb-2">
               <Flame className="w-5 h-5 text-orange-300" />
-              <span className="text-lg font-semibold text-white">{progress.current_streak} day streak</span>
+              <span className="text-lg font-semibold text-white stat-number">{progress.current_streak} day streak</span>
             </div>
-            <p className="text-purple-200 text-sm">{progress.total_checkins} total check-ins</p>
+            <p className="text-purple-200 text-sm"><span className="stat-number">{progress.total_checkins}</span> total check-ins</p>
           </div>
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function TasksPage() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-yellow-300 text-2xl font-bold">{progress.current_streak}</p>
+                <p className="text-yellow-300 text-2xl font-bold stat-number">{progress.current_streak}</p>
                 <p className="text-red-100 text-xs">累计天数</p>
               </div>
             </div>
@@ -274,10 +274,10 @@ export default function TasksPage() {
             <div className="flex items-center justify-between text-sm mb-4 px-2">
               <div className="flex items-center gap-1 text-zinc-400">
                 <Flame className="w-4 h-4 text-orange-500" />
-                <span>累计签到 <span className="font-bold text-red-400">{progress.total_checkins}</span> 天</span>
+                <span>累计签到 <span className="font-bold text-red-400 stat-number">{progress.total_checkins}</span> 天</span>
               </div>
               <div className="text-zinc-400">
-                已获得 <span className="font-bold text-emerald-400">${progress.total_task_bonus.toFixed(2)}</span>
+                已获得 <span className="font-bold text-emerald-400 currency">${progress.total_task_bonus.toFixed(2)}</span>
               </div>
             </div>
 
@@ -336,7 +336,7 @@ export default function TasksPage() {
                   <p className="text-sm text-zinc-500">{task.description}</p>
                 </div>
                 <div className="text-right mr-4">
-                  <p className="font-semibold text-emerald-400">+${task.reward_usd}</p>
+                  <p className="font-semibold text-emerald-400 currency">+${task.reward_usd}</p>
                 </div>
                 {task.completed_count > 0 ? (
                   <div className="flex items-center gap-1 text-green-400">
@@ -391,7 +391,7 @@ export default function TasksPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-emerald-400">+${task.reward_usd}</p>
+                  <p className="font-semibold text-emerald-400 currency">+${task.reward_usd}</p>
                   <p className="text-xs text-zinc-500">per submission</p>
                 </div>
               </div>
@@ -437,7 +437,7 @@ export default function TasksPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-emerald-400">+${task.reward_usd}</p>
+                  <p className="font-semibold text-emerald-400 currency">+${task.reward_usd}</p>
                   <p className="text-xs text-zinc-500">after approval</p>
                 </div>
               </div>

@@ -293,7 +293,7 @@ export default function EarningsPage() {
           <div className="flex items-start justify-between mb-6">
             <div>
               <p className="text-emerald-100 text-sm mb-1">您的 USDC 余额</p>
-              <p className="text-4xl font-bold">${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+              <p className="text-4xl font-bold currency">${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             </div>
             {currentTier && (
               <div className="px-3 py-1 rounded-full bg-white/20 backdrop-blur">
@@ -309,11 +309,11 @@ export default function EarningsPage() {
             <div className="bg-white/10 backdrop-blur rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-emerald-100">当前利率</span>
-                <span className="text-xl font-bold">{currentTier.rate_percent}% / {formatInterval(config?.interval_seconds || 28800)}</span>
+                <span className="text-xl font-bold percentage">{currentTier.rate_percent}% / {formatInterval(config?.interval_seconds || 28800)}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-emerald-100">预计每日收益</span>
-                <span className="font-semibold">
+                <span className="font-semibold currency">
                   ${((usdcBalance * currentTier.rate_percent / 100) * (86400 / (config?.interval_seconds || 28800))).toFixed(4)}
                 </span>
               </div>
@@ -345,7 +345,7 @@ export default function EarningsPage() {
             <div>
               <p className="text-sm text-zinc-500">下次发放</p>
               {nextDistribution ? (
-                <p className="text-xl font-bold text-white">
+                <p className="text-xl font-bold text-white font-mono">
                   {formatCountdown(nextDistribution.seconds_remaining)}
                 </p>
               ) : (
@@ -379,7 +379,7 @@ export default function EarningsPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-500">Staking 收益</p>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-2xl font-bold text-white currency">
                 ${(profits?.total_earned_usdc || 0).toFixed(4)}
               </p>
             </div>
@@ -394,7 +394,7 @@ export default function EarningsPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-500">推荐佣金</p>
-              <p className="text-2xl font-bold text-orange-600">
+              <p className="text-2xl font-bold text-orange-600 currency">
                 ${(profits?.total_commission_earned || 0).toFixed(4)}
               </p>
             </div>
@@ -413,7 +413,7 @@ export default function EarningsPage() {
               </div>
               <div>
                 <p className="text-sm text-emerald-700">可提现金额</p>
-                <p className="text-2xl font-bold text-emerald-400">
+                <p className="text-2xl font-bold text-emerald-400 currency">
                   ${totalAvailable.toFixed(4)}
                 </p>
               </div>
@@ -430,25 +430,25 @@ export default function EarningsPage() {
             <div className="mt-4 pt-4 border-t border-emerald-200 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-emerald-700">Staking 收益</span>
-                <span className="font-semibold text-zinc-300">
+                <span className="font-semibold text-zinc-300 currency">
                   ${(profits?.total_earned_usdc || 0).toFixed(4)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-emerald-700">推荐佣金</span>
-                <span className="font-semibold text-zinc-300">
+                <span className="font-semibold text-zinc-300 currency">
                   ${(profits?.total_commission_earned || 0).toFixed(4)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-emerald-700">已提现</span>
-                <span className="font-semibold text-red-500">
+                <span className="font-semibold text-red-500 currency">
                   -${(profits?.withdrawn_usdc || 0).toFixed(4)}
                 </span>
               </div>
               <div className="flex justify-between text-sm pt-2 border-t border-emerald-200">
                 <span className="text-emerald-700 font-medium">可用余额</span>
-                <span className="font-bold text-emerald-400">
+                <span className="font-bold text-emerald-400 currency">
                   ${totalAvailable.toFixed(4)}
                 </span>
               </div>
@@ -541,17 +541,17 @@ export default function EarningsPage() {
               <div className="mt-2 p-3 bg-purple-50 rounded-lg border border-purple-100">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs text-purple-400">当前 POL 价格</span>
-                  <span className="text-sm font-semibold text-purple-700">${polPrice.toFixed(4)}</span>
+                  <span className="text-sm font-semibold text-purple-700 currency">${polPrice.toFixed(4)}</span>
                 </div>
                 {withdrawAmount && parseFloat(withdrawAmount) > 0 ? (
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-purple-400">您将收到</span>
-                    <span className="text-lg font-bold text-purple-700">{polAmount} POL</span>
+                    <span className="text-lg font-bold text-purple-700 stat-number">{polAmount} POL</span>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-purple-400">最多可提取</span>
-                    <span className="text-lg font-bold text-purple-700">
+                    <span className="text-lg font-bold text-purple-700 stat-number">
                       {(totalAvailable / polPrice).toFixed(4)} POL
                     </span>
                   </div>
@@ -616,13 +616,13 @@ export default function EarningsPage() {
                       {tier.name}
                     </span>
                   </td>
-                  <td className="py-3 text-sm text-zinc-300">
+                  <td className="py-3 text-sm text-zinc-300 currency">
                     ${tier.min_usdc.toLocaleString()} - ${tier.max_usdc.toLocaleString()}
                   </td>
-                  <td className="py-3 text-sm font-semibold text-white">
+                  <td className="py-3 text-sm font-semibold text-white percentage">
                     {tier.rate_percent}%
                   </td>
-                  <td className="py-3 text-sm text-zinc-500">
+                  <td className="py-3 text-sm text-zinc-500 percentage">
                     {(tier.rate_percent * (86400 / (config?.interval_seconds || 28800))).toFixed(2)}%
                   </td>
                 </tr>
@@ -661,10 +661,10 @@ export default function EarningsPage() {
                       )}
                     </div>
                     <div>
-                      <p className="text-lg font-semibold text-white">
+                      <p className="text-lg font-semibold text-white currency">
                         -{item.amount} {item.token_type}
                         {item.usd_amount && (
-                          <span className="text-sm text-zinc-500 ml-2">
+                          <span className="text-sm text-zinc-500 ml-2 currency">
                             (${item.usd_amount.toFixed(2)})
                           </span>
                         )}
@@ -788,7 +788,7 @@ export default function EarningsPage() {
                             </span>
                           )}
                         </div>
-                        <p className={`text-lg font-bold ${
+                        <p className={`text-lg font-bold currency ${
                           item.type === 'staking' ? 'text-emerald-400' : 'text-orange-600'
                         }`}>
                           +${item.amount.toFixed(6)} USDC
@@ -812,19 +812,19 @@ export default function EarningsPage() {
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
                           <p className="text-zinc-500 text-xs">快照余额</p>
-                          <p className="font-medium text-zinc-300">
+                          <p className="font-medium text-zinc-300 currency">
                             ${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)}
                           </p>
                         </div>
                         <div>
                           <p className="text-zinc-500 text-xs">适用利率</p>
-                          <p className="font-medium text-zinc-300">
+                          <p className="font-medium text-zinc-300 percentage">
                             {((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%
                           </p>
                         </div>
                         <div>
                           <p className="text-zinc-500 text-xs">计算公式</p>
-                          <p className="font-medium text-zinc-300">
+                          <p className="font-medium text-zinc-300 font-mono">
                             ${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)} × {((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%
                           </p>
                         </div>
@@ -839,13 +839,13 @@ export default function EarningsPage() {
                         </div>
                         <div>
                           <p className="text-zinc-500 text-xs">下线收益</p>
-                          <p className="font-medium text-zinc-300">
+                          <p className="font-medium text-zinc-300 currency">
                             ${(item.details as { source_profit: number }).source_profit.toFixed(4)}
                           </p>
                         </div>
                         <div>
                           <p className="text-zinc-500 text-xs">佣金比例</p>
-                          <p className="font-medium text-zinc-300">
+                          <p className="font-medium text-zinc-300 percentage">
                             {(item.details as { commission_rate: number }).commission_rate}%
                           </p>
                         </div>

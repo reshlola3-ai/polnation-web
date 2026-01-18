@@ -115,19 +115,19 @@ export default async function HomePage() {
         <div className="glass-card-solid p-8 md:p-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">$1M+</p>
+              <p className="text-3xl md:text-4xl font-bold text-white stat-number">$1M+</p>
               <p className="text-sm text-zinc-400 mt-2">Total Volume</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">5,000+</p>
+              <p className="text-3xl md:text-4xl font-bold text-white stat-number">5,000+</p>
               <p className="text-sm text-zinc-400 mt-2">Active Users</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">12%</p>
+              <p className="text-3xl md:text-4xl font-bold text-white percentage">12%</p>
               <p className="text-sm text-zinc-400 mt-2">Avg. APY</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">100%</p>
+              <p className="text-3xl md:text-4xl font-bold text-white percentage">100%</p>
               <p className="text-sm text-zinc-400 mt-2">Non-Custodial</p>
             </div>
           </div>
