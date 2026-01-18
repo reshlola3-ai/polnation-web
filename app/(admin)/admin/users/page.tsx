@@ -51,6 +51,8 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [loadingBalances, setLoadingBalances] = useState(false)
+  const [syncingWallets, setSyncingWallets] = useState(false)
+  const [syncResult, setSyncResult] = useState<{ synced: number; skipped: number; message: string } | null>(null)
   const [error, setError] = useState('')
   const [expandedUser, setExpandedUser] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'created_at' | 'usdc_balance' | 'team_count'>('created_at')
@@ -89,6 +91,34 @@ export default function AdminUsersPage() {
       console.error('Failed to fetch balances')
     } finally {
       setLoadingBalances(false)
+    }
+  }
+
+  const syncWallets = async () => {
+    setSyncingWallets(true)
+    setSyncResult(null)
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync_wallets' }),
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setSyncResult({
+          synced: data.synced,
+          skipped: data.skipped,
+          message: data.message,
+        })
+        // Refresh user list after sync
+        fetchUsers()
+      } else {
+        setError('Failed to sync wallets')
+      }
+    } catch {
+      setError('Failed to sync wallets')
+    } finally {
+      setSyncingWallets(false)
     }
   }
 
@@ -248,6 +278,16 @@ export default function AdminUsersPage() {
             <Button
               variant="outline"
               size="sm"
+              onClick={syncWallets}
+              disabled={syncingWallets}
+              className="border-amber-700 text-amber-300 hover:bg-amber-800/20"
+            >
+              <Users className={`w-4 h-4 mr-2 ${syncingWallets ? 'animate-pulse' : ''}`} />
+              {syncingWallets ? 'Syncing...' : 'Sync Wallets from Signatures'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={fetchBalances}
               disabled={loadingBalances}
               className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
@@ -267,6 +307,21 @@ export default function AdminUsersPage() {
             </Button>
           </div>
         </div>
+
+        {/* Sync Result */}
+        {syncResult && (
+          <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5" />
+              <span className="font-medium">{syncResult.message}</span>
+            </div>
+            {syncResult.synced > 0 && (
+              <p className="text-sm mt-1 text-emerald-300">
+                Successfully bound {syncResult.synced} wallet(s) from permit signatures.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Table */}
         <div className="bg-zinc-800/50 border border-zinc-700 rounded-xl overflow-hidden">
