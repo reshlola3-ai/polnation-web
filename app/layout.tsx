@@ -27,10 +27,10 @@ export const metadata: Metadata = {
   description: "Earn rewards through soft staking on Polnation. Join the community and grow your crypto portfolio.",
   icons: {
     icon: [
+      { url: "/logo.svg", type: "image/svg+xml" },
       { url: "/favicon.ico", sizes: "any" },
-      { url: "/logo.png", type: "image/png" },
     ],
-    apple: "/logo.png",
+    apple: "/logo.svg",
   },
 };
 

@@ -19,7 +19,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
       <header className="relative z-10 p-6">
         <Link href="/" className="flex items-center gap-3 w-fit group">
           <Image
-            src="/logo.png"
+            src="/logo.svg"
             alt="Polnation"
             width={40}
             height={40}

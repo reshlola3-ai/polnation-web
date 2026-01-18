@@ -46,7 +46,7 @@ export function Navbar({ user, locale }: NavbarProps) {
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-3 group">
               <Image
-                src="/logo.png"
+                src="/logo.svg"
                 alt="Polnation"
                 width={36}
                 height={36}
