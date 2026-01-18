@@ -125,15 +125,25 @@ function LoginForm() {
           required
         />
 
-        <Input
-          type="password"
-          label="Password"
-          placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          leftIcon={<Lock className="w-4 h-4" />}
-          required
-        />
+        <div>
+          <Input
+            type="password"
+            label="Password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            leftIcon={<Lock className="w-4 h-4" />}
+            required
+          />
+          <div className="mt-1 text-right">
+            <Link 
+              href="/forgot-password" 
+              className="text-sm text-emerald-600 hover:text-emerald-700"
+            >
+              Forgot password?
+            </Link>
+          </div>
+        </div>
 
         <Button type="submit" className="w-full" isLoading={isLoading}>
           Sign In
