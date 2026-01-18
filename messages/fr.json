@@ -1,0 +1,296 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "refresh": "Actualiser",
+    "submit": "Soumettre",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "all": "Tous",
+    "none": "Aucun",
+    "yes": "Oui",
+    "no": "Non",
+    "or": "ou",
+    "and": "et",
+    "error": "Erreur",
+    "success": "Succès",
+    "warning": "Avertissement",
+    "info": "Info",
+    "copyLink": "Copier le lien",
+    "copied": "Copié !",
+    "viewAll": "Voir tout",
+    "learnMore": "En savoir plus"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "tasks": "Tâches",
+    "earnings": "Revenus",
+    "community": "Communauté",
+    "profile": "Profil",
+    "referral": "Parrainage",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter",
+    "getStarted": "Commencer"
+  },
+  "home": {
+    "welcome": "Bienvenue sur",
+    "tagline": "L'avenir du Soft Staking",
+    "subtitle": "La première plateforme de soft staking. Construisez votre réseau, développez votre équipe et gagnez des récompenses ensemble.",
+    "goToDashboard": "Aller au tableau de bord",
+    "features": {
+      "network": {
+        "title": "Construisez votre réseau",
+        "description": "Invitez des amis et développez votre réseau de parrainage avec notre plateforme facile à utiliser."
+      },
+      "wallet": {
+        "title": "Connecter le portefeuille",
+        "description": "Connectez votre portefeuille en toute sécurité avec WalletConnect via Trust, Bitget ou SafePal."
+      },
+      "staking": {
+        "title": "Soft Staking",
+        "description": "Gardez vos USDC dans votre propre portefeuille. Aucun risque de contrat intelligent, contrôle total."
+      },
+      "rewards": {
+        "title": "Gagnez des récompenses",
+        "description": "Gagnez des récompenses basées sur le volume total de staking de votre équipe via des instantanés périodiques."
+      }
+    },
+    "stats": {
+      "totalVolume": "Volume total",
+      "activeUsers": "Utilisateurs actifs",
+      "avgApy": "APY moyen",
+      "nonCustodial": "Non-custodial"
+    }
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "Inscription",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "sendResetLink": "Envoyer le lien",
+    "backToLogin": "Retour à la connexion",
+    "noAccount": "Pas de compte ?",
+    "hasAccount": "Déjà un compte ?",
+    "createAccount": "Créer un compte",
+    "verifyEmail": "Vérifiez votre e-mail",
+    "checkEmail": "Veuillez vérifier votre e-mail pour confirmer votre compte.",
+    "referralCode": "Code de parrainage (Optionnel)"
+  },
+  "dashboard": {
+    "welcomeBack": "Bon retour, {name} ! 👋",
+    "overview": "Voici un aperçu de votre compte Polnation.",
+    "completeProfile": "Complétez votre profil",
+    "completeProfileDesc": "Ajoutez vos informations pour débloquer toutes les fonctionnalités",
+    "completeNow": "Compléter maintenant",
+    "referredBy": "Parrainé par",
+    "totalTeam": "Équipe totale",
+    "directReferrals": "Parrainages directs",
+    "walletStatus": "Statut du portefeuille",
+    "connectWallet": "Connecter le portefeuille",
+    "walletConnected": "Portefeuille connecté",
+    "copyReferralLink": "Copier le lien de parrainage",
+    "shareReferral": "Partagez votre lien de parrainage pour agrandir votre équipe"
+  },
+  "tasks": {
+    "title": "Tâches",
+    "subtitle": "Complétez des tâches pour augmenter votre progression de déblocage",
+    "totalBonus": "Bonus total des tâches",
+    "addedToProgress": "Ajouté à votre progression de déblocage",
+    "dayStreak": "jours consécutifs",
+    "totalCheckins": "check-ins totaux",
+    "checkin": {
+      "title": "Check-in quotidien",
+      "subtitle": "Bonus de 7 jours consécutifs disponible",
+      "streakDays": "Jours consécutifs",
+      "bonus": "Bonus",
+      "day": "Jour {n}",
+      "checkInNow": "Check-in maintenant",
+      "checkedIn": "Check-in effectué aujourd'hui",
+      "totalCheckins": "Check-ins totaux",
+      "earned": "Gagné",
+      "streakBonus": "Encore {n} jours pour obtenir le bonus de $1 !"
+    },
+    "social": {
+      "title": "Tâches réseaux sociaux",
+      "visit": "Visiter",
+      "verify": "Vérifier",
+      "done": "Fait"
+    },
+    "promotion": {
+      "title": "Tâches de promotion",
+      "placeholder": "Collez l'URL de votre publication ici...",
+      "perSubmission": "par soumission",
+      "completed": "Complété {n} fois"
+    },
+    "video": {
+      "title": "Tâches vidéo",
+      "placeholder": "Collez l'URL de votre vidéo (YouTube, TikTok, etc.)...",
+      "afterApproval": "après approbation",
+      "submitted": "Soumis {n} fois (Vérification manuelle requise)"
+    }
+  },
+  "earnings": {
+    "title": "Revenus",
+    "subtitle": "Suivez vos revenus passifs de Soft Staking",
+    "usdcBalance": "Votre solde USDC",
+    "currentRate": "Taux actuel",
+    "estimatedDaily": "Estimation quotidienne",
+    "depositMore": "Déposez au moins $10 USDC pour commencer à gagner",
+    "upgradeHint": "Déposez ${amount} de plus pour passer au niveau {tier} ({rate}%)",
+    "nextDistribution": "Prochaine distribution",
+    "comingSoon": "Bientôt disponible",
+    "distributionInterval": "Récompenses distribuées toutes les {interval}",
+    "stakingEarnings": "Revenus de Staking",
+    "referralCommission": "Commission de parrainage",
+    "availableWithdraw": "Disponible au retrait",
+    "withdraw": {
+      "title": "Retirer les revenus",
+      "token": "Token de retrait",
+      "amount": "Montant (USD)",
+      "minAmount": "Minimum {amount}",
+      "available": "Disponible",
+      "currentPrice": "Prix actuel du POL",
+      "youWillReceive": "Vous recevrez",
+      "maxWithdraw": "Retrait maximum",
+      "withdrawUsdc": "Retirer USDC",
+      "withdrawPol": "Retirer {amount} POL",
+      "polNote": "Lors du retrait en POL, le système convertira automatiquement l'équivalent USD en POL"
+    },
+    "tiers": {
+      "title": "Niveaux de gains",
+      "tier": "Niveau",
+      "range": "Plage USDC",
+      "rate": "Taux",
+      "dailyRate": "Taux quotidien"
+    },
+    "history": {
+      "withdrawal": "Historique des retraits",
+      "earnings": "Historique des revenus",
+      "noRecords": "Aucun enregistrement de revenus",
+      "txHash": "Hash de transaction",
+      "completed": "Terminé",
+      "pending": "En attente",
+      "processing": "En cours",
+      "failed": "Échoué",
+      "snapshotBalance": "Solde instantané",
+      "appliedRate": "Taux appliqué",
+      "formula": "Formule",
+      "sourceUser": "Utilisateur source",
+      "downlineEarnings": "Revenus de la lignée descendante",
+      "commissionRate": "Taux de commission"
+    }
+  },
+  "community": {
+    "title": "Compte communautaire",
+    "subtitle": "Système de récompenses d'incitation d'équipe",
+    "currentLevel": "Niveau actuel",
+    "notUnlocked": "Non débloqué",
+    "dailyEarnings": "Revenus quotidiens",
+    "influencer": "Influenceur",
+    "specialLevel": "Niveau spécial",
+    "unlockProgress": "Progression de déblocage",
+    "teamVolume": "Volume d'équipe",
+    "taskRewards": "Récompenses de tâches",
+    "needMore": "Besoin de ${amount} pour passer au niveau {level}",
+    "maxLevel": "🎉 Félicitations ! Vous avez atteint le niveau maximum",
+    "effectiveProgress": "Progression de déblocage effective",
+    "l123Volume": "Volume d'équipe L1-L3",
+    "taskBonusProgress": "Progression des bonus de tâches",
+    "totalCommunityEarned": "Total gagné en communauté",
+    "allLevels": "Tous les niveaux",
+    "current": "Actuel",
+    "claimed": "Réclamé",
+    "rewardPool": "Pool de récompenses",
+    "dailyRate": "Taux quotidien",
+    "unlockCondition": "Condition de déblocage",
+    "claimReward": "Réclamer la récompense",
+    "claiming": "Réclamation...",
+    "dailyEarningsHistory": "Historique des revenus quotidiens",
+    "noEarnings": "Aucun enregistrement de revenus"
+  },
+  "referral": {
+    "title": "Réseau de parrainage",
+    "subtitle": "Visualisez et gérez votre équipe",
+    "copyReferralLink": "Copier le lien de parrainage",
+    "totalTeamVolume": "Volume total de l'équipe",
+    "level1Volume": "Volume niveau 1",
+    "totalTeam": "Équipe totale",
+    "directReferrals": "Parrainages directs",
+    "filters": "Filtres",
+    "allLevels": "Tous les niveaux",
+    "level": "Niveau {n}",
+    "hasUsdc": "Avec USDC",
+    "noUsdc": "Sans USDC",
+    "refreshBalances": "Actualiser les soldes",
+    "table": {
+      "user": "Utilisateur",
+      "level": "Niveau",
+      "country": "Pays",
+      "contact": "Contact",
+      "wallet": "Portefeuille",
+      "usdcBalance": "Solde USDC",
+      "joined": "Inscrit"
+    },
+    "noReferrals": "Aucun parrainage pour l'instant",
+    "inviteFriends": "Invitez des amis pour commencer à construire votre équipe !",
+    "pagination": {
+      "showing": "Affichage {from}-{to} sur {total}",
+      "previous": "Précédent",
+      "next": "Suivant"
+    }
+  },
+  "profile": {
+    "title": "Paramètres du profil",
+    "subtitle": "Gérez vos informations de compte",
+    "personalInfo": "Informations personnelles",
+    "username": "Nom d'utilisateur",
+    "country": "Pays",
+    "selectCountry": "Sélectionner un pays",
+    "contact": "Informations de contact",
+    "telegramUsername": "Nom d'utilisateur Telegram",
+    "phoneNumber": "Numéro de téléphone",
+    "phoneCountryCode": "Indicatif pays",
+    "saveChanges": "Enregistrer les modifications",
+    "saving": "Enregistrement..."
+  },
+  "wallet": {
+    "connect": "Connecter le portefeuille",
+    "connected": "Connecté",
+    "disconnect": "Déconnecter",
+    "boundWallet": "Portefeuille lié",
+    "notBound": "Non lié",
+    "boundToYou": "Lié à votre compte",
+    "boundToOther": "Ce portefeuille est lié à un autre compte",
+    "available": "Disponible pour liaison",
+    "sign": "Signer pour autoriser",
+    "signDesc": "Signez pour autoriser le soft staking et devenir éligible aux airdrops",
+    "authorized": "Autorisé",
+    "signing": "Signature..."
+  },
+  "footer": {
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "rights": "© 2026 Polnation. Tous droits réservés."
+  },
+  "errors": {
+    "networkError": "Erreur réseau",
+    "invalidAmount": "Veuillez entrer un montant valide",
+    "minAmount": "Le montant minimum est de ${amount}",
+    "insufficientBalance": "Solde insuffisant",
+    "withdrawFailed": "Échec du retrait",
+    "claimFailed": "Échec de la réclamation",
+    "taskFailed": "Échec de la tâche"
+  }
+}

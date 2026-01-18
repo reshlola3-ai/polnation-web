@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { cookies } from 'next/headers'
+import { NextIntlClientProvider } from 'next-intl'
+import { getMessages } from 'next-intl/server'
+import { defaultLocale, locales, type Locale } from '@/i18n/config'
 import "./globals.css";
 
 // Space Grotesk - 主要字体，用于标题和正文
@@ -26,17 +30,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Get locale from cookie
+  const cookieStore = await cookies()
+  const localeCookie = cookieStore.get('locale')?.value as Locale | undefined
+  const locale = localeCookie && locales.includes(localeCookie) ? localeCookie : defaultLocale
+  
+  const messages = await getMessages()
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}
       >
-        {children}
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

@@ -1,11 +1,23 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
 import { ArrowRight, Users, Wallet, Shield, TrendingUp, Sparkles } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
+import { defaultLocale, locales, type Locale } from '@/i18n/config'
 
 export default async function HomePage() {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
+
+  // Get locale
+  const cookieStore = await cookies()
+  const localeCookie = cookieStore.get('locale')?.value as Locale | undefined
+  const locale = localeCookie && locales.includes(localeCookie) ? localeCookie : defaultLocale
+  
+  const t = await getTranslations('home')
+  const tNav = await getTranslations('nav')
+  const tFooter = await getTranslations('footer')
 
   return (
     <div className="min-h-screen bg-gradient-radial relative overflow-hidden">
@@ -15,25 +27,24 @@ export default async function HomePage() {
       <div className="fixed bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
       
-      <Navbar user={user} />
+      <Navbar user={user} locale={locale} />
 
       {/* Hero Section */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
         <div className="text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-8">
             <Sparkles className="w-4 h-4 text-purple-400" />
-            <span className="text-sm text-purple-300">The Future of Soft Staking</span>
+            <span className="text-sm text-purple-300">{t('tagline')}</span>
           </div>
           
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white tracking-tight">
-            Welcome to{' '}
+            {t('welcome')}{' '}
             <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
               Polnation
             </span>
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto">
-            The premier soft staking platform. 
-            Build your network, grow your team, and earn rewards together.
+            {t('subtitle')}
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             {user ? (
@@ -41,7 +52,7 @@ export default async function HomePage() {
                 href="/dashboard"
                 className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
               >
-                Go to Dashboard
+                {t('goToDashboard')}
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Link>
             ) : (
@@ -50,14 +61,14 @@ export default async function HomePage() {
                   href="/register"
                   className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
                 >
-                  Get Started
+                  {tNav('getStarted')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
                 <Link
                   href="/login"
                   className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-white/5 rounded-xl hover:bg-white/10 transition-all border border-white/10"
                 >
-                  Sign In
+                  {tNav('signIn')}
                 </Link>
               </>
             )}
@@ -72,9 +83,9 @@ export default async function HomePage() {
             <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors">
               <Users className="w-6 h-6 text-purple-400" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Build Your Network</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('features.network.title')}</h3>
             <p className="text-zinc-400 text-sm">
-              Invite friends and grow your referral network with our easy-to-use platform.
+              {t('features.network.description')}
             </p>
           </div>
 
@@ -82,9 +93,9 @@ export default async function HomePage() {
             <div className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-cyan-500/30 transition-colors">
               <Wallet className="w-6 h-6 text-cyan-400" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Connect Wallet</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('features.wallet.title')}</h3>
             <p className="text-zinc-400 text-sm">
-              Securely connect your wallet using WalletConnect with Trust, Bitget, or SafePal.
+              {t('features.wallet.description')}
             </p>
           </div>
 
@@ -92,9 +103,9 @@ export default async function HomePage() {
             <div className="w-12 h-12 bg-pink-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-pink-500/30 transition-colors">
               <Shield className="w-6 h-6 text-pink-400" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Soft Staking</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('features.staking.title')}</h3>
             <p className="text-zinc-400 text-sm">
-              Keep your USDC in your own wallet. No smart contract risks, full control.
+              {t('features.staking.description')}
             </p>
           </div>
 
@@ -102,9 +113,9 @@ export default async function HomePage() {
             <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-amber-500/30 transition-colors">
               <TrendingUp className="w-6 h-6 text-amber-400" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">Earn Rewards</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('features.rewards.title')}</h3>
             <p className="text-zinc-400 text-sm">
-              Earn rewards based on your team's total staked volume through periodic snapshots.
+              {t('features.rewards.description')}
             </p>
           </div>
         </div>
@@ -116,19 +127,19 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <p className="text-3xl md:text-4xl font-bold text-white stat-number">$1M+</p>
-              <p className="text-sm text-zinc-400 mt-2">Total Volume</p>
+              <p className="text-sm text-zinc-400 mt-2">{t('stats.totalVolume')}</p>
             </div>
             <div className="text-center">
               <p className="text-3xl md:text-4xl font-bold text-white stat-number">5,000+</p>
-              <p className="text-sm text-zinc-400 mt-2">Active Users</p>
+              <p className="text-sm text-zinc-400 mt-2">{t('stats.activeUsers')}</p>
             </div>
             <div className="text-center">
               <p className="text-3xl md:text-4xl font-bold text-white percentage">12%</p>
-              <p className="text-sm text-zinc-400 mt-2">Avg. APY</p>
+              <p className="text-sm text-zinc-400 mt-2">{t('stats.avgApy')}</p>
             </div>
             <div className="text-center">
               <p className="text-3xl md:text-4xl font-bold text-white percentage">100%</p>
-              <p className="text-sm text-zinc-400 mt-2">Non-Custodial</p>
+              <p className="text-sm text-zinc-400 mt-2">{t('stats.nonCustodial')}</p>
             </div>
           </div>
         </div>
@@ -146,14 +157,14 @@ export default async function HomePage() {
             </div>
             <div className="flex items-center gap-6">
               <Link href="/privacy" className="text-sm text-zinc-500 hover:text-purple-400 transition-colors">
-                Privacy Policy
+                {tFooter('privacy')}
               </Link>
               <Link href="/terms" className="text-sm text-zinc-500 hover:text-purple-400 transition-colors">
-                Terms of Service
+                {tFooter('terms')}
               </Link>
             </div>
             <p className="text-sm text-zinc-500">
-              © 2026 Polnation. All rights reserved.
+              {tFooter('rights')}
             </p>
           </div>
         </div>

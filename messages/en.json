@@ -1,0 +1,296 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "refresh": "Refresh",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or",
+    "and": "and",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info",
+    "copyLink": "Copy Link",
+    "copied": "Copied!",
+    "viewAll": "View All",
+    "learnMore": "Learn More"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "tasks": "Tasks",
+    "earnings": "Earnings",
+    "community": "Community",
+    "profile": "Profile",
+    "referral": "Referral",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "getStarted": "Get Started"
+  },
+  "home": {
+    "welcome": "Welcome to",
+    "tagline": "The Future of Soft Staking",
+    "subtitle": "The premier soft staking platform. Build your network, grow your team, and earn rewards together.",
+    "goToDashboard": "Go to Dashboard",
+    "features": {
+      "network": {
+        "title": "Build Your Network",
+        "description": "Invite friends and grow your referral network with our easy-to-use platform."
+      },
+      "wallet": {
+        "title": "Connect Wallet",
+        "description": "Securely connect your wallet using WalletConnect with Trust, Bitget, or SafePal."
+      },
+      "staking": {
+        "title": "Soft Staking",
+        "description": "Keep your USDC in your own wallet. No smart contract risks, full control."
+      },
+      "rewards": {
+        "title": "Earn Rewards",
+        "description": "Earn rewards based on your team's total staked volume through periodic snapshots."
+      }
+    },
+    "stats": {
+      "totalVolume": "Total Volume",
+      "activeUsers": "Active Users",
+      "avgApy": "Avg. APY",
+      "nonCustodial": "Non-Custodial"
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset Password",
+    "newPassword": "New Password",
+    "sendResetLink": "Send Reset Link",
+    "backToLogin": "Back to Login",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "createAccount": "Create Account",
+    "verifyEmail": "Verify Your Email",
+    "checkEmail": "Please check your email to verify your account.",
+    "referralCode": "Referral Code (Optional)"
+  },
+  "dashboard": {
+    "welcomeBack": "Welcome back, {name}! 👋",
+    "overview": "Here's an overview of your Polnation account.",
+    "completeProfile": "Complete your profile",
+    "completeProfileDesc": "Add your details to unlock all features",
+    "completeNow": "Complete Now",
+    "referredBy": "Referred by",
+    "totalTeam": "Total Team",
+    "directReferrals": "Direct Referrals",
+    "walletStatus": "Wallet Status",
+    "connectWallet": "Connect Wallet",
+    "walletConnected": "Wallet Connected",
+    "copyReferralLink": "Copy Referral Link",
+    "shareReferral": "Share your referral link to grow your team"
+  },
+  "tasks": {
+    "title": "Tasks",
+    "subtitle": "Complete tasks to increase your unlock progress",
+    "totalBonus": "Total Task Bonus",
+    "addedToProgress": "Added to your unlock progress",
+    "dayStreak": "day streak",
+    "totalCheckins": "total check-ins",
+    "checkin": {
+      "title": "Daily Check-in",
+      "subtitle": "7-day streak bonus available",
+      "streakDays": "Day Streak",
+      "bonus": "Bonus",
+      "day": "Day {n}",
+      "checkInNow": "Check In Now",
+      "checkedIn": "Checked In Today",
+      "totalCheckins": "Total Check-ins",
+      "earned": "Earned",
+      "streakBonus": "{n} more days to claim $1 streak bonus!"
+    },
+    "social": {
+      "title": "Social Media Tasks",
+      "visit": "Visit",
+      "verify": "Verify",
+      "done": "Done"
+    },
+    "promotion": {
+      "title": "Promotion Tasks",
+      "placeholder": "Paste your post URL here...",
+      "perSubmission": "per submission",
+      "completed": "Completed {n} times"
+    },
+    "video": {
+      "title": "Video Tasks",
+      "placeholder": "Paste your video URL (YouTube, TikTok, etc.)...",
+      "afterApproval": "after approval",
+      "submitted": "Submitted {n} times (Manual review required)"
+    }
+  },
+  "earnings": {
+    "title": "Earnings",
+    "subtitle": "Track your Soft Staking passive income",
+    "usdcBalance": "Your USDC Balance",
+    "currentRate": "Current Rate",
+    "estimatedDaily": "Estimated Daily",
+    "depositMore": "Deposit at least $10 USDC to start earning",
+    "upgradeHint": "Deposit ${amount} more to upgrade to {tier} ({rate}%)",
+    "nextDistribution": "Next Distribution",
+    "comingSoon": "Coming Soon",
+    "distributionInterval": "Rewards distributed every {interval}",
+    "stakingEarnings": "Staking Earnings",
+    "referralCommission": "Referral Commission",
+    "availableWithdraw": "Available to Withdraw",
+    "withdraw": {
+      "title": "Withdraw Earnings",
+      "token": "Withdraw Token",
+      "amount": "Amount (USD)",
+      "minAmount": "Minimum {amount}",
+      "available": "Available",
+      "currentPrice": "Current POL Price",
+      "youWillReceive": "You will receive",
+      "maxWithdraw": "Max withdrawable",
+      "withdrawUsdc": "Withdraw USDC",
+      "withdrawPol": "Withdraw {amount} POL",
+      "polNote": "When withdrawing POL, the system will automatically convert equivalent USD to POL"
+    },
+    "tiers": {
+      "title": "Earning Tiers",
+      "tier": "Tier",
+      "range": "USDC Range",
+      "rate": "Rate",
+      "dailyRate": "Daily Rate"
+    },
+    "history": {
+      "withdrawal": "Withdrawal History",
+      "earnings": "Earnings History",
+      "noRecords": "No earnings records yet",
+      "txHash": "Transaction Hash",
+      "completed": "Completed",
+      "pending": "Pending",
+      "processing": "Processing",
+      "failed": "Failed",
+      "snapshotBalance": "Snapshot Balance",
+      "appliedRate": "Applied Rate",
+      "formula": "Formula",
+      "sourceUser": "Source User",
+      "downlineEarnings": "Downline Earnings",
+      "commissionRate": "Commission Rate"
+    }
+  },
+  "community": {
+    "title": "Community Account",
+    "subtitle": "Team incentive rewards system",
+    "currentLevel": "Current Level",
+    "notUnlocked": "Not Unlocked",
+    "dailyEarnings": "Daily Earnings",
+    "influencer": "Influencer",
+    "specialLevel": "Special Level",
+    "unlockProgress": "Unlock Progress",
+    "teamVolume": "Team Volume",
+    "taskRewards": "Task Rewards",
+    "needMore": "Need ${amount} to upgrade to {level}",
+    "maxLevel": "🎉 Congratulations! You've reached the highest level",
+    "effectiveProgress": "Effective Unlock Progress",
+    "l123Volume": "L1-L3 Team Volume",
+    "taskBonusProgress": "Task Bonus Progress",
+    "totalCommunityEarned": "Total Community Earned",
+    "allLevels": "All Levels",
+    "current": "Current",
+    "claimed": "Claimed",
+    "rewardPool": "Reward Pool",
+    "dailyRate": "Daily Rate",
+    "unlockCondition": "Unlock Condition",
+    "claimReward": "Claim Reward",
+    "claiming": "Claiming...",
+    "dailyEarningsHistory": "Daily Earnings History",
+    "noEarnings": "No earnings records yet"
+  },
+  "referral": {
+    "title": "Referral Network",
+    "subtitle": "View and manage your team",
+    "copyReferralLink": "Copy Referral Link",
+    "totalTeamVolume": "Total Team Volume",
+    "level1Volume": "Level 1 Volume",
+    "totalTeam": "Total Team",
+    "directReferrals": "Direct Referrals",
+    "filters": "Filters",
+    "allLevels": "All Levels",
+    "level": "Level {n}",
+    "hasUsdc": "Has USDC",
+    "noUsdc": "No USDC",
+    "refreshBalances": "Refresh Balances",
+    "table": {
+      "user": "User",
+      "level": "Level",
+      "country": "Country",
+      "contact": "Contact",
+      "wallet": "Wallet",
+      "usdcBalance": "USDC Balance",
+      "joined": "Joined"
+    },
+    "noReferrals": "No referrals yet",
+    "inviteFriends": "Invite friends to start building your team!",
+    "pagination": {
+      "showing": "Showing {from}-{to} of {total}",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "subtitle": "Manage your account information",
+    "personalInfo": "Personal Information",
+    "username": "Username",
+    "country": "Country",
+    "selectCountry": "Select Country",
+    "contact": "Contact Information",
+    "telegramUsername": "Telegram Username",
+    "phoneNumber": "Phone Number",
+    "phoneCountryCode": "Country Code",
+    "saveChanges": "Save Changes",
+    "saving": "Saving..."
+  },
+  "wallet": {
+    "connect": "Connect Wallet",
+    "connected": "Connected",
+    "disconnect": "Disconnect",
+    "boundWallet": "Bound Wallet",
+    "notBound": "Not Bound",
+    "boundToYou": "Bound to your account",
+    "boundToOther": "This wallet is bound to another account",
+    "available": "Available to bind",
+    "sign": "Sign to Authorize",
+    "signDesc": "Sign to authorize soft staking and become eligible for airdrops",
+    "authorized": "Authorized",
+    "signing": "Signing..."
+  },
+  "footer": {
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "rights": "© 2026 Polnation. All rights reserved."
+  },
+  "errors": {
+    "networkError": "Network error",
+    "invalidAmount": "Please enter a valid amount",
+    "minAmount": "Minimum amount is ${amount}",
+    "insufficientBalance": "Insufficient balance",
+    "withdrawFailed": "Withdrawal failed",
+    "claimFailed": "Claim failed",
+    "taskFailed": "Failed to complete task"
+  }
+}

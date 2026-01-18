@@ -6,12 +6,17 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
 import { Menu, X, User as UserIcon, Users, LogOut, Wallet, TrendingUp, Crown, ClipboardList } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+import { LanguageSwitcher } from './LanguageSwitcher'
+import { type Locale } from '@/i18n/config'
 
 interface NavbarProps {
   user: User | null
+  locale: Locale
 }
 
-export function Navbar({ user }: NavbarProps) {
+export function Navbar({ user, locale }: NavbarProps) {
+  const t = useTranslations('nav')
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -24,12 +29,12 @@ export function Navbar({ user }: NavbarProps) {
   }
 
   const navLinks = [
-    { href: '/dashboard', label: 'Dashboard', icon: Wallet },
-    { href: '/tasks', label: 'Tasks', icon: ClipboardList },
-    { href: '/earnings', label: 'Earnings', icon: TrendingUp },
-    { href: '/community', label: 'Community', icon: Crown },
-    { href: '/profile', label: 'Profile', icon: UserIcon },
-    { href: '/referral', label: 'Referral', icon: Users },
+    { href: '/dashboard', label: t('dashboard'), icon: Wallet },
+    { href: '/tasks', label: t('tasks'), icon: ClipboardList },
+    { href: '/earnings', label: t('earnings'), icon: TrendingUp },
+    { href: '/community', label: t('community'), icon: Crown },
+    { href: '/profile', label: t('profile'), icon: UserIcon },
+    { href: '/referral', label: t('referral'), icon: Users },
   ]
 
   return (
@@ -73,33 +78,36 @@ export function Navbar({ user }: NavbarProps) {
           )}
 
           {/* Right side */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            {/* Language Switcher */}
+            <LanguageSwitcher currentLocale={locale} />
+
             {user ? (
               <>
-                <span className="hidden sm:block text-sm text-zinc-500 truncate max-w-[150px]">
+                <span className="hidden lg:block text-sm text-zinc-500 truncate max-w-[120px]">
                   {user.email}
                 </span>
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-300"
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-300"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Sign Out</span>
+                  <span className="hidden sm:inline">{t('signOut')}</span>
                 </button>
               </>
             ) : (
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-all"
+                  className="px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-all"
                 >
-                  Sign In
+                  {t('signIn')}
                 </Link>
                 <Link
                   href="/register"
                   className="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-xl transition-all"
                 >
-                  Get Started
+                  {t('getStarted')}
                 </Link>
               </div>
             )}

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { useTranslations } from 'next-intl'
 
 interface Task {
   id: string
@@ -41,6 +42,9 @@ interface Progress {
 }
 
 export default function TasksPage() {
+  const t = useTranslations('tasks')
+  const tCommon = useTranslations('common')
+  
   const [tasks, setTasks] = useState<Task[]>([])
   const [progress, setProgress] = useState<Progress>({ total_task_bonus: 0, current_streak: 0, total_checkins: 0 })
   const [isLoading, setIsLoading] = useState(true)
@@ -141,12 +145,12 @@ export default function TasksPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Tasks</h1>
-          <p className="text-zinc-400">Complete tasks to increase your unlock progress</p>
+          <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
+          <p className="text-zinc-400">{t('subtitle')}</p>
         </div>
         <Button variant="outline" size="sm" onClick={fetchTasks}>
           <RefreshCw className="w-4 h-4 mr-2" />
-          Refresh
+          {tCommon('refresh')}
         </Button>
       </div>
 
@@ -167,16 +171,16 @@ export default function TasksPage() {
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
         <div className="relative z-10 flex items-center justify-between">
           <div>
-            <p className="text-purple-200 text-sm">Total Task Bonus</p>
+            <p className="text-purple-200 text-sm">{t('totalBonus')}</p>
             <p className="text-3xl font-bold text-white currency">${progress.total_task_bonus.toFixed(2)}</p>
-            <p className="text-purple-200 text-xs mt-1">Added to your unlock progress</p>
+            <p className="text-purple-200 text-xs mt-1">{t('addedToProgress')}</p>
           </div>
           <div className="text-right">
             <div className="flex items-center gap-2 mb-2">
               <Flame className="w-5 h-5 text-orange-300" />
-              <span className="text-lg font-semibold text-white stat-number">{progress.current_streak} day streak</span>
+              <span className="text-lg font-semibold text-white stat-number">{progress.current_streak} {t('dayStreak')}</span>
             </div>
-            <p className="text-purple-200 text-sm"><span className="stat-number">{progress.total_checkins}</span> total check-ins</p>
+            <p className="text-purple-200 text-sm"><span className="stat-number">{progress.total_checkins}</span> {t('totalCheckins')}</p>
           </div>
         </div>
       </div>
@@ -195,13 +199,13 @@ export default function TasksPage() {
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-lg">Daily Check-in</h3>
-                  <p className="text-purple-200 text-sm">7-day streak bonus available</p>
+                  <h3 className="font-bold text-white text-lg">{t('checkin.title')}</h3>
+                  <p className="text-purple-200 text-sm">{t('checkin.subtitle')}</p>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-cyan-300 text-2xl font-bold stat-number">{progress.current_streak}</p>
-                <p className="text-purple-200 text-xs">Day Streak</p>
+                <p className="text-purple-200 text-xs">{t('checkin.streakDays')}</p>
               </div>
             </div>
           </div>
@@ -250,7 +254,7 @@ export default function TasksPage() {
                       <span className={`text-xs font-medium ${
                         isCompleted ? 'text-purple-400' : isToday ? 'text-purple-300' : 'text-zinc-600'
                       }`}>
-                        {isBonus ? 'Bonus' : `Day ${day}`}
+                        {isBonus ? t('checkin.bonus') : `Day ${day}`}
                       </span>
                       <span className={`text-xs currency ${
                         isCompleted ? 'text-emerald-400' : 'text-zinc-600'
@@ -274,10 +278,10 @@ export default function TasksPage() {
             <div className="flex items-center justify-between text-sm mb-4 px-2">
               <div className="flex items-center gap-1 text-zinc-400">
                 <Flame className="w-4 h-4 text-purple-400" />
-                <span>Total Check-ins: <span className="font-bold text-purple-400 stat-number">{progress.total_checkins}</span></span>
+                <span>{t('checkin.totalCheckins')}: <span className="font-bold text-purple-400 stat-number">{progress.total_checkins}</span></span>
               </div>
               <div className="text-zinc-400">
-                Earned: <span className="font-bold text-emerald-400 currency">${progress.total_task_bonus.toFixed(2)}</span>
+                {t('checkin.earned')}: <span className="font-bold text-emerald-400 currency">${progress.total_task_bonus.toFixed(2)}</span>
               </div>
             </div>
 
@@ -297,19 +301,19 @@ export default function TasksPage() {
               ) : checkinTask.can_complete ? (
                 <span className="flex items-center justify-center gap-2">
                   <Calendar className="w-5 h-5" />
-                  Check In Now
+                  {t('checkin.checkInNow')}
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   <CheckCircle className="w-5 h-5" />
-                  Checked In Today
+                  {t('checkin.checkedIn')}
                 </span>
               )}
             </button>
 
             {progress.current_streak >= 5 && progress.current_streak < 7 && (
               <p className="text-center text-sm text-purple-400 mt-3 font-medium">
-                🔥 {7 - progress.current_streak} more days to claim $1 streak bonus!
+                🔥 {t('checkin.streakBonus', { n: 7 - progress.current_streak })}
               </p>
             )}
           </div>
@@ -321,7 +325,7 @@ export default function TasksPage() {
         <div className="glass-card-solid p-6">
           <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
             <Share2 className="w-5 h-5 text-blue-400" />
-            Social Media Tasks
+            {t('social.title')}
           </h3>
           <div className="space-y-3">
             {socialTasks.map(task => (
@@ -341,7 +345,7 @@ export default function TasksPage() {
                 {task.completed_count > 0 ? (
                   <div className="flex items-center gap-1 text-green-400">
                     <CheckCircle className="w-5 h-5" />
-                    <span className="text-sm">Done</span>
+                    <span className="text-sm">{t('social.done')}</span>
                   </div>
                 ) : (
                   <div className="flex gap-2">
@@ -352,7 +356,7 @@ export default function TasksPage() {
                       className="gap-1"
                     >
                       <ExternalLink className="w-4 h-4" />
-                      Visit
+                      {t('social.visit')}
                     </Button>
                     <Button
                       size="sm"
@@ -360,7 +364,7 @@ export default function TasksPage() {
                       disabled={!socialVisited.has(task.task_key) || submitting === task.task_key}
                       isLoading={submitting === task.task_key}
                     >
-                      Verify
+                      {t('social.verify')}
                     </Button>
                   </div>
                 )}
@@ -375,7 +379,7 @@ export default function TasksPage() {
         <div className="glass-card-solid p-6">
           <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
             <MessageCircle className="w-5 h-5 text-purple-400" />
-            Promotion Tasks
+            {t('promotion.title')}
           </h3>
           {promotionTasks.map(task => (
             <div key={task.id} className="space-y-4">
@@ -387,17 +391,17 @@ export default function TasksPage() {
                   <p className="font-medium text-white">{task.name}</p>
                   <p className="text-sm text-zinc-500">{task.description}</p>
                   <p className="text-xs text-purple-400 mt-1">
-                    Completed {task.completed_count} times
+                    {t('promotion.completed', { n: task.completed_count })}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-emerald-400 currency">+${task.reward_usd}</p>
-                  <p className="text-xs text-zinc-500">per submission</p>
+                  <p className="text-xs text-zinc-500">{t('promotion.perSubmission')}</p>
                 </div>
               </div>
               <div className="flex gap-2">
                 <Input
-                  placeholder="Paste your post URL here..."
+                  placeholder={t('promotion.placeholder')}
                   value={promotionUrl}
                   onChange={(e) => setPromotionUrl(e.target.value)}
                   className="flex-1"
@@ -408,7 +412,7 @@ export default function TasksPage() {
                   isLoading={submitting === task.task_key}
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  Submit
+                  {tCommon('submit')}
                 </Button>
               </div>
             </div>
@@ -421,7 +425,7 @@ export default function TasksPage() {
         <div className="glass-card-solid p-6">
           <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
             <Video className="w-5 h-5 text-red-400" />
-            Video Tasks
+            {t('video.title')}
           </h3>
           {videoTasks.map(task => (
             <div key={task.id} className="space-y-4">
@@ -433,17 +437,17 @@ export default function TasksPage() {
                   <p className="font-medium text-white">{task.name}</p>
                   <p className="text-sm text-zinc-500">{task.description}</p>
                   <p className="text-xs text-red-400 mt-1">
-                    Submitted {task.completed_count} times (Manual review required)
+                    {t('video.submitted', { n: task.completed_count })}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-emerald-400 currency">+${task.reward_usd}</p>
-                  <p className="text-xs text-zinc-500">after approval</p>
+                  <p className="text-xs text-zinc-500">{t('video.afterApproval')}</p>
                 </div>
               </div>
               <div className="flex gap-2">
                 <Input
-                  placeholder="Paste your video URL (YouTube, TikTok, etc.)..."
+                  placeholder={t('video.placeholder')}
                   value={videoUrl}
                   onChange={(e) => setVideoUrl(e.target.value)}
                   className="flex-1"
@@ -454,7 +458,7 @@ export default function TasksPage() {
                   isLoading={submitting === task.task_key}
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  Submit
+                  {tCommon('submit')}
                 </Button>
               </div>
             </div>

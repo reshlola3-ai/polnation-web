@@ -1,0 +1,296 @@
+{
+  "common": {
+    "loading": "Memuat...",
+    "refresh": "Segarkan",
+    "submit": "Kirim",
+    "cancel": "Batal",
+    "save": "Simpan",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "close": "Tutup",
+    "confirm": "Konfirmasi",
+    "back": "Kembali",
+    "next": "Selanjutnya",
+    "previous": "Sebelumnya",
+    "search": "Cari",
+    "filter": "Filter",
+    "all": "Semua",
+    "none": "Tidak ada",
+    "yes": "Ya",
+    "no": "Tidak",
+    "or": "atau",
+    "and": "dan",
+    "error": "Error",
+    "success": "Berhasil",
+    "warning": "Peringatan",
+    "info": "Info",
+    "copyLink": "Salin Link",
+    "copied": "Disalin!",
+    "viewAll": "Lihat Semua",
+    "learnMore": "Pelajari Lebih Lanjut"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "tasks": "Tugas",
+    "earnings": "Penghasilan",
+    "community": "Komunitas",
+    "profile": "Profil",
+    "referral": "Referral",
+    "signIn": "Masuk",
+    "signOut": "Keluar",
+    "getStarted": "Mulai Sekarang"
+  },
+  "home": {
+    "welcome": "Selamat Datang di",
+    "tagline": "Masa Depan Soft Staking",
+    "subtitle": "Platform soft staking terbaik. Bangun jaringan Anda, kembangkan tim, dan dapatkan hadiah bersama.",
+    "goToDashboard": "Ke Dashboard",
+    "features": {
+      "network": {
+        "title": "Bangun Jaringan Anda",
+        "description": "Undang teman dan kembangkan jaringan referral Anda dengan platform kami yang mudah digunakan."
+      },
+      "wallet": {
+        "title": "Hubungkan Wallet",
+        "description": "Hubungkan wallet Anda dengan aman menggunakan WalletConnect dengan Trust, Bitget, atau SafePal."
+      },
+      "staking": {
+        "title": "Soft Staking",
+        "description": "Simpan USDC Anda di wallet sendiri. Tanpa risiko smart contract, kontrol penuh."
+      },
+      "rewards": {
+        "title": "Dapatkan Hadiah",
+        "description": "Dapatkan hadiah berdasarkan total volume staking tim Anda melalui snapshot berkala."
+      }
+    },
+    "stats": {
+      "totalVolume": "Total Volume",
+      "activeUsers": "Pengguna Aktif",
+      "avgApy": "APY Rata-rata",
+      "nonCustodial": "Non-Custodial"
+    }
+  },
+  "auth": {
+    "login": "Masuk",
+    "register": "Daftar",
+    "email": "Email",
+    "password": "Kata Sandi",
+    "confirmPassword": "Konfirmasi Kata Sandi",
+    "forgotPassword": "Lupa kata sandi?",
+    "resetPassword": "Reset Kata Sandi",
+    "newPassword": "Kata Sandi Baru",
+    "sendResetLink": "Kirim Link Reset",
+    "backToLogin": "Kembali ke Login",
+    "noAccount": "Belum punya akun?",
+    "hasAccount": "Sudah punya akun?",
+    "createAccount": "Buat Akun",
+    "verifyEmail": "Verifikasi Email Anda",
+    "checkEmail": "Silakan cek email Anda untuk verifikasi akun.",
+    "referralCode": "Kode Referral (Opsional)"
+  },
+  "dashboard": {
+    "welcomeBack": "Selamat datang kembali, {name}! 👋",
+    "overview": "Berikut ringkasan akun Polnation Anda.",
+    "completeProfile": "Lengkapi profil Anda",
+    "completeProfileDesc": "Tambahkan detail Anda untuk membuka semua fitur",
+    "completeNow": "Lengkapi Sekarang",
+    "referredBy": "Direferensikan oleh",
+    "totalTeam": "Total Tim",
+    "directReferrals": "Referral Langsung",
+    "walletStatus": "Status Wallet",
+    "connectWallet": "Hubungkan Wallet",
+    "walletConnected": "Wallet Terhubung",
+    "copyReferralLink": "Salin Link Referral",
+    "shareReferral": "Bagikan link referral Anda untuk mengembangkan tim"
+  },
+  "tasks": {
+    "title": "Tugas",
+    "subtitle": "Selesaikan tugas untuk meningkatkan progres unlock Anda",
+    "totalBonus": "Total Bonus Tugas",
+    "addedToProgress": "Ditambahkan ke progres unlock Anda",
+    "dayStreak": "hari berturut-turut",
+    "totalCheckins": "total check-in",
+    "checkin": {
+      "title": "Check-in Harian",
+      "subtitle": "Bonus 7 hari berturut-turut tersedia",
+      "streakDays": "Hari Berturut-turut",
+      "bonus": "Bonus",
+      "day": "Hari {n}",
+      "checkInNow": "Check In Sekarang",
+      "checkedIn": "Sudah Check In Hari Ini",
+      "totalCheckins": "Total Check-in",
+      "earned": "Diperoleh",
+      "streakBonus": "{n} hari lagi untuk klaim bonus $1!"
+    },
+    "social": {
+      "title": "Tugas Media Sosial",
+      "visit": "Kunjungi",
+      "verify": "Verifikasi",
+      "done": "Selesai"
+    },
+    "promotion": {
+      "title": "Tugas Promosi",
+      "placeholder": "Tempel URL postingan Anda di sini...",
+      "perSubmission": "per pengiriman",
+      "completed": "Diselesaikan {n} kali"
+    },
+    "video": {
+      "title": "Tugas Video",
+      "placeholder": "Tempel URL video Anda (YouTube, TikTok, dll.)...",
+      "afterApproval": "setelah disetujui",
+      "submitted": "Dikirim {n} kali (Perlu review manual)"
+    }
+  },
+  "earnings": {
+    "title": "Penghasilan",
+    "subtitle": "Lacak penghasilan pasif Soft Staking Anda",
+    "usdcBalance": "Saldo USDC Anda",
+    "currentRate": "Rate Saat Ini",
+    "estimatedDaily": "Estimasi Harian",
+    "depositMore": "Deposit minimal $10 USDC untuk mulai menghasilkan",
+    "upgradeHint": "Deposit ${amount} lagi untuk naik ke {tier} ({rate}%)",
+    "nextDistribution": "Distribusi Berikutnya",
+    "comingSoon": "Segera Hadir",
+    "distributionInterval": "Hadiah didistribusikan setiap {interval}",
+    "stakingEarnings": "Penghasilan Staking",
+    "referralCommission": "Komisi Referral",
+    "availableWithdraw": "Tersedia untuk Ditarik",
+    "withdraw": {
+      "title": "Tarik Penghasilan",
+      "token": "Token Penarikan",
+      "amount": "Jumlah (USD)",
+      "minAmount": "Minimum {amount}",
+      "available": "Tersedia",
+      "currentPrice": "Harga POL Saat Ini",
+      "youWillReceive": "Anda akan menerima",
+      "maxWithdraw": "Maksimal penarikan",
+      "withdrawUsdc": "Tarik USDC",
+      "withdrawPol": "Tarik {amount} POL",
+      "polNote": "Saat menarik POL, sistem akan otomatis mengkonversi USD setara ke POL"
+    },
+    "tiers": {
+      "title": "Tingkat Penghasilan",
+      "tier": "Tingkat",
+      "range": "Rentang USDC",
+      "rate": "Rate",
+      "dailyRate": "Rate Harian"
+    },
+    "history": {
+      "withdrawal": "Riwayat Penarikan",
+      "earnings": "Riwayat Penghasilan",
+      "noRecords": "Belum ada catatan penghasilan",
+      "txHash": "Hash Transaksi",
+      "completed": "Selesai",
+      "pending": "Menunggu",
+      "processing": "Diproses",
+      "failed": "Gagal",
+      "snapshotBalance": "Saldo Snapshot",
+      "appliedRate": "Rate yang Diterapkan",
+      "formula": "Rumus",
+      "sourceUser": "Pengguna Sumber",
+      "downlineEarnings": "Penghasilan Downline",
+      "commissionRate": "Rate Komisi"
+    }
+  },
+  "community": {
+    "title": "Akun Komunitas",
+    "subtitle": "Sistem hadiah insentif tim",
+    "currentLevel": "Level Saat Ini",
+    "notUnlocked": "Belum Dibuka",
+    "dailyEarnings": "Penghasilan Harian",
+    "influencer": "Influencer",
+    "specialLevel": "Level Khusus",
+    "unlockProgress": "Progres Unlock",
+    "teamVolume": "Volume Tim",
+    "taskRewards": "Hadiah Tugas",
+    "needMore": "Butuh ${amount} untuk naik ke {level}",
+    "maxLevel": "🎉 Selamat! Anda telah mencapai level tertinggi",
+    "effectiveProgress": "Progres Unlock Efektif",
+    "l123Volume": "Volume Tim L1-L3",
+    "taskBonusProgress": "Progres Bonus Tugas",
+    "totalCommunityEarned": "Total Penghasilan Komunitas",
+    "allLevels": "Semua Level",
+    "current": "Saat Ini",
+    "claimed": "Diklaim",
+    "rewardPool": "Pool Hadiah",
+    "dailyRate": "Rate Harian",
+    "unlockCondition": "Kondisi Unlock",
+    "claimReward": "Klaim Hadiah",
+    "claiming": "Mengklaim...",
+    "dailyEarningsHistory": "Riwayat Penghasilan Harian",
+    "noEarnings": "Belum ada catatan penghasilan"
+  },
+  "referral": {
+    "title": "Jaringan Referral",
+    "subtitle": "Lihat dan kelola tim Anda",
+    "copyReferralLink": "Salin Link Referral",
+    "totalTeamVolume": "Total Volume Tim",
+    "level1Volume": "Volume Level 1",
+    "totalTeam": "Total Tim",
+    "directReferrals": "Referral Langsung",
+    "filters": "Filter",
+    "allLevels": "Semua Level",
+    "level": "Level {n}",
+    "hasUsdc": "Punya USDC",
+    "noUsdc": "Tanpa USDC",
+    "refreshBalances": "Segarkan Saldo",
+    "table": {
+      "user": "Pengguna",
+      "level": "Level",
+      "country": "Negara",
+      "contact": "Kontak",
+      "wallet": "Wallet",
+      "usdcBalance": "Saldo USDC",
+      "joined": "Bergabung"
+    },
+    "noReferrals": "Belum ada referral",
+    "inviteFriends": "Undang teman untuk mulai membangun tim Anda!",
+    "pagination": {
+      "showing": "Menampilkan {from}-{to} dari {total}",
+      "previous": "Sebelumnya",
+      "next": "Selanjutnya"
+    }
+  },
+  "profile": {
+    "title": "Pengaturan Profil",
+    "subtitle": "Kelola informasi akun Anda",
+    "personalInfo": "Informasi Pribadi",
+    "username": "Username",
+    "country": "Negara",
+    "selectCountry": "Pilih Negara",
+    "contact": "Informasi Kontak",
+    "telegramUsername": "Username Telegram",
+    "phoneNumber": "Nomor Telepon",
+    "phoneCountryCode": "Kode Negara",
+    "saveChanges": "Simpan Perubahan",
+    "saving": "Menyimpan..."
+  },
+  "wallet": {
+    "connect": "Hubungkan Wallet",
+    "connected": "Terhubung",
+    "disconnect": "Putuskan",
+    "boundWallet": "Wallet Terikat",
+    "notBound": "Tidak Terikat",
+    "boundToYou": "Terikat ke akun Anda",
+    "boundToOther": "Wallet ini terikat ke akun lain",
+    "available": "Tersedia untuk diikat",
+    "sign": "Tanda Tangani untuk Otorisasi",
+    "signDesc": "Tanda tangani untuk mengotorisasi soft staking dan menjadi eligible untuk airdrop",
+    "authorized": "Terotorisasi",
+    "signing": "Menandatangani..."
+  },
+  "footer": {
+    "privacy": "Kebijakan Privasi",
+    "terms": "Ketentuan Layanan",
+    "rights": "© 2026 Polnation. Hak cipta dilindungi."
+  },
+  "errors": {
+    "networkError": "Error jaringan",
+    "invalidAmount": "Masukkan jumlah yang valid",
+    "minAmount": "Jumlah minimum adalah ${amount}",
+    "insufficientBalance": "Saldo tidak cukup",
+    "withdrawFailed": "Penarikan gagal",
+    "claimFailed": "Klaim gagal",
+    "taskFailed": "Gagal menyelesaikan tugas"
+  }
+}

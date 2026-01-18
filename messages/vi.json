@@ -1,0 +1,296 @@
+{
+  "common": {
+    "loading": "Đang tải...",
+    "refresh": "Làm mới",
+    "submit": "Gửi",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "close": "Đóng",
+    "confirm": "Xác nhận",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "previous": "Trước",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "all": "Tất cả",
+    "none": "Không có",
+    "yes": "Có",
+    "no": "Không",
+    "or": "hoặc",
+    "and": "và",
+    "error": "Lỗi",
+    "success": "Thành công",
+    "warning": "Cảnh báo",
+    "info": "Thông tin",
+    "copyLink": "Sao chép liên kết",
+    "copied": "Đã sao chép!",
+    "viewAll": "Xem tất cả",
+    "learnMore": "Tìm hiểu thêm"
+  },
+  "nav": {
+    "dashboard": "Bảng điều khiển",
+    "tasks": "Nhiệm vụ",
+    "earnings": "Thu nhập",
+    "community": "Cộng đồng",
+    "profile": "Hồ sơ",
+    "referral": "Giới thiệu",
+    "signIn": "Đăng nhập",
+    "signOut": "Đăng xuất",
+    "getStarted": "Bắt đầu ngay"
+  },
+  "home": {
+    "welcome": "Chào mừng đến với",
+    "tagline": "Tương lai của Soft Staking",
+    "subtitle": "Nền tảng soft staking hàng đầu. Xây dựng mạng lưới, phát triển đội ngũ và cùng nhận thưởng.",
+    "goToDashboard": "Đến Bảng điều khiển",
+    "features": {
+      "network": {
+        "title": "Xây dựng Mạng lưới",
+        "description": "Mời bạn bè và phát triển mạng lưới giới thiệu với nền tảng dễ sử dụng của chúng tôi."
+      },
+      "wallet": {
+        "title": "Kết nối Ví",
+        "description": "Kết nối ví an toàn với WalletConnect qua Trust, Bitget hoặc SafePal."
+      },
+      "staking": {
+        "title": "Soft Staking",
+        "description": "Giữ USDC trong ví của bạn. Không rủi ro smart contract, kiểm soát hoàn toàn."
+      },
+      "rewards": {
+        "title": "Nhận Phần thưởng",
+        "description": "Nhận thưởng dựa trên tổng khối lượng staking của đội qua các snapshot định kỳ."
+      }
+    },
+    "stats": {
+      "totalVolume": "Tổng Khối lượng",
+      "activeUsers": "Người dùng Hoạt động",
+      "avgApy": "APY Trung bình",
+      "nonCustodial": "Non-Custodial"
+    }
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "forgotPassword": "Quên mật khẩu?",
+    "resetPassword": "Đặt lại mật khẩu",
+    "newPassword": "Mật khẩu mới",
+    "sendResetLink": "Gửi liên kết đặt lại",
+    "backToLogin": "Quay lại đăng nhập",
+    "noAccount": "Chưa có tài khoản?",
+    "hasAccount": "Đã có tài khoản?",
+    "createAccount": "Tạo tài khoản",
+    "verifyEmail": "Xác minh Email",
+    "checkEmail": "Vui lòng kiểm tra email để xác minh tài khoản.",
+    "referralCode": "Mã giới thiệu (Tùy chọn)"
+  },
+  "dashboard": {
+    "welcomeBack": "Chào mừng trở lại, {name}! 👋",
+    "overview": "Đây là tổng quan tài khoản Polnation của bạn.",
+    "completeProfile": "Hoàn thành hồ sơ",
+    "completeProfileDesc": "Thêm thông tin để mở khóa tất cả tính năng",
+    "completeNow": "Hoàn thành ngay",
+    "referredBy": "Được giới thiệu bởi",
+    "totalTeam": "Tổng đội",
+    "directReferrals": "Giới thiệu trực tiếp",
+    "walletStatus": "Trạng thái Ví",
+    "connectWallet": "Kết nối Ví",
+    "walletConnected": "Ví đã kết nối",
+    "copyReferralLink": "Sao chép liên kết giới thiệu",
+    "shareReferral": "Chia sẻ liên kết giới thiệu để phát triển đội"
+  },
+  "tasks": {
+    "title": "Nhiệm vụ",
+    "subtitle": "Hoàn thành nhiệm vụ để tăng tiến độ mở khóa",
+    "totalBonus": "Tổng Thưởng Nhiệm vụ",
+    "addedToProgress": "Đã thêm vào tiến độ mở khóa",
+    "dayStreak": "ngày liên tiếp",
+    "totalCheckins": "tổng check-in",
+    "checkin": {
+      "title": "Check-in Hàng ngày",
+      "subtitle": "Thưởng 7 ngày liên tiếp có sẵn",
+      "streakDays": "Ngày Liên tiếp",
+      "bonus": "Thưởng",
+      "day": "Ngày {n}",
+      "checkInNow": "Check In Ngay",
+      "checkedIn": "Đã Check In Hôm nay",
+      "totalCheckins": "Tổng Check-in",
+      "earned": "Đã nhận",
+      "streakBonus": "Còn {n} ngày để nhận thưởng $1!"
+    },
+    "social": {
+      "title": "Nhiệm vụ Mạng xã hội",
+      "visit": "Truy cập",
+      "verify": "Xác minh",
+      "done": "Hoàn thành"
+    },
+    "promotion": {
+      "title": "Nhiệm vụ Quảng bá",
+      "placeholder": "Dán URL bài đăng của bạn tại đây...",
+      "perSubmission": "mỗi lần gửi",
+      "completed": "Đã hoàn thành {n} lần"
+    },
+    "video": {
+      "title": "Nhiệm vụ Video",
+      "placeholder": "Dán URL video (YouTube, TikTok, v.v.)...",
+      "afterApproval": "sau khi duyệt",
+      "submitted": "Đã gửi {n} lần (Cần xem xét thủ công)"
+    }
+  },
+  "earnings": {
+    "title": "Thu nhập",
+    "subtitle": "Theo dõi thu nhập thụ động Soft Staking của bạn",
+    "usdcBalance": "Số dư USDC của bạn",
+    "currentRate": "Tỷ lệ Hiện tại",
+    "estimatedDaily": "Ước tính Hàng ngày",
+    "depositMore": "Nạp tối thiểu $10 USDC để bắt đầu kiếm tiền",
+    "upgradeHint": "Nạp thêm ${amount} để lên {tier} ({rate}%)",
+    "nextDistribution": "Phân phối Tiếp theo",
+    "comingSoon": "Sắp ra mắt",
+    "distributionInterval": "Phần thưởng phân phối mỗi {interval}",
+    "stakingEarnings": "Thu nhập Staking",
+    "referralCommission": "Hoa hồng Giới thiệu",
+    "availableWithdraw": "Có thể Rút",
+    "withdraw": {
+      "title": "Rút Thu nhập",
+      "token": "Token Rút",
+      "amount": "Số tiền (USD)",
+      "minAmount": "Tối thiểu {amount}",
+      "available": "Có sẵn",
+      "currentPrice": "Giá POL Hiện tại",
+      "youWillReceive": "Bạn sẽ nhận được",
+      "maxWithdraw": "Rút tối đa",
+      "withdrawUsdc": "Rút USDC",
+      "withdrawPol": "Rút {amount} POL",
+      "polNote": "Khi rút POL, hệ thống sẽ tự động chuyển đổi USD tương đương sang POL"
+    },
+    "tiers": {
+      "title": "Cấp Thu nhập",
+      "tier": "Cấp",
+      "range": "Phạm vi USDC",
+      "rate": "Tỷ lệ",
+      "dailyRate": "Tỷ lệ Hàng ngày"
+    },
+    "history": {
+      "withdrawal": "Lịch sử Rút tiền",
+      "earnings": "Lịch sử Thu nhập",
+      "noRecords": "Chưa có bản ghi thu nhập",
+      "txHash": "Hash Giao dịch",
+      "completed": "Hoàn thành",
+      "pending": "Đang chờ",
+      "processing": "Đang xử lý",
+      "failed": "Thất bại",
+      "snapshotBalance": "Số dư Snapshot",
+      "appliedRate": "Tỷ lệ Áp dụng",
+      "formula": "Công thức",
+      "sourceUser": "Người dùng Nguồn",
+      "downlineEarnings": "Thu nhập Downline",
+      "commissionRate": "Tỷ lệ Hoa hồng"
+    }
+  },
+  "community": {
+    "title": "Tài khoản Cộng đồng",
+    "subtitle": "Hệ thống thưởng khuyến khích đội",
+    "currentLevel": "Cấp Hiện tại",
+    "notUnlocked": "Chưa Mở khóa",
+    "dailyEarnings": "Thu nhập Hàng ngày",
+    "influencer": "Influencer",
+    "specialLevel": "Cấp Đặc biệt",
+    "unlockProgress": "Tiến độ Mở khóa",
+    "teamVolume": "Khối lượng Đội",
+    "taskRewards": "Phần thưởng Nhiệm vụ",
+    "needMore": "Cần ${amount} để lên {level}",
+    "maxLevel": "🎉 Chúc mừng! Bạn đã đạt cấp cao nhất",
+    "effectiveProgress": "Tiến độ Mở khóa Hiệu quả",
+    "l123Volume": "Khối lượng Đội L1-L3",
+    "taskBonusProgress": "Tiến độ Thưởng Nhiệm vụ",
+    "totalCommunityEarned": "Tổng Thu nhập Cộng đồng",
+    "allLevels": "Tất cả Cấp",
+    "current": "Hiện tại",
+    "claimed": "Đã nhận",
+    "rewardPool": "Pool Thưởng",
+    "dailyRate": "Tỷ lệ Hàng ngày",
+    "unlockCondition": "Điều kiện Mở khóa",
+    "claimReward": "Nhận Thưởng",
+    "claiming": "Đang nhận...",
+    "dailyEarningsHistory": "Lịch sử Thu nhập Hàng ngày",
+    "noEarnings": "Chưa có bản ghi thu nhập"
+  },
+  "referral": {
+    "title": "Mạng lưới Giới thiệu",
+    "subtitle": "Xem và quản lý đội của bạn",
+    "copyReferralLink": "Sao chép Liên kết Giới thiệu",
+    "totalTeamVolume": "Tổng Khối lượng Đội",
+    "level1Volume": "Khối lượng Level 1",
+    "totalTeam": "Tổng Đội",
+    "directReferrals": "Giới thiệu Trực tiếp",
+    "filters": "Bộ lọc",
+    "allLevels": "Tất cả Level",
+    "level": "Level {n}",
+    "hasUsdc": "Có USDC",
+    "noUsdc": "Không có USDC",
+    "refreshBalances": "Làm mới Số dư",
+    "table": {
+      "user": "Người dùng",
+      "level": "Level",
+      "country": "Quốc gia",
+      "contact": "Liên hệ",
+      "wallet": "Ví",
+      "usdcBalance": "Số dư USDC",
+      "joined": "Tham gia"
+    },
+    "noReferrals": "Chưa có người giới thiệu",
+    "inviteFriends": "Mời bạn bè để bắt đầu xây dựng đội!",
+    "pagination": {
+      "showing": "Hiển thị {from}-{to} trong {total}",
+      "previous": "Trước",
+      "next": "Tiếp"
+    }
+  },
+  "profile": {
+    "title": "Cài đặt Hồ sơ",
+    "subtitle": "Quản lý thông tin tài khoản của bạn",
+    "personalInfo": "Thông tin Cá nhân",
+    "username": "Tên người dùng",
+    "country": "Quốc gia",
+    "selectCountry": "Chọn Quốc gia",
+    "contact": "Thông tin Liên hệ",
+    "telegramUsername": "Tên Telegram",
+    "phoneNumber": "Số Điện thoại",
+    "phoneCountryCode": "Mã Quốc gia",
+    "saveChanges": "Lưu Thay đổi",
+    "saving": "Đang lưu..."
+  },
+  "wallet": {
+    "connect": "Kết nối Ví",
+    "connected": "Đã kết nối",
+    "disconnect": "Ngắt kết nối",
+    "boundWallet": "Ví Liên kết",
+    "notBound": "Chưa Liên kết",
+    "boundToYou": "Liên kết với tài khoản của bạn",
+    "boundToOther": "Ví này đã liên kết với tài khoản khác",
+    "available": "Có thể liên kết",
+    "sign": "Ký để Ủy quyền",
+    "signDesc": "Ký để ủy quyền soft staking và đủ điều kiện nhận airdrop",
+    "authorized": "Đã Ủy quyền",
+    "signing": "Đang ký..."
+  },
+  "footer": {
+    "privacy": "Chính sách Bảo mật",
+    "terms": "Điều khoản Dịch vụ",
+    "rights": "© 2026 Polnation. Bảo lưu mọi quyền."
+  },
+  "errors": {
+    "networkError": "Lỗi mạng",
+    "invalidAmount": "Vui lòng nhập số tiền hợp lệ",
+    "minAmount": "Số tiền tối thiểu là ${amount}",
+    "insufficientBalance": "Số dư không đủ",
+    "withdrawFailed": "Rút tiền thất bại",
+    "claimFailed": "Nhận thưởng thất bại",
+    "taskFailed": "Không thể hoàn thành nhiệm vụ"
+  }
+}
