@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
@@ -44,9 +45,13 @@ export function Navbar({ user, locale }: NavbarProps) {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center glow-purple-sm group-hover:glow-purple transition-all duration-300">
-                <span className="text-white font-bold text-lg">P</span>
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Polnation"
+                width={36}
+                height={36}
+                className="rounded-xl glow-purple-sm group-hover:glow-purple transition-all duration-300"
+              />
               <span className="font-display text-xl text-white group-hover:glow-text transition-all duration-300">Polnation</span>
             </Link>
           </div>
