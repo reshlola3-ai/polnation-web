@@ -6,6 +6,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const redirect = searchParams.get('redirect') || '/dashboard'
+  const type = searchParams.get('type') // recovery, signup, invite, etc.
 
   if (code) {
     const cookieStore = await cookies()
@@ -33,6 +34,15 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error) {
+      // 如果是密码重置流程，重定向到重置密码页面
+      if (type === 'recovery') {
+        return NextResponse.redirect(`${origin}/reset-password`)
+      }
+      // 如果是邀请，重定向到设置密码页面
+      if (type === 'invite') {
+        return NextResponse.redirect(`${origin}/reset-password?type=invite`)
+      }
+      // 其他情况重定向到指定页面
       return NextResponse.redirect(`${origin}${redirect}`)
     }
   }

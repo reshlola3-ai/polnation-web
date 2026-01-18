@@ -24,9 +24,6 @@ function ResetPasswordForm() {
   // 检查是否有有效的重置会话
   useEffect(() => {
     const checkSession = async () => {
-      // Supabase 会自动处理 URL 中的 token
-      const { data: { session } } = await supabase.auth.getSession()
-      
       // 检查 URL 中是否有 error
       const errorParam = searchParams.get('error')
       const errorDescription = searchParams.get('error_description')
@@ -37,23 +34,14 @@ function ResetPasswordForm() {
         return
       }
 
-      // 检查是否有 code 参数（从邮件链接来的）
-      const code = searchParams.get('code')
+      // 检查当前 session（应该已经在 /auth/callback 中建立）
+      const { data: { session } } = await supabase.auth.getSession()
       
-      if (code) {
-        // 使用 code 交换 session
-        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-        if (exchangeError) {
-          setError('Invalid or expired reset link')
-          setIsValidSession(false)
-          return
-        }
-        setIsValidSession(true)
-      } else if (session) {
-        // 已有 session（可能是从 hash fragment 恢复的）
+      if (session) {
         setIsValidSession(true)
       } else {
-        setError('Invalid or expired reset link')
+        // 没有 session，可能是直接访问页面或 session 已过期
+        setError('Invalid or expired reset link. Please request a new one.')
         setIsValidSession(false)
       }
     }
