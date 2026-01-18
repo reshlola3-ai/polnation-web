@@ -11,8 +11,8 @@ function getSupabaseAdmin() {
 
 async function checkAdminAuth() {
   const cookieStore = await cookies()
-  const adminSession = cookieStore.get('admin_session')
-  return adminSession?.value === 'authenticated'
+  const adminSession = cookieStore.get('admin_session')?.value
+  return !!adminSession
 }
 
 // GET: 获取所有待审核任务和任务配置
