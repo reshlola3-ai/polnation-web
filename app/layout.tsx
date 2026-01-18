@@ -25,13 +25,6 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Polnation - Crypto Soft Staking Platform",
   description: "Earn rewards through soft staking on Polnation. Join the community and grow your crypto portfolio.",
-  icons: {
-    icon: [
-      { url: "/logo.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
-    apple: "/logo.svg",
-  },
 };
 
 export default async function RootLayout({
