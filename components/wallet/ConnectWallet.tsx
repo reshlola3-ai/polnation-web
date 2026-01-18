@@ -15,7 +15,6 @@ const ALLOWED_WALLETS = [
   'trust wallet', 'trust', 'trustwallet',
   'safepal', 'safe pal',
   'bitget', 'bitget wallet',
-  'okx', 'okx wallet', 'okex',
   'tokenpocket', 'token pocket', 'tp wallet',
   'walletconnect' // WalletConnect 协议（用于移动端连接）
 ]
@@ -300,7 +299,6 @@ export function ConnectWallet() {
             <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">Trust Wallet</span>
             <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">SafePal</span>
             <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">Bitget Wallet</span>
-            <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">OKX Wallet</span>
             <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">TokenPocket</span>
           </div>
         </div>
@@ -323,7 +321,6 @@ export function ConnectWallet() {
             <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">Trust</span>
             <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">SafePal</span>
             <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">Bitget</span>
-            <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">OKX</span>
             <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">TokenPocket</span>
           </div>
         </div>
