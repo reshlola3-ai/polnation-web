@@ -5,10 +5,19 @@ import { useAccount, useDisconnect, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
-import { Wallet, LogOut, ExternalLink, AlertTriangle, CheckCircle, Link2 } from 'lucide-react'
+import { Wallet, LogOut, ExternalLink, AlertTriangle, CheckCircle, Link2, XCircle } from 'lucide-react'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
 import { createClient } from '@/lib/supabase'
+
+// 允许的钱包列表（只允许 Trust Wallet）
+const ALLOWED_WALLETS = ['trust wallet', 'trust', 'trustwallet', 'walletconnect']
+
+function isAllowedWallet(connectorName: string | undefined): boolean {
+  if (!connectorName) return false
+  const name = connectorName.toLowerCase()
+  return ALLOWED_WALLETS.some(allowed => name.includes(allowed))
+}
 
 interface BoundWalletInfo {
   address: string
@@ -17,16 +26,35 @@ interface BoundWalletInfo {
 
 export function ConnectWallet() {
   const { open } = useWeb3Modal()
-  const { address, isConnected, chain } = useAccount()
+  const { address, isConnected, chain, connector } = useAccount()
   const { disconnect } = useDisconnect()
-  const [walletStatus, setWalletStatus] = useState<'checking' | 'available' | 'bound_to_you' | 'bound_to_other'>('checking')
+  const [walletStatus, setWalletStatus] = useState<'checking' | 'available' | 'bound_to_you' | 'bound_to_other' | 'unsupported_wallet'>('checking')
   const [boundUser, setBoundUser] = useState<string | null>(null)
   const [yourBoundWallet, setYourBoundWallet] = useState<string | null>(null)
+  const [unsupportedWalletName, setUnsupportedWalletName] = useState<string | null>(null)
   
   const [boundWalletInfo, setBoundWalletInfo] = useState<BoundWalletInfo | null>(null)
   const [isLoadingBoundWallet, setIsLoadingBoundWallet] = useState(true)
 
   const displayAddress = boundWalletInfo?.address || address
+
+  // 检测不支持的钱包并自动断开
+  useEffect(() => {
+    if (isConnected && connector) {
+      const connectorName = connector.name
+      if (!isAllowedWallet(connectorName)) {
+        console.log(`Unsupported wallet detected: ${connectorName}. Disconnecting...`)
+        setUnsupportedWalletName(connectorName)
+        setWalletStatus('unsupported_wallet')
+        // 延迟断开，让用户看到提示
+        setTimeout(() => {
+          disconnect()
+        }, 3000)
+      } else {
+        setUnsupportedWalletName(null)
+      }
+    }
+  }, [isConnected, connector, disconnect])
 
   const { data: usdcBalanceRaw, isLoading: isBalanceLoading } = useReadContract({
     address: USDC_ADDRESS,
@@ -233,6 +261,44 @@ export function ConnectWallet() {
     )
   }
 
+  // 不支持的钱包 - 显示错误并自动断开
+  if (walletStatus === 'unsupported_wallet') {
+    return (
+      <div className="glass-card-solid p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-white">Unsupported Wallet</h3>
+          <XCircle className="w-5 h-5 text-red-400" />
+        </div>
+        
+        <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-6 h-6 text-red-400 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-red-300">
+                {unsupportedWalletName || 'This wallet'} is not supported
+              </p>
+              <p className="text-xs text-red-400/70 mt-2">
+                Please use <strong>Trust Wallet</strong> to connect. Other wallets like MetaMask are not supported on this platform.
+              </p>
+              <p className="text-xs text-red-400/50 mt-2">
+                Disconnecting automatically...
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
+          <p className="text-xs text-purple-300 font-medium mb-1">How to connect:</p>
+          <ol className="text-xs text-purple-400/70 space-y-1 list-decimal list-inside">
+            <li>Download Trust Wallet app</li>
+            <li>Open this page in Trust Wallet browser</li>
+            <li>Click Connect Wallet</li>
+          </ol>
+        </div>
+      </div>
+    )
+  }
+
   // 未绑定，未连接
   if (!isConnected && !boundWalletInfo) {
     return (
@@ -241,9 +307,17 @@ export function ConnectWallet() {
         <p className="text-sm text-zinc-400 mb-4">
           Connect and bind your wallet to start staking. Once bound, the wallet is permanently linked to your account.
         </p>
+        
+        <div className="mb-4 p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
+          <p className="text-xs text-purple-300 flex items-center gap-2">
+            <Wallet className="w-4 h-4" />
+            <span>Only <strong>Trust Wallet</strong> is supported</span>
+          </p>
+        </div>
+        
         <Button onClick={() => open()} className="gap-2 w-full">
           <Wallet className="w-4 h-4" />
-          Connect Wallet
+          Connect Trust Wallet
         </Button>
       </div>
     )
