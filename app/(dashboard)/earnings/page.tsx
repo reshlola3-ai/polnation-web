@@ -105,6 +105,7 @@ export default function EarningsPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [showEarningsBreakdown, setShowEarningsBreakdown] = useState(false)
+  const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
 
   const { data: usdcBalanceRaw } = useReadContract({
     address: USDC_ADDRESS,
@@ -152,6 +153,7 @@ export default function EarningsPage() {
         setTiers(data.tiers)
         setConfig(data.config)
         setNextDistribution(data.next_distribution)
+        setBoundWalletAddress(data.wallet_address || null)
       }
     } catch (err) {
       console.error('Failed to fetch profits:', err)
@@ -245,7 +247,17 @@ export default function EarningsPage() {
     return `${hours} hours`
   }
 
-  if (!isConnected) {
+  // Show loading state while fetching initial data
+  if (isLoading && !profits) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <RefreshCw className="w-8 h-8 text-purple-400 animate-spin" />
+      </div>
+    )
+  }
+
+  // Only show connect wallet prompt if user has no bound wallet AND is not connected
+  if (!isConnected && !boundWalletAddress) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <Wallet className="w-16 h-16 text-zinc-400 mb-4" />
@@ -257,6 +269,19 @@ export default function EarningsPage() {
 
   return (
     <div className="space-y-8">
+      {/* Connect Wallet Banner - Show when user has bound wallet but not connected */}
+      {!isConnected && boundWalletAddress && (
+        <div className="glass-card-solid p-4 flex items-center gap-4 border-amber-500/30">
+          <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center shrink-0">
+            <Wallet className="w-5 h-5 text-amber-400" />
+          </div>
+          <div className="flex-1">
+            <p className="text-amber-300 font-medium">{tWallet('connect')}</p>
+            <p className="text-amber-400/70 text-sm">Connect your wallet to see real-time USDC balance</p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -275,9 +300,13 @@ export default function EarningsPage() {
           <div className="flex items-start justify-between mb-6">
             <div>
               <p className="text-purple-200 text-sm mb-1">{t('usdcBalance')}</p>
-              <p className="text-4xl font-bold currency">${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+              {isConnected ? (
+                <p className="text-4xl font-bold currency">${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+              ) : (
+                <p className="text-4xl font-bold text-purple-200">--</p>
+              )}
             </div>
-            {currentTier && (
+            {currentTier && isConnected && (
               <div className="px-3 py-1 rounded-full bg-white/20 backdrop-blur">
                 <span className="text-sm font-semibold flex items-center gap-1">
                   <Star className="w-4 h-4" />
@@ -287,26 +316,32 @@ export default function EarningsPage() {
             )}
           </div>
 
-          {currentTier ? (
-            <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-purple-200">{t('currentRate')}</span>
-                <span className="text-xl font-bold percentage">{currentTier.rate_percent}% / {formatInterval(config?.interval_seconds || 28800)}</span>
+          {isConnected ? (
+            currentTier ? (
+              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-purple-200">{t('currentRate')}</span>
+                  <span className="text-xl font-bold percentage">{currentTier.rate_percent}% / {formatInterval(config?.interval_seconds || 28800)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-purple-200">{t('estimatedDaily')}</span>
+                  <span className="font-semibold currency">
+                    ${((usdcBalance * currentTier.rate_percent / 100) * (86400 / (config?.interval_seconds || 28800))).toFixed(4)}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-purple-200">{t('estimatedDaily')}</span>
-                <span className="font-semibold currency">
-                  ${((usdcBalance * currentTier.rate_percent / 100) * (86400 / (config?.interval_seconds || 28800))).toFixed(4)}
-                </span>
+            ) : (
+              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                <p className="text-purple-200 text-sm">{t('depositMore')}</p>
               </div>
-            </div>
+            )
           ) : (
             <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-              <p className="text-purple-200 text-sm">{t('depositMore')}</p>
+              <p className="text-purple-200 text-sm">Connect wallet to see your tier and rates</p>
             </div>
           )}
 
-          {nextTier && usdcBalance < nextTier.min_usdc && (
+          {isConnected && nextTier && usdcBalance < nextTier.min_usdc && (
             <div className="mt-4 text-sm text-purple-200">
               <p>{t('upgradeHint', { amount: (nextTier.min_usdc - usdcBalance).toFixed(2), tier: nextTier.name, rate: nextTier.rate_percent })}</p>
             </div>

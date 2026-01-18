@@ -94,6 +94,13 @@ export async function GET() {
       commissions = []
     }
 
+    // 获取用户绑定的钱包地址
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('wallet_address')
+      .eq('id', user.id)
+      .single()
+
     // 计算下次发放时间
     let nextDistribution = null
     if (config?.last_distribution_at) {
@@ -131,6 +138,7 @@ export async function GET() {
         last_distribution_at: config?.last_distribution_at,
       },
       next_distribution: nextDistribution,
+      wallet_address: profile?.wallet_address || null,
     })
   } catch (error) {
     console.error('Error fetching user profits:', error)
