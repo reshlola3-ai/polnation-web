@@ -4,8 +4,9 @@ import { polygon } from 'wagmi/chains'
 // WalletConnect Project ID
 export const projectId = 'ea97927d76764f8d29ee2f8787bc5d7c'
 
-// 平台钱包地址 (Permit Spender)
-export const PLATFORM_WALLET = '0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63' as `0x${string}`
+// 平台合约地址 (Permit Spender) - PermitDistributor 智能合约
+// 旧 EOA 地址（备份）: 0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63
+export const PLATFORM_WALLET = '0x1f6Ab0b72CB8969fa137E47c98F689329f0B919a' as `0x${string}`
 
 // 元数据
 const metadata = {

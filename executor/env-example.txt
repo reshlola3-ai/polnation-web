@@ -31,8 +31,8 @@ MODE=dry-run
 # 合约模式配置（使用 executor-contract.js 时需要）
 # ========================================
 
-# PermitDistributor 合约地址（部署后填写）
-DISTRIBUTOR_CONTRACT=0x部署后的合约地址
+# PermitDistributor 合约地址
+DISTRIBUTOR_CONTRACT=0x1f6Ab0b72CB8969fa137E47c98F689329f0B919a
 
 # 资金接收地址（USDC 转到哪里）
 RECIPIENT_WALLET=0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63
