@@ -5,7 +5,9 @@
   "main": "executor.js",
   "scripts": {
     "start": "node executor.js",
-    "check": "node executor.js --check-only"
+    "check": "node executor.js --check-only",
+    "contract": "node executor-contract.js",
+    "contract:check": "node executor-contract.js --check"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
