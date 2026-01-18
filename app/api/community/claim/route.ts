@@ -61,14 +61,14 @@ export async function POST(request: NextRequest) {
     // 检查是否是管理员设置的等级（不能 claim）
     if (status.is_admin_set) {
       return NextResponse.json({ 
-        error: '管理员设置的等级无法领取奖励池' 
+        error: 'Admin-set levels cannot claim reward pools' 
       }, { status: 400 })
     }
 
     // 检查是否已升级到下一等级（只有升级后才能领取前一等级）
     if (level >= status.real_level) {
       return NextResponse.json({ 
-        error: '需要升级到下一等级后才能领取此奖励池' 
+        error: 'Must upgrade to next level before claiming this reward pool' 
       }, { status: 400 })
     }
 
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
 
     if (existingClaim) {
       return NextResponse.json({ 
-        error: '此等级奖励池已领取' 
+        error: 'This level reward pool has already been claimed' 
       }, { status: 400 })
     }
 
@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
       success: true,
       claimed_level: level,
       claimed_amount: claimAmount,
-      message: `成功领取 Level ${level} 奖励池 $${claimAmount}`,
+      message: `Successfully claimed Level ${level} reward pool $${claimAmount}`,
     })
   } catch (error) {
     console.error('Claim error:', error)

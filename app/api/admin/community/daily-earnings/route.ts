@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     if (!statuses || statuses.length === 0) {
       return NextResponse.json({
-        message: '没有符合条件的用户',
+        message: 'No eligible users found',
         users: [],
         total_earnings: 0,
       })

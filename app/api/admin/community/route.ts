@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
           })
           .eq('user_id', user_id)
 
-        return NextResponse.json({ success: true, message: '已设置为 Influencer' })
+        return NextResponse.json({ success: true, message: 'Set as Influencer' })
       }
 
       case 'remove_influencer': {
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
           })
           .eq('user_id', user_id)
 
-        return NextResponse.json({ success: true, message: '已移除 Influencer 状态' })
+        return NextResponse.json({ success: true, message: 'Influencer status removed' })
       }
 
       case 'set_level': {
@@ -173,7 +173,7 @@ export async function POST(request: NextRequest) {
           })
           .eq('user_id', user_id)
 
-        return NextResponse.json({ success: true, message: `已设置等级为 Level ${level}` })
+        return NextResponse.json({ success: true, message: `Level set to Level ${level}` })
       }
 
       case 'restore_real_level': {
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
           })
           .eq('user_id', user_id)
 
-        return NextResponse.json({ success: true, message: '已复原到真实等级' })
+        return NextResponse.json({ success: true, message: 'Restored to real level' })
       }
 
       case 'refresh_volume': {

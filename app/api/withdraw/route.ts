@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
 
     if (parseFloat(amount) < minAmount) {
       return NextResponse.json({ 
-        error: `最低提现金额为 $${minAmount}` 
+        error: `Minimum withdrawal amount is $${minAmount}` 
       }, { status: 400 })
     }
 
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     // 检查可用余额（美元）
     const available = profits.available_usdc || 0
     if (parseFloat(amount) > available) {
-      return NextResponse.json({ error: '余额不足' }, { status: 400 })
+      return NextResponse.json({ error: 'Insufficient balance' }, { status: 400 })
     }
 
     // 获取用户钱包地址
