@@ -13,14 +13,14 @@ function VerifyEmailContent() {
 
   return (
     <div className="text-center">
-      <div className="mx-auto w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-6">
-        <Mail className="w-8 h-8 text-emerald-600" />
+      <div className="mx-auto w-16 h-16 bg-purple-500/20 border border-purple-500/30 rounded-full flex items-center justify-center mb-6 glow-purple-sm">
+        <Mail className="w-8 h-8 text-purple-400" />
       </div>
 
-      <p className="text-zinc-600 mb-2">
+      <p className="text-zinc-400 mb-2">
         We've sent a verification email to:
       </p>
-      <p className="font-medium text-zinc-900 mb-6">
+      <p className="font-medium text-white mb-6">
         {email || 'your email address'}
       </p>
 
@@ -44,7 +44,11 @@ export default function VerifyEmailPage() {
       title="Check your email"
       subtitle="We've sent you a verification link"
     >
-      <Suspense fallback={<div className="text-center">Loading...</div>}>
+      <Suspense fallback={
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto" />
+        </div>
+      }>
         <VerifyEmailContent />
       </Suspense>
     </AuthLayout>

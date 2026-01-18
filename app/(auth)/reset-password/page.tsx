@@ -94,7 +94,7 @@ function ResetPasswordForm() {
         subtitle="Verifying your reset link..."
       >
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
         </div>
       </AuthLayout>
     )
@@ -108,11 +108,11 @@ function ResetPasswordForm() {
         subtitle="This reset link is no longer valid"
       >
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-100 flex items-center justify-center">
-            <XCircle className="w-8 h-8 text-red-600" />
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center">
+            <XCircle className="w-8 h-8 text-red-400" />
           </div>
           
-          <p className="text-zinc-600 mb-6">
+          <p className="text-zinc-400 mb-6">
             {error || 'This password reset link has expired or is invalid.'}
           </p>
 
@@ -142,11 +142,11 @@ function ResetPasswordForm() {
         subtitle="Your password has been successfully updated"
       >
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-emerald-100 flex items-center justify-center">
-            <CheckCircle className="w-8 h-8 text-emerald-600" />
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center glow-purple-sm">
+            <CheckCircle className="w-8 h-8 text-purple-400" />
           </div>
           
-          <p className="text-zinc-600 mb-6">
+          <p className="text-zinc-400 mb-6">
             Your password has been reset successfully.<br />
             Redirecting you to sign in...
           </p>
@@ -169,7 +169,7 @@ function ResetPasswordForm() {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
             {error}
           </div>
         )}
@@ -207,7 +207,7 @@ export default function ResetPasswordPage() {
     <Suspense fallback={
       <AuthLayout title="Reset Password" subtitle="Loading...">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
         </div>
       </AuthLayout>
     }>

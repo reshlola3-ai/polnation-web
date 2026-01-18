@@ -45,13 +45,13 @@ export default function ForgotPasswordPage() {
         subtitle="We've sent you a password reset link"
       >
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-emerald-100 flex items-center justify-center">
-            <CheckCircle className="w-8 h-8 text-emerald-600" />
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center glow-purple-sm">
+            <CheckCircle className="w-8 h-8 text-purple-400" />
           </div>
           
-          <p className="text-zinc-600 mb-6">
+          <p className="text-zinc-400 mb-6">
             We sent a password reset link to<br />
-            <strong className="text-zinc-900">{email}</strong>
+            <strong className="text-white">{email}</strong>
           </p>
           
           <p className="text-sm text-zinc-500 mb-6">
@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
 
           <div className="space-y-3">
             <Button
-              variant="outline"
+              variant="secondary"
               className="w-full"
               onClick={() => {
                 setSuccess(false)
@@ -90,7 +90,7 @@ export default function ForgotPasswordPage() {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
             {error}
           </div>
         )}
@@ -110,7 +110,7 @@ export default function ForgotPasswordPage() {
         </Button>
       </form>
 
-      <Link href="/login" className="mt-6 flex items-center justify-center text-sm text-zinc-600 hover:text-zinc-900">
+      <Link href="/login" className="mt-6 flex items-center justify-center text-sm text-zinc-500 hover:text-purple-400 transition-colors">
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to sign in
       </Link>

@@ -72,7 +72,7 @@ function LoginForm() {
       {/* Google Sign In */}
       <Button
         type="button"
-        variant="outline"
+        variant="secondary"
         className="w-full mb-6"
         onClick={handleGoogleLogin}
         disabled={isLoading}
@@ -100,17 +100,17 @@ function LoginForm() {
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-zinc-200" />
+          <div className="w-full border-t border-white/10" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-white text-zinc-500">or sign in with email</span>
+          <span className="px-4 bg-[#1A1333] text-zinc-500">or sign in with email</span>
         </div>
       </div>
 
       {/* Email Sign In Form */}
       <form onSubmit={handleEmailLogin} className="space-y-4">
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
             {error}
           </div>
         )}
@@ -135,10 +135,10 @@ function LoginForm() {
             leftIcon={<Lock className="w-4 h-4" />}
             required
           />
-          <div className="mt-1 text-right">
+          <div className="mt-2 text-right">
             <Link 
               href="/forgot-password" 
-              className="text-sm text-emerald-600 hover:text-emerald-700"
+              className="text-sm link-purple"
             >
               Forgot password?
             </Link>
@@ -150,9 +150,9 @@ function LoginForm() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-zinc-600">
+      <p className="mt-6 text-center text-sm text-zinc-500">
         Don't have an account?{' '}
-        <Link href="/register" className="font-medium text-emerald-600 hover:text-emerald-700">
+        <Link href="/register" className="link-purple font-medium">
           Create one
         </Link>
       </p>
@@ -165,7 +165,7 @@ export default function LoginPage() {
     <Suspense fallback={
       <AuthLayout title="Welcome back" subtitle="Sign in to your Polnation account">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
         </div>
       </AuthLayout>
     }>

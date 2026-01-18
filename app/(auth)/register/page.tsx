@@ -112,7 +112,7 @@ function RegisterForm() {
       {/* Google Sign Up */}
       <Button
         type="button"
-        variant="outline"
+        variant="secondary"
         className="w-full mb-6"
         onClick={handleGoogleRegister}
         disabled={isLoading}
@@ -140,23 +140,23 @@ function RegisterForm() {
 
       <div className="relative mb-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-zinc-200" />
+          <div className="w-full border-t border-white/10" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-white text-zinc-500">or register with email</span>
+          <span className="px-4 bg-[#1A1333] text-zinc-500">or register with email</span>
         </div>
       </div>
 
       {/* Email Sign Up Form */}
       <form onSubmit={handleEmailRegister} className="space-y-4">
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
             {error}
           </div>
         )}
 
         {referrerName && (
-          <div className="p-3 rounded-lg bg-emerald-50 text-emerald-700 text-sm flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm flex items-center gap-2">
             <User className="w-4 h-4" />
             Referred by: <strong>{referrerName}</strong>
           </div>
@@ -197,9 +197,9 @@ function RegisterForm() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-zinc-600">
+      <p className="mt-6 text-center text-sm text-zinc-500">
         Already have an account?{' '}
-        <Link href="/login" className="font-medium text-emerald-600 hover:text-emerald-700">
+        <Link href="/login" className="link-purple font-medium">
           Sign in
         </Link>
       </p>
@@ -212,7 +212,7 @@ export default function RegisterPage() {
     <Suspense fallback={
       <AuthLayout title="Create your account" subtitle="Join Polnation today">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
         </div>
       </AuthLayout>
     }>
