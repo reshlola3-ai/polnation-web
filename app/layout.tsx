@@ -22,9 +22,93 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "600", "700"],
 });
 
+const siteUrl = "https://www.polnation.com";
+
 export const metadata: Metadata = {
-  title: "Polnation - Crypto Soft Staking Platform",
-  description: "Earn rewards through soft staking on Polnation. Join the community and grow your crypto portfolio.",
+  // 基础 SEO
+  title: {
+    default: "Polnation - Crypto Soft Staking Platform | Earn USDC Rewards",
+    template: "%s | Polnation",
+  },
+  description: "Polnation is a revolutionary crypto soft staking platform on Polygon. Earn daily USDC rewards without locking your tokens. Join our global community and grow your crypto portfolio with referral commissions.",
+  keywords: [
+    "Polnation",
+    "crypto staking",
+    "soft staking",
+    "USDC rewards",
+    "Polygon",
+    "cryptocurrency",
+    "passive income",
+    "crypto earnings",
+    "referral program",
+    "DeFi",
+    "Web3",
+    "staking rewards",
+    "crypto community",
+  ],
+  authors: [{ name: "Polnation Team" }],
+  creator: "Polnation",
+  publisher: "Polnation",
+  
+  // Canonical URL
+  metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: "/",
+    languages: {
+      "en": "/",
+      "fr": "/",
+      "id": "/",
+      "vi": "/",
+    },
+  },
+  
+  // Open Graph (Facebook, LinkedIn, etc.)
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteUrl,
+    siteName: "Polnation",
+    title: "Polnation - Crypto Soft Staking Platform | Earn USDC Rewards",
+    description: "Earn daily USDC rewards through soft staking on Polygon. No token locking required. Join the Polnation community today!",
+    images: [
+      {
+        url: `${siteUrl}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: "Polnation - Crypto Soft Staking Platform",
+      },
+    ],
+  },
+  
+  // Twitter Card
+  twitter: {
+    card: "summary_large_image",
+    title: "Polnation - Crypto Soft Staking Platform",
+    description: "Earn daily USDC rewards through soft staking on Polygon. No token locking required.",
+    images: [`${siteUrl}/og-image.png`],
+    creator: "@polnation",
+  },
+  
+  // Robots
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  
+  // Verification (添加你的验证码)
+  verification: {
+    google: "", // 添加 Google Search Console 验证码
+  },
+  
+  // 其他
+  category: "cryptocurrency",
 };
 
 export default async function RootLayout({

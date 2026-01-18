@@ -6,6 +6,47 @@ import { ArrowRight, Users, Wallet, Shield, TrendingUp, Sparkles } from 'lucide-
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 
+// JSON-LD 结构化数据
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Polnation',
+  alternateName: ['Polnation Staking', 'Polnation Crypto'],
+  url: 'https://www.polnation.com',
+  description: 'Polnation is a revolutionary crypto soft staking platform on Polygon. Earn daily USDC rewards without locking your tokens.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://www.polnation.com/search?q={search_term_string}',
+    'query-input': 'required name=search_term_string',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Polnation',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://www.polnation.com/logo.svg',
+    },
+  },
+  sameAs: [
+    'https://twitter.com/polnation',
+    'https://t.me/polnation',
+  ],
+}
+
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Polnation',
+  url: 'https://www.polnation.com',
+  logo: 'https://www.polnation.com/logo.svg',
+  description: 'Crypto soft staking platform on Polygon blockchain',
+  foundingDate: '2024',
+  sameAs: [
+    'https://twitter.com/polnation',
+    'https://t.me/polnation',
+  ],
+}
+
 export default async function HomePage() {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -20,9 +61,20 @@ export default async function HomePage() {
   const tFooter = await getTranslations('footer')
 
   return (
-    <div className="min-h-screen bg-gradient-radial relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="stars fixed inset-0 pointer-events-none" />
+    <>
+      {/* JSON-LD 结构化数据 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+      
+      <div className="min-h-screen bg-gradient-radial relative overflow-hidden">
+        {/* Animated Background */}
+        <div className="stars fixed inset-0 pointer-events-none" />
       <div className="fixed top-0 right-0 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[150px] pointer-events-none" />
       <div className="fixed bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
@@ -170,5 +222,6 @@ export default async function HomePage() {
         </div>
       </footer>
     </div>
+    </>
   )
 }
