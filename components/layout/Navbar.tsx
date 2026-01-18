@@ -33,16 +33,16 @@ export function Navbar({ user }: NavbarProps) {
   ]
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-zinc-200 sticky top-0 z-50">
+    <nav className="bg-[#0D0B21]/80 backdrop-blur-xl border-b border-purple-500/20 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center glow-purple-sm group-hover:glow-purple transition-all duration-300">
                 <span className="text-white font-bold text-lg">P</span>
               </div>
-              <span className="font-bold text-xl text-zinc-900">Polnation</span>
+              <span className="font-display text-xl text-white group-hover:glow-text transition-all duration-300">Polnation</span>
             </Link>
           </div>
 
@@ -57,10 +57,10 @@ export function Navbar({ user }: NavbarProps) {
                     key={link.href}
                     href={link.href}
                     className={`
-                      flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all
+                      flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300
                       ${isActive 
-                        ? 'bg-emerald-50 text-emerald-700' 
-                        : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
+                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' 
+                        : 'text-zinc-400 hover:text-white hover:bg-white/5'
                       }
                     `}
                   >
@@ -76,12 +76,12 @@ export function Navbar({ user }: NavbarProps) {
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                <span className="hidden sm:block text-sm text-zinc-600">
+                <span className="hidden sm:block text-sm text-zinc-500 truncate max-w-[150px]">
                   {user.email}
                 </span>
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-all"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-300"
                 >
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline">Sign Out</span>
@@ -91,13 +91,13 @@ export function Navbar({ user }: NavbarProps) {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-all"
+                  className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-all"
                 >
                   Sign In
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-all"
+                  className="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-xl transition-all"
                 >
                   Get Started
                 </Link>
@@ -108,7 +108,7 @@ export function Navbar({ user }: NavbarProps) {
             {user && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg text-zinc-600 hover:bg-zinc-100"
+                className="md:hidden p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -118,7 +118,7 @@ export function Navbar({ user }: NavbarProps) {
 
         {/* Mobile Navigation */}
         {user && mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-zinc-200">
+          <div className="md:hidden py-4 border-t border-purple-500/20">
             <div className="flex flex-col gap-1">
               {navLinks.map((link) => {
                 const Icon = link.icon
@@ -129,10 +129,10 @@ export function Navbar({ user }: NavbarProps) {
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all
+                      flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
                       ${isActive 
-                        ? 'bg-emerald-50 text-emerald-700' 
-                        : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
+                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' 
+                        : 'text-zinc-400 hover:text-white hover:bg-white/5'
                       }
                     `}
                   >

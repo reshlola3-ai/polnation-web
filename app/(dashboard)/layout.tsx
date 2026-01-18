@@ -17,9 +17,14 @@ export default async function DashboardLayout({
 
   return (
     <Web3Provider>
-      <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-emerald-50/30 to-teal-50/40">
+      <div className="min-h-screen bg-gradient-radial relative">
+        {/* Animated Background */}
+        <div className="stars fixed inset-0 pointer-events-none" />
+        <div className="fixed top-0 right-0 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
+        <div className="fixed bottom-0 left-0 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
+        
         <Navbar user={user} />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {children}
         </main>
       </div>

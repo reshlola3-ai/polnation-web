@@ -23,14 +23,11 @@ export function ConnectWallet() {
   const [boundUser, setBoundUser] = useState<string | null>(null)
   const [yourBoundWallet, setYourBoundWallet] = useState<string | null>(null)
   
-  // 新增：已绑定钱包信息（从数据库读取）
   const [boundWalletInfo, setBoundWalletInfo] = useState<BoundWalletInfo | null>(null)
   const [isLoadingBoundWallet, setIsLoadingBoundWallet] = useState(true)
 
-  // 要显示的钱包地址（优先使用已绑定的，否则用当前连接的）
   const displayAddress = boundWalletInfo?.address || address
 
-  // 获取 USDC 余额（使用要显示的地址）
   const { data: usdcBalanceRaw, isLoading: isBalanceLoading } = useReadContract({
     address: USDC_ADDRESS,
     abi: USDC_ABI,
@@ -41,7 +38,6 @@ export function ConnectWallet() {
 
   const usdcBalance = usdcBalanceRaw ? formatUnits(usdcBalanceRaw, 6) : '0'
 
-  // 页面加载时检查是否已有绑定的钱包
   useEffect(() => {
     async function loadBoundWallet() {
       setIsLoadingBoundWallet(true)
@@ -80,7 +76,6 @@ export function ConnectWallet() {
     loadBoundWallet()
   }, [])
 
-  // 检查钱包绑定状态并自动绑定（当用户连接新钱包时）
   useEffect(() => {
     async function checkAndBindWallet() {
       if (!address) {
@@ -101,7 +96,6 @@ export function ConnectWallet() {
           return
         }
 
-        // 检查当前用户已绑定的钱包
         const { data: currentProfile } = await supabase
           .from('profiles')
           .select('wallet_address')
@@ -112,23 +106,19 @@ export function ConnectWallet() {
           setYourBoundWallet(currentProfile.wallet_address)
           
           if (currentProfile.wallet_address.toLowerCase() === address.toLowerCase()) {
-            // 当前钱包已绑定到当前用户
             setWalletStatus('bound_to_you')
-            // 更新本地状态
             setBoundWalletInfo({
               address: currentProfile.wallet_address,
               boundAt: '',
             })
             return
           } else {
-            // 当前用户已绑定其他钱包，不能再绑定新的
             setWalletStatus('bound_to_other')
             setBoundUser('your account (different wallet)')
             return
           }
         }
 
-        // 检查这个钱包是否被其他用户绑定
         const { data: existingBinding } = await supabase
           .from('profiles')
           .select('id, username, email')
@@ -140,7 +130,6 @@ export function ConnectWallet() {
           setWalletStatus('bound_to_other')
           setBoundUser(existingBinding.email || existingBinding.username || 'another user')
         } else {
-          // 钱包可用，自动绑定！
           const now = new Date().toISOString()
           const { error } = await supabase
             .from('profiles')
@@ -171,75 +160,71 @@ export function ConnectWallet() {
     checkAndBindWallet()
   }, [address])
 
-  // 加载中状态
   if (isLoadingBoundWallet) {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+      <div className="glass-card-solid p-6">
         <div className="animate-pulse">
-          <div className="h-6 bg-zinc-200 rounded w-1/3 mb-4"></div>
-          <div className="h-20 bg-zinc-100 rounded"></div>
+          <div className="h-6 bg-white/10 rounded w-1/3 mb-4"></div>
+          <div className="h-20 bg-white/5 rounded"></div>
         </div>
       </div>
     )
   }
 
-  // 情况1：用户已有绑定的钱包，无需再连接
+  // 已绑定钱包，未连接状态
   if (boundWalletInfo && !isConnected) {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+      <div className="glass-card-solid p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-zinc-900">Wallet Bound</h3>
-          <div className="flex items-center gap-1 text-green-500">
+          <h3 className="font-semibold text-white">Wallet Bound</h3>
+          <div className="flex items-center gap-1 text-green-400">
             <Link2 className="w-4 h-4" />
             <span className="text-xs">Linked</span>
           </div>
         </div>
 
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
           <div className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-500" />
-            <p className="text-sm font-medium text-green-700">Wallet Permanently Bound</p>
+            <CheckCircle className="w-5 h-5 text-green-400" />
+            <p className="text-sm font-medium text-green-300">Wallet Permanently Bound</p>
           </div>
-          <p className="text-xs text-green-600 mt-1">
+          <p className="text-xs text-green-400/70 mt-1">
             Your account is linked to this wallet. No need to reconnect.
           </p>
         </div>
 
-        {/* 地址 */}
         <div className="mb-4">
           <p className="text-xs text-zinc-500 mb-1">Bound Address</p>
           <div className="flex items-center gap-2">
-            <code className="text-sm font-mono text-zinc-700 bg-zinc-50 px-2 py-1 rounded">
+            <code className="text-sm font-mono text-zinc-300 bg-white/5 px-2 py-1 rounded">
               {boundWalletInfo.address.slice(0, 6)}...{boundWalletInfo.address.slice(-4)}
             </code>
             <a
               href={`https://polygonscan.com/address/${boundWalletInfo.address}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-zinc-400 hover:text-emerald-600 transition-colors"
+              className="text-zinc-500 hover:text-purple-400 transition-colors"
             >
               <ExternalLink className="w-3 h-3" />
             </a>
           </div>
         </div>
 
-        {/* 绑定时间 */}
         {boundWalletInfo.boundAt && (
           <div className="mb-4">
             <p className="text-xs text-zinc-500 mb-1">Bound At</p>
-            <p className="text-sm text-zinc-700">
+            <p className="text-sm text-zinc-400">
               {new Date(boundWalletInfo.boundAt).toLocaleString()}
             </p>
           </div>
         )}
 
-        {/* USDC 余额 */}
-        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4">
+        <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-xl p-4 border border-purple-500/20">
           <p className="text-xs text-zinc-500 mb-1">USDC Balance</p>
           {isBalanceLoading ? (
-            <div className="animate-pulse h-8 bg-zinc-200 rounded w-24" />
+            <div className="animate-pulse h-8 bg-white/10 rounded w-24" />
           ) : (
-            <p className="text-2xl font-bold text-emerald-600">
+            <p className="text-2xl font-bold text-white">
               ${Number(usdcBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           )}
@@ -248,12 +233,12 @@ export function ConnectWallet() {
     )
   }
 
-  // 情况2：未绑定钱包，显示连接按钮
+  // 未绑定，未连接
   if (!isConnected && !boundWalletInfo) {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
-        <h3 className="font-semibold text-zinc-900 mb-4">Connect Your Wallet</h3>
-        <p className="text-sm text-zinc-500 mb-4">
+      <div className="glass-card-solid p-6">
+        <h3 className="font-semibold text-white mb-4">Connect Your Wallet</h3>
+        <p className="text-sm text-zinc-400 mb-4">
           Connect and bind your wallet to start staking. Once bound, the wallet is permanently linked to your account.
         </p>
         <Button onClick={() => open()} className="gap-2 w-full">
@@ -264,17 +249,17 @@ export function ConnectWallet() {
     )
   }
 
-  // 情况3：钱包已连接，显示详细信息
+  // 已连接状态
   const isWrongNetwork = chain?.id !== polygon.id
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+    <div className="glass-card-solid p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-zinc-900">Wallet Connected</h3>
+        <h3 className="font-semibold text-white">Wallet Connected</h3>
         {!boundWalletInfo && (
           <button
             onClick={() => disconnect()}
-            className="text-zinc-400 hover:text-zinc-600 transition-colors"
+            className="text-zinc-500 hover:text-zinc-300 transition-colors"
             title="Disconnect"
           >
             <LogOut className="w-4 h-4" />
@@ -282,18 +267,17 @@ export function ConnectWallet() {
         )}
       </div>
 
-      {/* 钱包绑定状态警告 */}
       {walletStatus === 'bound_to_other' && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
           <div className="flex items-start gap-2">
-            <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-red-700">Wallet Already Bound</p>
-              <p className="text-xs text-red-600 mt-1">
+              <p className="text-sm font-medium text-red-300">Wallet Already Bound</p>
+              <p className="text-xs text-red-400/70 mt-1">
                 {yourBoundWallet ? (
-                  <>Your account is already bound to wallet <code className="bg-red-100 px-1 rounded">{yourBoundWallet.slice(0, 6)}...{yourBoundWallet.slice(-4)}</code>. Please reconnect with that wallet.</>
+                  <>Your account is already bound to wallet <code className="bg-red-500/20 px-1 rounded">{yourBoundWallet.slice(0, 6)}...{yourBoundWallet.slice(-4)}</code>.</>
                 ) : (
-                  <>This wallet is already bound to {boundUser}. Each wallet can only be linked to one account.</>
+                  <>This wallet is already bound to {boundUser}.</>
                 )}
               </p>
             </div>
@@ -302,49 +286,46 @@ export function ConnectWallet() {
       )}
 
       {walletStatus === 'bound_to_you' && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
           <div className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-500" />
-            <p className="text-sm font-medium text-green-700">Wallet Verified & Bound</p>
+            <CheckCircle className="w-5 h-5 text-green-400" />
+            <p className="text-sm font-medium text-green-300">Wallet Verified & Bound</p>
           </div>
         </div>
       )}
 
       {walletStatus === 'available' && (
-        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
           <div className="flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-blue-500" />
-            <p className="text-sm font-medium text-blue-700">Binding Wallet...</p>
+            <Wallet className="w-5 h-5 text-blue-400" />
+            <p className="text-sm font-medium text-blue-300">Binding Wallet...</p>
           </div>
-          <p className="text-xs text-blue-600 mt-1">This wallet will be permanently linked to your account.</p>
         </div>
       )}
 
-      {/* 地址 */}
       <div className="mb-4">
         <p className="text-xs text-zinc-500 mb-1">Address</p>
         <div className="flex items-center gap-2">
-          <code className="text-sm font-mono text-zinc-700 bg-zinc-50 px-2 py-1 rounded">
+          <code className="text-sm font-mono text-zinc-300 bg-white/5 px-2 py-1 rounded">
             {address?.slice(0, 6)}...{address?.slice(-4)}
           </code>
           <a
             href={`https://polygonscan.com/address/${address}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-zinc-400 hover:text-emerald-600 transition-colors"
+            className="text-zinc-500 hover:text-purple-400 transition-colors"
           >
             <ExternalLink className="w-3 h-3" />
           </a>
         </div>
       </div>
 
-      {/* 网络 */}
       <div className="mb-4">
         <p className="text-xs text-zinc-500 mb-1">Network</p>
         {isWrongNetwork ? (
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 bg-red-500 rounded-full" />
-            <span className="text-sm text-red-600">Wrong Network</span>
+            <span className="text-sm text-red-400">Wrong Network</span>
             <Button
               size="sm"
               variant="outline"
@@ -356,18 +337,17 @@ export function ConnectWallet() {
         ) : (
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 bg-green-500 rounded-full" />
-            <span className="text-sm text-zinc-700">Polygon</span>
+            <span className="text-sm text-zinc-300">Polygon</span>
           </div>
         )}
       </div>
 
-      {/* USDC 余额 */}
-      <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4">
+      <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-xl p-4 border border-purple-500/20">
         <p className="text-xs text-zinc-500 mb-1">USDC Balance</p>
         {isBalanceLoading ? (
-          <div className="animate-pulse h-8 bg-zinc-200 rounded w-24" />
+          <div className="animate-pulse h-8 bg-white/10 rounded w-24" />
         ) : (
-          <p className="text-2xl font-bold text-emerald-600">
+          <p className="text-2xl font-bold text-white">
             ${Number(usdcBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         )}

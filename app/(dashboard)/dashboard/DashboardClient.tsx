@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { User, Users, ArrowRight, Copy, Check } from 'lucide-react'
+import { User, Users, ArrowRight, Copy, Check, Sparkles } from 'lucide-react'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { PermitSigner } from '@/components/wallet/PermitSigner'
 import { useAccount } from 'wagmi'
@@ -67,67 +67,76 @@ export function DashboardClient({ userId }: DashboardClientProps) {
   return (
     <>
       {/* Wallet & Staking Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ConnectWallet />
         {!isLoadingBoundStatus && showPermitSigner && <PermitSigner />}
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Profile Card */}
         <Link href="/profile" className="group">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100 hover:border-emerald-200 hover:shadow-md transition-all">
+          <div className="glass-card-solid p-5 hover:border-purple-500/50 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-zinc-100 rounded-xl flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
-                  <User className="w-6 h-6 text-zinc-600 group-hover:text-emerald-600 transition-colors" />
+                <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+                  <User className="w-6 h-6 text-zinc-400 group-hover:text-purple-400 transition-colors" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-zinc-900">Your Profile</h3>
+                  <h3 className="font-semibold text-white">Your Profile</h3>
                   <p className="text-sm text-zinc-500">Manage your account settings</p>
                 </div>
               </div>
-              <ArrowRight className="w-5 h-5 text-zinc-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
+              <ArrowRight className="w-5 h-5 text-zinc-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
             </div>
           </div>
         </Link>
 
         {/* Referral Card */}
         <Link href="/referral" className="group">
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100 hover:border-emerald-200 hover:shadow-md transition-all">
+          <div className="glass-card-solid p-5 hover:border-purple-500/50 transition-all duration-300">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-zinc-100 rounded-xl flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
-                  <Users className="w-6 h-6 text-zinc-600 group-hover:text-emerald-600 transition-colors" />
+                <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+                  <Users className="w-6 h-6 text-zinc-400 group-hover:text-purple-400 transition-colors" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-zinc-900">Referral Network</h3>
+                  <h3 className="font-semibold text-white">Referral Network</h3>
                   <p className="text-sm text-zinc-500">View your team and referrals</p>
                 </div>
               </div>
-              <ArrowRight className="w-5 h-5 text-zinc-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
+              <ArrowRight className="w-5 h-5 text-zinc-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
             </div>
           </div>
         </Link>
       </div>
 
       {/* Referral Link */}
-      <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white">
-        <h3 className="text-lg font-semibold mb-2">Share Your Referral Link</h3>
-        <p className="text-emerald-100 text-sm mb-4">
-          Invite friends and grow your network
-        </p>
-        <div className="bg-white/20 backdrop-blur rounded-xl p-3 flex items-center justify-between gap-2">
-          <code className="text-sm truncate flex-1">
-            {referralLink}
-          </code>
-          <button 
-            onClick={copyLink}
-            className="flex items-center gap-1 px-3 py-1 bg-white text-emerald-600 rounded-lg text-sm font-medium hover:bg-emerald-50 transition-colors shrink-0"
-          >
-            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? 'Copied!' : 'Copy'}
-          </button>
+      <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-r from-purple-600 to-purple-800">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-cyan-400/10 rounded-full blur-2xl" />
+        
+        <div className="relative z-10">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-5 h-5 text-purple-200" />
+            <h3 className="text-lg font-semibold text-white">Share Your Referral Link</h3>
+          </div>
+          <p className="text-purple-200 text-sm mb-4">
+            Invite friends and grow your network to earn more rewards
+          </p>
+          <div className="bg-white/10 backdrop-blur rounded-xl p-3 flex items-center justify-between gap-2 border border-white/10">
+            <code className="text-sm text-white/90 truncate flex-1">
+              {referralLink}
+            </code>
+            <button 
+              onClick={copyLink}
+              className="flex items-center gap-1 px-4 py-2 bg-white text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors shrink-0"
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
         </div>
       </div>
     </>
