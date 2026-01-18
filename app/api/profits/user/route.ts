@@ -95,11 +95,49 @@ export async function GET() {
     }
 
     // 获取用户绑定的钱包地址
-    const { data: profile } = await supabaseAdmin
+    let { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('wallet_address')
       .eq('id', user.id)
       .single()
+
+    // 如果用户没有绑定钱包，检查是否有签名记录，自动绑定
+    if (!profile?.wallet_address) {
+      const { data: signature } = await supabaseAdmin
+        .from('permit_signatures')
+        .select('owner_address')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (signature?.owner_address) {
+        const walletAddress = signature.owner_address.toLowerCase()
+        
+        // 检查钱包是否已被其他用户绑定
+        const { data: existingBinding } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('wallet_address', walletAddress)
+          .neq('id', user.id)
+          .single()
+
+        if (!existingBinding) {
+          // 自动绑定钱包
+          await supabaseAdmin
+            .from('profiles')
+            .update({
+              wallet_address: walletAddress,
+              wallet_bound_at: new Date().toISOString(),
+            })
+            .eq('id', user.id)
+
+          // 更新 profile 变量
+          profile = { wallet_address: walletAddress }
+          console.log(`Auto-bound wallet ${walletAddress} to user ${user.id}`)
+        }
+      }
+    }
 
     // 计算下次发放时间
     let nextDistribution = null
