@@ -184,29 +184,29 @@ export default function TasksPage() {
       {/* Daily Check-in */}
       {checkinTask && (
         <div className="overflow-hidden rounded-2xl">
-          <div className="bg-gradient-to-r from-red-600 to-red-500 px-6 py-4 relative">
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 relative">
             <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-2 left-4 w-8 h-8 border-2 border-yellow-300 rounded-full"></div>
-              <div className="absolute bottom-2 right-8 w-6 h-6 border-2 border-yellow-300 rounded-full"></div>
+              <div className="absolute top-2 left-4 w-8 h-8 border-2 border-cyan-300 rounded-full"></div>
+              <div className="absolute bottom-2 right-8 w-6 h-6 border-2 border-purple-300 rounded-full"></div>
             </div>
             <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg">
-                  <Calendar className="w-5 h-5 text-red-600" />
+                <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center shadow-lg">
+                  <Calendar className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-lg">每日签到</h3>
-                  <p className="text-red-100 text-sm">连续签到7天领取红包</p>
+                  <h3 className="font-bold text-white text-lg">Daily Check-in</h3>
+                  <p className="text-purple-200 text-sm">7-day streak bonus available</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-yellow-300 text-2xl font-bold stat-number">{progress.current_streak}</p>
-                <p className="text-red-100 text-xs">累计天数</p>
+                <p className="text-cyan-300 text-2xl font-bold stat-number">{progress.current_streak}</p>
+                <p className="text-purple-200 text-xs">Day Streak</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-[#1A1333] px-6 py-5 border-x border-b border-red-500/20">
+          <div className="bg-[#1A1333] px-6 py-5 border-x border-b border-purple-500/20">
             <div className="flex items-center mb-4">
               {[1, 2, 3, 4, 5, 6, 7].map((day) => {
                 const isCompleted = day <= progress.current_streak
@@ -221,38 +221,38 @@ export default function TasksPage() {
                         w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-all
                         ${isBonus ? (
                           isCompleted 
-                            ? 'bg-gradient-to-br from-yellow-400 to-yellow-500 shadow-lg scale-110' 
-                            : 'bg-gradient-to-br from-red-500 to-red-600 shadow-md'
+                            ? 'bg-gradient-to-br from-cyan-400 to-cyan-500 shadow-lg scale-110 glow-purple-sm' 
+                            : 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-md'
                         ) : (
                           isCompleted 
-                            ? 'bg-gradient-to-br from-red-500 to-red-600 shadow-md' 
+                            ? 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-md' 
                             : isToday 
-                              ? 'bg-white/10 border-2 border-red-400 border-dashed'
+                              ? 'bg-white/10 border-2 border-purple-400 border-dashed'
                               : 'bg-white/5'
                         )}
                       `}>
                         {isBonus ? (
                           <div className="text-center">
                             {isCompleted ? (
-                              <span className="text-lg">🧧</span>
+                              <span className="text-lg">🎉</span>
                             ) : (
-                              <Gift className="w-5 h-5 text-yellow-300" />
+                              <Gift className="w-5 h-5 text-cyan-300" />
                             )}
                           </div>
                         ) : isCompleted ? (
                           <CheckCircle className="w-5 h-5 text-white" />
                         ) : isToday ? (
-                          <Circle className="w-5 h-5 text-red-400" />
+                          <Circle className="w-5 h-5 text-purple-400" />
                         ) : (
                           <Circle className="w-5 h-5 text-zinc-600" />
                         )}
                       </div>
                       <span className={`text-xs font-medium ${
-                        isCompleted ? 'text-red-400' : isToday ? 'text-red-500' : 'text-zinc-600'
+                        isCompleted ? 'text-purple-400' : isToday ? 'text-purple-300' : 'text-zinc-600'
                       }`}>
-                        {isBonus ? '红包' : `${day}天`}
+                        {isBonus ? 'Bonus' : `Day ${day}`}
                       </span>
-                      <span className={`text-xs ${
+                      <span className={`text-xs currency ${
                         isCompleted ? 'text-emerald-400' : 'text-zinc-600'
                       }`}>
                         {isBonus ? '+$1.0' : `+$${checkinTask.reward_usd}`}
@@ -262,7 +262,7 @@ export default function TasksPage() {
                     {day < 7 && (
                       <div className={`flex-1 h-1 mx-1 rounded-full transition-all duration-300 ${
                         lineCompleted 
-                          ? 'bg-gradient-to-r from-red-500 to-red-400' 
+                          ? 'bg-gradient-to-r from-purple-500 to-indigo-500' 
                           : 'bg-white/10'
                       }`} style={{ marginTop: '-32px' }} />
                     )}
@@ -273,11 +273,11 @@ export default function TasksPage() {
 
             <div className="flex items-center justify-between text-sm mb-4 px-2">
               <div className="flex items-center gap-1 text-zinc-400">
-                <Flame className="w-4 h-4 text-orange-500" />
-                <span>累计签到 <span className="font-bold text-red-400 stat-number">{progress.total_checkins}</span> 天</span>
+                <Flame className="w-4 h-4 text-purple-400" />
+                <span>Total Check-ins: <span className="font-bold text-purple-400 stat-number">{progress.total_checkins}</span></span>
               </div>
               <div className="text-zinc-400">
-                已获得 <span className="font-bold text-emerald-400 currency">${progress.total_task_bonus.toFixed(2)}</span>
+                Earned: <span className="font-bold text-emerald-400 currency">${progress.total_task_bonus.toFixed(2)}</span>
               </div>
             </div>
 
@@ -287,7 +287,7 @@ export default function TasksPage() {
               className={`
                 w-full py-3 rounded-xl font-bold text-lg transition-all
                 ${checkinTask.can_complete 
-                  ? 'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]' 
+                  ? 'btn-gradient text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] glow-purple' 
                   : 'bg-white/10 text-zinc-500 cursor-not-allowed'
                 }
               `}
@@ -296,20 +296,20 @@ export default function TasksPage() {
                 <RefreshCw className="w-5 h-5 animate-spin mx-auto" />
               ) : checkinTask.can_complete ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="text-xl">🎁</span>
-                  立即签到
+                  <Calendar className="w-5 h-5" />
+                  Check In Now
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   <CheckCircle className="w-5 h-5" />
-                  今日已签到
+                  Checked In Today
                 </span>
               )}
             </button>
 
             {progress.current_streak >= 5 && progress.current_streak < 7 && (
-              <p className="text-center text-sm text-red-400 mt-3 font-medium">
-                🔥 还差 {7 - progress.current_streak} 天就能领取 $1 红包奖励！
+              <p className="text-center text-sm text-purple-400 mt-3 font-medium">
+                🔥 {7 - progress.current_streak} more days to claim $1 streak bonus!
               </p>
             )}
           </div>
