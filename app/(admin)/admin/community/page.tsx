@@ -21,7 +21,8 @@ import {
   X,
   Gift,
   Calculator,
-  Send
+  Send,
+  ClipboardList
 } from 'lucide-react'
 
 interface CommunityUser {
@@ -238,6 +239,12 @@ export default function AdminCommunityPage() {
                 <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                   <FileSignature className="w-4 h-4 mr-2" />
                   Signatures
+                </Button>
+              </Link>
+              <Link href="/admin/tasks">
+                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                  <ClipboardList className="w-4 h-4 mr-2" />
+                  Tasks
                 </Button>
               </Link>
               <Button

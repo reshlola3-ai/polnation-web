@@ -16,7 +16,8 @@ import {
   Wallet,
   Users,
   TrendingUp,
-  Crown
+  Crown,
+  ClipboardList
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -193,6 +194,16 @@ export default function AdminSignaturesPage() {
                 >
                   <Crown className="w-4 h-4 mr-2" />
                   Community
+                </Button>
+              </Link>
+              <Link href="/admin/tasks">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                >
+                  <ClipboardList className="w-4 h-4 mr-2" />
+                  Tasks
                 </Button>
               </Link>
               <Button
