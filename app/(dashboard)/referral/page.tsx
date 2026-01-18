@@ -136,8 +136,8 @@ export default function ReferralPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Referral Network</h1>
-          <p className="text-zinc-600">View and manage your team</p>
+          <h1 className="text-2xl font-bold text-white">Referral Network</h1>
+          <p className="text-zinc-400">View and manage your team</p>
         </div>
         <Button onClick={copyReferralLink} variant="outline" className="w-fit">
           {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
@@ -147,66 +147,66 @@ export default function ReferralPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
+        <div className="bg-[#1A1333] rounded-xl p-4 shadow-sm border border-purple-500/20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-emerald-600" />
+            <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
               <p className="text-xs text-zinc-500">Total Team Volume</p>
-              <p className="text-lg font-bold text-zinc-900">
+              <p className="text-lg font-bold text-white">
                 ${totalTeamVolume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
+        <div className="bg-[#1A1333] rounded-xl p-4 shadow-sm border border-purple-500/20">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
               <DollarSign className="w-5 h-5 text-blue-600" />
             </div>
             <div>
               <p className="text-xs text-zinc-500">Level 1 Volume</p>
-              <p className="text-lg font-bold text-zinc-900">
+              <p className="text-lg font-bold text-white">
                 ${level1Volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
+        <div className="bg-[#1A1333] rounded-xl p-4 shadow-sm border border-purple-500/20">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
               <Users className="w-5 h-5 text-purple-600" />
             </div>
             <div>
               <p className="text-xs text-zinc-500">Total Team</p>
-              <p className="text-lg font-bold text-zinc-900">{totalTeamMembers}</p>
+              <p className="text-lg font-bold text-white">{totalTeamMembers}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
+        <div className="bg-[#1A1333] rounded-xl p-4 shadow-sm border border-purple-500/20">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
               <User className="w-5 h-5 text-amber-600" />
             </div>
             <div>
               <p className="text-xs text-zinc-500">Direct Referrals</p>
-              <p className="text-lg font-bold text-zinc-900">{level1Members}</p>
+              <p className="text-lg font-bold text-white">{level1Members}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-zinc-100">
+      <div className="bg-[#1A1333] rounded-xl p-4 shadow-sm border border-purple-500/20">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-zinc-400" />
-              <span className="text-sm font-medium text-zinc-700">Filters:</span>
+              <span className="text-sm font-medium text-zinc-300">Filters:</span>
             </div>
             <div className="flex flex-wrap gap-3">
               <Select
@@ -243,27 +243,27 @@ export default function ReferralPage() {
       </div>
 
       {/* Referrals Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-zinc-100 overflow-hidden">
+      <div className="bg-[#1A1333] rounded-xl shadow-sm border border-purple-500/20 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-zinc-50 border-b border-zinc-100">
+            <thead className="bg-white/5 border-b border-purple-500/20">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Name
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Country
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Staked
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Contact
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Level
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-600 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                   Team
                 </th>
               </tr>
@@ -279,9 +279,9 @@ export default function ReferralPage() {
                 paginatedReferrals.map((referral) => {
                   const country = getCountryByCode(referral.country_code || '')
                   return (
-                    <tr key={referral.id} className="hover:bg-zinc-50 transition-colors">
+                    <tr key={referral.id} className="hover:bg-white/5 transition-colors">
                       <td className="px-4 py-3">
-                        <span className="font-medium text-zinc-900">{referral.username || '-'}</span>
+                        <span className="font-medium text-white">{referral.username || '-'}</span>
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-2xl" title={country?.name}>
@@ -289,19 +289,19 @@ export default function ReferralPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`font-medium ${(referral.usdc_balance || 0) > 0 ? 'text-emerald-600' : 'text-zinc-400'}`}>
+                        <span className={`font-medium ${(referral.usdc_balance || 0) > 0 ? 'text-emerald-400' : 'text-zinc-400'}`}>
                           ${(referral.usdc_balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-zinc-600 text-sm">
+                      <td className="px-4 py-3 text-zinc-400 text-sm">
                         {getContact(referral)}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-700">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-300">
                           L{referral.level}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-zinc-600">
+                      <td className="px-4 py-3 text-zinc-400">
                         {referral.team_count}
                       </td>
                     </tr>
@@ -314,8 +314,8 @@ export default function ReferralPage() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-4 py-3 border-t border-zinc-100 flex items-center justify-between">
-            <p className="text-sm text-zinc-600">
+          <div className="px-4 py-3 border-t border-purple-500/20 flex items-center justify-between">
+            <p className="text-sm text-zinc-400">
               Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredReferrals.length)} of {filteredReferrals.length}
             </p>
             <div className="flex gap-2">

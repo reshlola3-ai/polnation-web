@@ -158,7 +158,7 @@ export default function CommunityPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">社群账户</h1>
+          <h1 className="text-2xl font-bold text-white">社群账户</h1>
           <p className="text-zinc-500">团队激励奖励系统</p>
         </div>
         <Button
@@ -290,7 +290,7 @@ export default function CommunityPage() {
             </div>
             <div>
               <p className="text-sm text-zinc-500">L1-L3 团队 Volume</p>
-              <p className="text-2xl font-bold text-zinc-900">
+              <p className="text-2xl font-bold text-white">
                 ${(status?.team_volume_l123 || 0).toFixed(2)}
               </p>
             </div>
@@ -313,12 +313,12 @@ export default function CommunityPage() {
 
         <div className="bg-white rounded-xl p-5 shadow-sm border border-zinc-100">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-emerald-600" />
+            <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-emerald-400" />
             </div>
             <div>
               <p className="text-sm text-zinc-500">社群累计收益</p>
-              <p className="text-2xl font-bold text-emerald-600">
+              <p className="text-2xl font-bold text-emerald-400">
                 ${(status?.total_community_earned || 0).toFixed(2)}
               </p>
             </div>
@@ -327,8 +327,8 @@ export default function CommunityPage() {
       </div>
 
       {/* All Levels */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
-        <h2 className="text-lg font-semibold text-zinc-900 mb-4 flex items-center gap-2">
+      <div className="glass-card-solid p-6">
+        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
           <Trophy className="w-5 h-5" />
           等级一览
         </h2>
@@ -350,7 +350,7 @@ export default function CommunityPage() {
                   isCurrent 
                     ? 'border-emerald-500 bg-emerald-50' 
                     : isUnlocked 
-                      ? 'border-zinc-200 bg-zinc-50' 
+                      ? 'border-white/10 bg-white/5' 
                       : 'border-zinc-100 bg-white opacity-60'
                 }`}
               >
@@ -361,7 +361,7 @@ export default function CommunityPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-zinc-900">
+                        <span className="font-semibold text-white">
                           Level {level.level} - {level.name}
                         </span>
                         {isCurrent && (
@@ -370,15 +370,15 @@ export default function CommunityPage() {
                           </span>
                         )}
                         {isClaimed && (
-                          <span className="px-2 py-0.5 bg-zinc-500 text-white text-xs rounded-full">
+                          <span className="px-2 py-0.5 bg-white/50 text-white text-xs rounded-full">
                             已领取
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-zinc-500 mt-1">
-                        <span>奖励池: <span className="font-medium text-zinc-700">${level.reward_pool}</span></span>
-                        <span>日收益率: <span className="font-medium text-zinc-700">{(level.daily_rate * 100).toFixed(1)}%</span></span>
-                        <span>解锁条件: <span className="font-medium text-zinc-700">${unlockVolume}</span></span>
+                        <span>奖励池: <span className="font-medium text-zinc-300">${level.reward_pool}</span></span>
+                        <span>日收益率: <span className="font-medium text-zinc-300">{(level.daily_rate * 100).toFixed(1)}%</span></span>
+                        <span>解锁条件: <span className="font-medium text-zinc-300">${unlockVolume}</span></span>
                       </div>
                     </div>
                   </div>
@@ -412,9 +412,9 @@ export default function CommunityPage() {
 
                 {/* Daily earning for current level */}
                 {isCurrent && level.daily_rate > 0 && (
-                  <div className="mt-3 pt-3 border-t border-zinc-200 flex items-center justify-between text-sm">
+                  <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between text-sm">
                     <span className="text-zinc-500">每日收益</span>
-                    <span className="font-semibold text-emerald-600">
+                    <span className="font-semibold text-emerald-400">
                       +${(level.reward_pool * level.daily_rate).toFixed(2)} USDC/天
                     </span>
                   </div>
@@ -427,8 +427,8 @@ export default function CommunityPage() {
 
       {/* Daily Earnings History */}
       {dailyEarnings.length > 0 && (
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-zinc-100">
-          <h2 className="text-lg font-semibold text-zinc-900 mb-4 flex items-center gap-2">
+        <div className="glass-card-solid p-6">
+          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5" />
             每日收益记录
           </h2>
@@ -443,7 +443,7 @@ export default function CommunityPage() {
                     L{earning.level}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-zinc-900">
+                    <p className="text-sm font-medium text-white">
                       Level {earning.level} 每日收益
                     </p>
                     <p className="text-xs text-zinc-500">
@@ -452,7 +452,7 @@ export default function CommunityPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-emerald-600">
+                  <p className="font-semibold text-emerald-400">
                     +${earning.earning_amount.toFixed(4)}
                   </p>
                   {earning.is_credited ? (
@@ -468,16 +468,16 @@ export default function CommunityPage() {
       )}
 
       {/* How it works */}
-      <div className="bg-gradient-to-br from-zinc-50 to-zinc-100 rounded-2xl p-6 border border-zinc-200">
-        <h2 className="text-lg font-semibold text-zinc-900 mb-4">💡 社群账户说明</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-zinc-600">
+      <div className="bg-gradient-to-br from-zinc-50 to-zinc-100 rounded-2xl p-6 border border-white/10">
+        <h2 className="text-lg font-semibold text-white mb-4">💡 社群账户说明</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-zinc-400">
           <div className="flex items-start gap-2">
             <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5" />
             <p><strong>解锁进度</strong> = L1-L3 团队 Volume + 任务奖励进度</p>
           </div>
           <div className="flex items-start gap-2">
             <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5" />
-            <p>完成 <a href="/tasks" className="text-emerald-600 hover:underline">任务中心</a> 的任务可增加解锁进度</p>
+            <p>完成 <a href="/tasks" className="text-emerald-400 hover:underline">任务中心</a> 的任务可增加解锁进度</p>
           </div>
           <div className="flex items-start gap-2">
             <ChevronRight className="w-4 h-4 text-emerald-500 mt-0.5" />

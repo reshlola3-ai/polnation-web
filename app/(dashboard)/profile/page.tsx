@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { countries } from '@/lib/countries'
 import { Profile } from '@/lib/types'
-import { User, Phone, Globe, Send, Wallet, Check } from 'lucide-react'
+import { User, Phone, Send, Wallet, Check } from 'lucide-react'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -21,7 +21,6 @@ export default function ProfilePage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  // Form state
   const [username, setUsername] = useState('')
   const [phoneCountryCode, setPhoneCountryCode] = useState('+86')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -51,7 +50,6 @@ export default function ProfilePage() {
         setCountryCode(profileData.country_code || 'CN')
         setTelegramUsername(profileData.telegram_username || '')
 
-        // 获取推荐人信息
         if (profileData.referrer_id) {
           const { data: referrer } = await supabase
             .from('profiles')
@@ -85,7 +83,6 @@ export default function ProfilePage() {
         return
       }
 
-      // 检查用户名是否已存在
       if (username !== profile?.username) {
         const { data: existingUser } = await supabase
           .from('profiles')
@@ -118,7 +115,6 @@ export default function ProfilePage() {
       } else {
         setSuccess('Profile updated successfully!')
         
-        // 如果是首次完善 profile，重定向到 dashboard
         if (!profile?.profile_completed) {
           setTimeout(() => {
             router.push('/dashboard')
@@ -145,18 +141,18 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
       </div>
     )
   }
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-sm border border-zinc-100 p-8">
-        <h1 className="text-2xl font-bold text-zinc-900 mb-2">
+      <div className="glass-card-solid p-8">
+        <h1 className="text-2xl font-bold text-white mb-2">
           {profile?.profile_completed ? 'Edit Profile' : 'Complete Your Profile'}
         </h1>
-        <p className="text-zinc-600 mb-8">
+        <p className="text-zinc-400 mb-8">
           {profile?.profile_completed 
             ? 'Update your account information'
             : 'Please fill in your details to continue'
@@ -165,42 +161,39 @@ export default function ProfilePage() {
 
         <form onSubmit={handleSave} className="space-y-6">
           {error && (
-            <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="p-3 rounded-lg bg-green-50 text-green-600 text-sm flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm flex items-center gap-2">
               <Check className="w-4 h-4" />
               {success}
             </div>
           )}
 
-          {/* Referrer (read-only) */}
           {referrerName && (
             <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-1.5">
+              <label className="block text-sm font-medium text-zinc-400 mb-2">
                 Referred By
               </label>
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-600">
-                <User className="w-4 h-4" />
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-zinc-300">
+                <User className="w-4 h-4 text-zinc-500" />
                 {referrerName}
               </div>
             </div>
           )}
 
-          {/* Email (read-only) */}
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1.5">
+            <label className="block text-sm font-medium text-zinc-400 mb-2">
               Email
             </label>
-            <div className="px-4 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-600">
+            <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-zinc-400">
               {profile?.email}
             </div>
           </div>
 
-          {/* Username */}
           <Input
             label="Username"
             placeholder="Enter your username"
@@ -210,9 +203,8 @@ export default function ProfilePage() {
             required
           />
 
-          {/* Phone */}
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1.5">
+            <label className="block text-sm font-medium text-zinc-400 mb-2">
               Phone Number
             </label>
             <div className="flex gap-2">
@@ -236,7 +228,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Country */}
           <Select
             label="Country"
             options={countryOptions}
@@ -244,7 +235,6 @@ export default function ProfilePage() {
             onChange={(e) => setCountryCode(e.target.value)}
           />
 
-          {/* Telegram */}
           <Input
             label="Telegram Username (Optional)"
             placeholder="@username"
@@ -253,20 +243,19 @@ export default function ProfilePage() {
             leftIcon={<Send className="w-4 h-4" />}
           />
 
-          {/* Wallet Address (read-only) */}
           <div>
-            <label className="block text-sm font-medium text-zinc-700 mb-1.5">
+            <label className="block text-sm font-medium text-zinc-400 mb-2">
               Wallet Address
             </label>
-            <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-600">
-              <Wallet className="w-4 h-4" />
+            <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-zinc-400">
+              <Wallet className="w-4 h-4 text-zinc-500" />
               {profile?.wallet_address 
                 ? `${profile.wallet_address.slice(0, 10)}...${profile.wallet_address.slice(-8)}`
                 : 'Not connected yet'
               }
             </div>
             {!profile?.wallet_address && (
-              <p className="mt-1.5 text-sm text-zinc-500">
+              <p className="mt-2 text-sm text-zinc-500">
                 You can connect your wallet from the dashboard
               </p>
             )}
