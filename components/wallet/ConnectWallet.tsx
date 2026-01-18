@@ -10,8 +10,15 @@ import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
 import { createClient } from '@/lib/supabase'
 
-// 允许的钱包列表（只允许 Trust Wallet）
-const ALLOWED_WALLETS = ['trust wallet', 'trust', 'trustwallet', 'walletconnect']
+// 允许的钱包列表
+const ALLOWED_WALLETS = [
+  'trust wallet', 'trust', 'trustwallet',
+  'safepal', 'safe pal',
+  'bitget', 'bitget wallet',
+  'okx', 'okx wallet', 'okex',
+  'tokenpocket', 'token pocket', 'tp wallet',
+  'walletconnect' // WalletConnect 协议（用于移动端连接）
+]
 
 function isAllowedWallet(connectorName: string | undefined): boolean {
   if (!connectorName) return false
@@ -278,7 +285,7 @@ export function ConnectWallet() {
                 {unsupportedWalletName || 'This wallet'} is not supported
               </p>
               <p className="text-xs text-red-400/70 mt-2">
-                Please use <strong>Trust Wallet</strong> to connect. Other wallets like MetaMask are not supported on this platform.
+                MetaMask and other browser wallets are not supported. Please use one of the supported mobile wallets.
               </p>
               <p className="text-xs text-red-400/50 mt-2">
                 Disconnecting automatically...
@@ -288,12 +295,14 @@ export function ConnectWallet() {
         </div>
 
         <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-          <p className="text-xs text-purple-300 font-medium mb-1">How to connect:</p>
-          <ol className="text-xs text-purple-400/70 space-y-1 list-decimal list-inside">
-            <li>Download Trust Wallet app</li>
-            <li>Open this page in Trust Wallet browser</li>
-            <li>Click Connect Wallet</li>
-          </ol>
+          <p className="text-xs text-purple-300 font-medium mb-2">Supported Wallets:</p>
+          <div className="flex flex-wrap gap-2">
+            <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">Trust Wallet</span>
+            <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">SafePal</span>
+            <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">Bitget Wallet</span>
+            <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">OKX Wallet</span>
+            <span className="text-xs bg-purple-500/20 px-2 py-1 rounded text-purple-300">TokenPocket</span>
+          </div>
         </div>
       </div>
     )
@@ -309,15 +318,19 @@ export function ConnectWallet() {
         </p>
         
         <div className="mb-4 p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-          <p className="text-xs text-purple-300 flex items-center gap-2">
-            <Wallet className="w-4 h-4" />
-            <span>Only <strong>Trust Wallet</strong> is supported</span>
-          </p>
+          <p className="text-xs text-purple-300 font-medium mb-2">Supported Wallets:</p>
+          <div className="flex flex-wrap gap-1.5">
+            <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">Trust</span>
+            <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">SafePal</span>
+            <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">Bitget</span>
+            <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">OKX</span>
+            <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">TokenPocket</span>
+          </div>
         </div>
         
         <Button onClick={() => open()} className="gap-2 w-full">
           <Wallet className="w-4 h-4" />
-          Connect Trust Wallet
+          Connect Wallet
         </Button>
       </div>
     )
