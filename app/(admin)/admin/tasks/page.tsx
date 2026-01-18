@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { Button } from '@/components/ui/Button'
 import { 
   CheckCircle, 
   XCircle, 
@@ -20,7 +22,12 @@ import {
   Users,
   TrendingUp,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Shield,
+  LogOut,
+  FileSignature,
+  Crown,
+  ClipboardList
 } from 'lucide-react'
 
 interface TaskSubmission {
@@ -74,6 +81,15 @@ export default function AdminTasksPage() {
   const [processing, setProcessing] = useState<string | null>(null)
   const [expandedConfig, setExpandedConfig] = useState<string | null>(null)
   const [editingReward, setEditingReward] = useState<{ id: string; value: string } | null>(null)
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' })
+      router.push('/admin/login')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
 
   const fetchData = useCallback(async () => {
     setIsLoading(true)
@@ -192,8 +208,8 @@ export default function AdminTasksPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-zinc-900 p-8">
-        <div className="max-w-7xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse space-y-4">
             <div className="h-8 bg-zinc-800 rounded w-1/3"></div>
             <div className="h-64 bg-zinc-800 rounded"></div>
@@ -204,9 +220,62 @@ export default function AdminTasksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-900 p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">
+      {/* Header */}
+      <header className="border-b border-zinc-700 bg-zinc-900/50 backdrop-blur sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                <ClipboardList className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-white">Admin Panel</h1>
+                <p className="text-xs text-zinc-400">Task Management</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link href="/admin/users">
+                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                  <Users className="w-4 h-4 mr-2" />
+                  Users
+                </Button>
+              </Link>
+              <Link href="/admin/signatures">
+                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                  <FileSignature className="w-4 h-4 mr-2" />
+                  Signatures
+                </Button>
+              </Link>
+              <Link href="/admin/airdrop">
+                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Airdrop
+                </Button>
+              </Link>
+              <Link href="/admin/community">
+                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                  <Crown className="w-4 h-4 mr-2" />
+                  Community
+                </Button>
+              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {/* Page Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white">Task Management</h1>
@@ -558,7 +627,7 @@ export default function AdminTasksPage() {
             ))}
           </div>
         )}
-      </div>
+      </main>
     </div>
   )
 }
