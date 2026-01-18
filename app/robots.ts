@@ -13,6 +13,13 @@ export default function robots(): MetadataRoute.Robots {
           '/admin/',
           '/auth/',
           '/_next/',
+          // 需要登录的页面 - 禁止爬取（会被重定向）
+          '/dashboard/',
+          '/profile/',
+          '/referral/',
+          '/tasks/',
+          '/earnings/',
+          '/community/',
         ],
       },
     ],

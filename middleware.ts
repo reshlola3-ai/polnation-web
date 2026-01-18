@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // 保护需要登录的路由
-  const protectedPaths = ['/dashboard', '/profile', '/referral']
+  const protectedPaths = ['/dashboard', '/profile', '/referral', '/tasks', '/earnings', '/community']
   const isProtectedPath = protectedPaths.some(path => 
     request.nextUrl.pathname.startsWith(path)
   )
