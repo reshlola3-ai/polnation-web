@@ -20,7 +20,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
           <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center glow-purple-sm group-hover:glow-purple transition-all duration-300">
             <span className="text-white font-bold text-xl">P</span>
           </div>
-          <span className="font-bold text-xl text-white group-hover:glow-text transition-all duration-300">Polnation</span>
+          <span className="font-display text-xl text-white group-hover:glow-text transition-all duration-300">Polnation</span>
         </Link>
       </header>
 
