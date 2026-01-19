@@ -6,6 +6,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { ArrowRight, Users, Wallet, Shield, TrendingUp, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
+import { Logo3D } from '@/components/ui/Logo3D'
 
 // JSON-LD 结构化数据
 const jsonLd = {
@@ -85,48 +86,56 @@ export default async function HomePage() {
         <Navbar user={user} locale={locale} />
 
       {/* Hero Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-8">
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            <span className="text-sm text-purple-300">{t('tagline')}</span>
-          </div>
-          
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white tracking-tight">
-            {t('welcome')}{' '}
-            <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
-              Polnation
-            </span>
-          </h1>
-          <p className="mt-6 text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto">
-            {t('subtitle')}
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            {user ? (
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
-              >
-                {t('goToDashboard')}
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-            ) : (
-              <>
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-20 pb-16 md:pb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          {/* Left: Text Content */}
+          <div className="text-center lg:text-left order-2 lg:order-1">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-6 md:mb-8">
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span className="text-sm text-purple-300">{t('tagline')}</span>
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white tracking-tight">
+              {t('welcome')}{' '}
+              <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
+                Polnation
+              </span>
+            </h1>
+            <p className="mt-4 md:mt-6 text-base sm:text-lg md:text-xl text-zinc-400 max-w-xl mx-auto lg:mx-0">
+              {t('subtitle')}
+            </p>
+            <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              {user ? (
                 <Link
-                  href="/register"
-                  className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
                 >
-                  {tNav('getStarted')}
+                  {t('goToDashboard')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-white/5 rounded-xl hover:bg-white/10 transition-all border border-white/10"
-                >
-                  {tNav('signIn')}
-                </Link>
-              </>
-            )}
+              ) : (
+                <>
+                  <Link
+                    href="/register"
+                    className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
+                  >
+                    {tNav('getStarted')}
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white bg-white/5 rounded-xl hover:bg-white/10 transition-all border border-white/10"
+                  >
+                    {tNav('signIn')}
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Right: 3D Logo */}
+          <div className="order-1 lg:order-2">
+            <Logo3D />
           </div>
         </div>
       </section>
