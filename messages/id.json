@@ -46,21 +46,21 @@
     "subtitle": "Platform soft staking terbaik. Bangun jaringan Anda, kembangkan tim, dan dapatkan hadiah bersama.",
     "goToDashboard": "Ke Dashboard",
     "features": {
-      "network": {
-        "title": "Bangun Jaringan Anda",
-        "description": "Undang teman dan kembangkan jaringan referral Anda dengan platform kami yang mudah digunakan."
+      "safe": {
+        "title": "Kunci Anda, Koin Anda",
+        "description": "USDC tetap di wallet Anda. Tanpa approval, tanpa risiko smart contract. Tarik kapan saja."
       },
-      "wallet": {
-        "title": "Hubungkan Wallet",
-        "description": "Hubungkan wallet Anda dengan aman menggunakan WalletConnect dengan Trust, Bitget, atau SafePal."
+      "stable": {
+        "title": "Tanpa Risiko Harga Jatuh",
+        "description": "Dapatkan 1%-1.8% reward harian dari USDC Anda. Tanpa token volatile, tanpa turun 90%."
       },
-      "staking": {
-        "title": "Soft Staking",
-        "description": "Simpan USDC Anda di wallet sendiri. Tanpa risiko smart contract, kontrol penuh."
+      "easy": {
+        "title": "Satu Klik, Selesai",
+        "description": "Hubungkan sekali, dapatkan selamanya. Scan otomatis. Biaya gas di bawah $0.01."
       },
-      "rewards": {
-        "title": "Dapatkan Hadiah",
-        "description": "Dapatkan hadiah berdasarkan total volume staking tim Anda melalui snapshot berkala."
+      "verified": {
+        "title": "Terverifikasi On-Chain",
+        "description": "Yield nyata dari validator top: Google Cloud, Forbole, Chainlayer. 100% dapat diverifikasi."
       }
     },
     "stats": {

@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
-import { ArrowRight, Users, Wallet, Shield, TrendingUp, Sparkles } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Gem, Zap, BadgeCheck, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 
@@ -162,43 +162,51 @@ export default async function HomePage() {
       {/* Features Section */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Feature 1: Assets Stay Safe */}
           <div className="glass-card-solid p-6 hover:border-purple-500/40 transition-all duration-300 group">
             <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors">
-              <Users className="w-6 h-6 text-purple-400" />
+              {/* Replace with: <Image src="/icons/shield.png" alt="" width={28} height={28} /> */}
+              <ShieldCheck className="w-6 h-6 text-purple-400" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">{t('features.network.title')}</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('features.safe.title')}</h3>
             <p className="text-zinc-400 text-sm">
-              {t('features.network.description')}
+              {t('features.safe.description')}
             </p>
           </div>
 
+          {/* Feature 2: Stablecoin Rewards */}
           <div className="glass-card-solid p-6 hover:border-purple-500/40 transition-all duration-300 group">
             <div className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-cyan-500/30 transition-colors">
-              <Wallet className="w-6 h-6 text-cyan-400" />
+              {/* Replace with: <Image src="/icons/gem.png" alt="" width={28} height={28} /> */}
+              <Gem className="w-6 h-6 text-cyan-400" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">{t('features.wallet.title')}</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('features.stable.title')}</h3>
             <p className="text-zinc-400 text-sm">
-              {t('features.wallet.description')}
+              {t('features.stable.description')}
             </p>
           </div>
 
-          <div className="glass-card-solid p-6 hover:border-purple-500/40 transition-all duration-300 group">
-            <div className="w-12 h-12 bg-pink-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-pink-500/30 transition-colors">
-              <Shield className="w-6 h-6 text-pink-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-white mb-2">{t('features.staking.title')}</h3>
-            <p className="text-zinc-400 text-sm">
-              {t('features.staking.description')}
-            </p>
-          </div>
-
+          {/* Feature 3: Set & Forget */}
           <div className="glass-card-solid p-6 hover:border-purple-500/40 transition-all duration-300 group">
             <div className="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-amber-500/30 transition-colors">
-              <TrendingUp className="w-6 h-6 text-amber-400" />
+              {/* Replace with: <Image src="/icons/zap.png" alt="" width={28} height={28} /> */}
+              <Zap className="w-6 h-6 text-amber-400" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">{t('features.rewards.title')}</h3>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('features.easy.title')}</h3>
             <p className="text-zinc-400 text-sm">
-              {t('features.rewards.description')}
+              {t('features.easy.description')}
+            </p>
+          </div>
+
+          {/* Feature 4: Real Yield */}
+          <div className="glass-card-solid p-6 hover:border-purple-500/40 transition-all duration-300 group">
+            <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-500/30 transition-colors">
+              {/* Replace with: <Image src="/icons/badge.png" alt="" width={28} height={28} /> */}
+              <BadgeCheck className="w-6 h-6 text-green-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">{t('features.verified.title')}</h3>
+            <p className="text-zinc-400 text-sm">
+              {t('features.verified.description')}
             </p>
           </div>
         </div>

@@ -46,21 +46,21 @@
     "subtitle": "Nền tảng soft staking hàng đầu. Xây dựng mạng lưới, phát triển đội ngũ và cùng nhận thưởng.",
     "goToDashboard": "Đến Bảng điều khiển",
     "features": {
-      "network": {
-        "title": "Xây dựng Mạng lưới",
-        "description": "Mời bạn bè và phát triển mạng lưới giới thiệu với nền tảng dễ sử dụng của chúng tôi."
+      "safe": {
+        "title": "Chìa khóa của Bạn, Tiền của Bạn",
+        "description": "USDC luôn trong ví của bạn. Không cần phê duyệt, không rủi ro smart contract. Rút bất cứ lúc nào."
       },
-      "wallet": {
-        "title": "Kết nối Ví",
-        "description": "Kết nối ví an toàn với WalletConnect qua Trust, Bitget hoặc SafePal."
+      "stable": {
+        "title": "Không Rủi ro Giá",
+        "description": "Kiếm 1%-1.8% phần thưởng hàng ngày từ USDC. Không token biến động, không mất 90%."
       },
-      "staking": {
-        "title": "Soft Staking",
-        "description": "Giữ USDC trong ví của bạn. Không rủi ro smart contract, kiểm soát hoàn toàn."
+      "easy": {
+        "title": "Một Click, Xong",
+        "description": "Kết nối một lần, kiếm mãi mãi. Tự động quét số dư. Phí gas dưới $0.01."
       },
-      "rewards": {
-        "title": "Nhận Phần thưởng",
-        "description": "Nhận thưởng dựa trên tổng khối lượng staking của đội qua các snapshot định kỳ."
+      "verified": {
+        "title": "Xác minh On-Chain",
+        "description": "Lợi nhuận thực từ validator hàng đầu: Google Cloud, Forbole, Chainlayer. 100% có thể xác minh."
       }
     },
     "stats": {

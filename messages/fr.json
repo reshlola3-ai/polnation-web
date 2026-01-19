@@ -46,21 +46,21 @@
     "subtitle": "La première plateforme de soft staking. Construisez votre réseau, développez votre équipe et gagnez des récompenses ensemble.",
     "goToDashboard": "Aller au tableau de bord",
     "features": {
-      "network": {
-        "title": "Construisez votre réseau",
-        "description": "Invitez des amis et développez votre réseau de parrainage avec notre plateforme facile à utiliser."
+      "safe": {
+        "title": "Vos Clés, Vos Cryptos",
+        "description": "L'USDC reste dans votre portefeuille. Pas d'approbation, pas de risque smart contract. Retirez à tout moment."
       },
-      "wallet": {
-        "title": "Connecter le portefeuille",
-        "description": "Connectez votre portefeuille en toute sécurité avec WalletConnect via Trust, Bitget ou SafePal."
+      "stable": {
+        "title": "Pas de Risque de Chute",
+        "description": "Gagnez 1%-1.8% de récompenses quotidiennes sur votre USDC. Pas de tokens volatils, pas de -90%."
       },
-      "staking": {
-        "title": "Soft Staking",
-        "description": "Gardez vos USDC dans votre propre portefeuille. Aucun risque de contrat intelligent, contrôle total."
+      "easy": {
+        "title": "Un Clic, C'est Fait",
+        "description": "Connectez une fois, gagnez pour toujours. Scan automatique. Frais de gas sous $0.01."
       },
-      "rewards": {
-        "title": "Gagnez des récompenses",
-        "description": "Gagnez des récompenses basées sur le volume total de staking de votre équipe via des instantanés périodiques."
+      "verified": {
+        "title": "Vérifié On-Chain",
+        "description": "Rendement réel des top validateurs: Google Cloud, Forbole, Chainlayer. 100% vérifiable."
       }
     },
     "stats": {
