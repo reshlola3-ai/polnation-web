@@ -140,6 +140,13 @@
       "afterApproval": "setelah disetujui",
       "submitted": "Dikirim {n} kali (Perlu review manual)"
     },
+    "onboarding": {
+      "title": "Bonus Awal",
+      "newUser": "Pengguna Baru",
+      "completed": "Selesai",
+      "goToProfile": "Ke Profile",
+      "claimReward": "Klaim Hadiah"
+    },
     "emailRequired": "Email Diperlukan",
     "emailRequiredDesc": "Silakan hubungkan email dan atur password untuk mengakses Tugas dan mendapatkan hadiah",
     "yourEmail": "Alamat Email Anda",

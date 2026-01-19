@@ -140,6 +140,13 @@
       "afterApproval": "after approval",
       "submitted": "Submitted {n} times (Manual review required)"
     },
+    "onboarding": {
+      "title": "Get Started Bonus",
+      "newUser": "New User",
+      "completed": "Completed",
+      "goToProfile": "Go to Profile",
+      "claimReward": "Claim Reward"
+    },
     "emailRequired": "Email Required",
     "emailRequiredDesc": "Please bind your email and set a password to access Tasks and earn rewards",
     "yourEmail": "Your Email Address",

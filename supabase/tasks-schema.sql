@@ -101,6 +101,9 @@ CREATE TABLE IF NOT EXISTS public.user_task_progress (
 -- 5. 插入默认任务类型
 -- =====================
 INSERT INTO public.task_types (task_key, name, description, reward_usd, task_category, is_repeatable, verification_type, social_url, required_keyword, sort_order) VALUES
+  -- Onboarding任务 (首次设置)
+  ('profile_setup', 'Complete Profile Setup', 'Set up your username and country to earn reward', 1.0, 'onboarding', false, 'profile_check', NULL, NULL, 0),
+  
   -- 社交媒体任务
   ('social_twitter', 'Follow on Twitter', 'Follow our official Twitter account', 0.5, 'social', false, 'auto_return', 'https://twitter.com/polnation', NULL, 1),
   ('social_telegram', 'Join Telegram', 'Join our Telegram community', 0.5, 'social', false, 'auto_return', 'https://t.me/polnation', NULL, 2),

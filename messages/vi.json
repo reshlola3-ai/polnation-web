@@ -140,6 +140,13 @@
       "afterApproval": "sau khi duyệt",
       "submitted": "Đã gửi {n} lần (Cần xem xét thủ công)"
     },
+    "onboarding": {
+      "title": "Thưởng Bắt đầu",
+      "newUser": "Người dùng Mới",
+      "completed": "Hoàn thành",
+      "goToProfile": "Đi đến Profile",
+      "claimReward": "Nhận Thưởng"
+    },
     "emailRequired": "Cần Email",
     "emailRequiredDesc": "Vui lòng liên kết email và đặt mật khẩu để truy cập Nhiệm vụ và nhận thưởng",
     "yourEmail": "Địa chỉ Email của bạn",

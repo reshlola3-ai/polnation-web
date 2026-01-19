@@ -140,6 +140,13 @@
       "afterApproval": "après approbation",
       "submitted": "Soumis {n} fois (Vérification manuelle requise)"
     },
+    "onboarding": {
+      "title": "Bonus de Bienvenue",
+      "newUser": "Nouvel Utilisateur",
+      "completed": "Terminé",
+      "goToProfile": "Aller au Profil",
+      "claimReward": "Réclamer la Récompense"
+    },
     "emailRequired": "Email Requis",
     "emailRequiredDesc": "Veuillez lier votre email et définir un mot de passe pour accéder aux Tâches et gagner des récompenses",
     "yourEmail": "Votre Adresse Email",

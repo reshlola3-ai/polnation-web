@@ -192,6 +192,23 @@ export async function POST(request: NextRequest) {
       return await handleCheckin(supabaseAdmin, user.id, taskType)
     }
 
+    // Profile设置任务：验证profile是否完整
+    if (taskType.verification_type === 'profile_check') {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('username, country_code, profile_completed')
+        .eq('id', user.id)
+        .single()
+
+      if (!profile?.username || !profile?.country_code) {
+        return NextResponse.json({ 
+          error: 'Please complete your profile first (set username and country)',
+          redirect: '/profile',
+          verification_failed: true 
+        }, { status: 400 })
+      }
+    }
+
     // Promotion任务：验证链接
     if (taskType.verification_type === 'link_check') {
       if (!submitted_url) {

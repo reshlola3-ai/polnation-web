@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/Input'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface Task {
   id: string
@@ -55,6 +56,7 @@ function isWalletEmail(email: string | null | undefined): boolean {
 export default function TasksPage() {
   const t = useTranslations('tasks')
   const tCommon = useTranslations('common')
+  const router = useRouter()
   
   const [tasks, setTasks] = useState<Task[]>([])
   const [progress, setProgress] = useState<Progress>({ total_task_bonus: 0, current_streak: 0, total_checkins: 0 })
@@ -184,6 +186,12 @@ export default function TasksPage() {
       const data = await res.json()
 
       if (!res.ok) {
+        // Handle redirect for profile setup
+        if (data.redirect) {
+          setMessage({ type: 'error', text: data.error || 'Failed to complete task' })
+          setTimeout(() => router.push(data.redirect), 1500)
+          return
+        }
         setMessage({ type: 'error', text: data.error || 'Failed to complete task' })
         return
       }
@@ -220,6 +228,7 @@ export default function TasksPage() {
     return <Share2 className="w-5 h-5" />
   }
 
+  const onboardingTasks = tasks.filter(t => t.task_category === 'onboarding')
   const socialTasks = tasks.filter(t => t.task_category === 'social')
   const promotionTasks = tasks.filter(t => t.task_category === 'promotion')
   const checkinTask = tasks.find(t => t.task_category === 'checkin')
@@ -426,6 +435,76 @@ export default function TasksPage() {
           </div>
         </div>
       </div>
+
+      {/* Onboarding Tasks - Profile Setup */}
+      {onboardingTasks.length > 0 && onboardingTasks.some(t => t.can_complete) && (
+        <div className="glass-card-solid p-4 md:p-6 border-2 border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-indigo-900/20">
+          <h3 className="font-semibold text-white mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
+            <Gift className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
+            {t('onboarding.title')}
+            <span className="ml-auto px-2 py-0.5 bg-purple-500/20 text-purple-300 text-xs rounded-full">
+              {t('onboarding.newUser')}
+            </span>
+          </h3>
+          <div className="space-y-3">
+            {onboardingTasks.map(task => (
+              <div key={task.id} className="p-3 md:p-4 bg-white/5 rounded-xl border border-purple-500/20">
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                    task.completed_count > 0 ? 'bg-green-500/20 text-green-400' : 'bg-purple-500/20 text-purple-400'
+                  }`}>
+                    {task.completed_count > 0 ? (
+                      <CheckCircle className="w-5 h-5" />
+                    ) : (
+                      <Gift className="w-5 h-5" />
+                    )}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium text-white text-sm md:text-base">{task.name}</p>
+                        <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{task.description}</p>
+                      </div>
+                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base shrink-0">+${task.reward_usd}</p>
+                    </div>
+                    
+                    <div className="mt-3">
+                      {task.completed_count > 0 ? (
+                        <div className="flex items-center gap-1.5 text-green-400">
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="text-sm font-medium">{t('onboarding.completed')}</span>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => router.push('/profile')}
+                            className="flex-1 md:flex-none gap-1.5 text-xs md:text-sm py-2"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            {t('onboarding.goToProfile')}
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => completeTask(task.task_key)}
+                            disabled={submitting === task.task_key}
+                            isLoading={submitting === task.task_key}
+                            className="flex-1 md:flex-none text-xs md:text-sm py-2"
+                          >
+                            {t('onboarding.claimReward')}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Daily Check-in - Mobile optimized */}
       {checkinTask && (
