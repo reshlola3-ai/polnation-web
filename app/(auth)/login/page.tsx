@@ -8,6 +8,8 @@ import { AuthLayout } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Mail, Lock } from 'lucide-react'
+import { WalletLogin } from '@/components/wallet/WalletLogin'
+import { Web3Provider } from '@/components/providers/Web3Provider'
 
 function LoginForm() {
   const router = useRouter()
@@ -69,11 +71,27 @@ function LoginForm() {
       title="Welcome back"
       subtitle="Sign in to your Polnation account"
     >
+      {/* Wallet Login - Best for DApp browsers */}
+      <div className="mb-4">
+        <Web3Provider>
+          <WalletLogin redirect={redirect} />
+        </Web3Provider>
+      </div>
+
+      <div className="relative mb-4">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-white/10" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-4 bg-[#1A1333] text-zinc-500">or</span>
+        </div>
+      </div>
+
       {/* Google Sign In */}
       <Button
         type="button"
         variant="secondary"
-        className="w-full mb-6"
+        className="w-full mb-4"
         onClick={handleGoogleLogin}
         disabled={isLoading}
       >
@@ -98,7 +116,7 @@ function LoginForm() {
         Continue with Google
       </Button>
 
-      <div className="relative mb-6">
+      <div className="relative mb-4">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-white/10" />
         </div>
