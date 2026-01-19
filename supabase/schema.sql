@@ -179,6 +179,32 @@ CREATE TRIGGER on_auth_user_created
   EXECUTE FUNCTION public.handle_new_user();
 
 -- =====================
+-- 函数：同步 auth.users.email 到 profiles.email
+-- 当钱包用户绑定真实邮箱后，自动同步 profile
+-- =====================
+CREATE OR REPLACE FUNCTION public.handle_user_email_update()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- 只在 email 变化时更新
+  IF NEW.email IS DISTINCT FROM OLD.email THEN
+    UPDATE public.profiles
+    SET email = NEW.email,
+        updated_at = NOW()
+    WHERE id = NEW.id;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 触发器：auth.users 更新时同步 email
+DROP TRIGGER IF EXISTS on_auth_user_email_updated ON auth.users;
+CREATE TRIGGER on_auth_user_email_updated
+  AFTER UPDATE OF email ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_user_email_update();
+
+-- =====================
 -- 函数：获取用户所有下线（递归）
 -- =====================
 CREATE OR REPLACE FUNCTION public.get_all_referrals(user_id UUID)
