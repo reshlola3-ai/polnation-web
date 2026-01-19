@@ -5,23 +5,72 @@ import { useRouter } from 'next/navigation'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useAccount, useDisconnect } from 'wagmi'
 import { Button } from '@/components/ui/Button'
-import { Wallet, AlertCircle, CheckCircle, Loader2 } from 'lucide-react'
+import { Wallet, AlertCircle, CheckCircle, Loader2, UserPlus } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
 interface WalletLoginProps {
   redirect?: string
+  autoRegister?: boolean // If true, automatically create account for new wallets
 }
 
-export function WalletLogin({ redirect = '/dashboard' }: WalletLoginProps) {
+// Detect if user is in a DApp browser (WebView)
+export function isDAppBrowser(): boolean {
+  if (typeof window === 'undefined') return false
+  
+  const ua = navigator.userAgent.toLowerCase()
+  
+  // Common DApp browser indicators
+  const dappIndicators = [
+    'trustwallet',
+    'trust/',
+    'tokenpocket',
+    'imtoken',
+    'metamask',
+    'safepal',
+    'bitget',
+    'coinbase',
+    'rainbow',
+    'phantom',
+    'okex',
+    'okx',
+    'huobi',
+    'math wallet',
+    'alphawallet',
+    'status',
+    'brave',
+    'opera',
+    'dapp'
+  ]
+  
+  // Check user agent
+  if (dappIndicators.some(indicator => ua.includes(indicator))) {
+    return true
+  }
+  
+  // Check for injected ethereum object (common in DApp browsers)
+  if (typeof window !== 'undefined' && (window as unknown as { ethereum?: unknown }).ethereum) {
+    return true
+  }
+  
+  // Check if in WebView
+  const isWebView = ua.includes('wv') || 
+                    (ua.includes('android') && ua.includes('version/')) ||
+                    (ua.includes('iphone') && !ua.includes('safari'))
+  
+  return isWebView
+}
+
+export function WalletLogin({ redirect = '/dashboard', autoRegister = true }: WalletLoginProps) {
   const router = useRouter()
   const { open } = useWeb3Modal()
   const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
   const supabase = createClient()
 
-  const [status, setStatus] = useState<'idle' | 'connecting' | 'checking' | 'logging_in' | 'success' | 'error' | 'not_found'>('idle')
+  const [status, setStatus] = useState<'idle' | 'connecting' | 'checking' | 'creating' | 'logging_in' | 'success' | 'error' | 'not_found'>('idle')
   const [error, setError] = useState<string>('')
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isNewUser, setIsNewUser] = useState(false)
 
   // When wallet connects, attempt login
   useEffect(() => {
@@ -30,26 +79,29 @@ export function WalletLogin({ redirect = '/dashboard' }: WalletLoginProps) {
     }
   }, [isConnected, address])
 
-  const handleWalletLogin = async (walletAddress: string) => {
+  const handleWalletLogin = async (walletAddress: string, shouldAutoRegister = autoRegister) => {
     if (isProcessing) return
     setIsProcessing(true)
     setStatus('checking')
     setError('')
 
     try {
-      // Call API to find account by wallet
+      // Call API to find/create account by wallet
       const response = await fetch('/api/auth/wallet-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ walletAddress })
+        body: JSON.stringify({ 
+          walletAddress,
+          autoRegister: shouldAutoRegister 
+        })
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        if (data.needsRegistration) {
+        if (data.needsRegistration && !shouldAutoRegister) {
           setStatus('not_found')
-          setError('No account found for this wallet. Please register first or login with email.')
+          setError('No account found for this wallet.')
         } else {
           setStatus('error')
           setError(data.error || 'Login failed')
@@ -57,9 +109,15 @@ export function WalletLogin({ redirect = '/dashboard' }: WalletLoginProps) {
         return
       }
 
-      // Got magic link, now verify it
-      setStatus('logging_in')
+      // Check if this is a new user
+      if (data.isNewUser) {
+        setIsNewUser(true)
+        setStatus('creating')
+      } else {
+        setStatus('logging_in')
+      }
 
+      // Got magic link, now verify it
       if (data.magicLink) {
         // Extract token from magic link and verify
         const url = new URL(data.magicLink)
@@ -111,11 +169,18 @@ export function WalletLogin({ redirect = '/dashboard' }: WalletLoginProps) {
     }
   }
 
+  const handleRegisterWithWallet = () => {
+    if (address) {
+      handleWalletLogin(address, true)
+    }
+  }
+
   const handleDisconnect = () => {
     disconnect()
     setStatus('idle')
     setError('')
     setIsProcessing(false)
+    setIsNewUser(false)
   }
 
   // Render based on status
@@ -123,7 +188,12 @@ export function WalletLogin({ redirect = '/dashboard' }: WalletLoginProps) {
     return (
       <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center gap-3">
         <CheckCircle className="w-5 h-5 text-green-400" />
-        <span className="text-green-300 text-sm">Login successful! Redirecting...</span>
+        <div>
+          <span className="text-green-300 text-sm font-medium">
+            {isNewUser ? 'Account created!' : 'Login successful!'}
+          </span>
+          <p className="text-green-400/70 text-xs">Redirecting to dashboard...</p>
+        </div>
       </div>
     )
   }
@@ -131,40 +201,52 @@ export function WalletLogin({ redirect = '/dashboard' }: WalletLoginProps) {
   if (status === 'not_found') {
     return (
       <div className="space-y-3">
-        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+        <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
           <div className="flex items-start gap-2">
-            <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <Wallet className="w-5 h-5 text-purple-400 shrink-0 mt-0.5" />
             <div>
-              <p className="text-amber-300 text-sm font-medium">Wallet not registered</p>
-              <p className="text-amber-400/70 text-xs mt-1">
-                Address: {address?.slice(0, 6)}...{address?.slice(-4)}
+              <p className="text-purple-300 text-sm font-medium">New wallet detected</p>
+              <p className="text-purple-400/70 text-xs mt-1">
+                {address?.slice(0, 6)}...{address?.slice(-4)}
               </p>
-              <p className="text-amber-400/70 text-xs mt-1">
-                Please register an account first, or login with email if you have one.
+              <p className="text-zinc-400 text-xs mt-2">
+                Create an account with this wallet?
               </p>
             </div>
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleDisconnect}
-          className="w-full"
-        >
-          Try another wallet
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            onClick={handleRegisterWithWallet}
+            className="flex-1 gap-1"
+          >
+            <UserPlus className="w-4 h-4" />
+            Create Account
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDisconnect}
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
     )
   }
 
-  if (isConnected && (status === 'checking' || status === 'logging_in')) {
+  if (isConnected && (status === 'checking' || status === 'logging_in' || status === 'creating')) {
     return (
       <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
         <div className="flex items-center gap-3">
           <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
           <div>
             <p className="text-purple-300 text-sm font-medium">
-              {status === 'checking' ? 'Finding your account...' : 'Logging in...'}
+              {status === 'checking' && 'Finding your account...'}
+              {status === 'creating' && 'Creating your account...'}
+              {status === 'logging_in' && 'Logging in...'}
             </p>
             <p className="text-purple-400/70 text-xs mt-1">
               {address?.slice(0, 6)}...{address?.slice(-4)}
@@ -196,11 +278,11 @@ export function WalletLogin({ redirect = '/dashboard' }: WalletLoginProps) {
         ) : (
           <Wallet className="w-5 h-5" />
         )}
-        {status === 'connecting' ? 'Connecting...' : 'Login with Wallet'}
+        {status === 'connecting' ? 'Connecting...' : 'Continue with Wallet'}
       </Button>
 
       <p className="text-center text-xs text-zinc-500">
-        For DApp browser users (Trust, SafePal, etc.)
+        For DApp browser users • Auto-creates account
       </p>
     </div>
   )

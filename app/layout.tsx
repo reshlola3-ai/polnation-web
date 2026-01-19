@@ -25,6 +25,7 @@ const jetbrainsMono = JetBrains_Mono({
 const siteUrl = "https://www.polnation.com";
 
 export const metadata: Metadata = {
+  manifest: '/manifest.json',
   // 基础 SEO
   title: {
     default: "Polnation - Crypto Soft Staking Platform | Earn USDC Rewards",
