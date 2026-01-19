@@ -419,6 +419,29 @@ input, select, textarea {
   }
 }
 
+/* Hero Crystal Float Animation */
+.animate-float {
+  animation: heroFloat 4s ease-in-out infinite;
+}
+
+@keyframes heroFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+/* Animation delay utilities */
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1s;
+}
+
 /* Mobile Typography Adjustments */
 @media (max-width: 640px) {
   h1 {

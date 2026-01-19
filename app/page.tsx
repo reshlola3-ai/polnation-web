@@ -85,48 +85,76 @@ export default async function HomePage() {
         <Navbar user={user} locale={locale} />
 
       {/* Hero Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-8">
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            <span className="text-sm text-purple-300">{t('tagline')}</span>
-          </div>
-          
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white tracking-tight">
-            {t('welcome')}{' '}
-            <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
-              Polnation
-            </span>
-          </h1>
-          <p className="mt-6 text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto">
-            {t('subtitle')}
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            {user ? (
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
-              >
-                {t('goToDashboard')}
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-            ) : (
-              <>
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-20 pb-16 md:pb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          {/* Left: Text Content */}
+          <div className="text-center lg:text-left order-2 lg:order-1">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-6 md:mb-8">
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span className="text-sm text-purple-300">{t('tagline')}</span>
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white tracking-tight">
+              {t('welcome')}{' '}
+              <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
+                Polnation
+              </span>
+            </h1>
+            <p className="mt-4 md:mt-6 text-base sm:text-lg md:text-xl text-zinc-400 max-w-xl mx-auto lg:mx-0">
+              {t('subtitle')}
+            </p>
+            <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              {user ? (
                 <Link
-                  href="/register"
-                  className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
                 >
-                  {tNav('getStarted')}
+                  {t('goToDashboard')}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-white/5 rounded-xl hover:bg-white/10 transition-all border border-white/10"
-                >
-                  {tNav('signIn')}
-                </Link>
-              </>
-            )}
+              ) : (
+                <>
+                  <Link
+                    href="/register"
+                    className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
+                  >
+                    {tNav('getStarted')}
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white bg-white/5 rounded-xl hover:bg-white/10 transition-all border border-white/10"
+                  >
+                    {tNav('signIn')}
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Right: Crystal Image with animations */}
+          <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
+            <div className="relative w-[280px] h-[280px] sm:w-[350px] sm:h-[350px] md:w-[400px] md:h-[400px]">
+              {/* Glow effect behind image */}
+              <div className="absolute inset-0 bg-purple-500/30 rounded-full blur-[60px] animate-pulse" />
+              
+              {/* Main image with float animation */}
+              <div className="relative animate-float">
+                <Image
+                  src="/hero-crystal.png"
+                  alt="Polnation Crystal"
+                  width={400}
+                  height={400}
+                  className="w-full h-full object-contain drop-shadow-2xl"
+                  priority
+                />
+              </div>
+              
+              {/* Sparkle effects */}
+              <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full animate-ping opacity-75" />
+              <div className="absolute top-1/3 right-1/4 w-1.5 h-1.5 bg-purple-300 rounded-full animate-ping opacity-60 animation-delay-500" />
+              <div className="absolute bottom-1/3 left-1/3 w-1 h-1 bg-cyan-300 rounded-full animate-ping opacity-50 animation-delay-1000" />
+            </div>
           </div>
         </div>
       </section>
