@@ -212,3 +212,5 @@ export function Logo3D() {
     </div>
   )
 }
+
+export default Logo3D

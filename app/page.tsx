@@ -1,12 +1,22 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
 import { ArrowRight, Users, Wallet, Shield, TrendingUp, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
-import { Logo3D } from '@/components/ui/Logo3D'
+
+// 动态导入 3D 组件，禁用 SSR
+const Logo3D = dynamic(() => import('@/components/ui/Logo3D').then(mod => mod.Logo3D), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[300px] md:h-[400px] flex items-center justify-center">
+      <div className="w-24 h-24 rounded-full bg-purple-500/20 animate-pulse" />
+    </div>
+  )
+})
 
 // JSON-LD 结构化数据
 const jsonLd = {
