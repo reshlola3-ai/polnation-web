@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
+import { BubbleBackground } from '@/components/ui/BubbleBackground'
 import { ArrowRight, Users, Wallet, Shield, TrendingUp, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
@@ -73,14 +74,12 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
       
-      <div className="min-h-screen bg-gradient-radial relative overflow-hidden">
-        {/* Animated Background */}
-        <div className="stars fixed inset-0 pointer-events-none" />
-      <div className="fixed top-0 right-0 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[150px] pointer-events-none" />
-      <div className="fixed bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Animated Bubble Background */}
+        <BubbleBackground interactive />
       
-      <Navbar user={user} locale={locale} />
+      <div className="relative z-10">
+        <Navbar user={user} locale={locale} />
 
       {/* Hero Section */}
       <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
@@ -199,7 +198,7 @@ export default async function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-purple-500/20 bg-[#0D0B21]/80 backdrop-blur-xl">
+      <footer className="relative border-t border-purple-500/20 bg-[#0D0B21]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-3 group">
@@ -226,6 +225,7 @@ export default async function HomePage() {
           </div>
         </div>
       </footer>
+      </div>
     </div>
     </>
   )

@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { Navbar } from '@/components/layout/Navbar'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { Web3Provider } from '@/components/providers/Web3Provider'
+import { BubbleBackground } from '@/components/ui/BubbleBackground'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 
 export default async function DashboardLayout({
@@ -25,19 +26,17 @@ export default async function DashboardLayout({
 
   return (
     <Web3Provider>
-      <div className="min-h-screen bg-gradient-radial relative">
-        {/* Animated Background */}
-        <div className="stars fixed inset-0 pointer-events-none" />
-        <div className="fixed top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-purple-600/20 rounded-full blur-[80px] md:blur-[120px] pointer-events-none" />
-        <div className="fixed bottom-0 left-0 w-[200px] md:w-[400px] h-[200px] md:h-[400px] bg-cyan-500/10 rounded-full blur-[60px] md:blur-[100px] pointer-events-none" />
+      <div className="min-h-screen relative">
+        {/* Animated Bubble Background */}
+        <BubbleBackground interactive />
         
         {/* Top Navigation - Hidden on mobile */}
-        <div className="hidden md:block">
+        <div className="hidden md:block relative z-20">
           <Navbar user={user} locale={locale} />
         </div>
         
         {/* Mobile Header */}
-        <div className="md:hidden">
+        <div className="md:hidden relative z-20">
           <Navbar user={user} locale={locale} isMobile />
         </div>
         
