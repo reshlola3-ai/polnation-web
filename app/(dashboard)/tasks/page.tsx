@@ -99,28 +99,33 @@ export default function TasksPage() {
     checkUserEmail()
   }, [])
 
-  // Handle email binding
+  // Handle email binding - directly update via admin API
   const handleBindEmail = async (e: React.FormEvent) => {
     e.preventDefault()
     setBindingError('')
     setIsBindingLoading(true)
 
     try {
-      const supabase = createClient()
-      
-      // Update user email (Supabase will send verification email)
-      const { error } = await supabase.auth.updateUser({
-        email: bindingEmail
+      const res = await fetch('/api/auth/bind-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: bindingEmail })
       })
 
-      if (error) {
-        setBindingError(error.message)
+      const data = await res.json()
+
+      if (!res.ok) {
+        setBindingError(data.error || 'Failed to bind email')
       } else {
         setBindingSuccess(true)
+        // Reload page after short delay to refresh auth state
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
       }
     } catch (err) {
       console.error('Error binding email:', err)
-      setBindingError('Failed to send verification email')
+      setBindingError('Network error, please try again')
     } finally {
       setIsBindingLoading(false)
     }
@@ -234,17 +239,18 @@ export default function TasksPage() {
           {bindingSuccess ? (
             <div className="text-center space-y-4">
               <div className="w-12 h-12 mx-auto bg-green-500/20 rounded-xl flex items-center justify-center">
-                <Mail className="w-6 h-6 text-green-400" />
+                <CheckCircle className="w-6 h-6 text-green-400" />
               </div>
               <div>
-                <p className="text-green-400 font-medium">{t('verificationSent')}</p>
+                <p className="text-green-400 font-medium">{t('emailBoundSuccess')}</p>
                 <p className="text-zinc-400 text-sm mt-2">
-                  {t('checkInbox', { email: bindingEmail })}
+                  {bindingEmail}
                 </p>
               </div>
-              <p className="text-zinc-500 text-xs">
-                {t('afterVerification')}
-              </p>
+              <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                <span>{t('refreshingPage')}</span>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleBindEmail} className="space-y-4">
