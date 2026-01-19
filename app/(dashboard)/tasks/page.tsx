@@ -280,7 +280,7 @@ export default function TasksPage() {
                 isLoading={isBindingLoading}
                 disabled={!bindingEmail || isBindingLoading}
               >
-                {t('sendVerification')}
+                {t('bindEmail')}
               </Button>
             </form>
           )}
