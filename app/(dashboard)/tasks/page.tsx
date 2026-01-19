@@ -70,6 +70,8 @@ export default function TasksPage() {
   const [needsEmailBinding, setNeedsEmailBinding] = useState(false)
   const [checkingEmail, setCheckingEmail] = useState(true)
   const [bindingEmail, setBindingEmail] = useState('')
+  const [bindingPassword, setBindingPassword] = useState('')
+  const [bindingPasswordConfirm, setBindingPasswordConfirm] = useState('')
   const [bindingError, setBindingError] = useState('')
   const [bindingSuccess, setBindingSuccess] = useState(false)
   const [isBindingLoading, setIsBindingLoading] = useState(false)
@@ -103,13 +105,27 @@ export default function TasksPage() {
   const handleBindEmail = async (e: React.FormEvent) => {
     e.preventDefault()
     setBindingError('')
+
+    // Validate password
+    if (bindingPassword.length < 6) {
+      setBindingError(t('passwordTooShort'))
+      return
+    }
+    if (bindingPassword !== bindingPasswordConfirm) {
+      setBindingError(t('passwordMismatch'))
+      return
+    }
+
     setIsBindingLoading(true)
 
     try {
       const res = await fetch('/api/auth/bind-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: bindingEmail })
+        body: JSON.stringify({ 
+          email: bindingEmail,
+          password: bindingPassword
+        })
       })
 
       const data = await res.json()
@@ -274,11 +290,42 @@ export default function TasksPage() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                  {t('setPassword')}
+                </label>
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={bindingPassword}
+                  onChange={(e) => setBindingPassword(e.target.value)}
+                  leftIcon={<Lock className="w-4 h-4" />}
+                  required
+                  minLength={6}
+                />
+                <p className="text-xs text-zinc-500 mt-1">{t('passwordHint')}</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                  {t('confirmPassword')}
+                </label>
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  value={bindingPasswordConfirm}
+                  onChange={(e) => setBindingPasswordConfirm(e.target.value)}
+                  leftIcon={<Lock className="w-4 h-4" />}
+                  required
+                  minLength={6}
+                />
+              </div>
+
               <Button 
                 type="submit" 
                 className="w-full" 
                 isLoading={isBindingLoading}
-                disabled={!bindingEmail || isBindingLoading}
+                disabled={!bindingEmail || !bindingPassword || !bindingPasswordConfirm || isBindingLoading}
               >
                 {t('bindEmail')}
               </Button>

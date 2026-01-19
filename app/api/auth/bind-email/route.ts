@@ -49,10 +49,14 @@ export async function POST(request: NextRequest) {
     }, { status: 400 })
   }
 
-  const { email } = await request.json()
+  const { email, password } = await request.json()
 
   if (!email || !email.includes('@')) {
     return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
+  }
+
+  if (!password || password.length < 6) {
+    return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 })
   }
 
   // Don't allow binding to another wallet placeholder
@@ -80,11 +84,12 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Use Admin API to directly update user email (bypasses verification)
+    // Use Admin API to directly update user email and password (bypasses verification)
     const { error: updateAuthError } = await supabaseAdmin.auth.admin.updateUserById(
       user.id,
       { 
         email: email.toLowerCase(),
+        password: password,
         email_confirm: true  // Auto-confirm the email
       }
     )
