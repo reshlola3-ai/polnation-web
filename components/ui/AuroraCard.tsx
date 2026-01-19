@@ -16,10 +16,10 @@ export function AuroraCard({ children, className = '' }: AuroraCardProps) {
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
-  // Smooth spring animation
-  const springConfig = { stiffness: 150, damping: 20 }
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [8, -8]), springConfig)
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-8, 8]), springConfig)
+  // Smooth spring animation - increased tilt for more noticeable effect
+  const springConfig = { stiffness: 150, damping: 15 }
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [15, -15]), springConfig)
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-15, 15]), springConfig)
 
   // Glare effect position
   const glareX = useSpring(useTransform(mouseX, [-0.5, 0.5], [0, 100]), springConfig)
@@ -60,44 +60,44 @@ export function AuroraCard({ children, className = '' }: AuroraCardProps) {
         {/* Base gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800" />
         
-        {/* Aurora layers */}
+        {/* Aurora layers - more visible and faster */}
+        <motion.div
+          className="absolute inset-0 opacity-80"
+          animate={{
+            background: [
+              'radial-gradient(ellipse 80% 60% at 20% 30%, rgba(147, 51, 234, 0.9) 0%, transparent 60%)',
+              'radial-gradient(ellipse 80% 60% at 80% 70%, rgba(147, 51, 234, 0.9) 0%, transparent 60%)',
+              'radial-gradient(ellipse 80% 60% at 40% 80%, rgba(147, 51, 234, 0.9) 0%, transparent 60%)',
+              'radial-gradient(ellipse 80% 60% at 20% 30%, rgba(147, 51, 234, 0.9) 0%, transparent 60%)',
+            ],
+          }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        
+        <motion.div
+          className="absolute inset-0 opacity-70"
+          animate={{
+            background: [
+              'radial-gradient(ellipse 70% 50% at 70% 20%, rgba(6, 182, 212, 0.8) 0%, transparent 50%)',
+              'radial-gradient(ellipse 70% 50% at 30% 60%, rgba(6, 182, 212, 0.8) 0%, transparent 50%)',
+              'radial-gradient(ellipse 70% 50% at 60% 90%, rgba(6, 182, 212, 0.8) 0%, transparent 50%)',
+              'radial-gradient(ellipse 70% 50% at 70% 20%, rgba(6, 182, 212, 0.8) 0%, transparent 50%)',
+            ],
+          }}
+          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+        />
+
         <motion.div
           className="absolute inset-0 opacity-60"
           animate={{
             background: [
-              'radial-gradient(ellipse at 20% 30%, rgba(147, 51, 234, 0.8) 0%, transparent 50%)',
-              'radial-gradient(ellipse at 80% 70%, rgba(147, 51, 234, 0.8) 0%, transparent 50%)',
-              'radial-gradient(ellipse at 40% 80%, rgba(147, 51, 234, 0.8) 0%, transparent 50%)',
-              'radial-gradient(ellipse at 20% 30%, rgba(147, 51, 234, 0.8) 0%, transparent 50%)',
+              'radial-gradient(ellipse 60% 40% at 50% 50%, rgba(236, 72, 153, 0.7) 0%, transparent 50%)',
+              'radial-gradient(ellipse 60% 40% at 20% 80%, rgba(236, 72, 153, 0.7) 0%, transparent 50%)',
+              'radial-gradient(ellipse 60% 40% at 80% 30%, rgba(236, 72, 153, 0.7) 0%, transparent 50%)',
+              'radial-gradient(ellipse 60% 40% at 50% 50%, rgba(236, 72, 153, 0.7) 0%, transparent 50%)',
             ],
           }}
-          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        
-        <motion.div
-          className="absolute inset-0 opacity-50"
-          animate={{
-            background: [
-              'radial-gradient(ellipse at 70% 20%, rgba(6, 182, 212, 0.6) 0%, transparent 40%)',
-              'radial-gradient(ellipse at 30% 60%, rgba(6, 182, 212, 0.6) 0%, transparent 40%)',
-              'radial-gradient(ellipse at 60% 90%, rgba(6, 182, 212, 0.6) 0%, transparent 40%)',
-              'radial-gradient(ellipse at 70% 20%, rgba(6, 182, 212, 0.6) 0%, transparent 40%)',
-            ],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        />
-
-        <motion.div
-          className="absolute inset-0 opacity-40"
-          animate={{
-            background: [
-              'radial-gradient(ellipse at 50% 50%, rgba(168, 85, 247, 0.5) 0%, transparent 45%)',
-              'radial-gradient(ellipse at 20% 80%, rgba(168, 85, 247, 0.5) 0%, transparent 45%)',
-              'radial-gradient(ellipse at 80% 30%, rgba(168, 85, 247, 0.5) 0%, transparent 45%)',
-              'radial-gradient(ellipse at 50% 50%, rgba(168, 85, 247, 0.5) 0%, transparent 45%)',
-            ],
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
         />
 
         {/* Shimmer effect */}
