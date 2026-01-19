@@ -8,11 +8,15 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { countries } from '@/lib/countries'
 import { Profile } from '@/lib/types'
-import { User, Phone, Send, Wallet, Check } from 'lucide-react'
+import { User, Phone, Send, Wallet, Check, ExternalLink, CheckCircle } from 'lucide-react'
+import { useWeb3Modal } from '@web3modal/wagmi/react'
+import { useAccount } from 'wagmi'
 
 export default function ProfilePage() {
   const router = useRouter()
   const supabase = createClient()
+  const { open } = useWeb3Modal()
+  const { address, isConnected } = useAccount()
 
   const [profile, setProfile] = useState<Profile | null>(null)
   const [referrerName, setReferrerName] = useState<string | null>(null)
@@ -27,47 +31,60 @@ export default function ProfilePage() {
   const [countryCode, setCountryCode] = useState('CN')
   const [telegramUsername, setTelegramUsername] = useState('')
 
-  useEffect(() => {
-    async function loadProfile() {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        router.push('/login')
-        return
-      }
-
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-
-      if (profileData) {
-        setProfile(profileData)
-        setUsername(profileData.username || '')
-        setPhoneCountryCode(profileData.phone_country_code || '+86')
-        setPhoneNumber(profileData.phone_number || '')
-        setCountryCode(profileData.country_code || 'CN')
-        setTelegramUsername(profileData.telegram_username || '')
-
-        if (profileData.referrer_id) {
-          const { data: referrer } = await supabase
-            .from('profiles')
-            .select('username')
-            .eq('id', profileData.referrer_id)
-            .single()
-          
-          if (referrer) {
-            setReferrerName(referrer.username)
-          }
-        }
-      }
-
-      setIsLoading(false)
+  const loadProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      router.push('/login')
+      return
     }
 
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+
+    if (profileData) {
+      setProfile(profileData)
+      setUsername(profileData.username || '')
+      setPhoneCountryCode(profileData.phone_country_code || '+86')
+      setPhoneNumber(profileData.phone_number || '')
+      setCountryCode(profileData.country_code || 'CN')
+      setTelegramUsername(profileData.telegram_username || '')
+
+      if (profileData.referrer_id) {
+        const { data: referrer } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', profileData.referrer_id)
+          .single()
+        
+        if (referrer) {
+          setReferrerName(referrer.username)
+        }
+      }
+    }
+
+    setIsLoading(false)
+  }
+
+  useEffect(() => {
     loadProfile()
-  }, [supabase, router])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // 钱包连接后刷新 profile 数据
+  useEffect(() => {
+    if (address && !profile?.wallet_address) {
+      // 钱包连接后，等待绑定完成再刷新
+      const timer = setTimeout(() => {
+        loadProfile()
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address])
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -247,17 +264,62 @@ export default function ProfilePage() {
             <label className="block text-sm font-medium text-zinc-400 mb-2">
               Wallet Address
             </label>
-            <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-zinc-400">
-              <Wallet className="w-4 h-4 text-zinc-500" />
-              {profile?.wallet_address 
-                ? `${profile.wallet_address.slice(0, 10)}...${profile.wallet_address.slice(-8)}`
-                : 'Not connected yet'
-              }
-            </div>
-            {!profile?.wallet_address && (
-              <p className="mt-2 text-sm text-zinc-500">
-                You can connect your wallet from the dashboard
-              </p>
+            {profile?.wallet_address ? (
+              <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <span className="text-sm font-medium text-green-300">Wallet Connected</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <code className="text-sm font-mono text-zinc-300 bg-white/5 px-2 py-1 rounded">
+                    {profile.wallet_address.slice(0, 10)}...{profile.wallet_address.slice(-8)}
+                  </code>
+                  <a
+                    href={`https://polygonscan.com/address/${profile.wallet_address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-zinc-500 hover:text-purple-400 transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="w-5 h-5 text-purple-400" />
+                    <div>
+                      <p className="text-sm font-medium text-zinc-300">
+                        {isConnected ? 'Binding wallet...' : 'No wallet connected'}
+                      </p>
+                      <p className="text-xs text-zinc-500">
+                        Connect to start earning rewards
+                      </p>
+                    </div>
+                  </div>
+                  {!isConnected && (
+                    <Button 
+                      type="button"
+                      size="sm" 
+                      onClick={() => open()}
+                      className="shrink-0"
+                    >
+                      <Wallet className="w-4 h-4 mr-2" />
+                      Connect
+                    </Button>
+                  )}
+                </div>
+                <div className="mt-3 pt-3 border-t border-purple-500/20">
+                  <p className="text-xs text-purple-300 font-medium mb-1.5">Supported Wallets:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">Trust</span>
+                    <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">SafePal</span>
+                    <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">Bitget</span>
+                    <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">TokenPocket</span>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
