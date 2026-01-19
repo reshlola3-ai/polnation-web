@@ -4,18 +4,7 @@ import { cookies } from 'next/headers'
 import { Navbar } from '@/components/layout/Navbar'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { Web3Provider } from '@/components/providers/Web3Provider'
-import { BubbleBackground } from '@/components/animate-ui/components/backgrounds/bubble'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
-
-// Polnation brand colors for bubble background
-const bubbleColors = {
-  first: '147,51,234',    // Purple
-  second: '139,92,246',   // Light Purple
-  third: '6,182,212',     // Cyan
-  fourth: '168,85,247',   // Purple accent
-  fifth: '124,58,237',    // Violet
-  sixth: '34,211,238',    // Bright Cyan (interactive)
-}
 
 export default async function DashboardLayout({
   children,
@@ -36,13 +25,13 @@ export default async function DashboardLayout({
 
   return (
     <Web3Provider>
-      <div className="min-h-screen relative">
-        {/* Animated Bubble Background */}
-        <BubbleBackground 
-          interactive 
-          colors={bubbleColors}
-          className="fixed inset-0 bg-gradient-to-br from-[#0D0B21] via-[#1A1333] to-[#0D0B21]"
-        />
+      <div className="min-h-screen bg-[#0D0B21] relative">
+        {/* Static Background Effects */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-[80px]" />
+        </div>
         
         {/* Top Navigation - Hidden on mobile */}
         <div className="hidden md:block relative z-20">

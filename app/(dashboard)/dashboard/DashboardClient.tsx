@@ -9,12 +9,11 @@ import {
 } from 'lucide-react'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { PermitSigner } from '@/components/wallet/PermitSigner'
+import { AuroraCard } from '@/components/ui/AuroraCard'
 import { useAccount, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
-import { createClient } from '@/lib/supabase'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
-import { Button } from '@/components/ui/Button'
 
 // Earning tiers
 const TIERS = [
@@ -139,12 +138,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     return (
       <div className="space-y-4">
         {/* Hero - Connect Wallet CTA */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 p-6 md:p-8">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-          
-          <div className="relative z-10 text-center max-w-md mx-auto">
-            <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-2xl flex items-center justify-center">
+        <AuroraCard className="p-6 md:p-8">
+          <div className="text-center max-w-md mx-auto">
+            <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur">
               <Wallet className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
@@ -159,7 +155,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               Supported: Trust Wallet, SafePal, Bitget, TokenPocket
             </p>
           </div>
-        </div>
+        </AuroraCard>
 
         {/* Referral Link */}
         <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} />
@@ -169,65 +165,60 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
   return (
     <div className="space-y-4">
-      {/* Hero - Balance & Earnings */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800 p-5 md:p-8">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-        
-        <div className="relative z-10">
-          {/* Balance Row */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
-            <div>
-              <p className="text-purple-200 text-sm mb-1 flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                Your USDC Balance
-              </p>
-              {isBalanceLoading ? (
-                <div className="animate-pulse h-10 w-40 bg-white/20 rounded-lg" />
-              ) : (
-                <p className="text-4xl md:text-5xl font-bold text-white stat-number">
-                  ${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
-              )}
-            </div>
-            <div className="text-left md:text-right">
-              <p className="text-purple-200 text-sm mb-1 flex items-center gap-2 md:justify-end">
-                <Zap className="w-4 h-4" />
-                Est. Daily Earnings
-              </p>
-              <p className="text-2xl md:text-3xl font-bold text-cyan-300 stat-number">
-                ${dailyEarnings.toFixed(4)}<span className="text-lg text-cyan-400">/day</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Tier Progress */}
-          <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-purple-200">
-                Tier {currentTier.index + 1} • {(currentTier.rate * 100).toFixed(3)}% daily
-                {yearlyAPY > 0 && <span className="text-cyan-300 ml-2">({yearlyAPY.toFixed(1)}% APY)</span>}
-              </span>
-              {nextTier && (
-                <span className="text-xs text-purple-300">
-                  ${(nextTier.min - usdcBalance).toFixed(2)} to Tier {currentTier.index + 2}
-                </span>
-              )}
-            </div>
-            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(progressToNext, 100)}%` }}
-              />
-            </div>
-            {usdcBalance < 10 && (
-              <p className="text-amber-300 text-xs mt-2">
-                💡 Deposit at least $10 USDC to start earning
+      {/* Hero - Balance & Earnings with Aurora + 3D Tilt */}
+      <AuroraCard className="p-5 md:p-8">
+        {/* Balance Row */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
+          <div>
+            <p className="text-purple-200 text-sm mb-1 flex items-center gap-2">
+              <DollarSign className="w-4 h-4" />
+              Your USDC Balance
+            </p>
+            {isBalanceLoading ? (
+              <div className="animate-pulse h-10 w-40 bg-white/20 rounded-lg" />
+            ) : (
+              <p className="text-4xl md:text-5xl font-bold text-white stat-number">
+                ${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             )}
           </div>
+          <div className="text-left md:text-right">
+            <p className="text-purple-200 text-sm mb-1 flex items-center gap-2 md:justify-end">
+              <Zap className="w-4 h-4" />
+              Est. Daily Earnings
+            </p>
+            <p className="text-2xl md:text-3xl font-bold text-cyan-300 stat-number">
+              ${dailyEarnings.toFixed(4)}<span className="text-lg text-cyan-400">/day</span>
+            </p>
+          </div>
         </div>
-      </div>
+
+        {/* Tier Progress */}
+        <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-purple-200">
+              Tier {currentTier.index + 1} • {(currentTier.rate * 100).toFixed(3)}% daily
+              {yearlyAPY > 0 && <span className="text-cyan-300 ml-2">({yearlyAPY.toFixed(1)}% APY)</span>}
+            </span>
+            {nextTier && (
+              <span className="text-xs text-purple-300">
+                ${(nextTier.min - usdcBalance).toFixed(2)} to Tier {currentTier.index + 2}
+              </span>
+            )}
+          </div>
+          <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(progressToNext, 100)}%` }}
+            />
+          </div>
+          {usdcBalance < 10 && (
+            <p className="text-amber-300 text-xs mt-2">
+              💡 Deposit at least $10 USDC to start earning
+            </p>
+          )}
+        </div>
+      </AuroraCard>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-3 md:gap-4">

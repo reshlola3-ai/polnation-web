@@ -3,18 +3,7 @@ import Image from 'next/image'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
-import { BubbleBackground } from '@/components/animate-ui/components/backgrounds/bubble'
 import { ArrowRight, Users, Wallet, Shield, TrendingUp, Sparkles } from 'lucide-react'
-
-// Polnation brand colors for bubble background
-const bubbleColors = {
-  first: '147,51,234',    // Purple
-  second: '139,92,246',   // Light Purple
-  third: '6,182,212',     // Cyan
-  fourth: '168,85,247',   // Purple accent
-  fifth: '124,58,237',    // Violet
-  sixth: '34,211,238',    // Bright Cyan (interactive)
-}
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 
@@ -84,13 +73,13 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
       />
       
-      <div className="min-h-screen relative overflow-hidden">
-        {/* Animated Bubble Background */}
-        <BubbleBackground 
-          interactive 
-          colors={bubbleColors}
-          className="fixed inset-0 bg-gradient-to-br from-[#0D0B21] via-[#1A1333] to-[#0D0B21]"
-        />
+      <div className="min-h-screen bg-[#0D0B21] relative overflow-hidden">
+        {/* Static Background Effects */}
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-600/15 rounded-full blur-[150px]" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px]" />
+        </div>
       
       <div className="relative z-10">
         <Navbar user={user} locale={locale} />
