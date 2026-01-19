@@ -14,9 +14,10 @@ import { type Locale } from '@/i18n/config'
 interface NavbarProps {
   user: User | null
   locale: Locale
+  isMobile?: boolean
 }
 
-export function Navbar({ user, locale }: NavbarProps) {
+export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
   const t = useTranslations('nav')
   const pathname = usePathname()
   const router = useRouter()
@@ -38,6 +39,43 @@ export function Navbar({ user, locale }: NavbarProps) {
     { href: '/referral', label: t('referral'), icon: Users },
   ]
 
+  // Mobile header - simplified version
+  if (isMobile) {
+    return (
+      <nav className="bg-[#0D0B21]/80 backdrop-blur-xl border-b border-purple-500/20 sticky top-0 z-50">
+        <div className="px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/logo.svg"
+                alt="Polnation"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
+              <span className="font-display text-lg text-white">Polnation</span>
+            </Link>
+
+            {/* Right side actions */}
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher currentLocale={locale} />
+              {user && (
+                <button
+                  onClick={handleSignOut}
+                  className="p-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </nav>
+    )
+  }
+
+  // Desktop navigation - full version
   return (
     <nav className="bg-[#0D0B21]/80 backdrop-blur-xl border-b border-purple-500/20 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -117,7 +155,7 @@ export function Navbar({ user, locale }: NavbarProps) {
               </div>
             )}
 
-            {/* Mobile menu button */}
+            {/* Mobile menu button - only for non-dashboard pages */}
             {user && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -129,7 +167,7 @@ export function Navbar({ user, locale }: NavbarProps) {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation Dropdown */}
         {user && mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-purple-500/20">
             <div className="flex flex-col gap-1">

@@ -67,13 +67,13 @@ export function DashboardClient({ userId }: DashboardClientProps) {
   return (
     <>
       {/* Wallet & Staking Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
         <ConnectWallet />
         {!isLoadingBoundStatus && showPermitSigner && <PermitSigner />}
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Quick Actions - Hidden on mobile (use bottom nav instead) */}
+      <div className="hidden md:grid grid-cols-2 gap-4">
         {/* Profile Card */}
         <Link href="/profile" className="group">
           <div className="glass-card-solid p-5 hover:border-purple-500/50 transition-all duration-300">
@@ -111,30 +111,30 @@ export function DashboardClient({ userId }: DashboardClientProps) {
         </Link>
       </div>
 
-      {/* Referral Link */}
-      <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-r from-purple-600 to-purple-800">
+      {/* Referral Link - Mobile optimized */}
+      <div className="relative overflow-hidden rounded-xl md:rounded-2xl p-4 md:p-6 bg-gradient-to-r from-purple-600 to-purple-800">
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-cyan-400/10 rounded-full blur-2xl" />
+        <div className="absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-white/10 rounded-full blur-2xl" />
+        <div className="absolute bottom-0 left-0 w-20 md:w-24 h-20 md:h-24 bg-cyan-400/10 rounded-full blur-2xl" />
         
         <div className="relative z-10">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-5 h-5 text-purple-200" />
-            <h3 className="text-lg font-semibold text-white">Share Your Referral Link</h3>
+            <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-purple-200" />
+            <h3 className="text-base md:text-lg font-semibold text-white">Share Your Referral Link</h3>
           </div>
-          <p className="text-purple-200 text-sm mb-4">
-            Invite friends and grow your network to earn more rewards
+          <p className="text-purple-200 text-xs md:text-sm mb-3 md:mb-4">
+            Invite friends and grow your network
           </p>
-          <div className="bg-white/10 backdrop-blur rounded-xl p-3 flex items-center justify-between gap-2 border border-white/10">
-            <code className="text-sm text-white/90 truncate flex-1">
+          <div className="bg-white/10 backdrop-blur rounded-xl p-2 md:p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border border-white/10">
+            <code className="text-xs md:text-sm text-white/90 truncate flex-1 px-2 py-1.5 sm:py-0">
               {referralLink}
             </code>
             <button 
               onClick={copyLink}
-              className="flex items-center gap-1 px-4 py-2 bg-white text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors shrink-0"
+              className="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white text-purple-600 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors shrink-0 active:scale-95"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? 'Copied!' : 'Copy Link'}
             </button>
           </div>
         </div>
