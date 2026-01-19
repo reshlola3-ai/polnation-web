@@ -141,16 +141,16 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
-          <p className="text-zinc-400">{t('subtitle')}</p>
+    <div className="space-y-4 md:space-y-6">
+      {/* Header - Mobile optimized */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="text-xl md:text-2xl font-bold text-white">{t('title')}</h1>
+          <p className="text-zinc-400 text-sm md:text-base truncate">{t('subtitle')}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={fetchTasks}>
-          <RefreshCw className="w-4 h-4 mr-2" />
-          {tCommon('refresh')}
+        <Button variant="outline" size="sm" onClick={fetchTasks} className="shrink-0">
+          <RefreshCw className="w-4 h-4 md:mr-2" />
+          <span className="hidden md:inline">{tCommon('refresh')}</span>
         </Button>
       </div>
 
@@ -166,132 +166,119 @@ export default function TasksPage() {
         </div>
       )}
 
-      {/* Progress Card */}
-      <div className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-        <div className="relative z-10 flex items-center justify-between">
-          <div>
-            <p className="text-purple-200 text-sm">{t('totalBonus')}</p>
-            <p className="text-3xl font-bold text-white currency">${progress.total_task_bonus.toFixed(2)}</p>
-            <p className="text-purple-200 text-xs mt-1">{t('addedToProgress')}</p>
+      {/* Progress Card - Mobile optimized */}
+      <div className="relative overflow-hidden rounded-xl md:rounded-2xl p-4 md:p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
+        <div className="absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-white/10 rounded-full blur-2xl" />
+        <div className="relative z-10 flex items-center justify-between gap-4">
+          <div className="flex-1">
+            <p className="text-purple-200 text-xs md:text-sm">{t('totalBonus')}</p>
+            <p className="text-2xl md:text-3xl font-bold text-white currency">${progress.total_task_bonus.toFixed(2)}</p>
+            <p className="text-purple-200 text-[10px] md:text-xs mt-1">{t('addedToProgress')}</p>
           </div>
-          <div className="text-right">
-            <div className="flex items-center gap-2 mb-2">
-              <Flame className="w-5 h-5 text-orange-300" />
-              <span className="text-lg font-semibold text-white stat-number">{progress.current_streak} {t('dayStreak')}</span>
+          <div className="text-right shrink-0">
+            <div className="flex items-center justify-end gap-1.5 md:gap-2 mb-1 md:mb-2">
+              <Flame className="w-4 h-4 md:w-5 md:h-5 text-orange-300" />
+              <span className="text-base md:text-lg font-semibold text-white stat-number">{progress.current_streak} {t('dayStreak')}</span>
             </div>
-            <p className="text-purple-200 text-sm"><span className="stat-number">{progress.total_checkins}</span> {t('totalCheckins')}</p>
+            <p className="text-purple-200 text-xs md:text-sm"><span className="stat-number">{progress.total_checkins}</span> {t('totalCheckins')}</p>
           </div>
         </div>
       </div>
 
-      {/* Daily Check-in */}
+      {/* Daily Check-in - Mobile optimized */}
       {checkinTask && (
-        <div className="overflow-hidden rounded-2xl">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-4 relative">
+        <div className="overflow-hidden rounded-xl md:rounded-2xl">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-4 md:px-6 py-3 md:py-4 relative">
             <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-2 left-4 w-8 h-8 border-2 border-cyan-300 rounded-full"></div>
-              <div className="absolute bottom-2 right-8 w-6 h-6 border-2 border-purple-300 rounded-full"></div>
+              <div className="absolute top-2 left-4 w-6 md:w-8 h-6 md:h-8 border-2 border-cyan-300 rounded-full"></div>
+              <div className="absolute bottom-2 right-8 w-4 md:w-6 h-4 md:h-6 border-2 border-purple-300 rounded-full"></div>
             </div>
-            <div className="flex items-center justify-between relative z-10">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center shadow-lg">
-                  <Calendar className="w-5 h-5 text-white" />
+            <div className="flex items-center justify-between relative z-10 gap-3">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center shadow-lg shrink-0">
+                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-white" />
                 </div>
-                <div>
-                  <h3 className="font-bold text-white text-lg">{t('checkin.title')}</h3>
-                  <p className="text-purple-200 text-sm">{t('checkin.subtitle')}</p>
+                <div className="min-w-0">
+                  <h3 className="font-bold text-white text-base md:text-lg">{t('checkin.title')}</h3>
+                  <p className="text-purple-200 text-xs md:text-sm truncate">{t('checkin.subtitle')}</p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-cyan-300 text-2xl font-bold stat-number">{progress.current_streak}</p>
-                <p className="text-purple-200 text-xs">{t('checkin.streakDays')}</p>
+              <div className="text-right shrink-0">
+                <p className="text-cyan-300 text-xl md:text-2xl font-bold stat-number">{progress.current_streak}</p>
+                <p className="text-purple-200 text-[10px] md:text-xs">{t('checkin.streakDays')}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-[#1A1333] px-6 py-5 border-x border-b border-purple-500/20">
-            <div className="flex items-center mb-4">
+          {/* Calendar Grid */}
+          <div className="bg-[#1A1333] px-3 md:px-6 py-4 md:py-5 border-x border-b border-purple-500/20">
+            {/* Mobile: 7 small circles in a row */}
+            <div className="flex items-center justify-between mb-4 gap-1">
               {[1, 2, 3, 4, 5, 6, 7].map((day) => {
                 const isCompleted = day <= progress.current_streak
                 const isToday = day === progress.current_streak + 1
                 const isBonus = day === 7
-                const lineCompleted = day < progress.current_streak
 
                 return (
-                  <div key={day} className="flex-1 flex items-center">
-                    <div className="flex flex-col items-center">
-                      <div className={`
-                        w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-all
-                        ${isBonus ? (
-                          isCompleted 
-                            ? 'bg-gradient-to-br from-cyan-400 to-cyan-500 shadow-lg scale-110 glow-purple-sm' 
-                            : 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-md'
+                  <div key={day} className="flex flex-col items-center flex-1">
+                    <div className={`
+                      w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center mb-1 transition-all
+                      ${isBonus ? (
+                        isCompleted 
+                          ? 'bg-gradient-to-br from-cyan-400 to-cyan-500 shadow-lg scale-105 md:scale-110' 
+                          : 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-md'
+                      ) : (
+                        isCompleted 
+                          ? 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-md' 
+                          : isToday 
+                            ? 'bg-white/10 border-2 border-purple-400 border-dashed'
+                            : 'bg-white/5'
+                      )}
+                    `}>
+                      {isBonus ? (
+                        isCompleted ? (
+                          <span className="text-sm md:text-lg">🎉</span>
                         ) : (
-                          isCompleted 
-                            ? 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-md' 
-                            : isToday 
-                              ? 'bg-white/10 border-2 border-purple-400 border-dashed'
-                              : 'bg-white/5'
-                        )}
-                      `}>
-                        {isBonus ? (
-                          <div className="text-center">
-                            {isCompleted ? (
-                              <span className="text-lg">🎉</span>
-                            ) : (
-                              <Gift className="w-5 h-5 text-cyan-300" />
-                            )}
-                          </div>
-                        ) : isCompleted ? (
-                          <CheckCircle className="w-5 h-5 text-white" />
-                        ) : isToday ? (
-                          <Circle className="w-5 h-5 text-purple-400" />
-                        ) : (
-                          <Circle className="w-5 h-5 text-zinc-600" />
-                        )}
-                      </div>
-                      <span className={`text-xs font-medium ${
-                        isCompleted ? 'text-purple-400' : isToday ? 'text-purple-300' : 'text-zinc-600'
-                      }`}>
-                        {isBonus ? t('checkin.bonus') : `Day ${day}`}
-                      </span>
-                      <span className={`text-xs currency ${
-                        isCompleted ? 'text-emerald-400' : 'text-zinc-600'
-                      }`}>
-                        {isBonus ? '+$1.0' : `+$${checkinTask.reward_usd}`}
-                      </span>
+                          <Gift className="w-3.5 h-3.5 md:w-5 md:h-5 text-cyan-300" />
+                        )
+                      ) : isCompleted ? (
+                        <CheckCircle className="w-3.5 h-3.5 md:w-5 md:h-5 text-white" />
+                      ) : (
+                        <span className="text-[10px] md:text-xs text-zinc-500 font-medium">{day}</span>
+                      )}
                     </div>
-                    
-                    {day < 7 && (
-                      <div className={`flex-1 h-1 mx-1 rounded-full transition-all duration-300 ${
-                        lineCompleted 
-                          ? 'bg-gradient-to-r from-purple-500 to-indigo-500' 
-                          : 'bg-white/10'
-                      }`} style={{ marginTop: '-32px' }} />
-                    )}
+                    <span className={`text-[9px] md:text-xs font-medium ${
+                      isCompleted ? 'text-emerald-400' : 'text-zinc-600'
+                    }`}>
+                      {isBonus ? '+$1' : `$${checkinTask.reward_usd}`}
+                    </span>
                   </div>
                 )
               })}
             </div>
 
-            <div className="flex items-center justify-between text-sm mb-4 px-2">
+            {/* Stats row */}
+            <div className="flex items-center justify-between text-xs md:text-sm mb-3 md:mb-4 px-1 md:px-2">
               <div className="flex items-center gap-1 text-zinc-400">
-                <Flame className="w-4 h-4 text-purple-400" />
-                <span>{t('checkin.totalCheckins')}: <span className="font-bold text-purple-400 stat-number">{progress.total_checkins}</span></span>
+                <Flame className="w-3.5 h-3.5 md:w-4 md:h-4 text-purple-400" />
+                <span className="stat-number">{progress.total_checkins}</span>
+                <span className="hidden sm:inline">{t('checkin.totalCheckins')}</span>
               </div>
               <div className="text-zinc-400">
-                {t('checkin.earned')}: <span className="font-bold text-emerald-400 currency">${progress.total_task_bonus.toFixed(2)}</span>
+                <span className="hidden sm:inline">{t('checkin.earned')}: </span>
+                <span className="font-bold text-emerald-400 currency">${progress.total_task_bonus.toFixed(2)}</span>
               </div>
             </div>
 
+            {/* Check-in Button */}
             <button
               onClick={() => completeTask('daily_checkin')}
               disabled={!checkinTask.can_complete || submitting === 'daily_checkin'}
               className={`
-                w-full py-3 rounded-xl font-bold text-lg transition-all
+                w-full py-2.5 md:py-3 rounded-xl font-bold text-base md:text-lg transition-all active:scale-[0.98]
                 ${checkinTask.can_complete 
-                  ? 'btn-gradient text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] glow-purple' 
+                  ? 'btn-gradient text-white shadow-lg' 
                   : 'bg-white/10 text-zinc-500 cursor-not-allowed'
                 }
               `}
@@ -300,19 +287,19 @@ export default function TasksPage() {
                 <RefreshCw className="w-5 h-5 animate-spin mx-auto" />
               ) : checkinTask.can_complete ? (
                 <span className="flex items-center justify-center gap-2">
-                  <Calendar className="w-5 h-5" />
+                  <Calendar className="w-4 h-4 md:w-5 md:h-5" />
                   {t('checkin.checkInNow')}
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
-                  <CheckCircle className="w-5 h-5" />
+                  <CheckCircle className="w-4 h-4 md:w-5 md:h-5" />
                   {t('checkin.checkedIn')}
                 </span>
               )}
             </button>
 
             {progress.current_streak >= 5 && progress.current_streak < 7 && (
-              <p className="text-center text-sm text-purple-400 mt-3 font-medium">
+              <p className="text-center text-xs md:text-sm text-purple-400 mt-2 md:mt-3 font-medium">
                 🔥 {t('checkin.streakBonus', { n: 7 - progress.current_streak })}
               </p>
             )}
@@ -320,96 +307,114 @@ export default function TasksPage() {
         </div>
       )}
 
-      {/* Social Tasks */}
+      {/* Social Tasks - Mobile optimized */}
       {socialTasks.length > 0 && (
-        <div className="glass-card-solid p-6">
-          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-            <Share2 className="w-5 h-5 text-blue-400" />
+        <div className="glass-card-solid p-4 md:p-6">
+          <h3 className="font-semibold text-white mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
+            <Share2 className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
             {t('social.title')}
           </h3>
           <div className="space-y-3">
             {socialTasks.map(task => (
-              <div key={task.id} className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  task.completed_count > 0 ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
-                }`}>
-                  {getSocialIcon(task.task_key)}
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-white">{task.name}</p>
-                  <p className="text-sm text-zinc-500">{task.description}</p>
-                </div>
-                <div className="text-right mr-4">
-                  <p className="font-semibold text-emerald-400 currency">+${task.reward_usd}</p>
-                </div>
-                {task.completed_count > 0 ? (
-                  <div className="flex items-center gap-1 text-green-400">
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="text-sm">{t('social.done')}</span>
+              <div key={task.id} className="p-3 md:p-4 bg-white/5 rounded-xl border border-white/10">
+                {/* Mobile: Vertical layout, Desktop: Horizontal */}
+                <div className="flex items-start gap-3">
+                  {/* Icon */}
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                    task.completed_count > 0 ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
+                  }`}>
+                    {getSocialIcon(task.task_key)}
                   </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleSocialClick(task)}
-                      className="gap-1"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      {t('social.visit')}
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => handleSocialComplete(task)}
-                      disabled={!socialVisited.has(task.task_key) || submitting === task.task_key}
-                      isLoading={submitting === task.task_key}
-                    >
-                      {t('social.verify')}
-                    </Button>
+                  
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium text-white text-sm md:text-base">{task.name}</p>
+                        <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{task.description}</p>
+                      </div>
+                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base shrink-0">+${task.reward_usd}</p>
+                    </div>
+                    
+                    {/* Actions - Full width on mobile */}
+                    <div className="mt-3">
+                      {task.completed_count > 0 ? (
+                        <div className="flex items-center gap-1.5 text-green-400">
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="text-sm font-medium">{t('social.done')}</span>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleSocialClick(task)}
+                            className="flex-1 md:flex-none gap-1.5 text-xs md:text-sm py-2"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            {t('social.visit')}
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => handleSocialComplete(task)}
+                            disabled={!socialVisited.has(task.task_key) || submitting === task.task_key}
+                            isLoading={submitting === task.task_key}
+                            className="flex-1 md:flex-none text-xs md:text-sm py-2"
+                          >
+                            {t('social.verify')}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
+                </div>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Promotion Task */}
+      {/* Promotion Task - Mobile optimized */}
       {promotionTasks.length > 0 && (
-        <div className="glass-card-solid p-6">
-          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-            <MessageCircle className="w-5 h-5 text-purple-400" />
+        <div className="glass-card-solid p-4 md:p-6">
+          <h3 className="font-semibold text-white mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
+            <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
             {t('promotion.title')}
           </h3>
           {promotionTasks.map(task => (
-            <div key={task.id} className="space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400">
+            <div key={task.id} className="space-y-3 md:space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400 shrink-0">
                   <MessageCircle className="w-5 h-5" />
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-white">{task.name}</p>
-                  <p className="text-sm text-zinc-500">{task.description}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-medium text-white text-sm md:text-base">{task.name}</p>
+                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{task.description}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base">+${task.reward_usd}</p>
+                      <p className="text-[10px] md:text-xs text-zinc-500">{t('promotion.perSubmission')}</p>
+                    </div>
+                  </div>
                   <p className="text-xs text-purple-400 mt-1">
                     {t('promotion.completed', { n: task.completed_count })}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-emerald-400 currency">+${task.reward_usd}</p>
-                  <p className="text-xs text-zinc-500">{t('promotion.perSubmission')}</p>
-                </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input
                   placeholder={t('promotion.placeholder')}
                   value={promotionUrl}
                   onChange={(e) => setPromotionUrl(e.target.value)}
-                  className="flex-1"
+                  className="flex-1 text-sm"
                 />
                 <Button
                   onClick={() => completeTask(task.task_key, promotionUrl)}
                   disabled={!promotionUrl || submitting === task.task_key}
                   isLoading={submitting === task.task_key}
+                  className="w-full sm:w-auto"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   {tCommon('submit')}
@@ -420,42 +425,47 @@ export default function TasksPage() {
         </div>
       )}
 
-      {/* Video Task */}
+      {/* Video Task - Mobile optimized */}
       {videoTasks.length > 0 && (
-        <div className="glass-card-solid p-6">
-          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-            <Video className="w-5 h-5 text-red-400" />
+        <div className="glass-card-solid p-4 md:p-6">
+          <h3 className="font-semibold text-white mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
+            <Video className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
             {t('video.title')}
           </h3>
           {videoTasks.map(task => (
-            <div key={task.id} className="space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center text-red-400">
+            <div key={task.id} className="space-y-3 md:space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center text-red-400 shrink-0">
                   <Video className="w-5 h-5" />
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium text-white">{task.name}</p>
-                  <p className="text-sm text-zinc-500">{task.description}</p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-medium text-white text-sm md:text-base">{task.name}</p>
+                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{task.description}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base">+${task.reward_usd}</p>
+                      <p className="text-[10px] md:text-xs text-zinc-500">{t('video.afterApproval')}</p>
+                    </div>
+                  </div>
                   <p className="text-xs text-red-400 mt-1">
                     {t('video.submitted', { n: task.completed_count })}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-emerald-400 currency">+${task.reward_usd}</p>
-                  <p className="text-xs text-zinc-500">{t('video.afterApproval')}</p>
-                </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Input
                   placeholder={t('video.placeholder')}
                   value={videoUrl}
                   onChange={(e) => setVideoUrl(e.target.value)}
-                  className="flex-1"
+                  className="flex-1 text-sm"
                 />
                 <Button
                   onClick={() => completeTask(task.task_key, videoUrl)}
                   disabled={!videoUrl || submitting === task.task_key}
                   isLoading={submitting === task.task_key}
+                  className="w-full sm:w-auto"
                 >
                   <Send className="w-4 h-4 mr-2" />
                   {tCommon('submit')}
