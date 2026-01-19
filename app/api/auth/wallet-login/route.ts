@@ -60,10 +60,12 @@ export async function POST(request: Request) {
 async function createWalletAccount(walletAddress: string) {
   try {
     // Generate a unique email for this wallet user (internal use only)
-    const walletEmail = `${walletAddress.slice(2, 10)}@wallet.polnation.com`
+    const walletEmail = `${walletAddress.slice(2, 10).toLowerCase()}@wallet.polnation.com`
     const randomPassword = crypto.randomUUID() + crypto.randomUUID()
+    const username = `user_${walletAddress.slice(2, 8).toLowerCase()}`
 
     // Create user in Supabase Auth
+    // The trigger will automatically create a profile with this email
     const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: walletEmail,
       password: randomPassword,
@@ -77,33 +79,28 @@ async function createWalletAccount(walletAddress: string) {
     if (authError || !authUser.user) {
       console.error('Failed to create auth user:', authError)
       return NextResponse.json(
-        { error: 'Failed to create account' },
+        { error: 'Failed to create account: ' + (authError?.message || 'Unknown error') },
         { status: 500 }
       )
     }
 
-    // Create profile with wallet address
-    const username = `user_${walletAddress.slice(2, 8)}`
-    const { error: profileError } = await supabaseAdmin
+    // Wait a moment for the trigger to create the profile
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    // Update the profile with wallet address (trigger already created the profile)
+    const { error: updateError } = await supabaseAdmin
       .from('profiles')
-      .upsert({
-        id: authUser.user.id,
-        wallet_address: walletAddress,
+      .update({
+        wallet_address: walletAddress.toLowerCase(),
         wallet_bound_at: new Date().toISOString(),
         username: username,
-        profile_completed: false, // They can complete later
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        profile_completed: false
       })
+      .eq('id', authUser.user.id)
 
-    if (profileError) {
-      console.error('Failed to create profile:', profileError)
-      // Try to clean up auth user
-      await supabaseAdmin.auth.admin.deleteUser(authUser.user.id)
-      return NextResponse.json(
-        { error: 'Failed to create profile' },
-        { status: 500 }
-      )
+    if (updateError) {
+      console.error('Failed to update profile with wallet:', updateError)
+      // Profile exists but update failed - try to continue anyway
     }
 
     // Generate login session for the new user
