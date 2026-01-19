@@ -15,15 +15,16 @@ import { polygon } from 'wagmi/chains'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
 
-// Earning tiers
+// Earning tiers - must match database profit_tiers table
+// rate is daily rate as decimal (0.0025 = 0.25%)
 const TIERS = [
-  { min: 0, max: 9.99, rate: 0 },
-  { min: 10, max: 99.99, rate: 0.0001 },
-  { min: 100, max: 499.99, rate: 0.00012 },
-  { min: 500, max: 999.99, rate: 0.00015 },
-  { min: 1000, max: 4999.99, rate: 0.0002 },
-  { min: 5000, max: 9999.99, rate: 0.00025 },
-  { min: 10000, max: Infinity, rate: 0.0003 },
+  { min: 0, max: 9.99, rate: 0, name: 'Starter' },
+  { min: 10, max: 19.99, rate: 0.0025, name: 'Bronze' },      // 0.25% daily
+  { min: 20, max: 99.99, rate: 0.003, name: 'Silver' },       // 0.30% daily
+  { min: 100, max: 499.99, rate: 0.0035, name: 'Gold' },      // 0.35% daily
+  { min: 500, max: 1999.99, rate: 0.004, name: 'Platinum' },  // 0.40% daily
+  { min: 2000, max: 9999.99, rate: 0.005, name: 'Diamond' },  // 0.50% daily
+  { min: 10000, max: Infinity, rate: 0.006, name: 'Elite' },  // 0.60% daily
 ]
 
 function getTier(balance: number) {
@@ -147,7 +148,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               Connect Your Wallet to Start Earning
             </h2>
             <p className="text-purple-200 mb-6">
-              Hold USDC in your wallet and earn up to <span className="font-bold text-cyan-300">0.03% daily</span>. 
+              Hold USDC in your wallet and earn up to <span className="font-bold text-cyan-300">0.60% daily (219% APY)</span>. 
               No lock-up, withdraw anytime, fully non-custodial.
             </p>
             <ConnectWallet />
@@ -197,12 +198,12 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-purple-200">
-              Tier {currentTier.index + 1} • {(currentTier.rate * 100).toFixed(3)}% daily
-              {yearlyAPY > 0 && <span className="text-cyan-300 ml-2">({yearlyAPY.toFixed(1)}% APY)</span>}
+              {currentTier.name} • {(currentTier.rate * 100).toFixed(2)}% daily
+              {yearlyAPY > 0 && <span className="text-cyan-300 ml-2">({yearlyAPY.toFixed(0)}% APY)</span>}
             </span>
             {nextTier && (
               <span className="text-xs text-purple-300">
-                ${(nextTier.min - usdcBalance).toFixed(2)} to Tier {currentTier.index + 2}
+                ${(nextTier.min - usdcBalance).toFixed(2)} to {nextTier.name}
               </span>
             )}
           </div>
