@@ -3,8 +3,18 @@ import Image from 'next/image'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
-import { BubbleBackground } from '@/components/ui/BubbleBackground'
+import { BubbleBackground } from '@/components/animate-ui/components/backgrounds/bubble'
 import { ArrowRight, Users, Wallet, Shield, TrendingUp, Sparkles } from 'lucide-react'
+
+// Polnation brand colors for bubble background
+const bubbleColors = {
+  first: '147,51,234',    // Purple
+  second: '139,92,246',   // Light Purple
+  third: '6,182,212',     // Cyan
+  fourth: '168,85,247',   // Purple accent
+  fifth: '124,58,237',    // Violet
+  sixth: '34,211,238',    // Bright Cyan (interactive)
+}
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 
@@ -76,7 +86,11 @@ export default async function HomePage() {
       
       <div className="min-h-screen relative overflow-hidden">
         {/* Animated Bubble Background */}
-        <BubbleBackground interactive />
+        <BubbleBackground 
+          interactive 
+          colors={bubbleColors}
+          className="fixed inset-0 bg-gradient-to-br from-[#0D0B21] via-[#1A1333] to-[#0D0B21]"
+        />
       
       <div className="relative z-10">
         <Navbar user={user} locale={locale} />
