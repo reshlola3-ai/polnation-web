@@ -139,7 +139,19 @@
       "placeholder": "Dán URL video (YouTube, TikTok, v.v.)...",
       "afterApproval": "sau khi duyệt",
       "submitted": "Đã gửi {n} lần (Cần xem xét thủ công)"
-    }
+    },
+    "emailRequired": "Cần Xác minh Email",
+    "emailRequiredDesc": "Vui lòng xác minh email để truy cập Nhiệm vụ và nhận thưởng",
+    "yourEmail": "Địa chỉ Email của bạn",
+    "sendVerification": "Gửi Email Xác minh",
+    "verificationSent": "Đã Gửi Email Xác minh!",
+    "checkInbox": "Vui lòng kiểm tra {email} và nhấp vào liên kết xác minh",
+    "afterVerification": "Sau khi xác minh, làm mới trang này để truy cập Nhiệm vụ",
+    "whyEmailRequired": "Tại sao cần email?",
+    "reason1": "Ngăn chặn lạm dụng và đảm bảo phân phối phần thưởng công bằng",
+    "reason2": "Bảo vệ tài khoản với tùy chọn khôi phục",
+    "reason3": "Nhận thông báo và cập nhật quan trọng",
+    "otherFeatures": "Bạn vẫn có thể truy cập các tính năng khác:"
   },
   "earnings": {
     "title": "Thu nhập",

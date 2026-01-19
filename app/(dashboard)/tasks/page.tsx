@@ -14,11 +14,16 @@ import {
   MessageCircle,
   RefreshCw,
   AlertCircle,
-  Gift
+  Gift,
+  Mail,
+  Lock,
+  Loader2
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useTranslations } from 'next-intl'
+import { createClient } from '@/lib/supabase'
+import Link from 'next/link'
 
 interface Task {
   id: string
@@ -41,6 +46,12 @@ interface Progress {
   total_checkins: number
 }
 
+// Check if email is a wallet-generated placeholder
+function isWalletEmail(email: string | null | undefined): boolean {
+  if (!email) return true
+  return email.endsWith('@wallet.polnation.com')
+}
+
 export default function TasksPage() {
   const t = useTranslations('tasks')
   const tCommon = useTranslations('common')
@@ -53,6 +64,67 @@ export default function TasksPage() {
   const [videoUrl, setVideoUrl] = useState('')
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [socialVisited, setSocialVisited] = useState<Set<string>>(new Set())
+  
+  // Email verification state
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [needsEmailBinding, setNeedsEmailBinding] = useState(false)
+  const [checkingEmail, setCheckingEmail] = useState(true)
+  const [bindingEmail, setBindingEmail] = useState('')
+  const [bindingError, setBindingError] = useState('')
+  const [bindingSuccess, setBindingSuccess] = useState(false)
+  const [isBindingLoading, setIsBindingLoading] = useState(false)
+
+  // Check user email on mount
+  useEffect(() => {
+    async function checkUserEmail() {
+      setCheckingEmail(true)
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (user?.email) {
+          setUserEmail(user.email)
+          setNeedsEmailBinding(isWalletEmail(user.email))
+        } else {
+          setNeedsEmailBinding(true)
+        }
+      } catch (err) {
+        console.error('Error checking email:', err)
+        setNeedsEmailBinding(true)
+      } finally {
+        setCheckingEmail(false)
+      }
+    }
+    
+    checkUserEmail()
+  }, [])
+
+  // Handle email binding
+  const handleBindEmail = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setBindingError('')
+    setIsBindingLoading(true)
+
+    try {
+      const supabase = createClient()
+      
+      // Update user email (Supabase will send verification email)
+      const { error } = await supabase.auth.updateUser({
+        email: bindingEmail
+      })
+
+      if (error) {
+        setBindingError(error.message)
+      } else {
+        setBindingSuccess(true)
+      }
+    } catch (err) {
+      console.error('Error binding email:', err)
+      setBindingError('Failed to send verification email')
+    } finally {
+      setIsBindingLoading(false)
+    }
+  }
 
   const fetchTasks = useCallback(async () => {
     setIsLoading(true)
@@ -71,8 +143,11 @@ export default function TasksPage() {
   }, [])
 
   useEffect(() => {
-    fetchTasks()
-  }, [fetchTasks])
+    // Only fetch tasks if email is verified
+    if (!needsEmailBinding && !checkingEmail) {
+      fetchTasks()
+    }
+  }, [fetchTasks, needsEmailBinding, checkingEmail])
 
   const completeTask = async (taskKey: string, submittedUrl?: string) => {
     setSubmitting(taskKey)
@@ -128,6 +203,120 @@ export default function TasksPage() {
   const promotionTasks = tasks.filter(t => t.task_category === 'promotion')
   const checkinTask = tasks.find(t => t.task_category === 'checkin')
   const videoTasks = tasks.filter(t => t.task_category === 'video')
+
+  // Show loading while checking email
+  if (checkingEmail) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-white/10 rounded w-1/3 mb-4"></div>
+          <div className="h-32 bg-white/5 rounded"></div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show email binding UI if needed
+  if (needsEmailBinding) {
+    return (
+      <div className="space-y-6 max-w-md mx-auto">
+        {/* Header */}
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-purple-500/20 rounded-2xl flex items-center justify-center">
+            <Lock className="w-8 h-8 text-purple-400" />
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">{t('emailRequired')}</h1>
+          <p className="text-zinc-400">{t('emailRequiredDesc')}</p>
+        </div>
+
+        {/* Binding Form */}
+        <div className="glass-card-solid p-6">
+          {bindingSuccess ? (
+            <div className="text-center space-y-4">
+              <div className="w-12 h-12 mx-auto bg-green-500/20 rounded-xl flex items-center justify-center">
+                <Mail className="w-6 h-6 text-green-400" />
+              </div>
+              <div>
+                <p className="text-green-400 font-medium">{t('verificationSent')}</p>
+                <p className="text-zinc-400 text-sm mt-2">
+                  {t('checkInbox', { email: bindingEmail })}
+                </p>
+              </div>
+              <p className="text-zinc-500 text-xs">
+                {t('afterVerification')}
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleBindEmail} className="space-y-4">
+              {bindingError && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                  {bindingError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                  {t('yourEmail')}
+                </label>
+                <Input
+                  type="email"
+                  placeholder="you@example.com"
+                  value={bindingEmail}
+                  onChange={(e) => setBindingEmail(e.target.value)}
+                  leftIcon={<Mail className="w-4 h-4" />}
+                  required
+                />
+              </div>
+
+              <Button 
+                type="submit" 
+                className="w-full" 
+                isLoading={isBindingLoading}
+                disabled={!bindingEmail || isBindingLoading}
+              >
+                {t('sendVerification')}
+              </Button>
+            </form>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="glass-card-solid p-4">
+          <h3 className="text-sm font-medium text-zinc-300 mb-2">{t('whyEmailRequired')}</h3>
+          <ul className="text-xs text-zinc-500 space-y-1.5">
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-3.5 h-3.5 text-purple-400 mt-0.5 shrink-0" />
+              <span>{t('reason1')}</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-3.5 h-3.5 text-purple-400 mt-0.5 shrink-0" />
+              <span>{t('reason2')}</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-3.5 h-3.5 text-purple-400 mt-0.5 shrink-0" />
+              <span>{t('reason3')}</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Other features still available */}
+        <div className="text-center">
+          <p className="text-zinc-500 text-xs mb-2">{t('otherFeatures')}</p>
+          <div className="flex justify-center gap-3">
+            <Link href="/dashboard" className="text-purple-400 text-xs hover:text-purple-300">
+              Dashboard
+            </Link>
+            <Link href="/earnings" className="text-purple-400 text-xs hover:text-purple-300">
+              Earnings
+            </Link>
+            <Link href="/community" className="text-purple-400 text-xs hover:text-purple-300">
+              Community
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (isLoading) {
     return (

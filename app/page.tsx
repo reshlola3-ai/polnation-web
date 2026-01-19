@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
@@ -201,12 +202,16 @@ export default async function HomePage() {
       <footer className="relative z-10 border-t border-purple-500/20 bg-[#0D0B21]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center glow-purple-sm">
-                <span className="text-white font-bold text-lg">P</span>
-              </div>
+            <Link href="/" className="flex items-center gap-3 group">
+              <Image
+                src="/logo.svg"
+                alt="Polnation"
+                width={36}
+                height={36}
+                className="rounded-xl glow-purple-sm"
+              />
               <span className="font-display text-xl text-white">Polnation</span>
-            </div>
+            </Link>
             <div className="flex items-center gap-6">
               <Link href="/privacy" className="text-sm text-zinc-500 hover:text-purple-400 transition-colors">
                 {tFooter('privacy')}

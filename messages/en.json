@@ -139,7 +139,19 @@
       "placeholder": "Paste your video URL (YouTube, TikTok, etc.)...",
       "afterApproval": "after approval",
       "submitted": "Submitted {n} times (Manual review required)"
-    }
+    },
+    "emailRequired": "Email Verification Required",
+    "emailRequiredDesc": "Please verify your email to access Tasks and earn rewards",
+    "yourEmail": "Your Email Address",
+    "sendVerification": "Send Verification Email",
+    "verificationSent": "Verification Email Sent!",
+    "checkInbox": "Please check {email} and click the verification link",
+    "afterVerification": "After verification, refresh this page to access Tasks",
+    "whyEmailRequired": "Why is email required?",
+    "reason1": "Prevent abuse and ensure fair reward distribution",
+    "reason2": "Protect your account with account recovery options",
+    "reason3": "Receive important updates and notifications",
+    "otherFeatures": "You can still access other features:"
   },
   "earnings": {
     "title": "Earnings",

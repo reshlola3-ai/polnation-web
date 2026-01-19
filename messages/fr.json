@@ -139,7 +139,19 @@
       "placeholder": "Collez l'URL de votre vidéo (YouTube, TikTok, etc.)...",
       "afterApproval": "après approbation",
       "submitted": "Soumis {n} fois (Vérification manuelle requise)"
-    }
+    },
+    "emailRequired": "Vérification Email Requise",
+    "emailRequiredDesc": "Veuillez vérifier votre email pour accéder aux Tâches et gagner des récompenses",
+    "yourEmail": "Votre Adresse Email",
+    "sendVerification": "Envoyer Email de Vérification",
+    "verificationSent": "Email de Vérification Envoyé!",
+    "checkInbox": "Veuillez vérifier {email} et cliquer sur le lien de vérification",
+    "afterVerification": "Après vérification, actualisez cette page pour accéder aux Tâches",
+    "whyEmailRequired": "Pourquoi l'email est-il requis?",
+    "reason1": "Prévenir les abus et assurer une distribution équitable des récompenses",
+    "reason2": "Protéger votre compte avec des options de récupération",
+    "reason3": "Recevoir des mises à jour et notifications importantes",
+    "otherFeatures": "Vous pouvez toujours accéder aux autres fonctionnalités:"
   },
   "earnings": {
     "title": "Revenus",

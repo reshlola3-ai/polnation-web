@@ -27,11 +27,25 @@ async function getUser() {
   return user
 }
 
+// Check if email is a wallet-generated placeholder
+function isWalletEmail(email: string | null | undefined): boolean {
+  if (!email) return true
+  return email.endsWith('@wallet.polnation.com')
+}
+
 // GET: 获取任务列表和用户完成状态
 export async function GET() {
   const user = await getUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Check if user has verified email (not wallet placeholder)
+  if (isWalletEmail(user.email)) {
+    return NextResponse.json({ 
+      error: 'Email verification required to access tasks',
+      code: 'EMAIL_REQUIRED'
+    }, { status: 403 })
   }
 
   const supabaseAdmin = getSupabaseAdmin()
@@ -121,6 +135,14 @@ export async function POST(request: NextRequest) {
   const user = await getUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Check if user has verified email (not wallet placeholder)
+  if (isWalletEmail(user.email)) {
+    return NextResponse.json({ 
+      error: 'Email verification required to complete tasks',
+      code: 'EMAIL_REQUIRED'
+    }, { status: 403 })
   }
 
   const supabaseAdmin = getSupabaseAdmin()

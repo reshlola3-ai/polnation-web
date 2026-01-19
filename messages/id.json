@@ -139,7 +139,19 @@
       "placeholder": "Tempel URL video Anda (YouTube, TikTok, dll.)...",
       "afterApproval": "setelah disetujui",
       "submitted": "Dikirim {n} kali (Perlu review manual)"
-    }
+    },
+    "emailRequired": "Verifikasi Email Diperlukan",
+    "emailRequiredDesc": "Silakan verifikasi email Anda untuk mengakses Tugas dan mendapatkan hadiah",
+    "yourEmail": "Alamat Email Anda",
+    "sendVerification": "Kirim Email Verifikasi",
+    "verificationSent": "Email Verifikasi Terkirim!",
+    "checkInbox": "Silakan periksa {email} dan klik link verifikasi",
+    "afterVerification": "Setelah verifikasi, refresh halaman ini untuk mengakses Tugas",
+    "whyEmailRequired": "Mengapa email diperlukan?",
+    "reason1": "Mencegah penyalahgunaan dan memastikan distribusi hadiah yang adil",
+    "reason2": "Melindungi akun Anda dengan opsi pemulihan",
+    "reason3": "Menerima pembaruan dan notifikasi penting",
+    "otherFeatures": "Anda masih dapat mengakses fitur lain:"
   },
   "earnings": {
     "title": "Penghasilan",
