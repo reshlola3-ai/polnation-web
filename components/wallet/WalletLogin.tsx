@@ -60,6 +60,17 @@ export function isDAppBrowser(): boolean {
   return isWebView
 }
 
+// Detect if user is on mobile but NOT in DApp browser
+export function isMobileNonDApp(): boolean {
+  if (typeof window === 'undefined') return false
+  
+  const ua = navigator.userAgent.toLowerCase()
+  const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(ua)
+  
+  // If mobile but not in DApp browser
+  return isMobile && !isDAppBrowser()
+}
+
 export function WalletLogin({ redirect = '/dashboard', autoRegister = true }: WalletLoginProps) {
   const router = useRouter()
   const { open } = useWeb3Modal()
@@ -71,6 +82,15 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true }: Wa
   const [error, setError] = useState<string>('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [isNewUser, setIsNewUser] = useState(false)
+  const [showMobileHint, setShowMobileHint] = useState(false)
+  const [isMobileNonDAppBrowser, setIsMobileNonDAppBrowser] = useState(false)
+
+  // Check if user is on mobile but not in DApp browser
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsMobileNonDAppBrowser(isMobileNonDApp())
+    }
+  }, [])
 
   // When wallet connects, attempt login
   useEffect(() => {
@@ -257,6 +277,41 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true }: Wa
     )
   }
 
+  // Mobile hint for users not in DApp browser
+  if (isMobileNonDAppBrowser && showMobileHint) {
+    return (
+      <div className="space-y-3">
+        <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
+          <div className="flex items-start gap-3">
+            <Wallet className="w-6 h-6 text-purple-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-purple-300 text-sm font-medium mb-2">
+                Open in Wallet App
+              </p>
+              <p className="text-zinc-400 text-xs mb-3">
+                For the best experience, open this page in your wallet's built-in browser:
+              </p>
+              <ol className="text-zinc-400 text-xs space-y-1.5 list-decimal list-inside">
+                <li>Open <span className="text-purple-300">Trust Wallet</span> or <span className="text-purple-300">SafePal</span></li>
+                <li>Go to the <span className="text-purple-300">Browser/DApp</span> tab</li>
+                <li>Enter: <code className="bg-white/10 px-1.5 py-0.5 rounded text-purple-300">polnation.com</code></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowMobileHint(false)}
+          className="w-full"
+        >
+          Try connecting anyway
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-3">
       {error && (
@@ -270,7 +325,13 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true }: Wa
         type="button"
         variant="outline"
         className="w-full gap-2 py-3 border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500/50"
-        onClick={handleConnect}
+        onClick={() => {
+          if (isMobileNonDAppBrowser) {
+            setShowMobileHint(true)
+          } else {
+            handleConnect()
+          }
+        }}
         disabled={status === 'connecting'}
       >
         {status === 'connecting' ? (
@@ -282,7 +343,10 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true }: Wa
       </Button>
 
       <p className="text-center text-xs text-zinc-500">
-        For DApp browser users • Auto-creates account
+        {isMobileNonDAppBrowser 
+          ? 'Best experience in wallet DApp browser'
+          : 'For DApp browser users • Auto-creates account'
+        }
       </p>
     </div>
   )
