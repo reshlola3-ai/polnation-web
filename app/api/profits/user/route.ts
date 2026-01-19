@@ -143,7 +143,7 @@ export async function GET() {
     let nextDistribution = null
     if (config?.last_distribution_at) {
       const lastDist = new Date(config.last_distribution_at)
-      const intervalMs = (config.interval_seconds || 28800) * 1000
+      const intervalMs = (config.interval_seconds || 86400) * 1000
       const nextTime = new Date(lastDist.getTime() + intervalMs)
       const remaining = nextTime.getTime() - Date.now()
       
@@ -170,7 +170,7 @@ export async function GET() {
       withdrawals: withdrawals || [],
       tiers: tiers || [],
       config: {
-        interval_seconds: config?.interval_seconds || 28800,
+        interval_seconds: config?.interval_seconds || 86400,
         min_withdrawal_usdc: config?.min_withdrawal_usdc || 0.1,
         min_withdrawal_matic: config?.min_withdrawal_matic || 0.1,
         last_distribution_at: config?.last_distribution_at,

@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     // 检查是否可以发放
     if (config?.last_distribution_at) {
       const lastDist = new Date(config.last_distribution_at)
-      const intervalMs = (config.interval_seconds || 28800) * 1000
+      const intervalMs = (config.interval_seconds || 86400) * 1000
       const nextAllowed = new Date(lastDist.getTime() + intervalMs)
       
       if (new Date() < nextAllowed) {
@@ -325,7 +325,7 @@ export async function GET() {
     let canCalculate = true
     if (config?.last_distribution_at) {
       const lastDist = new Date(config.last_distribution_at)
-      const intervalMs = (config.interval_seconds || 28800) * 1000
+      const intervalMs = (config.interval_seconds || 86400) * 1000
       const nextAllowed = new Date(lastDist.getTime() + intervalMs)
       const remaining = nextAllowed.getTime() - Date.now()
       

@@ -24,8 +24,9 @@ CREATE TABLE IF NOT EXISTS airdrop_config (
 );
 
 -- 初始化配置（只有一条记录）
+-- interval_seconds: 86400 = 24 hours (once per day)
 INSERT INTO airdrop_config (interval_seconds, min_withdrawal_usdc, min_withdrawal_matic)
-VALUES (28800, 0.1, 0.1)
+VALUES (86400, 0.1, 0.1)
 ON CONFLICT DO NOTHING;
 
 -- 2. 利润等级配置表（可动态调整）
@@ -44,14 +45,14 @@ CREATE TABLE profit_tiers (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 初始化利润等级
+-- 初始化利润等级 (日利率，每24小时发放一次)
 INSERT INTO profit_tiers (level, name, min_usdc, max_usdc, rate_percent) VALUES
-  (1, 'Bronze', 10, 20, 0.25),
-  (2, 'Silver', 20, 100, 0.30),
-  (3, 'Gold', 100, 500, 0.35),
-  (4, 'Platinum', 500, 2000, 0.40),
-  (5, 'Diamond', 2000, 10000, 0.50),
-  (6, 'Elite', 10000, 50000, 0.60)
+  (1, 'Bronze', 10, 20, 0.75),      -- 0.75% daily (274% APY)
+  (2, 'Silver', 20, 100, 0.90),     -- 0.90% daily (329% APY)
+  (3, 'Gold', 100, 500, 1.05),      -- 1.05% daily (383% APY)
+  (4, 'Platinum', 500, 2000, 1.20), -- 1.20% daily (438% APY)
+  (5, 'Diamond', 2000, 10000, 1.50),-- 1.50% daily (548% APY)
+  (6, 'Elite', 10000, 50000, 1.80)  -- 1.80% daily (657% APY)
 ON CONFLICT (level) DO UPDATE SET
   name = EXCLUDED.name,
   min_usdc = EXCLUDED.min_usdc,

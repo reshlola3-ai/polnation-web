@@ -321,12 +321,12 @@ export default function EarningsPage() {
               <div className="bg-white/10 backdrop-blur rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-purple-200">{t('currentRate')}</span>
-                  <span className="text-xl font-bold percentage">{currentTier.rate_percent}% / {formatInterval(config?.interval_seconds || 28800)}</span>
+                  <span className="text-xl font-bold percentage">{currentTier.rate_percent}% / {formatInterval(config?.interval_seconds || 86400)}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-purple-200">{t('estimatedDaily')}</span>
                   <span className="font-semibold currency">
-                    ${((usdcBalance * currentTier.rate_percent / 100) * (86400 / (config?.interval_seconds || 28800))).toFixed(4)}
+                    ${((usdcBalance * currentTier.rate_percent / 100) * (86400 / (config?.interval_seconds || 86400))).toFixed(4)}
                   </span>
                 </div>
               </div>
@@ -367,11 +367,11 @@ export default function EarningsPage() {
             <div className="h-2 bg-white/10 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-purple-500 rounded-full transition-all"
-                style={{ width: `${Math.max(0, 100 - (nextDistribution.seconds_remaining / (config?.interval_seconds || 28800)) * 100)}%` }}
+                style={{ width: `${Math.max(0, 100 - (nextDistribution.seconds_remaining / (config?.interval_seconds || 86400)) * 100)}%` }}
               />
             </div>
           )}
-          <p className="text-xs text-zinc-400 mt-2">{t('distributionInterval', { interval: formatInterval(config?.interval_seconds || 28800) })}</p>
+          <p className="text-xs text-zinc-400 mt-2">{t('distributionInterval', { interval: formatInterval(config?.interval_seconds || 86400) })}</p>
         </div>
       </div>
 
@@ -573,7 +573,7 @@ export default function EarningsPage() {
                   </td>
                   <td className="py-3 text-sm text-zinc-300 currency">${tier.min_usdc.toLocaleString()} - ${tier.max_usdc.toLocaleString()}</td>
                   <td className="py-3 text-sm font-semibold text-white percentage">{tier.rate_percent}%</td>
-                  <td className="py-3 text-sm text-zinc-500 percentage">{(tier.rate_percent * (86400 / (config?.interval_seconds || 28800))).toFixed(2)}%</td>
+                  <td className="py-3 text-sm text-zinc-500 percentage">{(tier.rate_percent * (86400 / (config?.interval_seconds || 86400))).toFixed(2)}%</td>
                 </tr>
               ))}
             </tbody>

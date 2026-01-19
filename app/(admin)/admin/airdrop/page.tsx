@@ -674,7 +674,7 @@ export default function AirdropPage() {
                   <label className="text-zinc-400 text-xs">发放间隔</label>
                   {editingConfig ? (
                     <select
-                      value={tempConfig.interval_seconds || 28800}
+                      value={tempConfig.interval_seconds || 86400}
                       onChange={(e) => setTempConfig({ ...tempConfig, interval_seconds: parseInt(e.target.value) })}
                       className="w-full mt-1 px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-white text-sm"
                     >
@@ -687,7 +687,7 @@ export default function AirdropPage() {
                       <option value={172800}>48 小时</option>
                     </select>
                   ) : (
-                    <p className="text-white font-medium">{formatInterval(config?.interval_seconds || 28800)}</p>
+                    <p className="text-white font-medium">{formatInterval(config?.interval_seconds || 86400)}</p>
                   )}
                 </div>
 
