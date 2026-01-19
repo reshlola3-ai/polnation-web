@@ -12,55 +12,39 @@ export function AuroraCard({ children, className = '' }: AuroraCardProps) {
   const cardRef = useRef<HTMLDivElement>(null)
   const [isHovered, setIsHovered] = useState(false)
 
-  // Mouse position
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
+  // Mouse position for glare effect only
+  const mouseX = useMotionValue(0.5)
+  const mouseY = useMotionValue(0.5)
 
-  // Smooth spring animation - increased tilt for more noticeable effect
   const springConfig = { stiffness: 150, damping: 15 }
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [15, -15]), springConfig)
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-15, 15]), springConfig)
-
-  // Glare effect position
-  const glareX = useSpring(useTransform(mouseX, [-0.5, 0.5], [0, 100]), springConfig)
-  const glareY = useSpring(useTransform(mouseY, [-0.5, 0.5], [0, 100]), springConfig)
+  const glareX = useSpring(useTransform(mouseX, [0, 1], [0, 100]), springConfig)
+  const glareY = useSpring(useTransform(mouseY, [0, 1], [0, 100]), springConfig)
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return
 
     const rect = cardRef.current.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / rect.width - 0.5
-    const y = (e.clientY - rect.top) / rect.height - 0.5
+    const x = (e.clientX - rect.left) / rect.width
+    const y = (e.clientY - rect.top) / rect.height
 
     mouseX.set(x)
     mouseY.set(y)
-  }
-
-  const handleMouseLeave = () => {
-    setIsHovered(false)
-    mouseX.set(0)
-    mouseY.set(0)
   }
 
   return (
     <motion.div
       ref={cardRef}
       className={`relative overflow-hidden rounded-2xl ${className}`}
-      style={{
-        transformStyle: 'preserve-3d',
-        rotateX,
-        rotateY,
-      }}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Aurora Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Base gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800" />
         
-        {/* Aurora layers - more visible and faster */}
+        {/* Aurora layers */}
         <motion.div
           className="absolute inset-0 opacity-80"
           animate={{
@@ -100,11 +84,11 @@ export function AuroraCard({ children, className = '' }: AuroraCardProps) {
           transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
         />
 
-        {/* Shimmer effect */}
+        {/* Shimmer effect on mouse move */}
         <motion.div
-          className="absolute inset-0"
+          className="absolute inset-0 opacity-50"
           style={{
-            background: `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.15) 0%, transparent 50%)`,
+            background: `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.2) 0%, transparent 40%)`,
           }}
         />
       </div>
@@ -128,7 +112,7 @@ export function AuroraCard({ children, className = '' }: AuroraCardProps) {
       <div className="absolute inset-0 rounded-2xl border border-white/20" />
 
       {/* Content */}
-      <div className="relative z-10" style={{ transform: 'translateZ(20px)' }}>
+      <div className="relative z-10">
         {children}
       </div>
     </motion.div>
