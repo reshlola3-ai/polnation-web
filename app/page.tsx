@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
 import { FeaturesSection } from '@/components/home/FeaturesSection'
+import { ChainStats } from '@/components/home/ChainStats'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
@@ -244,29 +245,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
-        <div className="glass-card-solid p-8 md:p-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white stat-number">$1M+</p>
-              <p className="text-sm text-zinc-400 mt-2">{t('stats.totalVolume')}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white stat-number">5,000+</p>
-              <p className="text-sm text-zinc-400 mt-2">{t('stats.activeUsers')}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white percentage">12%</p>
-              <p className="text-sm text-zinc-400 mt-2">{t('stats.avgApy')}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white percentage">100%</p>
-              <p className="text-sm text-zinc-400 mt-2">{t('stats.nonCustodial')}</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Stats Section - Live Chain Data */}
+      <ChainStats />
 
       {/* Footer */}
       <footer className="relative border-t border-purple-500/20 bg-[#0D0B21]/80 backdrop-blur-xl">
