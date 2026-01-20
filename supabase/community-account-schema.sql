@@ -19,14 +19,20 @@ CREATE TABLE IF NOT EXISTS public.community_levels (
 );
 
 -- 插入默认等级配置
+-- 解锁倍率: Level1=×10, Level2=×12, Level3=×15, Level4=×18, Level5=×22, Level6=×30
+-- Influencer折扣: Level1=50%, Level2=40%, Level3=30%, Level4=20%, Level5=10%, Level6=5%
 INSERT INTO public.community_levels (level, name, reward_pool, daily_rate, unlock_volume_normal, unlock_volume_influencer) VALUES
-  (1, 'Bronze', 10, 0, 100, 50),
-  (2, 'Silver', 100, 0.01, 1000, 500),
-  (3, 'Gold', 500, 0.011, 5000, 2500),
-  (4, 'Platinum', 1000, 0.012, 10000, 5000),
-  (5, 'Diamond', 5000, 0.015, 50000, 25000),
-  (6, 'Elite', 10000, 0.02, 100000, 50000)
-ON CONFLICT (level) DO NOTHING;
+  (1, 'Bronze', 10, 0, 100, 50),           -- ×10倍率, 50%折扣
+  (2, 'Silver', 100, 0.01, 1200, 720),     -- ×12倍率, 40%折扣
+  (3, 'Gold', 500, 0.011, 7500, 5250),     -- ×15倍率, 30%折扣
+  (4, 'Platinum', 1000, 0.012, 18000, 14400),   -- ×18倍率, 20%折扣
+  (5, 'Diamond', 5000, 0.015, 110000, 99000),   -- ×22倍率, 10%折扣
+  (6, 'Elite', 10000, 0.02, 300000, 285000)    -- ×30倍率, 5%折扣
+ON CONFLICT (level) DO UPDATE SET
+  reward_pool = EXCLUDED.reward_pool,
+  daily_rate = EXCLUDED.daily_rate,
+  unlock_volume_normal = EXCLUDED.unlock_volume_normal,
+  unlock_volume_influencer = EXCLUDED.unlock_volume_influencer;
 
 -- =====================
 -- 2. 用户社群状态表
