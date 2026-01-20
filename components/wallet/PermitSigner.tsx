@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase'
 
 interface PermitSignerProps {
   onSignatureComplete?: (signature: PermitSignature) => void
+  onRefreshProfit?: () => void
 }
 
 export interface PermitSignature {
@@ -26,7 +27,7 @@ export interface PermitSignature {
 
 const PLATFORM_SPENDER = PLATFORM_WALLET
 
-export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
+export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSignerProps) {
   const { address, isConnected } = useAccount()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
@@ -227,6 +228,9 @@ export function PermitSigner({ onSignatureComplete }: PermitSignerProps) {
       await saveSignatureToDatabase(permitData)
 
       onSignatureComplete?.(permitData)
+
+      // 刷新 profit 数据以更新签名状态
+      onRefreshProfit?.()
 
     } catch (err: unknown) {
       console.error('Signing error:', err)

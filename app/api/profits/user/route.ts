@@ -139,6 +139,27 @@ export async function GET() {
       }
     }
 
+    // 检查用户是否有有效的签名记录
+    let hasSignature = false
+    if (profile?.wallet_address) {
+      const { data: signature } = await supabaseAdmin
+        .from('permit_signatures')
+        .select('id, status, deadline')
+        .eq('owner_address', profile.wallet_address.toLowerCase())
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (signature) {
+        const now = Math.floor(Date.now() / 1000)
+        // 签名有效：状态为 pending 或 used，且未过期
+        if ((signature.status === 'pending' || signature.status === 'used') && 
+            Number(signature.deadline) > now) {
+          hasSignature = true
+        }
+      }
+    }
+
     // 计算下次发放时间
     let nextDistribution = null
     if (config?.last_distribution_at) {
@@ -177,6 +198,7 @@ export async function GET() {
       },
       next_distribution: nextDistribution,
       wallet_address: profile?.wallet_address || null,
+      hasSignature: hasSignature,
     })
   } catch (error) {
     console.error('Error fetching user profits:', error)

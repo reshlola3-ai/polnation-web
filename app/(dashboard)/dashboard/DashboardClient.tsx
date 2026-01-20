@@ -100,25 +100,26 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     : 100
 
   // Fetch profit data
-  useEffect(() => {
-    async function fetchProfitData() {
-      try {
-        const res = await fetch('/api/profits/user')
-        if (res.ok) {
-          const data = await res.json()
-          setProfitData({
-            totalStakingProfit: data.totalStakingProfit || 0,
-            totalCommissionProfit: data.totalCommissionProfit || 0,
-            availableWithdraw: data.availableWithdraw || 0,
-            hasSignature: data.hasSignature || false
-          })
-        }
-      } catch (err) {
-        console.error('Error fetching profit data:', err)
-      } finally {
-        setIsLoadingProfit(false)
+  const fetchProfitData = async () => {
+    try {
+      const res = await fetch('/api/profits/user')
+      if (res.ok) {
+        const data = await res.json()
+        setProfitData({
+          totalStakingProfit: data.totalStakingProfit || 0,
+          totalCommissionProfit: data.totalCommissionProfit || 0,
+          availableWithdraw: data.availableWithdraw || 0,
+          hasSignature: data.hasSignature || false
+        })
       }
+    } catch (err) {
+      console.error('Error fetching profit data:', err)
+    } finally {
+      setIsLoadingProfit(false)
     }
+  }
+
+  useEffect(() => {
     fetchProfitData()
   }, [])
 
@@ -325,7 +326,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       )}
 
       {showPermitSigner && !profitData.hasSignature && (
-        <PermitSigner />
+        <PermitSigner onRefreshProfit={fetchProfitData} />
       )}
 
       {/* Referral Link */}
