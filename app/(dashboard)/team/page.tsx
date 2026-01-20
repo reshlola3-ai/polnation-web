@@ -374,12 +374,16 @@ export default function TeamPage() {
           {/* Main Content: Left Icon + Right Stats */}
           <div className="flex gap-5 mb-4">
             {/* Left: Large Level Icon */}
-            <div className="flex flex-col items-center justify-center">
+            <div 
+              className="flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95"
+              onClick={() => currentLevelInfo && setSelectedLevel(currentLevelInfo)}
+            >
               <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm">
                 {getLevelIcon(currentLevelInfo?.level || 1, 128)}
               </div>
               <p className="text-xs text-cyan-300/60 uppercase tracking-wider mt-3">{t('currentLevel')}</p>
               <p className="text-xl font-bold text-white">{currentLevelInfo?.name || 'Bronze'}</p>
+              <p className="text-xs text-zinc-500 mt-1">Tap to enlarge</p>
             </div>
             
             {/* Right: Stats Grid 2x2 */}
