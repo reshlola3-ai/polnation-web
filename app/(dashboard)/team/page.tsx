@@ -112,6 +112,7 @@ export default function TeamPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [showAllLevels, setShowAllLevels] = useState(false)
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 })
+  const [selectedLevel, setSelectedLevel] = useState<CommunityLevel | null>(null)
 
   // Fetch community status
   const fetchCommunityStatus = useCallback(async () => {
@@ -374,10 +375,10 @@ export default function TeamPage() {
           <div className="flex gap-5 mb-4">
             {/* Left: Large Level Icon */}
             <div className="flex flex-col items-center justify-center">
-              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm">
-                {getLevelIcon(currentLevelInfo?.level || 1, 96)}
+              <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm">
+                {getLevelIcon(currentLevelInfo?.level || 1, 128)}
               </div>
-              <p className="text-xs text-cyan-300/60 uppercase tracking-wider mt-2">{t('currentLevel')}</p>
+              <p className="text-xs text-cyan-300/60 uppercase tracking-wider mt-3">{t('currentLevel')}</p>
               <p className="text-xl font-bold text-white">{currentLevelInfo?.name || 'Bronze'}</p>
             </div>
             
@@ -446,7 +447,8 @@ export default function TeamPage() {
               return (
                 <div 
                   key={level.level} 
-                  className={`flex-shrink-0 w-32 p-3 rounded-xl border text-center snap-center transition-all ${
+                  onClick={() => setSelectedLevel(level)}
+                  className={`flex-shrink-0 w-32 p-3 rounded-xl border text-center snap-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                     isCurrent 
                       ? 'border-purple-500 bg-purple-500/20 ring-2 ring-purple-500/50' 
                       : isPassed 
@@ -486,7 +488,7 @@ export default function TeamPage() {
                   {canClaim && (
                     <Button 
                       size="sm" 
-                      onClick={() => handleClaim(level.level)} 
+                      onClick={(e) => { e.stopPropagation(); handleClaim(level.level); }} 
                       disabled={claiming === level.level} 
                       className="mt-2 w-full bg-green-500 text-white text-xs py-1"
                     >
@@ -498,6 +500,89 @@ export default function TeamPage() {
             })}
           </div>
           <p className="text-center text-zinc-500 text-xs mt-2">← Swipe to see all levels →</p>
+        </div>
+      )}
+
+      {/* Level Detail Modal */}
+      {selectedLevel && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          onClick={() => setSelectedLevel(null)}
+        >
+          <div 
+            className="bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-3xl p-6 max-w-sm w-full border border-white/10 shadow-2xl animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button 
+              onClick={() => setSelectedLevel(null)}
+              className="absolute top-4 right-4 w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/60 hover:text-white"
+            >
+              ✕
+            </button>
+
+            {/* Large Level Icon */}
+            <div className="w-40 h-40 mx-auto rounded-2xl flex items-center justify-center bg-white/10 mb-4">
+              {getLevelIcon(selectedLevel.level, 140)}
+            </div>
+            
+            {/* Level Name */}
+            <h3 className="text-2xl font-bold text-white text-center mb-1">{selectedLevel.name}</h3>
+            <p className="text-zinc-400 text-center text-sm mb-6">Level {selectedLevel.level}</p>
+            
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="bg-white/5 rounded-xl p-4 text-center">
+                <p className="text-zinc-400 text-xs mb-1">{t('rewardPool')}</p>
+                <p className="text-2xl font-bold text-white">${selectedLevel.reward_pool}</p>
+              </div>
+              <div className="bg-white/5 rounded-xl p-4 text-center">
+                <p className="text-zinc-400 text-xs mb-1">{t('dailyRate')}</p>
+                <p className="text-2xl font-bold text-cyan-400">{(selectedLevel.daily_rate * 100).toFixed(1)}%</p>
+              </div>
+            </div>
+            
+            {/* Unlock Requirements */}
+            <div className="bg-white/5 rounded-xl p-4 mb-4">
+              <p className="text-zinc-400 text-xs mb-2">{t('ruleUnlock')}</p>
+              <div className="flex justify-between items-center">
+                <span className="text-zinc-300 text-sm">Normal</span>
+                <span className="text-white font-medium">${selectedLevel.unlock_volume_normal}</span>
+              </div>
+              <div className="flex justify-between items-center mt-1">
+                <span className="text-zinc-300 text-sm">Influencer</span>
+                <span className="text-amber-400 font-medium">${selectedLevel.unlock_volume_influencer}</span>
+              </div>
+            </div>
+
+            {/* Status & Action */}
+            {(() => {
+              const isCurrent = status?.current_level === selectedLevel.level
+              const canClaim = claimableLevels.includes(selectedLevel.level)
+              const isClaimed = claimedLevels.includes(selectedLevel.level)
+              const isPassed = selectedLevel.level < (status?.current_level || 1)
+
+              if (canClaim) {
+                return (
+                  <Button 
+                    onClick={() => { handleClaim(selectedLevel.level); setSelectedLevel(null); }} 
+                    disabled={claiming === selectedLevel.level}
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3"
+                  >
+                    <Gift className="w-5 h-5 mr-2" />
+                    Claim ${selectedLevel.reward_pool}
+                  </Button>
+                )
+              }
+              if (isCurrent) {
+                return <p className="text-center text-purple-400 font-medium py-3">✨ This is your current level</p>
+              }
+              if (isPassed && isClaimed) {
+                return <p className="text-center text-green-400 font-medium py-3">✓ Reward claimed</p>
+              }
+              return <p className="text-center text-zinc-500 py-3">🔒 Reach the unlock threshold to claim</p>
+            })()}
+          </div>
         </div>
       )}
 
