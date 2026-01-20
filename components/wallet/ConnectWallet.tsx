@@ -10,19 +10,6 @@ import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
 import { createClient } from '@/lib/supabase'
 
-// 扩展 Window 类型以支持 window.ethereum
-interface Window {
-  ethereum?: {
-    isMetaMask?: boolean
-    isCoinbaseWallet?: boolean
-    isBitget?: boolean
-    isTrust?: boolean
-    isTrustWallet?: boolean
-    providers?: any[]
-    [key: string]: any
-  }
-}
-
 // 只允许 Bitget 和 Trust Wallet
 const ALLOWED_WALLETS = [
   'bitget', 'bitget wallet',
@@ -37,10 +24,11 @@ function isAllowedWallet(connectorName: string | undefined): boolean {
 
 // 检测当前注入的钱包类型
 function detectInjectedWallet(): 'bitget' | 'trust' | 'other' | 'none' {
-  if (!window.ethereum) return 'none'
+  const ethereum = (window as any).ethereum
+  if (!ethereum) return 'none'
   
   // 检查 providers 数组
-  const providers = window.ethereum.providers || [window.ethereum]
+  const providers = ethereum.providers || [ethereum]
   
   for (const provider of providers) {
     if (provider?.isBitget) return 'bitget'
@@ -52,7 +40,7 @@ function detectInjectedWallet(): 'bitget' | 'trust' | 'other' | 'none' {
 
 // 获取不支持钱包的名称
 function getWalletProviderName(): string | null {
-  const ethereum = window.ethereum
+  const ethereum = (window as any).ethereum
   if (!ethereum) return null
   
   if (ethereum.isMetaMask) return 'MetaMask'
