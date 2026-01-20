@@ -1,6 +1,12 @@
 'use client'
 
-import { LottieIcon } from '@/components/ui/LottieIcon'
+import dynamic from 'next/dynamic'
+
+// 动态导入 LottieIcon，禁用 SSR
+const LottieIcon = dynamic(
+  () => import('@/components/ui/LottieIcon').then(mod => mod.LottieIcon),
+  { ssr: false }
+)
 
 interface FeaturesSectionProps {
   translations: {
