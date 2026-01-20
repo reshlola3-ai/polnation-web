@@ -47,6 +47,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid level' }, { status: 400 })
     }
 
+    // 检查用户邮箱是否绑定
+    const userEmail = user.email || ''
+    if (userEmail.endsWith('@wallet.polnation.com')) {
+      return NextResponse.json({ 
+        error: 'Please bind your email first to claim rewards' 
+      }, { status: 400 })
+    }
+
     // 获取用户状态
     const { data: status } = await supabaseAdmin
       .from('user_community_status')
@@ -65,10 +73,13 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // 检查是否已升级到下一等级（只有升级后才能领取前一等级）
-    if (level >= status.real_level) {
+    // 获取当前等级（最低为1）
+    const currentLevel = Math.max(1, status.current_level || 1)
+
+    // 检查请求的 level 是否是当前等级
+    if (level !== currentLevel) {
       return NextResponse.json({ 
-        error: 'Must upgrade to next level before claiming this reward pool' 
+        error: 'Can only claim current level reward pool' 
       }, { status: 400 })
     }
 
@@ -95,6 +106,31 @@ export async function POST(request: NextRequest) {
 
     if (!levelInfo) {
       return NextResponse.json({ error: 'Level not found' }, { status: 404 })
+    }
+
+    // 计算有效解锁进度
+    const teamVolume = status.team_volume_l123 || 0
+    
+    // 获取任务奖励进度
+    const { data: taskProgress } = await supabaseAdmin
+      .from('user_task_progress')
+      .select('total_task_bonus')
+      .eq('user_id', user.id)
+      .single()
+    
+    const taskBonus = taskProgress?.total_task_bonus || 0
+    const effectiveVolume = teamVolume + taskBonus
+
+    // 获取当前等级的解锁门槛
+    const unlockVolume = status.is_influencer 
+      ? levelInfo.unlock_volume_influencer 
+      : levelInfo.unlock_volume_normal
+
+    // 检查是否达到解锁门槛
+    if (effectiveVolume < unlockVolume) {
+      return NextResponse.json({ 
+        error: `Need $${unlockVolume - effectiveVolume} more progress to claim this reward` 
+      }, { status: 400 })
     }
 
     const claimAmount = levelInfo.reward_pool
@@ -140,20 +176,34 @@ export async function POST(request: NextRequest) {
         })
     }
 
-    // 更新社群账户累计收益
+    // 领取后升级到下一等级
+    const nextLevel = level + 1
+    
+    // 更新社群账户：累计收益 + 升级到下一等级
     await supabaseAdmin
       .from('user_community_status')
       .update({
+        current_level: nextLevel,
+        real_level: nextLevel, // 真实等级也同步升级
         total_community_earned: (status.total_community_earned || 0) + claimAmount,
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', user.id)
 
+    // 获取下一等级信息（用于返回消息）
+    const { data: nextLevelInfo } = await supabaseAdmin
+      .from('community_levels')
+      .select('name')
+      .eq('level', nextLevel)
+      .single()
+
     return NextResponse.json({
       success: true,
       claimed_level: level,
       claimed_amount: claimAmount,
-      message: `Successfully claimed Level ${level} reward pool $${claimAmount}`,
+      new_level: nextLevel,
+      new_level_name: nextLevelInfo?.name || `Level ${nextLevel}`,
+      message: `🎉 Claimed $${claimAmount} from ${levelInfo.name}! Upgraded to ${nextLevelInfo?.name || `Level ${nextLevel}`}!`,
     })
   } catch (error) {
     console.error('Claim error:', error)

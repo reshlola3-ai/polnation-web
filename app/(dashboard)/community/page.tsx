@@ -36,6 +36,24 @@ interface CommunityStatus {
   total_community_earned: number
 }
 
+interface ApiResponse {
+  isLocked?: boolean
+  lockReason?: string
+  hasReachedThreshold?: boolean
+  status: CommunityStatus
+  levels: CommunityLevel[]
+  currentLevelInfo: CommunityLevel | null
+  nextLevelInfo: CommunityLevel | null
+  nextUnlockVolume: number
+  effectiveVolume: number
+  taskBonus: number
+  volumeToNextLevel: number
+  claimedLevels: number[]
+  claimableLevels: number[]
+  dailyEarnings: DailyEarning[]
+  dailyEarningAmount: number
+}
+
 interface DailyEarning {
   id: string
   earning_date: string
@@ -49,6 +67,8 @@ export default function CommunityPage() {
   const tCommon = useTranslations('common')
   const tErrors = useTranslations('errors')
   
+  const [isLocked, setIsLocked] = useState(false)
+  const [hasReachedThreshold, setHasReachedThreshold] = useState(false)
   const [status, setStatus] = useState<CommunityStatus | null>(null)
   const [levels, setLevels] = useState<CommunityLevel[]>([])
   const [currentLevelInfo, setCurrentLevelInfo] = useState<CommunityLevel | null>(null)
@@ -70,7 +90,9 @@ export default function CommunityPage() {
     try {
       const res = await fetch('/api/community/status')
       if (res.ok) {
-        const data = await res.json()
+        const data: ApiResponse = await res.json()
+        setIsLocked(data.isLocked || false)
+        setHasReachedThreshold(data.hasReachedThreshold || false)
         setStatus(data.status)
         setLevels(data.levels || [])
         setCurrentLevelInfo(data.currentLevelInfo)
@@ -157,6 +179,71 @@ export default function CommunityPage() {
   const progressPercent = nextUnlockVolume > 0 
     ? Math.min(100, (effectiveVolume / nextUnlockVolume) * 100)
     : 100
+
+  // 锁定状态：钱包用户未绑定邮箱
+  if (isLocked) {
+    return (
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
+            <p className="text-zinc-500">{t('subtitle')}</p>
+          </div>
+        </div>
+
+        {/* Locked State */}
+        <div className="relative overflow-hidden rounded-3xl">
+          {/* Dark locked background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-zinc-800/90 via-zinc-900/95 to-black" />
+          <div className="absolute inset-0 bg-[url('/pool-waves.svg')] bg-repeat-x bg-bottom opacity-10" />
+          
+          <div className="relative z-10 p-8 md:p-12 text-center">
+            <div className="w-20 h-20 bg-zinc-700/50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Lock className="w-10 h-10 text-zinc-400" />
+            </div>
+            
+            <h2 className="text-3xl md:text-4xl font-bold text-white/80 mb-4">
+              {t('accountLocked') || 'Community Account Locked'}
+            </h2>
+            
+            <p className="text-zinc-400 mb-8 max-w-md mx-auto">
+              {t('bindEmailToUnlock') || 'Bind your email to unlock your Community Account and start earning rewards.'}
+            </p>
+
+            <a 
+              href="/tasks" 
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-400 hover:to-blue-500 text-white font-semibold rounded-xl transition-all shadow-lg shadow-purple-500/30"
+            >
+              <Unlock className="w-5 h-5" />
+              {t('goBindEmail') || 'Go Bind Email'}
+            </a>
+
+            {/* Preview of what they can unlock */}
+            <div className="mt-12 pt-8 border-t border-white/10">
+              <p className="text-zinc-500 text-sm mb-4">{t('unlockPreview') || 'After binding email, you will start at:'}</p>
+              <div className="flex items-center justify-center gap-8">
+                <div className="text-center">
+                  <p className="text-zinc-500 text-xs uppercase tracking-wider">Level</p>
+                  <p className="text-2xl font-bold text-white">Bronze</p>
+                </div>
+                <div className="w-px h-10 bg-white/20" />
+                <div className="text-center">
+                  <p className="text-zinc-500 text-xs uppercase tracking-wider">{t('rewardPool')}</p>
+                  <p className="text-2xl font-bold text-amber-400">$10</p>
+                </div>
+                <div className="w-px h-10 bg-white/20" />
+                <div className="text-center">
+                  <p className="text-zinc-500 text-xs uppercase tracking-wider">{t('unlockCondition')}</p>
+                  <p className="text-2xl font-bold text-cyan-400">$100</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
@@ -311,15 +398,23 @@ export default function CommunityPage() {
           </div>
 
           {/* Progress Bar & Claim Button */}
-          {nextLevelInfo && (
+          {currentLevelInfo && (
             <div className="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/10">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-cyan-300/80 text-sm">{t('progressTo')} {nextLevelInfo.name}</span>
+                <span className="text-cyan-300/80 text-sm">
+                  {hasReachedThreshold 
+                    ? (t('readyToClaim') || `Ready to claim ${currentLevelInfo.name} reward!`)
+                    : (t('unlockProgress') || 'Unlock Progress')}
+                </span>
                 <span className="text-white font-medium text-sm currency">${effectiveVolume.toFixed(2)} / ${nextUnlockVolume.toFixed(2)}</span>
               </div>
               <div className="h-3 bg-white/10 rounded-full overflow-hidden mb-3">
                 <div 
-                  className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full transition-all duration-500 relative"
+                  className={`h-full rounded-full transition-all duration-500 relative ${
+                    hasReachedThreshold 
+                      ? 'bg-gradient-to-r from-green-400 to-emerald-500' 
+                      : 'bg-gradient-to-r from-cyan-400 to-blue-500'
+                  }`}
                   style={{ width: `${progressPercent}%` }}
                 >
                   <div className="absolute inset-0 bg-white/30 animate-pulse" />
@@ -327,24 +422,31 @@ export default function CommunityPage() {
               </div>
               
               <div className="flex items-center justify-between">
-                <span className="text-cyan-300/60 text-xs">
-                  {t('needMore', { amount: volumeToNextLevel.toFixed(2), level: nextLevelInfo.name })}
-                </span>
+                {hasReachedThreshold ? (
+                  <span className="text-green-400 text-xs flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3" />
+                    {t('thresholdReached') || 'Threshold reached! Claim your reward'}
+                  </span>
+                ) : (
+                  <span className="text-cyan-300/60 text-xs">
+                    {t('needMore', { amount: volumeToNextLevel.toFixed(2), level: currentLevelInfo.name })}
+                  </span>
+                )}
                 
-                {/* Claim Button - Show when threshold reached */}
+                {/* Claim Button - Show when threshold reached and not claimed */}
                 {claimableLevels.length > 0 && (
                   <Button 
                     size="sm" 
                     onClick={() => handleClaim(claimableLevels[0])}
                     disabled={claiming !== null}
-                    className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold shadow-lg shadow-cyan-500/30"
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white font-semibold shadow-lg shadow-green-500/30 animate-pulse"
                   >
                     {claiming !== null ? (
                       <RefreshCw className="w-4 h-4 animate-spin" />
                     ) : (
                       <>
                         <Gift className="w-4 h-4 mr-1" />
-                        {t('claimReward')} ${levels.find(l => l.level === claimableLevels[0])?.reward_pool || 0}
+                        {t('claimAndUpgrade') || 'Claim'} ${currentLevelInfo.reward_pool}
                       </>
                     )}
                   </Button>
@@ -353,7 +455,7 @@ export default function CommunityPage() {
             </div>
           )}
 
-          {!nextLevelInfo && status?.current_level === 6 && (
+          {status?.current_level && status.current_level > 6 && (
             <div className="bg-gradient-to-r from-amber-500/20 to-yellow-500/20 backdrop-blur rounded-xl p-4 text-center border border-amber-500/30">
               <Crown className="w-8 h-8 text-amber-400 mx-auto mb-2" />
               <p className="text-white font-medium">{t('maxLevel')}</p>
@@ -371,9 +473,11 @@ export default function CommunityPage() {
 
         <div className="space-y-3">
           {levels.map((level) => {
-            const isUnlocked = (status?.real_level || 0) >= level.level
+            // 新逻辑：当前等级是用户所在的等级，已领取的是已经通过的等级
             const isCurrent = status?.current_level === level.level
             const isClaimed = claimedLevels.includes(level.level)
+            const isPassed = level.level < (status?.current_level || 1) // 已经通过的等级
+            const isFuture = level.level > (status?.current_level || 1) // 未来等级
             const canClaim = claimableLevels.includes(level.level)
             const unlockVolume = status?.is_influencer ? level.unlock_volume_influencer : level.unlock_volume_normal
 
@@ -381,36 +485,47 @@ export default function CommunityPage() {
               <div 
                 key={level.level}
                 className={`relative rounded-xl p-4 border-2 transition-all ${
-                  isCurrent ? 'border-purple-500 bg-purple-500/10' : isUnlocked ? 'border-white/10 bg-white/5' : 'border-zinc-700 bg-zinc-800/50 opacity-60'
+                  isCurrent 
+                    ? 'border-purple-500 bg-purple-500/10' 
+                    : isPassed 
+                      ? 'border-green-500/30 bg-green-500/5' 
+                      : 'border-zinc-700 bg-zinc-800/50 opacity-60'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${getLevelColor(level.level)} text-white`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${getLevelColor(level.level)} text-white ${isPassed ? 'opacity-50' : ''}`}>
                       {getLevelIcon(level.level)}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white">Level {level.level} - {level.name}</span>
+                        <span className={`font-semibold ${isPassed ? 'text-zinc-400' : 'text-white'}`}>Level {level.level} - {level.name}</span>
                         {isCurrent && <span className="px-2 py-0.5 bg-purple-500 text-white text-xs rounded-full">{t('current')}</span>}
-                        {isClaimed && <span className="px-2 py-0.5 bg-white/20 text-zinc-300 text-xs rounded-full">{t('claimed')}</span>}
+                        {isPassed && isClaimed && <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded-full flex items-center gap-1"><CheckCircle className="w-3 h-3" />{t('claimed')}</span>}
+                        {canClaim && <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 text-xs rounded-full animate-pulse">{t('canClaim') || 'Can Claim!'}</span>}
                       </div>
                       <div className="flex items-center gap-4 text-sm text-zinc-500 mt-1">
-                        <span>{t('rewardPool')}: <span className="font-medium text-zinc-300 currency">${level.reward_pool}</span></span>
-                        <span>{t('dailyRate')}: <span className="font-medium text-zinc-300 percentage">{(level.daily_rate * 100).toFixed(1)}%</span></span>
-                        <span>{t('unlockCondition')}: <span className="font-medium text-zinc-300 currency">${unlockVolume}</span></span>
+                        <span>{t('rewardPool')}: <span className={`font-medium ${isPassed ? 'text-zinc-500' : 'text-zinc-300'} currency`}>${level.reward_pool}</span></span>
+                        <span>{t('dailyRate')}: <span className={`font-medium ${isPassed ? 'text-zinc-500' : 'text-zinc-300'} percentage`}>{(level.daily_rate * 100).toFixed(1)}%</span></span>
+                        <span>{t('unlockCondition')}: <span className={`font-medium ${isPassed ? 'text-zinc-500' : 'text-zinc-300'} currency`}>${unlockVolume}</span></span>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {isUnlocked ? <Unlock className="w-5 h-5 text-purple-400" /> : <Lock className="w-5 h-5 text-zinc-500" />}
+                    {isPassed ? (
+                      <CheckCircle className="w-5 h-5 text-green-400" />
+                    ) : isCurrent ? (
+                      <Star className="w-5 h-5 text-purple-400" />
+                    ) : (
+                      <Lock className="w-5 h-5 text-zinc-500" />
+                    )}
                     {canClaim && (
-                      <Button size="sm" onClick={() => handleClaim(level.level)} disabled={claiming === level.level}>
+                      <Button size="sm" onClick={() => handleClaim(level.level)} disabled={claiming === level.level} className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500">
                         {claiming === level.level ? <RefreshCw className="w-4 h-4 animate-spin" /> : (
                           <>
                             <Gift className="w-4 h-4 mr-1" />
-                            {t('claimReward')} ${level.reward_pool}
+                            {t('claimAndUpgrade') || 'Claim'} ${level.reward_pool}
                           </>
                         )}
                       </Button>
