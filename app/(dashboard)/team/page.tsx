@@ -113,6 +113,7 @@ export default function TeamPage() {
   const [showAllLevels, setShowAllLevels] = useState(false)
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 })
   const [selectedLevel, setSelectedLevel] = useState<CommunityLevel | null>(null)
+  const [showHelpTooltip, setShowHelpTooltip] = useState(false)
 
   // Fetch community status
   const fetchCommunityStatus = useCallback(async () => {
@@ -357,12 +358,21 @@ export default function TeamPage() {
             {status?.is_influencer && (
               <span className="px-3 py-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-black rounded-full text-xs font-bold">⭐ Influencer</span>
             )}
-            <div className="relative group">
-              <button className="w-7 h-7 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center">
+            <div className="relative">
+              <button 
+                onClick={() => setShowHelpTooltip(!showHelpTooltip)}
+                className="w-7 h-7 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors"
+              >
                 <span className="text-white/70 text-xs font-bold">?</span>
               </button>
-              <div className="absolute right-0 top-9 w-64 p-3 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                <h4 className="text-white font-semibold mb-2 text-sm">📖 {t('rulesTitle')}</h4>
+              <div className={`absolute right-0 top-9 w-64 p-3 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-50 transition-all duration-200 ${showHelpTooltip ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                <button 
+                  onClick={() => setShowHelpTooltip(false)}
+                  className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center text-zinc-400 hover:text-white text-xs"
+                >
+                  ✕
+                </button>
+                <h4 className="text-white font-semibold mb-2 text-sm pr-4">📖 {t('rulesTitle')}</h4>
                 <ul className="text-xs text-zinc-400 space-y-1">
                   <li>• <strong className="text-white">{t('rulePool')}</strong>: {t('rulePoolDesc')}</li>
                   <li>• <strong className="text-white">{t('ruleUnlock')}</strong>: {t('ruleUnlockDesc')}</li>
