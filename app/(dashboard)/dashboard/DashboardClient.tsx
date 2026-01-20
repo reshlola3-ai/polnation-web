@@ -63,6 +63,8 @@ interface ProfitData {
   totalCommissionProfit: number
   availableWithdraw: number
   hasSignature: boolean
+  communityPrizePool: number
+  currentLevelName: string
 }
 
 export function DashboardClient({ userId, profile, teamStats }: DashboardClientProps) {
@@ -72,7 +74,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     totalStakingProfit: 0,
     totalCommissionProfit: 0,
     availableWithdraw: 0,
-    hasSignature: false
+    hasSignature: false,
+    communityPrizePool: 10, // 默认 Level 1 奖池
+    currentLevelName: 'Bronze',
   })
   const [isLoadingProfit, setIsLoadingProfit] = useState(true)
 
@@ -105,12 +109,13 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       const res = await fetch('/api/profits/user')
       if (res.ok) {
         const data = await res.json()
-        setProfitData({
+        setProfitData(prev => ({
+          ...prev,
           totalStakingProfit: data.totalStakingProfit || 0,
           totalCommissionProfit: data.totalCommissionProfit || 0,
           availableWithdraw: data.availableWithdraw || 0,
           hasSignature: data.hasSignature || false
-        })
+        }))
       }
     } catch (err) {
       console.error('Error fetching profit data:', err)
@@ -119,10 +124,30 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     }
   }
 
+  // Fetch community status for prize pool
+  const fetchCommunityStatus = async () => {
+    try {
+      const res = await fetch('/api/community/status')
+      if (res.ok) {
+        const data = await res.json()
+        setProfitData(prev => ({
+          ...prev,
+          communityPrizePool: data.currentLevelInfo?.reward_pool || 10,
+          currentLevelName: data.currentLevelInfo?.name || 'Bronze',
+        }))
+      }
+    } catch (err) {
+      console.error('Error fetching community status:', err)
+    }
+  }
+
   useEffect(() => {
     fetchProfitData()
+    fetchCommunityStatus()
   }, [])
 
+  // Calculate total assets = community prize pool + wallet usdc balance
+  const totalAssets = profitData.communityPrizePool + usdcBalance
   const referralLink = typeof window !== 'undefined' 
     ? `${window.location.origin}/register?ref=${userId}`
     : `https://polnation.com/register?ref=${userId}`
@@ -168,22 +193,33 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
   return (
     <div className="space-y-4">
-      {/* Hero - Balance & Earnings with Aurora + 3D Tilt */}
+      {/* Hero - Total Assets with Aurora + 3D Tilt */}
       <AuroraCard className="p-5 md:p-8">
-        {/* Balance Row */}
+        {/* Total Assets Row */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
           <div>
             <p className="text-purple-200 text-sm mb-1 flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
-              Your USDC Balance
+              Total Assets
             </p>
             {isBalanceLoading ? (
               <div className="animate-pulse h-10 w-40 bg-white/20 rounded-lg" />
             ) : (
               <p className="text-4xl md:text-5xl font-bold text-white stat-number">
-                ${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                ${totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             )}
+            {/* Asset breakdown */}
+            <div className="flex items-center gap-4 mt-2 text-xs">
+              <div className="flex items-center gap-1.5">
+                <span className="text-purple-300">🎁</span>
+                <span className="text-purple-200/70">Community: ${profitData.communityPrizePool.toFixed(2)}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-cyan-300">💵</span>
+                <span className="text-purple-200/70">Wallet: ${usdcBalance.toFixed(2)}</span>
+              </div>
+            </div>
           </div>
           <div className="text-left md:text-right">
             <p className="text-purple-200 text-sm mb-1 flex items-center gap-2 md:justify-end">
