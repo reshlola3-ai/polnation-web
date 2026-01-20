@@ -184,118 +184,181 @@ export default function CommunityPage() {
         </div>
       )}
 
-      {/* Current Level Card */}
-      <div className={`bg-gradient-to-br ${currentLevelInfo ? getLevelColor(currentLevelInfo.level) : 'from-zinc-600 to-zinc-700'} rounded-2xl p-6 text-white shadow-xl`}>
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
+      {/* Main Pool Card - Water Pool Effect */}
+      <div className="relative overflow-hidden rounded-3xl">
+        {/* Water Pool Background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-cyan-900/80 via-blue-900/90 to-indigo-950" />
+        <div className="absolute inset-0 bg-[url('/pool-waves.svg')] bg-repeat-x bg-bottom opacity-20 animate-pulse" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-cyan-500/20 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent" />
+        
+        {/* Floating bubbles effect */}
+        <div className="absolute bottom-10 left-[10%] w-3 h-3 bg-white/20 rounded-full animate-bounce" style={{ animationDuration: '3s' }} />
+        <div className="absolute bottom-20 left-[30%] w-2 h-2 bg-white/15 rounded-full animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }} />
+        <div className="absolute bottom-16 right-[20%] w-4 h-4 bg-white/10 rounded-full animate-bounce" style={{ animationDuration: '5s', animationDelay: '2s' }} />
+        
+        <div className="relative z-10 p-6 md:p-8">
+          {/* Header with Status Badges & Help */}
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex items-center gap-2 flex-wrap">
               {status?.is_influencer && (
-                <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium">⭐ {t('influencer')}</span>
+                <span className="px-3 py-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-black rounded-full text-xs font-bold shadow-lg shadow-amber-500/30">
+                  ⭐ {t('influencer')}
+                </span>
               )}
               {status?.is_admin_set && (
-                <span className="px-2 py-0.5 bg-amber-500/30 rounded-full text-xs font-medium">🎁 {t('specialLevel')}</span>
+                <span className="px-3 py-1 bg-purple-500/30 border border-purple-400/50 text-purple-200 rounded-full text-xs font-medium">
+                  🎁 {t('specialLevel')}
+                </span>
+              )}
+              {!status?.is_influencer && !status?.is_admin_set && (
+                <span className="px-3 py-1 bg-white/10 text-white/70 rounded-full text-xs font-medium">
+                  👤 {t('normalUser') || 'Normal User'}
+                </span>
               )}
             </div>
-            <p className="text-white/70 text-sm">{t('currentLevel')}</p>
-            <p className="text-4xl font-bold flex items-center gap-3">
+            
+            {/* Help Button */}
+            <div className="relative group">
+              <button className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+                <span className="text-white/70 text-sm font-bold">?</span>
+              </button>
+              {/* Tooltip */}
+              <div className="absolute right-0 top-10 w-72 p-4 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                <h4 className="text-white font-semibold mb-2">📖 {t('rulesTitle') || 'Community Account Rules'}</h4>
+                <ul className="text-xs text-zinc-400 space-y-2">
+                  <li>• <strong className="text-white">{t('rulePool') || 'Prize Pool'}</strong>: {t('rulePoolDesc') || 'Base amount for daily earnings'}</li>
+                  <li>• <strong className="text-white">{t('ruleDailyRate') || 'Daily Rate'}</strong>: {t('ruleDailyRateDesc') || 'Your earnings = Pool × Rate'}</li>
+                  <li>• <strong className="text-white">{t('ruleUnlock') || 'Unlock'}</strong>: {t('ruleUnlockDesc') || 'Reach volume threshold to unlock levels'}</li>
+                  <li>• <strong className="text-white">{t('ruleInfluencer') || 'Influencer'}</strong>: {t('ruleInfluencerDesc') || 'Lower unlock requirements'}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Stats Display */}
+          <div className="text-center mb-8">
+            <p className="text-cyan-300/80 text-sm uppercase tracking-wider mb-2">{t('currentLevel')}</p>
+            <h2 className="text-5xl md:text-6xl font-bold text-white mb-4 flex items-center justify-center gap-3">
               {currentLevelInfo ? (
                 <>
                   {getLevelIcon(currentLevelInfo.level)}
                   {currentLevelInfo.name}
                 </>
               ) : (
-                t('notUnlocked')
+                <span className="text-white/50">{t('notUnlocked')}</span>
               )}
-            </p>
+            </h2>
+            
+            {/* Prize Pool & Daily Rate */}
+            <div className="flex items-center justify-center gap-8 mt-6">
+              <div className="text-center">
+                <p className="text-cyan-300/60 text-xs uppercase tracking-wider">{t('rewardPool') || 'Prize Pool'}</p>
+                <p className="text-3xl md:text-4xl font-bold text-white currency">
+                  ${currentLevelInfo?.reward_pool || 0}
+                </p>
+              </div>
+              <div className="w-px h-12 bg-white/20" />
+              <div className="text-center">
+                <p className="text-cyan-300/60 text-xs uppercase tracking-wider">{t('dailyRate')}</p>
+                <p className="text-3xl md:text-4xl font-bold text-cyan-400 percentage">
+                  {currentLevelInfo ? `${(currentLevelInfo.daily_rate * 100).toFixed(1)}%` : '0%'}
+                </p>
+              </div>
+              <div className="w-px h-12 bg-white/20" />
+              <div className="text-center">
+                <p className="text-cyan-300/60 text-xs uppercase tracking-wider">{t('dailyEarnings')}</p>
+                <p className="text-3xl md:text-4xl font-bold text-green-400 currency">
+                  +${dailyEarningAmount.toFixed(2)}
+                </p>
+              </div>
+            </div>
           </div>
-          {currentLevelInfo && currentLevelInfo.daily_rate > 0 && (
-            <div className="text-right">
-              <p className="text-white/70 text-sm">{t('dailyEarnings')}</p>
-              <p className="text-3xl font-bold currency">${dailyEarningAmount.toFixed(2)}</p>
-              <p className="text-white/70 text-xs font-mono">
-                {currentLevelInfo.reward_pool} × {(currentLevelInfo.daily_rate * 100).toFixed(1)}%
-              </p>
+
+          {/* Stats Cards - Integrated */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/10">
+              <div className="flex items-center gap-2 mb-1">
+                <Zap className="w-4 h-4 text-cyan-400" />
+                <p className="text-xs text-cyan-300/70">{t('unlockProgress') || 'Unlock Progress'}</p>
+              </div>
+              <p className="text-xl font-bold text-white currency">${effectiveVolume.toFixed(2)}</p>
+            </div>
+
+            <div className="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/10">
+              <div className="flex items-center gap-2 mb-1">
+                <Users className="w-4 h-4 text-blue-400" />
+                <p className="text-xs text-cyan-300/70">{t('l123Volume')}</p>
+              </div>
+              <p className="text-xl font-bold text-white currency">${(status?.team_volume_l123 || 0).toFixed(2)}</p>
+            </div>
+
+            <div className="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/10">
+              <div className="flex items-center gap-2 mb-1">
+                <Gift className="w-4 h-4 text-purple-400" />
+                <p className="text-xs text-cyan-300/70">{t('taskBonusProgress')}</p>
+              </div>
+              <p className="text-xl font-bold text-white currency">${taskBonus.toFixed(2)}</p>
+            </div>
+
+            <div className="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/10">
+              <div className="flex items-center gap-2 mb-1">
+                <TrendingUp className="w-4 h-4 text-green-400" />
+                <p className="text-xs text-cyan-300/70">{t('totalCommunityEarned')}</p>
+              </div>
+              <p className="text-xl font-bold text-green-400 currency">${(status?.total_community_earned || 0).toFixed(2)}</p>
+            </div>
+          </div>
+
+          {/* Progress Bar & Claim Button */}
+          {nextLevelInfo && (
+            <div className="bg-white/5 backdrop-blur rounded-xl p-4 border border-white/10">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-cyan-300/80 text-sm">{t('progressTo')} {nextLevelInfo.name}</span>
+                <span className="text-white font-medium text-sm currency">${effectiveVolume.toFixed(2)} / ${nextUnlockVolume.toFixed(2)}</span>
+              </div>
+              <div className="h-3 bg-white/10 rounded-full overflow-hidden mb-3">
+                <div 
+                  className="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full transition-all duration-500 relative"
+                  style={{ width: `${progressPercent}%` }}
+                >
+                  <div className="absolute inset-0 bg-white/30 animate-pulse" />
+                </div>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-cyan-300/60 text-xs">
+                  {t('needMore', { amount: volumeToNextLevel.toFixed(2), level: nextLevelInfo.name })}
+                </span>
+                
+                {/* Claim Button - Show when threshold reached */}
+                {claimableLevels.length > 0 && (
+                  <Button 
+                    size="sm" 
+                    onClick={() => handleClaim(claimableLevels[0])}
+                    disabled={claiming !== null}
+                    className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold shadow-lg shadow-cyan-500/30"
+                  >
+                    {claiming !== null ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Gift className="w-4 h-4 mr-1" />
+                        {t('claimReward')} ${levels.find(l => l.level === claimableLevels[0])?.reward_pool || 0}
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
           )}
-        </div>
 
-        {/* Progress to Next Level */}
-        {nextLevelInfo && (
-          <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-white/80 text-sm">{t('unlockProgress')}</span>
-              <span className="text-white font-medium currency">${effectiveVolume.toFixed(2)} / ${nextUnlockVolume.toFixed(2)}</span>
+          {!nextLevelInfo && status?.current_level === 6 && (
+            <div className="bg-gradient-to-r from-amber-500/20 to-yellow-500/20 backdrop-blur rounded-xl p-4 text-center border border-amber-500/30">
+              <Crown className="w-8 h-8 text-amber-400 mx-auto mb-2" />
+              <p className="text-white font-medium">{t('maxLevel')}</p>
             </div>
-            <div className="h-3 bg-white/20 rounded-full overflow-hidden mb-2">
-              <div className="h-full bg-white rounded-full transition-all duration-500" style={{ width: `${progressPercent}%` }} />
-            </div>
-            <div className="flex flex-col gap-1 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-white/70">{t('teamVolume')}: <span className="currency">${(status?.team_volume_l123 || 0).toFixed(2)}</span></span>
-                <span className="text-white/70">{t('taskRewards')}: <span className="currency">${taskBonus.toFixed(2)}</span></span>
-              </div>
-              <div className="flex items-center justify-end">
-                <span className="text-white">{t('needMore', { amount: volumeToNextLevel.toFixed(2), level: nextLevelInfo.name })}</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!nextLevelInfo && status?.current_level === 6 && (
-          <div className="bg-white/10 backdrop-blur rounded-xl p-4 text-center">
-            <p className="text-white font-medium">{t('maxLevel')}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="glass-card-solid p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center">
-              <Zap className="w-6 h-6 text-indigo-400" />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-500">{t('effectiveProgress')}</p>
-              <p className="text-2xl font-bold text-indigo-400 currency">${effectiveVolume.toFixed(2)}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="glass-card-solid p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-              <Users className="w-6 h-6 text-blue-400" />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-500">{t('l123Volume')}</p>
-              <p className="text-2xl font-bold text-white currency">${(status?.team_volume_l123 || 0).toFixed(2)}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="glass-card-solid p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-              <Gift className="w-6 h-6 text-purple-400" />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-500">{t('taskBonusProgress')}</p>
-              <p className="text-2xl font-bold text-purple-400 currency">${taskBonus.toFixed(2)}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="glass-card-solid p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-green-400" />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-500">{t('totalCommunityEarned')}</p>
-              <p className="text-2xl font-bold text-green-400 currency">${(status?.total_community_earned || 0).toFixed(2)}</p>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
