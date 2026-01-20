@@ -524,5 +524,4 @@ export function ConnectWallet() {
       </div>
     )}
   </>
-}
-}
+)}
