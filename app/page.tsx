@@ -183,32 +183,64 @@ export default async function HomePage() {
       />
 
       {/* Partners Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="text-center mb-8">
+      <section className="relative z-10 py-16 overflow-hidden">
+        <div className="text-center mb-10">
           <p className="text-sm uppercase tracking-widest text-zinc-500">Supported By</p>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-          {[
-            { src: '/partners/trust wallet.png', alt: 'Trust Wallet', width: 120 },
-            { src: '/partners/Binance.png', alt: 'Binance', width: 110 },
-            { src: '/partners/bitget.png', alt: 'Bitget', width: 100 },
-            { src: '/partners/safepal.svg', alt: 'SafePal', width: 110 },
-            { src: '/partners/polygon lab.png', alt: 'Polygon Labs', width: 120 },
-            { src: '/partners/usdc.png', alt: 'USDC', width: 90 },
-          ].map((partner) => (
-            <div
-              key={partner.alt}
-              className="grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
-            >
-              <Image
-                src={partner.src}
-                alt={partner.alt}
-                width={partner.width}
-                height={40}
-                className="h-8 md:h-10 w-auto object-contain"
-              />
-            </div>
-          ))}
+        
+        {/* Marquee Container */}
+        <div className="relative group">
+          {/* Gradient masks for fade effect */}
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-[#0D0B21] to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-[#0D0B21] to-transparent z-10 pointer-events-none" />
+          
+          {/* Scrolling track - pauses on hover/touch */}
+          <div className="flex animate-marquee group-hover:[animation-play-state:paused] group-active:[animation-play-state:paused]">
+            {/* First set of logos */}
+            {[
+              { src: '/partners/trust wallet.png', alt: 'Trust Wallet' },
+              { src: '/partners/Binance.png', alt: 'Binance' },
+              { src: '/partners/bitget.png', alt: 'Bitget' },
+              { src: '/partners/safepal.svg', alt: 'SafePal' },
+              { src: '/partners/polygon lab.png', alt: 'Polygon Labs' },
+              { src: '/partners/usdc.png', alt: 'USDC' },
+            ].map((partner, i) => (
+              <div
+                key={`first-${i}`}
+                className="flex-shrink-0 mx-8 md:mx-12"
+              >
+                <Image
+                  src={partner.src}
+                  alt={partner.alt}
+                  width={140}
+                  height={56}
+                  className="h-12 md:h-14 w-auto object-contain brightness-0 invert opacity-80"
+                />
+              </div>
+            ))}
+            {/* Duplicate for seamless loop */}
+            {[
+              { src: '/partners/trust wallet.png', alt: 'Trust Wallet' },
+              { src: '/partners/Binance.png', alt: 'Binance' },
+              { src: '/partners/bitget.png', alt: 'Bitget' },
+              { src: '/partners/safepal.svg', alt: 'SafePal' },
+              { src: '/partners/polygon lab.png', alt: 'Polygon Labs' },
+              { src: '/partners/usdc.png', alt: 'USDC' },
+            ].map((partner, i) => (
+              <div
+                key={`second-${i}`}
+                className="flex-shrink-0 mx-8 md:mx-12"
+              >
+                <Image
+                  src={partner.src}
+                  alt={partner.alt}
+                  width={140}
+                  height={56}
+                  className="h-12 md:h-14 w-auto object-contain brightness-0 invert opacity-80"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
