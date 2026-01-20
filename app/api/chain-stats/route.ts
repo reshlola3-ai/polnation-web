@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 const ADDRESSES = {
   usdc: '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359',
   wpol: '0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270',
-  pool: '0x6669b4706cc152f359e947bca68e263a87c52634', // 主要展示这个地址
+  pool: '0x604229c960e5CACF2aaEAc8Be68Ac07BA9dF81c3', // 主要展示这个地址
   distributor: '0x3ef3d8ba38ebe18db153cec108f4d14ce00dd9ae',
 }
 
