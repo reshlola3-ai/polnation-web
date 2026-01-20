@@ -10,6 +10,19 @@ import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
 import { createClient } from '@/lib/supabase'
 
+// 扩展 Window 类型以支持 window.ethereum
+interface Window {
+  ethereum?: {
+    isMetaMask?: boolean
+    isCoinbaseWallet?: boolean
+    isBitget?: boolean
+    isTrust?: boolean
+    isTrustWallet?: boolean
+    providers?: any[]
+    [key: string]: any
+  }
+}
+
 // 只允许 Bitget 和 Trust Wallet
 const ALLOWED_WALLETS = [
   'bitget', 'bitget wallet',
