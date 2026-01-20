@@ -214,7 +214,7 @@ export default async function HomePage() {
                   alt={partner.alt}
                   width={140}
                   height={56}
-                  className="h-12 md:h-14 w-auto object-contain brightness-0 invert opacity-80"
+                  className="h-12 md:h-14 w-auto object-contain"
                 />
               </div>
             ))}
@@ -236,7 +236,7 @@ export default async function HomePage() {
                   alt={partner.alt}
                   width={140}
                   height={56}
-                  className="h-12 md:h-14 w-auto object-contain brightness-0 invert opacity-80"
+                  className="h-12 md:h-14 w-auto object-contain"
                 />
               </div>
             ))}
