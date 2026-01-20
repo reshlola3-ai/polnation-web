@@ -18,6 +18,22 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
   },
   
+  // 重定向旧路由到新的Team页面
+  async redirects() {
+    return [
+      {
+        source: '/community',
+        destination: '/team',
+        permanent: true,
+      },
+      {
+        source: '/referral',
+        destination: '/team',
+        permanent: true,
+      },
+    ];
+  },
+
   // 自定义响应头
   async headers() {
     return [
