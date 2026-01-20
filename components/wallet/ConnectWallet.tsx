@@ -10,19 +10,48 @@ import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
 import { createClient } from '@/lib/supabase'
 
-// 允许的钱包列表
+// 只允许 Bitget 和 Trust Wallet
 const ALLOWED_WALLETS = [
-  'trust wallet', 'trust', 'trustwallet',
-  'safepal', 'safe pal',
   'bitget', 'bitget wallet',
-  'tokenpocket', 'token pocket', 'tp wallet',
-  'walletconnect' // WalletConnect 协议（用于移动端连接）
+  'trust', 'trust wallet', 'trustwallet',
 ]
 
 function isAllowedWallet(connectorName: string | undefined): boolean {
   if (!connectorName) return false
   const name = connectorName.toLowerCase()
   return ALLOWED_WALLETS.some(allowed => name.includes(allowed))
+}
+
+// 检测当前注入的钱包类型
+function detectInjectedWallet(): 'bitget' | 'trust' | 'other' | 'none' {
+  if (!window.ethereum) return 'none'
+  
+  // 检查 providers 数组
+  const providers = window.ethereum.providers || [window.ethereum]
+  
+  for (const provider of providers) {
+    if (provider?.isBitget) return 'bitget'
+    if (provider?.isTrust || provider?.isTrustWallet) return 'trust'
+  }
+  
+  return 'other'
+}
+
+// 获取不支持钱包的名称
+function getWalletProviderName(): string | null {
+  const ethereum = window.ethereum
+  if (!ethereum) return null
+  
+  if (ethereum.isMetaMask) return 'MetaMask'
+  if (ethereum.isCoinbaseWallet) return 'Coinbase Wallet'
+  if (ethereum.isBraveWallet) return 'Brave Wallet'
+  if (ethereum.isRabby) return 'Rabby'
+  if (ethereum.isPhantom) return 'Phantom'
+  if (ethereum.isOkxWallet || ethereum.isOKXWallet) return 'OKX Wallet'
+  if (ethereum.isOneInch) return '1inch Wallet'
+  if (ethereum.isTokenary) return 'Tokenary'
+  
+  return 'Unknown Wallet'
 }
 
 interface BoundWalletInfo {
@@ -38,26 +67,44 @@ export function ConnectWallet() {
   const [boundUser, setBoundUser] = useState<string | null>(null)
   const [yourBoundWallet, setYourBoundWallet] = useState<string | null>(null)
   const [unsupportedWalletName, setUnsupportedWalletName] = useState<string | null>(null)
+  const [showUnsupportedModal, setShowUnsupportedModal] = useState(false)
   
   const [boundWalletInfo, setBoundWalletInfo] = useState<BoundWalletInfo | null>(null)
   const [isLoadingBoundWallet, setIsLoadingBoundWallet] = useState(true)
 
   const displayAddress = boundWalletInfo?.address || address
 
-  // 检测不支持的钱包并自动断开
+  // 打开钱包选择器前检测
+  const handleOpenWallet = async () => {
+    // 检测当前注入的钱包
+    const detectedWallet = detectInjectedWallet()
+    
+    if (detectedWallet === 'none') {
+      // 没有检测到钱包，弹出选择器（用户可能需要先安装）
+      open()
+    } else if (detectedWallet === 'other') {
+      // 检测到不支持的钱包，阻止连接
+      const walletName = getWalletProviderName()
+      setUnsupportedWalletName(walletName)
+      setShowUnsupportedModal(true)
+    } else {
+      // 检测到支持的钱包，正常打开
+      open()
+    }
+  }
+
+  // 如果已经连接但钱包不被允许，自动断开（防止通过 WalletConnect 连接）
   useEffect(() => {
     if (isConnected && connector) {
       const connectorName = connector.name
       if (!isAllowedWallet(connectorName)) {
         console.log(`Unsupported wallet detected: ${connectorName}. Disconnecting...`)
         setUnsupportedWalletName(connectorName)
-        setWalletStatus('unsupported_wallet')
-        // 延迟断开，让用户看到提示
+        setShowUnsupportedModal(true)
+        // 延迟断开
         setTimeout(() => {
           disconnect()
-        }, 3000)
-      } else {
-        setUnsupportedWalletName(null)
+        }, 100)
       }
     }
   }, [isConnected, connector, disconnect])
@@ -287,10 +334,8 @@ export function ConnectWallet() {
         <div className="p-2.5 md:p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
           <p className="text-[10px] md:text-xs text-purple-300 font-medium mb-1.5 md:mb-2">Supported Wallets:</p>
           <div className="flex flex-wrap gap-1.5 md:gap-2">
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Trust</span>
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">SafePal</span>
             <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Bitget</span>
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">TokenPocket</span>
+            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Trust</span>
           </div>
         </div>
       </div>
@@ -309,14 +354,12 @@ export function ConnectWallet() {
         <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
           <p className="text-[10px] md:text-xs text-purple-300 font-medium mb-1.5 md:mb-2">Supported Wallets:</p>
           <div className="flex flex-wrap gap-1.5">
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">Trust</span>
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">SafePal</span>
             <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">Bitget</span>
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">TokenPocket</span>
+            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">Trust</span>
           </div>
         </div>
         
-        <Button onClick={() => open()} className="gap-2 w-full text-sm md:text-base py-2.5 md:py-3">
+        <Button onClick={handleOpenWallet} className="gap-2 w-full text-sm md:text-base py-2.5 md:py-3">
           <Wallet className="w-4 h-4" />
           Connect Wallet
         </Button>
@@ -429,5 +472,58 @@ export function ConnectWallet() {
         )}
       </div>
     </div>
+
+    {/* 不支持钱包弹窗 */}
+    {showUnsupportedModal && (
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-md w-full">
+          <h2 className="text-xl font-bold text-white mb-2">Wallet Not Supported</h2>
+          <p className="text-zinc-400 mb-6">
+            {unsupportedWalletName} is not supported. Please use one of the supported wallets below:
+          </p>
+          
+          {/* Bitget Wallet */}
+          <a 
+            href="https://web3.bitget.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-4 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-xl mb-3 transition-colors group"
+          >
+            <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+              B
+            </div>
+            <div className="flex-1">
+              <p className="text-white font-medium group-hover:text-blue-400">Bitget Wallet</p>
+              <p className="text-zinc-500 text-sm">Most popular choice</p>
+            </div>
+            <ExternalLink className="w-5 h-5 text-zinc-500" />
+          </a>
+          
+          {/* Trust Wallet */}
+          <a 
+            href="https://trustwallet.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-4 p-4 bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-colors group"
+          >
+            <div className="w-12 h-12 bg-cyan-500 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+              T
+            </div>
+            <div className="flex-1">
+              <p className="text-white font-medium group-hover:text-cyan-400">Trust Wallet</p>
+              <p className="text-zinc-500 text-sm">Simple and secure</p>
+            </div>
+            <ExternalLink className="w-5 h-5 text-zinc-500" />
+          </a>
+          
+          <button 
+            onClick={() => setShowUnsupportedModal(false)}
+            className="w-full mt-6 py-3 text-zinc-400 hover:text-white transition-colors border border-zinc-700 rounded-xl"
+          >
+            I don't have these wallets
+          </button>
+        </div>
+      </div>
+    )}
   )
 }
