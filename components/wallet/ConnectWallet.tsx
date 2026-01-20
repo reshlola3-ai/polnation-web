@@ -296,9 +296,9 @@ export function ConnectWallet() {
           {isBalanceLoading ? (
             <div className="animate-pulse h-7 md:h-8 bg-white/10 rounded w-24" />
           ) : (
-            <p className="text-xl md:text-2xl font-bold text-white currency">
-              ${Number(usdcBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+          <p className="text-xl md:text-2xl font-bold text-white currency">
+            ${Number(usdcBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
           )}
         </div>
       </div>
@@ -467,7 +467,7 @@ export function ConnectWallet() {
           <div className="animate-pulse h-7 md:h-8 bg-white/10 rounded w-24" />
         ) : (
           <p className="text-xl md:text-2xl font-bold text-white currency">
-            ${Number(usdcBalance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            ${Number(usdcBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         )}
       </div>
