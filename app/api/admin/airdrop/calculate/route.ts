@@ -244,6 +244,67 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // ========== 计算社群每日收益预览 ==========
+    const today = new Date().toISOString().split('T')[0]
+    
+    // 获取所有有等级的用户
+    const { data: communityStatuses } = await supabase
+      .from('user_community_status')
+      .select(`
+        *,
+        profiles:user_id (username, email)
+      `)
+      .gt('current_level', 0)
+
+    // 获取等级配置
+    const { data: communityLevels } = await supabase
+      .from('community_levels')
+      .select('*')
+      .order('level')
+
+    const communityLevelMap = new Map(communityLevels?.map(l => [l.level, l]) || [])
+
+    let communityEarningsTotal = 0
+    let communityEarningsUsers = 0
+    const communityEarningsDetails: Array<{
+      username: string
+      level: number
+      level_name: string
+      reward_pool: number
+      daily_rate: number
+      earning_amount: number
+    }> = []
+
+    if (communityStatuses && communityStatuses.length > 0) {
+      for (const status of communityStatuses) {
+        const levelInfo = communityLevelMap.get(status.current_level)
+        if (!levelInfo || levelInfo.daily_rate <= 0) continue
+
+        // 检查今天是否已经发放
+        const { data: existingEarning } = await supabase
+          .from('community_daily_earnings')
+          .select('id')
+          .eq('user_id', status.user_id)
+          .eq('earning_date', today)
+          .single()
+
+        if (existingEarning) continue
+
+        const earningAmount = levelInfo.reward_pool * levelInfo.daily_rate
+        communityEarningsTotal += earningAmount
+        communityEarningsUsers++
+
+        communityEarningsDetails.push({
+          username: status.profiles?.username || status.profiles?.email || 'Unknown',
+          level: status.current_level,
+          level_name: levelInfo.name,
+          reward_pool: levelInfo.reward_pool,
+          daily_rate: levelInfo.daily_rate,
+          earning_amount: earningAmount,
+        })
+      }
+    }
+
     return NextResponse.json({
       success: true,
       round_id: round.id,
@@ -266,6 +327,19 @@ export async function POST(request: NextRequest) {
         rate: `${c.rate_percent}%`,
         profit: c.profit_usdc.toFixed(6),
       })),
+      // 社群收益数据
+      community_earnings: {
+        total_amount: communityEarningsTotal.toFixed(6),
+        users_count: communityEarningsUsers,
+        details: communityEarningsDetails.map(d => ({
+          username: d.username,
+          level: d.level,
+          level_name: d.level_name,
+          reward_pool: d.reward_pool,
+          daily_rate: d.daily_rate,
+          earning_amount: d.earning_amount.toFixed(6),
+        })),
+      },
     })
   } catch (error) {
     console.error('Calculate error:', error)

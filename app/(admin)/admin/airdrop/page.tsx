@@ -25,7 +25,8 @@ import {
   Save,
   X,
   Crown,
-  ClipboardList
+  ClipboardList,
+  Gift
 } from 'lucide-react'
 
 interface Config {
@@ -113,6 +114,18 @@ export default function AirdropPage() {
       amount: string
     }>
     calculations: Calculation[]
+    community_earnings: {
+      total_amount: string
+      users_count: number
+      details: Array<{
+        username: string
+        level: number
+        level_name: string
+        reward_pool: number
+        daily_rate: number
+        earning_amount: string
+      }>
+    }
   } | null>(null)
 
   const fetchData = useCallback(async () => {
@@ -197,11 +210,15 @@ export default function AirdropPage() {
         estimated_commissions: data.estimated_commissions || '0',
         commission_details: data.commission_details || [],
         calculations: data.calculations,
+        community_earnings: data.community_earnings || { total_amount: '0', users_count: 0, details: [] },
       })
       const commissionMsg = parseFloat(data.estimated_commissions || '0') > 0 
         ? `，预计佣金: $${data.estimated_commissions}` 
         : ''
-      setSuccess(`计算完成！${data.total_users} 位用户，总利润: $${data.total_usdc}${commissionMsg}`)
+      const communityMsg = parseFloat(data.community_earnings?.total_amount || '0') > 0 
+        ? `，社群池收益: $${data.community_earnings.total_amount} (${data.community_earnings.users_count}人)` 
+        : ''
+      setSuccess(`计算完成！${data.total_users} 位用户，总利润: $${data.total_usdc}${commissionMsg}${communityMsg}`)
       fetchData()
     } catch {
       setError('Network error')
@@ -233,7 +250,10 @@ export default function AirdropPage() {
       const commissionMsg = parseFloat(data.total_commissions || '0') > 0 
         ? `，佣金: $${parseFloat(data.total_commissions).toFixed(6)} (${data.commission_count}笔)` 
         : ''
-      setSuccess(`发放成功！${data.distributed_count} 位用户，总计: $${data.total_distributed}${commissionMsg}`)
+      const communityMsg = data.community_distribution && parseFloat(data.community_distribution.distributed_amount || '0') > 0
+        ? `，社群池: $${parseFloat(data.community_distribution.distributed_amount).toFixed(4)} (${data.community_distribution.processed_count}人)` 
+        : ''
+      setSuccess(`发放成功！${data.distributed_count} 位用户，总计: $${data.total_distributed}${commissionMsg}${communityMsg}`)
       setPreviewResult(null)
       fetchData()
     } catch {
@@ -586,6 +606,63 @@ export default function AirdropPage() {
                   {(!previewResult.commission_details || previewResult.commission_details.length === 0) && (
                     <div className="text-zinc-500 text-sm text-center py-3 border-t border-zinc-700/50">
                       💡 暂无推荐佣金（可能用户没有上线关系或未配置佣金比例）
+                    </div>
+                  )}
+
+                  {/* 社群池收益预览 */}
+                  {previewResult.community_earnings && parseFloat(previewResult.community_earnings.total_amount || '0') > 0 && (
+                    <div className="border-t border-zinc-700/50 pt-4 mt-4">
+                      <h4 className="text-purple-400 text-sm font-medium mb-2 flex items-center gap-2">
+                        <Gift className="w-4 h-4" />
+                        社群池收益明细
+                      </h4>
+                      <div className="bg-purple-500/10 rounded-lg p-3 mb-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-zinc-400 text-xs">预计发放总额</span>
+                          <span className="text-xl font-bold text-purple-400">
+                            ${parseFloat(previewResult.community_earnings.total_amount).toFixed(4)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-zinc-500 text-xs">受益用户</span>
+                          <span className="text-zinc-300 text-sm">{previewResult.community_earnings.users_count} 人</span>
+                        </div>
+                      </div>
+                      <div className="max-h-40 overflow-y-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="text-zinc-400 text-xs">
+                              <th className="text-left py-2">用户</th>
+                              <th className="text-right py-2">等级</th>
+                              <th className="text-right py-2">奖池</th>
+                              <th className="text-right py-2">日利率</th>
+                              <th className="text-right py-2">收益</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {previewResult.community_earnings.details.map((comm, idx) => (
+                              <tr key={idx} className="border-t border-zinc-700/50">
+                                <td className="py-2 text-white">{comm.username}</td>
+                                <td className="text-right">
+                                  <span className="text-xs px-2 py-0.5 bg-purple-700/30 rounded text-purple-300">
+                                    L{comm.level} {comm.level_name}
+                                  </span>
+                                </td>
+                                <td className="text-right text-zinc-300">${comm.reward_pool}</td>
+                                <td className="text-right text-zinc-400">{(comm.daily_rate * 100).toFixed(1)}%</td>
+                                <td className="text-right text-purple-400 font-mono">+${comm.earning_amount}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 如果没有社群收益，显示提示 */}
+                  {(!previewResult.community_earnings || parseFloat(previewResult.community_earnings.total_amount || '0') <= 0) && (
+                    <div className="text-zinc-500 text-sm text-center py-3 border-t border-zinc-700/50">
+                      💡 暂无社群池收益（可能今日已发放或无符合条件的用户）
                     </div>
                   )}
                 </div>

@@ -240,12 +240,125 @@ export async function POST(request: NextRequest) {
       })
       .not('id', 'is', null)
 
+    // ========== 同时发放社群每日收益 ==========
+    let communityProcessedCount = 0
+    let communityDistributedAmount = 0
+
+    try {
+      const today = now.split('T')[0]
+
+      // 获取所有有等级的用户
+      const { data: communityStatuses } = await supabase
+        .from('user_community_status')
+        .select(`
+          *,
+          profiles:user_id (username, email)
+        `)
+        .gt('current_level', 0)
+
+      // 获取等级配置
+      const { data: communityLevels } = await supabase
+        .from('community_levels')
+        .select('*')
+        .order('level')
+
+      const communityLevelMap = new Map(communityLevels?.map(l => [l.level, l]) || [])
+
+      if (communityStatuses && communityStatuses.length > 0) {
+        for (const status of communityStatuses) {
+          const levelInfo = communityLevelMap.get(status.current_level)
+          if (!levelInfo || levelInfo.daily_rate <= 0) continue
+
+          // 检查今天是否已经发放
+          const { data: existingEarning } = await supabase
+            .from('community_daily_earnings')
+            .select('id')
+            .eq('user_id', status.user_id)
+            .eq('earning_date', today)
+            .single()
+
+          if (existingEarning) continue
+
+          const earningAmount = levelInfo.reward_pool * levelInfo.daily_rate
+
+          // 创建每日收益记录
+          await supabase
+            .from('community_daily_earnings')
+            .insert({
+              user_id: status.user_id,
+              earning_date: today,
+              level: status.current_level,
+              reward_pool: levelInfo.reward_pool,
+              daily_rate: levelInfo.daily_rate,
+              earning_amount: earningAmount,
+              is_credited: true,
+              credited_at: now,
+            })
+
+          // 更新用户利润账户
+          const { data: profits } = await supabase
+            .from('user_profits')
+            .select('*')
+            .eq('user_id', status.user_id)
+            .single()
+
+          if (profits) {
+            await supabase
+              .from('user_profits')
+              .update({
+                available_usdc: profits.available_usdc + earningAmount,
+                total_earned_usdc: profits.total_earned_usdc + earningAmount,
+                updated_at: now,
+              })
+              .eq('user_id', status.user_id)
+          } else {
+            await supabase
+              .from('user_profits')
+              .insert({
+                user_id: status.user_id,
+                available_usdc: earningAmount,
+                total_earned_usdc: earningAmount,
+                available_matic: 0,
+                withdrawn_usdc: 0,
+                withdrawn_matic: 0,
+              })
+          }
+
+          // 更新社群账户累计收益
+          const { data: communityStatus } = await supabase
+            .from('user_community_status')
+            .select('total_community_earned')
+            .eq('user_id', status.user_id)
+            .single()
+
+          await supabase
+            .from('user_community_status')
+            .update({
+              total_community_earned: (communityStatus?.total_community_earned || 0) + earningAmount,
+              last_daily_earning_date: today,
+              updated_at: now,
+            })
+            .eq('user_id', status.user_id)
+
+          communityProcessedCount++
+          communityDistributedAmount += earningAmount
+        }
+      }
+    } catch (communityErr) {
+      console.error('Error distributing community earnings:', communityErr)
+    }
+
     return NextResponse.json({
       success: true,
       distributed_count: distributedCount,
       total_distributed: totalDistributed.toFixed(6),
       commission_count: commissionCount,
       total_commissions: totalCommissions.toFixed(6),
+      // 社群发放结果
+      community_distribution: {
+        processed_count: communityProcessedCount,
+        distributed_amount: communityDistributedAmount.toFixed(6),
+      },
     })
   } catch (error) {
     console.error('Distribute error:', error)
