@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { 
   Users, 
-  Trophy, 
-  TrendingUp, 
   Gift, 
   Lock, 
   Unlock,
@@ -12,17 +10,14 @@ import {
   ChevronUp,
   RefreshCw,
   CheckCircle,
-  Star,
-  Zap,
-  Crown,
   Copy,
   Check,
   Filter,
   User,
   DollarSign,
-  Clock,
   Link2
 } from 'lucide-react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import { useTranslations } from 'next-intl'
@@ -268,28 +263,17 @@ export default function TeamPage() {
     }
   }
 
-  const getLevelIcon = (level: number) => {
-    switch (level) {
-      case 1: return <Star className="w-5 h-5" />
-      case 2: return <Star className="w-5 h-5" />
-      case 3: return <Trophy className="w-5 h-5" />
-      case 4: return <Crown className="w-5 h-5" />
-      case 5: return <Zap className="w-5 h-5" />
-      case 6: return <Crown className="w-5 h-5" />
-      default: return <Star className="w-5 h-5" />
-    }
-  }
-
-  const getLevelColor = (level: number) => {
-    switch (level) {
-      case 1: return 'from-amber-600 to-amber-700'
-      case 2: return 'from-slate-400 to-slate-500'
-      case 3: return 'from-yellow-500 to-amber-500'
-      case 4: return 'from-cyan-400 to-blue-500'
-      case 5: return 'from-purple-500 to-pink-500'
-      case 6: return 'from-rose-500 to-red-600'
-      default: return 'from-zinc-500 to-zinc-600'
-    }
+  const getLevelIcon = (level: number, size: number = 32) => {
+    const validLevel = Math.min(Math.max(level, 1), 6)
+    return (
+      <Image 
+        src={`/levels/level-${validLevel}.png`}
+        alt={`Level ${validLevel}`}
+        width={size}
+        height={size}
+        className="object-contain"
+      />
+    )
   }
 
   const getContact = (referral: Referral) => {
@@ -370,8 +354,8 @@ export default function TeamPage() {
           {/* Level & Status Row */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${currentLevelInfo ? getLevelColor(currentLevelInfo.level) : 'from-zinc-600 to-zinc-700'} text-white`}>
-                {currentLevelInfo ? getLevelIcon(currentLevelInfo.level) : <Star className="w-6 h-6" />}
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-white/10 backdrop-blur-sm">
+                {getLevelIcon(currentLevelInfo?.level || 1, 48)}
               </div>
               <div>
                 <p className="text-xs text-cyan-300/60 uppercase tracking-wider">{t('currentLevel')}</p>
@@ -466,8 +450,8 @@ export default function TeamPage() {
             return (
               <div key={level.level} className={`flex items-center justify-between p-3 rounded-lg border ${isCurrent ? 'border-purple-500 bg-purple-500/10' : isPassed ? 'border-green-500/30 bg-green-500/5' : 'border-zinc-700 bg-zinc-800/50 opacity-60'}`}>
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br ${getLevelColor(level.level)} text-white ${isPassed ? 'opacity-50' : ''}`}>
-                    {getLevelIcon(level.level)}
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center bg-white/5 ${isPassed ? 'opacity-50' : ''}`}>
+                    {getLevelIcon(level.level, 40)}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
