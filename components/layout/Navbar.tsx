@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { Menu, X, User as UserIcon, Users, LogOut, Wallet, TrendingUp, Crown, ClipboardList } from 'lucide-react'
+import { Menu, X, User as UserIcon, Users, LogOut, Wallet, TrendingUp, ClipboardList } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { type Locale } from '@/i18n/config'
@@ -34,9 +34,8 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
     { href: '/dashboard', label: t('dashboard'), icon: Wallet },
     { href: '/tasks', label: t('tasks'), icon: ClipboardList },
     { href: '/earnings', label: t('earnings'), icon: TrendingUp },
-    { href: '/community', label: t('community'), icon: Crown },
+    { href: '/team', label: t('team'), icon: Users },
     { href: '/profile', label: t('profile'), icon: UserIcon },
-    { href: '/referral', label: t('referral'), icon: Users },
   ]
 
   // Mobile header - simplified version
