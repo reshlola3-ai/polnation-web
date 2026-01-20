@@ -473,7 +473,6 @@ export function ConnectWallet() {
       </div>
     </div>
 
-    {/* Unsupported Wallet Modal */}
     {showUnsupportedModal && (
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
         <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-md w-full">
@@ -482,7 +481,6 @@ export function ConnectWallet() {
             {unsupportedWalletName} is not supported. Please use one of the supported wallets below:
           </p>
           
-          {/* Bitget Wallet */}
           <a 
             href="https://web3.bitget.com/"
             target="_blank"
@@ -499,7 +497,6 @@ export function ConnectWallet() {
             <ExternalLink className="w-5 h-5 text-zinc-500" />
           </a>
           
-          {/* Trust Wallet */}
           <a 
             href="https://trustwallet.com/"
             target="_blank"
