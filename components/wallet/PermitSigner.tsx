@@ -395,7 +395,6 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         </div>
       )}
 
-      {/* Protocol Info */}
       <div className="mb-4 p-4 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-xl border border-purple-500/20">
         <div className="flex items-center gap-2 mb-2">
           <Shield className="w-5 h-5 text-purple-400" />

@@ -371,7 +371,8 @@ export function ConnectWallet() {
   const isWrongNetwork = chain?.id !== polygon.id
 
   return (
-    <div className="glass-card-solid p-4 md:p-6">
+    <>
+      <div className="glass-card-solid p-4 md:p-6">
       <div className="flex items-center justify-between mb-3 md:mb-4">
         <h3 className="font-semibold text-white text-sm md:text-base">Wallet Connected</h3>
         {!boundWalletInfo && (
@@ -522,5 +523,6 @@ export function ConnectWallet() {
         </div>
       </div>
     )}
-  )
+  </>
+}
 }
