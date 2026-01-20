@@ -473,7 +473,7 @@ export function ConnectWallet() {
       </div>
     </div>
 
-    {/* 不支持钱包弹窗 */}
+    {/* Unsupported Wallet Modal */}
     {showUnsupportedModal && (
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
         <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-md w-full">
