@@ -351,61 +351,56 @@ export default function TeamPage() {
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-cyan-500/20 to-transparent" />
         
         <div className="relative z-10 p-5">
-          {/* Level & Status Row */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-white/10 backdrop-blur-sm">
-                {getLevelIcon(currentLevelInfo?.level || 1, 48)}
-              </div>
-              <div>
-                <p className="text-xs text-cyan-300/60 uppercase tracking-wider">{t('currentLevel')}</p>
-                <p className="text-xl font-bold text-white">{currentLevelInfo?.name || 'Bronze'}</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              {/* Badges */}
-              <div className="flex items-center gap-2">
-                {status?.is_influencer && (
-                  <span className="px-2 py-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-black rounded-full text-xs font-bold">⭐ Influencer</span>
-                )}
-              </div>
-              
-              {/* Help */}
-              <div className="relative group">
-                <button className="w-7 h-7 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="text-white/70 text-xs font-bold">?</span>
-                </button>
-                <div className="absolute right-0 top-9 w-64 p-3 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                  <h4 className="text-white font-semibold mb-2 text-sm">📖 {t('rulesTitle')}</h4>
-                  <ul className="text-xs text-zinc-400 space-y-1">
-                    <li>• <strong className="text-white">{t('rulePool')}</strong>: {t('rulePoolDesc')}</li>
-                    <li>• <strong className="text-white">{t('ruleUnlock')}</strong>: {t('ruleUnlockDesc')}</li>
-                  </ul>
-                </div>
+          {/* Top Right: Badges & Help */}
+          <div className="flex items-center justify-end gap-3 mb-4">
+            {status?.is_influencer && (
+              <span className="px-3 py-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-black rounded-full text-xs font-bold">⭐ Influencer</span>
+            )}
+            <div className="relative group">
+              <button className="w-7 h-7 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center">
+                <span className="text-white/70 text-xs font-bold">?</span>
+              </button>
+              <div className="absolute right-0 top-9 w-64 p-3 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                <h4 className="text-white font-semibold mb-2 text-sm">📖 {t('rulesTitle')}</h4>
+                <ul className="text-xs text-zinc-400 space-y-1">
+                  <li>• <strong className="text-white">{t('rulePool')}</strong>: {t('rulePoolDesc')}</li>
+                  <li>• <strong className="text-white">{t('ruleUnlock')}</strong>: {t('ruleUnlockDesc')}</li>
+                </ul>
               </div>
             </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-4 gap-3 mb-4">
-            <div className="bg-white/5 rounded-lg p-3 text-center">
-              <p className="text-xs text-cyan-300/60">{t('rewardPool')}</p>
-              <p className="text-lg font-bold text-white">${currentLevelInfo?.reward_pool || 10}</p>
+          {/* Main Content: Left Icon + Right Stats */}
+          <div className="flex gap-5 mb-4">
+            {/* Left: Large Level Icon */}
+            <div className="flex flex-col items-center justify-center">
+              <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm">
+                {getLevelIcon(currentLevelInfo?.level || 1, 96)}
+              </div>
+              <p className="text-xs text-cyan-300/60 uppercase tracking-wider mt-2">{t('currentLevel')}</p>
+              <p className="text-xl font-bold text-white">{currentLevelInfo?.name || 'Bronze'}</p>
             </div>
-            <div className="bg-white/5 rounded-lg p-3 text-center">
-              <p className="text-xs text-cyan-300/60">{t('dailyRate')}</p>
-              <p className="text-lg font-bold text-cyan-400">{currentLevelInfo ? `${(currentLevelInfo.daily_rate * 100).toFixed(1)}%` : '0%'}</p>
-            </div>
-            <div className="bg-white/5 rounded-lg p-3 text-center">
-              <p className="text-xs text-cyan-300/60">{t('dailyEarnings')}</p>
-              <p className="text-lg font-bold text-green-400">+${dailyEarningAmount.toFixed(2)}</p>
-            </div>
-            <div className="bg-white/5 rounded-lg p-3 text-center">
-              <p className="text-xs text-cyan-300/60">{t('nextDistribution')}</p>
-              <p className="text-lg font-bold text-amber-400">
-                {countdown.hours > 0 || countdown.minutes > 0 ? `${countdown.hours}h ${countdown.minutes}m` : 'Soon'}
-              </p>
+            
+            {/* Right: Stats Grid 2x2 */}
+            <div className="flex-1 grid grid-cols-2 gap-2">
+              <div className="bg-white/5 rounded-lg p-3 text-center">
+                <p className="text-xs text-cyan-300/60">{t('rewardPool')}</p>
+                <p className="text-xl font-bold text-white">${currentLevelInfo?.reward_pool || 10}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-3 text-center">
+                <p className="text-xs text-cyan-300/60">{t('dailyRate')}</p>
+                <p className="text-xl font-bold text-cyan-400">{currentLevelInfo ? `${(currentLevelInfo.daily_rate * 100).toFixed(1)}%` : '0%'}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-3 text-center">
+                <p className="text-xs text-cyan-300/60">{t('dailyEarnings')}</p>
+                <p className="text-xl font-bold text-green-400">+${dailyEarningAmount.toFixed(2)}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-3 text-center">
+                <p className="text-xs text-cyan-300/60">{t('nextDistribution')}</p>
+                <p className="text-xl font-bold text-amber-400">
+                  {countdown.hours > 0 || countdown.minutes > 0 ? `${countdown.hours}h ${countdown.minutes}m` : 'Soon'}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -437,43 +432,72 @@ export default function TeamPage() {
         </div>
       </div>
 
-      {/* All Levels (Collapsible) */}
+      {/* All Levels (Collapsible) - Horizontal Scroll */}
       {showAllLevels && (
-        <div className="glass-card-solid p-4 space-y-2">
-          {levels.map((level) => {
-            const isCurrent = status?.current_level === level.level
-            const isClaimed = claimedLevels.includes(level.level)
-            const isPassed = level.level < (status?.current_level || 1)
-            const canClaim = claimableLevels.includes(level.level)
-            const unlockVolume = status?.is_influencer ? level.unlock_volume_influencer : level.unlock_volume_normal
+        <div className="glass-card-solid p-4">
+          <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory scrollbar-hide">
+            {levels.map((level) => {
+              const isCurrent = status?.current_level === level.level
+              const isClaimed = claimedLevels.includes(level.level)
+              const isPassed = level.level < (status?.current_level || 1)
+              const canClaim = claimableLevels.includes(level.level)
+              const unlockVolume = status?.is_influencer ? level.unlock_volume_influencer : level.unlock_volume_normal
 
-            return (
-              <div key={level.level} className={`flex items-center justify-between p-3 rounded-lg border ${isCurrent ? 'border-purple-500 bg-purple-500/10' : isPassed ? 'border-green-500/30 bg-green-500/5' : 'border-zinc-700 bg-zinc-800/50 opacity-60'}`}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center bg-white/5 ${isPassed ? 'opacity-50' : ''}`}>
-                    {getLevelIcon(level.level, 40)}
+              return (
+                <div 
+                  key={level.level} 
+                  className={`flex-shrink-0 w-32 p-3 rounded-xl border text-center snap-center transition-all ${
+                    isCurrent 
+                      ? 'border-purple-500 bg-purple-500/20 ring-2 ring-purple-500/50' 
+                      : isPassed 
+                        ? 'border-green-500/30 bg-green-500/10' 
+                        : 'border-zinc-700 bg-zinc-800/50 opacity-70'
+                  }`}
+                >
+                  {/* Level Icon */}
+                  <div className={`w-16 h-16 mx-auto rounded-xl flex items-center justify-center bg-white/10 mb-2 ${isPassed ? 'opacity-60' : ''}`}>
+                    {getLevelIcon(level.level, 56)}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className={`font-medium ${isPassed ? 'text-zinc-400' : 'text-white'}`}>{level.name}</span>
-                      {isCurrent && <span className="px-2 py-0.5 bg-purple-500 text-white text-xs rounded-full">Current</span>}
-                      {isPassed && isClaimed && <span className="text-green-400 text-xs">✓ Claimed</span>}
-                    </div>
-                    <div className="flex items-center gap-3 text-xs text-zinc-500">
-                      <span>${level.reward_pool}</span>
-                      <span>{(level.daily_rate * 100).toFixed(1)}%</span>
-                      <span>Unlock: ${unlockVolume}</span>
-                    </div>
+                  
+                  {/* Level Name */}
+                  <p className={`font-semibold text-sm mb-1 ${isPassed ? 'text-zinc-400' : 'text-white'}`}>
+                    {level.name}
+                  </p>
+                  
+                  {/* Status Badge */}
+                  {isCurrent && (
+                    <span className="inline-block px-2 py-0.5 bg-purple-500 text-white text-xs rounded-full mb-2">Current</span>
+                  )}
+                  {isPassed && isClaimed && (
+                    <span className="inline-block text-green-400 text-xs mb-2">✓ Claimed</span>
+                  )}
+                  {!isCurrent && !isPassed && (
+                    <span className="inline-block text-zinc-500 text-xs mb-2">🔒 Locked</span>
+                  )}
+                  
+                  {/* Stats */}
+                  <div className="text-xs text-zinc-400 space-y-0.5">
+                    <p className="text-white font-medium">${level.reward_pool}</p>
+                    <p>{(level.daily_rate * 100).toFixed(1)}% daily</p>
+                    <p className="text-[10px]">${unlockVolume} to unlock</p>
                   </div>
+                  
+                  {/* Claim Button */}
+                  {canClaim && (
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleClaim(level.level)} 
+                      disabled={claiming === level.level} 
+                      className="mt-2 w-full bg-green-500 text-white text-xs py-1"
+                    >
+                      Claim
+                    </Button>
+                  )}
                 </div>
-                {canClaim && (
-                  <Button size="sm" onClick={() => handleClaim(level.level)} disabled={claiming === level.level} className="bg-green-500 text-white text-xs">
-                    Claim ${level.reward_pool}
-                  </Button>
-                )}
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
+          <p className="text-center text-zinc-500 text-xs mt-2">← Swipe to see all levels →</p>
         </div>
       )}
 
