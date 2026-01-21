@@ -20,13 +20,13 @@ import { useTranslations } from 'next-intl'
 // rate is daily rate as decimal (0.0075 = 0.75%)
 // Distribution: Once per day (24 hours)
 const TIERS = [
-  { min: 0, max: 9.99, rate: 0, name: 'Starter' },
-  { min: 10, max: 19.99, rate: 0.0075, name: 'Bronze' },      // 0.75% daily (274% APY)
-  { min: 20, max: 99.99, rate: 0.009, name: 'Silver' },       // 0.90% daily (329% APY)
-  { min: 100, max: 499.99, rate: 0.0105, name: 'Gold' },      // 1.05% daily (383% APY)
-  { min: 500, max: 1999.99, rate: 0.012, name: 'Platinum' },  // 1.20% daily (438% APY)
-  { min: 2000, max: 9999.99, rate: 0.015, name: 'Diamond' },  // 1.50% daily (548% APY)
-  { min: 10000, max: Infinity, rate: 0.018, name: 'Elite' },  // 1.80% daily (657% APY)
+  { min: 0, max: 9.99, rate: 0, name: 'Visitor' },
+  { min: 10, max: 19.99, rate: 0.0075, name: 'Resident' },      // 0.75% daily (274% APY)
+  { min: 20, max: 99.99, rate: 0.009, name: 'Citizen' },        // 0.90% daily (329% APY)
+  { min: 100, max: 499.99, rate: 0.0105, name: 'Representative' }, // 1.05% daily (383% APY)
+  { min: 500, max: 1999.99, rate: 0.012, name: 'Senator' },     // 1.20% daily (438% APY)
+  { min: 2000, max: 9999.99, rate: 0.015, name: 'Ambassador' }, // 1.50% daily (548% APY)
+  { min: 10000, max: Infinity, rate: 0.018, name: 'Chancellor' }, // 1.80% daily (657% APY)
 ]
 
 function getTier(balance: number) {
@@ -236,7 +236,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                     ${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 )}
-                <p className="text-xs text-zinc-500 mt-1">{t('usdcOnPolygon')}</p>
+                <p className="text-xs text-white/70 mt-1">{t('usdcOnPolygon')}</p>
               </div>
               <img src="/usdc.png" alt="USDC" className="w-10 h-10 md:w-12 md:h-12" />
             </div>
@@ -254,7 +254,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                     ${profitData.communityPrizePool.toFixed(2)}
                   </p>
                 )}
-                <p className="text-xs text-zinc-500 mt-1">{t('level', { name: profitData.currentLevelName })}</p>
+                <p className="text-xs text-white/70 mt-1">{t('level', { name: profitData.currentLevelName })}</p>
               </div>
               <img src="/crowdfunding.png" alt="Community" className="w-10 h-10 md:w-12 md:h-12" />
             </div>
