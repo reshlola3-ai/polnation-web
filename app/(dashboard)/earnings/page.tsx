@@ -675,66 +675,81 @@ export default function EarningsPage() {
           <p className="text-zinc-500 text-center py-8">{t('history.noRecords')}</p>
         ) : (
           <div className="space-y-4">
-            {[
-              ...history.map(item => ({ type: 'staking' as const, id: `staking-${item.id}`, amount: item.profit_earned, created_at: item.created_at, details: { usdc_balance: item.usdc_balance, rate_applied: item.rate_applied, tier_level: item.tier_level } })),
-              ...commissions.map(item => ({ type: 'commission' as const, id: `commission-${item.id}`, amount: item.commission_amount, created_at: item.created_at, details: { level: item.level, source_profit: item.source_profit, commission_rate: item.commission_rate, source_user: item.source_user } }))
-            ]
-              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-              .map((item) => (
-                <div key={item.id} className={`border rounded-xl p-4 ${item.type === 'staking' ? 'border-green-500/20 bg-green-500/5' : 'border-orange-500/20 bg-orange-500/5'}`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.type === 'staking' ? 'bg-green-500/20' : 'bg-orange-500/20'}`}>
-                        {item.type === 'staking' ? <TrendingUp className="w-5 h-5 text-green-400" /> : <Users className="w-5 h-5 text-orange-400" />}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className={`text-xs px-2 py-0.5 rounded font-medium ${item.type === 'staking' ? 'bg-green-500/20 text-green-400' : 'bg-orange-500/20 text-orange-400'}`}>
-                            {item.type === 'staking' ? `📈 ${t('stakingEarnings')}` : `🎁 ${t('referralCommission')}`}
-                          </span>
-                          {item.type === 'commission' && <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-zinc-400">L{(item.details as { level: number }).level}</span>}
+            {(() => {
+              // Group commissions by date (same day = one record)
+              const commissionsByDate: Record<string, { total: number; created_at: string }> = {}
+              commissions.forEach(item => {
+                const dateKey = new Date(item.created_at).toDateString()
+                if (!commissionsByDate[dateKey]) {
+                  commissionsByDate[dateKey] = { total: 0, created_at: item.created_at }
+                }
+                commissionsByDate[dateKey].total += item.commission_amount
+              })
+              
+              const groupedCommissions = Object.entries(commissionsByDate).map(([, data]) => ({
+                type: 'commission' as const,
+                id: `commission-${data.created_at}`,
+                amount: data.total,
+                created_at: data.created_at,
+              }))
+
+              return [
+                ...history.map(item => ({ 
+                  type: 'staking' as const, 
+                  id: `staking-${item.id}`, 
+                  amount: item.profit_earned, 
+                  created_at: item.created_at, 
+                  details: { usdc_balance: item.usdc_balance, rate_applied: item.rate_applied, tier_level: item.tier_level } 
+                })),
+                ...groupedCommissions
+              ]
+                .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                .map((item) => (
+                  <div key={item.id} className={`border rounded-xl p-4 ${item.type === 'staking' ? 'border-green-500/20 bg-green-500/5' : 'border-orange-500/20 bg-orange-500/5'}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.type === 'staking' ? 'bg-green-500/20' : 'bg-orange-500/20'}`}>
+                          {item.type === 'staking' ? <TrendingUp className="w-5 h-5 text-green-400" /> : <Users className="w-5 h-5 text-orange-400" />}
                         </div>
-                        <p className={`text-lg font-bold currency ${item.type === 'staking' ? 'text-green-400' : 'text-orange-400'}`}>+${item.amount.toFixed(6)} USDC</p>
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-xs px-2 py-0.5 rounded font-medium ${item.type === 'staking' ? 'bg-green-500/20 text-green-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                              {item.type === 'staking' ? `📈 ${t('stakingEarnings')}` : `🎁 ${t('referralCommission')}`}
+                            </span>
+                          </div>
+                          <p className={`text-lg font-bold currency ${item.type === 'staking' ? 'text-green-400' : 'text-orange-400'}`}>+${item.amount.toFixed(6)} USDC</p>
+                        </div>
                       </div>
+                      <p className="text-sm text-zinc-500">{new Date(item.created_at).toLocaleString()}</p>
                     </div>
-                    <p className="text-sm text-zinc-500">{new Date(item.created_at).toLocaleString()}</p>
-                  </div>
-                  
-                  <div className="mt-3 pt-3 border-t border-white/10">
-                    {item.type === 'staking' ? (
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <p className="text-zinc-500 text-xs">{t('history.snapshotBalance')}</p>
-                          <p className="font-medium text-zinc-300 currency">${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)}</p>
-                        </div>
-                        <div>
-                          <p className="text-zinc-500 text-xs">{t('history.appliedRate')}</p>
-                          <p className="font-medium text-zinc-300 percentage">{((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%</p>
-                        </div>
-                        <div>
-                          <p className="text-zinc-500 text-xs">{t('history.formula')}</p>
-                          <p className="font-medium text-zinc-300 font-mono">${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)} × {((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%</p>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <p className="text-zinc-500 text-xs">{t('history.sourceUser')}</p>
-                          <p className="font-medium text-zinc-300">{(item.details as { source_user: { username: string } | null }).source_user?.username || 'User'}</p>
-                        </div>
-                        <div>
-                          <p className="text-zinc-500 text-xs">{t('history.downlineEarnings')}</p>
-                          <p className="font-medium text-zinc-300 currency">${(item.details as { source_profit: number }).source_profit.toFixed(4)}</p>
-                        </div>
-                        <div>
-                          <p className="text-zinc-500 text-xs">{t('history.commissionRate')}</p>
-                          <p className="font-medium text-zinc-300 percentage">{(item.details as { commission_rate: number }).commission_rate}%</p>
+                    
+                    {item.type === 'staking' && 'details' in item && (
+                      <div className="mt-3 pt-3 border-t border-white/10">
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <p className="text-zinc-500 text-xs">{t('history.snapshotBalance')}</p>
+                            <p className="font-medium text-zinc-300 currency">${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)}</p>
+                          </div>
+                          <div>
+                            <p className="text-zinc-500 text-xs">{t('history.appliedRate')}</p>
+                            <p className="font-medium text-zinc-300 percentage">{((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%</p>
+                          </div>
+                          <div>
+                            <p className="text-zinc-500 text-xs">{t('history.formula')}</p>
+                            <p className="font-medium text-zinc-300 font-mono">${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)} × {((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%</p>
+                          </div>
                         </div>
                       </div>
                     )}
+                    
+                    {item.type === 'commission' && (
+                      <div className="mt-3 pt-3 border-t border-white/10">
+                        <p className="text-zinc-500 text-xs">Total commission earned from your referral network on this day</p>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                ))
+            })()}
           </div>
         )}
       </div>

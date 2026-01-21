@@ -348,24 +348,27 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 </div>
               </div>
               
-              <div className="border-t border-zinc-700 pt-4">
-                <p className="text-zinc-400 text-xs mb-2">Calculation Formula:</p>
-                <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4">
-                  <p className="text-purple-300 font-mono text-sm">
-                    ${usdcBalance.toFixed(2)} × {(currentTier.rate * 100).toFixed(2)}% = <span className="text-cyan-300 font-bold">${dailyEarnings.toFixed(4)}</span>
+              <div className="border-t border-zinc-700 pt-4 space-y-3">
+                <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+                  <p className="text-zinc-400 text-xs mb-1">Staking Earnings</p>
+                  <p className="text-green-400 font-mono text-sm">
+                    ${usdcBalance.toFixed(2)} × {(currentTier.rate * 100).toFixed(2)}% = <span className="font-bold">${dailyEarnings.toFixed(4)}</span>/day
                   </p>
+                </div>
+                
+                <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4">
+                  <p className="text-zinc-400 text-xs mb-1">Team Commission (Total Earned)</p>
+                  <p className="text-orange-400 font-bold text-lg">${profitData.totalCommissionProfit.toFixed(4)}</p>
+                  <p className="text-zinc-500 text-xs mt-1">Earned from your referral network</p>
                 </div>
               </div>
 
-              <div className="bg-white/5 rounded-xl p-4">
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-zinc-400">Staking Earnings</span>
-                  <span className="text-green-400 font-medium">${dailyEarnings.toFixed(4)}/day</span>
+              <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-purple-300 font-medium">Est. Daily Total</span>
+                  <span className="text-cyan-300 font-bold text-xl">${dailyEarnings.toFixed(4)}/day</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Team Commission</span>
-                  <span className="text-orange-400 font-medium">Up to 10% of team earnings</span>
-                </div>
+                <p className="text-zinc-500 text-xs mt-1">+ variable commission from team activity</p>
               </div>
             </div>
           </div>
