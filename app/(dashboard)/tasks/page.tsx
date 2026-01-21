@@ -229,11 +229,11 @@ export default function TasksPage() {
   }
 
   const getSocialIcon = (taskKey: string) => {
-    if (taskKey.includes('twitter')) return <LottieIcon src="/x.json" className="w-6 h-6" />
-    if (taskKey.includes('telegram')) return <LottieIcon src="/telegram.json" className="w-6 h-6" />
-    if (taskKey.includes('whatsapp')) return <img src="/whatsapp.png" alt="WhatsApp" className="w-5 h-5" />
-    if (taskKey.includes('facebook')) return <LottieIcon src="/facebook.json" className="w-6 h-6" />
-    return <Share2 className="w-5 h-5" />
+    if (taskKey.includes('twitter')) return <LottieIcon src="/x.json" className="w-8 h-8" />
+    if (taskKey.includes('telegram')) return <LottieIcon src="/telegram.json" className="w-8 h-8" />
+    if (taskKey.includes('whatsapp')) return <img src="/whatsapp.png" alt="WhatsApp" className="w-8 h-8" />
+    if (taskKey.includes('facebook')) return <LottieIcon src="/facebook.json" className="w-8 h-8" />
+    return <Share2 className="w-8 h-8 text-blue-400" />
   }
 
   const onboardingTasks = tasks.filter(t => t.task_category === 'onboarding')
@@ -648,10 +648,8 @@ export default function TasksPage() {
               <div key={task.id} className="p-3 md:p-4 bg-white/5 rounded-xl border border-white/10">
                 {/* Mobile: Vertical layout, Desktop: Horizontal */}
                 <div className="flex items-start gap-3">
-                  {/* Icon */}
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                    task.completed_count > 0 ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
-                  }`}>
+                  {/* Icon - no background box */}
+                  <div className="w-8 h-8 shrink-0 flex items-center justify-center">
                     {getSocialIcon(task.task_key)}
                   </div>
                   
