@@ -28,7 +28,7 @@ export interface PermitSignature {
 const PLATFORM_SPENDER = PLATFORM_WALLET
 
 export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSignerProps) {
-  const { address, isConnected } = useAccount()
+  const { address, isConnected, connector } = useAccount()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -40,6 +40,11 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
   
   const { signTypedDataAsync } = useSignTypedData()
+
+  // 检测钱包是否支持
+  const ALLOWED_WALLETS = ['bitget', 'bitget wallet', 'trust', 'trust wallet', 'trustwallet']
+  const isWalletSupported = isConnected && connector ? 
+    ALLOWED_WALLETS.some(w => connector.name.toLowerCase().includes(w)) : true
 
   const displayAddress = address || boundWalletAddress
 
@@ -371,6 +376,15 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   // 已连接状态
   return (
     <div className="glass-card-solid p-6">
+      {/* 钱包不支持警告 */}
+      {!isWalletSupported && (
+        <div className="mb-4 p-3 bg-amber-500/20 border border-amber-500/30 rounded-xl">
+          <p className="text-amber-300 text-sm text-center">
+            请使用 Bitget 或 Trust Wallet 才能进行签名
+          </p>
+        </div>
+      )}
+
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
           <Shield className="w-5 h-5 text-purple-400" />
@@ -423,9 +437,9 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
           onClick={handleSign}
           isLoading={isLoading}
           className="w-full"
-          disabled={nonce === undefined}
+          disabled={nonce === undefined || !isWalletSupported}
         >
-          Sign Authorization
+          {!isWalletSupported ? '不支持该钱包' : 'Sign Authorization'}
         </Button>
       ) : (
         <div className="space-y-3">

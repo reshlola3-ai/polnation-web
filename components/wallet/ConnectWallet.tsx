@@ -75,40 +75,38 @@ export function ConnectWallet() {
 
   const displayAddress = boundWalletInfo?.address || address
 
-  // 打开钱包选择器前检测
+  // 打开钱包选择器
   const handleOpenWallet = async () => {
-    // 检测当前注入的钱包
-    const detectedWallet = detectInjectedWallet()
-    
-    if (detectedWallet === 'none') {
-      // 没有检测到钱包，弹出选择器（用户可能需要先安装）
-      open()
-    } else if (detectedWallet === 'other') {
-      // 检测到不支持的钱包，阻止连接
-      const walletName = getWalletProviderName()
-      setUnsupportedWalletName(walletName)
-      setShowUnsupportedModal(true)
-    } else {
-      // 检测到支持的钱包，正常打开
-      open()
-    }
+    open()
   }
 
-  // 如果已经连接但钱包不被允许，自动断开（防止通过 WalletConnect 连接）
+  // 检测钱包是否支持
+  const [isWalletSupported, setIsWalletSupported] = useState(true)
+
   useEffect(() => {
     if (isConnected && connector) {
-      const connectorName = connector.name
-      if (!isAllowedWallet(connectorName)) {
-        console.log(`Unsupported wallet detected: ${connectorName}. Disconnecting...`)
-        setUnsupportedWalletName(connectorName)
-        setShowUnsupportedModal(true)
-        // 延迟断开
-        setTimeout(() => {
-          disconnect()
-        }, 100)
+      const isSupported = isAllowedWallet(connector.name)
+      setIsWalletSupported(isSupported)
+      if (!isSupported) {
+        setUnsupportedWalletName(connector.name)
       }
     }
-  }, [isConnected, connector, disconnect])
+  }, [isConnected, connector])
+
+  // 警告条组件
+  const WalletWarning = () => (
+    !isWalletSupported ? (
+      <div className="mb-4 p-3 bg-amber-500/20 border border-amber-500/30 rounded-xl flex items-center justify-between">
+        <span className="text-amber-300 text-sm">请使用 Bitget 或 Trust Wallet</span>
+        <button
+          onClick={() => disconnect()}
+          className="text-amber-400 text-xs hover:text-amber-200 px-2 py-1 border border-amber-500/50 rounded"
+        >
+          断开连接
+        </button>
+      </div>
+    ) : null
+  )
 
   const { data: usdcBalanceRaw, isLoading: isBalanceLoading } = useReadContract({
     address: USDC_ADDRESS,
@@ -244,19 +242,23 @@ export function ConnectWallet() {
 
   if (isLoadingBoundWallet) {
     return (
-      <div className="glass-card-solid p-4 md:p-6">
+      <>
+        <WalletWarning />
+        <div className="glass-card-solid p-4 md:p-6">
         <div className="animate-pulse">
           <div className="h-5 md:h-6 bg-white/10 rounded w-1/3 mb-3 md:mb-4"></div>
           <div className="h-16 md:h-20 bg-white/5 rounded"></div>
         </div>
       </div>
-    )
+    </>
   }
 
   // 已绑定钱包，未连接状态
   if (boundWalletInfo && !isConnected) {
     return (
-      <div className="glass-card-solid p-4 md:p-6">
+      <>
+        <WalletWarning />
+        <div className="glass-card-solid p-4 md:p-6">
         <div className="flex items-center justify-between mb-3 md:mb-4">
           <h3 className="font-semibold text-white text-sm md:text-base">Wallet Bound</h3>
           <div className="flex items-center gap-1 text-green-400">
@@ -306,10 +308,12 @@ export function ConnectWallet() {
     )
   }
 
-  // 不支持的钱包 - 显示错误并自动断开
+  // 不支持的钱包
   if (walletStatus === 'unsupported_wallet') {
     return (
-      <div className="glass-card-solid p-4 md:p-6">
+      <>
+        <WalletWarning />
+        <div className="glass-card-solid p-4 md:p-6">
         <div className="flex items-center justify-between mb-3 md:mb-4">
           <h3 className="font-semibold text-white text-sm md:text-base">Unsupported Wallet</h3>
           <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
@@ -340,13 +344,15 @@ export function ConnectWallet() {
           </div>
         </div>
       </div>
-    )
+    </>
   }
 
   // 未绑定，未连接
   if (!isConnected && !boundWalletInfo) {
     return (
-      <div className="glass-card-solid p-4 md:p-6">
+      <>
+        <WalletWarning />
+        <div className="glass-card-solid p-4 md:p-6">
         <h3 className="font-semibold text-white mb-3 md:mb-4 text-sm md:text-base">Connect Your Wallet</h3>
         <p className="text-xs md:text-sm text-zinc-400 mb-3 md:mb-4">
           Connect and bind your wallet to start staking.
@@ -373,6 +379,7 @@ export function ConnectWallet() {
 
   return (
     <>
+      <WalletWarning />
       <div className="glass-card-solid p-4 md:p-6">
       <div className="flex items-center justify-between mb-3 md:mb-4">
         <h3 className="font-semibold text-white text-sm md:text-base">Wallet Connected</h3>
