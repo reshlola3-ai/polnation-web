@@ -111,11 +111,12 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       const res = await fetch('/api/profits/user')
       if (res.ok) {
         const data = await res.json()
+        const profits = data.profits || {}
         setProfitData(prev => ({
           ...prev,
-          totalStakingProfit: data.totalStakingProfit || 0,
-          totalCommissionProfit: data.totalCommissionProfit || 0,
-          availableWithdraw: data.availableWithdraw || 0,
+          totalStakingProfit: profits.total_earned_usdc || 0,
+          totalCommissionProfit: profits.total_commission_earned || 0,
+          availableWithdraw: profits.available_usdc || 0,
           hasSignature: data.hasSignature || false
         }))
       }
