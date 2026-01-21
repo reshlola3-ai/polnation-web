@@ -68,6 +68,21 @@ interface ProfitData {
   currentLevelName: string
 }
 
+interface ReferralData {
+  level: number
+  usdc_balance: number
+}
+
+// Commission rates by level
+const COMMISSION_RATES: Record<number, number> = {
+  1: 0.10,  // L1: 10%
+  2: 0.05,  // L2: 5%
+  3: 0.04,  // L3: 4%
+  4: 0.03,  // L4: 3%
+  5: 0.02,  // L5: 2%
+  6: 0.01,  // L6: 1%
+}
+
 // Tier icons mapping
 const TIER_ICONS: Record<string, string> = {
   'Visitor': '👁️',
@@ -85,6 +100,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   const [copied, setCopied] = useState(false)
   const [showEarningsModal, setShowEarningsModal] = useState(false)
   const [showTierModal, setShowTierModal] = useState(false)
+  const [estDailyCommission, setEstDailyCommission] = useState(0)
   const [profitData, setProfitData] = useState<ProfitData>({
     totalStakingProfit: 0,
     totalCommissionProfit: 0,
@@ -157,9 +173,37 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     }
   }
 
+  // Fetch referrals and calculate estimated daily commission
+  const fetchEstDailyCommission = async () => {
+    try {
+      const res = await fetch('/api/referral/balances')
+      if (res.ok) {
+        const data = await res.json()
+        const referrals: ReferralData[] = data.referrals || []
+        
+        // Calculate estimated daily commission from all downlines
+        let totalCommission = 0
+        referrals.forEach((ref: ReferralData) => {
+          // Get the downline's tier and daily rate
+          const refTier = getTier(ref.usdc_balance)
+          const refDailyEarnings = ref.usdc_balance * refTier.rate
+          // Get commission rate for this level
+          const commissionRate = COMMISSION_RATES[ref.level] || 0
+          // Add to total commission
+          totalCommission += refDailyEarnings * commissionRate
+        })
+        
+        setEstDailyCommission(totalCommission)
+      }
+    } catch (err) {
+      console.error('Error fetching referral data:', err)
+    }
+  }
+
   useEffect(() => {
     fetchProfitData()
     fetchCommunityStatus()
+    fetchEstDailyCommission()
   }, [])
 
   // Calculate total assets = community prize pool + wallet usdc balance
@@ -232,7 +276,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             </p>
             <div className="flex items-center gap-2 md:justify-end">
               <p className="text-2xl md:text-3xl font-bold text-cyan-300 stat-number">
-                ${dailyEarnings.toFixed(4)}<span className="text-lg text-cyan-400">{t('perDay')}</span>
+                ${(dailyEarnings + estDailyCommission).toFixed(4)}<span className="text-lg text-cyan-400">{t('perDay')}</span>
               </p>
               <button 
                 onClick={() => setShowEarningsModal(true)}
@@ -357,18 +401,18 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 </div>
                 
                 <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4">
-                  <p className="text-zinc-400 text-xs mb-1">Team Commission (Total Earned)</p>
-                  <p className="text-orange-400 font-bold text-lg">${profitData.totalCommissionProfit.toFixed(4)}</p>
-                  <p className="text-zinc-500 text-xs mt-1">Earned from your referral network</p>
+                  <p className="text-zinc-400 text-xs mb-1">Est. Team Commission</p>
+                  <p className="text-orange-400 font-bold text-lg">${estDailyCommission.toFixed(4)}/day</p>
+                  <p className="text-zinc-500 text-xs mt-1">Based on your downlines&apos; balances (L1: 10%, L2: 5%...)</p>
                 </div>
               </div>
 
               <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                   <span className="text-purple-300 font-medium">Est. Daily Total</span>
-                  <span className="text-cyan-300 font-bold text-xl">${dailyEarnings.toFixed(4)}/day</span>
+                  <span className="text-cyan-300 font-bold text-xl">${(dailyEarnings + estDailyCommission).toFixed(4)}/day</span>
                 </div>
-                <p className="text-zinc-500 text-xs mt-1">+ variable commission from team activity</p>
+                <p className="text-zinc-500 text-xs mt-1">Staking: ${dailyEarnings.toFixed(4)} + Commission: ${estDailyCommission.toFixed(4)}</p>
               </div>
             </div>
           </div>
