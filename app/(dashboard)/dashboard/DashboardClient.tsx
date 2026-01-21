@@ -227,7 +227,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           {/* Wallet Balance */}
           <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-cyan-300">💵</span>
+              <img src="/usdc.png" alt="USDC" className="w-5 h-5" />
               <span className="text-sm text-purple-200">{t('walletBalance')}</span>
             </div>
             {isBalanceLoading ? (
@@ -243,7 +243,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           {/* Community Prize Pool */}
           <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-purple-300">🎁</span>
+              <img src="/crowdfunding.png" alt="Community" className="w-5 h-5" />
               <span className="text-sm text-purple-200">{t('communityPrizePool')}</span>
             </div>
             {isLoadingProfit ? (

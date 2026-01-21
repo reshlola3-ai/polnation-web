@@ -271,6 +271,32 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* On-Chain Vault Video Section */}
+      <section className="relative z-10 py-16 md:py-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8 md:mb-12">
+            Verified And Transparent On-Chain Vault
+            <span className="block text-lg sm:text-xl md:text-2xl font-normal text-zinc-400 mt-2">
+              No Price Risks, No Approval, Just Winning
+            </span>
+          </h2>
+          
+          {/* Video Container */}
+          <div className="relative mx-auto max-w-2xl">
+            <div className="absolute inset-0 bg-cyan-500/20 rounded-2xl blur-[40px]" />
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="relative w-full rounded-2xl border border-cyan-500/20 shadow-2xl"
+            >
+              <source src="/video/home loop.webm" type="video/webm" />
+            </video>
+          </div>
+        </div>
+      </section>
+
       {/* Stats Section - Live Chain Data */}
       <ChainStats />
 
