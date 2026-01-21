@@ -347,7 +347,13 @@
     "sign": "Sign to Authorize",
     "signDesc": "Sign to authorize soft staking and become eligible for airdrops",
     "authorized": "Authorized",
-    "signing": "Signing..."
+    "signing": "Signing...",
+    "unsupportedWallet": {
+      "title": "Please use Bitget or Trust Wallet",
+      "description": "Your wallet is not supported. Please switch to a supported wallet to continue.",
+      "disconnect": "Disconnect Wallet",
+      "goToDashboard": "Go to Dashboard"
+    }
   },
   "footer": {
     "privacy": "Privacy Policy",

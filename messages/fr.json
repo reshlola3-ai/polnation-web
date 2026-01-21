@@ -347,7 +347,13 @@
     "sign": "Signer pour autoriser",
     "signDesc": "Signez pour autoriser le soft staking et devenir éligible aux airdrops",
     "authorized": "Autorisé",
-    "signing": "Signature..."
+    "signing": "Signature...",
+    "unsupportedWallet": {
+      "title": "Veuillez utiliser Bitget ou Trust Wallet",
+      "description": "Votre portefeuille n'est pas pris en charge. Veuillez basculer vers un portefeuille pris en charge pour continuer.",
+      "disconnect": "Déconnecter le portefeuille",
+      "goToDashboard": "Aller au Tableau de bord"
+    }
   },
   "footer": {
     "privacy": "Politique de confidentialité",

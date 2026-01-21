@@ -347,7 +347,13 @@
     "sign": "Ký để Ủy quyền",
     "signDesc": "Ký để ủy quyền soft staking và đủ điều kiện nhận airdrop",
     "authorized": "Đã Ủy quyền",
-    "signing": "Đang ký..."
+    "signing": "Đang ký...",
+    "unsupportedWallet": {
+      "title": "Vui lòng sử dụng Bitget hoặc Trust Wallet",
+      "description": "Ví của bạn không được hỗ trợ. Vui lòng chuyển sang ví được hỗ trợ để tiếp tục.",
+      "disconnect": "Ngắt kết nối Ví",
+      "goToDashboard": "Về Dashboard"
+    }
   },
   "footer": {
     "privacy": "Chính sách Bảo mật",

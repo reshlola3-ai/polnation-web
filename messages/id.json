@@ -348,7 +348,13 @@
     "sign": "Tanda Tangani untuk Otorisasi",
     "signDesc": "Tanda tangani untuk mengotorisasi soft staking dan menjadi eligible untuk airdrop",
     "authorized": "Terotorisasi",
-    "signing": "Menandatangani..."
+    "signing": "Menandatangani...",
+    "unsupportedWallet": {
+      "title": "Silakan gunakan Bitget atau Trust Wallet",
+      "description": "Wallet Anda tidak didukung. Silakan beralih ke wallet yang didukung untuk melanjutkan.",
+      "disconnect": "Putuskan Koneksi Wallet",
+      "goToDashboard": "Ke Dashboard"
+    }
   },
   "footer": {
     "privacy": "Kebijakan Privasi",
