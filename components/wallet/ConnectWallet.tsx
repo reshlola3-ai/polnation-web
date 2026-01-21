@@ -262,33 +262,32 @@ export function ConnectWallet() {
     return (
       <div className="glass-card-solid p-4 md:p-6">
         <div className="flex items-center justify-between mb-3 md:mb-4">
-            <h3 className="font-semibold text-white text-sm md:text-base">Unsupported Wallet</h3>
-            <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
-          </div>
-          
-          <div className="mb-3 md:mb-4 p-3 md:p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-            <div className="flex items-start gap-2 md:gap-3">
-              <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-red-400 flex-shrink-0" />
-              <div>
-                <p className="text-xs md:text-sm font-medium text-red-300">
-                  {unsupportedWalletName || 'This wallet'} is not supported
-                </p>
-                <p className="text-[10px] md:text-xs text-red-400/70 mt-1.5 md:mt-2">
-                  Please use one of the supported mobile wallets.
-                </p>
-                <p className="text-[10px] md:text-xs text-red-400/50 mt-1.5 md:mt-2">
-                  Disconnecting automatically...
-                </p>
-              </div>
+          <h3 className="font-semibold text-white text-sm md:text-base">Unsupported Wallet</h3>
+          <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
+        </div>
+        
+        <div className="mb-3 md:mb-4 p-3 md:p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+          <div className="flex items-start gap-2 md:gap-3">
+            <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-red-400 flex-shrink-0" />
+            <div>
+              <p className="text-xs md:text-sm font-medium text-red-300">
+                {unsupportedWalletName || 'This wallet'} is not supported
+              </p>
+              <p className="text-[10px] md:text-xs text-red-400/70 mt-1.5 md:mt-2">
+                Please use one of the supported mobile wallets.
+              </p>
+              <p className="text-[10px] md:text-xs text-red-400/50 mt-1.5 md:mt-2">
+                Disconnecting automatically...
+              </p>
             </div>
           </div>
+        </div>
 
-          <div className="p-2.5 md:p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-            <p className="text-[10px] md:text-xs text-purple-300 font-medium mb-1.5 md:mb-2">Supported Wallets:</p>
-            <div className="flex flex-wrap gap-1.5 md:gap-2">
-              <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Bitget</span>
-              <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Trust</span>
-            </div>
+        <div className="p-2.5 md:p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
+          <p className="text-[10px] md:text-xs text-purple-300 font-medium mb-1.5 md:mb-2">Supported Wallets:</p>
+          <div className="flex flex-wrap gap-1.5 md:gap-2">
+            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Bitget</span>
+            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Trust</span>
           </div>
         </div>
       </div>
@@ -389,7 +388,6 @@ export function ConnectWallet() {
             <ExternalLink className="w-3 h-3" />
           </a>
         </div>
-      </div>
 
       <div className="mb-3 md:mb-4">
         <p className="text-[10px] md:text-xs text-zinc-500 mb-1">Network</p>
