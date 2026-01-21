@@ -316,9 +316,8 @@ export function ConnectWallet() {
           Connect Wallet
         </Button>
       </div>
-    </>
-  )}
-
+    )}
+  
   // 已连接状态
   const isWrongNetwork = chain?.id !== polygon.id
 
