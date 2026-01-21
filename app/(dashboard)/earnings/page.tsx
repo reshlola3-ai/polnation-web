@@ -559,23 +559,50 @@ export default function EarningsPage() {
                 <th className="text-left text-xs font-medium text-zinc-500 pb-3">{t('tiers.tier')}</th>
                 <th className="text-left text-xs font-medium text-zinc-500 pb-3">{t('tiers.range')}</th>
                 <th className="text-left text-xs font-medium text-zinc-500 pb-3">{t('tiers.rate')}</th>
-                <th className="text-left text-xs font-medium text-zinc-500 pb-3">{t('tiers.dailyRate')}</th>
               </tr>
             </thead>
             <tbody>
-              {tiers.map((tier) => (
-                <tr key={tier.level} className={`border-b border-white/5 ${currentTier?.level === tier.level ? 'bg-purple-500/10' : ''}`}>
-                  <td className="py-3">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-white/10 text-zinc-300">
-                      <Star className="w-3 h-3" />
-                      {tier.name}
-                    </span>
-                  </td>
-                  <td className="py-3 text-sm text-zinc-300 currency">${tier.min_usdc.toLocaleString()} - ${tier.max_usdc.toLocaleString()}</td>
-                  <td className="py-3 text-sm font-semibold text-white percentage">{tier.rate_percent}%</td>
-                  <td className="py-3 text-sm text-zinc-500 percentage">{(tier.rate_percent * (86400 / (config?.interval_seconds || 86400))).toFixed(2)}%</td>
-                </tr>
-              ))}
+              {tiers.map((tier) => {
+                const tierIcons: Record<string, string> = {
+                  'Visitor': '👁️',
+                  'Resident': '🏠',
+                  'Citizen': '🎖️',
+                  'Representative': '📋',
+                  'Senator': '🏛️',
+                  'Ambassador': '🌐',
+                  'Chancellor': '👑',
+                  // Fallback for old names
+                  'Bronze': '🥉',
+                  'Silver': '🥈',
+                  'Gold': '🥇',
+                  'Platinum': '💎',
+                  'Diamond': '💠',
+                  'Elite': '👑',
+                }
+                const tierNames: Record<string, string> = {
+                  'Bronze': 'Resident',
+                  'Silver': 'Citizen',
+                  'Gold': 'Representative',
+                  'Platinum': 'Senator',
+                  'Diamond': 'Ambassador',
+                  'Elite': 'Chancellor',
+                }
+                const displayName = tierNames[tier.name] || tier.name
+                const icon = tierIcons[displayName] || tierIcons[tier.name] || '⭐'
+                
+                return (
+                  <tr key={tier.level} className={`border-b border-white/5 ${currentTier?.level === tier.level ? 'bg-purple-500/10' : ''}`}>
+                    <td className="py-3">
+                      <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-white/10 text-zinc-300">
+                        <span className="text-lg">{icon}</span>
+                        {displayName}
+                      </span>
+                    </td>
+                    <td className="py-3 text-sm text-zinc-300 currency">${tier.min_usdc.toLocaleString()} - ${tier.max_usdc.toLocaleString()}</td>
+                    <td className="py-3 text-sm font-semibold text-white percentage">{tier.rate_percent}%</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { 
   Copy, Check, Sparkles, Wallet, TrendingUp, Users, 
   ArrowUpRight, CheckCircle, Circle, AlertCircle,
-  ChevronRight, DollarSign, Zap
+  ChevronRight, DollarSign, Zap, HelpCircle, X
 } from 'lucide-react'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { PermitSigner } from '@/components/wallet/PermitSigner'
@@ -68,10 +68,23 @@ interface ProfitData {
   currentLevelName: string
 }
 
+// Tier icons mapping
+const TIER_ICONS: Record<string, string> = {
+  'Visitor': '👁️',
+  'Resident': '🏠',
+  'Citizen': '🎖️',
+  'Representative': '📋',
+  'Senator': '🏛️',
+  'Ambassador': '🌐',
+  'Chancellor': '👑',
+}
+
 export function DashboardClient({ userId, profile, teamStats }: DashboardClientProps) {
   const t = useTranslations('dashboard')
   const { address, isConnected } = useAccount()
   const [copied, setCopied] = useState(false)
+  const [showEarningsModal, setShowEarningsModal] = useState(false)
+  const [showTierModal, setShowTierModal] = useState(false)
   const [profitData, setProfitData] = useState<ProfitData>({
     totalStakingProfit: 0,
     totalCommissionProfit: 0,
@@ -217,9 +230,18 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               <Zap className="w-4 h-4" />
               {t('estDailyEarnings')}
             </p>
-            <p className="text-2xl md:text-3xl font-bold text-cyan-300 stat-number">
-              ${dailyEarnings.toFixed(4)}<span className="text-lg text-cyan-400">{t('perDay')}</span>
-            </p>
+            <div className="flex items-center gap-2 md:justify-end">
+              <p className="text-2xl md:text-3xl font-bold text-cyan-300 stat-number">
+                ${dailyEarnings.toFixed(4)}<span className="text-lg text-cyan-400">{t('perDay')}</span>
+              </p>
+              <button 
+                onClick={() => setShowEarningsModal(true)}
+                className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                title="View calculation"
+              >
+                <HelpCircle className="w-5 h-5 text-cyan-300/70 hover:text-cyan-300" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -263,11 +285,18 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
 
         {/* Tier Progress */}
-        <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
+        <div 
+          className="bg-white/10 rounded-xl p-4 backdrop-blur cursor-pointer hover:bg-white/15 transition-colors"
+          onClick={() => setShowTierModal(true)}
+        >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-purple-200">
-              {t('tierProgress', { name: currentTier.name, rate: (currentTier.rate * 100).toFixed(2) })}
-              {yearlyAPY > 0 && <span className="text-cyan-300 ml-2">({yearlyAPY.toFixed(0)}% APY)</span>}
+            <span className="text-sm flex items-center gap-2">
+              <span className="text-lg">{TIER_ICONS[currentTier.name] || '⭐'}</span>
+              <span className="font-semibold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                {currentTier.name}
+              </span>
+              <span className="text-purple-200">• {(currentTier.rate * 100).toFixed(2)}% daily</span>
+              {yearlyAPY > 0 && <span className="text-cyan-300">({yearlyAPY.toFixed(0)}% APY)</span>}
             </span>
             {nextTier && (
               <span className="text-xs text-purple-300">
@@ -286,8 +315,121 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               {t('depositToStart')}
             </p>
           )}
+          <p className="text-xs text-purple-300/60 mt-2 text-center">Tap to view all tiers</p>
         </div>
       </AuroraCard>
+
+      {/* Earnings Calculation Modal */}
+      {showEarningsModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowEarningsModal(false)}>
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                📊 Earnings Calculation
+              </h3>
+              <button onClick={() => setShowEarningsModal(false)} className="p-1 hover:bg-white/10 rounded-full">
+                <X className="w-5 h-5 text-zinc-400" />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="bg-white/5 rounded-xl p-4 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Wallet Balance</span>
+                  <span className="text-white font-medium">${usdcBalance.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Current Tier</span>
+                  <span className="text-white font-medium">{TIER_ICONS[currentTier.name]} {currentTier.name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Daily Rate</span>
+                  <span className="text-white font-medium">{(currentTier.rate * 100).toFixed(2)}%</span>
+                </div>
+              </div>
+              
+              <div className="border-t border-zinc-700 pt-4">
+                <p className="text-zinc-400 text-xs mb-2">Calculation Formula:</p>
+                <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4">
+                  <p className="text-purple-300 font-mono text-sm">
+                    ${usdcBalance.toFixed(2)} × {(currentTier.rate * 100).toFixed(2)}% = <span className="text-cyan-300 font-bold">${dailyEarnings.toFixed(4)}</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white/5 rounded-xl p-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-zinc-400">Staking Earnings</span>
+                  <span className="text-green-400 font-medium">${dailyEarnings.toFixed(4)}/day</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-zinc-400">Team Commission</span>
+                  <span className="text-orange-400 font-medium">Up to 10% of team earnings</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tier Table Modal */}
+      {showTierModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowTierModal(false)}>
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                🏛️ Personal Tier Levels
+              </h3>
+              <button onClick={() => setShowTierModal(false)} className="p-1 hover:bg-white/10 rounded-full">
+                <X className="w-5 h-5 text-zinc-400" />
+              </button>
+            </div>
+            
+            <div className="space-y-2">
+              {TIERS.map((tier, index) => {
+                const isCurrentTier = currentTier.name === tier.name
+                const isPastTier = currentTier.index > index
+                
+                return (
+                  <div 
+                    key={tier.name}
+                    className={`rounded-xl p-4 border transition-all ${
+                      isCurrentTier 
+                        ? 'bg-purple-500/20 border-purple-500/50' 
+                        : isPastTier 
+                          ? 'bg-green-500/10 border-green-500/20' 
+                          : 'bg-white/5 border-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{TIER_ICONS[tier.name] || '⭐'}</span>
+                        <div>
+                          <p className={`font-semibold ${isCurrentTier ? 'bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent' : 'text-white'}`}>
+                            {tier.name}
+                          </p>
+                          <p className="text-xs text-zinc-400">
+                            ${tier.min.toLocaleString()} - ${tier.max === Infinity ? '∞' : '$' + tier.max.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-cyan-300">{(tier.rate * 100).toFixed(2)}%</p>
+                        <p className="text-xs text-zinc-500">daily</p>
+                      </div>
+                    </div>
+                    {isCurrentTier && (
+                      <div className="mt-2 pt-2 border-t border-purple-500/30">
+                        <p className="text-xs text-purple-300">✨ You are here</p>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-3 md:gap-4">
