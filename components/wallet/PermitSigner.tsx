@@ -382,7 +382,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
       {!isWalletSupported && (
         <div className="mb-4 p-3 bg-amber-500/20 border border-amber-500/30 rounded-xl">
           <p className="text-amber-300 text-sm text-center">
-          {t('unsupportedWallet.signWarning')}
+          {t('signWarning')}
           </p>
         </div>
       )}
@@ -441,7 +441,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
           className="w-full"
           disabled={nonce === undefined || !isWalletSupported}
         >
-          {!isWalletSupported ? t('unsupportedWallet.buttonDisabled') : 'Sign Authorization'}
+          {!isWalletSupported ? t('buttonDisabled') : 'Sign Authorization'}
         </Button>
       ) : (
         <div className="space-y-3">

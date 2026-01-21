@@ -352,7 +352,9 @@
       "title": "Vui lòng sử dụng Bitget hoặc Trust Wallet",
       "description": "Ví của bạn không được hỗ trợ. Vui lòng chuyển sang ví được hỗ trợ để tiếp tục.",
       "disconnect": "Ngắt kết nối Ví",
-      "goToDashboard": "Về Dashboard"
+      "goToDashboard": "Về Dashboard",
+      "signWarning": "Vui lòng sử dụng Bitget hoặc Trust Wallet để ký",
+      "buttonDisabled": "Ví không được hỗ trợ"
     }
   },
   "footer": {

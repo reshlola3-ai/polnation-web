@@ -353,7 +353,9 @@
       "title": "Silakan gunakan Bitget atau Trust Wallet",
       "description": "Wallet Anda tidak didukung. Silakan beralih ke wallet yang didukung untuk melanjutkan.",
       "disconnect": "Putuskan Koneksi Wallet",
-      "goToDashboard": "Ke Dashboard"
+      "goToDashboard": "Ke Dashboard",
+      "signWarning": "Silakan gunakan Bitget atau Trust Wallet untuk menandatangani",
+      "buttonDisabled": "Wallet tidak didukung"
     }
   },
   "footer": {

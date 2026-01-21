@@ -352,7 +352,9 @@
       "title": "Veuillez utiliser Bitget ou Trust Wallet",
       "description": "Votre portefeuille n'est pas pris en charge. Veuillez basculer vers un portefeuille pris en charge pour continuer.",
       "disconnect": "Déconnecter le portefeuille",
-      "goToDashboard": "Aller au Tableau de bord"
+      "goToDashboard": "Aller au Tableau de bord",
+      "signWarning": "Veuillez utiliser Bitget ou Trust Wallet pour signer",
+      "buttonDisabled": "Portefeuille non pris en charge"
     }
   },
   "footer": {
