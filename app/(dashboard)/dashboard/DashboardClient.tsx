@@ -209,17 +209,6 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 ${totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             )}
-            {/* Asset breakdown */}
-            <div className="flex items-center gap-4 mt-2 text-xs">
-              <div className="flex items-center gap-1.5">
-                <span className="text-purple-300">🎁</span>
-                <span className="text-purple-200/70">Community: ${profitData.communityPrizePool.toFixed(2)}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-cyan-300">💵</span>
-                <span className="text-purple-200/70">Wallet: ${usdcBalance.toFixed(2)}</span>
-              </div>
-            </div>
           </div>
           <div className="text-left md:text-right">
             <p className="text-purple-200 text-sm mb-1 flex items-center gap-2 md:justify-end">
@@ -229,6 +218,41 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <p className="text-2xl md:text-3xl font-bold text-cyan-300 stat-number">
               ${dailyEarnings.toFixed(4)}<span className="text-lg text-cyan-400">/day</span>
             </p>
+          </div>
+        </div>
+
+        {/* Asset Details - Two Columns */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* Wallet Balance */}
+          <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-cyan-300">💵</span>
+              <span className="text-sm text-purple-200">Wallet Balance</span>
+            </div>
+            {isBalanceLoading ? (
+              <div className="animate-pulse h-8 w-24 bg-white/10 rounded" />
+            ) : (
+              <p className="text-2xl md:text-3xl font-bold text-white stat-number">
+                ${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            )}
+            <p className="text-xs text-zinc-500 mt-1">USDC on Polygon</p>
+          </div>
+
+          {/* Community Prize Pool */}
+          <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-purple-300">🎁</span>
+              <span className="text-sm text-purple-200">Community Prize Pool</span>
+            </div>
+            {isLoadingProfit ? (
+              <div className="animate-pulse h-8 w-24 bg-white/10 rounded" />
+            ) : (
+              <p className="text-2xl md:text-3xl font-bold text-white stat-number">
+                ${profitData.communityPrizePool.toFixed(2)}
+              </p>
+            )}
+            <p className="text-xs text-zinc-500 mt-1">Level {profitData.currentLevelName}</p>
           </div>
         </div>
 
