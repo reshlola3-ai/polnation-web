@@ -14,6 +14,7 @@ import { useAccount, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
+import { useTranslations } from 'next-intl'
 
 // Earning tiers - must match database profit_tiers table
 // rate is daily rate as decimal (0.0075 = 0.75%)
@@ -68,6 +69,7 @@ interface ProfitData {
 }
 
 export function DashboardClient({ userId, profile, teamStats }: DashboardClientProps) {
+  const t = useTranslations('dashboard')
   const { address, isConnected } = useAccount()
   const [copied, setCopied] = useState(false)
   const [profitData, setProfitData] = useState<ProfitData>({
@@ -172,21 +174,20 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               <Wallet className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-              Connect Your Wallet to Start Earning
+              {t('connectToStart')}
             </h2>
             <p className="text-purple-200 mb-6">
-              Hold USDC in your wallet and earn up to <span className="font-bold text-cyan-300">1.80% daily (657% APY)</span>. 
-              No lock-up, withdraw anytime, fully non-custodial.
+              {t('connectToStartDesc', { rate: '1.80%', apy: '657%' })}
             </p>
             <ConnectWallet />
             <p className="text-purple-300/70 text-xs mt-4">
-              Supported: Trust Wallet, SafePal, Bitget, TokenPocket
+              {t('supportedWallets')}
             </p>
           </div>
         </AuroraCard>
 
         {/* Referral Link */}
-        <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} />
+        <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
       </div>
     )
   }
@@ -200,7 +201,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <div>
             <p className="text-purple-200 text-sm mb-1 flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
-              Total Assets
+              {t('totalAssets')}
             </p>
             {isBalanceLoading ? (
               <div className="animate-pulse h-10 w-40 bg-white/20 rounded-lg" />
@@ -213,10 +214,10 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <div className="text-left md:text-right">
             <p className="text-purple-200 text-sm mb-1 flex items-center gap-2 md:justify-end">
               <Zap className="w-4 h-4" />
-              Est. Daily Earnings
+              {t('estDailyEarnings')}
             </p>
             <p className="text-2xl md:text-3xl font-bold text-cyan-300 stat-number">
-              ${dailyEarnings.toFixed(4)}<span className="text-lg text-cyan-400">/day</span>
+              ${dailyEarnings.toFixed(4)}<span className="text-lg text-cyan-400">{t('perDay')}</span>
             </p>
           </div>
         </div>
@@ -227,7 +228,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-cyan-300">💵</span>
-              <span className="text-sm text-purple-200">Wallet Balance</span>
+              <span className="text-sm text-purple-200">{t('walletBalance')}</span>
             </div>
             {isBalanceLoading ? (
               <div className="animate-pulse h-8 w-24 bg-white/10 rounded" />
@@ -236,14 +237,14 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 ${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             )}
-            <p className="text-xs text-zinc-500 mt-1">USDC on Polygon</p>
+            <p className="text-xs text-zinc-500 mt-1">{t('usdcOnPolygon')}</p>
           </div>
 
           {/* Community Prize Pool */}
           <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
             <div className="flex items-center gap-2 mb-2">
               <span className="text-purple-300">🎁</span>
-              <span className="text-sm text-purple-200">Community Prize Pool</span>
+              <span className="text-sm text-purple-200">{t('communityPrizePool')}</span>
             </div>
             {isLoadingProfit ? (
               <div className="animate-pulse h-8 w-24 bg-white/10 rounded" />
@@ -252,7 +253,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 ${profitData.communityPrizePool.toFixed(2)}
               </p>
             )}
-            <p className="text-xs text-zinc-500 mt-1">Level {profitData.currentLevelName}</p>
+            <p className="text-xs text-zinc-500 mt-1">{t('level', { name: profitData.currentLevelName })}</p>
           </div>
         </div>
 
@@ -260,12 +261,12 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-purple-200">
-              {currentTier.name} • {(currentTier.rate * 100).toFixed(2)}% daily
+              {t('tierProgress', { name: currentTier.name, rate: (currentTier.rate * 100).toFixed(2) })}
               {yearlyAPY > 0 && <span className="text-cyan-300 ml-2">({yearlyAPY.toFixed(0)}% APY)</span>}
             </span>
             {nextTier && (
               <span className="text-xs text-purple-300">
-                ${(nextTier.min - usdcBalance).toFixed(2)} to {nextTier.name}
+                {t('toNextTier', { amount: (nextTier.min - usdcBalance).toFixed(2), name: nextTier.name })}
               </span>
             )}
           </div>
@@ -277,7 +278,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           </div>
           {usdcBalance < 10 && (
             <p className="text-amber-300 text-xs mt-2">
-              💡 Deposit at least $10 USDC to start earning
+              {t('depositToStart')}
             </p>
           )}
         </div>
@@ -291,7 +292,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-green-400" />
             </div>
-            <span className="text-xs text-zinc-500">Total Earned</span>
+            <span className="text-xs text-zinc-500">{t('totalEarned')}</span>
           </div>
           {isLoadingProfit ? (
             <div className="animate-pulse h-7 w-20 bg-white/10 rounded" />
@@ -301,8 +302,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 ${totalEarned.toFixed(2)}
               </p>
               <div className="text-xs text-zinc-500 mt-1 space-y-0.5">
-                <p>Staking: <span className="text-green-400">${profitData.totalStakingProfit.toFixed(2)}</span></p>
-                <p>Commission: <span className="text-purple-400">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
+                <p>{t('staking')}: <span className="text-green-400">${profitData.totalStakingProfit.toFixed(2)}</span></p>
+                <p>{t('commission')}: <span className="text-purple-400">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
               </div>
             </>
           )}
@@ -314,7 +315,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <div className="w-8 h-8 bg-cyan-500/20 rounded-lg flex items-center justify-center">
               <ArrowUpRight className="w-4 h-4 text-cyan-400" />
             </div>
-            <span className="text-xs text-zinc-500">Available</span>
+            <span className="text-xs text-zinc-500">{t('available')}</span>
           </div>
           {isLoadingProfit ? (
             <div className="animate-pulse h-7 w-20 bg-white/10 rounded" />
@@ -327,7 +328,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 href="/earnings" 
                 className="inline-flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 mt-2"
               >
-                Withdraw <ChevronRight className="w-3 h-3" />
+                {t('withdraw')} <ChevronRight className="w-3 h-3" />
               </Link>
             </>
           )}
@@ -339,19 +340,19 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
               <Users className="w-4 h-4 text-purple-400" />
             </div>
-            <span className="text-xs text-zinc-500">Team</span>
+            <span className="text-xs text-zinc-500">{t('team')}</span>
           </div>
           <p className="text-xl md:text-2xl font-bold text-white stat-number">
             {teamStats.total_team_members}
           </p>
           <p className="text-xs text-zinc-500 mt-1">
-            Direct: <span className="text-purple-400">{teamStats.level1_members}</span>
+            {t('direct')}: <span className="text-purple-400">{teamStats.level1_members}</span>
           </p>
           <Link 
             href="/referral" 
             className="inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 mt-2"
           >
-            View Network <ChevronRight className="w-3 h-3" />
+            {t('viewNetwork')} <ChevronRight className="w-3 h-3" />
           </Link>
         </div>
 
@@ -361,12 +362,12 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <div className="w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center">
               <CheckCircle className="w-4 h-4 text-amber-400" />
             </div>
-            <span className="text-xs text-zinc-500">Status</span>
+            <span className="text-xs text-zinc-500">{t('status')}</span>
           </div>
           <div className="space-y-1.5 text-xs">
-            <StatusItem done={!!walletAddress} label="Wallet Connected" />
-            <StatusItem done={profitData.hasSignature} label="Signature Done" />
-            <StatusItem done={profile?.profile_completed || false} label="Profile Complete" />
+            <StatusItem done={!!walletAddress} label={t('walletConnected')} />
+            <StatusItem done={profitData.hasSignature} label={t('signatureDone')} />
+            <StatusItem done={profile?.profile_completed || false} label={t('profileComplete')} />
           </div>
         </div>
       </div>
@@ -377,8 +378,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <div className="flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-amber-400" />
             <div className="flex-1">
-              <p className="text-sm text-amber-300">Connect wallet for real-time balance</p>
-              <p className="text-xs text-amber-400/70">Your bound wallet: {profile.wallet_address.slice(0, 6)}...{profile.wallet_address.slice(-4)}</p>
+              <p className="text-sm text-amber-300">{t('connectForRealtime')}</p>
+              <p className="text-xs text-amber-400/70">{t('yourBoundWallet')}: {profile.wallet_address.slice(0, 6)}...{profile.wallet_address.slice(-4)}</p>
             </div>
             <ConnectWallet />
           </div>
@@ -390,7 +391,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       )}
 
       {/* Referral Link */}
-      <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} />
+      <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
     </div>
   )
 }
@@ -413,11 +414,13 @@ function StatusItem({ done, label }: { done: boolean; label: string }) {
 function ReferralLinkCard({ 
   referralLink, 
   copied, 
-  onCopy 
+  onCopy,
+  t
 }: { 
   referralLink: string
   copied: boolean
-  onCopy: () => void 
+  onCopy: () => void
+  t: (key: string) => string
 }) {
   return (
     <div className="relative overflow-hidden rounded-xl p-4 md:p-5 bg-gradient-to-r from-purple-600/80 to-indigo-600/80 border border-purple-500/30">
@@ -426,10 +429,10 @@ function ReferralLinkCard({
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="w-4 h-4 text-purple-200" />
-          <h3 className="text-sm font-semibold text-white">Share & Earn</h3>
+          <h3 className="text-sm font-semibold text-white">{t('shareAndEarn')}</h3>
         </div>
         <p className="text-purple-200 text-xs mb-3">
-          Earn up to 10% commission from your team's rewards
+          {t('earnCommission')}
         </p>
         <div className="bg-white/10 backdrop-blur rounded-lg p-2 flex items-center gap-2 border border-white/10">
           <code className="text-xs text-white/90 truncate flex-1 px-1">
@@ -440,7 +443,7 @@ function ReferralLinkCard({
             className="flex items-center gap-1 px-3 py-1.5 bg-white text-purple-600 rounded-md text-xs font-medium hover:bg-purple-50 transition-colors shrink-0 active:scale-95"
           >
             {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-            {copied ? 'Copied!' : 'Copy'}
+            {copied ? t('copied') : t('copy')}
           </button>
         </div>
       </div>

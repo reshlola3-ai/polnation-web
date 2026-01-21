@@ -3,8 +3,10 @@ import { redirect } from 'next/navigation'
 import { DashboardClient } from './DashboardClient'
 import Link from 'next/link'
 import { AlertCircle } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 
 export default async function DashboardPage() {
+  const t = await getTranslations('dashboard')
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -35,15 +37,15 @@ export default async function DashboardPage() {
               <AlertCircle className="w-5 h-5 text-amber-400" />
             </div>
             <div>
-              <p className="text-amber-300 font-medium text-sm">Complete your profile</p>
-              <p className="text-amber-400/70 text-xs">Add your details to unlock all features</p>
+              <p className="text-amber-300 font-medium text-sm">{t('completeProfile')}</p>
+              <p className="text-amber-400/70 text-xs">{t('completeProfileDesc')}</p>
             </div>
           </div>
           <Link 
             href="/profile" 
             className="w-full sm:w-auto px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-medium hover:bg-amber-400 transition-colors text-center"
           >
-            Complete Now
+            {t('completeNow')}
           </Link>
         </div>
       )}
