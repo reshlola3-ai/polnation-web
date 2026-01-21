@@ -107,11 +107,14 @@ export default function EarningsPage() {
   const [showEarningsBreakdown, setShowEarningsBreakdown] = useState(false)
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
 
+  // Use bound wallet or connected wallet (same as Dashboard)
+  const walletAddress = boundWalletAddress || address
+
   const { data: usdcBalanceRaw } = useReadContract({
     address: USDC_ADDRESS,
     abi: USDC_ABI,
     functionName: 'balanceOf',
-    args: address ? [address] : undefined,
+    args: walletAddress ? [walletAddress as `0x${string}`] : undefined,
     chainId: polygon.id,
   })
 
@@ -119,6 +122,9 @@ export default function EarningsPage() {
   const currentTier = tiers.find(t => usdcBalance >= t.min_usdc && usdcBalance < t.max_usdc)
   const nextTier = currentTier ? tiers.find(t => t.level === currentTier.level + 1) : tiers[0]
   const totalAvailable = (profits?.available_usdc || 0)
+  
+  // Has wallet = connected OR has bound wallet
+  const hasWallet = isConnected || !!boundWalletAddress
 
   const polAmount = withdrawAmount && polPrice > 0 
     ? (parseFloat(withdrawAmount) / polPrice).toFixed(4)
@@ -257,7 +263,7 @@ export default function EarningsPage() {
   }
 
   // Only show connect wallet prompt if user has no bound wallet AND is not connected
-  if (!isConnected && !boundWalletAddress) {
+  if (!hasWallet) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <Wallet className="w-16 h-16 text-zinc-400 mb-4" />
@@ -269,18 +275,7 @@ export default function EarningsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Connect Wallet Banner - Show when user has bound wallet but not connected */}
-      {!isConnected && boundWalletAddress && (
-        <div className="glass-card-solid p-4 flex items-center gap-4 border-amber-500/30">
-          <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center shrink-0">
-            <Wallet className="w-5 h-5 text-amber-400" />
-          </div>
-          <div className="flex-1">
-            <p className="text-amber-300 font-medium">{tWallet('connect')}</p>
-            <p className="text-amber-400/70 text-sm">Connect your wallet to see real-time USDC balance</p>
-          </div>
-        </div>
-      )}
+      {/* This banner is no longer needed since we use bound wallet address */}
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -300,13 +295,13 @@ export default function EarningsPage() {
           <div className="flex items-start justify-between mb-6">
             <div>
               <p className="text-purple-200 text-sm mb-1">{t('usdcBalance')}</p>
-              {isConnected ? (
+              {hasWallet ? (
                 <p className="text-4xl font-bold currency">${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               ) : (
                 <p className="text-4xl font-bold text-purple-200">--</p>
               )}
             </div>
-            {currentTier && isConnected && (
+            {currentTier && hasWallet && (
               <div className="px-3 py-1 rounded-full bg-white/20 backdrop-blur">
                 <span className="text-sm font-semibold flex items-center gap-1">
                   <Star className="w-4 h-4" />
@@ -316,7 +311,7 @@ export default function EarningsPage() {
             )}
           </div>
 
-          {isConnected ? (
+          {hasWallet ? (
             currentTier ? (
               <div className="bg-white/10 backdrop-blur rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
@@ -341,7 +336,7 @@ export default function EarningsPage() {
             </div>
           )}
 
-          {isConnected && nextTier && usdcBalance < nextTier.min_usdc && (
+          {hasWallet && nextTier && usdcBalance < nextTier.min_usdc && (
             <div className="mt-4 text-sm text-purple-200">
               <p>{t('upgradeHint', { amount: (nextTier.min_usdc - usdcBalance).toFixed(2), tier: nextTier.name, rate: nextTier.rate_percent })}</p>
             </div>
