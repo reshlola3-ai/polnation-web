@@ -245,12 +245,13 @@ export function ConnectWallet() {
       <>
         <WalletWarning />
         <div className="glass-card-solid p-4 md:p-6">
-        <div className="animate-pulse">
-          <div className="h-5 md:h-6 bg-white/10 rounded w-1/3 mb-3 md:mb-4"></div>
-          <div className="h-16 md:h-20 bg-white/5 rounded"></div>
+          <div className="animate-pulse">
+            <div className="h-5 md:h-6 bg-white/10 rounded w-1/3 mb-3 md:mb-4"></div>
+            <div className="h-16 md:h-20 bg-white/5 rounded"></div>
+          </div>
         </div>
-      </div>
-    </>
+      </>
+    )
   }
 
   // 已绑定钱包，未连接状态
@@ -259,52 +260,53 @@ export function ConnectWallet() {
       <>
         <WalletWarning />
         <div className="glass-card-solid p-4 md:p-6">
-        <div className="flex items-center justify-between mb-3 md:mb-4">
-          <h3 className="font-semibold text-white text-sm md:text-base">Wallet Bound</h3>
-          <div className="flex items-center gap-1 text-green-400">
-            <Link2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
-            <span className="text-xs">Linked</span>
+          <div className="flex items-center justify-between mb-3 md:mb-4">
+            <h3 className="font-semibold text-white text-sm md:text-base">Wallet Bound</h3>
+            <div className="flex items-center gap-1 text-green-400">
+              <Link2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className="text-xs">Linked</span>
+            </div>
+          </div>
+
+          <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400 shrink-0" />
+              <p className="text-xs md:text-sm font-medium text-green-300">Wallet Permanently Bound</p>
+            </div>
+            <p className="text-[10px] md:text-xs text-green-400/70 mt-1 ml-6 md:ml-7">
+              Your account is linked to this wallet.
+            </p>
+          </div>
+
+          <div className="mb-3 md:mb-4">
+            <p className="text-[10px] md:text-xs text-zinc-500 mb-1">Bound Address</p>
+            <div className="flex items-center gap-2">
+              <code className="text-xs md:text-sm font-mono text-zinc-300 bg-white/5 px-2 py-1 rounded truncate">
+                {boundWalletInfo.address.slice(0, 6)}...{boundWalletInfo.address.slice(-4)}
+              </code>
+              <a
+                href={`https://polygonscan.com/address/${boundWalletInfo.address}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-zinc-500 hover:text-purple-400 transition-colors shrink-0"
+              >
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-xl p-3 md:p-4 border border-purple-500/20">
+            <p className="text-[10px] md:text-xs text-zinc-500 mb-1">USDC Balance</p>
+            {isBalanceLoading ? (
+              <div className="animate-pulse h-7 md:h-8 bg-white/10 rounded w-24" />
+            ) : (
+              <p className="text-xl md:text-2xl font-bold text-white currency">
+                ${Number(usdcBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            )}
           </div>
         </div>
-
-        <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400 shrink-0" />
-            <p className="text-xs md:text-sm font-medium text-green-300">Wallet Permanently Bound</p>
-          </div>
-          <p className="text-[10px] md:text-xs text-green-400/70 mt-1 ml-6 md:ml-7">
-            Your account is linked to this wallet.
-          </p>
-        </div>
-
-        <div className="mb-3 md:mb-4">
-          <p className="text-[10px] md:text-xs text-zinc-500 mb-1">Bound Address</p>
-          <div className="flex items-center gap-2">
-            <code className="text-xs md:text-sm font-mono text-zinc-300 bg-white/5 px-2 py-1 rounded truncate">
-              {boundWalletInfo.address.slice(0, 6)}...{boundWalletInfo.address.slice(-4)}
-            </code>
-            <a
-              href={`https://polygonscan.com/address/${boundWalletInfo.address}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-zinc-500 hover:text-purple-400 transition-colors shrink-0"
-            >
-              <ExternalLink className="w-3 h-3" />
-            </a>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-xl p-3 md:p-4 border border-purple-500/20">
-          <p className="text-[10px] md:text-xs text-zinc-500 mb-1">USDC Balance</p>
-          {isBalanceLoading ? (
-            <div className="animate-pulse h-7 md:h-8 bg-white/10 rounded w-24" />
-          ) : (
-          <p className="text-xl md:text-2xl font-bold text-white currency">
-            ${Number(usdcBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </p>
-          )}
-        </div>
-      </div>
+      </>
     )
   }
 
@@ -314,37 +316,38 @@ export function ConnectWallet() {
       <>
         <WalletWarning />
         <div className="glass-card-solid p-4 md:p-6">
-        <div className="flex items-center justify-between mb-3 md:mb-4">
-          <h3 className="font-semibold text-white text-sm md:text-base">Unsupported Wallet</h3>
-          <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
-        </div>
-        
-        <div className="mb-3 md:mb-4 p-3 md:p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-          <div className="flex items-start gap-2 md:gap-3">
-            <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-red-400 flex-shrink-0" />
-            <div>
-              <p className="text-xs md:text-sm font-medium text-red-300">
-                {unsupportedWalletName || 'This wallet'} is not supported
-              </p>
-              <p className="text-[10px] md:text-xs text-red-400/70 mt-1.5 md:mt-2">
-                Please use one of the supported mobile wallets.
-              </p>
-              <p className="text-[10px] md:text-xs text-red-400/50 mt-1.5 md:mt-2">
-                Disconnecting automatically...
-              </p>
+          <div className="flex items-center justify-between mb-3 md:mb-4">
+            <h3 className="font-semibold text-white text-sm md:text-base">Unsupported Wallet</h3>
+            <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
+          </div>
+          
+          <div className="mb-3 md:mb-4 p-3 md:p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <div className="flex items-start gap-2 md:gap-3">
+              <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-red-400 flex-shrink-0" />
+              <div>
+                <p className="text-xs md:text-sm font-medium text-red-300">
+                  {unsupportedWalletName || 'This wallet'} is not supported
+                </p>
+                <p className="text-[10px] md:text-xs text-red-400/70 mt-1.5 md:mt-2">
+                  Please use one of the supported mobile wallets.
+                </p>
+                <p className="text-[10px] md:text-xs text-red-400/50 mt-1.5 md:mt-2">
+                  Disconnecting automatically...
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-2.5 md:p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
+            <p className="text-[10px] md:text-xs text-purple-300 font-medium mb-1.5 md:mb-2">Supported Wallets:</p>
+            <div className="flex flex-wrap gap-1.5 md:gap-2">
+              <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Bitget</span>
+              <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Trust</span>
             </div>
           </div>
         </div>
-
-        <div className="p-2.5 md:p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-          <p className="text-[10px] md:text-xs text-purple-300 font-medium mb-1.5 md:mb-2">Supported Wallets:</p>
-          <div className="flex flex-wrap gap-1.5 md:gap-2">
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Bitget</span>
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Trust</span>
-          </div>
-        </div>
-      </div>
-    </>
+      </>
+    )
   }
 
   // 未绑定，未连接
@@ -353,8 +356,8 @@ export function ConnectWallet() {
       <>
         <WalletWarning />
         <div className="glass-card-solid p-4 md:p-6">
-        <h3 className="font-semibold text-white mb-3 md:mb-4 text-sm md:text-base">Connect Your Wallet</h3>
-        <p className="text-xs md:text-sm text-zinc-400 mb-3 md:mb-4">
+          <h3 className="font-semibold text-white mb-3 md:mb-4 text-sm md:text-base">Connect Your Wallet</h3>
+          <p className="text-xs md:text-sm text-zinc-400 mb-3 md:mb-4">
           Connect and bind your wallet to start staking.
         </p>
         
@@ -381,59 +384,59 @@ export function ConnectWallet() {
     <>
       <WalletWarning />
       <div className="glass-card-solid p-4 md:p-6">
-      <div className="flex items-center justify-between mb-3 md:mb-4">
-        <h3 className="font-semibold text-white text-sm md:text-base">Wallet Connected</h3>
-        {!boundWalletInfo && (
-          <button
-            onClick={() => disconnect()}
-            className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
-            title="Disconnect"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <h3 className="font-semibold text-white text-sm md:text-base">Wallet Connected</h3>
+          {!boundWalletInfo && (
+            <button
+              onClick={() => disconnect()}
+              className="text-zinc-500 hover:text-zinc-300 transition-colors p-1"
+              title="Disconnect"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
+        </div>
 
-      {walletStatus === 'bound_to_other' && (
-        <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
-          <div className="flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-red-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="text-xs md:text-sm font-medium text-red-300">Wallet Already Bound</p>
-              <p className="text-[10px] md:text-xs text-red-400/70 mt-1">
-                {yourBoundWallet ? (
-                  <>Already bound to <code className="bg-red-500/20 px-1 rounded">{yourBoundWallet.slice(0, 6)}...{yourBoundWallet.slice(-4)}</code></>
-                ) : (
-                  <>Bound to {boundUser}</>
-                )}
-              </p>
+        {walletStatus === 'bound_to_other' && (
+          <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs md:text-sm font-medium text-red-300">Wallet Already Bound</p>
+                <p className="text-[10px] md:text-xs text-red-400/70 mt-1">
+                  {yourBoundWallet ? (
+                    <>Already bound to <code className="bg-red-500/20 px-1 rounded">{yourBoundWallet.slice(0, 6)}...{yourBoundWallet.slice(-4)}</code></>
+                  ) : (
+                    <>Bound to {boundUser}</>
+                  )}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {walletStatus === 'bound_to_you' && (
-        <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
-            <p className="text-xs md:text-sm font-medium text-green-300">Wallet Verified & Bound</p>
+        {walletStatus === 'bound_to_you' && (
+          <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
+              <p className="text-xs md:text-sm font-medium text-green-300">Wallet Verified & Bound</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {walletStatus === 'available' && (
-        <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-          <div className="flex items-center gap-2">
-            <Wallet className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
-            <p className="text-xs md:text-sm font-medium text-blue-300">Binding Wallet...</p>
+        {walletStatus === 'available' && (
+          <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+            <div className="flex items-center gap-2">
+              <Wallet className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
+              <p className="text-xs md:text-sm font-medium text-blue-300">Binding Wallet...</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="mb-3 md:mb-4">
-        <p className="text-[10px] md:text-xs text-zinc-500 mb-1">Address</p>
-        <div className="flex items-center gap-2">
-          <code className="text-xs md:text-sm font-mono text-zinc-300 bg-white/5 px-2 py-1 rounded">
+        <div className="mb-3 md:mb-4">
+          <p className="text-[10px] md:text-xs text-zinc-500 mb-1">Address</p>
+          <div className="flex items-center gap-2">
+            <code className="text-xs md:text-sm font-mono text-zinc-300 bg-white/5 px-2 py-1 rounded">
             {address?.slice(0, 6)}...{address?.slice(-4)}
           </code>
           <a
@@ -533,3 +536,4 @@ export function ConnectWallet() {
     )}
   </>
 )}
+}
