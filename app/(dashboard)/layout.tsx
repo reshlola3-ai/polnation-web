@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { Navbar } from '@/components/layout/Navbar'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { Web3Provider } from '@/components/providers/Web3Provider'
+import { UnsupportedWalletOverlay } from '@/components/layout/UnsupportedWalletOverlay'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 
 export default async function DashboardLayout({
@@ -26,6 +27,9 @@ export default async function DashboardLayout({
   return (
     <Web3Provider>
       <div className="min-h-screen bg-[#0D0B21] relative">
+        {/* Unsupported Wallet Overlay */}
+        <UnsupportedWalletOverlay />
+        
         {/* Static Background Effects */}
         <div className="fixed inset-0 pointer-events-none">
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[120px]" />
