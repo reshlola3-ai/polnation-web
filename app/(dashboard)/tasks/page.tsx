@@ -25,6 +25,13 @@ import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import dynamic from 'next/dynamic'
+
+// Dynamically import LottieIcon to avoid SSR issues
+const LottieIcon = dynamic(
+  () => import('@/components/ui/LottieIcon').then(mod => mod.LottieIcon),
+  { ssr: false }
+)
 
 interface Task {
   id: string
@@ -223,7 +230,7 @@ export default function TasksPage() {
 
   const getSocialIcon = (taskKey: string) => {
     if (taskKey.includes('twitter')) return <Twitter className="w-5 h-5" />
-    if (taskKey.includes('telegram')) return <MessageCircle className="w-5 h-5" />
+    if (taskKey.includes('telegram')) return <LottieIcon src="/telegram.json" className="w-6 h-6" />
     if (taskKey.includes('discord')) return <MessageCircle className="w-5 h-5" />
     return <Share2 className="w-5 h-5" />
   }
