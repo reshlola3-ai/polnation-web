@@ -291,7 +291,7 @@ export function ConnectWallet() {
             </div>
           </div>
         </div>
-      </>
+      </div>
     )
   }
 
@@ -475,5 +475,5 @@ export function ConnectWallet() {
         </div>
       </div>
     )}
-  </>
+  }
 }
