@@ -226,34 +226,38 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         <div className="grid grid-cols-2 gap-4">
           {/* Wallet Balance */}
           <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
-            <div className="flex items-center gap-2 mb-2">
-              <img src="/usdc.png" alt="USDC" className="w-5 h-5" />
-              <span className="text-sm text-purple-200">{t('walletBalance')}</span>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-purple-200 mb-1">{t('walletBalance')}</p>
+                {isBalanceLoading ? (
+                  <div className="animate-pulse h-8 w-24 bg-white/10 rounded" />
+                ) : (
+                  <p className="text-2xl md:text-3xl font-bold text-white stat-number">
+                    ${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                )}
+                <p className="text-xs text-zinc-500 mt-1">{t('usdcOnPolygon')}</p>
+              </div>
+              <img src="/usdc.png" alt="USDC" className="w-10 h-10 md:w-12 md:h-12" />
             </div>
-            {isBalanceLoading ? (
-              <div className="animate-pulse h-8 w-24 bg-white/10 rounded" />
-            ) : (
-              <p className="text-2xl md:text-3xl font-bold text-white stat-number">
-                ${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            )}
-            <p className="text-xs text-zinc-500 mt-1">{t('usdcOnPolygon')}</p>
           </div>
 
           {/* Community Prize Pool */}
           <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
-            <div className="flex items-center gap-2 mb-2">
-              <img src="/crowdfunding.png" alt="Community" className="w-5 h-5" />
-              <span className="text-sm text-purple-200">{t('communityPrizePool')}</span>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-purple-200 mb-1">{t('communityPrizePool')}</p>
+                {isLoadingProfit ? (
+                  <div className="animate-pulse h-8 w-24 bg-white/10 rounded" />
+                ) : (
+                  <p className="text-2xl md:text-3xl font-bold text-white stat-number">
+                    ${profitData.communityPrizePool.toFixed(2)}
+                  </p>
+                )}
+                <p className="text-xs text-zinc-500 mt-1">{t('level', { name: profitData.currentLevelName })}</p>
+              </div>
+              <img src="/crowdfunding.png" alt="Community" className="w-10 h-10 md:w-12 md:h-12" />
             </div>
-            {isLoadingProfit ? (
-              <div className="animate-pulse h-8 w-24 bg-white/10 rounded" />
-            ) : (
-              <p className="text-2xl md:text-3xl font-bold text-white stat-number">
-                ${profitData.communityPrizePool.toFixed(2)}
-              </p>
-            )}
-            <p className="text-xs text-zinc-500 mt-1">{t('level', { name: profitData.currentLevelName })}</p>
           </div>
         </div>
 
