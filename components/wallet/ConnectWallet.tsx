@@ -32,7 +32,6 @@ export function ConnectWallet() {
   const { disconnect } = useDisconnect()
   const [walletStatus, setWalletStatus] = useState<'checking' | 'available' | 'bound_to_you' | 'bound_to_other' | 'unsupported_wallet'>('checking')
   const [boundUser, setBoundUser] = useState<string | null>(null)
-  const [yourBoundWallet, setYourBoundWallet] = useState<string | null>(null)
   const [unsupportedWalletName, setUnsupportedWalletName] = useState<string | null>(null)
   const [showUnsupportedModal, setShowUnsupportedModal] = useState(false)
   const [boundWalletInfo, setBoundWalletInfo] = useState<BoundWalletInfo | null>(null)
@@ -46,6 +45,7 @@ export function ConnectWallet() {
       if (!isSupported) {
         setWalletStatus('unsupported_wallet')
         setUnsupportedWalletName(connector.name)
+        setShowUnsupportedModal(true)
       }
     }
   }, [isConnected, connector])
@@ -85,6 +85,7 @@ export function ConnectWallet() {
       if (connector && !isAllowedWallet(connector.name)) {
         setWalletStatus('unsupported_wallet')
         setUnsupportedWalletName(connector.name)
+        setShowUnsupportedModal(true)
         return
       }
 
@@ -157,35 +158,7 @@ export function ConnectWallet() {
     )
   }
 
-  // Unsupported wallet
-  if (walletStatus === 'unsupported_wallet') {
-    return (
-      <div className="glass-card-solid p-4 md:p-6">
-        <div className="flex items-center justify-between mb-3 md:mb-4">
-          <h3 className="font-semibold text-white text-sm md:text-base">Unsupported Wallet</h3>
-          <XCircle className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
-        </div>
-        <div className="mb-3 md:mb-4 p-3 md:p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-          <div className="flex items-start gap-2 md:gap-3">
-            <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-red-400 flex-shrink-0" />
-            <div>
-              <p className="text-xs md:text-sm font-medium text-red-300">{unsupportedWalletName || 'This wallet'} is not supported</p>
-              <p className="text-[10px] md:text-xs text-red-400/70 mt-1.5 md:mt-2">Please use Bitget or Trust Wallet</p>
-            </div>
-          </div>
-        </div>
-        <div className="p-2.5 md:p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-          <p className="text-[10px] md:text-xs text-purple-300 font-medium mb-1.5 md:mb-2">Supported Wallets:</p>
-          <div className="flex flex-wrap gap-1.5 md:gap-2">
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Bitget</span>
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 md:py-1 rounded text-purple-300">Trust</span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Not bound, not connected
+  // Not connected, not bound
   if (!isConnected && !boundWalletInfo) {
     return (
       <div className="glass-card-solid p-4 md:p-6">
@@ -258,6 +231,40 @@ export function ConnectWallet() {
           <p className="text-xl md:text-2xl font-bold text-white currency">${Number(usdcBalance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         )}
       </div>
+
+      {/* Unsupported Wallet Modal */}
+      {showUnsupportedModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-md w-full">
+            <div className="flex items-center gap-3 mb-4">
+              <XCircle className="w-8 h-8 text-red-400" />
+              <h2 className="text-xl font-bold text-white">Unsupported Wallet</h2>
+            </div>
+            <p className="text-zinc-400 mb-4">
+              {unsupportedWalletName || 'This wallet'} is not supported. Please use one of the supported wallets below:
+            </p>
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center gap-3 p-3 bg-zinc-800 rounded-xl">
+                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold">B</div>
+                <div>
+                  <p className="text-white font-medium">Bitget Wallet</p>
+                  <p className="text-zinc-500 text-sm">Most popular choice</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-zinc-800 rounded-xl">
+                <div className="w-10 h-10 bg-cyan-500 rounded-lg flex items-center justify-center text-white font-bold">T</div>
+                <div>
+                  <p className="text-white font-medium">Trust Wallet</p>
+                  <p className="text-zinc-500 text-sm">Simple and secure</p>
+                </div>
+              </div>
+            </div>
+            <Button onClick={() => { disconnect(); setShowUnsupportedModal(false) }} className="w-full">
+              Disconnect Wallet
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
