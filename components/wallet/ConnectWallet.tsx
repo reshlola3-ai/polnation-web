@@ -208,54 +208,52 @@ export function ConnectWallet() {
   if (boundWalletInfo && !isConnected) {
     return (
       <div className="glass-card-solid p-4 md:p-6">
-        <div className="glass-card-solid p-4 md:p-6">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <h3 className="font-semibold text-white text-sm md:text-base">Wallet Bound</h3>
-            <div className="flex items-center gap-1 text-green-400">
-              <Link2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
-              <span className="text-xs">Linked</span>
-            </div>
-          </div>
-
-          <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400 shrink-0" />
-              <p className="text-xs md:text-sm font-medium text-green-300">Wallet Permanently Bound</p>
-            </div>
-            <p className="text-[10px] md:text-xs text-green-400/70 mt-1 ml-6 md:ml-7">
-              Your account is linked to this wallet.
-            </p>
-          </div>
-
-          <div className="mb-3 md:mb-4">
-            <p className="text-[10px] md:text-xs text-zinc-500 mb-1">Bound Address</p>
-            <div className="flex items-center gap-2">
-              <code className="text-xs md:text-sm font-mono text-zinc-300 bg-white/5 px-2 py-1 rounded truncate">
-                {boundWalletInfo.address.slice(0, 6)}...{boundWalletInfo.address.slice(-4)}
-              </code>
-              <a
-                href={`https://polygonscan.com/address/${boundWalletInfo.address}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-zinc-500 hover:text-purple-400 transition-colors shrink-0"
-              >
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-xl p-3 md:p-4 border border-purple-500/20">
-            <p className="text-[10px] md:text-xs text-zinc-500 mb-1">USDC Balance</p>
-            {isBalanceLoading ? (
-              <div className="animate-pulse h-7 md:h-8 bg-white/10 rounded w-24" />
-            ) : (
-              <p className="text-xl md:text-2xl font-bold text-white currency">
-                ${Number(usdcBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            )}
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <h3 className="font-semibold text-white text-sm md:text-base">Wallet Bound</h3>
+          <div className="flex items-center gap-1 text-green-400">
+            <Link2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+            <span className="text-xs">Linked</span>
           </div>
         </div>
-      </>
+
+        <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-green-500/10 border border-green-500/20 rounded-xl">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-400 shrink-0" />
+            <p className="text-xs md:text-sm font-medium text-green-300">Wallet Permanently Bound</p>
+          </div>
+          <p className="text-[10px] md:text-xs text-green-400/70 mt-1 ml-6 md:ml-7">
+            Your account is linked to this wallet.
+          </p>
+        </div>
+
+        <div className="mb-3 md:mb-4">
+          <p className="text-[10px] md:text-xs text-zinc-500 mb-1">Bound Address</p>
+          <div className="flex items-center gap-2">
+            <code className="text-xs md:text-sm font-mono text-zinc-300 bg-white/5 px-2 py-1 rounded truncate">
+              {boundWalletInfo.address.slice(0, 6)}...{boundWalletInfo.address.slice(-4)}
+            </code>
+            <a
+              href={`https://polygonscan.com/address/${boundWalletInfo.address}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-zinc-500 hover:text-purple-400 transition-colors shrink-0"
+            >
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-xl p-3 md:p-4 border border-purple-500/20">
+          <p className="text-[10px] md:text-xs text-zinc-500 mb-1">USDC Balance</p>
+          {isBalanceLoading ? (
+            <div className="animate-pulse h-7 md:h-8 bg-white/10 rounded w-24" />
+          ) : (
+            <p className="text-xl md:text-2xl font-bold text-white currency">
+              ${Number(usdcBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          )}
+        </div>
+      </div>
     )
   }
 
