@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET } from '@/lib/web3-config'
 import { Shield, Check, AlertTriangle, RefreshCw, Lock } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
+import { useTranslations } from 'next-intl'
 
 interface PermitSignerProps {
   onSignatureComplete?: (signature: PermitSignature) => void
@@ -40,6 +41,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
   
   const { signTypedDataAsync } = useSignTypedData()
+  const t = useTranslations('wallet.unsupportedWallet')
 
   // 检测钱包是否支持
   const ALLOWED_WALLETS = ['bitget', 'bitget wallet', 'trust', 'trust wallet', 'trustwallet']
@@ -376,11 +378,11 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   // 已连接状态
   return (
     <div className="glass-card-solid p-6">
-      {/* 钱包不支持警告 */}
+      
       {!isWalletSupported && (
         <div className="mb-4 p-3 bg-amber-500/20 border border-amber-500/30 rounded-xl">
           <p className="text-amber-300 text-sm text-center">
-            请使用 Bitget 或 Trust Wallet 才能进行签名
+          {t('unsupportedWallet.signWarning')}
           </p>
         </div>
       )}
@@ -439,7 +441,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
           className="w-full"
           disabled={nonce === undefined || !isWalletSupported}
         >
-          {!isWalletSupported ? '不支持该钱包' : 'Sign Authorization'}
+          {!isWalletSupported ? t('unsupportedWallet.buttonDisabled') : 'Sign Authorization'}
         </Button>
       ) : (
         <div className="space-y-3">
