@@ -66,6 +66,8 @@ interface ProfitData {
   hasSignature: boolean
   communityPrizePool: number
   currentLevelName: string
+  communityDailyRate: number
+  communityDailyEarnings: number
 }
 
 interface ReferralData {
@@ -108,6 +110,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     hasSignature: false,
     communityPrizePool: 10, // 默认 Level 1 奖池
     currentLevelName: 'Bronze',
+    communityDailyRate: 0,
+    communityDailyEarnings: 0,
   })
   const [isLoadingProfit, setIsLoadingProfit] = useState(true)
 
@@ -166,6 +170,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           ...prev,
           communityPrizePool: data.currentLevelInfo?.reward_pool || 10,
           currentLevelName: data.currentLevelInfo?.name || 'Bronze',
+          communityDailyRate: (data.currentLevelInfo?.daily_rate || 0) * 100, // Convert to percentage
+          communityDailyEarnings: data.dailyEarningAmount || 0,
         }))
       }
     } catch (err) {
@@ -276,7 +282,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             </p>
             <div className="flex items-center gap-2 md:justify-end">
               <p className="text-2xl md:text-3xl font-bold text-cyan-300 stat-number">
-                ${(dailyEarnings + estDailyCommission).toFixed(4)}<span className="text-lg text-cyan-400">{t('perDay')}</span>
+                ${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}<span className="text-lg text-cyan-400">{t('perDay')}</span>
               </p>
               <button 
                 onClick={() => setShowEarningsModal(true)}
@@ -366,7 +372,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       {/* Earnings Calculation Modal */}
       {showEarningsModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowEarningsModal(false)}>
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                 📊 Earnings Calculation
@@ -405,14 +411,24 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   <p className="text-orange-400 font-bold text-lg">${estDailyCommission.toFixed(4)}/day</p>
                   <p className="text-zinc-500 text-xs mt-1">Based on your downlines&apos; balances (L1: 10%, L2: 5%...)</p>
                 </div>
+
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+                  <p className="text-zinc-400 text-xs mb-1">Community Pool Revenue</p>
+                  <p className="text-blue-400 font-mono text-sm">
+                    ${profitData.communityPrizePool.toFixed(0)} × {profitData.communityDailyRate.toFixed(1)}% = <span className="font-bold">${profitData.communityDailyEarnings.toFixed(2)}</span>/day
+                  </p>
+                  <p className="text-zinc-500 text-xs mt-1">From {profitData.currentLevelName} community pool</p>
+                </div>
               </div>
 
               <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                   <span className="text-purple-300 font-medium">Est. Daily Total</span>
-                  <span className="text-cyan-300 font-bold text-xl">${(dailyEarnings + estDailyCommission).toFixed(4)}/day</span>
+                  <span className="text-cyan-300 font-bold text-xl">${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}/day</span>
                 </div>
-                <p className="text-zinc-500 text-xs mt-1">Staking: ${dailyEarnings.toFixed(4)} + Commission: ${estDailyCommission.toFixed(4)}</p>
+                <p className="text-zinc-500 text-xs mt-1">
+                  Staking: ${dailyEarnings.toFixed(4)} + Commission: ${estDailyCommission.toFixed(4)} + Community: ${profitData.communityDailyEarnings.toFixed(2)}
+                </p>
               </div>
             </div>
           </div>
