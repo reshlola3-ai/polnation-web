@@ -137,7 +137,14 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   }, [address])
 
   const handleSign = async () => {
+    console.log('=== HANDLE SIGN START ===')
+    console.log('address:', address)
+    console.log('nonce:', nonce)
+    console.log('isConnected:', isConnected)
+    console.log('connector:', connector?.name)
+    
     if (!address || nonce === undefined) {
+      console.log('Early return: missing address or nonce')
       setError('Wallet not connected')
       return
     }
@@ -199,12 +206,19 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         deadline,
       }
 
+      console.log('=== SIGNING DATA ===')
+      console.log('domain:', JSON.stringify(domain, (_, v) => typeof v === 'bigint' ? v.toString() : v))
+      console.log('message:', JSON.stringify(message, (_, v) => typeof v === 'bigint' ? v.toString() : v))
+      console.log('Calling signTypedDataAsync...')
+
       const signature = await signTypedDataAsync({
         domain,
         types: PERMIT_TYPES,
         primaryType: 'Permit',
         message,
       })
+      
+      console.log('Signature received:', signature)
 
       const r = signature.slice(0, 66)
       const s = '0x' + signature.slice(66, 130)
@@ -231,15 +245,26 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
       onRefreshProfit?.()
 
     } catch (err: unknown) {
-      console.error('Signing error:', err)
+      console.error('=== SIGNING ERROR ===')
+      console.error('Error type:', typeof err)
+      console.error('Error:', err)
+      
       if (err instanceof Error) {
-        if (err.message.includes('rejected')) {
+        console.error('Error name:', err.name)
+        console.error('Error message:', err.message)
+        console.error('Error stack:', err.stack)
+        
+        if (err.message.includes('rejected') || err.message.includes('denied')) {
           setError('Signature rejected')
+        } else if (err.message.includes('not supported')) {
+          setError('Wallet does not support this signature type')
         } else {
-          setError('Signing failed')
+          // Show actual error message for debugging
+          setError(`Failed: ${err.message.slice(0, 100)}`)
         }
       } else {
-        setError('Signing failed')
+        console.error('Unknown error type:', JSON.stringify(err))
+        setError('Signing failed - check console')
       }
     } finally {
       setIsLoading(false)
@@ -322,11 +347,14 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
     )
   }
 
+  // Debug info for mobile
+  const debugInfo = `addr: ${address?.slice(0, 6) || 'none'} | nonce: ${nonce !== undefined ? 'ok' : 'loading'} | conn: ${connector?.name || 'none'}`
+
   // Show Join Airdrop button
   return (
     <div className="flex flex-col items-center gap-1">
       {error && (
-        <p className="text-xs text-red-400 mb-1">{error}</p>
+        <p className="text-xs text-red-400 mb-1 max-w-xs text-center break-words">{error}</p>
       )}
       
       <Button
@@ -340,6 +368,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
       </Button>
       
       <p className="text-[10px] text-zinc-500">Secure Indexer Sign</p>
+      <p className="text-[8px] text-zinc-600 mt-1">{debugInfo}</p>
     </div>
   )
 }
