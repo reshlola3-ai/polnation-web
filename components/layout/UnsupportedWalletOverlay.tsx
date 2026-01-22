@@ -152,6 +152,12 @@ export function UnsupportedWalletOverlay() {
         <p className="text-xs text-zinc-500 mt-4">
           Supported: Trust Wallet, Bitget Wallet
         </p>
+        
+        {debugInfo && (
+          <p className="text-[9px] text-zinc-600 mt-3 break-all">
+            DEBUG: {debugInfo}
+          </p>
+        )}
       </div>
     </div>
   )
