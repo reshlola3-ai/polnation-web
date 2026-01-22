@@ -73,16 +73,20 @@ export function UnsupportedWalletOverlay() {
     // Small delay to ensure wallet is fully connected
     const timer = setTimeout(() => {
       // Debug: collect all ethereum flags
-      const eth = (window as { ethereum?: Record<string, unknown> }).ethereum
+      const eth = (window as { ethereum?: Record<string, unknown>; bitkeep?: unknown }).ethereum
+      const hasBitkeepGlobal = !!(window as { bitkeep?: unknown }).bitkeep
       if (eth) {
         const flags = {
           isTrust: eth.isTrust,
           isBitget: eth.isBitget,
-          isSafePal: eth.isSafePal,
-          isSafepal: eth.isSafepal,
+          isBitKeep: eth.isBitKeep,
+          isBitgetWallet: eth.isBitgetWallet,
+          isBitkeepChrome: eth.isBitkeepChrome,
           isMetaMask: eth.isMetaMask,
+          isSafePal: eth.isSafePal,
           isCoinbaseWallet: eth.isCoinbaseWallet,
           isTokenPocket: eth.isTokenPocket,
+          'window.bitkeep': hasBitkeepGlobal,
         }
         setDebugInfo(JSON.stringify(flags))
       } else {
