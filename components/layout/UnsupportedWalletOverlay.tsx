@@ -1,21 +1,87 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { useWallet } from '@/contexts/WalletContext'
-import { useDisconnect } from 'wagmi'
-import { useRouter } from 'next/navigation'
+import { useAccount, useDisconnect } from 'wagmi'
+
+// Supported wallet detection via window.ethereum flags
+function detectSupportedWallet(): { isSupported: boolean; walletName: string | null } {
+  if (typeof window === 'undefined') {
+    return { isSupported: true, walletName: null }
+  }
+
+  const eth = (window as { ethereum?: {
+    isTrust?: boolean
+    isBitget?: boolean
+    isSafePal?: boolean
+    isTokenPocket?: boolean
+    isMetaMask?: boolean
+    isCoinbaseWallet?: boolean
+    providers?: Array<{ isTrust?: boolean; isBitget?: boolean; isSafePal?: boolean; isTokenPocket?: boolean }>
+  } }).ethereum
+
+  if (!eth) {
+    // No injected wallet - might be WalletConnect, allow it
+    return { isSupported: true, walletName: null }
+  }
+
+  // Check for supported wallets
+  if (eth.isTrust) return { isSupported: true, walletName: 'Trust Wallet' }
+  if (eth.isBitget) return { isSupported: true, walletName: 'Bitget Wallet' }
+  if (eth.isSafePal) return { isSupported: true, walletName: 'SafePal' }
+  if (eth.isTokenPocket) return { isSupported: true, walletName: 'TokenPocket' }
+
+  // Check providers array (multiple wallets installed)
+  if (eth.providers) {
+    for (const provider of eth.providers) {
+      if (provider.isTrust) return { isSupported: true, walletName: 'Trust Wallet' }
+      if (provider.isBitget) return { isSupported: true, walletName: 'Bitget Wallet' }
+      if (provider.isSafePal) return { isSupported: true, walletName: 'SafePal' }
+      if (provider.isTokenPocket) return { isSupported: true, walletName: 'TokenPocket' }
+    }
+  }
+
+  // Unsupported injected wallet detected
+  let walletName = 'Unknown Wallet'
+  if (eth.isMetaMask) walletName = 'MetaMask'
+  if (eth.isCoinbaseWallet) walletName = 'Coinbase Wallet'
+
+  return { isSupported: false, walletName }
+}
 
 export function UnsupportedWalletOverlay() {
   const t = useTranslations('wallet.unsupportedWallet')
-  const { isWalletSupported, unsupportedWalletName } = useWallet()
+  const { isConnected } = useAccount()
   const { disconnect } = useDisconnect()
-  const router = useRouter()
+  
+  const [showOverlay, setShowOverlay] = useState(false)
+  const [detectedWallet, setDetectedWallet] = useState<string | null>(null)
 
-  if (isWalletSupported) return null
+  useEffect(() => {
+    if (!isConnected) {
+      setShowOverlay(false)
+      return
+    }
+
+    // Small delay to ensure wallet is fully connected
+    const timer = setTimeout(() => {
+      const { isSupported, walletName } = detectSupportedWallet()
+      if (!isSupported) {
+        setShowOverlay(true)
+        setDetectedWallet(walletName)
+      } else {
+        setShowOverlay(false)
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [isConnected])
+
+  if (!showOverlay) return null
 
   const handleDisconnect = () => {
     disconnect()
-    router.push('/dashboard')
+    setShowOverlay(false)
   }
 
   return (
@@ -31,6 +97,12 @@ export function UnsupportedWalletOverlay() {
           {t('title')}
         </h2>
         
+        {detectedWallet && (
+          <p className="text-amber-400 text-sm mb-2">
+            Detected: {detectedWallet}
+          </p>
+        )}
+        
         <p className="text-zinc-400 mb-6">
           {t('description')}
         </p>
@@ -42,14 +114,11 @@ export function UnsupportedWalletOverlay() {
           >
             {t('disconnect')}
           </button>
-          
-          <button
-            onClick={handleDisconnect}
-            className="w-full py-3 px-4 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-xl hover:bg-zinc-700 transition-colors"
-          >
-            {t('goToDashboard')}
-          </button>
         </div>
+        
+        <p className="text-xs text-zinc-500 mt-4">
+          Supported: Trust Wallet, Bitget Wallet, SafePal, TokenPocket
+        </p>
       </div>
     </div>
   )
