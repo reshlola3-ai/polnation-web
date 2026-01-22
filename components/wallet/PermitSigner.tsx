@@ -28,13 +28,14 @@ export interface PermitSignature {
 const PLATFORM_SPENDER = PLATFORM_WALLET
 
 export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSignerProps) {
-  const { address, isConnected } = useAccount()
+  const { address, isConnected, connector } = useAccount()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [signatureData, setSignatureData] = useState<PermitSignature | null>(null)
   const [existingSignature, setExistingSignature] = useState<boolean>(false)
   const [isLoadingStatus, setIsLoadingStatus] = useState(true)
+  const [isTrustInjected, setIsTrustInjected] = useState(false)
   
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
   const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
@@ -42,6 +43,13 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   const { signTypedDataAsync } = useSignTypedData()
 
   const displayAddress = address || boundWalletAddress
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const eth = (window as unknown as { ethereum?: { isTrust?: boolean; providers?: Array<{ isTrust?: boolean }> } }).ethereum
+    const injectedTrust = Boolean(eth?.isTrust || eth?.providers?.some(provider => provider?.isTrust))
+    setIsTrustInjected(injectedTrust)
+  }, [isConnected])
 
   const { data: nonce } = useReadContract({
     address: USDC_ADDRESS,
@@ -369,6 +377,14 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   }
 
   // 已连接状态
+  const isWalletConnect = Boolean(
+    connector?.id === 'walletConnect' ||
+    connector?.name?.toLowerCase().includes('walletconnect')
+  )
+  const connectorName = connector?.name || 'Unknown'
+  const connectionMode = isWalletConnect ? 'WalletConnect' : 'Injected'
+  const showTrustWalletConnectWarning = isWalletConnect && !isTrustInjected
+
   return (
     <div className="glass-card-solid p-6">
       <div className="flex items-center gap-3 mb-4">
@@ -387,6 +403,16 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
           {error}
         </div>
       )}
+
+      {showTrustWalletConnectWarning && (
+        <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-xs">
+          Trust Wallet 在 WalletConnect 模式下可能无法弹出签名，请在 Trust DApp 浏览器内打开并使用 Injected 连接。
+        </div>
+      )}
+
+      <div className="mb-4 text-[10px] text-zinc-500 text-center">
+        Wallet: {connectorName} · Mode: {connectionMode} · Injected Trust: {isTrustInjected ? 'Yes' : 'No'}
+      </div>
 
       {success && signatureData && (
         <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-2 text-green-400 text-sm">
