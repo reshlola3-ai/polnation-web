@@ -105,9 +105,17 @@ export default function TasksPage() {
           setUserEmail(user.email)
           setNeedsEmailBinding(isWalletEmail(user.email))
           
-          // Use user.id as referral code (same as Dashboard)
+          // Fetch referral_code from profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('referral_code')
+            .eq('id', user.id)
+            .single()
+          
+          // Use short referral_code if available, fallback to user.id
+          const refCode = profile?.referral_code || user.id
           const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://polnation.com'
-          setReferralLink(`${baseUrl}/register?ref=${user.id}`)
+          setReferralLink(`${baseUrl}/register?ref=${refCode}`)
         } else {
           setNeedsEmailBinding(true)
         }

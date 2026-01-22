@@ -17,7 +17,7 @@ export default async function DashboardPage() {
   // 获取用户 profile
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, wallet_address, profile_completed')
+    .select('username, wallet_address, profile_completed, referral_code')
     .eq('id', user.id)
     .single()
 

@@ -21,19 +21,30 @@ function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [referrerName, setReferrerName] = useState<string | null>(null)
+  const [referrerUuid, setReferrerUuid] = useState<string | null>(null)
 
-  // 获取推荐人信息
+  // 获取推荐人信息 - 支持短码和 UUID
   useEffect(() => {
     async function fetchReferrer() {
       if (referrerId) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('id', referrerId)
-          .single()
+        // Check if it's a short code (4 chars) or UUID (36 chars with dashes)
+        const isShortCode = referrerId.length <= 6 && !referrerId.includes('-')
+        
+        let query = supabase.from('profiles').select('id, username')
+        
+        if (isShortCode) {
+          // Look up by referral_code
+          query = query.eq('referral_code', referrerId.toUpperCase())
+        } else {
+          // Look up by UUID
+          query = query.eq('id', referrerId)
+        }
+        
+        const { data } = await query.single()
         
         if (data) {
           setReferrerName(data.username)
+          setReferrerUuid(data.id) // Store the actual UUID for registration
         }
       }
     }
@@ -63,7 +74,7 @@ function RegisterForm() {
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
-            referrer_id: referrerId || null,
+            referrer_id: referrerUuid || null, // Use UUID, not short code
           },
         },
       })

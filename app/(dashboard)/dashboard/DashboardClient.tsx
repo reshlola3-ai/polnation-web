@@ -52,6 +52,7 @@ interface DashboardClientProps {
     username: string | null
     wallet_address: string | null
     profile_completed: boolean
+    referral_code: string | null
   } | null
   teamStats: {
     total_team_members: number
@@ -214,9 +215,11 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
   // Calculate total assets = community prize pool + wallet usdc balance
   const totalAssets = profitData.communityPrizePool + usdcBalance
+  // Use short referral_code if available, fallback to userId
+  const refCode = profile?.referral_code || userId
   const referralLink = typeof window !== 'undefined' 
-    ? `${window.location.origin}/register?ref=${userId}`
-    : `https://polnation.com/register?ref=${userId}`
+    ? `${window.location.origin}/register?ref=${refCode}`
+    : `https://polnation.com/register?ref=${refCode}`
 
   const copyLink = () => {
     navigator.clipboard.writeText(referralLink)
