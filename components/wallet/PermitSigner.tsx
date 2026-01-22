@@ -368,88 +368,29 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
     return null
   }
 
-  // 已连接状态
+  // 已连接状态 - 简化 UI
   return (
-    <div className="glass-card-solid p-6">
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
-          <Shield className="w-5 h-5 text-purple-400" />
-        </div>
-        <div>
-          <h3 className="font-semibold text-white">Authorization</h3>
-          <p className="text-sm text-zinc-500">Sign to enable soft staking</p>
-        </div>
-      </div>
-
+    <div className="flex flex-col items-center gap-2">
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 text-red-400 text-sm">
-          <AlertTriangle className="w-4 h-4" />
-          {error}
-        </div>
+        <p className="text-xs text-red-400 text-center">{error}</p>
       )}
-
-      {success && signatureData && (
-        <div className="mb-4 p-3 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center gap-2 text-green-400 text-sm">
-          <Check className="w-4 h-4" />
-          Authorization signed successfully!
-        </div>
-      )}
-
-      {/* Protocol Info */}
-      <div className="mb-4 p-4 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-xl border border-purple-500/20">
-        <div className="flex items-center gap-2 mb-2">
-          <Shield className="w-5 h-5 text-purple-400" />
-          <h4 className="text-sm font-semibold text-purple-300">Polnation Soft Staking Secure Protocol</h4>
-        </div>
-        <p className="text-xs text-zinc-400">
-          Sign to authorize secure staking rewards distribution
-        </p>
-      </div>
-
-      <div className="bg-white/5 rounded-xl p-4 mb-4 border border-white/10">
-        <p className="text-xs text-zinc-500 mb-2">What this authorization does:</p>
-        <ul className="text-sm text-zinc-400 space-y-1">
-          <li>• Enables automatic reward distribution to your wallet</li>
-          <li>• Required to participate in staking rewards</li>
-          <li>• Your funds remain in your wallet at all times</li>
-          <li>• Non-custodial - you maintain full control</li>
-        </ul>
-        <p className="text-xs text-amber-400 mt-3">
-          ⚠️ Without authorization, you won&apos;t receive staking rewards
-        </p>
-      </div>
 
       {!success ? (
-        <Button
-          onClick={handleSign}
-          isLoading={isLoading}
-          className="w-full"
-          disabled={nonce === undefined}
-        >
-          Sign Authorization
-        </Button>
+        <>
+          <Button
+            onClick={handleSign}
+            isLoading={isLoading}
+            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500"
+            disabled={nonce === undefined}
+          >
+            Start Earning
+          </Button>
+          <p className="text-[10px] text-zinc-500">Sign Polnation Indexer Merkle Tree</p>
+        </>
       ) : (
-        <div className="space-y-3">
-          <div className="flex items-center justify-center gap-2 text-green-400">
-            <Check className="w-4 h-4" />
-            <span className="text-sm font-medium">
-              {existingSignature ? 'Authorization already active' : "You're all set for soft staking"}
-            </span>
-          </div>
-          {existingSignature && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSuccess(false)
-                setExistingSignature(false)
-              }}
-              className="w-full gap-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Sign New Authorization
-            </Button>
-          )}
+        <div className="flex items-center justify-center gap-2 py-2 px-4 bg-green-500/10 border border-green-500/20 rounded-xl">
+          <Check className="w-4 h-4 text-green-400" />
+          <span className="text-sm font-medium text-green-400">Ready to Earn</span>
         </div>
       )}
     </div>
