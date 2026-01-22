@@ -725,10 +725,21 @@ export default function TasksPage() {
       {/* Promotion Task - Mobile optimized */}
       {promotionTasks.length > 0 && (
         <div className="glass-card-solid p-4 md:p-6">
-          <h3 className="font-semibold text-white mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
-            <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
-            {t('promotion.title')}
-          </h3>
+          <div className="flex items-center justify-between mb-3 md:mb-4">
+            <h3 className="font-semibold text-white flex items-center gap-2 text-sm md:text-base">
+              <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
+              {t('promotion.title')}
+            </h3>
+            <a
+              href="https://t.me/polnationsupport"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-purple-400 transition-colors"
+            >
+              <LottieIcon src="/telegram.json" className="w-5 h-5" />
+              <span className="hidden sm:inline">Support</span>
+            </a>
+          </div>
           {promotionTasks.map(task => (
             <div key={task.id} className="space-y-3 md:space-y-4">
               <div className="flex items-start gap-3">
@@ -780,17 +791,6 @@ export default function TasksPage() {
                     {tCommon('submit')}
                   </Button>
                 </div>
-                
-                {/* Contact Support */}
-                <a
-                  href="https://t.me/polnationsupport"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 text-xs text-zinc-500 hover:text-purple-400 transition-colors mt-2"
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  Contact Support
-                </a>
               </div>
             </div>
           ))}
@@ -800,10 +800,21 @@ export default function TasksPage() {
       {/* Video Task - Mobile optimized */}
       {videoTasks.length > 0 && (
         <div className="glass-card-solid p-4 md:p-6">
-          <h3 className="font-semibold text-white mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
-            <Video className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
-            {t('video.title')}
-          </h3>
+          <div className="flex items-center justify-between mb-3 md:mb-4">
+            <h3 className="font-semibold text-white flex items-center gap-2 text-sm md:text-base">
+              <Video className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
+              {t('video.title')}
+            </h3>
+            <a
+              href="https://t.me/polnationsupport"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 transition-colors"
+            >
+              <LottieIcon src="/telegram.json" className="w-5 h-5" />
+              <span className="hidden sm:inline">Support</span>
+            </a>
+          </div>
           {videoTasks.map(task => (
             <div key={task.id} className="space-y-3 md:space-y-4">
               <div className="flex items-start gap-3">
@@ -843,17 +854,6 @@ export default function TasksPage() {
                   {tCommon('submit')}
                 </Button>
               </div>
-              
-              {/* Contact Support */}
-              <a
-                href="https://t.me/polnationsupport"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 text-xs text-zinc-500 hover:text-red-400 transition-colors mt-2"
-              >
-                <MessageCircle className="w-3.5 h-3.5" />
-                Contact Support
-              </a>
             </div>
           ))}
         </div>
