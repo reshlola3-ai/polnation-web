@@ -58,14 +58,21 @@ export async function POST(request: Request) {
 
 // Create new account with wallet (no email required)
 async function createWalletAccount(walletAddress: string) {
+  console.log('=== CREATE WALLET ACCOUNT START ===')
+  console.log('Wallet address:', walletAddress)
+  
   try {
     // Generate a unique email for this wallet user (internal use only)
     const walletEmail = `${walletAddress.slice(2, 10).toLowerCase()}@wallet.polnation.com`
     const randomPassword = crypto.randomUUID() + crypto.randomUUID()
     const username = `user_${walletAddress.slice(2, 8).toLowerCase()}`
+    
+    console.log('Generated email:', walletEmail)
+    console.log('Generated username:', username)
 
     // Create user in Supabase Auth
     // The trigger will automatically create a profile with this email
+    console.log('Creating auth user...')
     const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: walletEmail,
       password: randomPassword,
@@ -77,30 +84,76 @@ async function createWalletAccount(walletAddress: string) {
     })
 
     if (authError || !authUser.user) {
-      console.error('Failed to create auth user:', authError)
+      console.error('=== AUTH USER CREATION FAILED ===')
+      console.error('Auth error:', authError)
+      console.error('Auth error message:', authError?.message)
+      console.error('Auth error code:', authError?.code)
       return NextResponse.json(
-        { error: 'Failed to create account: ' + (authError?.message || 'Unknown error') },
+        { error: 'Failed to create account: ' + (authError?.message || 'Unknown error'), details: authError },
         { status: 500 }
       )
     }
+    
+    console.log('Auth user created successfully:', authUser.user.id)
 
     // Wait a moment for the trigger to create the profile
-    await new Promise(resolve => setTimeout(resolve, 500))
+    console.log('Waiting for trigger to create profile...')
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
-    // Update the profile with wallet address (trigger already created the profile)
-    const { error: updateError } = await supabaseAdmin
+    // Check if profile was created by trigger
+    const { data: checkProfile, error: checkError } = await supabaseAdmin
       .from('profiles')
-      .update({
-        wallet_address: walletAddress.toLowerCase(),
-        wallet_bound_at: new Date().toISOString(),
-        username: username,
-        profile_completed: false
-      })
+      .select('id, referral_code')
       .eq('id', authUser.user.id)
+      .single()
+    
+    console.log('Profile check result:', { checkProfile, checkError })
+    
+    if (checkError || !checkProfile) {
+      console.error('=== PROFILE NOT CREATED BY TRIGGER ===')
+      console.error('Check error:', checkError)
+      
+      // Try to manually create profile
+      console.log('Attempting manual profile creation...')
+      const { error: insertError } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+          id: authUser.user.id,
+          email: walletEmail,
+          username: username,
+          wallet_address: walletAddress.toLowerCase(),
+          wallet_bound_at: new Date().toISOString(),
+          profile_completed: false
+        })
+      
+      if (insertError) {
+        console.error('=== MANUAL PROFILE CREATION FAILED ===')
+        console.error('Insert error:', insertError)
+        return NextResponse.json(
+          { error: 'Failed to create profile: ' + insertError.message, details: insertError },
+          { status: 500 }
+        )
+      }
+      console.log('Manual profile creation succeeded')
+    } else {
+      // Update the profile with wallet address (trigger already created the profile)
+      console.log('Profile exists, updating with wallet address...')
+      const { error: updateError } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          wallet_address: walletAddress.toLowerCase(),
+          wallet_bound_at: new Date().toISOString(),
+          username: username,
+          profile_completed: false
+        })
+        .eq('id', authUser.user.id)
 
-    if (updateError) {
-      console.error('Failed to update profile with wallet:', updateError)
-      // Profile exists but update failed - try to continue anyway
+      if (updateError) {
+        console.error('Failed to update profile with wallet:', updateError)
+        // Profile exists but update failed - try to continue anyway
+      } else {
+        console.log('Profile updated successfully')
+      }
     }
 
     // Generate login session for the new user
