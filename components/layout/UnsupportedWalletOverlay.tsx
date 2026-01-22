@@ -64,38 +64,15 @@ export function UnsupportedWalletOverlay() {
   
   const [showOverlay, setShowOverlay] = useState(false)
   const [detectedWallet, setDetectedWallet] = useState<string | null>(null)
-  const [debugInfo, setDebugInfo] = useState<string>('')
 
   useEffect(() => {
     if (!isConnected) {
       setShowOverlay(false)
-      setDebugInfo('')
       return
     }
 
     // Small delay to ensure wallet is fully connected
     const timer = setTimeout(() => {
-      // Debug: collect all ethereum flags
-      const eth = (window as { ethereum?: Record<string, unknown>; bitkeep?: unknown }).ethereum
-      const hasBitkeepGlobal = !!(window as { bitkeep?: unknown }).bitkeep
-      if (eth) {
-        const flags = {
-          isTrust: eth.isTrust,
-          isBitget: eth.isBitget,
-          isBitKeep: eth.isBitKeep,
-          isBitgetWallet: eth.isBitgetWallet,
-          isBitkeepChrome: eth.isBitkeepChrome,
-          isMetaMask: eth.isMetaMask,
-          isSafePal: eth.isSafePal,
-          isCoinbaseWallet: eth.isCoinbaseWallet,
-          isTokenPocket: eth.isTokenPocket,
-          'window.bitkeep': hasBitkeepGlobal,
-        }
-        setDebugInfo(JSON.stringify(flags))
-      } else {
-        setDebugInfo('No window.ethereum')
-      }
-
       const { isSupported, walletName } = detectSupportedWallet()
       if (!isSupported) {
         setShowOverlay(true)
@@ -111,15 +88,6 @@ export function UnsupportedWalletOverlay() {
   const handleDisconnect = () => {
     disconnect()
     setShowOverlay(false)
-  }
-
-  // Always show debug info when connected (temporary for testing)
-  if (isConnected && debugInfo && !showOverlay) {
-    return (
-      <div className="fixed bottom-20 left-2 right-2 z-40 p-2 bg-black/80 rounded-lg text-[10px] text-zinc-400 font-mono">
-        DEBUG: {debugInfo}
-      </div>
-    )
   }
 
   if (!showOverlay) return null
@@ -159,12 +127,6 @@ export function UnsupportedWalletOverlay() {
         <p className="text-xs text-zinc-500 mt-4">
           Supported: Trust Wallet, Bitget Wallet
         </p>
-        
-        {debugInfo && (
-          <p className="text-[9px] text-zinc-600 mt-3 break-all">
-            DEBUG: {debugInfo}
-          </p>
-        )}
       </div>
     </div>
   )

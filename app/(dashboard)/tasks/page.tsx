@@ -780,6 +780,17 @@ export default function TasksPage() {
                     {tCommon('submit')}
                   </Button>
                 </div>
+                
+                {/* Contact Support */}
+                <a
+                  href="https://t.me/polnationsupport"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 text-xs text-zinc-500 hover:text-purple-400 transition-colors mt-2"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  Contact Support
+                </a>
               </div>
             </div>
           ))}
@@ -832,6 +843,17 @@ export default function TasksPage() {
                   {tCommon('submit')}
                 </Button>
               </div>
+              
+              {/* Contact Support */}
+              <a
+                href="https://t.me/polnationsupport"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 text-xs text-zinc-500 hover:text-red-400 transition-colors mt-2"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                Contact Support
+              </a>
             </div>
           ))}
         </div>
