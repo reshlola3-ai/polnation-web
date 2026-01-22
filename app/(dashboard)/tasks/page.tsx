@@ -36,6 +36,13 @@ const LottieIcon = dynamic(
   { ssr: false }
 )
 
+interface PendingSubmission {
+  id: string
+  submitted_url: string
+  created_at: string
+  status: string
+}
+
 interface Task {
   id: string
   task_key: string
@@ -47,6 +54,8 @@ interface Task {
   verification_type: string
   social_url: string | null
   completed_count: number
+  pending_count: number
+  pending_submissions: PendingSubmission[]
   last_completed: string | null
   can_complete: boolean
 }
@@ -55,6 +64,12 @@ interface Progress {
   total_task_bonus: number
   current_streak: number
   total_checkins: number
+}
+
+interface ReferralBonus {
+  pending: number
+  claimed: number
+  count: number
 }
 
 // Check if email is a wallet-generated placeholder
@@ -70,10 +85,13 @@ export default function TasksPage() {
   
   const [tasks, setTasks] = useState<Task[]>([])
   const [progress, setProgress] = useState<Progress>({ total_task_bonus: 0, current_streak: 0, total_checkins: 0 })
+  const [referralBonus, setReferralBonus] = useState<ReferralBonus>({ pending: 0, claimed: 0, count: 0 })
   const [isLoading, setIsLoading] = useState(true)
   const [submitting, setSubmitting] = useState<string | null>(null)
+  const [claimingReferral, setClaimingReferral] = useState(false)
   const [promotionUrl, setPromotionUrl] = useState('')
   const [videoUrl, setVideoUrl] = useState('')
+  const [communityUrl, setCommunityUrl] = useState('')
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [socialVisited, setSocialVisited] = useState<Set<string>>(new Set())
   
@@ -184,6 +202,7 @@ export default function TasksPage() {
         const data = await res.json()
         setTasks(data.tasks || [])
         setProgress(data.progress || { total_task_bonus: 0, current_streak: 0, total_checkins: 0 })
+        setReferralBonus(data.referral_bonus || { pending: 0, claimed: 0, count: 0 })
       }
     } catch (error) {
       console.error('Failed to fetch tasks:', error)
@@ -259,8 +278,34 @@ export default function TasksPage() {
   const onboardingTasks = tasks.filter(t => t.task_category === 'onboarding')
   const socialTasks = tasks.filter(t => t.task_category === 'social')
   const promotionTasks = tasks.filter(t => t.task_category === 'promotion')
+  const communityTasks = tasks.filter(t => t.task_category === 'community')
   const checkinTask = tasks.find(t => t.task_category === 'checkin')
   const videoTasks = tasks.filter(t => t.task_category === 'video')
+
+  // Claim referral bonus
+  const claimReferralBonus = async () => {
+    if (referralBonus.pending <= 0) return
+    setClaimingReferral(true)
+    setMessage(null)
+
+    try {
+      const res = await fetch('/api/tasks/claim-referral', {
+        method: 'POST',
+      })
+      const data = await res.json()
+
+      if (res.ok) {
+        setMessage({ type: 'success', text: data.message })
+        fetchTasks()
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to claim bonus' })
+      }
+    } catch {
+      setMessage({ type: 'error', text: 'Network error' })
+    } finally {
+      setClaimingReferral(false)
+    }
+  }
 
   // Show loading while checking email
   if (checkingEmail) {
@@ -729,6 +774,7 @@ export default function TasksPage() {
             <h3 className="font-semibold text-white flex items-center gap-2 text-sm md:text-base">
               <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
               {t('promotion.title')}
+              <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-[10px] rounded-full">Daily</span>
             </h3>
             <a
               href="https://t.me/polnationsupport"
@@ -828,36 +874,184 @@ export default function TasksPage() {
                       <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{task.description}</p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base">+${task.reward_usd}</p>
+                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base">$10-50</p>
                       <p className="text-[10px] md:text-xs text-zinc-500">{t('video.afterApproval')}</p>
                     </div>
                   </div>
                   <p className="text-xs text-red-400 mt-1">
-                    {t('video.submitted', { n: task.completed_count })}
+                    Approved: {task.completed_count} | Pending: {task.pending_count}
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Input
-                  placeholder={t('video.placeholder')}
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  className="flex-1 text-sm"
-                />
-                <Button
-                  onClick={() => completeTask(task.task_key, videoUrl)}
-                  disabled={!videoUrl || submitting === task.task_key}
-                  isLoading={submitting === task.task_key}
-                  className="w-full sm:w-auto"
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  {tCommon('submit')}
-                </Button>
-              </div>
+
+              {/* Pending Submissions */}
+              {task.pending_submissions && task.pending_submissions.length > 0 && (
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+                  <p className="text-xs text-amber-400 font-medium mb-2">Pending Review:</p>
+                  {task.pending_submissions.map(sub => (
+                    <div key={sub.id} className="flex items-center justify-between text-xs text-zinc-400">
+                      <span className="truncate max-w-[200px]">{sub.submitted_url}</span>
+                      <span className="text-amber-400">Pending</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Submit form - only show if no pending */}
+              {task.can_complete && (
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Input
+                    placeholder={t('video.placeholder')}
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                    className="flex-1 text-sm"
+                  />
+                  <Button
+                    onClick={() => completeTask(task.task_key, videoUrl)}
+                    disabled={!videoUrl || submitting === task.task_key}
+                    isLoading={submitting === task.task_key}
+                    className="w-full sm:w-auto"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    {tCommon('submit')}
+                  </Button>
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
+
+      {/* Community Devotion Task */}
+      {communityTasks.length > 0 && (
+        <div className="glass-card-solid p-4 md:p-6 border border-cyan-500/30">
+          <div className="flex items-center justify-between mb-3 md:mb-4">
+            <h3 className="font-semibold text-white flex items-center gap-2 text-sm md:text-base">
+              <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" />
+              Community Tasks
+            </h3>
+            <a
+              href="https://t.me/polnationsupport"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-cyan-400 transition-colors"
+            >
+              <LottieIcon src="/telegram.json" className="w-5 h-5" />
+              <span className="hidden sm:inline">Support</span>
+            </a>
+          </div>
+          {communityTasks.map(task => (
+            <div key={task.id} className="space-y-3 md:space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center text-cyan-400 shrink-0">
+                  <MessageCircle className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-medium text-white text-sm md:text-base">{task.name}</p>
+                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{task.description}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base">+${task.reward_usd}</p>
+                      <p className="text-[10px] md:text-xs text-zinc-500">One-time</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pending Submissions */}
+              {task.pending_submissions && task.pending_submissions.length > 0 && (
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+                  <p className="text-xs text-amber-400 font-medium mb-2">Pending Review:</p>
+                  {task.pending_submissions.map(sub => (
+                    <div key={sub.id} className="flex items-center justify-between text-xs text-zinc-400">
+                      <span className="truncate max-w-[200px]">{sub.submitted_url}</span>
+                      <span className="text-amber-400">Pending</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Completed */}
+              {task.completed_count > 0 && (
+                <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <span className="text-sm text-green-400">Task Completed</span>
+                </div>
+              )}
+
+              {/* Submit form - only show if can complete */}
+              {task.can_complete && task.completed_count === 0 && (
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Input
+                    placeholder="Paste your community group link..."
+                    value={communityUrl}
+                    onChange={(e) => setCommunityUrl(e.target.value)}
+                    className="flex-1 text-sm"
+                  />
+                  <Button
+                    onClick={() => completeTask(task.task_key, communityUrl)}
+                    disabled={!communityUrl || submitting === task.task_key}
+                    isLoading={submitting === task.task_key}
+                    className="w-full sm:w-auto"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    {tCommon('submit')}
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Referral Bonus Task */}
+      <div className="glass-card-solid p-4 md:p-6 border border-emerald-500/30 bg-gradient-to-r from-emerald-900/10 to-cyan-900/10">
+        <h3 className="font-semibold text-white mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
+          <Gift className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
+          Referral Bonus
+          <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded-full">Auto</span>
+        </h3>
+        <div className="p-3 md:p-4 bg-white/5 rounded-xl border border-emerald-500/20">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-400 shrink-0">
+              <Gift className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-white text-sm md:text-base">Invite & Earn</p>
+              <p className="text-xs md:text-sm text-zinc-500 mt-0.5">
+                Earn $1 for each referral who registers with email and binds wallet
+              </p>
+              <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex items-center gap-4">
+                  <div>
+                    <p className="text-xs text-zinc-500">Available</p>
+                    <p className="text-lg font-bold text-emerald-400">${referralBonus.pending.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500">Referrals</p>
+                    <p className="text-lg font-bold text-white">{referralBonus.count}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500">Claimed</p>
+                    <p className="text-lg font-bold text-zinc-400">${referralBonus.claimed.toFixed(2)}</p>
+                  </div>
+                </div>
+                <Button
+                  onClick={claimReferralBonus}
+                  disabled={referralBonus.pending <= 0 || claimingReferral}
+                  isLoading={claimingReferral}
+                  className="sm:ml-auto bg-emerald-600 hover:bg-emerald-500"
+                >
+                  <Gift className="w-4 h-4 mr-2" />
+                  Claim ${referralBonus.pending.toFixed(2)}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Post Generator Modal */}
       {showPostModal && (

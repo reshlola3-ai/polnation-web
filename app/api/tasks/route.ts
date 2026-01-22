@@ -85,9 +85,9 @@ export async function GET() {
 
     // 构建任务状态
     const tasks = (taskTypes || []).map(task => {
-      const completedTasks = (userTasks || []).filter(
-        ut => ut.task_type_id === task.id && ut.status === 'completed'
-      )
+      const allTaskRecords = (userTasks || []).filter(ut => ut.task_type_id === task.id)
+      const completedTasks = allTaskRecords.filter(ut => ut.status === 'completed' || ut.status === 'approved')
+      const pendingTasks = allTaskRecords.filter(ut => ut.status === 'pending')
       
       let canComplete = true
       let lastCompleted = null
@@ -105,6 +105,11 @@ export async function GET() {
         }
       }
 
+      // For admin_review tasks, also block if there's a pending submission
+      if (task.verification_type === 'admin_review' && pendingTasks.length > 0) {
+        canComplete = false
+      }
+
       // 签到任务特殊处理
       if (task.task_key === 'daily_checkin') {
         canComplete = !todayCheckin
@@ -113,16 +118,42 @@ export async function GET() {
       return {
         ...task,
         completed_count: completedTasks.length,
+        pending_count: pendingTasks.length,
+        pending_submissions: pendingTasks.map(pt => ({
+          id: pt.id,
+          submitted_url: pt.submitted_url,
+          created_at: pt.created_at,
+          status: pt.status,
+        })),
         last_completed: lastCompleted,
         can_complete: canComplete,
       }
     })
+
+    // Get referral task bonuses
+    const { data: referralBonuses } = await supabaseAdmin
+      .from('referral_task_bonus')
+      .select('*')
+      .eq('user_id', user.id)
+
+    const pendingReferralBonus = (referralBonuses || [])
+      .filter(rb => rb.status === 'pending')
+      .reduce((sum, rb) => sum + Number(rb.bonus_amount), 0)
+    
+    const claimedReferralBonus = (referralBonuses || [])
+      .filter(rb => rb.status === 'claimed')
+      .reduce((sum, rb) => sum + Number(rb.bonus_amount), 0)
 
     return NextResponse.json({
       tasks,
       progress: taskProgress || { total_task_bonus: 0, current_streak: 0, total_checkins: 0 },
       today_checkin: !!todayCheckin,
       current_streak: taskProgress?.current_streak || 0,
+      referral_bonus: {
+        pending: pendingReferralBonus,
+        claimed: claimedReferralBonus,
+        count: (referralBonuses || []).filter(rb => rb.status === 'pending').length,
+      },
     })
   } catch (error) {
     console.error('Error:', error)
@@ -226,20 +257,43 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check if this is an admin_review task (video, community)
+    const needsReview = taskType.verification_type === 'admin_review' || taskType.verification_type === 'manual'
+
+    // For admin_review tasks, check if there's already a pending submission
+    if (needsReview) {
+      const { data: pendingSubmission } = await supabaseAdmin
+        .from('user_tasks')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('task_type_id', taskType.id)
+        .eq('status', 'pending')
+        .single()
+
+      if (pendingSubmission) {
+        return NextResponse.json({ error: 'You already have a pending submission for this task' }, { status: 400 })
+      }
+
+      // Require URL for admin_review tasks
+      if (!submitted_url) {
+        return NextResponse.json({ error: 'URL required for this task' }, { status: 400 })
+      }
+    }
+
     // 创建任务记录
     const { data: newTask, error: insertError } = await supabaseAdmin
       .from('user_tasks')
       .insert({
         user_id: user.id,
         task_type_id: taskType.id,
-        status: taskType.verification_type === 'manual' ? 'pending' : 'completed',
-        completed_at: taskType.verification_type === 'manual' ? null : now,
+        status: needsReview ? 'pending' : 'completed',
+        completed_at: needsReview ? null : now,
         submitted_url,
-        verification_passed: taskType.verification_type !== 'manual',
-        verified_at: taskType.verification_type !== 'manual' ? now : null,
+        verification_passed: !needsReview,
+        verified_at: !needsReview ? now : null,
         reward_usd: taskType.reward_usd,
-        reward_credited: taskType.verification_type !== 'manual',
-        reward_credited_at: taskType.verification_type !== 'manual' ? now : null,
+        reward_credited: !needsReview,
+        reward_credited_at: !needsReview ? now : null,
       })
       .select()
       .single()
@@ -250,7 +304,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 如果任务立即完成，更新任务进度
-    if (taskType.verification_type !== 'manual') {
+    if (!needsReview) {
       await updateTaskProgress(supabaseAdmin, user.id, taskType.reward_usd)
     }
 
@@ -258,8 +312,8 @@ export async function POST(request: NextRequest) {
       success: true,
       task: newTask,
       reward: taskType.reward_usd,
-      message: taskType.verification_type === 'manual' 
-        ? 'Task submitted for review' 
+      message: needsReview 
+        ? 'Task submitted for review. You will be notified once approved.' 
         : `Task completed! +$${taskType.reward_usd} unlock progress`,
     })
   } catch (error) {
