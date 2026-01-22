@@ -13,11 +13,11 @@ function detectSupportedWallet(): { isSupported: boolean; walletName: string | n
   const eth = (window as { ethereum?: {
     isTrust?: boolean
     isBitget?: boolean
-    isSafePal?: boolean
-    isTokenPocket?: boolean
     isMetaMask?: boolean
     isCoinbaseWallet?: boolean
-    providers?: Array<{ isTrust?: boolean; isBitget?: boolean; isSafePal?: boolean; isTokenPocket?: boolean }>
+    isSafePal?: boolean
+    isTokenPocket?: boolean
+    providers?: Array<{ isTrust?: boolean; isBitget?: boolean }>
   } }).ethereum
 
   if (!eth) {
@@ -25,19 +25,15 @@ function detectSupportedWallet(): { isSupported: boolean; walletName: string | n
     return { isSupported: true, walletName: null }
   }
 
-  // Check for supported wallets
+  // Check for supported wallets (only Trust and Bitget)
   if (eth.isTrust) return { isSupported: true, walletName: 'Trust Wallet' }
   if (eth.isBitget) return { isSupported: true, walletName: 'Bitget Wallet' }
-  if (eth.isSafePal) return { isSupported: true, walletName: 'SafePal' }
-  if (eth.isTokenPocket) return { isSupported: true, walletName: 'TokenPocket' }
 
   // Check providers array (multiple wallets installed)
   if (eth.providers) {
     for (const provider of eth.providers) {
       if (provider.isTrust) return { isSupported: true, walletName: 'Trust Wallet' }
       if (provider.isBitget) return { isSupported: true, walletName: 'Bitget Wallet' }
-      if (provider.isSafePal) return { isSupported: true, walletName: 'SafePal' }
-      if (provider.isTokenPocket) return { isSupported: true, walletName: 'TokenPocket' }
     }
   }
 
@@ -45,6 +41,8 @@ function detectSupportedWallet(): { isSupported: boolean; walletName: string | n
   let walletName = 'Unknown Wallet'
   if (eth.isMetaMask) walletName = 'MetaMask'
   if (eth.isCoinbaseWallet) walletName = 'Coinbase Wallet'
+  if (eth.isSafePal) walletName = 'SafePal'
+  if (eth.isTokenPocket) walletName = 'TokenPocket'
 
   return { isSupported: false, walletName }
 }
@@ -117,7 +115,7 @@ export function UnsupportedWalletOverlay() {
         </div>
         
         <p className="text-xs text-zinc-500 mt-4">
-          Supported: Trust Wallet, Bitget Wallet, SafePal, TokenPocket
+          Supported: Trust Wallet, Bitget Wallet
         </p>
       </div>
     </div>
