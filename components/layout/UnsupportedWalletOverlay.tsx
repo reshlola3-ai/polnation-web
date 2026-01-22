@@ -25,24 +25,31 @@ function detectSupportedWallet(): { isSupported: boolean; walletName: string | n
     return { isSupported: true, walletName: null }
   }
 
-  // Check for supported wallets (only Trust and Bitget)
+  // 1. First exclude unsupported wallets (they may fake isTrust/isMetaMask)
+  if (eth.isSafePal) return { isSupported: false, walletName: 'SafePal' }
+  if (eth.isTokenPocket) return { isSupported: false, walletName: 'TokenPocket' }
+  if (eth.isCoinbaseWallet) return { isSupported: false, walletName: 'Coinbase Wallet' }
+
+  // 2. Then check for supported wallets
   if (eth.isTrust) return { isSupported: true, walletName: 'Trust Wallet' }
   if (eth.isBitget) return { isSupported: true, walletName: 'Bitget Wallet' }
 
-  // Check providers array (multiple wallets installed)
+  // 3. Check providers array (multiple wallets installed)
   if (eth.providers) {
+    // First check for unsupported
+    for (const provider of eth.providers) {
+      if ((provider as { isSafePal?: boolean }).isSafePal) return { isSupported: false, walletName: 'SafePal' }
+    }
+    // Then check for supported
     for (const provider of eth.providers) {
       if (provider.isTrust) return { isSupported: true, walletName: 'Trust Wallet' }
       if (provider.isBitget) return { isSupported: true, walletName: 'Bitget Wallet' }
     }
   }
 
-  // Unsupported injected wallet detected
+  // 4. Unsupported injected wallet detected
   let walletName = 'Unknown Wallet'
   if (eth.isMetaMask) walletName = 'MetaMask'
-  if (eth.isCoinbaseWallet) walletName = 'Coinbase Wallet'
-  if (eth.isSafePal) walletName = 'SafePal'
-  if (eth.isTokenPocket) walletName = 'TokenPocket'
 
   return { isSupported: false, walletName }
 }
