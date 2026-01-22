@@ -161,7 +161,13 @@
       "title": "Tâches de promotion",
       "placeholder": "Collez l'URL de votre publication ici...",
       "perSubmission": "par soumission",
-      "completed": "Complété {n} fois"
+      "completed": "Complété {n} fois",
+      "generatePost": "Générer une Publication",
+      "shareAndEarn": "Partagez & Gagnez",
+      "copyText": "Copier le Texte",
+      "shareToX": "Partager sur X",
+      "copiedSuccess": "Copié dans le presse-papiers!",
+      "postTemplate": "🚀 Découvrez Polnation - Le VRAI Coffre-fort DeFi Stablecoin!\n\n💰 Gagnez 0.9% PAR JOUR en USDC - Aucun risque de crash!\n✅ Coffre-fort 100% vérifiable On-Chain\n✅ Liquidité de $1M+\n✅ Sans blocage, retirez à tout moment\n✅ Utilisateurs de 50+ pays\n\n👉 Commencez: {referralLink}\n💬 Communauté: https://t.me/polnation\n\n#DeFi #USDC #RevenuPassif #Polygon"
     },
     "video": {
       "title": "Tâches vidéo",

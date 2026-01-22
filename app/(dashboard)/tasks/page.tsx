@@ -17,7 +17,10 @@ import {
   Gift,
   Mail,
   Lock,
-  Loader2
+  Loader2,
+  X,
+  Copy,
+  Sparkles
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -74,6 +77,11 @@ export default function TasksPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [socialVisited, setSocialVisited] = useState<Set<string>>(new Set())
   
+  // Promotion post generator state
+  const [showPostModal, setShowPostModal] = useState(false)
+  const [referralLink, setReferralLink] = useState('')
+  const [postCopied, setPostCopied] = useState(false)
+  
   // Email verification state
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [needsEmailBinding, setNeedsEmailBinding] = useState(false)
@@ -85,7 +93,7 @@ export default function TasksPage() {
   const [bindingSuccess, setBindingSuccess] = useState(false)
   const [isBindingLoading, setIsBindingLoading] = useState(false)
 
-  // Check user email on mount
+  // Check user email on mount and fetch referral link
   useEffect(() => {
     async function checkUserEmail() {
       setCheckingEmail(true)
@@ -96,6 +104,18 @@ export default function TasksPage() {
         if (user?.email) {
           setUserEmail(user.email)
           setNeedsEmailBinding(isWalletEmail(user.email))
+          
+          // Fetch user profile to get referral code
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('referral_code')
+            .eq('id', user.id)
+            .single()
+          
+          if (profile?.referral_code) {
+            const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://polnation.com'
+            setReferralLink(`${baseUrl}/register?ref=${profile.referral_code}`)
+          }
         } else {
           setNeedsEmailBinding(true)
         }
@@ -542,9 +562,10 @@ export default function TasksPage() {
 
           {/* Calendar Grid */}
           <div className="bg-[#1A1333] px-3 md:px-6 py-4 md:py-5 border-x border-b border-purple-500/20">
-            {/* Mobile: 7 small circles in a row */}
+            {/* Mobile: 7 small circles in a row - Progressive rewards */}
             <div className="flex items-center justify-between mb-4 gap-1">
-              {[1, 2, 3, 4, 5, 6, 7].map((day) => {
+              {[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 1.0].map((reward, index) => {
+                const day = index + 1
                 const isCompleted = day <= progress.current_streak
                 const isToday = day === progress.current_streak + 1
                 const isBonus = day === 7
@@ -580,7 +601,7 @@ export default function TasksPage() {
                     <span className={`text-[9px] md:text-xs font-medium ${
                       isCompleted ? 'text-emerald-400' : 'text-zinc-600'
                     }`}>
-                      {isBonus ? '+$1' : `$${checkinTask.reward_usd}`}
+                      ${reward.toFixed(1)}
                     </span>
                   </div>
                 )
@@ -730,22 +751,35 @@ export default function TasksPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Input
-                  placeholder={t('promotion.placeholder')}
-                  value={promotionUrl}
-                  onChange={(e) => setPromotionUrl(e.target.value)}
-                  className="flex-1 text-sm"
-                />
+              <div className="flex flex-col gap-3">
+                {/* Generate Post Button */}
                 <Button
-                  onClick={() => completeTask(task.task_key, promotionUrl)}
-                  disabled={!promotionUrl || submitting === task.task_key}
-                  isLoading={submitting === task.task_key}
-                  className="w-full sm:w-auto"
+                  variant="outline"
+                  onClick={() => setShowPostModal(true)}
+                  className="w-full border-purple-500/30 hover:bg-purple-500/10"
                 >
-                  <Send className="w-4 h-4 mr-2" />
-                  {tCommon('submit')}
+                  <Sparkles className="w-4 h-4 mr-2 text-purple-400" />
+                  {t('promotion.generatePost')}
                 </Button>
+                
+                {/* Submit URL */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Input
+                    placeholder={t('promotion.placeholder')}
+                    value={promotionUrl}
+                    onChange={(e) => setPromotionUrl(e.target.value)}
+                    className="flex-1 text-sm"
+                  />
+                  <Button
+                    onClick={() => completeTask(task.task_key, promotionUrl)}
+                    disabled={!promotionUrl || submitting === task.task_key}
+                    isLoading={submitting === task.task_key}
+                    className="w-full sm:w-auto"
+                  >
+                    <Send className="w-4 h-4 mr-2" />
+                    {tCommon('submit')}
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
@@ -800,6 +834,56 @@ export default function TasksPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Post Generator Modal */}
+      {showPostModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowPostModal(false)}>
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-purple-400" />
+                {t('promotion.shareAndEarn')}
+              </h3>
+              <button onClick={() => setShowPostModal(false)} className="p-1 hover:bg-white/10 rounded-full">
+                <X className="w-5 h-5 text-zinc-400" />
+              </button>
+            </div>
+            
+            <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 border border-zinc-700">
+              <pre className="text-sm text-zinc-200 whitespace-pre-wrap font-sans leading-relaxed">
+                {t('promotion.postTemplate', { referralLink: referralLink || 'https://polnation.com/register?ref=YOUR_CODE' })}
+              </pre>
+            </div>
+            
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => {
+                  const postText = t('promotion.postTemplate', { referralLink: referralLink || 'https://polnation.com/register?ref=YOUR_CODE' })
+                  navigator.clipboard.writeText(postText)
+                  setPostCopied(true)
+                  setTimeout(() => setPostCopied(false), 2000)
+                }}
+              >
+                <Copy className="w-4 h-4 mr-2" />
+                {postCopied ? t('promotion.copiedSuccess') : t('promotion.copyText')}
+              </Button>
+              <Button
+                className="flex-1 bg-black hover:bg-zinc-800"
+                onClick={() => {
+                  const postText = t('promotion.postTemplate', { referralLink: referralLink || 'https://polnation.com/register?ref=YOUR_CODE' })
+                  const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(postText)}`
+                  window.open(tweetUrl, '_blank')
+                }}
+              >
+                <Twitter className="w-4 h-4 mr-2" />
+                {t('promotion.shareToX')}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

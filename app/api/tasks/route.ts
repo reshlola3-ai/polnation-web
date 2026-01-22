@@ -268,6 +268,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Progressive checkin rewards: Day 1-6: $0.1-$0.6, Day 7: $1.0
+const CHECKIN_REWARDS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 1.0]
+
 // 签到处理
 async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>, userId: string, taskType: { id: string; reward_usd: number }) {
   if (!supabaseAdmin) return NextResponse.json({ error: 'Database error' }, { status: 500 })
@@ -317,16 +320,17 @@ async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
   }
   console.log('New streak:', newStreak)
 
-  // 检查是否达成7天连续签到
-  let bonusAmount = 0
-  let bonusEarned = false
-  if (newStreak === 7) {
-    bonusAmount = 1.0
-    bonusEarned = true
-  }
+  // Progressive reward based on streak day (capped at 7)
+  const streakDay = Math.min(newStreak, 7)
+  const dailyReward = CHECKIN_REWARDS[streakDay - 1] || 0.1
+  
+  // Check if 7-day streak completed
+  const isStreakComplete = newStreak >= 7
 
-  const totalReward = taskType.reward_usd + bonusAmount
-  const finalStreak = bonusEarned ? 0 : newStreak
+  const totalReward = dailyReward
+  const finalStreak = isStreakComplete ? 0 : newStreak
+  
+  console.log('Streak day:', streakDay, 'Daily reward:', dailyReward, 'Is streak complete:', isStreakComplete)
 
   console.log('Total reward:', totalReward, 'Final streak:', finalStreak)
 
@@ -337,8 +341,8 @@ async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
       user_id: userId,
       checkin_date: today,
       streak_count: newStreak,
-      bonus_earned: bonusEarned,
-      bonus_amount: bonusEarned ? bonusAmount : null,
+      bonus_earned: isStreakComplete,
+      bonus_amount: dailyReward,
     })
     .select()
     .single()
@@ -421,12 +425,12 @@ async function handleCheckin(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>,
   return NextResponse.json({
     success: true,
     streak: finalStreak,
-    reward: taskType.reward_usd,
-    bonus: bonusEarned ? bonusAmount : 0,
+    reward: dailyReward,
+    bonus: 0,
     total_reward: totalReward,
-    message: bonusEarned 
-      ? `🎉 7-day streak! +$${totalReward} unlock progress (includes $1 bonus!)`
-      : `Check-in successful! Day ${newStreak}/7. +$${taskType.reward_usd} unlock progress`,
+    message: isStreakComplete 
+      ? `🎉 7-day streak complete! +$${dailyReward} unlock progress. Streak reset!`
+      : `Check-in successful! Day ${newStreak}/7. +$${dailyReward} unlock progress`,
   })
 }
 

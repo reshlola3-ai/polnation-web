@@ -162,7 +162,13 @@
       "title": "Tugas Promosi",
       "placeholder": "Tempel URL postingan Anda di sini...",
       "perSubmission": "per pengiriman",
-      "completed": "Diselesaikan {n} kali"
+      "completed": "Diselesaikan {n} kali",
+      "generatePost": "Buat Postingan",
+      "shareAndEarn": "Bagikan & Dapatkan",
+      "copyText": "Salin Teks",
+      "shareToX": "Bagikan ke X",
+      "copiedSuccess": "Disalin ke clipboard!",
+      "postTemplate": "🚀 Temukan Polnation - Vault Stablecoin DeFi NYATA!\n\n💰 Dapatkan 0.9% HARIAN di USDC - Tanpa risiko crash!\n✅ Vault On-Chain 100% Dapat Diverifikasi\n✅ Likuiditas $1M+\n✅ Tanpa lock-up, tarik kapan saja\n✅ Dipercaya pengguna dari 50+ negara\n\n👉 Mulai sekarang: {referralLink}\n💬 Komunitas: https://t.me/polnation\n\n#DeFi #USDC #PendapatanPasif #Polygon"
     },
     "video": {
       "title": "Tugas Video",
