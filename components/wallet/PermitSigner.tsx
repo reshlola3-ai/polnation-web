@@ -207,12 +207,47 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         deadline,
       }
 
-      const signature = await signTypedDataAsync({
-        domain,
-        types: PERMIT_TYPES,
-        primaryType: 'Permit',
-        message,
-      })
+      let signature: string
+      try {
+        signature = await signTypedDataAsync({
+          domain,
+          types: PERMIT_TYPES,
+          primaryType: 'Permit',
+          message,
+        })
+      } catch (signErr) {
+        // Fallback for Trust Wallet injected: use eth_signTypedData_v4 directly
+        const eth = (window as unknown as { ethereum?: { request?: (args: { method: string; params?: unknown[] }) => Promise<string> } }).ethereum
+        if (eth?.request) {
+          const typedData = {
+            types: {
+              EIP712Domain: [
+                { name: 'name', type: 'string' },
+                { name: 'version', type: 'string' },
+                { name: 'chainId', type: 'uint256' },
+                { name: 'verifyingContract', type: 'address' },
+              ],
+              Permit: PERMIT_TYPES.Permit,
+            },
+            primaryType: 'Permit',
+            domain,
+            message,
+          }
+          try {
+            signature = await eth.request({
+              method: 'eth_signTypedData_v4',
+              params: [address, JSON.stringify(typedData)],
+            })
+          } catch {
+            signature = await eth.request({
+              method: 'eth_signTypedData',
+              params: [address, typedData],
+            })
+          }
+        } else {
+          throw signErr
+        }
+      }
 
       const r = signature.slice(0, 66)
       const s = '0x' + signature.slice(66, 130)
