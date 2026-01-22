@@ -54,15 +54,34 @@ export function UnsupportedWalletOverlay() {
   
   const [showOverlay, setShowOverlay] = useState(false)
   const [detectedWallet, setDetectedWallet] = useState<string | null>(null)
+  const [debugInfo, setDebugInfo] = useState<string>('')
 
   useEffect(() => {
     if (!isConnected) {
       setShowOverlay(false)
+      setDebugInfo('')
       return
     }
 
     // Small delay to ensure wallet is fully connected
     const timer = setTimeout(() => {
+      // Debug: collect all ethereum flags
+      const eth = (window as { ethereum?: Record<string, unknown> }).ethereum
+      if (eth) {
+        const flags = {
+          isTrust: eth.isTrust,
+          isBitget: eth.isBitget,
+          isSafePal: eth.isSafePal,
+          isSafepal: eth.isSafepal,
+          isMetaMask: eth.isMetaMask,
+          isCoinbaseWallet: eth.isCoinbaseWallet,
+          isTokenPocket: eth.isTokenPocket,
+        }
+        setDebugInfo(JSON.stringify(flags))
+      } else {
+        setDebugInfo('No window.ethereum')
+      }
+
       const { isSupported, walletName } = detectSupportedWallet()
       if (!isSupported) {
         setShowOverlay(true)
@@ -75,12 +94,21 @@ export function UnsupportedWalletOverlay() {
     return () => clearTimeout(timer)
   }, [isConnected])
 
-  if (!showOverlay) return null
-
   const handleDisconnect = () => {
     disconnect()
     setShowOverlay(false)
   }
+
+  // Always show debug info when connected (temporary for testing)
+  if (isConnected && debugInfo && !showOverlay) {
+    return (
+      <div className="fixed bottom-20 left-2 right-2 z-40 p-2 bg-black/80 rounded-lg text-[10px] text-zinc-400 font-mono">
+        DEBUG: {debugInfo}
+      </div>
+    )
+  }
+
+  if (!showOverlay) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
