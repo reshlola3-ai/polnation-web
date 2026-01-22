@@ -72,6 +72,16 @@ interface ReferralBonus {
   count: number
 }
 
+interface BonusBreakdown {
+  checkin?: number
+  social?: number
+  promotion?: number
+  video?: number
+  community?: number
+  onboarding?: number
+  referral?: number
+}
+
 // Check if email is a wallet-generated placeholder
 function isWalletEmail(email: string | null | undefined): boolean {
   if (!email) return true
@@ -86,6 +96,7 @@ export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [progress, setProgress] = useState<Progress>({ total_task_bonus: 0, current_streak: 0, total_checkins: 0 })
   const [referralBonus, setReferralBonus] = useState<ReferralBonus>({ pending: 0, claimed: 0, count: 0 })
+  const [bonusBreakdown, setBonusBreakdown] = useState<BonusBreakdown>({})
   const [isLoading, setIsLoading] = useState(true)
   const [submitting, setSubmitting] = useState<string | null>(null)
   const [claimingReferral, setClaimingReferral] = useState(false)
@@ -94,6 +105,7 @@ export default function TasksPage() {
   const [communityUrl, setCommunityUrl] = useState('')
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [socialVisited, setSocialVisited] = useState<Set<string>>(new Set())
+  const [showBonusModal, setShowBonusModal] = useState(false)
   
   // Promotion post generator state
   const [showPostModal, setShowPostModal] = useState(false)
@@ -203,6 +215,7 @@ export default function TasksPage() {
         setTasks(data.tasks || [])
         setProgress(data.progress || { total_task_bonus: 0, current_streak: 0, total_checkins: 0 })
         setReferralBonus(data.referral_bonus || { pending: 0, claimed: 0, count: 0 })
+        setBonusBreakdown(data.bonus_breakdown || {})
       }
     } catch (error) {
       console.error('Failed to fetch tasks:', error)
@@ -660,9 +673,15 @@ export default function TasksPage() {
                 <span className="stat-number">{progress.total_checkins}</span>
                 <span className="hidden sm:inline">{t('checkin.totalCheckins')}</span>
               </div>
-              <div className="text-zinc-400">
+              <div className="text-zinc-400 flex items-center gap-1">
                 <span className="hidden sm:inline">{t('checkin.earned')}: </span>
                 <span className="font-bold text-emerald-400 currency">${progress.total_task_bonus.toFixed(2)}</span>
+                <button
+                  onClick={() => setShowBonusModal(true)}
+                  className="w-4 h-4 rounded-full bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white flex items-center justify-center text-[10px] font-bold ml-1"
+                >
+                  ?
+                </button>
               </div>
             </div>
 
@@ -1098,6 +1117,74 @@ export default function TasksPage() {
                 <Twitter className="w-4 h-4 mr-2" />
                 {t('promotion.shareToX')}
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bonus Breakdown Modal */}
+      {showBonusModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowBonusModal(false)}>
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white">Total Tasks Bonus</h3>
+              <button onClick={() => setShowBonusModal(false)} className="p-1 hover:bg-white/10 rounded-full">
+                <X className="w-5 h-5 text-zinc-400" />
+              </button>
+            </div>
+            
+            <div className="space-y-2 text-sm">
+              {(bonusBreakdown.checkin || 0) > 0 && (
+                <div className="flex justify-between text-zinc-300">
+                  <span>📅 Check-in</span>
+                  <span className="text-emerald-400">${(bonusBreakdown.checkin || 0).toFixed(2)}</span>
+                </div>
+              )}
+              {(bonusBreakdown.social || 0) > 0 && (
+                <div className="flex justify-between text-zinc-300">
+                  <span>🔗 Social Tasks</span>
+                  <span className="text-emerald-400">${(bonusBreakdown.social || 0).toFixed(2)}</span>
+                </div>
+              )}
+              {(bonusBreakdown.onboarding || 0) > 0 && (
+                <div className="flex justify-between text-zinc-300">
+                  <span>👤 Profile Setup</span>
+                  <span className="text-emerald-400">${(bonusBreakdown.onboarding || 0).toFixed(2)}</span>
+                </div>
+              )}
+              {(bonusBreakdown.promotion || 0) > 0 && (
+                <div className="flex justify-between text-zinc-300">
+                  <span>📢 Promotion</span>
+                  <span className="text-emerald-400">${(bonusBreakdown.promotion || 0).toFixed(2)}</span>
+                </div>
+              )}
+              {(bonusBreakdown.video || 0) > 0 && (
+                <div className="flex justify-between text-zinc-300">
+                  <span>🎬 Video Review</span>
+                  <span className="text-emerald-400">${(bonusBreakdown.video || 0).toFixed(2)}</span>
+                </div>
+              )}
+              {(bonusBreakdown.community || 0) > 0 && (
+                <div className="flex justify-between text-zinc-300">
+                  <span>👥 Community</span>
+                  <span className="text-emerald-400">${(bonusBreakdown.community || 0).toFixed(2)}</span>
+                </div>
+              )}
+              {(bonusBreakdown.referral || 0) > 0 && (
+                <div className="flex justify-between text-zinc-300">
+                  <span>🎁 Referral Bonus</span>
+                  <span className="text-emerald-400">${(bonusBreakdown.referral || 0).toFixed(2)}</span>
+                </div>
+              )}
+              
+              <div className="border-t border-zinc-700 pt-2 mt-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-zinc-400">
+                    {Object.entries(bonusBreakdown).filter(([, v]) => v > 0).map(([, v]) => `$${v.toFixed(2)}`).join(' + ') || '$0'}
+                  </span>
+                  <span className="text-lg font-bold text-emerald-400">= ${progress.total_task_bonus.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

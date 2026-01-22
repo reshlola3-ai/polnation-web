@@ -114,6 +114,7 @@ export default function TeamPage() {
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 })
   const [selectedLevel, setSelectedLevel] = useState<CommunityLevel | null>(null)
   const [showHelpTooltip, setShowHelpTooltip] = useState(false)
+  const [showUnlockModal, setShowUnlockModal] = useState(false)
 
   // Fetch community status
   const fetchCommunityStatus = useCallback(async () => {
@@ -419,10 +420,16 @@ export default function TeamPage() {
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="bg-white/5 rounded-lg p-3">
+          {/* Progress Bar - Clickable */}
+          <div 
+            className="bg-white/5 rounded-lg p-3 cursor-pointer hover:bg-white/10 transition-colors"
+            onClick={() => setShowUnlockModal(true)}
+          >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-cyan-300/80 text-sm">{t('unlockProgress')}</span>
+              <span className="text-cyan-300/80 text-sm flex items-center gap-1">
+                {t('unlockProgress')}
+                <span className="w-4 h-4 rounded-full bg-white/10 text-[10px] flex items-center justify-center">?</span>
+              </span>
               <span className="text-white font-medium text-sm">${effectiveVolume.toFixed(2)} / ${nextUnlockVolume.toFixed(2)}</span>
             </div>
             <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-2">
@@ -433,7 +440,7 @@ export default function TeamPage() {
                 {hasReachedThreshold ? '✓ Threshold reached!' : `Need $${volumeToNextLevel.toFixed(2)} more`}
               </span>
               {claimableLevels.length > 0 && (
-                <Button size="sm" onClick={() => handleClaim(claimableLevels[0])} disabled={claiming !== null} className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs">
+                <Button size="sm" onClick={(e) => { e.stopPropagation(); handleClaim(claimableLevels[0]); }} disabled={claiming !== null} className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs">
                   {claiming !== null ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><Gift className="w-3 h-3 mr-1" /> Claim ${currentLevelInfo?.reward_pool}</>}
                 </Button>
               )}
@@ -730,6 +737,68 @@ export default function TeamPage() {
           </div>
         )}
       </div>
+
+      {/* Unlock Progress Modal */}
+      {showUnlockModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          onClick={() => setShowUnlockModal(false)}
+        >
+          <div 
+            className="bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-2xl p-6 max-w-sm w-full border border-white/10 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white">{t('unlockProgress')}</h3>
+              <button 
+                onClick={() => setShowUnlockModal(false)}
+                className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/60 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-3">
+              {/* L1-3 Team Volume */}
+              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-blue-400" />
+                  <span className="text-zinc-300 text-sm">L1-3 Team Volume</span>
+                </div>
+                <span className="text-white font-medium">${(status?.team_volume_l123 || 0).toFixed(2)}</span>
+              </div>
+              
+              {/* Tasks Bonus */}
+              <div className="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Gift className="w-4 h-4 text-purple-400" />
+                  <span className="text-zinc-300 text-sm">Tasks Bonus</span>
+                </div>
+                <span className="text-white font-medium">${taskBonus.toFixed(2)}</span>
+              </div>
+              
+              {/* Calculation */}
+              <div className="border-t border-white/10 pt-3 mt-3">
+                <div className="text-center text-sm text-zinc-400 mb-2">
+                  ${(status?.team_volume_l123 || 0).toFixed(2)} + ${taskBonus.toFixed(2)}
+                </div>
+                <div className="flex justify-between items-center p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+                  <span className="text-cyan-300 font-medium">Total Unlock Progress</span>
+                  <span className="text-xl font-bold text-cyan-400">${effectiveVolume.toFixed(2)}</span>
+                </div>
+              </div>
+              
+              {/* Next Level Info */}
+              <div className="text-center text-xs text-zinc-500 mt-2">
+                {hasReachedThreshold 
+                  ? '✅ You have reached the threshold for current level!'
+                  : `Need $${volumeToNextLevel.toFixed(2)} more to reach next level`
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

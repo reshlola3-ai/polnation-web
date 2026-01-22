@@ -144,6 +144,22 @@ export async function GET() {
       .filter(rb => rb.status === 'claimed')
       .reduce((sum, rb) => sum + Number(rb.bonus_amount), 0)
 
+    // Calculate bonus breakdown by category
+    const completedUserTasks = (userTasks || []).filter(ut => ut.status === 'completed' || ut.status === 'approved')
+    const bonusBreakdown: Record<string, number> = {}
+    
+    for (const ut of completedUserTasks) {
+      const taskType = (taskTypes || []).find(tt => tt.id === ut.task_type_id)
+      if (taskType) {
+        const category = taskType.task_category
+        const reward = ut.reward_usd || taskType.reward_usd || 0
+        bonusBreakdown[category] = (bonusBreakdown[category] || 0) + reward
+      }
+    }
+    
+    // Add claimed referral bonus
+    bonusBreakdown['referral'] = claimedReferralBonus
+
     return NextResponse.json({
       tasks,
       progress: taskProgress || { total_task_bonus: 0, current_streak: 0, total_checkins: 0 },
@@ -154,6 +170,7 @@ export async function GET() {
         claimed: claimedReferralBonus,
         count: (referralBonuses || []).filter(rb => rb.status === 'pending').length,
       },
+      bonus_breakdown: bonusBreakdown,
     })
   } catch (error) {
     console.error('Error:', error)
