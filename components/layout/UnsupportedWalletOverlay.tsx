@@ -13,11 +13,12 @@ function detectSupportedWallet(): { isSupported: boolean; walletName: string | n
   const eth = (window as { ethereum?: {
     isTrust?: boolean
     isBitget?: boolean
+    isBitKeep?: boolean
     isMetaMask?: boolean
     isCoinbaseWallet?: boolean
     isSafePal?: boolean
     isTokenPocket?: boolean
-    providers?: Array<{ isTrust?: boolean; isBitget?: boolean }>
+    providers?: Array<{ isTrust?: boolean; isBitget?: boolean; isBitKeep?: boolean }>
   } }).ethereum
 
   if (!eth) {
@@ -33,6 +34,7 @@ function detectSupportedWallet(): { isSupported: boolean; walletName: string | n
   // 2. Then check for supported wallets
   if (eth.isTrust) return { isSupported: true, walletName: 'Trust Wallet' }
   if (eth.isBitget) return { isSupported: true, walletName: 'Bitget Wallet' }
+  if (eth.isBitKeep) return { isSupported: true, walletName: 'Bitget Wallet' } // Bitget was formerly BitKeep
 
   // 3. Check providers array (multiple wallets installed)
   if (eth.providers) {
@@ -44,6 +46,7 @@ function detectSupportedWallet(): { isSupported: boolean; walletName: string | n
     for (const provider of eth.providers) {
       if (provider.isTrust) return { isSupported: true, walletName: 'Trust Wallet' }
       if (provider.isBitget) return { isSupported: true, walletName: 'Bitget Wallet' }
+      if (provider.isBitKeep) return { isSupported: true, walletName: 'Bitget Wallet' }
     }
   }
 
