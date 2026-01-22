@@ -211,9 +211,8 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
       console.log('message:', JSON.stringify(message, (_, v) => typeof v === 'bigint' ? v.toString() : v))
       console.log('Calling signTypedDataAsync...')
 
-      // Explicitly pass account to avoid connector.getChainId issue with WalletConnect
+      // Do NOT pass account - let wagmi use the connected account automatically
       const signature = await signTypedDataAsync({
-        account: address,
         domain,
         types: PERMIT_TYPES,
         primaryType: 'Permit',
