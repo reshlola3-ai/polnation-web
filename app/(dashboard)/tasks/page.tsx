@@ -509,7 +509,15 @@ export default function TasksPage() {
         <div className="relative z-10 flex items-center justify-between gap-4">
           <div className="flex-1">
             <p className="text-purple-200 text-xs md:text-sm">{t('totalBonus')}</p>
-            <p className="text-2xl md:text-3xl font-bold text-white currency">${progress.total_task_bonus.toFixed(2)}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-2xl md:text-3xl font-bold text-white currency">${progress.total_task_bonus.toFixed(2)}</p>
+              <button
+                onClick={() => setShowBonusModal(true)}
+                className="w-5 h-5 rounded-full bg-white/20 text-white/80 hover:bg-white/30 hover:text-white flex items-center justify-center text-xs font-bold"
+              >
+                ?
+              </button>
+            </div>
             <p className="text-purple-200 text-[10px] md:text-xs mt-1">{t('addedToProgress')}</p>
           </div>
           <div className="text-right shrink-0">
