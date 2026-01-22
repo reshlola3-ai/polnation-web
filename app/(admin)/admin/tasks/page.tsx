@@ -39,11 +39,13 @@ interface TaskSubmission {
   created_at: string
   updated_at: string
   reward_usd: number
+  admin_reward_amount: number | null
   task_types: {
     task_key: string
     name: string
     reward_usd: number
     task_category: string
+    verification_type: string
   }
   profiles: {
     email: string
@@ -81,6 +83,7 @@ export default function AdminTasksPage() {
   const [processing, setProcessing] = useState<string | null>(null)
   const [expandedConfig, setExpandedConfig] = useState<string | null>(null)
   const [editingReward, setEditingReward] = useState<{ id: string; value: string } | null>(null)
+  const [customRewards, setCustomRewards] = useState<Record<string, string>>({})
 
   const handleLogout = async () => {
     try {
@@ -124,17 +127,29 @@ export default function AdminTasksPage() {
     fetchData()
   }, [fetchData])
 
-  const reviewTask = async (taskId: string, status: 'completed' | 'rejected', note?: string) => {
+  const reviewTask = async (taskId: string, status: 'completed' | 'rejected', customAmount?: number, note?: string) => {
     setProcessing(taskId)
     try {
       const res = await fetch('/api/admin/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'review', task_id: taskId, status, note }),
+        body: JSON.stringify({ 
+          action: 'review', 
+          task_id: taskId, 
+          status, 
+          custom_amount: customAmount,
+          note 
+        }),
       })
 
       if (res.ok) {
         fetchData()
+        // Clear custom reward input
+        setCustomRewards(prev => {
+          const newRewards = { ...prev }
+          delete newRewards[taskId]
+          return newRewards
+        })
       }
     } catch (error) {
       console.error('Failed to review task:', error)
@@ -192,6 +207,7 @@ export default function AdminTasksPage() {
       case 'promotion': return <MessageCircle className="w-4 h-4" />
       case 'checkin': return <Calendar className="w-4 h-4" />
       case 'video': return <Video className="w-4 h-4" />
+      case 'community': return <Users className="w-4 h-4" />
       default: return <Clock className="w-4 h-4" />
     }
   }
@@ -202,8 +218,14 @@ export default function AdminTasksPage() {
       case 'promotion': return 'bg-purple-100 text-purple-600'
       case 'checkin': return 'bg-amber-100 text-amber-600'
       case 'video': return 'bg-red-100 text-red-600'
+      case 'community': return 'bg-cyan-100 text-cyan-600'
       default: return 'bg-zinc-100 text-zinc-600'
     }
+  }
+
+  // Check if task needs custom reward input (video tasks)
+  const needsCustomReward = (task: TaskSubmission) => {
+    return task.task_types.task_key === 'video_review'
   }
 
   if (isLoading) {
@@ -411,14 +433,40 @@ export default function AdminTasksPage() {
                     </div>
                   )}
 
+                  {/* Custom Reward for Video Tasks */}
+                  {needsCustomReward(task) && (
+                    <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                      <p className="text-amber-400 text-xs mb-2 font-medium">Set Reward ($10-50):</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-white">$</span>
+                        <input
+                          type="number"
+                          min="10"
+                          max="50"
+                          value={customRewards[task.id] || ''}
+                          onChange={(e) => setCustomRewards(prev => ({ ...prev, [task.id]: e.target.value }))}
+                          placeholder="10-50"
+                          className="w-24 px-3 py-2 bg-zinc-900 text-white rounded-lg border border-zinc-700"
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   <div className="mt-4 flex gap-2">
                     <button
-                      onClick={() => reviewTask(task.id, 'completed')}
+                      onClick={() => {
+                        const amt = needsCustomReward(task) ? parseFloat(customRewards[task.id] || '0') : undefined
+                        if (needsCustomReward(task) && (!amt || amt < 10 || amt > 50)) {
+                          alert('Enter amount $10-$50')
+                          return
+                        }
+                        reviewTask(task.id, 'completed', amt)
+                      }}
                       disabled={processing === task.id}
                       className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      Approve
+                      {needsCustomReward(task) ? `Approve $${customRewards[task.id] || '?'}` : 'Approve'}
                     </button>
                     <button
                       onClick={() => reviewTask(task.id, 'rejected')}

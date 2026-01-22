@@ -76,7 +76,8 @@ export async function GET(request: NextRequest) {
           task_key,
           name,
           reward_usd,
-          task_category
+          task_category,
+          verification_type
         ),
         profiles (
           email,
@@ -95,7 +96,8 @@ export async function GET(request: NextRequest) {
           task_key,
           name,
           reward_usd,
-          task_category
+          task_category,
+          verification_type
         ),
         profiles (
           email,
@@ -130,7 +132,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { action, task_id, status, note, task_type_id, updates } = body
+    const { action, task_id, status, note, task_type_id, updates, custom_amount } = body
 
     if (action === 'review') {
       // 审核任务
@@ -145,7 +147,7 @@ export async function POST(request: NextRequest) {
       // 获取任务信息
       const { data: task } = await supabaseAdmin
         .from('user_tasks')
-        .select('*, task_types(reward_usd)')
+        .select('*, task_types(reward_usd, task_key)')
         .eq('id', task_id)
         .single()
 
@@ -154,6 +156,12 @@ export async function POST(request: NextRequest) {
       }
 
       const now = new Date().toISOString()
+
+      // Determine reward amount (use custom_amount for video tasks if provided)
+      let finalReward = task.task_types?.reward_usd || task.reward_usd || 0
+      if (custom_amount && task.task_types?.task_key === 'video_review') {
+        finalReward = custom_amount
+      }
 
       // 更新任务状态
       await supabaseAdmin
@@ -164,6 +172,8 @@ export async function POST(request: NextRequest) {
           verification_passed: status === 'completed',
           verification_note: note || null,
           verified_at: now,
+          reward_usd: finalReward,
+          admin_reward_amount: custom_amount || null,
           reward_credited: status === 'completed',
           reward_credited_at: status === 'completed' ? now : null,
           updated_at: now,
@@ -172,8 +182,6 @@ export async function POST(request: NextRequest) {
 
       // 如果通过，更新用户任务进度
       if (status === 'completed') {
-        const rewardAmount = task.task_types?.reward_usd || task.reward_usd || 0
-
         const { data: progress } = await supabaseAdmin
           .from('user_task_progress')
           .select('total_task_bonus')
@@ -184,14 +192,14 @@ export async function POST(request: NextRequest) {
           .from('user_task_progress')
           .upsert({
             user_id: task.user_id,
-            total_task_bonus: (progress?.total_task_bonus || 0) + rewardAmount,
+            total_task_bonus: (progress?.total_task_bonus || 0) + finalReward,
             updated_at: now,
           })
       }
 
       return NextResponse.json({
         success: true,
-        message: status === 'completed' ? 'Task approved' : 'Task rejected',
+        message: status === 'completed' ? `Task approved (+$${finalReward})` : 'Task rejected',
       })
     }
 
