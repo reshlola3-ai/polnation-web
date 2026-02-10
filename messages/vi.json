@@ -555,6 +555,53 @@
           "Mở khóa giải thưởng cộng đồng khi đội phát triển",
           "Thưởng đặc biệt cho người hoạt động tốt nhất"
         ]
+      },
+      "tasks": {
+        "title": "Nhiệm Vụ & Phần Thưởng",
+        "intro": "Hoàn thành nhiệm vụ để nhận thưởng và tăng tốc mở khóa cấp độ cao hơn.",
+        "typesTitle": "Các Nhiệm Vụ",
+        "taskCol": "Nhiệm Vụ",
+        "rewardCol": "Thưởng",
+        "frequencyCol": "Tần Suất",
+        "daily": "Hàng ngày",
+        "oneTime": "Một lần",
+        "repeatable": "Có thể lặp",
+        "automatic": "Tự động",
+        "perPerson": "người",
+        "whereGoTitle": "Phần Thưởng Đi Đâu?",
+        "flowStep1": "Hoàn Thành Nhiệm Vụ",
+        "flowStep2": "Cộng Vào Tiến Độ Mở Khóa",
+        "flowStep3": "Đạt Ngưỡng Cấp Độ",
+        "flowStep4": "Nhận Prize Pool",
+        "flowNote": "Phần thưởng nhiệm vụ góp phần vào Tiến Độ Mở Khóa, giúp bạn lên cấp nhanh hơn!",
+        "note": "Phần thưởng nhiệm vụ không rút trực tiếp được. Chúng cộng vào Tiến Độ Mở Khóa để bạn nhận Prize Pool lớn hơn!"
+      },
+      "levels": {
+        "title": "Cấp Độ & Prize Pool",
+        "intro": "Phát triển đội nhóm và mở khóa prize pool cao hơn với thu nhập thụ động hàng ngày!",
+        "tableTitle": "Tổng Quan Cấp Độ",
+        "levelCol": "Cấp",
+        "prizeCol": "Prize Pool",
+        "rateCol": "Tỷ Lệ Ngày",
+        "dailyCol": "Thu Nhập Ngày",
+        "unlockCol": "Mở Khóa Tại",
+        "howUnlockTitle": "Cách Mở Khóa Cấp Độ",
+        "formula": "Công Thức Tiến Độ Mở Khóa",
+        "teamVolume": "USDC Đội",
+        "taskBonus": "Thưởng Nhiệm Vụ",
+        "unlockProgress": "Tiến Độ Mở Khóa",
+        "step1": "USDC Đội = Tổng USDC trong ví của thành viên L1, L2, L3",
+        "step2": "Thưởng Nhiệm Vụ = Tất cả phần thưởng từ hoàn thành nhiệm vụ",
+        "step3": "Khi Tiến Độ Mở Khóa ≥ Ngưỡng → Nhấn \"Claim\" để nhận Prize Pool",
+        "claimRulesTitle": "Quy Tắc Nhận Thưởng",
+        "rule1": "Mỗi Prize Pool chỉ được nhận một lần",
+        "rule2": "Sau khi nhận, bạn tự động lên cấp tiếp theo",
+        "rule3": "Thu Nhập Ngày = Prize Pool × Tỷ Lệ Ngày (tính mỗi 24 giờ)",
+        "rule4": "Thu Nhập Ngày được cộng vào số dư Có Thể Rút",
+        "influencerTitle": "Quyền Lợi Influencer",
+        "influencerDesc": "Influencer được giảm đến 50% ngưỡng mở khóa!",
+        "applyInfluencer": "Đăng ký làm Influencer",
+        "contactTelegram": "Liên hệ Telegram:"
       }
     }
   }

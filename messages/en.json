@@ -555,6 +555,53 @@
           "Unlock community prizes as your team grows",
           "Special bonuses for top performers"
         ]
+      },
+      "tasks": {
+        "title": "Tasks & Rewards",
+        "intro": "Complete tasks to earn bonus rewards and accelerate your progress toward unlocking higher levels.",
+        "typesTitle": "Available Tasks",
+        "taskCol": "Task",
+        "rewardCol": "Reward",
+        "frequencyCol": "Frequency",
+        "daily": "Daily",
+        "oneTime": "One-time",
+        "repeatable": "Repeatable",
+        "automatic": "Automatic",
+        "perPerson": "person",
+        "whereGoTitle": "Where Do Rewards Go?",
+        "flowStep1": "Complete Task",
+        "flowStep2": "Added to Unlock Progress",
+        "flowStep3": "Reach Level Threshold",
+        "flowStep4": "Claim Prize Pool",
+        "flowNote": "Task rewards contribute to your Unlock Progress, helping you reach the next level faster!",
+        "note": "Task rewards are not directly withdrawable. They add to your Unlock Progress which helps you claim bigger Prize Pools!"
+      },
+      "levels": {
+        "title": "Team Levels & Prize Pools",
+        "intro": "Grow your team and unlock higher prize pools with daily passive earnings!",
+        "tableTitle": "Level Overview",
+        "levelCol": "Level",
+        "prizeCol": "Prize Pool",
+        "rateCol": "Daily Rate",
+        "dailyCol": "Daily Earnings",
+        "unlockCol": "Unlock At",
+        "howUnlockTitle": "How to Unlock Levels",
+        "formula": "Unlock Progress Formula",
+        "teamVolume": "Team USDC",
+        "taskBonus": "Task Bonus",
+        "unlockProgress": "Unlock Progress",
+        "step1": "Team USDC = Total USDC in your L1, L2, L3 team members' wallets",
+        "step2": "Task Bonus = All rewards earned from completing tasks",
+        "step3": "When Unlock Progress ≥ Level Threshold → Click \"Claim\" to get Prize Pool",
+        "claimRulesTitle": "Claim Rules",
+        "rule1": "Each Prize Pool can only be claimed once",
+        "rule2": "After claiming, you automatically upgrade to the next level",
+        "rule3": "Daily Earnings = Prize Pool × Daily Rate (calculated every 24 hours)",
+        "rule4": "Daily Earnings are added to your Withdrawable balance",
+        "influencerTitle": "Influencer Benefits",
+        "influencerDesc": "Influencers enjoy up to 50% lower unlock thresholds!",
+        "applyInfluencer": "Apply for Influencer status",
+        "contactTelegram": "Contact us on Telegram:"
       }
     }
   }

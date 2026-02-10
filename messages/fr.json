@@ -555,6 +555,53 @@
           "Débloquez des prix communautaires en grandissant",
           "Bonus spéciaux pour les meilleurs performeurs"
         ]
+      },
+      "tasks": {
+        "title": "Tâches & Récompenses",
+        "intro": "Complétez des tâches pour gagner des bonus et accélérer votre progression vers des niveaux supérieurs.",
+        "typesTitle": "Tâches Disponibles",
+        "taskCol": "Tâche",
+        "rewardCol": "Récompense",
+        "frequencyCol": "Fréquence",
+        "daily": "Quotidien",
+        "oneTime": "Une fois",
+        "repeatable": "Répétable",
+        "automatic": "Automatique",
+        "perPerson": "personne",
+        "whereGoTitle": "Où Vont les Récompenses ?",
+        "flowStep1": "Compléter Tâche",
+        "flowStep2": "Ajouté à la Progression",
+        "flowStep3": "Atteindre le Seuil",
+        "flowStep4": "Réclamer le Prize Pool",
+        "flowNote": "Les récompenses de tâches contribuent à votre Progression, vous aidant à atteindre le niveau suivant plus vite !",
+        "note": "Les récompenses de tâches ne sont pas directement retirables. Elles s'ajoutent à votre Progression pour réclamer des Prize Pools plus grands !"
+      },
+      "levels": {
+        "title": "Niveaux & Prize Pools",
+        "intro": "Développez votre équipe et débloquez des prize pools plus élevés avec des gains passifs quotidiens !",
+        "tableTitle": "Aperçu des Niveaux",
+        "levelCol": "Niveau",
+        "prizeCol": "Prize Pool",
+        "rateCol": "Taux Quotidien",
+        "dailyCol": "Gains Quotidiens",
+        "unlockCol": "Débloquer À",
+        "howUnlockTitle": "Comment Débloquer les Niveaux",
+        "formula": "Formule de Progression",
+        "teamVolume": "USDC Équipe",
+        "taskBonus": "Bonus Tâches",
+        "unlockProgress": "Progression",
+        "step1": "USDC Équipe = Total USDC dans les portefeuilles des membres L1, L2, L3",
+        "step2": "Bonus Tâches = Toutes les récompenses des tâches complétées",
+        "step3": "Quand Progression ≥ Seuil → Cliquez \"Réclamer\" pour obtenir le Prize Pool",
+        "claimRulesTitle": "Règles de Réclamation",
+        "rule1": "Chaque Prize Pool ne peut être réclamé qu'une fois",
+        "rule2": "Après réclamation, vous passez automatiquement au niveau suivant",
+        "rule3": "Gains Quotidiens = Prize Pool × Taux Quotidien (calculé toutes les 24h)",
+        "rule4": "Les Gains Quotidiens sont ajoutés à votre solde Retirable",
+        "influencerTitle": "Avantages Influenceur",
+        "influencerDesc": "Les influenceurs bénéficient de seuils de déblocage jusqu'à 50% plus bas !",
+        "applyInfluencer": "Postuler pour le statut Influenceur",
+        "contactTelegram": "Contactez-nous sur Telegram :"
       }
     }
   }

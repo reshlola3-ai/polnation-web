@@ -26,7 +26,12 @@ import {
   Menu,
   X,
   Home,
-  ArrowRight
+  ArrowRight,
+  ClipboardList,
+  Crown,
+  Star,
+  ArrowDown,
+  MessageCircle
 } from 'lucide-react'
 
 interface AcademyContentProps {
@@ -84,6 +89,53 @@ interface AcademyContentProps {
         intro: string
         benefits: string[]
       }
+      tasks?: {
+        title: string
+        intro: string
+        typesTitle: string
+        taskCol: string
+        rewardCol: string
+        frequencyCol: string
+        daily: string
+        oneTime: string
+        repeatable: string
+        automatic: string
+        perPerson: string
+        whereGoTitle: string
+        flowStep1: string
+        flowStep2: string
+        flowStep3: string
+        flowStep4: string
+        flowNote: string
+        note: string
+      }
+      levels?: {
+        title: string
+        intro: string
+        tableTitle: string
+        levelCol: string
+        prizeCol: string
+        rateCol: string
+        dailyCol: string
+        unlockCol: string
+        howUnlockTitle: string
+        formula: string
+        teamVolume: string
+        taskBonus: string
+        unlockProgress: string
+        step1: string
+        step2: string
+        step3: string
+        claimRulesTitle: string
+        rule1: string
+        rule2: string
+        rule3: string
+        rule4: string
+        influencerTitle: string
+        influencerDesc: string
+        applyInfluencer: string
+        contactTelegram: string
+      }
     }
   }
   user: User | null
@@ -97,6 +149,8 @@ const sections = [
   { id: 'step-3', icon: PenTool },
   { id: 'step-4', icon: TrendingUp },
   { id: 'step-5', icon: Users },
+  { id: 'step-6', icon: ClipboardList },
+  { id: 'step-7', icon: Crown },
 ]
 
 export function AcademyContent({ translations: t, user, locale }: AcademyContentProps) {
@@ -137,6 +191,8 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
     'step-3': `3. ${t.steps.sign.title}`,
     'step-4': `4. ${t.steps.earn.title}`,
     'step-5': `5. ${t.steps.team.title}`,
+    'step-6': `6. ${t.steps.tasks?.title || 'Tasks & Rewards'}`,
+    'step-7': `7. ${t.steps.levels?.title || 'Team Levels'}`,
   }
 
   return (
@@ -549,6 +605,278 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
                     </li>
                   ))}
                 </ul>
+              </div>
+            </section>
+
+            {/* Step 6: Tasks & Rewards */}
+            <section id="step-6" className="mb-16 scroll-mt-20">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
+                  <ClipboardList className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <div className="text-sm text-emerald-400 font-medium">{t.step} 6</div>
+                  <h2 className="text-2xl font-bold text-white">{t.steps.tasks?.title || 'Tasks & Rewards'}</h2>
+                </div>
+              </div>
+
+              <div className="prose prose-invert prose-zinc max-w-none mb-8">
+                <p className="text-zinc-300 leading-relaxed">{t.steps.tasks?.intro || 'Complete tasks to earn bonus rewards and accelerate your progress.'}</p>
+              </div>
+
+              {/* Task Types Table */}
+              <div className="bg-zinc-900/30 rounded-xl border border-zinc-800 overflow-hidden mb-8">
+                <div className="p-4 border-b border-zinc-800">
+                  <h3 className="font-semibold text-white">{t.steps.tasks?.typesTitle || 'Available Tasks'}</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-zinc-800/50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-zinc-400 font-medium">{t.steps.tasks?.taskCol || 'Task'}</th>
+                        <th className="px-4 py-3 text-left text-zinc-400 font-medium">{t.steps.tasks?.rewardCol || 'Reward'}</th>
+                        <th className="px-4 py-3 text-left text-zinc-400 font-medium">{t.steps.tasks?.frequencyCol || 'Frequency'}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800">
+                      <tr>
+                        <td className="px-4 py-3 text-white">📅 Daily Check-in</td>
+                        <td className="px-4 py-3 text-emerald-400">$0.1 → $1</td>
+                        <td className="px-4 py-3 text-zinc-400">{t.steps.tasks?.daily || 'Daily'}</td>
+                      </tr>
+                      <tr>
+                        <td className="px-4 py-3 text-white">🐦 Follow X / Join Telegram</td>
+                        <td className="px-4 py-3 text-emerald-400">$0.5</td>
+                        <td className="px-4 py-3 text-zinc-400">{t.steps.tasks?.oneTime || 'One-time'}</td>
+                      </tr>
+                      <tr>
+                        <td className="px-4 py-3 text-white">📢 Share Promotion</td>
+                        <td className="px-4 py-3 text-emerald-400">$0.5</td>
+                        <td className="px-4 py-3 text-zinc-400">{t.steps.tasks?.daily || 'Daily'}</td>
+                      </tr>
+                      <tr>
+                        <td className="px-4 py-3 text-white">🎬 Create Video</td>
+                        <td className="px-4 py-3 text-emerald-400">$10 - $50</td>
+                        <td className="px-4 py-3 text-zinc-400">{t.steps.tasks?.repeatable || 'Repeatable'}</td>
+                      </tr>
+                      <tr>
+                        <td className="px-4 py-3 text-white">👥 Community Devotion</td>
+                        <td className="px-4 py-3 text-emerald-400">$5</td>
+                        <td className="px-4 py-3 text-zinc-400">{t.steps.tasks?.oneTime || 'One-time'}</td>
+                      </tr>
+                      <tr>
+                        <td className="px-4 py-3 text-white">🔗 Referral Bonus</td>
+                        <td className="px-4 py-3 text-emerald-400">$1 / {t.steps.tasks?.perPerson || 'person'}</td>
+                        <td className="px-4 py-3 text-zinc-400">{t.steps.tasks?.automatic || 'Automatic'}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Where Do Rewards Go - Visual Flow */}
+              <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-xl p-6 border border-emerald-500/20 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Gift className="w-5 h-5 text-emerald-400" />
+                  {t.steps.tasks?.whereGoTitle || 'Where Do Rewards Go?'}
+                </h3>
+                
+                {/* Flow Chart */}
+                <div className="flex flex-col items-center gap-2 py-4">
+                  {/* Step 1 */}
+                  <div className="flex items-center gap-3 px-4 py-3 bg-emerald-500/20 rounded-xl border border-emerald-500/30 w-full max-w-xs text-center">
+                    <ClipboardList className="w-5 h-5 text-emerald-400" />
+                    <span className="text-white font-medium">{t.steps.tasks?.flowStep1 || 'Complete Task'}</span>
+                  </div>
+                  <ArrowDown className="w-5 h-5 text-zinc-500" />
+                  
+                  {/* Step 2 */}
+                  <div className="flex items-center gap-3 px-4 py-3 bg-blue-500/20 rounded-xl border border-blue-500/30 w-full max-w-xs text-center">
+                    <TrendingUp className="w-5 h-5 text-blue-400" />
+                    <span className="text-white font-medium">{t.steps.tasks?.flowStep2 || 'Added to Unlock Progress'}</span>
+                  </div>
+                  <ArrowDown className="w-5 h-5 text-zinc-500" />
+                  
+                  {/* Step 3 */}
+                  <div className="flex items-center gap-3 px-4 py-3 bg-purple-500/20 rounded-xl border border-purple-500/30 w-full max-w-xs text-center">
+                    <Crown className="w-5 h-5 text-purple-400" />
+                    <span className="text-white font-medium">{t.steps.tasks?.flowStep3 || 'Reach Level Threshold'}</span>
+                  </div>
+                  <ArrowDown className="w-5 h-5 text-zinc-500" />
+                  
+                  {/* Step 4 */}
+                  <div className="flex items-center gap-3 px-4 py-3 bg-amber-500/20 rounded-xl border border-amber-500/30 w-full max-w-xs text-center">
+                    <Gift className="w-5 h-5 text-amber-400" />
+                    <span className="text-white font-medium">{t.steps.tasks?.flowStep4 || 'Claim Prize Pool'}</span>
+                  </div>
+                </div>
+
+                <p className="text-sm text-zinc-400 text-center mt-4">
+                  {t.steps.tasks?.flowNote || 'Task rewards contribute to your Unlock Progress, helping you reach the next level faster!'}
+                </p>
+              </div>
+
+              {/* Important Note */}
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-200/80">{t.steps.tasks?.note || 'Task rewards are not directly withdrawable. They add to your Unlock Progress which helps you claim bigger Prize Pools!'}</p>
+              </div>
+            </section>
+
+            {/* Step 7: Team Levels */}
+            <section id="step-7" className="mb-16 scroll-mt-20">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
+                  <Crown className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <div className="text-sm text-amber-400 font-medium">{t.step} 7</div>
+                  <h2 className="text-2xl font-bold text-white">{t.steps.levels?.title || 'Team Levels & Prize Pools'}</h2>
+                </div>
+              </div>
+
+              <div className="prose prose-invert prose-zinc max-w-none mb-8">
+                <p className="text-zinc-300 leading-relaxed">{t.steps.levels?.intro || 'Grow your team and unlock higher prize pools with daily earnings!'}</p>
+              </div>
+
+              {/* Levels Table */}
+              <div className="bg-zinc-900/30 rounded-xl border border-zinc-800 overflow-hidden mb-8">
+                <div className="p-4 border-b border-zinc-800">
+                  <h3 className="font-semibold text-white">{t.steps.levels?.tableTitle || 'Level Overview'}</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-zinc-800/50">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-zinc-400 font-medium">{t.steps.levels?.levelCol || 'Level'}</th>
+                        <th className="px-4 py-3 text-left text-zinc-400 font-medium">{t.steps.levels?.prizeCol || 'Prize Pool'}</th>
+                        <th className="px-4 py-3 text-left text-zinc-400 font-medium">{t.steps.levels?.rateCol || 'Daily Rate'}</th>
+                        <th className="px-4 py-3 text-left text-zinc-400 font-medium">{t.steps.levels?.dailyCol || 'Daily Earnings'}</th>
+                        <th className="px-4 py-3 text-left text-zinc-400 font-medium">{t.steps.levels?.unlockCol || 'Unlock At'}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800">
+                      <tr className="bg-amber-500/5">
+                        <td className="px-4 py-3"><span className="flex items-center gap-2 text-white">🥉 Bronze</span></td>
+                        <td className="px-4 py-3 text-amber-400 font-medium">$10</td>
+                        <td className="px-4 py-3 text-zinc-400">0%</td>
+                        <td className="px-4 py-3 text-zinc-400">$0</td>
+                        <td className="px-4 py-3 text-zinc-400">$100</td>
+                      </tr>
+                      <tr>
+                        <td className="px-4 py-3"><span className="flex items-center gap-2 text-white">🥈 Silver</span></td>
+                        <td className="px-4 py-3 text-amber-400 font-medium">$100</td>
+                        <td className="px-4 py-3 text-cyan-400">1.0%</td>
+                        <td className="px-4 py-3 text-emerald-400">$1/day</td>
+                        <td className="px-4 py-3 text-zinc-400">$1,200</td>
+                      </tr>
+                      <tr className="bg-amber-500/5">
+                        <td className="px-4 py-3"><span className="flex items-center gap-2 text-white">🥇 Gold</span></td>
+                        <td className="px-4 py-3 text-amber-400 font-medium">$500</td>
+                        <td className="px-4 py-3 text-cyan-400">1.1%</td>
+                        <td className="px-4 py-3 text-emerald-400">$5.5/day</td>
+                        <td className="px-4 py-3 text-zinc-400">$7,500</td>
+                      </tr>
+                      <tr>
+                        <td className="px-4 py-3"><span className="flex items-center gap-2 text-white">💎 Platinum</span></td>
+                        <td className="px-4 py-3 text-amber-400 font-medium">$1,000</td>
+                        <td className="px-4 py-3 text-cyan-400">1.2%</td>
+                        <td className="px-4 py-3 text-emerald-400">$12/day</td>
+                        <td className="px-4 py-3 text-zinc-400">$18,000</td>
+                      </tr>
+                      <tr className="bg-amber-500/5">
+                        <td className="px-4 py-3"><span className="flex items-center gap-2 text-white">💠 Diamond</span></td>
+                        <td className="px-4 py-3 text-amber-400 font-medium">$5,000</td>
+                        <td className="px-4 py-3 text-cyan-400">1.5%</td>
+                        <td className="px-4 py-3 text-emerald-400">$75/day</td>
+                        <td className="px-4 py-3 text-zinc-400">$110,000</td>
+                      </tr>
+                      <tr>
+                        <td className="px-4 py-3"><span className="flex items-center gap-2 text-white">👑 Elite</span></td>
+                        <td className="px-4 py-3 text-amber-400 font-medium">$10,000</td>
+                        <td className="px-4 py-3 text-cyan-400">2.0%</td>
+                        <td className="px-4 py-3 text-emerald-400">$200/day</td>
+                        <td className="px-4 py-3 text-zinc-400">$300,000</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* How Unlock Progress Works */}
+              <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4">{t.steps.levels?.howUnlockTitle || 'How to Unlock Levels'}</h3>
+                
+                {/* Formula Box */}
+                <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl p-4 border border-purple-500/20 mb-4">
+                  <div className="text-center">
+                    <div className="text-sm text-zinc-400 mb-2">{t.steps.levels?.formula || 'Unlock Progress Formula'}</div>
+                    <div className="flex items-center justify-center gap-2 flex-wrap text-lg">
+                      <span className="px-3 py-1 bg-blue-500/20 rounded-lg text-blue-300">{t.steps.levels?.teamVolume || 'Team USDC'}</span>
+                      <span className="text-zinc-500">+</span>
+                      <span className="px-3 py-1 bg-emerald-500/20 rounded-lg text-emerald-300">{t.steps.levels?.taskBonus || 'Task Bonus'}</span>
+                      <span className="text-zinc-500">=</span>
+                      <span className="px-3 py-1 bg-purple-500/20 rounded-lg text-purple-300 font-bold">{t.steps.levels?.unlockProgress || 'Unlock Progress'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-xs font-bold text-blue-400 flex-shrink-0">1</span>
+                    <span className="text-zinc-300">{t.steps.levels?.step1 || 'Team USDC = Total USDC in your L1, L2, L3 team members\' wallets'}</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-xs font-bold text-blue-400 flex-shrink-0">2</span>
+                    <span className="text-zinc-300">{t.steps.levels?.step2 || 'Task Bonus = All rewards earned from completing tasks'}</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-xs font-bold text-blue-400 flex-shrink-0">3</span>
+                    <span className="text-zinc-300">{t.steps.levels?.step3 || 'When Unlock Progress ≥ Level Threshold → Click "Claim" to get Prize Pool'}</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Claim Rules */}
+              <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl p-6 border border-amber-500/20 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Gift className="w-5 h-5 text-amber-400" />
+                  {t.steps.levels?.claimRulesTitle || 'Claim Rules'}
+                </h3>
+                <ul className="space-y-3">
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <span className="text-zinc-300">{t.steps.levels?.rule1 || 'Each Prize Pool can only be claimed once'}</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <span className="text-zinc-300">{t.steps.levels?.rule2 || 'After claiming, you automatically upgrade to the next level'}</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <span className="text-zinc-300">{t.steps.levels?.rule3 || 'Daily Earnings = Prize Pool × Daily Rate (calculated every 24 hours)'}</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <span className="text-zinc-300">{t.steps.levels?.rule4 || 'Daily Earnings are added to your Withdrawable balance'}</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Influencer */}
+              <div className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-xl p-6 border border-pink-500/20">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Star className="w-5 h-5 text-pink-400" />
+                  {t.steps.levels?.influencerTitle || 'Influencer Benefits'}
+                </h3>
+                <p className="text-zinc-300 mb-4">{t.steps.levels?.influencerDesc || 'Influencers enjoy up to 50% lower unlock thresholds!'}</p>
+                <div className="flex items-center gap-3 p-4 bg-zinc-900/50 rounded-xl">
+                  <MessageCircle className="w-6 h-6 text-cyan-400" />
+                  <div>
+                    <p className="text-white font-medium">{t.steps.levels?.applyInfluencer || 'Apply for Influencer status'}</p>
+                    <p className="text-sm text-zinc-400">{t.steps.levels?.contactTelegram || 'Contact us on Telegram:'} <a href="https://t.me/polnationsupport" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">@polnationsupport</a></p>
+                  </div>
+                </div>
               </div>
             </section>
 

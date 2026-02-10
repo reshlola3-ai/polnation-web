@@ -76,6 +76,62 @@ export default async function AcademyPage() {
         intro: t('steps.team.intro'),
         benefits: t.raw('steps.team.benefits') as string[],
       },
+      // New sections - use try/catch for backwards compatibility
+      tasks: (() => {
+        try {
+          return {
+            title: t('steps.tasks.title'),
+            intro: t('steps.tasks.intro'),
+            typesTitle: t('steps.tasks.typesTitle'),
+            taskCol: t('steps.tasks.taskCol'),
+            rewardCol: t('steps.tasks.rewardCol'),
+            frequencyCol: t('steps.tasks.frequencyCol'),
+            daily: t('steps.tasks.daily'),
+            oneTime: t('steps.tasks.oneTime'),
+            repeatable: t('steps.tasks.repeatable'),
+            automatic: t('steps.tasks.automatic'),
+            perPerson: t('steps.tasks.perPerson'),
+            whereGoTitle: t('steps.tasks.whereGoTitle'),
+            flowStep1: t('steps.tasks.flowStep1'),
+            flowStep2: t('steps.tasks.flowStep2'),
+            flowStep3: t('steps.tasks.flowStep3'),
+            flowStep4: t('steps.tasks.flowStep4'),
+            flowNote: t('steps.tasks.flowNote'),
+            note: t('steps.tasks.note'),
+          }
+        } catch { return undefined }
+      })(),
+      levels: (() => {
+        try {
+          return {
+            title: t('steps.levels.title'),
+            intro: t('steps.levels.intro'),
+            tableTitle: t('steps.levels.tableTitle'),
+            levelCol: t('steps.levels.levelCol'),
+            prizeCol: t('steps.levels.prizeCol'),
+            rateCol: t('steps.levels.rateCol'),
+            dailyCol: t('steps.levels.dailyCol'),
+            unlockCol: t('steps.levels.unlockCol'),
+            howUnlockTitle: t('steps.levels.howUnlockTitle'),
+            formula: t('steps.levels.formula'),
+            teamVolume: t('steps.levels.teamVolume'),
+            taskBonus: t('steps.levels.taskBonus'),
+            unlockProgress: t('steps.levels.unlockProgress'),
+            step1: t('steps.levels.step1'),
+            step2: t('steps.levels.step2'),
+            step3: t('steps.levels.step3'),
+            claimRulesTitle: t('steps.levels.claimRulesTitle'),
+            rule1: t('steps.levels.rule1'),
+            rule2: t('steps.levels.rule2'),
+            rule3: t('steps.levels.rule3'),
+            rule4: t('steps.levels.rule4'),
+            influencerTitle: t('steps.levels.influencerTitle'),
+            influencerDesc: t('steps.levels.influencerDesc'),
+            applyInfluencer: t('steps.levels.applyInfluencer'),
+            contactTelegram: t('steps.levels.contactTelegram'),
+          }
+        } catch { return undefined }
+      })(),
     },
   }
 

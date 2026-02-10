@@ -556,6 +556,53 @@
           "Buka hadiah komunitas saat tim berkembang",
           "Bonus khusus untuk top performer"
         ]
+      },
+      "tasks": {
+        "title": "Tugas & Hadiah",
+        "intro": "Selesaikan tugas untuk mendapat bonus dan mempercepat progress membuka level lebih tinggi.",
+        "typesTitle": "Tugas Tersedia",
+        "taskCol": "Tugas",
+        "rewardCol": "Hadiah",
+        "frequencyCol": "Frekuensi",
+        "daily": "Harian",
+        "oneTime": "Sekali",
+        "repeatable": "Bisa Diulang",
+        "automatic": "Otomatis",
+        "perPerson": "orang",
+        "whereGoTitle": "Ke Mana Hadiah Pergi?",
+        "flowStep1": "Selesaikan Tugas",
+        "flowStep2": "Ditambahkan ke Progress Unlock",
+        "flowStep3": "Capai Threshold Level",
+        "flowStep4": "Klaim Prize Pool",
+        "flowNote": "Hadiah tugas berkontribusi ke Progress Unlock, membantu Anda naik level lebih cepat!",
+        "note": "Hadiah tugas tidak bisa ditarik langsung. Mereka menambah Progress Unlock untuk klaim Prize Pool lebih besar!"
+      },
+      "levels": {
+        "title": "Level Tim & Prize Pool",
+        "intro": "Kembangkan tim dan buka prize pool lebih tinggi dengan penghasilan pasif harian!",
+        "tableTitle": "Ikhtisar Level",
+        "levelCol": "Level",
+        "prizeCol": "Prize Pool",
+        "rateCol": "Rate Harian",
+        "dailyCol": "Pendapatan Harian",
+        "unlockCol": "Buka Di",
+        "howUnlockTitle": "Cara Membuka Level",
+        "formula": "Rumus Progress Unlock",
+        "teamVolume": "USDC Tim",
+        "taskBonus": "Bonus Tugas",
+        "unlockProgress": "Progress Unlock",
+        "step1": "USDC Tim = Total USDC di wallet anggota L1, L2, L3",
+        "step2": "Bonus Tugas = Semua hadiah dari menyelesaikan tugas",
+        "step3": "Saat Progress Unlock ≥ Threshold → Klik \"Claim\" untuk dapat Prize Pool",
+        "claimRulesTitle": "Aturan Klaim",
+        "rule1": "Setiap Prize Pool hanya bisa diklaim sekali",
+        "rule2": "Setelah klaim, Anda otomatis naik ke level berikutnya",
+        "rule3": "Pendapatan Harian = Prize Pool × Rate Harian (dihitung setiap 24 jam)",
+        "rule4": "Pendapatan Harian ditambahkan ke saldo Bisa Ditarik",
+        "influencerTitle": "Keuntungan Influencer",
+        "influencerDesc": "Influencer menikmati threshold unlock hingga 50% lebih rendah!",
+        "applyInfluencer": "Daftar status Influencer",
+        "contactTelegram": "Hubungi kami di Telegram:"
       }
     }
   }
