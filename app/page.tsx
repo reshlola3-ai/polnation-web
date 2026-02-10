@@ -4,7 +4,6 @@ import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
 import { FeaturesSection } from '@/components/home/FeaturesSection'
-import { AcademySection } from '@/components/home/AcademySection'
 import { ChainStats } from '@/components/home/ChainStats'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
@@ -271,39 +270,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Academy Section */}
-      <AcademySection
-        translations={{
-          title: t('academy.title'),
-          subtitle: t('academy.subtitle'),
-          watchVideo: t('academy.watchVideo'),
-          viewFullGuide: t('academy.viewFullGuide'),
-          step: t('academy.step'),
-          steps: {
-            wallet: {
-              title: t('academy.steps.wallet.title'),
-              description: t('academy.steps.wallet.description'),
-              details: t.raw('academy.steps.wallet.details') as string[],
-            },
-            deposit: {
-              title: t('academy.steps.deposit.title'),
-              description: t('academy.steps.deposit.description'),
-              details: t.raw('academy.steps.deposit.details') as string[],
-            },
-            sign: {
-              title: t('academy.steps.sign.title'),
-              description: t('academy.steps.sign.description'),
-              details: t.raw('academy.steps.sign.details') as string[],
-            },
-            earn: {
-              title: t('academy.steps.earn.title'),
-              description: t('academy.steps.earn.description'),
-              details: t.raw('academy.steps.earn.details') as string[],
-            },
-          },
-        }}
-      />
 
       {/* On-Chain Vault Video Section */}
       <section className="relative z-10 py-16 md:py-24">

@@ -450,6 +450,9 @@
     "getStartedNow": "Commencer Maintenant",
     "watchVideo": "Regarder le Tutoriel Vidéo",
     "viewFullGuide": "Voir le Guide Complet",
+    "tableOfContents": "Table des Matières",
+    "introduction": "Introduction",
+    "introText": "Bienvenue à la Polnation Academy ! Ce guide complet vous expliquera tout ce que vous devez savoir pour commencer à gagner un revenu passif avec le stablecoin USDC. Que vous soyez nouveau dans la crypto ou utilisateur expérimenté, nous vous guiderons étape par étape.",
     "steps": {
       "wallet": {
         "title": "Télécharger un Portefeuille",
