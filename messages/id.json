@@ -68,6 +68,35 @@
       "activeUsers": "Pengguna Aktif",
       "avgApy": "APY Rata-rata",
       "nonCustodial": "Non-Custodial"
+    },
+    "academy": {
+      "title": "Mulai Menghasilkan dalam 4 Langkah",
+      "subtitle": "Dari nol hingga penghasilan pasif - panduan lengkap untuk pemula",
+      "watchVideo": "Tonton Video Tutorial",
+      "viewFullGuide": "Lihat Panduan Lengkap",
+      "step": "Langkah",
+      "steps": {
+        "wallet": {
+          "title": "Unduh Wallet",
+          "description": "Dapatkan Trust Wallet atau Bitget Wallet untuk menyimpan crypto dengan aman",
+          "details": ["Unduh dari toko resmi", "Buat wallet baru", "Cadangkan frasa pemulihan", "Jangan bagikan private key"]
+        },
+        "deposit": {
+          "title": "Dapatkan USDC",
+          "description": "Transfer atau tukar USDC ke wallet Anda di jaringan Polygon",
+          "details": ["Beli dari exchange", "Transfer ke wallet", "Gunakan jaringan Polygon", "Minimum $10 USDC"]
+        },
+        "sign": {
+          "title": "Tanda Tangan Indexer",
+          "description": "Tanda tangan sekali tanpa gas untuk mengaktifkan potensi penghasilan",
+          "details": ["Hubungkan wallet", "Klik Mulai Menghasilkan", "Tanda tangani pesan", "Tanpa biaya gas"]
+        },
+        "earn": {
+          "title": "Hasilkan Harian",
+          "description": "Duduk santai dan lihat USDC Anda bertambah setiap hari",
+          "details": ["Reward otomatis dihitung", "Tarik kapan saja", "Saldo tinggi = rate tinggi", "Reinvestasi untuk lebih"]
+        }
+      }
     }
   },
   "auth": {
@@ -407,5 +436,124 @@
     "withdrawFailed": "Penarikan gagal",
     "claimFailed": "Klaim gagal",
     "taskFailed": "Gagal menyelesaikan tugas"
+  },
+  "academy": {
+    "title": "Cara Mulai Menghasilkan",
+    "subtitle": "Panduan lengkap untuk pemula - dari nol hingga penghasilan pasif dalam 4 langkah sederhana",
+    "backToHome": "Kembali ke Beranda",
+    "videoTutorial": "Video Tutorial",
+    "videoComingSoon": "Video Tutorial Segera Hadir",
+    "videoComingSoonDesc": "Kami sedang menyiapkan panduan video lengkap untuk Anda",
+    "step": "Langkah",
+    "bonus": "Bonus",
+    "readyToStart": "Siap Mulai Menghasilkan?",
+    "readyToStartDesc": "Bergabung dengan ribuan pengguna yang sudah menghasilkan pendapatan pasif dengan Polnation",
+    "getStartedNow": "Mulai Sekarang",
+    "watchVideo": "Tonton Video Tutorial",
+    "viewFullGuide": "Lihat Panduan Lengkap",
+    "steps": {
+      "wallet": {
+        "title": "Unduh Wallet",
+        "description": "Dapatkan Trust Wallet atau Bitget Wallet untuk menyimpan crypto dengan aman",
+        "details": [
+          "Unduh dari toko aplikasi resmi",
+          "Buat wallet baru atau impor yang ada",
+          "Cadangkan frasa pemulihan dengan aman",
+          "Jangan pernah bagikan private key"
+        ],
+        "intro": "Pertama, Anda butuh wallet crypto yang aman. Kami merekomendasikan Trust Wallet atau Bitget Wallet karena sepenuhnya kompatibel dengan Polnation.",
+        "recommended": "Direkomendasikan",
+        "alternative": "Alternatif",
+        "download": "Unduh",
+        "setupTitle": "Cara Mengatur Wallet Anda",
+        "setupSteps": [
+          "Unduh aplikasi dari App Store atau Google Play resmi",
+          "Buka aplikasi dan ketuk 'Buat wallet baru'",
+          "Tulis 12 kata frasa pemulihan di kertas (jangan screenshot!)",
+          "Konfirmasi frasa pemulihan dengan urutan yang benar",
+          "Atur PIN yang kuat atau aktifkan kunci biometrik"
+        ],
+        "warning": "⚠️ PENTING: Jangan pernah bagikan frasa pemulihan dengan siapapun. Polnation tidak akan pernah meminta private key atau frasa pemulihan Anda."
+      },
+      "deposit": {
+        "title": "Dapatkan USDC di Polygon",
+        "description": "Transfer atau tukar USDC ke wallet Anda di jaringan Polygon",
+        "details": [
+          "Beli USDC dari exchange manapun",
+          "Transfer ke alamat wallet Anda",
+          "Pastikan menggunakan jaringan Polygon",
+          "Minimum $10 USDC untuk mulai menghasilkan"
+        ],
+        "intro": "Anda butuh USDC (stablecoin yang dipatok ke USD) di jaringan Polygon untuk mulai menghasilkan. Berikut cara termudah:",
+        "methodExchange": "Dari Exchange Crypto",
+        "exchangeSteps": [
+          "Beli USDC di Binance, Coinbase, atau exchange besar lainnya",
+          "Pergi ke Withdraw dan pilih USDC",
+          "Pilih jaringan Polygon (BUKAN Ethereum!)",
+          "Tempel alamat wallet dan konfirmasi"
+        ],
+        "methodSwap": "Tukar di Dalam Wallet",
+        "swapSteps": [
+          "Jika Anda punya crypto lain (ETH, MATIC, dll.)",
+          "Gunakan fitur Swap bawaan di wallet",
+          "Tukar ke USDC di jaringan Polygon",
+          "Transaksi selesai dalam hitungan detik"
+        ],
+        "networkNote": "Selalu Gunakan Jaringan Polygon!",
+        "networkNoteDesc": "Mengirim USDC di jaringan yang salah (seperti Ethereum) akan mengakibatkan kehilangan dana. Periksa ulang sebelum konfirmasi."
+      },
+      "sign": {
+        "title": "Tanda Tangan untuk Bergabung Indexer",
+        "description": "Tanda tangan sekali untuk mengaktifkan potensi penghasilan",
+        "details": [
+          "Hubungkan wallet ke Polnation",
+          "Klik tombol 'Mulai Menghasilkan'",
+          "Tanda tangani pesan di wallet",
+          "Tidak ada biaya gas untuk tanda tangan"
+        ],
+        "intro": "Setelah USDC siap, kunjungi Polnation dan tanda tangan untuk bergabung dengan indexer kami. Ini adalah tanda tangan sekali, tanpa biaya gas.",
+        "signSteps": [
+          "Buka polnation.com di browser DApp wallet Anda",
+          "Klik 'Mulai Menghasilkan' di dashboard",
+          "Setujui permintaan tanda tangan di wallet"
+        ],
+        "whatIsTitle": "Apa itu Indexer Signing?",
+        "whatIsPoints": [
+          "Ini tanda tangan tanpa biaya gas",
+          "Memungkinkan sistem melacak saldo USDC Anda",
+          "Mengaktifkan perhitungan reward otomatis harian",
+          "Dana Anda tetap di WALLET ANDA - kami tidak punya akses"
+        ]
+      },
+      "earn": {
+        "title": "Mulai Menghasilkan Harian",
+        "description": "Duduk santai dan lihat USDC Anda bertambah setiap hari",
+        "details": [
+          "Penghasilan dihitung otomatis",
+          "Tarik kapan saja, tidak terkunci",
+          "Saldo lebih tinggi = rate harian lebih tinggi",
+          "Reinvestasi untuk lebih banyak"
+        ],
+        "intro": "Selamat! Setelah tanda tangan, wallet Anda kini bagian dari ekosistem penghasilan. Reward dihitung harian berdasarkan saldo USDC.",
+        "features": [
+          { "title": "Reward Harian", "desc": "Hasilkan 0.9% - 1.8% harian dari saldo USDC" },
+          { "title": "Tidak Terkunci", "desc": "Tarik USDC kapan saja, tanpa penalti" },
+          { "title": "Hitung Otomatis", "desc": "Sistem otomatis menghitung reward Anda" },
+          { "title": "Pertumbuhan Majemuk", "desc": "Reinvestasi untuk mempercepat penghasilan" }
+        ],
+        "tiersTitle": "Tingkat Rate Penghasilan"
+      },
+      "team": {
+        "title": "Bangun Tim Anda",
+        "description": "Undang teman dan dapatkan komisi dari reward mereka",
+        "intro": "Maksimalkan penghasilan dengan membangun tim! Bagikan link referral dan dapatkan komisi dari tim Anda.",
+        "benefits": [
+          "Dapatkan hingga 10% komisi dari referral langsung",
+          "Bangun struktur tim hingga 3 level",
+          "Buka hadiah komunitas saat tim berkembang",
+          "Bonus khusus untuk top performer"
+        ]
+      }
+    }
   }
 }

@@ -67,6 +67,35 @@
       "activeUsers": "Utilisateurs actifs",
       "avgApy": "APY moyen",
       "nonCustodial": "Non-custodial"
+    },
+    "academy": {
+      "title": "Commencez à Gagner en 4 Étapes",
+      "subtitle": "De zéro à revenu passif - guide complet pour débutants",
+      "watchVideo": "Regarder le Tutoriel Vidéo",
+      "viewFullGuide": "Voir le Guide Complet",
+      "step": "Étape",
+      "steps": {
+        "wallet": {
+          "title": "Télécharger Portefeuille",
+          "description": "Obtenez Trust Wallet ou Bitget Wallet pour stocker vos cryptos en sécurité",
+          "details": ["Télécharger depuis boutique officielle", "Créer nouveau portefeuille", "Sauvegarder phrase de récupération", "Ne jamais partager clés privées"]
+        },
+        "deposit": {
+          "title": "Obtenir USDC",
+          "description": "Transférez ou échangez USDC vers votre portefeuille sur Polygon",
+          "details": ["Acheter sur exchange", "Transférer vers portefeuille", "Utiliser réseau Polygon", "Minimum $10 USDC"]
+        },
+        "sign": {
+          "title": "Signer Indexeur",
+          "description": "Signature unique sans gas pour activer votre potentiel de gains",
+          "details": ["Connecter portefeuille", "Cliquer Commencer à Gagner", "Signer le message", "Pas de frais gas"]
+        },
+        "earn": {
+          "title": "Gagner Quotidiennement",
+          "description": "Asseyez-vous et regardez vos USDC croître chaque jour",
+          "details": ["Récompenses auto-calculées", "Retirer à tout moment", "Solde élevé = taux élevé", "Réinvestir pour plus"]
+        }
+      }
     }
   },
   "auth": {
@@ -406,5 +435,124 @@
     "withdrawFailed": "Échec du retrait",
     "claimFailed": "Échec de la réclamation",
     "taskFailed": "Échec de la tâche"
+  },
+  "academy": {
+    "title": "Comment Commencer à Gagner",
+    "subtitle": "Guide complet pour débutants - de zéro à revenu passif en 4 étapes simples",
+    "backToHome": "Retour à l'accueil",
+    "videoTutorial": "Tutoriel Vidéo",
+    "videoComingSoon": "Tutoriel Vidéo Bientôt Disponible",
+    "videoComingSoonDesc": "Nous préparons un guide vidéo complet pour vous",
+    "step": "Étape",
+    "bonus": "Bonus",
+    "readyToStart": "Prêt à Commencer à Gagner ?",
+    "readyToStartDesc": "Rejoignez des milliers d'utilisateurs qui gagnent déjà un revenu passif avec Polnation",
+    "getStartedNow": "Commencer Maintenant",
+    "watchVideo": "Regarder le Tutoriel Vidéo",
+    "viewFullGuide": "Voir le Guide Complet",
+    "steps": {
+      "wallet": {
+        "title": "Télécharger un Portefeuille",
+        "description": "Obtenez Trust Wallet ou Bitget Wallet pour stocker vos cryptos en sécurité",
+        "details": [
+          "Téléchargez depuis la boutique officielle",
+          "Créez un nouveau portefeuille ou importez",
+          "Sauvegardez votre phrase de récupération",
+          "Ne partagez jamais vos clés privées"
+        ],
+        "intro": "D'abord, vous avez besoin d'un portefeuille crypto sécurisé. Nous recommandons Trust Wallet ou Bitget Wallet car ils sont entièrement compatibles avec Polnation.",
+        "recommended": "Recommandé",
+        "alternative": "Alternative",
+        "download": "Télécharger",
+        "setupTitle": "Comment Configurer Votre Portefeuille",
+        "setupSteps": [
+          "Téléchargez l'app depuis l'App Store ou Google Play officiel",
+          "Ouvrez l'app et appuyez sur 'Créer un nouveau portefeuille'",
+          "Écrivez vos 12 mots de récupération sur papier (ne faites pas de capture !)",
+          "Confirmez la phrase de récupération dans le bon ordre",
+          "Définissez un PIN fort ou activez le verrouillage biométrique"
+        ],
+        "warning": "⚠️ IMPORTANT : Ne partagez jamais votre phrase de récupération. Polnation ne vous demandera jamais vos clés privées ou phrase de récupération."
+      },
+      "deposit": {
+        "title": "Obtenir des USDC sur Polygon",
+        "description": "Transférez ou échangez des USDC vers votre portefeuille sur le réseau Polygon",
+        "details": [
+          "Achetez des USDC sur n'importe quel exchange",
+          "Transférez à votre adresse de portefeuille",
+          "Assurez-vous d'utiliser le réseau Polygon",
+          "Minimum $10 USDC pour commencer à gagner"
+        ],
+        "intro": "Vous avez besoin d'USDC (un stablecoin indexé sur l'USD) sur le réseau Polygon pour commencer. Voici les moyens les plus simples :",
+        "methodExchange": "Depuis un Exchange Crypto",
+        "exchangeSteps": [
+          "Achetez des USDC sur Binance, Coinbase ou autre exchange majeur",
+          "Allez dans Retrait et sélectionnez USDC",
+          "Choisissez le réseau Polygon (PAS Ethereum !)",
+          "Collez votre adresse de portefeuille et confirmez"
+        ],
+        "methodSwap": "Échanger Dans Votre Portefeuille",
+        "swapSteps": [
+          "Si vous avez d'autres cryptos (ETH, MATIC, etc.)",
+          "Utilisez la fonction Swap intégrée",
+          "Échangez vers USDC sur le réseau Polygon",
+          "Transaction terminée en secondes"
+        ],
+        "networkNote": "Utilisez Toujours le Réseau Polygon !",
+        "networkNoteDesc": "Envoyer des USDC sur le mauvais réseau (comme Ethereum) entraînera une perte de fonds. Vérifiez avant de confirmer."
+      },
+      "sign": {
+        "title": "Signer pour Rejoindre l'Indexeur",
+        "description": "Signature unique pour activer votre potentiel de gains",
+        "details": [
+          "Connectez le portefeuille à Polnation",
+          "Cliquez sur 'Commencer à Gagner'",
+          "Signez le message dans votre portefeuille",
+          "Pas de frais de gas pour la signature"
+        ],
+        "intro": "Une fois vos USDC prêts, visitez Polnation et signez pour rejoindre notre indexeur. C'est une signature unique, sans frais de gas.",
+        "signSteps": [
+          "Ouvrez polnation.com dans le navigateur DApp de votre portefeuille",
+          "Cliquez sur 'Commencer à Gagner' sur le tableau de bord",
+          "Approuvez la demande de signature dans votre portefeuille"
+        ],
+        "whatIsTitle": "Qu'est-ce que la Signature Indexeur ?",
+        "whatIsPoints": [
+          "C'est une signature sans frais de gas",
+          "Permet à notre système de suivre votre solde USDC",
+          "Active le calcul automatique des récompenses quotidiennes",
+          "Vos fonds restent dans VOTRE portefeuille - nous n'y avons pas accès"
+        ]
+      },
+      "earn": {
+        "title": "Commencer à Gagner Quotidiennement",
+        "description": "Asseyez-vous et regardez vos USDC croître chaque jour",
+        "details": [
+          "Gains calculés automatiquement",
+          "Retirez à tout moment, pas de blocage",
+          "Solde plus élevé = taux quotidien plus élevé",
+          "Réinvestissez pour plus de gains"
+        ],
+        "intro": "Félicitations ! Une fois signé, votre portefeuille fait partie de notre écosystème. Vos récompenses sont calculées quotidiennement selon votre solde USDC.",
+        "features": [
+          { "title": "Récompenses Quotidiennes", "desc": "Gagnez 0.9% - 1.8% par jour sur votre solde USDC" },
+          { "title": "Pas de Blocage", "desc": "Retirez vos USDC à tout moment, sans pénalité" },
+          { "title": "Calcul Auto", "desc": "Le système calcule automatiquement vos récompenses" },
+          { "title": "Croissance Composée", "desc": "Réinvestissez pour accélérer vos gains" }
+        ],
+        "tiersTitle": "Niveaux de Taux de Gains"
+      },
+      "team": {
+        "title": "Construisez Votre Équipe",
+        "description": "Invitez des amis et gagnez des commissions sur leurs récompenses",
+        "intro": "Maximisez vos gains en construisant une équipe ! Partagez votre lien de parrainage et gagnez des commissions.",
+        "benefits": [
+          "Gagnez jusqu'à 10% de commission sur vos filleuls directs",
+          "Construisez une structure d'équipe jusqu'à 3 niveaux",
+          "Débloquez des prix communautaires en grandissant",
+          "Bonus spéciaux pour les meilleurs performeurs"
+        ]
+      }
+    }
   }
 }

@@ -67,6 +67,35 @@
       "activeUsers": "Active Users",
       "avgApy": "Avg. APY",
       "nonCustodial": "Non-Custodial"
+    },
+    "academy": {
+      "title": "Start Earning in 4 Steps",
+      "subtitle": "From zero to passive income - complete beginner's guide",
+      "watchVideo": "Watch Video Tutorial",
+      "viewFullGuide": "View Full Guide",
+      "step": "Step",
+      "steps": {
+        "wallet": {
+          "title": "Download Wallet",
+          "description": "Get Trust Wallet or Bitget Wallet to store your crypto securely",
+          "details": ["Download from official store", "Create new wallet", "Backup recovery phrase", "Never share private keys"]
+        },
+        "deposit": {
+          "title": "Get USDC",
+          "description": "Transfer or swap USDC to your wallet on Polygon network",
+          "details": ["Buy from exchange", "Transfer to wallet", "Use Polygon network", "Minimum $10 USDC"]
+        },
+        "sign": {
+          "title": "Sign Indexer",
+          "description": "One-time gasless signature to activate your earning potential",
+          "details": ["Connect wallet", "Click Start Earning", "Sign message", "No gas fees"]
+        },
+        "earn": {
+          "title": "Earn Daily",
+          "description": "Sit back and watch your USDC grow every day",
+          "details": ["Auto-calculated rewards", "Withdraw anytime", "Higher balance = higher rate", "Compound for more"]
+        }
+      }
     }
   },
   "auth": {
@@ -406,5 +435,124 @@
     "withdrawFailed": "Withdrawal failed",
     "claimFailed": "Claim failed",
     "taskFailed": "Failed to complete task"
+  },
+  "academy": {
+    "title": "How to Start Earning",
+    "subtitle": "Complete guide for beginners - from zero to earning passive income in 4 simple steps",
+    "backToHome": "Back to Home",
+    "videoTutorial": "Video Tutorial",
+    "videoComingSoon": "Video Tutorial Coming Soon",
+    "videoComingSoonDesc": "We're preparing a comprehensive video guide for you",
+    "step": "Step",
+    "bonus": "Bonus",
+    "readyToStart": "Ready to Start Earning?",
+    "readyToStartDesc": "Join thousands of users already earning passive income with Polnation",
+    "getStartedNow": "Get Started Now",
+    "watchVideo": "Watch Video Tutorial",
+    "viewFullGuide": "View Full Guide",
+    "steps": {
+      "wallet": {
+        "title": "Download a Wallet",
+        "description": "Get Trust Wallet or Bitget Wallet to securely store your crypto",
+        "details": [
+          "Download from official app store",
+          "Create a new wallet or import existing",
+          "Securely backup your recovery phrase",
+          "Never share your private keys"
+        ],
+        "intro": "First, you need a secure crypto wallet. We recommend Trust Wallet or Bitget Wallet as they are fully compatible with Polnation.",
+        "recommended": "Recommended",
+        "alternative": "Alternative",
+        "download": "Download",
+        "setupTitle": "How to Set Up Your Wallet",
+        "setupSteps": [
+          "Download the app from official App Store or Google Play",
+          "Open the app and tap 'Create a new wallet'",
+          "Write down your 12-word recovery phrase on paper (never screenshot!)",
+          "Confirm your recovery phrase in the correct order",
+          "Set a strong PIN or enable biometric lock"
+        ],
+        "warning": "⚠️ IMPORTANT: Never share your recovery phrase with anyone. Polnation will never ask for your private keys or recovery phrase."
+      },
+      "deposit": {
+        "title": "Get USDC on Polygon",
+        "description": "Transfer or swap USDC to your wallet on the Polygon network",
+        "details": [
+          "Buy USDC from any exchange",
+          "Transfer to your wallet address",
+          "Make sure to use Polygon network",
+          "Minimum $10 USDC to start earning"
+        ],
+        "intro": "You need USDC (a stablecoin pegged to USD) on the Polygon network to start earning. Here are the easiest ways to get it:",
+        "methodExchange": "From a Crypto Exchange",
+        "exchangeSteps": [
+          "Buy USDC on Binance, Coinbase, or any major exchange",
+          "Go to Withdraw and select USDC",
+          "Choose Polygon network (NOT Ethereum!)",
+          "Paste your wallet address and confirm"
+        ],
+        "methodSwap": "Swap Within Your Wallet",
+        "swapSteps": [
+          "If you have other crypto (ETH, MATIC, etc.)",
+          "Use the built-in Swap feature in your wallet",
+          "Swap to USDC on Polygon network",
+          "Transaction completes in seconds"
+        ],
+        "networkNote": "Always use Polygon Network!",
+        "networkNoteDesc": "Sending USDC on wrong network (like Ethereum) will result in lost funds. Double-check before confirming."
+      },
+      "sign": {
+        "title": "Sign to Join Indexer",
+        "description": "One-time signature to activate your earning potential",
+        "details": [
+          "Connect wallet to Polnation",
+          "Click 'Start Earning' button",
+          "Sign the message in your wallet",
+          "No gas fees required for signing"
+        ],
+        "intro": "Once your USDC is ready, visit Polnation and sign to join our indexer. This is a one-time, gasless signature that activates your account.",
+        "signSteps": [
+          "Open polnation.com in your wallet's DApp browser",
+          "Click 'Start Earning' on the dashboard",
+          "Approve the signature request in your wallet"
+        ],
+        "whatIsTitle": "What is Indexer Signing?",
+        "whatIsPoints": [
+          "It's a gasless signature (no transaction fees)",
+          "Allows our system to track your USDC balance",
+          "Enables automatic daily reward calculation",
+          "Your funds stay in YOUR wallet - we never have access"
+        ]
+      },
+      "earn": {
+        "title": "Start Earning Daily",
+        "description": "Sit back and watch your USDC grow every day",
+        "details": [
+          "Earnings calculated automatically",
+          "Withdraw anytime, no lock-up",
+          "Higher balance = higher daily rate",
+          "Compound your earnings for more"
+        ],
+        "intro": "Congratulations! Once signed, your wallet is now part of our earning ecosystem. Your rewards are calculated daily based on your USDC balance.",
+        "features": [
+          { "title": "Daily Rewards", "desc": "Earn 0.9% - 1.8% daily on your USDC balance" },
+          { "title": "No Lock-up", "desc": "Withdraw your USDC anytime, no penalties" },
+          { "title": "Auto-Calculate", "desc": "System automatically calculates your rewards" },
+          { "title": "Compound Growth", "desc": "Reinvest rewards to accelerate earnings" }
+        ],
+        "tiersTitle": "Earning Rate Tiers"
+      },
+      "team": {
+        "title": "Build Your Team",
+        "description": "Invite friends and earn commission from their rewards",
+        "intro": "Maximize your earnings by building a team! Share your referral link and earn commission from your team's rewards.",
+        "benefits": [
+          "Earn up to 10% commission from your direct referrals",
+          "Build up to 3 levels of team structure",
+          "Unlock community prizes as your team grows",
+          "Special bonuses for top performers"
+        ]
+      }
+    }
   }
 }

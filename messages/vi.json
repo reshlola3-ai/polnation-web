@@ -67,6 +67,35 @@
       "activeUsers": "Người dùng Hoạt động",
       "avgApy": "APY Trung bình",
       "nonCustodial": "Non-Custodial"
+    },
+    "academy": {
+      "title": "Bắt Đầu Kiếm Tiền Trong 4 Bước",
+      "subtitle": "Từ con số 0 đến thu nhập thụ động - hướng dẫn đầy đủ cho người mới",
+      "watchVideo": "Xem Video Hướng Dẫn",
+      "viewFullGuide": "Xem Hướng Dẫn Đầy Đủ",
+      "step": "Bước",
+      "steps": {
+        "wallet": {
+          "title": "Tải Ví",
+          "description": "Tải Trust Wallet hoặc Bitget Wallet để lưu trữ crypto an toàn",
+          "details": ["Tải từ cửa hàng chính thức", "Tạo ví mới", "Sao lưu cụm từ khôi phục", "Không chia sẻ khóa riêng"]
+        },
+        "deposit": {
+          "title": "Nạp USDC",
+          "description": "Chuyển hoặc đổi USDC vào ví trên mạng Polygon",
+          "details": ["Mua từ sàn", "Chuyển vào ví", "Dùng mạng Polygon", "Tối thiểu $10 USDC"]
+        },
+        "sign": {
+          "title": "Ký Indexer",
+          "description": "Chữ ký một lần không mất phí để kích hoạt khả năng kiếm tiền",
+          "details": ["Kết nối ví", "Nhấn Bắt Đầu Kiếm", "Ký tin nhắn", "Không phí gas"]
+        },
+        "earn": {
+          "title": "Kiếm Hàng Ngày",
+          "description": "Ngồi lại và xem USDC của bạn tăng lên mỗi ngày",
+          "details": ["Thưởng tự động tính", "Rút bất cứ lúc nào", "Số dư cao = tỷ lệ cao", "Tái đầu tư để kiếm thêm"]
+        }
+      }
     }
   },
   "auth": {
@@ -406,5 +435,124 @@
     "withdrawFailed": "Rút tiền thất bại",
     "claimFailed": "Nhận thưởng thất bại",
     "taskFailed": "Không thể hoàn thành nhiệm vụ"
+  },
+  "academy": {
+    "title": "Cách Bắt Đầu Kiếm Tiền",
+    "subtitle": "Hướng dẫn đầy đủ cho người mới - từ con số 0 đến thu nhập thụ động chỉ trong 4 bước đơn giản",
+    "backToHome": "Về Trang Chủ",
+    "videoTutorial": "Video Hướng Dẫn",
+    "videoComingSoon": "Video Hướng Dẫn Sắp Ra Mắt",
+    "videoComingSoonDesc": "Chúng tôi đang chuẩn bị video hướng dẫn toàn diện cho bạn",
+    "step": "Bước",
+    "bonus": "Thưởng",
+    "readyToStart": "Sẵn Sàng Kiếm Tiền?",
+    "readyToStartDesc": "Tham gia cùng hàng ngàn người dùng đang kiếm thu nhập thụ động với Polnation",
+    "getStartedNow": "Bắt Đầu Ngay",
+    "watchVideo": "Xem Video Hướng Dẫn",
+    "viewFullGuide": "Xem Hướng Dẫn Đầy Đủ",
+    "steps": {
+      "wallet": {
+        "title": "Tải Ví Điện Tử",
+        "description": "Tải Trust Wallet hoặc Bitget Wallet để lưu trữ tiền điện tử an toàn",
+        "details": [
+          "Tải từ cửa hàng ứng dụng chính thức",
+          "Tạo ví mới hoặc nhập ví hiện có",
+          "Sao lưu cụm từ khôi phục an toàn",
+          "Không bao giờ chia sẻ khóa riêng"
+        ],
+        "intro": "Đầu tiên, bạn cần một ví tiền điện tử an toàn. Chúng tôi khuyên dùng Trust Wallet hoặc Bitget Wallet vì chúng hoàn toàn tương thích với Polnation.",
+        "recommended": "Khuyên dùng",
+        "alternative": "Lựa chọn khác",
+        "download": "Tải về",
+        "setupTitle": "Cách Thiết Lập Ví",
+        "setupSteps": [
+          "Tải ứng dụng từ App Store hoặc Google Play chính thức",
+          "Mở ứng dụng và nhấn 'Tạo ví mới'",
+          "Viết 12 từ khôi phục ra giấy (đừng chụp màn hình!)",
+          "Xác nhận cụm từ khôi phục theo đúng thứ tự",
+          "Đặt mã PIN mạnh hoặc bật khóa sinh trắc học"
+        ],
+        "warning": "⚠️ QUAN TRỌNG: Không bao giờ chia sẻ cụm từ khôi phục với bất kỳ ai. Polnation sẽ không bao giờ hỏi khóa riêng hoặc cụm từ khôi phục của bạn."
+      },
+      "deposit": {
+        "title": "Nạp USDC vào Polygon",
+        "description": "Chuyển hoặc đổi USDC vào ví của bạn trên mạng Polygon",
+        "details": [
+          "Mua USDC từ bất kỳ sàn giao dịch nào",
+          "Chuyển vào địa chỉ ví của bạn",
+          "Đảm bảo sử dụng mạng Polygon",
+          "Tối thiểu $10 USDC để bắt đầu kiếm"
+        ],
+        "intro": "Bạn cần USDC (stablecoin neo giá USD) trên mạng Polygon để bắt đầu kiếm tiền. Đây là những cách dễ nhất:",
+        "methodExchange": "Từ Sàn Giao Dịch",
+        "exchangeSteps": [
+          "Mua USDC trên Binance, Coinbase, hoặc sàn lớn khác",
+          "Vào mục Rút tiền và chọn USDC",
+          "Chọn mạng Polygon (KHÔNG phải Ethereum!)",
+          "Dán địa chỉ ví và xác nhận"
+        ],
+        "methodSwap": "Đổi Trong Ví",
+        "swapSteps": [
+          "Nếu bạn có crypto khác (ETH, MATIC, v.v.)",
+          "Sử dụng tính năng Swap trong ví",
+          "Đổi sang USDC trên mạng Polygon",
+          "Giao dịch hoàn thành trong vài giây"
+        ],
+        "networkNote": "Luôn sử dụng Mạng Polygon!",
+        "networkNoteDesc": "Gửi USDC trên mạng sai (như Ethereum) sẽ làm mất tiền. Kiểm tra kỹ trước khi xác nhận."
+      },
+      "sign": {
+        "title": "Ký Tham Gia Indexer",
+        "description": "Chữ ký một lần để kích hoạt khả năng kiếm tiền",
+        "details": [
+          "Kết nối ví với Polnation",
+          "Nhấn nút 'Bắt Đầu Kiếm'",
+          "Ký thông điệp trong ví",
+          "Không cần phí gas cho việc ký"
+        ],
+        "intro": "Khi USDC đã sẵn sàng, truy cập Polnation và ký để tham gia indexer. Đây là chữ ký một lần, không mất phí gas.",
+        "signSteps": [
+          "Mở polnation.com trong trình duyệt DApp của ví",
+          "Nhấn 'Bắt Đầu Kiếm' trên dashboard",
+          "Chấp nhận yêu cầu ký trong ví"
+        ],
+        "whatIsTitle": "Indexer Signing là gì?",
+        "whatIsPoints": [
+          "Đây là chữ ký không mất phí gas",
+          "Cho phép hệ thống theo dõi số dư USDC của bạn",
+          "Kích hoạt tính toán thưởng tự động hàng ngày",
+          "Tiền của bạn ở trong VÍ CỦA BẠN - chúng tôi không có quyền truy cập"
+        ]
+      },
+      "earn": {
+        "title": "Bắt Đầu Kiếm Hàng Ngày",
+        "description": "Ngồi lại và xem USDC của bạn tăng lên mỗi ngày",
+        "details": [
+          "Thu nhập được tính tự động",
+          "Rút bất cứ lúc nào, không khóa",
+          "Số dư cao hơn = tỷ lệ hàng ngày cao hơn",
+          "Tái đầu tư để kiếm nhiều hơn"
+        ],
+        "intro": "Chúc mừng! Sau khi ký, ví của bạn đã tham gia hệ sinh thái kiếm tiền. Phần thưởng được tính hàng ngày dựa trên số dư USDC.",
+        "features": [
+          { "title": "Thưởng Hàng Ngày", "desc": "Kiếm 0.9% - 1.8% hàng ngày trên số dư USDC" },
+          { "title": "Không Khóa", "desc": "Rút USDC bất cứ lúc nào, không phạt" },
+          { "title": "Tự Động Tính", "desc": "Hệ thống tự động tính thưởng cho bạn" },
+          { "title": "Tăng Trưởng Kép", "desc": "Tái đầu tư để tăng tốc thu nhập" }
+        ],
+        "tiersTitle": "Các Mức Tỷ Lệ Kiếm"
+      },
+      "team": {
+        "title": "Xây Dựng Đội Nhóm",
+        "description": "Mời bạn bè và kiếm hoa hồng từ phần thưởng của họ",
+        "intro": "Tối đa hóa thu nhập bằng cách xây dựng đội nhóm! Chia sẻ link giới thiệu và kiếm hoa hồng từ đội của bạn.",
+        "benefits": [
+          "Kiếm đến 10% hoa hồng từ người giới thiệu trực tiếp",
+          "Xây dựng cấu trúc đội lên đến 3 cấp",
+          "Mở khóa giải thưởng cộng đồng khi đội phát triển",
+          "Thưởng đặc biệt cho người hoạt động tốt nhất"
+        ]
+      }
+    }
   }
 }
