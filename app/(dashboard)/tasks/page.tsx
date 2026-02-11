@@ -283,7 +283,7 @@ export default function TasksPage() {
   const getSocialIcon = (taskKey: string) => {
     if (taskKey.includes('twitter')) return <LottieIcon src="/x.json" className="w-8 h-8" />
     if (taskKey.includes('telegram')) return <LottieIcon src="/telegram.json" className="w-8 h-8" />
-    if (taskKey.includes('whatsapp')) return <img src="/whatsapp.png" alt="WhatsApp" className="w-8 h-8" />
+    if (taskKey.includes('whatsapp')) return <img src="/whatsapp.webp" alt="WhatsApp" className="w-8 h-8" />
     if (taskKey.includes('facebook')) return <LottieIcon src="/facebook.json" className="w-8 h-8" />
     return <Share2 className="w-8 h-8 text-blue-400" />
   }

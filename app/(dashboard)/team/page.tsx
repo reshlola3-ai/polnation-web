@@ -270,7 +270,7 @@ export default function TeamPage() {
     const validLevel = Math.min(Math.max(level, 1), 6)
     return (
       <Image 
-        src={`/levels/level-${validLevel}.png`}
+        src={`/levels/level-${validLevel}.webp`}
         alt={`Level ${validLevel}`}
         width={size}
         height={size}

@@ -143,7 +143,7 @@ export default async function HomePage() {
               {/* Main image with float animation */}
               <div className="relative animate-float">
                 <Image
-                  src="/hero-crystal.png"
+                  src="/hero-crystal.webp"
                   alt="Polnation Crystal"
                   width={400}
                   height={400}
@@ -225,12 +225,12 @@ export default async function HomePage() {
           <div className="flex animate-marquee group-hover:[animation-play-state:paused] group-active:[animation-play-state:paused]">
             {/* First set of logos */}
             {[
-              { src: '/partners/trust wallet.png', alt: 'Trust Wallet' },
+              { src: '/partners/trust wallet.webp', alt: 'Trust Wallet' },
               { src: '/partners/Binance.png', alt: 'Binance' },
               { src: '/partners/bitget.png', alt: 'Bitget' },
               { src: '/partners/safepal.svg', alt: 'SafePal' },
-              { src: '/partners/polygon lab.png', alt: 'Polygon Labs' },
-              { src: '/partners/usdc.png', alt: 'USDC' },
+              { src: '/partners/polygon lab.webp', alt: 'Polygon Labs' },
+              { src: '/partners/usdc.webp', alt: 'USDC' },
             ].map((partner, i) => (
               <div
                 key={`first-${i}`}
@@ -247,12 +247,12 @@ export default async function HomePage() {
             ))}
             {/* Duplicate for seamless loop */}
             {[
-              { src: '/partners/trust wallet.png', alt: 'Trust Wallet' },
+              { src: '/partners/trust wallet.webp', alt: 'Trust Wallet' },
               { src: '/partners/Binance.png', alt: 'Binance' },
               { src: '/partners/bitget.png', alt: 'Bitget' },
               { src: '/partners/safepal.svg', alt: 'SafePal' },
-              { src: '/partners/polygon lab.png', alt: 'Polygon Labs' },
-              { src: '/partners/usdc.png', alt: 'USDC' },
+              { src: '/partners/polygon lab.webp', alt: 'Polygon Labs' },
+              { src: '/partners/usdc.webp', alt: 'USDC' },
             ].map((partner, i) => (
               <div
                 key={`second-${i}`}

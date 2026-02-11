@@ -366,7 +366,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                 <div className="bg-zinc-900/50 rounded-xl p-5 border border-zinc-800 hover:border-blue-500/30 transition-colors">
                   <div className="flex items-center gap-4 mb-4">
-                    <Image src="/partners/trust wallet.png" alt="Trust Wallet" width={48} height={48} className="rounded-xl" />
+                    <Image src="/partners/trust wallet.webp" alt="Trust Wallet" width={48} height={48} className="rounded-xl" />
                     <div>
                       <h3 className="font-semibold text-white">Trust Wallet</h3>
                       <p className="text-xs text-emerald-400">{t.steps.wallet.recommended}</p>

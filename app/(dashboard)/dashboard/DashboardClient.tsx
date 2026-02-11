@@ -314,7 +314,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 )}
                 <p className="text-xs text-white/70 mt-1">{t('usdcOnPolygon')}</p>
               </div>
-              <img src="/usdc.png" alt="USDC" className="w-10 h-10 md:w-12 md:h-12" />
+              <img src="/usdc.webp" alt="USDC" className="w-10 h-10 md:w-12 md:h-12" />
             </div>
           </div>
 
@@ -332,7 +332,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 )}
                 <p className="text-xs text-white/70 mt-1">{t('level', { name: profitData.currentLevelName })}</p>
               </div>
-              <img src="/crowdfunding.png" alt="Community" className="w-10 h-10 md:w-12 md:h-12" />
+              <img src="/crowdfunding.webp" alt="Community" className="w-10 h-10 md:w-12 md:h-12" />
             </div>
           </div>
         </div>
