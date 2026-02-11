@@ -189,11 +189,15 @@ export async function GET() {
       if (cache && cache.data) {
         const cacheAge = (Date.now() - new Date(cache.updated_at).getTime()) / 1000
         if (cacheAge < CACHE_TTL_SECONDS) {
-          return NextResponse.json({
+          const response = NextResponse.json({
             ...cache.data,
             cached: true,
             cacheAge: Math.round(cacheAge),
           })
+          
+          // Cache for 5 minutes on CDN
+          response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=60')
+          return response
         }
       }
     }
@@ -226,10 +230,14 @@ export async function GET() {
         })
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       ...stats,
       cached: false,
     })
+    
+    // Cache for 5 minutes on CDN
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=60')
+    return response
   } catch (error) {
     console.error('Chain stats error:', error)
     

@@ -176,7 +176,7 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       profits: profits || {
         total_earned_usdc: 0,
         total_commission_earned: 0,
@@ -200,6 +200,10 @@ export async function GET() {
       wallet_address: profile?.wallet_address || null,
       hasSignature: hasSignature,
     })
+    
+    // Private cache for 30 seconds (user-specific data)
+    response.headers.set('Cache-Control', 'private, max-age=30, stale-while-revalidate=15')
+    return response
   } catch (error) {
     console.error('Error fetching user profits:', error)
     return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 })

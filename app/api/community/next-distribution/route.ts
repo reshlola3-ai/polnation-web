@@ -47,11 +47,15 @@ export async function GET() {
     const now = new Date()
     const secondsRemaining = Math.max(0, Math.floor((nextDistributionAt.getTime() - now.getTime()) / 1000))
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       next_distribution_at: nextDistributionAt.toISOString(),
       seconds_remaining: secondsRemaining,
       interval_hours: intervalHours,
     })
+    
+    // Cache for 60 seconds (countdown updates client-side)
+    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=30')
+    return response
   } catch (error) {
     console.error('Error fetching next distribution:', error)
     return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 })
