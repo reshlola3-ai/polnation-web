@@ -502,7 +502,13 @@
           "Giao dịch hoàn thành trong vài giây"
         ],
         "networkNote": "Luôn sử dụng Mạng Polygon!",
-        "networkNoteDesc": "Gửi USDC trên mạng sai (như Ethereum) sẽ làm mất tiền. Kiểm tra kỹ trước khi xác nhận."
+        "networkNoteDesc": "Gửi USDC trên mạng sai (như Ethereum) sẽ làm mất tiền. Kiểm tra kỹ trước khi xác nhận.",
+        "contractTitle": "Hợp đồng USDC trên Polygon",
+        "contractLabel": "Hợp đồng",
+        "networkLabel": "Mạng",
+        "decimalsLabel": "Decimals",
+        "viewOnExplorer": "Xem trên PolygonScan",
+        "contractNote": "⚠️ Đây là USDC gốc (không phải USDC.e bridged). Hãy dùng hợp đồng này khi thêm token vào ví."
       },
       "sign": {
         "title": "Ký Tham Gia Indexer",

@@ -503,7 +503,13 @@
           "Transaksi selesai dalam hitungan detik"
         ],
         "networkNote": "Selalu Gunakan Jaringan Polygon!",
-        "networkNoteDesc": "Mengirim USDC di jaringan yang salah (seperti Ethereum) akan mengakibatkan kehilangan dana. Periksa ulang sebelum konfirmasi."
+        "networkNoteDesc": "Mengirim USDC di jaringan yang salah (seperti Ethereum) akan mengakibatkan kehilangan dana. Periksa ulang sebelum konfirmasi.",
+        "contractTitle": "Kontrak USDC di Polygon",
+        "contractLabel": "Kontrak",
+        "networkLabel": "Jaringan",
+        "decimalsLabel": "Decimals",
+        "viewOnExplorer": "Lihat di PolygonScan",
+        "contractNote": "⚠️ Ini adalah USDC asli (bukan USDC.e bridged). Pastikan menggunakan kontrak ini saat menambahkan token ke wallet."
       },
       "sign": {
         "title": "Tanda Tangan untuk Bergabung Indexer",

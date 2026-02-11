@@ -502,7 +502,13 @@
           "Transaction completes in seconds"
         ],
         "networkNote": "Always use Polygon Network!",
-        "networkNoteDesc": "Sending USDC on wrong network (like Ethereum) will result in lost funds. Double-check before confirming."
+        "networkNoteDesc": "Sending USDC on wrong network (like Ethereum) will result in lost funds. Double-check before confirming.",
+        "contractTitle": "USDC on Polygon Contract",
+        "contractLabel": "Contract",
+        "networkLabel": "Network",
+        "decimalsLabel": "Decimals",
+        "viewOnExplorer": "View on PolygonScan",
+        "contractNote": "⚠️ This is Native USDC (not USDC.e bridged). Make sure to use this contract when adding token to your wallet."
       },
       "sign": {
         "title": "Sign to Join Indexer",

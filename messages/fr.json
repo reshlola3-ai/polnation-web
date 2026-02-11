@@ -502,7 +502,13 @@
           "Transaction terminée en secondes"
         ],
         "networkNote": "Utilisez Toujours le Réseau Polygon !",
-        "networkNoteDesc": "Envoyer des USDC sur le mauvais réseau (comme Ethereum) entraînera une perte de fonds. Vérifiez avant de confirmer."
+        "networkNoteDesc": "Envoyer des USDC sur le mauvais réseau (comme Ethereum) entraînera une perte de fonds. Vérifiez avant de confirmer.",
+        "contractTitle": "Contrat USDC sur Polygon",
+        "contractLabel": "Contrat",
+        "networkLabel": "Réseau",
+        "decimalsLabel": "Décimales",
+        "viewOnExplorer": "Voir sur PolygonScan",
+        "contractNote": "⚠️ C'est l'USDC natif (pas USDC.e bridgé). Utilisez ce contrat lors de l'ajout du token à votre portefeuille."
       },
       "sign": {
         "title": "Signer pour Rejoindre l'Indexeur",

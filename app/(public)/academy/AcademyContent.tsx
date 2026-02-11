@@ -476,12 +476,46 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
               </div>
 
               {/* Network Note */}
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 mb-6">
                 <Shield className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm text-emerald-300 font-medium">{t.steps.deposit.networkNote}</p>
                   <p className="text-xs text-emerald-200/60 mt-1">{t.steps.deposit.networkNoteDesc}</p>
                 </div>
+              </div>
+
+              {/* USDC Contract Info */}
+              <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Coins className="w-5 h-5 text-blue-400" />
+                  {t.steps.deposit.contractTitle || 'USDC on Polygon Contract'}
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 bg-zinc-800/50 rounded-lg">
+                    <span className="text-sm text-zinc-400 sm:w-24">{t.steps.deposit.contractLabel || 'Contract'}:</span>
+                    <code className="text-xs sm:text-sm text-cyan-400 font-mono break-all">0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</code>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 bg-zinc-800/50 rounded-lg">
+                    <span className="text-sm text-zinc-400 sm:w-24">{t.steps.deposit.networkLabel || 'Network'}:</span>
+                    <span className="text-sm text-white">Polygon (Chain ID: 137)</span>
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 bg-zinc-800/50 rounded-lg">
+                    <span className="text-sm text-zinc-400 sm:w-24">{t.steps.deposit.decimalsLabel || 'Decimals'}:</span>
+                    <span className="text-sm text-white">6</span>
+                  </div>
+                  <a
+                    href="https://polygonscan.com/token/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors mt-2"
+                  >
+                    {t.steps.deposit.viewOnExplorer || 'View on PolygonScan'}
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                </div>
+                <p className="text-xs text-zinc-500 mt-4">
+                  {t.steps.deposit.contractNote || '⚠️ This is Native USDC (not USDC.e bridged). Make sure to use this contract when adding token to your wallet.'}
+                </p>
               </div>
             </section>
 
