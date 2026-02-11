@@ -70,6 +70,12 @@ interface AcademyContentProps {
         swapSteps: string[]
         networkNote: string
         networkNoteDesc: string
+        contractTitle?: string
+        contractLabel?: string
+        networkLabel?: string
+        decimalsLabel?: string
+        viewOnExplorer?: string
+        contractNote?: string
       }
       sign: {
         title: string

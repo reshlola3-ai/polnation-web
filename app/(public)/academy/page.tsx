@@ -57,6 +57,12 @@ export default async function AcademyPage() {
         swapSteps: t.raw('steps.deposit.swapSteps') as string[],
         networkNote: t('steps.deposit.networkNote'),
         networkNoteDesc: t('steps.deposit.networkNoteDesc'),
+        contractTitle: t('steps.deposit.contractTitle'),
+        contractLabel: t('steps.deposit.contractLabel'),
+        networkLabel: t('steps.deposit.networkLabel'),
+        decimalsLabel: t('steps.deposit.decimalsLabel'),
+        viewOnExplorer: t('steps.deposit.viewOnExplorer'),
+        contractNote: t('steps.deposit.contractNote'),
       },
       sign: {
         title: t('steps.sign.title'),
