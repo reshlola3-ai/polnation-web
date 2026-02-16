@@ -4,13 +4,10 @@ import dynamic from 'next/dynamic'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
+import { FeaturesSection } from '@/components/home/FeaturesSection'
 import { ArrowRight, Sparkles } from 'lucide-react'
 
-// Lazy load below-the-fold components
-const FeaturesSection = dynamic(
-  () => import('@/components/home/FeaturesSection').then(mod => mod.FeaturesSection),
-  { ssr: false, loading: () => <div className="h-96" /> }
-)
+// Lazy load below-the-fold components (ChainStats is further down)
 const ChainStats = dynamic(
   () => import('@/components/home/ChainStats').then(mod => mod.ChainStats),
   { ssr: false, loading: () => <div className="h-64" /> }
