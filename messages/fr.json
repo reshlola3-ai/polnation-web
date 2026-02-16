@@ -610,5 +610,34 @@
         "contactTelegram": "Contactez-nous sur Telegram :"
       }
     }
+  },
+  "lottery": {
+    "title": "Roue Quotidienne",
+    "subtitle": "Effectuez votre check-in quotidien pour débloquer un tour gratuit !",
+    "spin": "TOURNER",
+    "spinning": "En cours...",
+    "congratulations": "Félicitations !",
+    "youWon": "Vous avez gagné",
+    "tryAgain": "Bonne chance demain !",
+    "noSpins": "Plus de Tours",
+    "noSpinsDesc": "Vous avez déjà utilisé votre tour quotidien. Revenez demain !",
+    "loginRequired": "Connectez-vous pour tourner.",
+    "history": "Gains Récents",
+    "noHistory": "Aucun historique de tours",
+    "prizes": {
+      "usdc_05": "0,50 $ USDC",
+      "usdc_1": "1 $ USDC",
+      "usdc_5": "5 $ USDC",
+      "bonus_1": "+1 $ Bonus",
+      "bonus_2": "+2 $ Bonus",
+      "thanks": "Réessayer",
+      "bonus_3": "+3 $ Bonus",
+      "usdc_10": "10 $ USDC"
+    },
+    "todaySpins": "Tours Aujourd'hui",
+    "available": "Disponible",
+    "used": "Utilisé",
+    "close": "Fermer",
+    "spinNow": "Tourner !"
   }
 }

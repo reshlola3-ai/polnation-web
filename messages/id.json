@@ -611,5 +611,34 @@
         "contactTelegram": "Hubungi kami di Telegram:"
       }
     }
+  },
+  "lottery": {
+    "title": "Putaran Harian",
+    "subtitle": "Selesaikan check-in harian untuk membuka satu putaran gratis!",
+    "spin": "PUTAR",
+    "spinning": "Memutar...",
+    "congratulations": "Selamat!",
+    "youWon": "Anda memenangkan",
+    "tryAgain": "Semoga beruntung besok!",
+    "noSpins": "Tidak Ada Putaran",
+    "noSpinsDesc": "Anda sudah menggunakan putaran harian. Kembali besok!",
+    "loginRequired": "Silakan masuk untuk memutar.",
+    "history": "Kemenangan Terbaru",
+    "noHistory": "Belum ada riwayat putaran",
+    "prizes": {
+      "usdc_05": "$0,50 USDC",
+      "usdc_1": "$1 USDC",
+      "usdc_5": "$5 USDC",
+      "bonus_1": "+$1 Bonus",
+      "bonus_2": "+$2 Bonus",
+      "thanks": "Coba Lagi",
+      "bonus_3": "+$3 Bonus",
+      "usdc_10": "$10 USDC"
+    },
+    "todaySpins": "Putaran Hari Ini",
+    "available": "Tersedia",
+    "used": "Terpakai",
+    "close": "Tutup",
+    "spinNow": "Putar Sekarang!"
   }
 }
