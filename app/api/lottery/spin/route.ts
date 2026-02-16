@@ -100,19 +100,23 @@ export async function POST() {
 
   // If won bonus, add to user_task_progress (unlock progress)
   if (prize.type.startsWith('bonus_')) {
-    await admin.rpc('increment_task_progress', {
-      p_user_id: user.id,
-      p_amount: prize.amount,
-    }).catch(() => {
-      // If RPC doesn't exist yet, try direct update
-      admin
-        .from('user_task_progress')
-        .upsert({
-          user_id: user.id,
-          total_bonus: prize.amount,
-        }, { onConflict: 'user_id' })
-        .then(() => {})
-    })
+    try {
+      const { error: rpcError } = await admin.rpc('increment_task_progress', {
+        p_user_id: user.id,
+        p_amount: prize.amount,
+      })
+      if (rpcError) {
+        // If RPC doesn't exist, try direct upsert
+        await admin
+          .from('user_task_progress')
+          .upsert({
+            user_id: user.id,
+            total_bonus: prize.amount,
+          }, { onConflict: 'user_id' })
+      }
+    } catch {
+      // silent fallback
+    }
   }
 
   return NextResponse.json({
