@@ -426,7 +426,13 @@
     "rulePool": "Prize Pool",
     "rulePoolDesc": "Claim when you reach the unlock threshold",
     "ruleUnlock": "How to Unlock",
-    "ruleUnlockDesc": "Reach threshold → Claim prize → Level up"
+    "ruleUnlockDesc": "Reach threshold → Claim prize → Level up",
+    "momentumTitle": "Momentum Multiplier",
+    "momentumActive": "Your daily earnings are boosted {multiplier}x!",
+    "momentumDecayCountdown": "Drops to {next}x in {days} day(s)",
+    "momentumInactive": "Recruit staked referrals to unlock up to 5x daily earnings!",
+    "momentumDecayExplain": "Multiplier is based on your recent staked referrals. It decays -1x every 3 days without new referrals.",
+    "momentumDecayRate": "↓ -1x every 3 days without activity · New referral = instant recovery"
   },
   "referral": {
     "title": "Referral Network",

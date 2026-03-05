@@ -426,7 +426,13 @@
     "rulePool": "Pool de récompenses",
     "rulePoolDesc": "Réclamez lorsque vous atteignez le seuil de déblocage",
     "ruleUnlock": "Comment débloquer",
-    "ruleUnlockDesc": "Atteindre le seuil → Réclamer → Passer au niveau suivant"
+    "ruleUnlockDesc": "Atteindre le seuil → Réclamer → Passer au niveau suivant",
+    "momentumTitle": "Multiplicateur Momentum",
+    "momentumActive": "Vos gains quotidiens sont multipliés par {multiplier}x !",
+    "momentumDecayCountdown": "Descend à {next}x dans {days} jour(s)",
+    "momentumInactive": "Recrutez des filleuls stakés pour débloquer jusqu'à 5x de gains quotidiens !",
+    "momentumDecayExplain": "Le multiplicateur est basé sur vos filleuls stakés récents. Il décroît de -1x tous les 3 jours sans nouveaux filleuls.",
+    "momentumDecayRate": "↓ -1x tous les 3 jours sans activité · Nouveau filleul = récupération instantanée"
   },
   "referral": {
     "title": "Réseau de parrainage",

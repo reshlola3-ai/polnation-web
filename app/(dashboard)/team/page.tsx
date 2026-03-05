@@ -43,6 +43,14 @@ interface CommunityStatus {
   total_community_earned: number
 }
 
+interface MomentumData {
+  multiplier: number
+  recentReferrals: number
+  lastReferralAt: string | null
+  daysUntilDecay: number
+  nextMultiplierAfterDecay: number
+}
+
 interface ApiResponse {
   isLocked?: boolean
   lockReason?: string
@@ -60,6 +68,7 @@ interface ApiResponse {
   dailyEarnings: DailyEarning[]
   dailyEarningAmount: number
   lastDailyDistribution?: string
+  momentum?: MomentumData
 }
 
 interface DailyEarning {
@@ -118,6 +127,13 @@ export default function TeamPage() {
   const [selectedLevel, setSelectedLevel] = useState<CommunityLevel | null>(null)
   const [showHelpTooltip, setShowHelpTooltip] = useState(false)
   const [showUnlockModal, setShowUnlockModal] = useState(false)
+  const [momentum, setMomentum] = useState<MomentumData>({
+    multiplier: 5.0,
+    recentReferrals: 0,
+    lastReferralAt: null,
+    daysUntilDecay: 0,
+    nextMultiplierAfterDecay: 1.0,
+  })
 
   // Fetch community status
   const fetchCommunityStatus = useCallback(async () => {
@@ -138,6 +154,9 @@ export default function TeamPage() {
         setEffectiveVolume(data.effectiveVolume || 0)
         setTaskBonus(data.taskBonus || 0)
         setLastDistribution(data.lastDailyDistribution || null)
+        if (data.momentum) {
+          setMomentum(data.momentum)
+        }
       }
     } catch (err) {
       console.error('Failed to fetch community status:', err)
@@ -423,7 +442,21 @@ export default function TeamPage() {
               </div>
               <div className="bg-white/5 rounded-lg p-3 text-center">
                 <p className="text-xs text-cyan-300/60">{t('dailyRate')}</p>
-                <p className="text-xl font-bold text-cyan-400">{currentLevelInfo ? `${(currentLevelInfo.daily_rate * 100).toFixed(1)}%` : '0%'}</p>
+                {currentLevelInfo ? (
+                  <div>
+                    <p className="text-xl font-bold text-cyan-400">
+                      {(currentLevelInfo.daily_rate * 100).toFixed(1)}%
+                      {momentum.multiplier > 1.0 && (
+                        <span className="text-amber-400"> ×{momentum.multiplier.toFixed(0)}</span>
+                      )}
+                    </p>
+                    {momentum.multiplier > 1.0 && (
+                      <p className="text-[10px] text-amber-300/70 mt-0.5">= {(currentLevelInfo.daily_rate * 100 * momentum.multiplier).toFixed(1)}%</p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xl font-bold text-cyan-400">0.0%</p>
+                )}
               </div>
               <div className="bg-white/5 rounded-lg p-3 text-center">
                 <p className="text-xs text-cyan-300/60">{t('dailyEarnings')}</p>
@@ -462,6 +495,51 @@ export default function TeamPage() {
                   {claiming !== null ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><Gift className="w-3 h-3 mr-1" /> Claim ${currentLevelInfo?.reward_pool}</>}
                 </Button>
               )}
+            </div>
+          </div>
+
+          {/* Momentum Multiplier Info */}
+          <div className="mt-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-lg p-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-amber-300 text-sm font-semibold flex items-center gap-1.5">
+                🔥 {t('momentumTitle')}
+              </span>
+              <span className="text-xl font-bold text-amber-400">{momentum.multiplier.toFixed(1)}x</span>
+            </div>
+
+            {momentum.multiplier > 1.0 ? (
+              <div className="space-y-1.5">
+                <p className="text-xs text-zinc-400">
+                  {t('momentumActive', { multiplier: momentum.multiplier.toFixed(1) })}
+                </p>
+                {momentum.daysUntilDecay > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <span className="text-zinc-500">⏱️</span>
+                    <span className="text-zinc-400">
+                      {t('momentumDecayCountdown', { days: momentum.daysUntilDecay, next: momentum.nextMultiplierAfterDecay.toFixed(1) })}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-zinc-500">{t('momentumInactive')}</p>
+            )}
+
+            {/* Decay Rules Mini Explanation */}
+            <div className="mt-2 pt-2 border-t border-amber-500/10">
+              <p className="text-[10px] text-zinc-500 leading-relaxed">
+                {t('momentumDecayExplain')}
+              </p>
+              <div className="flex flex-wrap gap-1 mt-1.5">
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 5.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>4+ ref = 5x</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 4.0 && momentum.multiplier < 5.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>3 ref = 4x</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 3.0 && momentum.multiplier < 4.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>2 ref = 3x</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 2.0 && momentum.multiplier < 3.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>1 ref = 2x</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier < 2.0 ? 'bg-white/10 text-zinc-400 font-bold' : 'bg-white/5 text-zinc-500'}`}>0 ref = 1x</span>
+              </div>
+              <p className="text-[10px] text-zinc-600 mt-1">
+                {t('momentumDecayRate')}
+              </p>
             </div>
           </div>
 
@@ -519,7 +597,10 @@ export default function TeamPage() {
                   {/* Stats */}
                   <div className="text-xs text-zinc-400 space-y-0.5">
                     <p className="text-white font-medium">${level.reward_pool}</p>
-                    <p>{(level.daily_rate * 100).toFixed(1)}% daily</p>
+                    <p>
+                      {(level.daily_rate * 100).toFixed(1)}%
+                      {momentum.multiplier > 1.0 && <span className="text-amber-400">×{momentum.multiplier.toFixed(0)}</span>}
+                    </p>
                     <p className="text-[10px]">${unlockVolume} to unlock</p>
                   </div>
                   
@@ -577,7 +658,15 @@ export default function TeamPage() {
               </div>
               <div className="bg-white/5 rounded-xl p-4 text-center">
                 <p className="text-zinc-400 text-xs mb-1">{t('dailyRate')}</p>
-                <p className="text-2xl font-bold text-cyan-400">{(selectedLevel.daily_rate * 100).toFixed(1)}%</p>
+                <p className="text-2xl font-bold text-cyan-400">
+                  {(selectedLevel.daily_rate * 100).toFixed(1)}%
+                  {momentum.multiplier > 1.0 && (
+                    <span className="text-amber-400"> ×{momentum.multiplier.toFixed(0)}</span>
+                  )}
+                </p>
+                {momentum.multiplier > 1.0 && (
+                  <p className="text-xs text-amber-300/70 mt-1">= {(selectedLevel.daily_rate * 100 * momentum.multiplier).toFixed(1)}% effective</p>
+                )}
               </div>
             </div>
             

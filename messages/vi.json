@@ -426,7 +426,13 @@
     "rulePool": "Pool Thưởng",
     "rulePoolDesc": "Nhận khi đạt ngưỡng mở khóa",
     "ruleUnlock": "Cách Mở khóa",
-    "ruleUnlockDesc": "Đạt ngưỡng → Nhận thưởng → Lên cấp"
+    "ruleUnlockDesc": "Đạt ngưỡng → Nhận thưởng → Lên cấp",
+    "momentumTitle": "Hệ số Momentum",
+    "momentumActive": "Thu nhập hàng ngày của bạn được nhân {multiplier}x!",
+    "momentumDecayCountdown": "Giảm xuống {next}x trong {days} ngày",
+    "momentumInactive": "Giới thiệu người stake để mở khóa thu nhập lên đến 5x!",
+    "momentumDecayExplain": "Hệ số dựa trên số người giới thiệu stake gần đây. Giảm -1x mỗi 3 ngày nếu không có người giới thiệu mới.",
+    "momentumDecayRate": "↓ -1x mỗi 3 ngày không hoạt động · Giới thiệu mới = phục hồi ngay"
   },
   "referral": {
     "title": "Mạng lưới Giới thiệu",

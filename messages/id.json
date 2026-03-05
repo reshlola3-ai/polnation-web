@@ -427,7 +427,13 @@
     "rulePool": "Pool Hadiah",
     "rulePoolDesc": "Klaim saat mencapai ambang unlock",
     "ruleUnlock": "Cara Unlock",
-    "ruleUnlockDesc": "Capai ambang → Klaim hadiah → Naik level"
+    "ruleUnlockDesc": "Capai ambang → Klaim hadiah → Naik level",
+    "momentumTitle": "Momentum Multiplier",
+    "momentumActive": "Penghasilan harian Anda dilipatgandakan {multiplier}x!",
+    "momentumDecayCountdown": "Turun ke {next}x dalam {days} hari",
+    "momentumInactive": "Rekrut referral yang stake untuk membuka penghasilan hingga 5x!",
+    "momentumDecayExplain": "Multiplier berdasarkan referral stake terbaru. Menurun -1x setiap 3 hari tanpa referral baru.",
+    "momentumDecayRate": "↓ -1x setiap 3 hari tanpa aktivitas · Referral baru = pemulihan instan"
   },
   "referral": {
     "title": "Jaringan Referral",
