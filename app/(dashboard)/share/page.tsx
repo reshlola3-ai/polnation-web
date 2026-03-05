@@ -113,6 +113,9 @@ export default function SharePage() {
       // Read on-chain USDC balance
       let walletBalance = 0
       const walletAddr = profile?.wallet_address || profitData.wallet_address
+      console.log('[Share] wallet_address from profile:', profile?.wallet_address)
+      console.log('[Share] wallet_address from profitData:', profitData.wallet_address)
+      console.log('[Share] final walletAddr:', walletAddr)
       if (walletAddr) {
         try {
           const publicClient = createPublicClient({
@@ -126,9 +129,12 @@ export default function SharePage() {
             args: [walletAddr as `0x${string}`],
           })
           walletBalance = Number(formatUnits(rawBalance, 6))
+          console.log('[Share] on-chain USDC balance:', walletBalance)
         } catch (err) {
-          console.error('Failed to read on-chain balance:', err)
+          console.error('[Share] Failed to read on-chain balance:', err)
         }
+      } else {
+        console.warn('[Share] No wallet address found - balance will be 0')
       }
 
       const totalEarned = (profits.total_earned_usdc || 0) + (profits.total_commission_earned || 0)
