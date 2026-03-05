@@ -6,9 +6,11 @@ import Link from 'next/link'
 import { QRCodeSVG } from 'qrcode.react'
 import { toPng } from 'html-to-image'
 import { createClient } from '@/lib/supabase'
+import { createPublicClient, http, formatUnits, parseAbi } from 'viem'
+import { polygon } from 'viem/chains'
 import { useTranslations } from 'next-intl'
 
-// Tier definitions
+// Personal staking tiers
 const TIERS = [
   { min: 0, max: 9.99, rate: 0, name: 'Visitor' },
   { min: 10, max: 19.99, rate: 0.0075, name: 'Resident' },
@@ -26,6 +28,31 @@ function getTier(balance: number) {
   return TIERS[0]
 }
 
+// Tier visual config: color scheme + icon per personal tier
+const TIER_VISUALS: Record<string, { emoji: string; color: string; glow: string; gradientFrom: string; gradientTo: string }> = {
+  'Visitor':        { emoji: '👁️', color: '#999999', glow: 'rgba(150,150,150,0.12)', gradientFrom: '#1a1a2e', gradientTo: '#16162a' },
+  'Resident':       { emoji: '🏠', color: '#22c55e', glow: 'rgba(34,197,94,0.15)', gradientFrom: '#0a1a12', gradientTo: '#0D0B21' },
+  'Citizen':        { emoji: '🎖️', color: '#3b82f6', glow: 'rgba(59,130,246,0.15)', gradientFrom: '#0a1225', gradientTo: '#0D0B21' },
+  'Representative': { emoji: '📋', color: '#9333ea', glow: 'rgba(147,51,234,0.18)', gradientFrom: '#150a28', gradientTo: '#0D0B21' },
+  'Senator':        { emoji: '🏛️', color: '#f59e0b', glow: 'rgba(245,158,11,0.18)', gradientFrom: '#1a1408', gradientTo: '#0D0B21' },
+  'Ambassador':     { emoji: '🌐', color: '#06b6d4', glow: 'rgba(6,182,212,0.18)', gradientFrom: '#081a1e', gradientTo: '#0D0B21' },
+  'Chancellor':     { emoji: '👑', color: '#ef4444', glow: 'rgba(239,68,68,0.15)', gradientFrom: '#1a0a0a', gradientTo: '#0D0B21' },
+}
+
+// Community level visual config
+const COMMUNITY_VISUALS: Record<string, { emoji: string; color: string }> = {
+  'None':     { emoji: '—', color: '#666666' },
+  'Bronze':   { emoji: '🥉', color: '#cd7f32' },
+  'Silver':   { emoji: '🥈', color: '#c0c0c0' },
+  'Gold':     { emoji: '🥇', color: '#ffd700' },
+  'Platinum': { emoji: '💎', color: '#e5e4e2' },
+  'Diamond':  { emoji: '💠', color: '#00d4ff' },
+  'Elite':    { emoji: '⚡', color: '#ff6b35' },
+}
+
+const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as const
+const USDC_ABI = parseAbi(['function balanceOf(address account) view returns (uint256)'])
+
 interface ShareData {
   username: string
   referralCode: string | null
@@ -36,6 +63,8 @@ interface ShareData {
   tier: string
   dailyRate: number
   walletBalance: number
+  communityLevel: string
+  communityPrizePool: number
 }
 
 export default function SharePage() {
@@ -53,10 +82,10 @@ export default function SharePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Fetch profile
+      // Fetch profile (including wallet_address)
       const { data: profile } = await supabase
         .from('profiles')
-        .select('username, referral_code, created_at')
+        .select('username, referral_code, created_at, wallet_address')
         .eq('id', user.id)
         .single()
 
@@ -69,10 +98,34 @@ export default function SharePage() {
       const refRes = await fetch('/api/referral/balances')
       const refData = refRes.ok ? await refRes.json() : { stats: {} }
 
+      // Fetch community status for community level
+      const communityRes = await fetch('/api/community/status')
+      const communityData = communityRes.ok ? await communityRes.json() : {}
+      const communityLevel = communityData.currentLevelInfo?.name || 'Bronze'
+      const communityPrizePool = communityData.currentLevelInfo?.reward_pool || 10
+
+      // Read on-chain USDC balance
+      let walletBalance = 0
+      const walletAddr = profile?.wallet_address || profitData.wallet_address
+      if (walletAddr) {
+        try {
+          const publicClient = createPublicClient({
+            chain: polygon,
+            transport: http('https://polygon-rpc.com'),
+          })
+          const rawBalance = await publicClient.readContract({
+            address: USDC_ADDRESS,
+            abi: USDC_ABI,
+            functionName: 'balanceOf',
+            args: [walletAddr as `0x${string}`],
+          })
+          walletBalance = Number(formatUnits(rawBalance, 6))
+        } catch (err) {
+          console.error('Failed to read on-chain balance:', err)
+        }
+      }
+
       const totalEarned = (profits.total_earned_usdc || 0) + (profits.total_commission_earned || 0)
-      
-      // Estimate wallet balance from profit data or default
-      const walletBalance = profits.wallet_usdc_balance || 0
       const tier = getTier(walletBalance)
       const dailyEarnings = walletBalance * tier.rate
 
@@ -86,6 +139,8 @@ export default function SharePage() {
         tier: tier.name,
         dailyRate: tier.rate * 100,
         walletBalance,
+        communityLevel,
+        communityPrizePool,
       })
     } catch (err) {
       console.error('Error fetching share data:', err)
@@ -137,7 +192,6 @@ export default function SharePage() {
           text: `Join me on Polnation! I'm earning daily rewards. 🚀`,
         })
       } else {
-        // Fallback to download
         handleSaveImage()
       }
     } catch (err) {
@@ -150,9 +204,7 @@ export default function SharePage() {
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    // Validate file type
     if (!file.type.startsWith('image/')) return
-    // Max 5MB
     if (file.size > 5 * 1024 * 1024) return
 
     const reader = new FileReader()
@@ -160,7 +212,6 @@ export default function SharePage() {
       setUserBgImage(ev.target?.result as string)
     }
     reader.readAsDataURL(file)
-    // Reset input so user can re-select same file
     e.target.value = ''
   }
 
@@ -174,6 +225,10 @@ export default function SharePage() {
 
   const now = new Date()
   const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
+
+  // Get tier visuals
+  const tierVisual = TIER_VISUALS[data?.tier || 'Visitor'] || TIER_VISUALS['Visitor']
+  const communityVisual = COMMUNITY_VISUALS[data?.communityLevel || 'Bronze'] || COMMUNITY_VISUALS['Bronze']
 
   if (isLoading) {
     return (
@@ -192,7 +247,6 @@ export default function SharePage() {
           Back
         </Link>
         <div className="flex items-center gap-2">
-          {/* Upload background image button */}
           <input
             ref={fileInputRef}
             type="file"
@@ -241,7 +295,9 @@ export default function SharePage() {
         ref={cardRef}
         className="relative overflow-hidden rounded-2xl"
         style={{
-          background: 'linear-gradient(160deg, #0D0B21 0%, #120820 30%, #1a0d30 60%, #0D0B21 100%)',
+          background: userBgImage
+            ? '#0D0B21'
+            : `linear-gradient(160deg, ${tierVisual.gradientFrom} 0%, #0D0B21 40%, ${tierVisual.gradientFrom} 80%, #0D0B21 100%)`,
           width: '100%',
           aspectRatio: '9/16',
         }}
@@ -256,59 +312,77 @@ export default function SharePage() {
               backgroundPosition: 'center',
             }}
           >
-            {/* Dark overlay to keep text readable */}
             <div className="absolute inset-0 bg-black/50" />
-            {/* Purple tint overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-purple-900/30 via-transparent to-purple-950/60" />
           </div>
         )}
 
-        {/* Purple/Cyan glow spots (visible when no user image, subtle with user image) */}
+        {/* Tier-specific glow effects */}
         <div className={`absolute inset-0 ${userBgImage ? 'z-[2] opacity-40' : 'z-[0]'}`}>
-          {/* Top-right purple glow */}
+          {/* Large tier glow - top right */}
           <div
-            className="absolute -top-[20%] -right-[10%] w-[70%] h-[60%] rounded-full"
+            className="absolute -top-[15%] -right-[5%] w-[70%] h-[55%] rounded-full"
             style={{
-              background: 'radial-gradient(circle, rgba(147, 51, 234, 0.18) 0%, transparent 70%)',
+              background: `radial-gradient(circle, ${tierVisual.glow} 0%, transparent 70%)`,
               filter: 'blur(60px)',
             }}
           />
-          {/* Bottom-left cyan glow */}
+          {/* Community level glow - bottom left */}
           <div
-            className="absolute -bottom-[15%] -left-[10%] w-[60%] h-[50%] rounded-full"
+            className="absolute -bottom-[10%] -left-[5%] w-[55%] h-[45%] rounded-full"
             style={{
-              background: 'radial-gradient(circle, rgba(6, 182, 212, 0.10) 0%, transparent 70%)',
+              background: `radial-gradient(circle, ${communityVisual.color}18 0%, transparent 70%)`,
               filter: 'blur(50px)',
             }}
           />
-          {/* Center subtle purple */}
+          {/* Center subtle glow */}
           <div
-            className="absolute top-[40%] left-[30%] w-[50%] h-[40%] rounded-full"
+            className="absolute top-[35%] left-[25%] w-[55%] h-[40%] rounded-full"
             style={{
-              background: 'radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%)',
-              filter: 'blur(40px)',
+              background: `radial-gradient(circle, ${tierVisual.glow} 0%, transparent 70%)`,
+              filter: 'blur(50px)',
             }}
           />
         </div>
 
-        {/* Watermark logo — purple-tinted */}
+        {/* Large tier emblem watermark (replaces logo) */}
         <div
-          className={`absolute top-0 right-0 w-[65%] h-[50%] opacity-[0.07] ${userBgImage ? 'z-[3]' : 'z-[1]'}`}
+          className={`absolute top-[5%] right-[-5%] ${userBgImage ? 'z-[3]' : 'z-[1]'} select-none pointer-events-none`}
           style={{
-            backgroundImage: 'url(/logo.svg)',
-            backgroundSize: 'contain',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'top right',
-            filter: 'brightness(0.6) sepia(1) hue-rotate(230deg) saturate(3)',
+            fontSize: 'clamp(8rem, 30vw, 14rem)',
+            lineHeight: 1,
+            opacity: userBgImage ? 0.08 : 0.1,
+            filter: 'blur(2px)',
           }}
-        />
+        >
+          {tierVisual.emoji}
+        </div>
+
+        {/* Community level emblem watermark - bottom area */}
+        <div
+          className={`absolute bottom-[15%] left-[-3%] ${userBgImage ? 'z-[3]' : 'z-[1]'} select-none pointer-events-none`}
+          style={{
+            fontSize: 'clamp(5rem, 18vw, 8rem)',
+            lineHeight: 1,
+            opacity: userBgImage ? 0.06 : 0.08,
+            filter: 'blur(1px)',
+          }}
+        >
+          {communityVisual.emoji}
+        </div>
 
         {/* Content */}
         <div className={`relative flex flex-col h-full p-6 sm:p-8 ${userBgImage ? 'z-[5]' : 'z-10'}`}>
           
           {/* Top: User info + date */}
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm sm:text-lg shadow-lg shadow-purple-500/20">
+            <div
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg shadow-lg"
+              style={{
+                background: `linear-gradient(135deg, ${tierVisual.color}, ${communityVisual.color})`,
+                boxShadow: `0 4px 15px ${tierVisual.color}40`,
+              }}
+            >
               {data?.username?.charAt(0)?.toUpperCase() || 'P'}
             </div>
             <div>
@@ -320,10 +394,31 @@ export default function SharePage() {
           {/* Spacer */}
           <div className="flex-1 flex flex-col justify-center">
             
-            {/* Tier badge */}
-            <div className="mb-3">
-              <span className="inline-block px-3 py-1 rounded-full bg-purple-500/25 border border-purple-400/30 text-purple-200 text-xs font-medium backdrop-blur-sm shadow-lg shadow-purple-500/10">
-                🏛️ {data?.tier} • {data?.dailyRate.toFixed(2)}% daily
+            {/* Dual badge row: Personal Tier + Community Level */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              {/* Personal staking tier badge */}
+              <span
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm shadow-lg"
+                style={{
+                  background: `${tierVisual.color}20`,
+                  border: `1px solid ${tierVisual.color}40`,
+                  color: tierVisual.color,
+                  boxShadow: `0 2px 10px ${tierVisual.color}15`,
+                }}
+              >
+                {tierVisual.emoji} {data?.tier} • {data?.dailyRate.toFixed(2)}% daily
+              </span>
+              {/* Community level badge */}
+              <span
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm shadow-lg"
+                style={{
+                  background: `${communityVisual.color}20`,
+                  border: `1px solid ${communityVisual.color}40`,
+                  color: communityVisual.color,
+                  boxShadow: `0 2px 10px ${communityVisual.color}15`,
+                }}
+              >
+                {communityVisual.emoji} {data?.communityLevel} Community
               </span>
             </div>
 
@@ -336,7 +431,7 @@ export default function SharePage() {
             </p>
 
             {/* Main profit number */}
-            <div className="mb-8">
+            <div className="mb-6">
               <span
                 className="font-extrabold tracking-tight drop-shadow-lg"
                 style={{
@@ -372,9 +467,9 @@ export default function SharePage() {
                 </p>
               </div>
               <div>
-                <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Daily Rate</p>
+                <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Prize Pool</p>
                 <p className="text-white text-lg sm:text-xl font-bold drop-shadow-md">
-                  {(data?.dailyRate || 0).toFixed(2)}%
+                  ${(data?.communityPrizePool || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
             </div>
@@ -382,8 +477,14 @@ export default function SharePage() {
 
           {/* Bottom: Divider + branding + QR */}
           <div>
-            {/* Purple accent line */}
-            <div className="w-full h-[2px] bg-gradient-to-r from-purple-500 via-cyan-500 to-purple-500 mb-5 rounded-full shadow-sm shadow-purple-500/50" />
+            {/* Gradient accent line using tier colors */}
+            <div
+              className="w-full h-[2px] mb-5 rounded-full"
+              style={{
+                background: `linear-gradient(to right, ${tierVisual.color}, ${communityVisual.color}, ${tierVisual.color})`,
+                boxShadow: `0 0 8px ${tierVisual.color}40`,
+              }}
+            />
 
             <div className="flex items-end justify-between">
               {/* Brand */}
@@ -402,7 +503,7 @@ export default function SharePage() {
               </div>
 
               {/* QR Code */}
-              <div className="bg-white rounded-lg p-1.5 sm:p-2 shadow-lg shadow-purple-500/20">
+              <div className="bg-white rounded-lg p-1.5 sm:p-2 shadow-lg" style={{ boxShadow: `0 4px 15px ${tierVisual.color}30` }}>
                 <QRCodeSVG
                   value={referralLink}
                   size={72}
