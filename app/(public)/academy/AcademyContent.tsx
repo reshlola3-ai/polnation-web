@@ -31,7 +31,8 @@ import {
   Crown,
   Star,
   ArrowDown,
-  MessageCircle
+  MessageCircle,
+  Sparkles
 } from 'lucide-react'
 
 interface AcademyContentProps {
@@ -142,6 +143,31 @@ interface AcademyContentProps {
         applyInfluencer: string
         contactTelegram: string
       }
+      momentum?: {
+        title: string
+        intro: string
+        whatIsTitle: string
+        whatIsDesc: string
+        formulaTitle: string
+        formula: string
+        baseEarning: string
+        multiplier: string
+        finalEarning: string
+        tiersTitle: string
+        recentRefs: string
+        multiplierCol: string
+        decayTitle: string
+        decayDesc: string
+        decayRule1: string
+        decayRule2: string
+        decayRule3: string
+        recoveryTitle: string
+        recoveryDesc: string
+        exampleTitle: string
+        exampleDesc: string
+        tipTitle: string
+        tipDesc: string
+      }
     }
   }
   user: User | null
@@ -157,6 +183,7 @@ const sections = [
   { id: 'step-5', icon: Users },
   { id: 'step-6', icon: ClipboardList },
   { id: 'step-7', icon: Crown },
+  { id: 'step-8', icon: Zap },
 ]
 
 export function AcademyContent({ translations: t, user, locale }: AcademyContentProps) {
@@ -199,6 +226,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
     'step-5': `5. ${t.steps.team.title}`,
     'step-6': `6. ${t.steps.tasks?.title || 'Tasks & Rewards'}`,
     'step-7': `7. ${t.steps.levels?.title || 'Team Levels'}`,
+    'step-8': `8. ${t.steps.momentum?.title || 'Momentum Multiplier'}`,
   }
 
   return (
@@ -916,6 +944,158 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
                     <p className="text-white font-medium">{t.steps.levels?.applyInfluencer || 'Apply for Influencer status'}</p>
                     <p className="text-sm text-zinc-400">{t.steps.levels?.contactTelegram || 'Contact us on Telegram:'} <a href="https://t.me/polnationsupport" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">@polnationsupport</a></p>
                   </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Step 8: Momentum Multiplier */}
+            <section id="step-8" className="mb-16 scroll-mt-20">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-red-500 flex items-center justify-center shadow-lg">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <div className="text-sm text-amber-400 font-medium">{t.step} 8</div>
+                  <h2 className="text-2xl font-bold text-white">{t.steps.momentum?.title || 'Momentum Multiplier'}</h2>
+                </div>
+              </div>
+
+              <div className="prose prose-invert prose-zinc max-w-none mb-8">
+                <p className="text-zinc-300 leading-relaxed">{t.steps.momentum?.intro || 'Boost your daily community earnings by up to 5x! The more you actively recruit, the higher your multiplier.'}</p>
+              </div>
+
+              {/* What is Momentum */}
+              <div className="bg-gradient-to-r from-amber-500/10 to-red-500/10 rounded-xl p-6 border border-amber-500/20 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                  🔥 {t.steps.momentum?.whatIsTitle || 'What is Momentum?'}
+                </h3>
+                <p className="text-zinc-300 text-sm">{t.steps.momentum?.whatIsDesc || 'Momentum is a reward multiplier applied to your daily Community Pool earnings. When you actively recruit new staked referrals, your multiplier increases up to 5x. If you stop recruiting, it gradually decays back to 1x over 12 days.'}</p>
+              </div>
+
+              {/* Formula */}
+              <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-cyan-400" />
+                  {t.steps.momentum?.formulaTitle || 'Earnings Formula'}
+                </h3>
+                <div className="bg-zinc-800/50 rounded-xl p-4 text-center mb-4">
+                  <p className="text-lg font-mono text-cyan-300">
+                    {t.steps.momentum?.formula || 'Daily Earnings = Prize Pool × Daily Rate × Momentum'}
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="bg-blue-500/10 rounded-lg p-3 text-center border border-blue-500/20">
+                    <p className="text-xs text-zinc-400 mb-1">{t.steps.momentum?.baseEarning || 'Base Earning'}</p>
+                    <p className="text-sm text-blue-300 font-medium">Prize Pool × Rate</p>
+                  </div>
+                  <div className="bg-amber-500/10 rounded-lg p-3 text-center border border-amber-500/20">
+                    <p className="text-xs text-zinc-400 mb-1">{t.steps.momentum?.multiplier || 'Multiplier'}</p>
+                    <p className="text-sm text-amber-300 font-bold">1.0x → 5.0x</p>
+                  </div>
+                  <div className="bg-green-500/10 rounded-lg p-3 text-center border border-green-500/20">
+                    <p className="text-xs text-zinc-400 mb-1">{t.steps.momentum?.finalEarning || 'Final Earning'}</p>
+                    <p className="text-sm text-green-300 font-bold">Up to 5× more!</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Multiplier Tiers */}
+              <div className="bg-zinc-900/30 rounded-xl border border-zinc-800 overflow-hidden mb-6">
+                <div className="p-4 border-b border-zinc-800">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    📊 {t.steps.momentum?.tiersTitle || 'Multiplier Tiers'}
+                  </h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-zinc-800/50">
+                        <th className="text-left text-xs text-zinc-400 px-4 py-3 font-medium">{t.steps.momentum?.recentRefs || 'Staked Referrals'}</th>
+                        <th className="text-center text-xs text-zinc-400 px-4 py-3 font-medium">{t.steps.momentum?.multiplierCol || 'Multiplier'}</th>
+                        <th className="text-right text-xs text-zinc-400 px-4 py-3 font-medium">Gold ($5.50/d)</th>
+                        <th className="text-right text-xs text-zinc-400 px-4 py-3 font-medium">Diamond ($75/d)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { refs: '0', mult: '1.0x', gold: '$5.50', diamond: '$75.00', highlight: false },
+                        { refs: '1', mult: '2.0x', gold: '$11.00', diamond: '$150.00', highlight: false },
+                        { refs: '2', mult: '3.0x', gold: '$16.50', diamond: '$225.00', highlight: false },
+                        { refs: '3', mult: '4.0x', gold: '$22.00', diamond: '$300.00', highlight: false },
+                        { refs: '4+', mult: '5.0x', gold: '$27.50', diamond: '$375.00', highlight: true },
+                      ].map((row, i) => (
+                        <tr key={i} className={`border-t border-zinc-800/50 ${row.highlight ? 'bg-amber-500/10' : ''}`}>
+                          <td className="px-4 py-3 text-sm text-zinc-300">{row.refs}</td>
+                          <td className={`px-4 py-3 text-sm text-center font-bold ${row.highlight ? 'text-amber-400' : 'text-cyan-300'}`}>{row.mult}</td>
+                          <td className="px-4 py-3 text-sm text-right text-green-400">{row.gold}</td>
+                          <td className="px-4 py-3 text-sm text-right text-green-400 font-bold">{row.diamond}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Decay Rules */}
+              <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 rounded-xl p-6 border border-red-500/20 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  ⏱️ {t.steps.momentum?.decayTitle || 'Decay Rules'}
+                </h3>
+                <p className="text-zinc-300 text-sm mb-4">{t.steps.momentum?.decayDesc || 'If you stop recruiting, your multiplier will gradually decrease:'}</p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 p-3 bg-zinc-900/50 rounded-lg">
+                    <span className="text-amber-400 font-mono text-sm w-20">Day 0-2</span>
+                    <span className="text-zinc-300 text-sm">{t.steps.momentum?.decayRule1 || 'Keep current multiplier'}</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-zinc-900/50 rounded-lg">
+                    <span className="text-orange-400 font-mono text-sm w-20">Day 3-5</span>
+                    <span className="text-zinc-300 text-sm">{t.steps.momentum?.decayRule2 || 'Drop -1.0x (e.g. 5.0x → 4.0x)'}</span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-zinc-900/50 rounded-lg">
+                    <span className="text-red-400 font-mono text-sm w-20">Day 12+</span>
+                    <span className="text-zinc-300 text-sm">{t.steps.momentum?.decayRule3 || 'Back to 1.0x base (every 3 days -1.0x)'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recovery */}
+              <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl p-6 border border-green-500/20 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                  ⚡ {t.steps.momentum?.recoveryTitle || 'Instant Recovery'}
+                </h3>
+                <p className="text-zinc-300 text-sm">{t.steps.momentum?.recoveryDesc || 'Recruit new staked referrals at any time to instantly jump back to the corresponding multiplier tier. There is no penalty — you can always recover your momentum!'}</p>
+              </div>
+
+              {/* Example */}
+              <div className="bg-zinc-900/30 rounded-xl p-6 border border-zinc-800 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  📖 {t.steps.momentum?.exampleTitle || 'Example'}
+                </h3>
+                <p className="text-zinc-400 text-sm mb-4">{t.steps.momentum?.exampleDesc || 'Gold promoter (base $5.50/day):'}</p>
+                <div className="space-y-2 text-sm">
+                  {[
+                    { day: 'Day 1', event: 'Recruit 4 people', mult: '5.0x', earn: '$27.50/day', color: 'text-green-400' },
+                    { day: 'Day 4', event: '3 days no activity', mult: '4.0x', earn: '$22.00/day', color: 'text-yellow-400' },
+                    { day: 'Day 7', event: '6 days no activity', mult: '3.0x', earn: '$16.50/day', color: 'text-orange-400' },
+                    { day: 'Day 13', event: 'Back to base', mult: '1.0x', earn: '$5.50/day', color: 'text-red-400' },
+                    { day: 'Day 14', event: 'Recruit 2 people!', mult: '3.0x', earn: '$16.50/day', color: 'text-green-400' },
+                  ].map((row, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 bg-zinc-800/50 rounded-lg">
+                      <span className="text-zinc-500 font-mono w-16 flex-shrink-0">{row.day}</span>
+                      <span className="text-zinc-300 flex-1">{row.event}</span>
+                      <span className={`font-bold w-12 text-right ${row.color}`}>{row.mult}</span>
+                      <span className="text-white font-mono w-24 text-right">{row.earn}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pro Tip */}
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                <Sparkles className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-purple-300 font-medium text-sm">{t.steps.momentum?.tipTitle || 'Pro Tip'}</p>
+                  <p className="text-sm text-zinc-400 mt-1">{t.steps.momentum?.tipDesc || 'Recruit just one new staked referral every 3 days to maintain at least 2.0x momentum. Consistent small effort leads to significantly higher earnings over time!'}</p>
                 </div>
               </div>
             </section>

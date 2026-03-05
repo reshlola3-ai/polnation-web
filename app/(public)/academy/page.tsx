@@ -138,6 +138,35 @@ export default async function AcademyPage() {
           }
         } catch { return undefined }
       })(),
+      momentum: (() => {
+        try {
+          return {
+            title: t('steps.momentum.title'),
+            intro: t('steps.momentum.intro'),
+            whatIsTitle: t('steps.momentum.whatIsTitle'),
+            whatIsDesc: t('steps.momentum.whatIsDesc'),
+            formulaTitle: t('steps.momentum.formulaTitle'),
+            formula: t('steps.momentum.formula'),
+            baseEarning: t('steps.momentum.baseEarning'),
+            multiplier: t('steps.momentum.multiplier'),
+            finalEarning: t('steps.momentum.finalEarning'),
+            tiersTitle: t('steps.momentum.tiersTitle'),
+            recentRefs: t('steps.momentum.recentRefs'),
+            multiplierCol: t('steps.momentum.multiplierCol'),
+            decayTitle: t('steps.momentum.decayTitle'),
+            decayDesc: t('steps.momentum.decayDesc'),
+            decayRule1: t('steps.momentum.decayRule1'),
+            decayRule2: t('steps.momentum.decayRule2'),
+            decayRule3: t('steps.momentum.decayRule3'),
+            recoveryTitle: t('steps.momentum.recoveryTitle'),
+            recoveryDesc: t('steps.momentum.recoveryDesc'),
+            exampleTitle: t('steps.momentum.exampleTitle'),
+            exampleDesc: t('steps.momentum.exampleDesc'),
+            tipTitle: t('steps.momentum.tipTitle'),
+            tipDesc: t('steps.momentum.tipDesc'),
+          }
+        } catch { return undefined }
+      })(),
     },
   }
 

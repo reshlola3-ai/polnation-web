@@ -682,6 +682,31 @@
         "influencerDesc": "Influencer menikmati threshold unlock hingga 50% lebih rendah!",
         "applyInfluencer": "Daftar status Influencer",
         "contactTelegram": "Hubungi kami di Telegram:"
+      },
+      "momentum": {
+        "title": "Momentum Multiplier",
+        "intro": "Tingkatkan penghasilan komunitas harian hingga 5x! Semakin aktif merekrut referral yang sudah stake, semakin tinggi multiplier Anda.",
+        "whatIsTitle": "Apa itu Momentum?",
+        "whatIsDesc": "Momentum adalah multiplier yang diterapkan pada penghasilan harian Community Pool. Saat aktif merekrut referral baru yang sudah stake, multiplier meningkat hingga 5.0x. Jika berhenti merekrut, akan turun perlahan ke 1.0x dalam 12 hari.",
+        "formulaTitle": "Rumus Penghasilan",
+        "formula": "Penghasilan Harian = Prize Pool × Rate × Momentum",
+        "baseEarning": "Penghasilan Dasar",
+        "multiplier": "Multiplier",
+        "finalEarning": "Penghasilan Akhir",
+        "tiersTitle": "Tabel Multiplier",
+        "recentRefs": "Referral Staked",
+        "multiplierCol": "Multiplier",
+        "decayTitle": "Aturan Penurunan",
+        "decayDesc": "Jika berhenti merekrut, multiplier akan turun perlahan:",
+        "decayRule1": "Pertahankan multiplier saat ini",
+        "decayRule2": "Turun -1.0x (contoh: 5.0x → 4.0x)",
+        "decayRule3": "Kembali ke 1.0x dasar (setiap 3 hari -1.0x)",
+        "recoveryTitle": "Pemulihan Instan",
+        "recoveryDesc": "Rekrut referral baru yang sudah stake kapan saja untuk langsung kembali ke tier multiplier yang sesuai. Tidak ada penalti — Anda selalu bisa memulihkan momentum!",
+        "exampleTitle": "Contoh",
+        "exampleDesc": "Promoter Gold (dasar $5.50/hari):",
+        "tipTitle": "Tips Pro",
+        "tipDesc": "Rekrut hanya 1 referral baru setiap 3 hari untuk mempertahankan minimal 2.0x momentum. Usaha kecil yang konsisten menghasilkan pendapatan yang jauh lebih tinggi!"
       }
     }
   },

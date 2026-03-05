@@ -681,6 +681,31 @@
         "influencerDesc": "Influencer được giảm đến 50% ngưỡng mở khóa!",
         "applyInfluencer": "Đăng ký làm Influencer",
         "contactTelegram": "Liên hệ Telegram:"
+      },
+      "momentum": {
+        "title": "Hệ Số Momentum",
+        "intro": "Tăng thu nhập cộng đồng hàng ngày lên tới 5x! Bạn càng tích cực giới thiệu, hệ số càng cao.",
+        "whatIsTitle": "Momentum là gì?",
+        "whatIsDesc": "Momentum là hệ số nhân áp dụng cho thu nhập hàng ngày từ Community Pool. Khi bạn tích cực giới thiệu người dùng mới đã stake, hệ số tăng lên tới 5.0x. Nếu ngừng giới thiệu, hệ số sẽ giảm dần về 1.0x trong 12 ngày.",
+        "formulaTitle": "Công Thức Thu Nhập",
+        "formula": "Thu Nhập Ngày = Prize Pool × Tỷ Lệ × Momentum",
+        "baseEarning": "Thu Nhập Cơ Bản",
+        "multiplier": "Hệ Số",
+        "finalEarning": "Thu Nhập Cuối",
+        "tiersTitle": "Bảng Hệ Số",
+        "recentRefs": "Referral Đã Stake",
+        "multiplierCol": "Hệ Số",
+        "decayTitle": "Quy Tắc Giảm",
+        "decayDesc": "Nếu ngừng giới thiệu, hệ số sẽ giảm dần:",
+        "decayRule1": "Giữ nguyên hệ số hiện tại",
+        "decayRule2": "Giảm -1.0x (ví dụ: 5.0x → 4.0x)",
+        "decayRule3": "Về 1.0x cơ bản (mỗi 3 ngày -1.0x)",
+        "recoveryTitle": "Phục Hồi Ngay Lập Tức",
+        "recoveryDesc": "Giới thiệu referral mới đã stake bất kỳ lúc nào để nhảy về hệ số tương ứng ngay lập tức. Không có hình phạt — bạn luôn có thể phục hồi momentum!",
+        "exampleTitle": "Ví Dụ",
+        "exampleDesc": "Promoter Gold (cơ bản $5.50/ngày):",
+        "tipTitle": "Mẹo Hay",
+        "tipDesc": "Giới thiệu chỉ 1 referral mới mỗi 3 ngày để duy trì ít nhất 2.0x momentum. Nỗ lực nhỏ nhưng đều đặn giúp tăng thu nhập đáng kể!"
       }
     }
   },

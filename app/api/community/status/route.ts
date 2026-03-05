@@ -227,6 +227,36 @@ export async function GET(request: NextRequest) {
     const progressTarget = currentUnlockVolume
     const volumeToUnlock = Math.max(0, progressTarget - effectiveVolume)
 
+    // ========== Momentum Multiplier 计算 ==========
+    const momentumRecentReferrals = status?.momentum_recent_referrals || 0
+    const momentumLastReferralAt = status?.momentum_last_referral_at 
+      ? new Date(status.momentum_last_referral_at) 
+      : null
+
+    // Calculate momentum multiplier
+    let momentumMultiplier = 1.0
+    if (momentumLastReferralAt && momentumRecentReferrals > 0) {
+      const baseMultiplier = Math.min(5.0, 1.0 + momentumRecentReferrals)
+      const daysSinceLast = Math.floor((Date.now() - momentumLastReferralAt.getTime()) / (1000 * 60 * 60 * 24))
+      const decaySteps = Math.floor(daysSinceLast / 3)
+      momentumMultiplier = Math.max(1.0, baseMultiplier - decaySteps)
+    }
+
+    // Calculate days until next decay
+    let daysUntilDecay = 0
+    if (momentumLastReferralAt && momentumMultiplier > 1.0) {
+      const daysSinceLast = (Date.now() - momentumLastReferralAt.getTime()) / (1000 * 60 * 60 * 24)
+      const nextDecayAt = (Math.floor(daysSinceLast / 3) + 1) * 3
+      daysUntilDecay = Math.max(0, Math.ceil(nextDecayAt - daysSinceLast))
+    }
+
+    // Calculate what the next multiplier will be after decay
+    const nextMomentumAfterDecay = Math.max(1.0, momentumMultiplier - 1.0)
+
+    const baseDailyEarning = currentLevelInfo 
+      ? currentLevelInfo.reward_pool * currentLevelInfo.daily_rate 
+      : 0
+
     return NextResponse.json({
       isLocked: false,
       status: {
@@ -245,11 +275,18 @@ export async function GET(request: NextRequest) {
       claimedLevels,
       claimableLevels,
       dailyEarnings,
-      dailyEarningAmount: currentLevelInfo 
-        ? currentLevelInfo.reward_pool * currentLevelInfo.daily_rate 
-        : 0,
+      dailyEarningAmount: baseDailyEarning * momentumMultiplier,
+      baseDailyEarning,
       // 是否达到当前等级解锁门槛
       hasReachedThreshold: hasReachedCurrentThreshold,
+      // Momentum data
+      momentum: {
+        multiplier: momentumMultiplier,
+        recentReferrals: momentumRecentReferrals,
+        lastReferralAt: momentumLastReferralAt?.toISOString() || null,
+        daysUntilDecay,
+        nextMultiplierAfterDecay: nextMomentumAfterDecay,
+      },
     })
   } catch (error) {
     console.error('Error fetching community status:', error)

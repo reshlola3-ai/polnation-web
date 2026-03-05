@@ -240,7 +240,14 @@ export async function POST(request: NextRequest) {
       })
       .not('id', 'is', null)
 
-    // ========== 同时发放社群每日收益 ==========
+    // ========== 先更新所有用户的 momentum 数据 ==========
+    try {
+      await updateAllMomentumData(supabase, calculations)
+    } catch (momentumErr) {
+      console.error('Error updating momentum data:', momentumErr)
+    }
+
+    // ========== 同时发放社群每日收益（含 Momentum Multiplier） ==========
     let communityProcessedCount = 0
     let communityDistributedAmount = 0
 
@@ -279,9 +286,16 @@ export async function POST(request: NextRequest) {
 
           if (existingEarning) continue
 
-          const earningAmount = levelInfo.reward_pool * levelInfo.daily_rate
+          // ★ 计算 Momentum Multiplier ★
+          const momentum = calculateMomentumMultiplier(
+            status.momentum_recent_referrals || 0,
+            status.momentum_last_referral_at ? new Date(status.momentum_last_referral_at) : null
+          )
 
-          // 创建每日收益记录
+          const baseEarning = levelInfo.reward_pool * levelInfo.daily_rate
+          const earningAmount = baseEarning * momentum
+
+          // 创建每日收益记录（包含 momentum 倍率）
           await supabase
             .from('community_daily_earnings')
             .insert({
@@ -291,6 +305,7 @@ export async function POST(request: NextRequest) {
               reward_pool: levelInfo.reward_pool,
               daily_rate: levelInfo.daily_rate,
               earning_amount: earningAmount,
+              momentum_multiplier: momentum,
               is_credited: true,
               credited_at: now,
             })
@@ -324,7 +339,7 @@ export async function POST(request: NextRequest) {
               })
           }
 
-          // 更新社群账户累计收益
+          // 更新社群账户累计收益 + momentum_multiplier 缓存
           const { data: communityStatus } = await supabase
             .from('user_community_status')
             .select('total_community_earned')
@@ -336,6 +351,8 @@ export async function POST(request: NextRequest) {
             .update({
               total_community_earned: (communityStatus?.total_community_earned || 0) + earningAmount,
               last_daily_earning_date: today,
+              momentum_multiplier: momentum,
+              momentum_updated_at: now,
               updated_at: now,
             })
             .eq('user_id', status.user_id)
@@ -449,6 +466,96 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error('Cancel error:', error)
     return NextResponse.json({ error: 'Cancel failed' }, { status: 500 })
+  }
+}
+
+// ========== Momentum Multiplier 计算函数 ==========
+// 根据近期 staked referral 数量和衰减计算 multiplier
+function calculateMomentumMultiplier(recentReferrals: number, lastReferralAt: Date | null): number {
+  // Base multiplier from referral count: 0→1x, 1→2x, 2→3x, 3→4x, 4+→5x
+  const baseMultiplier = Math.min(5.0, 1.0 + recentReferrals)
+
+  // If no referrals ever, return 1.0
+  if (!lastReferralAt) return 1.0
+
+  // Calculate decay: every 3 days without new referral, -1.0x
+  const daysSinceLast = Math.floor((Date.now() - lastReferralAt.getTime()) / (1000 * 60 * 60 * 24))
+  const decaySteps = Math.floor(daysSinceLast / 3)
+
+  return Math.max(1.0, baseMultiplier - decaySteps)
+}
+
+// ========== 更新所有用户的 Momentum 数据 ==========
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function updateAllMomentumData(supabase: any, calculations: any[]) {
+  // 收集本轮所有发放到的用户 ID
+  const creditedUserIds = new Set<string>()
+  for (const calc of calculations) {
+    if (calc.is_credited || calc.profit_usdc > 0) {
+      creditedUserIds.add(calc.user_id)
+    }
+  }
+
+  // 对于本轮每个用户，检查他们的推荐人，并更新推荐人的 momentum
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, referrer_id, wallet_address')
+    .in('id', Array.from(creditedUserIds))
+
+  if (!profiles) return
+
+  // Map: promoter_id -> Set of staked referral_ids
+  const promoterReferrals = new Map<string, Set<string>>()
+
+  for (const profile of profiles) {
+    if (!profile.referrer_id || !profile.wallet_address) continue
+
+    // This user has a referrer and a wallet — check if they have staked (USDC > 0)
+    // Since they appeared in calculations with profit, they must have USDC balance
+    if (!promoterReferrals.has(profile.referrer_id)) {
+      promoterReferrals.set(profile.referrer_id, new Set())
+    }
+    promoterReferrals.get(profile.referrer_id)!.add(profile.id)
+  }
+
+  const now = new Date().toISOString()
+
+  // Update each promoter's momentum data
+  for (const [promoterId, referralIds] of promoterReferrals) {
+    try {
+      // Upsert momentum_referral_log entries
+      for (const refId of referralIds) {
+        await supabase
+          .from('momentum_referral_log')
+          .upsert({
+            promoter_id: promoterId,
+            referral_id: refId,
+            is_staked: true,
+            logged_at: now,
+          }, { onConflict: 'promoter_id,referral_id' })
+      }
+
+      // Count total staked referrals for this promoter (from the log)
+      const { data: stakedRefs } = await supabase
+        .from('momentum_referral_log')
+        .select('id')
+        .eq('promoter_id', promoterId)
+        .eq('is_staked', true)
+
+      const stakedCount = stakedRefs?.length || 0
+
+      // Update user_community_status with momentum data
+      await supabase
+        .from('user_community_status')
+        .update({
+          momentum_recent_referrals: stakedCount,
+          momentum_last_referral_at: now,
+          momentum_updated_at: now,
+        })
+        .eq('user_id', promoterId)
+    } catch (err) {
+      console.error(`Error updating momentum for promoter ${promoterId}:`, err)
+    }
   }
 }
 

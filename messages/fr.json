@@ -681,6 +681,31 @@
         "influencerDesc": "Les influenceurs bénéficient de seuils de déblocage jusqu'à 50% plus bas !",
         "applyInfluencer": "Postuler pour le statut Influenceur",
         "contactTelegram": "Contactez-nous sur Telegram :"
+      },
+      "momentum": {
+        "title": "Multiplicateur Momentum",
+        "intro": "Boostez vos gains communautaires quotidiens jusqu'à 5x ! Plus vous recrutez activement, plus votre multiplicateur est élevé.",
+        "whatIsTitle": "Qu'est-ce que le Momentum ?",
+        "whatIsDesc": "Le Momentum est un multiplicateur appliqué à vos gains quotidiens du Community Pool. Quand vous recrutez activement de nouveaux filleuls qui ont staké, votre multiplicateur augmente jusqu'à 5.0x. Si vous arrêtez, il redescend progressivement à 1.0x en 12 jours.",
+        "formulaTitle": "Formule de Gains",
+        "formula": "Gains Quotidiens = Prize Pool × Taux × Momentum",
+        "baseEarning": "Gain de Base",
+        "multiplier": "Multiplicateur",
+        "finalEarning": "Gain Final",
+        "tiersTitle": "Niveaux de Multiplicateur",
+        "recentRefs": "Filleuls Stakés",
+        "multiplierCol": "Multiplicateur",
+        "decayTitle": "Règles de Déclin",
+        "decayDesc": "Si vous arrêtez de recruter, votre multiplicateur diminuera progressivement :",
+        "decayRule1": "Garder le multiplicateur actuel",
+        "decayRule2": "Baisse -1.0x (ex: 5.0x → 4.0x)",
+        "decayRule3": "Retour à 1.0x de base (chaque 3 jours -1.0x)",
+        "recoveryTitle": "Récupération Instantanée",
+        "recoveryDesc": "Recrutez de nouveaux filleuls stakés à tout moment pour revenir instantanément au niveau de multiplicateur correspondant. Pas de pénalité — vous pouvez toujours récupérer votre momentum !",
+        "exampleTitle": "Exemple",
+        "exampleDesc": "Promoteur Gold (base $5.50/jour) :",
+        "tipTitle": "Conseil Pro",
+        "tipDesc": "Recrutez seulement 1 nouveau filleul tous les 3 jours pour maintenir au moins 2.0x de momentum. Un petit effort constant mène à des gains significativement plus élevés !"
       }
     }
   },

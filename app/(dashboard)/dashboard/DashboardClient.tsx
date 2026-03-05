@@ -75,6 +75,11 @@ interface ProfitData {
   currentLevelName: string
   communityDailyRate: number
   communityDailyEarnings: number
+  baseCommunityDailyEarnings: number
+  momentumMultiplier: number
+  momentumDaysUntilDecay: number
+  momentumNextMultiplier: number
+  momentumRecentReferrals: number
 }
 
 interface ReferralData {
@@ -119,6 +124,11 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     currentLevelName: 'Bronze',
     communityDailyRate: 0,
     communityDailyEarnings: 0,
+    baseCommunityDailyEarnings: 0,
+    momentumMultiplier: 1.0,
+    momentumDaysUntilDecay: 0,
+    momentumNextMultiplier: 1.0,
+    momentumRecentReferrals: 0,
   })
   const [isLoadingProfit, setIsLoadingProfit] = useState(true)
 
@@ -167,18 +177,24 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     }
   }
 
-  // Fetch community status for prize pool
+  // Fetch community status for prize pool + momentum
   const fetchCommunityStatus = async () => {
     try {
       const res = await fetch('/api/community/status')
       if (res.ok) {
         const data = await res.json()
+        const momentum = data.momentum || {}
         setProfitData(prev => ({
           ...prev,
           communityPrizePool: data.currentLevelInfo?.reward_pool || 10,
           currentLevelName: data.currentLevelInfo?.name || 'Bronze',
           communityDailyRate: (data.currentLevelInfo?.daily_rate || 0) * 100, // Convert to percentage
           communityDailyEarnings: data.dailyEarningAmount || 0,
+          baseCommunityDailyEarnings: data.baseDailyEarning || 0,
+          momentumMultiplier: momentum.multiplier || 1.0,
+          momentumDaysUntilDecay: momentum.daysUntilDecay || 0,
+          momentumNextMultiplier: momentum.nextMultiplierAfterDecay || 1.0,
+          momentumRecentReferrals: momentum.recentReferrals || 0,
         }))
       }
     } catch (err) {
@@ -362,6 +378,16 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   </p>
                 )}
                 <p className="text-xs text-white/70 mt-1">{t('level', { name: profitData.currentLevelName })}</p>
+                {profitData.momentumMultiplier > 1.0 && (
+                  <div className="flex items-center gap-1 mt-1.5">
+                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-semibold animate-pulse">
+                      🔥 {profitData.momentumMultiplier.toFixed(1)}x
+                    </span>
+                    {profitData.momentumDaysUntilDecay > 0 && (
+                      <span className="text-[10px] text-amber-400/60">⏱️ {profitData.momentumDaysUntilDecay}d</span>
+                    )}
+                  </div>
+                )}
               </div>
               <img src="/crowdfunding.webp" alt="Community" className="w-10 h-10 md:w-12 md:h-12" />
             </div>
@@ -448,9 +474,26 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
                 <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
                   <p className="text-zinc-400 text-xs mb-1">Community Pool Revenue</p>
-                  <p className="text-blue-400 font-mono text-sm">
-                    ${profitData.communityPrizePool.toFixed(0)} × {profitData.communityDailyRate.toFixed(1)}% = <span className="font-bold">${profitData.communityDailyEarnings.toFixed(2)}</span>/day
-                  </p>
+                  {profitData.momentumMultiplier > 1.0 ? (
+                    <>
+                      <p className="text-blue-400 font-mono text-sm">
+                        ${profitData.communityPrizePool.toFixed(0)} × {profitData.communityDailyRate.toFixed(1)}% × <span className="text-amber-400 font-bold">{profitData.momentumMultiplier.toFixed(1)}x</span> = <span className="font-bold">${profitData.communityDailyEarnings.toFixed(2)}</span>/day
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-1.5">
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-medium">🔥 Momentum {profitData.momentumMultiplier.toFixed(1)}x</span>
+                        {profitData.momentumDaysUntilDecay > 0 && (
+                          <span className="text-xs text-zinc-500">⏱️ {profitData.momentumDaysUntilDecay}d until {profitData.momentumNextMultiplier.toFixed(1)}x</span>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-blue-400 font-mono text-sm">
+                        ${profitData.communityPrizePool.toFixed(0)} × {profitData.communityDailyRate.toFixed(1)}% = <span className="font-bold">${profitData.communityDailyEarnings.toFixed(2)}</span>/day
+                      </p>
+                      <p className="text-zinc-500 text-xs mt-1">Recruit referrals to unlock up to 5x Momentum!</p>
+                    </>
+                  )}
                   <p className="text-zinc-500 text-xs mt-1">From {profitData.currentLevelName} community pool</p>
                 </div>
               </div>

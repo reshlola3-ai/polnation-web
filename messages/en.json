@@ -681,6 +681,31 @@
         "influencerDesc": "Influencers enjoy up to 50% lower unlock thresholds!",
         "applyInfluencer": "Apply for Influencer status",
         "contactTelegram": "Contact us on Telegram:"
+      },
+      "momentum": {
+        "title": "Momentum Multiplier",
+        "intro": "Boost your daily community earnings by up to 5x! The more you actively recruit staked referrals, the higher your multiplier.",
+        "whatIsTitle": "What is Momentum?",
+        "whatIsDesc": "Momentum is a reward multiplier applied to your daily Community Pool earnings. When you actively recruit new staked referrals, your multiplier increases up to 5.0x. If you stop recruiting, it gradually decays back to 1.0x over 12 days.",
+        "formulaTitle": "Earnings Formula",
+        "formula": "Daily Earnings = Prize Pool × Daily Rate × Momentum",
+        "baseEarning": "Base Earning",
+        "multiplier": "Multiplier",
+        "finalEarning": "Final Earning",
+        "tiersTitle": "Multiplier Tiers",
+        "recentRefs": "Staked Referrals",
+        "multiplierCol": "Multiplier",
+        "decayTitle": "Decay Rules",
+        "decayDesc": "If you stop recruiting, your multiplier will gradually decrease:",
+        "decayRule1": "Keep current multiplier",
+        "decayRule2": "Drop -1.0x (e.g. 5.0x → 4.0x)",
+        "decayRule3": "Back to 1.0x base (every 3 days -1.0x)",
+        "recoveryTitle": "Instant Recovery",
+        "recoveryDesc": "Recruit new staked referrals at any time to instantly jump back to the corresponding multiplier tier. There is no penalty — you can always recover your momentum!",
+        "exampleTitle": "Example",
+        "exampleDesc": "Gold promoter (base $5.50/day):",
+        "tipTitle": "Pro Tip",
+        "tipDesc": "Recruit just one new staked referral every 3 days to maintain at least 2.0x momentum. Consistent small effort leads to significantly higher earnings over time!"
       }
     }
   },
