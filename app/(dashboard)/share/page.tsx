@@ -6,8 +6,6 @@ import Link from 'next/link'
 import { QRCodeSVG } from 'qrcode.react'
 import { toPng } from 'html-to-image'
 import { createClient } from '@/lib/supabase'
-import { createPublicClient, http, formatUnits, parseAbi } from 'viem'
-import { polygon } from 'viem/chains'
 import { useTranslations } from 'next-intl'
 
 // Personal staking tiers
@@ -56,8 +54,6 @@ function getLevelImagePath(levelName: string): string {
   return `/levels/level-${visual.level}.webp`
 }
 
-const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as const
-const USDC_ABI = parseAbi(['function balanceOf(address account) view returns (uint256)'])
 
 interface ShareData {
   username: string
@@ -110,31 +106,17 @@ export default function SharePage() {
       const communityLevel = communityData.currentLevelInfo?.name || 'Bronze'
       const communityPrizePool = communityData.currentLevelInfo?.reward_pool || 10
 
-      // Read on-chain USDC balance
+      // Read on-chain USDC balance via server-side API (uses Alchemy RPC)
       let walletBalance = 0
       const walletAddr = profile?.wallet_address || profitData.wallet_address
-      console.log('[Share] wallet_address from profile:', profile?.wallet_address)
-      console.log('[Share] wallet_address from profitData:', profitData.wallet_address)
-      console.log('[Share] final walletAddr:', walletAddr)
       if (walletAddr) {
         try {
-          const publicClient = createPublicClient({
-            chain: polygon,
-            transport: http('https://polygon-rpc.com'),
-          })
-          const rawBalance = await publicClient.readContract({
-            address: USDC_ADDRESS,
-            abi: USDC_ABI,
-            functionName: 'balanceOf',
-            args: [walletAddr as `0x${string}`],
-          })
-          walletBalance = Number(formatUnits(rawBalance, 6))
-          console.log('[Share] on-chain USDC balance:', walletBalance)
+          const balRes = await fetch(`/api/wallet/balance?address=${walletAddr}`)
+          const balData = balRes.ok ? await balRes.json() : { balance: 0 }
+          walletBalance = balData.balance || 0
         } catch (err) {
-          console.error('[Share] Failed to read on-chain balance:', err)
+          console.error('[Share] Failed to fetch wallet balance:', err)
         }
-      } else {
-        console.warn('[Share] No wallet address found - balance will be 0')
       }
 
       const totalEarned = (profits.total_earned_usdc || 0) + (profits.total_commission_earned || 0)
