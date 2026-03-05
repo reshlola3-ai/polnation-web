@@ -608,6 +608,9 @@ export default function SharePage() {
       <p className="text-center text-zinc-600 text-xs">
         {t('shareAndEarn')} — Save and share this card to invite friends
       </p>
+      <p className="text-center text-zinc-500 text-[11px]">
+        📱 iOS users: please use Chrome browser for best image download experience.
+      </p>
     </div>
   )
 }
