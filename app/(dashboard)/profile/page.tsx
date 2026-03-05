@@ -74,15 +74,54 @@ export default function ProfilePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // 钱包连接后刷新 profile 数据
+  // 钱包连接后自动绑定到数据库，然后刷新 profile
   useEffect(() => {
-    if (address && !profile?.wallet_address) {
-      // 钱包连接后，等待绑定完成再刷新
-      const timer = setTimeout(() => {
+    async function autoBindWallet() {
+      if (!address || profile?.wallet_address) return
+
+      const normalizedAddress = address.toLowerCase()
+
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        // 检查钱包是否已被其他用户绑定
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('wallet_address', normalizedAddress)
+          .single()
+
+        if (existingProfile && existingProfile.id !== user.id) {
+          setError('This wallet is already bound to another account')
+          return
+        }
+
+        // 钱包可用，自动绑定
+        if (!existingProfile) {
+          const { error: bindError } = await supabase
+            .from('profiles')
+            .update({
+              wallet_address: normalizedAddress,
+              wallet_bound_at: new Date().toISOString(),
+            })
+            .eq('id', user.id)
+
+          if (bindError) {
+            console.error('Failed to auto-bind wallet:', bindError)
+            return
+          }
+          console.log(`Auto-bound wallet ${normalizedAddress} to user ${user.id}`)
+        }
+
+        // 绑定成功，刷新 profile 数据
         loadProfile()
-      }, 2000)
-      return () => clearTimeout(timer)
+      } catch (err) {
+        console.error('Auto-bind wallet error:', err)
+      }
     }
+
+    autoBindWallet()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address])
 
@@ -313,10 +352,8 @@ export default function ProfilePage() {
                 <div className="mt-3 pt-3 border-t border-purple-500/20">
                   <p className="text-xs text-purple-300 font-medium mb-1.5">Supported Wallets:</p>
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">Trust</span>
-                    <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">SafePal</span>
                     <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">Bitget</span>
-                    <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">TokenPocket</span>
+                    <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">Trust</span>
                   </div>
                 </div>
               </div>
