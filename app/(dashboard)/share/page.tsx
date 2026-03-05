@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback, ChangeEvent } from 'react'
-import { ArrowLeft, Download, Share2, Loader2, ImagePlus, X, Plus, Phone, Mail } from 'lucide-react'
+import { ArrowLeft, Download, Share2, Loader2, X, Plus, Phone, Mail } from 'lucide-react'
 import Link from 'next/link'
 import { QRCodeSVG } from 'qrcode.react'
 import { toPng } from 'html-to-image'
@@ -74,13 +74,12 @@ interface ShareData {
 export default function SharePage() {
   const t = useTranslations('dashboard')
   const cardRef = useRef<HTMLDivElement>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const [data, setData] = useState<ShareData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [userBgImage, setUserBgImage] = useState<string | null>(null)
   const [userPhoto, setUserPhoto] = useState<string | null>(null)
   const photoInputRef = useRef<HTMLInputElement>(null)
+  const [trophyDataUrl, setTrophyDataUrl] = useState<string | null>(null)
 
   const fetchData = useCallback(async () => {
     try {
@@ -162,15 +161,41 @@ export default function SharePage() {
     fetchData()
   }, [fetchData])
 
+  // Preload trophy image as data URL so html-to-image can export it
+  useEffect(() => {
+    if (!data?.communityLevel) return
+    const imgPath = getLevelImagePath(data.communityLevel)
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas')
+        canvas.width = img.naturalWidth
+        canvas.height = img.naturalHeight
+        const ctx = canvas.getContext('2d')
+        ctx?.drawImage(img, 0, 0)
+        setTrophyDataUrl(canvas.toDataURL('image/png'))
+      } catch { /* fallback to URL */ }
+    }
+    img.src = imgPath
+  }, [data?.communityLevel])
+
+  const referralLink = data?.referralCode
+    ? `https://polnation.com/register?ref=${data.referralCode}`
+    : 'https://polnation.com'
+
+  const pngOptions = {
+    quality: 1,
+    pixelRatio: 3,
+    backgroundColor: '#0D0B21',
+    cacheBust: true,
+  }
+
   const handleSaveImage = async () => {
     if (!cardRef.current) return
     setIsSaving(true)
     try {
-      const dataUrl = await toPng(cardRef.current, {
-        quality: 1,
-        pixelRatio: 3,
-        backgroundColor: '#0D0B21',
-      })
+      const dataUrl = await toPng(cardRef.current, pngOptions)
       const link = document.createElement('a')
       link.download = `polnation-${data?.username || 'share'}.png`
       link.href = dataUrl
@@ -186,11 +211,7 @@ export default function SharePage() {
     if (!cardRef.current) return
     setIsSaving(true)
     try {
-      const dataUrl = await toPng(cardRef.current, {
-        quality: 1,
-        pixelRatio: 3,
-        backgroundColor: '#0D0B21',
-      })
+      const dataUrl = await toPng(cardRef.current, pngOptions)
       const blob = await (await fetch(dataUrl)).blob()
       const file = new File([blob], 'polnation-share.png', { type: 'image/png' })
       
@@ -198,7 +219,7 @@ export default function SharePage() {
         await navigator.share({
           files: [file],
           title: 'My Polnation Earnings',
-          text: `Join me on Polnation! I'm earning daily rewards. 🚀`,
+          text: `🚀 Join me on Polnation! I'm earning ${data?.dailyRate.toFixed(2)}% daily on USDC.\n\n👉 ${referralLink}`,
         })
       } else {
         handleSaveImage()
@@ -208,24 +229,6 @@ export default function SharePage() {
     } finally {
       setIsSaving(false)
     }
-  }
-
-  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (!file.type.startsWith('image/')) return
-    if (file.size > 5 * 1024 * 1024) return
-
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      setUserBgImage(ev.target?.result as string)
-    }
-    reader.readAsDataURL(file)
-    e.target.value = ''
-  }
-
-  const removeUserBg = () => {
-    setUserBgImage(null)
   }
 
   const handlePhotoUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -245,10 +248,6 @@ export default function SharePage() {
   const removeUserPhoto = () => {
     setUserPhoto(null)
   }
-
-  const referralLink = data?.referralCode
-    ? `https://polnation.com/register?ref=${data.referralCode}`
-    : 'https://polnation.com'
 
   const now = new Date()
   const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
@@ -274,20 +273,6 @@ export default function SharePage() {
           Back
         </Link>
         <div className="flex items-center gap-2">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleImageUpload}
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors"
-            title="Upload background image"
-          >
-            <ImagePlus className="w-4 h-4" />
-          </button>
           <button
             onClick={handleShare}
             disabled={isSaving}
@@ -307,71 +292,16 @@ export default function SharePage() {
         </div>
       </div>
 
-      {/* Remove background hint */}
-      {userBgImage && (
-        <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
-          <span className="text-xs text-purple-300">Custom background applied</span>
-          <button onClick={removeUserBg} className="text-zinc-400 hover:text-white transition-colors">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
       {/* ===== SHARE CARD ===== */}
       <div
         ref={cardRef}
         className="relative overflow-hidden rounded-2xl"
         style={{
-          background: userBgImage
-            ? '#0D0B21'
-            : `linear-gradient(160deg, ${tierVisual.gradientFrom} 0%, #0D0B21 40%, ${tierVisual.gradientFrom} 80%, #0D0B21 100%)`,
+          background: `linear-gradient(160deg, ${tierVisual.gradientFrom} 0%, #0D0B21 40%, ${tierVisual.gradientFrom} 80%, #0D0B21 100%)`,
           width: '100%',
           aspectRatio: '9/16',
         }}
       >
-        {/* User uploaded background image */}
-        {userBgImage && (
-          <div
-            className="absolute inset-0 z-[1]"
-            style={{
-              backgroundImage: `url(${userBgImage})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          >
-            <div className="absolute inset-0 bg-black/50" />
-            <div className="absolute inset-0 bg-gradient-to-b from-purple-900/30 via-transparent to-purple-950/60" />
-          </div>
-        )}
-
-        {/* Tier-specific glow effects */}
-        <div className={`absolute inset-0 ${userBgImage ? 'z-[2] opacity-40' : 'z-[0]'}`}>
-          {/* Large tier glow - top right */}
-          <div
-            className="absolute -top-[15%] -right-[5%] w-[70%] h-[55%] rounded-full"
-            style={{
-              background: `radial-gradient(circle, ${tierVisual.glow} 0%, transparent 70%)`,
-              filter: 'blur(60px)',
-            }}
-          />
-          {/* Community level glow - bottom left */}
-          <div
-            className="absolute -bottom-[10%] -left-[5%] w-[55%] h-[45%] rounded-full"
-            style={{
-              background: `radial-gradient(circle, ${communityVisual.color}18 0%, transparent 70%)`,
-              filter: 'blur(50px)',
-            }}
-          />
-          {/* Center subtle glow */}
-          <div
-            className="absolute top-[35%] left-[25%] w-[55%] h-[40%] rounded-full"
-            style={{
-              background: `radial-gradient(circle, ${tierVisual.glow} 0%, transparent 70%)`,
-              filter: 'blur(50px)',
-            }}
-          />
-        </div>
-
         {/* Hidden photo input */}
         <input
           ref={photoInputRef}
@@ -381,82 +311,36 @@ export default function SharePage() {
           onChange={handlePhotoUpload}
         />
 
-        {/* ===== MAIN VISUAL: User Photo + Trophy ===== */}
-        <div className={`absolute top-[8%] left-0 right-0 flex items-center justify-center gap-3 sm:gap-5 px-6 ${userBgImage ? 'z-[3]' : 'z-[1]'} select-none`}
-          style={{ height: '38%' }}
-        >
-          {/* User Photo Frame */}
-          <div className="relative flex-shrink-0" style={{ width: '38%', maxWidth: 160 }}>
-            {userPhoto ? (
-              <div className="relative w-full" style={{ aspectRatio: '3/4' }}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={userPhoto}
-                  alt="My photo"
-                  className="w-full h-full object-cover rounded-2xl"
-                  style={{
-                    border: `2px solid ${tierVisual.color}60`,
-                    boxShadow: `0 8px 30px ${tierVisual.color}30, 0 0 60px ${tierVisual.color}10`,
-                  }}
-                />
-                {/* Remove photo button */}
-                <button
-                  onClick={removeUserPhoto}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-black/70 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-red-500/80 transition-colors z-20"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-                {/* Bottom gradient blend */}
-                <div className="absolute bottom-0 left-0 right-0 h-[30%] rounded-b-2xl"
-                  style={{ background: `linear-gradient(to top, ${userBgImage ? 'rgba(0,0,0,0.5)' : '#0D0B21'} 0%, transparent 100%)` }}
-                />
-              </div>
-            ) : (
-              <div
-                className="w-full flex flex-col items-center justify-center cursor-pointer rounded-2xl transition-all hover:border-purple-400/60 hover:bg-purple-500/10"
-                style={{
-                  aspectRatio: '3/4',
-                  border: `2px dashed ${tierVisual.color}40`,
-                  background: `${tierVisual.color}08`,
-                }}
-                onClick={() => photoInputRef.current?.click()}
-              >
-                <Plus className="w-8 h-8 sm:w-10 sm:h-10 mb-2" style={{ color: `${tierVisual.color}70` }} />
-                <span className="text-[10px] sm:text-xs font-medium text-center px-2 leading-tight" style={{ color: `${tierVisual.color}90` }}>
-                  Add Your Photo
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Community Trophy - Main Visual */}
-          <div className="relative flex-shrink-0" style={{ width: '45%', maxWidth: 200 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={getLevelImagePath(data?.communityLevel || 'Bronze')}
-              alt={`${data?.communityLevel} Trophy`}
-              className="w-full h-auto pointer-events-none"
-              style={{
-                filter: `drop-shadow(0 0 50px ${communityVisual.color}50) drop-shadow(0 10px 30px rgba(0,0,0,0.4))`,
-                opacity: 0.85,
-              }}
-            />
-            {/* Bottom gradient blend into background */}
-            <div className="absolute bottom-0 left-[-10%] right-[-10%] h-[35%]"
-              style={{
-                background: userBgImage
-                  ? 'linear-gradient(to top, rgba(13,11,33,0.9) 0%, transparent 100%)'
-                  : `linear-gradient(to top, #0D0B21 0%, transparent 100%)`,
-              }}
-            />
-          </div>
+        {/* Tier-specific glow effects */}
+        <div className="absolute inset-0 z-[0] pointer-events-none">
+          <div
+            className="absolute -top-[15%] -right-[5%] w-[70%] h-[55%] rounded-full"
+            style={{
+              background: `radial-gradient(circle, ${tierVisual.glow} 0%, transparent 70%)`,
+              filter: 'blur(60px)',
+            }}
+          />
+          <div
+            className="absolute -bottom-[10%] -left-[5%] w-[55%] h-[45%] rounded-full"
+            style={{
+              background: `radial-gradient(circle, ${communityVisual.color}18 0%, transparent 70%)`,
+              filter: 'blur(50px)',
+            }}
+          />
+          <div
+            className="absolute top-[35%] left-[25%] w-[55%] h-[40%] rounded-full"
+            style={{
+              background: `radial-gradient(circle, ${tierVisual.glow} 0%, transparent 70%)`,
+              filter: 'blur(50px)',
+            }}
+          />
         </div>
 
-        {/* Content */}
-        <div className={`relative flex flex-col h-full p-6 sm:p-8 ${userBgImage ? 'z-[5]' : 'z-10'}`}>
+        {/* Content - everything in normal flow, z-10 */}
+        <div className="relative flex flex-col h-full p-6 sm:p-8 z-10">
           
           {/* Top: User info + date */}
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3 mb-4">
             <div
               className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-lg shadow-lg"
               style={{
@@ -472,8 +356,69 @@ export default function SharePage() {
             </div>
           </div>
 
-          {/* Spacer for main visual area (trophy + photo) */}
-          <div style={{ height: '38%' }} />
+          {/* ===== MAIN VISUAL: User Photo + Trophy (in flow) ===== */}
+          <div className="flex items-center justify-center gap-3 sm:gap-5 mb-4" style={{ minHeight: '32%' }}>
+            {/* User Photo Frame */}
+            <div className="relative flex-shrink-0" style={{ width: '38%', maxWidth: 150 }}>
+              {userPhoto ? (
+                <div className="relative w-full" style={{ aspectRatio: '3/4' }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={userPhoto}
+                    alt="My photo"
+                    className="w-full h-full object-cover rounded-2xl"
+                    style={{
+                      border: `2px solid ${tierVisual.color}60`,
+                      boxShadow: `0 8px 30px ${tierVisual.color}30, 0 0 60px ${tierVisual.color}10`,
+                    }}
+                  />
+                  {/* Remove photo button (won't appear in export) */}
+                  <button
+                    onClick={removeUserPhoto}
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-black/70 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-red-500/80 transition-colors z-20 print:hidden"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                  {/* Bottom gradient blend */}
+                  <div className="absolute bottom-0 left-0 right-0 h-[30%] rounded-b-2xl"
+                    style={{ background: `linear-gradient(to top, #0D0B21 0%, transparent 100%)` }}
+                  />
+                </div>
+              ) : (
+                <div
+                  className="w-full flex flex-col items-center justify-center cursor-pointer rounded-2xl transition-all hover:border-purple-400/60 hover:bg-purple-500/10"
+                  style={{
+                    aspectRatio: '3/4',
+                    border: `2px dashed ${tierVisual.color}40`,
+                    background: `${tierVisual.color}08`,
+                  }}
+                  onClick={() => photoInputRef.current?.click()}
+                >
+                  <Plus className="w-8 h-8 sm:w-10 sm:h-10 mb-2" style={{ color: `${tierVisual.color}70` }} />
+                  <span className="text-[10px] sm:text-xs font-medium text-center px-2 leading-tight" style={{ color: `${tierVisual.color}90` }}>
+                    Add Your Photo
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Community Trophy - Main Visual */}
+            <div className="relative flex-shrink-0" style={{ width: '45%', maxWidth: 190 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={trophyDataUrl || getLevelImagePath(data?.communityLevel || 'Bronze')}
+                alt={`${data?.communityLevel} Trophy`}
+                className="w-full h-auto pointer-events-none"
+                style={{
+                  filter: `drop-shadow(0 0 50px ${communityVisual.color}50) drop-shadow(0 10px 30px rgba(0,0,0,0.4))`,
+                }}
+              />
+              {/* Bottom gradient blend into background */}
+              <div className="absolute bottom-0 left-[-10%] right-[-10%] h-[35%] pointer-events-none"
+                style={{ background: `linear-gradient(to top, #0D0B21 0%, transparent 100%)` }}
+              />
+            </div>
+          </div>
 
           {/* Lower content area */}
           <div className="flex-1 flex flex-col justify-center">
@@ -504,7 +449,7 @@ export default function SharePage() {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={getLevelImagePath(data?.communityLevel || 'Bronze')}
+                  src={trophyDataUrl || getLevelImagePath(data?.communityLevel || 'Bronze')}
                   alt=""
                   style={{ width: 18, height: 18, objectFit: 'contain' }}
                 />
