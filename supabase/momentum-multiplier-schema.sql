@@ -7,7 +7,7 @@
 -- 1. Add momentum fields to user_community_status
 -- =====================
 ALTER TABLE public.user_community_status
-  ADD COLUMN IF NOT EXISTS momentum_multiplier DECIMAL(3,1) DEFAULT 1.0,
+  ADD COLUMN IF NOT EXISTS momentum_multiplier DECIMAL(3,1) DEFAULT 5.0,
   ADD COLUMN IF NOT EXISTS momentum_recent_referrals INTEGER DEFAULT 0,
   ADD COLUMN IF NOT EXISTS momentum_last_referral_at TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS momentum_updated_at TIMESTAMPTZ;
@@ -68,16 +68,15 @@ BEGIN
   FROM public.user_community_status
   WHERE user_id = target_user_id;
 
-  -- Base multiplier from referral count
-  -- 0 refs = 1.0x, 1 = 2.0x, 2 = 3.0x, 3 = 4.0x, 4+ = 5.0x
-  base_multiplier := LEAST(5.0, 1.0 + COALESCE(recent_count, 0));
+  -- 默认所有人 5.0x
+  base_multiplier := 5.0;
 
-  -- If no referrals ever, return 1.0
+  -- 如果没有 referral 记录，保持 5.0x（新用户福利）
   IF last_referral IS NULL THEN
-    RETURN 1.0;
+    RETURN 5.0;
   END IF;
 
-  -- Calculate decay: every 3 days without new referral, -1.0x
+  -- 有 referral 记录后，根据距离上次 referral 的天数衰减 -1x/3天
   days_since_last := EXTRACT(DAY FROM (NOW() - last_referral));
   decay_steps := FLOOR(days_since_last / 3.0);
 

@@ -125,9 +125,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     communityDailyRate: 0,
     communityDailyEarnings: 0,
     baseCommunityDailyEarnings: 0,
-    momentumMultiplier: 1.0,
+    momentumMultiplier: 5.0,
     momentumDaysUntilDecay: 0,
-    momentumNextMultiplier: 1.0,
+    momentumNextMultiplier: 4.0,
     momentumRecentReferrals: 0,
   })
   const [isLoadingProfit, setIsLoadingProfit] = useState(true)
@@ -191,9 +191,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           communityDailyRate: (data.currentLevelInfo?.daily_rate || 0) * 100, // Convert to percentage
           communityDailyEarnings: data.dailyEarningAmount || 0,
           baseCommunityDailyEarnings: data.baseDailyEarning || 0,
-          momentumMultiplier: momentum.multiplier || 1.0,
+          momentumMultiplier: momentum.multiplier || 5.0,
           momentumDaysUntilDecay: momentum.daysUntilDecay || 0,
-          momentumNextMultiplier: momentum.nextMultiplierAfterDecay || 1.0,
+          momentumNextMultiplier: momentum.nextMultiplierAfterDecay || 4.0,
           momentumRecentReferrals: momentum.recentReferrals || 0,
         }))
       }

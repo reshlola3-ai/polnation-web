@@ -470,19 +470,16 @@ export async function DELETE(request: NextRequest) {
 }
 
 // ========== Momentum Multiplier 计算函数 ==========
-// 根据近期 staked referral 数量和衰减计算 multiplier
+// 默认 5.0x，根据距离上次 referral 的天数衰减 -1x/3天
 function calculateMomentumMultiplier(recentReferrals: number, lastReferralAt: Date | null): number {
-  // Base multiplier from referral count: 0→1x, 1→2x, 2→3x, 3→4x, 4+→5x
-  const baseMultiplier = Math.min(5.0, 1.0 + recentReferrals)
+  // 默认所有人 5.0x
+  if (!lastReferralAt) return 5.0
 
-  // If no referrals ever, return 1.0
-  if (!lastReferralAt) return 1.0
-
-  // Calculate decay: every 3 days without new referral, -1.0x
+  // 有 referral 记录后，根据距离上次 referral 的天数计算衰减
   const daysSinceLast = Math.floor((Date.now() - lastReferralAt.getTime()) / (1000 * 60 * 60 * 24))
   const decaySteps = Math.floor(daysSinceLast / 3)
 
-  return Math.max(1.0, baseMultiplier - decaySteps)
+  return Math.max(1.0, 5.0 - decaySteps)
 }
 
 // ========== 更新所有用户的 Momentum 数据 ==========

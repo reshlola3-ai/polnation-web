@@ -228,19 +228,21 @@ export async function GET(request: NextRequest) {
     const volumeToUnlock = Math.max(0, progressTarget - effectiveVolume)
 
     // ========== Momentum Multiplier 计算 ==========
+    // 默认所有人 5x，只有长期不活动才衰减
     const momentumRecentReferrals = status?.momentum_recent_referrals || 0
     const momentumLastReferralAt = status?.momentum_last_referral_at 
       ? new Date(status.momentum_last_referral_at) 
       : null
 
-    // Calculate momentum multiplier
-    let momentumMultiplier = 1.0
-    if (momentumLastReferralAt && momentumRecentReferrals > 0) {
-      const baseMultiplier = Math.min(5.0, 1.0 + momentumRecentReferrals)
+    // Calculate momentum multiplier — 默认 5.0x，衰减 -1x/3天
+    let momentumMultiplier = 5.0
+    if (momentumLastReferralAt) {
+      // 有 referral 记录，根据距离上次 referral 的天数计算衰减
       const daysSinceLast = Math.floor((Date.now() - momentumLastReferralAt.getTime()) / (1000 * 60 * 60 * 24))
       const decaySteps = Math.floor(daysSinceLast / 3)
-      momentumMultiplier = Math.max(1.0, baseMultiplier - decaySteps)
+      momentumMultiplier = Math.max(1.0, 5.0 - decaySteps)
     }
+    // 如果没有 momentum_last_referral_at，保持默认 5.0x（新用户福利）
 
     // Calculate days until next decay
     let daysUntilDecay = 0
