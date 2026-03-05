@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { ArrowLeft, Download, Share2, Loader2 } from 'lucide-react'
+import { useState, useEffect, useRef, useCallback, ChangeEvent } from 'react'
+import { ArrowLeft, Download, Share2, Loader2, ImagePlus, X } from 'lucide-react'
 import Link from 'next/link'
 import { QRCodeSVG } from 'qrcode.react'
 import { toPng } from 'html-to-image'
@@ -41,9 +41,11 @@ interface ShareData {
 export default function SharePage() {
   const t = useTranslations('dashboard')
   const cardRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [data, setData] = useState<ShareData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [userBgImage, setUserBgImage] = useState<string | null>(null)
 
   const fetchData = useCallback(async () => {
     try {
@@ -103,7 +105,7 @@ export default function SharePage() {
       const dataUrl = await toPng(cardRef.current, {
         quality: 1,
         pixelRatio: 3,
-        backgroundColor: '#000000',
+        backgroundColor: '#0D0B21',
       })
       const link = document.createElement('a')
       link.download = `polnation-${data?.username || 'share'}.png`
@@ -123,7 +125,7 @@ export default function SharePage() {
       const dataUrl = await toPng(cardRef.current, {
         quality: 1,
         pixelRatio: 3,
-        backgroundColor: '#000000',
+        backgroundColor: '#0D0B21',
       })
       const blob = await (await fetch(dataUrl)).blob()
       const file = new File([blob], 'polnation-share.png', { type: 'image/png' })
@@ -143,6 +145,27 @@ export default function SharePage() {
     } finally {
       setIsSaving(false)
     }
+  }
+
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    // Validate file type
+    if (!file.type.startsWith('image/')) return
+    // Max 5MB
+    if (file.size > 5 * 1024 * 1024) return
+
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      setUserBgImage(ev.target?.result as string)
+    }
+    reader.readAsDataURL(file)
+    // Reset input so user can re-select same file
+    e.target.value = ''
+  }
+
+  const removeUserBg = () => {
+    setUserBgImage(null)
   }
 
   const referralLink = data?.referralCode
@@ -169,6 +192,21 @@ export default function SharePage() {
           Back
         </Link>
         <div className="flex items-center gap-2">
+          {/* Upload background image button */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleImageUpload}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors"
+            title="Upload background image"
+          >
+            <ImagePlus className="w-4 h-4" />
+          </button>
           <button
             onClick={handleShare}
             disabled={isSaving}
@@ -188,38 +226,94 @@ export default function SharePage() {
         </div>
       </div>
 
+      {/* Remove background hint */}
+      {userBgImage && (
+        <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
+          <span className="text-xs text-purple-300">Custom background applied</span>
+          <button onClick={removeUserBg} className="text-zinc-400 hover:text-white transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* ===== SHARE CARD ===== */}
       <div
         ref={cardRef}
         className="relative overflow-hidden rounded-2xl"
         style={{
-          background: 'linear-gradient(160deg, #0c0c0c 0%, #111111 40%, #0a0a0a 100%)',
+          background: 'linear-gradient(160deg, #0D0B21 0%, #120820 30%, #1a0d30 60%, #0D0B21 100%)',
           width: '100%',
           aspectRatio: '9/16',
         }}
       >
-        {/* Watermark logo */}
+        {/* User uploaded background image */}
+        {userBgImage && (
+          <div
+            className="absolute inset-0 z-[1]"
+            style={{
+              backgroundImage: `url(${userBgImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          >
+            {/* Dark overlay to keep text readable */}
+            <div className="absolute inset-0 bg-black/50" />
+            {/* Purple tint overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-purple-900/30 via-transparent to-purple-950/60" />
+          </div>
+        )}
+
+        {/* Purple/Cyan glow spots (visible when no user image, subtle with user image) */}
+        <div className={`absolute inset-0 ${userBgImage ? 'z-[2] opacity-40' : 'z-[0]'}`}>
+          {/* Top-right purple glow */}
+          <div
+            className="absolute -top-[20%] -right-[10%] w-[70%] h-[60%] rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(147, 51, 234, 0.18) 0%, transparent 70%)',
+              filter: 'blur(60px)',
+            }}
+          />
+          {/* Bottom-left cyan glow */}
+          <div
+            className="absolute -bottom-[15%] -left-[10%] w-[60%] h-[50%] rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(6, 182, 212, 0.10) 0%, transparent 70%)',
+              filter: 'blur(50px)',
+            }}
+          />
+          {/* Center subtle purple */}
+          <div
+            className="absolute top-[40%] left-[30%] w-[50%] h-[40%] rounded-full"
+            style={{
+              background: 'radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%)',
+              filter: 'blur(40px)',
+            }}
+          />
+        </div>
+
+        {/* Watermark logo — purple-tinted */}
         <div
-          className="absolute top-0 right-0 w-[65%] h-[50%] opacity-[0.04]"
+          className={`absolute top-0 right-0 w-[65%] h-[50%] opacity-[0.07] ${userBgImage ? 'z-[3]' : 'z-[1]'}`}
           style={{
             backgroundImage: 'url(/logo.svg)',
             backgroundSize: 'contain',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'top right',
+            filter: 'brightness(0.6) sepia(1) hue-rotate(230deg) saturate(3)',
           }}
         />
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col h-full p-6 sm:p-8">
+        <div className={`relative flex flex-col h-full p-6 sm:p-8 ${userBgImage ? 'z-[5]' : 'z-10'}`}>
           
           {/* Top: User info + date */}
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm sm:text-lg">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm sm:text-lg shadow-lg shadow-purple-500/20">
               {data?.username?.charAt(0)?.toUpperCase() || 'P'}
             </div>
             <div>
-              <p className="text-white font-bold text-base sm:text-lg leading-tight">{data?.username}</p>
-              <p className="text-zinc-500 text-xs sm:text-sm">{dateStr}</p>
+              <p className="text-white font-bold text-base sm:text-lg leading-tight drop-shadow-lg">{data?.username}</p>
+              <p className="text-zinc-400 text-xs sm:text-sm drop-shadow-md">{dateStr}</p>
             </div>
           </div>
 
@@ -228,57 +322,58 @@ export default function SharePage() {
             
             {/* Tier badge */}
             <div className="mb-3">
-              <span className="inline-block px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-medium">
+              <span className="inline-block px-3 py-1 rounded-full bg-purple-500/25 border border-purple-400/30 text-purple-200 text-xs font-medium backdrop-blur-sm shadow-lg shadow-purple-500/10">
                 🏛️ {data?.tier} • {data?.dailyRate.toFixed(2)}% daily
               </span>
             </div>
 
             {/* Title */}
-            <p className="text-zinc-500 text-sm sm:text-base font-medium mb-1 tracking-wide">
+            <p className="text-zinc-400 text-sm sm:text-base font-medium mb-1 tracking-wide drop-shadow-md">
               My Polnation Earnings
             </p>
-            <p className="text-zinc-600 text-xs mb-4">
+            <p className="text-zinc-500 text-xs mb-4 drop-shadow-sm">
               Member since {data?.joinDate}
             </p>
 
             {/* Main profit number */}
             <div className="mb-8">
               <span
-                className="font-extrabold tracking-tight"
+                className="font-extrabold tracking-tight drop-shadow-lg"
                 style={{
                   fontSize: 'clamp(2.5rem, 10vw, 4rem)',
                   lineHeight: 1,
                   color: (data?.totalEarned || 0) >= 0 ? '#22c55e' : '#ef4444',
+                  textShadow: '0 2px 20px rgba(34, 197, 94, 0.3)',
                 }}
               >
                 {(data?.totalEarned || 0) >= 0 ? '+' : ''}{(data?.totalEarned || 0).toFixed(2)}
               </span>
-              <span className="text-zinc-400 text-lg sm:text-xl font-semibold ml-2">USDC</span>
+              <span className="text-zinc-300 text-lg sm:text-xl font-semibold ml-2 drop-shadow-md">USDC</span>
             </div>
 
             {/* Stats grid */}
             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               <div>
-                <p className="text-zinc-600 text-xs uppercase tracking-wider mb-1">Est. Daily</p>
-                <p className="text-white text-lg sm:text-xl font-bold">
+                <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Est. Daily</p>
+                <p className="text-white text-lg sm:text-xl font-bold drop-shadow-md">
                   ${(data?.dailyEarnings || 0).toFixed(2)}
                 </p>
               </div>
               <div>
-                <p className="text-zinc-600 text-xs uppercase tracking-wider mb-1">Wallet Balance</p>
-                <p className="text-white text-lg sm:text-xl font-bold">
+                <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Wallet Balance</p>
+                <p className="text-white text-lg sm:text-xl font-bold drop-shadow-md">
                   ${(data?.walletBalance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
               <div>
-                <p className="text-zinc-600 text-xs uppercase tracking-wider mb-1">Team</p>
-                <p className="text-white text-lg sm:text-xl font-bold">
-                  {data?.teamMembers || 0} <span className="text-zinc-500 text-sm font-normal">members</span>
+                <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Team</p>
+                <p className="text-white text-lg sm:text-xl font-bold drop-shadow-md">
+                  {data?.teamMembers || 0} <span className="text-zinc-400 text-sm font-normal">members</span>
                 </p>
               </div>
               <div>
-                <p className="text-zinc-600 text-xs uppercase tracking-wider mb-1">Daily Rate</p>
-                <p className="text-white text-lg sm:text-xl font-bold">
+                <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Daily Rate</p>
+                <p className="text-white text-lg sm:text-xl font-bold drop-shadow-md">
                   {(data?.dailyRate || 0).toFixed(2)}%
                 </p>
               </div>
@@ -288,26 +383,26 @@ export default function SharePage() {
           {/* Bottom: Divider + branding + QR */}
           <div>
             {/* Purple accent line */}
-            <div className="w-full h-[2px] bg-gradient-to-r from-purple-500 via-cyan-500 to-purple-500 mb-5 rounded-full" />
+            <div className="w-full h-[2px] bg-gradient-to-r from-purple-500 via-cyan-500 to-purple-500 mb-5 rounded-full shadow-sm shadow-purple-500/50" />
 
             <div className="flex items-end justify-between">
               {/* Brand */}
               <div>
-                <p className="text-white text-xl sm:text-2xl font-extrabold tracking-tight leading-none">
+                <p className="text-white text-xl sm:text-2xl font-extrabold tracking-tight leading-none drop-shadow-lg">
                   POLNATION
                 </p>
-                <p className="text-purple-400 text-xs font-medium mt-0.5">
+                <p className="text-purple-300 text-xs font-medium mt-0.5 drop-shadow-md">
                   Soft Staking Platform
                 </p>
                 {data?.referralCode && (
-                  <p className="text-zinc-600 text-[10px] mt-1.5">
+                  <p className="text-zinc-500 text-[10px] mt-1.5">
                     Referral Code: {data.referralCode}
                   </p>
                 )}
               </div>
 
               {/* QR Code */}
-              <div className="bg-white rounded-lg p-1.5 sm:p-2">
+              <div className="bg-white rounded-lg p-1.5 sm:p-2 shadow-lg shadow-purple-500/20">
                 <QRCodeSVG
                   value={referralLink}
                   size={72}
