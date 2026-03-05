@@ -1,8 +1,8 @@
 'use client'
 
-import { useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback, useEffect } from 'react'
 import { LuckyWheel } from '@lucky-canvas/react'
-import { Gift, History, Sparkles, X } from 'lucide-react'
+import { Gift, History, Sparkles, X, RefreshCw } from 'lucide-react'
 
 interface LotteryTranslations {
   title: string
@@ -23,6 +23,11 @@ interface LotteryTranslations {
   used: string
   close: string
   spinNow: string
+  remainingSpins?: string
+  unlimitedSpins?: string
+  bonusNote?: string
+  usdcNote?: string
+  checkSpins?: string
 }
 
 interface SpinRecord {
@@ -30,6 +35,7 @@ interface SpinRecord {
   prize_type: string
   prize_label: string
   prize_amount: number
+  reward_credited?: boolean
   created_at: string
 }
 
@@ -55,13 +61,15 @@ const PRIZE_CONFIGS = [
 export function LotteryWheel({ t }: LotteryWheelProps) {
   const wheelRef = useRef<any>(null)
   const [isSpinning, setIsSpinning] = useState(false)
-  const [canSpin, setCanSpin] = useState(true)
+  const [canSpin, setCanSpin] = useState(false)
   const [showResult, setShowResult] = useState(false)
   const [result, setResult] = useState<{ type: string; label: string; amount: number } | null>(null)
   const [history, setHistory] = useState<SpinRecord[]>([])
   const [showHistory, setShowHistory] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [spinsUsed, setSpinsUsed] = useState(0)
+  const [remainingSpins, setRemainingSpins] = useState(0)
+  const [isInfluencer, setIsInfluencer] = useState(false)
+  const [checking, setChecking] = useState(false)
 
   // Check lottery status on mount
   const checkStatus = useCallback(async () => {
@@ -70,7 +78,8 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
       if (res.ok) {
         const data = await res.json()
         setCanSpin(data.canSpin)
-        setSpinsUsed(data.spinsUsed)
+        setRemainingSpins(data.remainingSpins)
+        setIsInfluencer(data.isInfluencer || false)
         setHistory(data.history || [])
       }
     } catch {
@@ -78,10 +87,29 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
     }
   }, [])
 
+  // Check & grant new spins
+  const checkAndGrantSpins = useCallback(async () => {
+    setChecking(true)
+    try {
+      const res = await fetch('/api/lottery/check-spins', { method: 'POST' })
+      if (res.ok) {
+        const data = await res.json()
+        setCanSpin(data.canSpin)
+        setRemainingSpins(data.remainingSpins)
+        setIsInfluencer(data.isInfluencer || false)
+      }
+    } catch {
+      // silent
+    }
+    setChecking(false)
+  }, [])
+
   // Load status on mount
-  useState(() => {
+  useEffect(() => {
     checkStatus()
-  })
+    // Also check for new spin grants
+    checkAndGrantSpins()
+  }, [checkStatus, checkAndGrantSpins])
 
   const prizes = PRIZE_CONFIGS.map((p) => ({
     fonts: [{ 
@@ -139,6 +167,7 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
         setLoading(false)
         if (data.error === 'no_spins') {
           setCanSpin(false)
+          setRemainingSpins(0)
         }
         return
       }
@@ -163,13 +192,20 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
   const handleEnd = () => {
     setIsSpinning(false)
     setShowResult(true)
-    setCanSpin(false)
-    setSpinsUsed(1)
+    // Update remaining spins
+    if (!isInfluencer) {
+      setRemainingSpins(prev => Math.max(0, prev - 1))
+      if (remainingSpins <= 1) {
+        setCanSpin(false)
+      }
+    }
     // Refresh history
     checkStatus()
   }
 
   const isWin = result && result.type !== 'thanks'
+  const isUsdcWin = result && result.type.startsWith('usdc_')
+  const isBonusWin = result && result.type.startsWith('bonus_')
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -177,7 +213,12 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
       <div className="text-center">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/30 mb-3">
           <Sparkles className="w-4 h-4 text-purple-400" />
-          <span className="text-sm font-medium text-purple-300">{t.todaySpins}: {canSpin ? '1' : '0'} {t.available}</span>
+          <span className="text-sm font-medium text-purple-300">
+            {isInfluencer 
+              ? (t.unlimitedSpins || '∞ Unlimited Spins')
+              : `${t.remainingSpins || 'Spins'}: ${remainingSpins}`
+            }
+          </span>
         </div>
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">{t.title}</h2>
         <p className="text-zinc-400 text-sm max-w-md">{t.subtitle}</p>
@@ -229,6 +270,16 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
         </button>
       )}
 
+      {/* Refresh spins button */}
+      <button
+        onClick={checkAndGrantSpins}
+        disabled={checking}
+        className="flex items-center gap-2 text-zinc-500 hover:text-purple-400 transition-colors text-xs"
+      >
+        <RefreshCw className={`w-3 h-3 ${checking ? 'animate-spin' : ''}`} />
+        {t.checkSpins || 'Check for new spins'}
+      </button>
+
       {/* History button */}
       <button
         onClick={() => { setShowHistory(true); checkStatus() }}
@@ -249,8 +300,17 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">{t.congratulations}</h3>
                 <p className="text-lg text-purple-300 mb-1">{t.youWon}</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-6">
+                <p className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-3">
                   {t.prizes[result.type] || result.label}
+                </p>
+                {/* 奖励去向说明 */}
+                <p className="text-xs text-zinc-400 mb-6">
+                  {isUsdcWin 
+                    ? (t.usdcNote || '💰 USDC has been added to your withdrawable balance')
+                    : isBonusWin 
+                    ? (t.bonusNote || '⭐ Bonus has been added to your unlock progress')
+                    : ''
+                  }
                 </p>
               </>
             ) : (
@@ -299,9 +359,16 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
                         {new Date(record.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <span className={`text-sm font-bold ${record.prize_type === 'thanks' ? 'text-zinc-500' : 'text-purple-400'}`}>
-                      {record.prize_amount > 0 ? `+$${record.prize_amount}` : '-'}
-                    </span>
+                    <div className="text-right">
+                      <span className={`text-sm font-bold ${record.prize_type === 'thanks' ? 'text-zinc-500' : record.prize_type.startsWith('usdc_') ? 'text-green-400' : 'text-purple-400'}`}>
+                        {record.prize_amount > 0 ? `+$${record.prize_amount}` : '-'}
+                      </span>
+                      {record.prize_type !== 'thanks' && (
+                        <p className="text-[10px] text-zinc-600">
+                          {record.prize_type.startsWith('usdc_') ? 'Withdrawable' : 'Unlock Progress'}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

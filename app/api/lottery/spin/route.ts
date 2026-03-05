@@ -66,62 +66,144 @@ export async function POST() {
     return NextResponse.json({ error: 'server_error' }, { status: 500 })
   }
 
-  // Check today's spins (prevent double-spin)
-  const todayStart = new Date()
-  todayStart.setUTCHours(0, 0, 0, 0)
-
-  const { data: todaySpins } = await admin
-    .from('lottery_records')
-    .select('id')
+  // ========== 检查可用抽奖次数 ==========
+  const { data: spinData } = await admin
+    .from('user_lottery_spins')
+    .select('*')
     .eq('user_id', user.id)
-    .gte('created_at', todayStart.toISOString())
+    .single()
 
-  if ((todaySpins?.length || 0) >= 1) {
+  // 如果没有记录，创建一条（默认 0 次）
+  if (!spinData) {
+    await admin
+      .from('user_lottery_spins')
+      .insert({ user_id: user.id, total_spins: 0, used_spins: 0, is_influencer: false })
+
     return NextResponse.json({ error: 'no_spins' }, { status: 400 })
   }
 
-  // Pick a prize (server-side)
+  // Influencer 无限次数；否则检查剩余次数
+  const isInfluencer = spinData.is_influencer || false
+  const remainingSpins = (spinData.total_spins || 0) - (spinData.used_spins || 0)
+
+  if (!isInfluencer && remainingSpins <= 0) {
+    return NextResponse.json({ error: 'no_spins' }, { status: 400 })
+  }
+
+  // ========== 抽奖 ==========
   const prize = pickPrize()
 
-  // Record the spin
-  const { error } = await admin
+  // 记录抽奖结果
+  const { error: insertError } = await admin
     .from('lottery_records')
     .insert({
       user_id: user.id,
       prize_type: prize.type,
       prize_label: prize.label,
       prize_amount: prize.amount,
+      reward_credited: false,
     })
 
-  if (error) {
-    console.error('Lottery insert error:', error)
+  if (insertError) {
+    console.error('Lottery insert error:', insertError)
     return NextResponse.json({ error: 'insert_failed' }, { status: 500 })
   }
 
-  // If won bonus, add to user_task_progress (unlock progress)
-  if (prize.type.startsWith('bonus_')) {
+  // 扣减次数（influencer 也记录使用次数，但不会被限制）
+  await admin
+    .from('user_lottery_spins')
+    .update({
+      used_spins: (spinData.used_spins || 0) + 1,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', user.id)
+
+  // ========== 发放奖励 ==========
+  let rewardCredited = false
+
+  if (prize.type === 'thanks') {
+    // 没中奖，不需要发放
+    rewardCredited = true
+  } else if (prize.type.startsWith('bonus_')) {
+    // Bonus → 进入 unlock progress (user_task_progress.total_task_bonus)
     try {
-      const { error: rpcError } = await admin.rpc('increment_task_progress', {
-        p_user_id: user.id,
-        p_amount: prize.amount,
-      })
-      if (rpcError) {
-        // If RPC doesn't exist, try direct upsert
+      const { data: progress } = await admin
+        .from('user_task_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
+
+      if (progress) {
         await admin
           .from('user_task_progress')
-          .upsert({
+          .update({
+            total_task_bonus: (Number(progress.total_task_bonus) || 0) + prize.amount,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id)
+      } else {
+        await admin
+          .from('user_task_progress')
+          .insert({
             user_id: user.id,
-            total_bonus: prize.amount,
-          }, { onConflict: 'user_id' })
+            total_task_bonus: prize.amount,
+          })
       }
-    } catch {
-      // silent fallback
+      rewardCredited = true
+    } catch (err) {
+      console.error('Bonus credit error:', err)
     }
+  } else if (prize.type.startsWith('usdc_')) {
+    // USDC → 进入 withdrawable (user_profits.available_usdc)
+    try {
+      const { data: profits } = await admin
+        .from('user_profits')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
+
+      if (profits) {
+        await admin
+          .from('user_profits')
+          .update({
+            total_earned_usdc: (Number(profits.total_earned_usdc) || 0) + prize.amount,
+            available_usdc: (Number(profits.available_usdc) || 0) + prize.amount,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id)
+      } else {
+        await admin
+          .from('user_profits')
+          .insert({
+            user_id: user.id,
+            total_earned_usdc: prize.amount,
+            available_usdc: prize.amount,
+            available_matic: 0,
+            withdrawn_usdc: 0,
+            withdrawn_matic: 0,
+          })
+      }
+      rewardCredited = true
+    } catch (err) {
+      console.error('USDC credit error:', err)
+    }
+  }
+
+  // 标记奖励已发放
+  if (rewardCredited) {
+    await admin
+      .from('lottery_records')
+      .update({ reward_credited: true })
+      .eq('user_id', user.id)
+      .eq('reward_credited', false)
+      .order('created_at', { ascending: false })
+      .limit(1)
   }
 
   return NextResponse.json({
     prize_type: prize.type,
     prize_label: prize.label,
     prize_amount: prize.amount,
+    reward_credited: rewardCredited,
   })
 }

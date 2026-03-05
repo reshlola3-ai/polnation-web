@@ -27,7 +27,7 @@ async function getUser() {
   return user
 }
 
-// GET: Check if user can spin today & get history
+// GET: Check available spins & get history
 export async function GET() {
   const user = await getUser()
   if (!user) {
@@ -39,30 +39,45 @@ export async function GET() {
     return NextResponse.json({ error: 'server_error' }, { status: 500 })
   }
 
-  // Check today's spins
-  const todayStart = new Date()
-  todayStart.setUTCHours(0, 0, 0, 0)
-
-  const { data: todaySpins } = await admin
-    .from('lottery_records')
-    .select('id')
+  // 获取用户抽奖次数
+  let { data: spinData } = await admin
+    .from('user_lottery_spins')
+    .select('*')
     .eq('user_id', user.id)
-    .gte('created_at', todayStart.toISOString())
+    .single()
 
-  const spinsUsed = todaySpins?.length || 0
-  const canSpin = spinsUsed < 1
+  // 如果没有记录，创建一条
+  if (!spinData) {
+    const { data: newData } = await admin
+      .from('user_lottery_spins')
+      .insert({ user_id: user.id, total_spins: 0, used_spins: 0, is_influencer: false })
+      .select()
+      .single()
+    spinData = newData
+  }
 
-  // Get recent history (last 10)
+  const isInfluencer = spinData?.is_influencer || false
+  const totalSpins = spinData?.total_spins || 0
+  const usedSpins = spinData?.used_spins || 0
+  const remainingSpins = totalSpins - usedSpins
+
+  // Influencer 无限次，否则看剩余次数
+  const canSpin = isInfluencer || remainingSpins > 0
+
+  // 获取最近抽奖历史（最近 20 条）
   const { data: history } = await admin
     .from('lottery_records')
-    .select('id, prize_type, prize_label, prize_amount, created_at')
+    .select('id, prize_type, prize_label, prize_amount, reward_credited, created_at')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
-    .limit(10)
+    .limit(20)
 
   return NextResponse.json({
     canSpin,
-    spinsUsed,
+    isInfluencer,
+    totalSpins,
+    usedSpins,
+    remainingSpins: isInfluencer ? 999 : Math.max(0, remainingSpins),
     history: history || [],
   })
 }

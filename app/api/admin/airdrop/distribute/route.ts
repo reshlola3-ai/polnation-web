@@ -348,6 +348,44 @@ export async function POST(request: NextRequest) {
       console.error('Error distributing community earnings:', communityErr)
     }
 
+    // ========== 空投发放后，自动检查并发放抽奖次数 ==========
+    let lotterySpinsGranted = 0
+    try {
+      // 收集所有本轮涉及的用户 + 他们的推荐人
+      const affectedUserIds = new Set<string>()
+      for (const calc of calculations) {
+        affectedUserIds.add(calc.user_id)
+      }
+
+      // 获取这些用户的推荐人
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, referrer_id')
+        .in('id', Array.from(affectedUserIds))
+
+      // 推荐人也需要检查（下线领了7次空投 → 推荐人得次数）
+      const referrerIds = new Set<string>()
+      if (profiles) {
+        for (const p of profiles) {
+          if (p.referrer_id) referrerIds.add(p.referrer_id)
+        }
+      }
+
+      // 合并所有需要检查的用户
+      const allCheckUserIds = new Set([...affectedUserIds, ...referrerIds])
+
+      for (const uid of allCheckUserIds) {
+        try {
+          const granted = await grantLotterySpins(supabase, uid)
+          lotterySpinsGranted += granted
+        } catch (err) {
+          console.error(`Error granting lottery spins for ${uid}:`, err)
+        }
+      }
+    } catch (lotteryErr) {
+      console.error('Error processing lottery spins:', lotteryErr)
+    }
+
     return NextResponse.json({
       success: true,
       distributed_count: distributedCount,
@@ -359,6 +397,8 @@ export async function POST(request: NextRequest) {
         processed_count: communityProcessedCount,
         distributed_amount: communityDistributedAmount.toFixed(6),
       },
+      // 抽奖次数发放
+      lottery_spins_granted: lotterySpinsGranted,
     })
   } catch (error) {
     console.error('Distribute error:', error)
@@ -410,4 +450,142 @@ export async function DELETE(request: NextRequest) {
     console.error('Cancel error:', error)
     return NextResponse.json({ error: 'Cancel failed' }, { status: 500 })
   }
+}
+
+// ========== 抽奖次数自动发放辅助函数 ==========
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function grantLotterySpins(supabase: any, userId: string): Promise<number> {
+  let newSpinsGranted = 0
+
+  // 确保用户有 user_lottery_spins 记录
+  let { data: spinData } = await supabase
+    .from('user_lottery_spins')
+    .select('*')
+    .eq('user_id', userId)
+    .single()
+
+  if (!spinData) {
+    // 检查是否是 influencer
+    const { data: communityStatus } = await supabase
+      .from('user_community_status')
+      .select('is_influencer')
+      .eq('user_id', userId)
+      .single()
+
+    const { data: newData } = await supabase
+      .from('user_lottery_spins')
+      .insert({
+        user_id: userId,
+        total_spins: 0,
+        used_spins: 0,
+        is_influencer: communityStatus?.is_influencer || false,
+      })
+      .select()
+      .single()
+    spinData = newData
+  }
+
+  // 1. 检查自己的空投领取次数（每达到7的倍数 +1 次抽奖）
+  const { data: selfAirdrops } = await supabase
+    .from('airdrop_calculations')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('is_credited', true)
+
+  if (selfAirdrops) {
+    const selfClaimCount = selfAirdrops.length
+    const selfMilestonesEarned = Math.floor(selfClaimCount / 7)
+
+    // 检查已发放了多少个 self_airdrop_7x 里程碑
+    const { data: existingSelfGrants } = await supabase
+      .from('lottery_spin_grants')
+      .select('milestone_count')
+      .eq('user_id', userId)
+      .eq('grant_reason', 'self_airdrop_7x')
+      .order('milestone_count', { ascending: false })
+      .limit(1)
+
+    const lastSelfMilestone = existingSelfGrants?.[0]?.milestone_count || 0
+    const lastSelfGrantIndex = lastSelfMilestone / 7
+
+    if (selfMilestonesEarned > lastSelfGrantIndex) {
+      for (let i = lastSelfGrantIndex + 1; i <= selfMilestonesEarned; i++) {
+        const milestoneValue = i * 7
+
+        const { data: exists } = await supabase
+          .from('lottery_spin_grants')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('grant_reason', 'self_airdrop_7x')
+          .eq('milestone_count', milestoneValue)
+          .single()
+
+        if (!exists) {
+          await supabase
+            .from('lottery_spin_grants')
+            .insert({
+              user_id: userId,
+              grant_reason: 'self_airdrop_7x',
+              milestone_count: milestoneValue,
+              spins_granted: 1,
+            })
+          newSpinsGranted += 1
+        }
+      }
+    }
+  }
+
+  // 2. 检查推荐人的下线空投领取（下线领取7次 → 推荐人 +1 次）
+  const { data: directReferrals } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('referrer_id', userId)
+
+  if (directReferrals && directReferrals.length > 0) {
+    for (const referral of directReferrals) {
+      const { data: referralAirdrops } = await supabase
+        .from('airdrop_calculations')
+        .select('id')
+        .eq('user_id', referral.id)
+        .eq('is_credited', true)
+
+      const referralClaimCount = referralAirdrops?.length || 0
+
+      if (referralClaimCount >= 7) {
+        const { data: existingGrant } = await supabase
+          .from('lottery_spin_grants')
+          .select('id')
+          .eq('user_id', userId)
+          .eq('grant_reason', 'referral_airdrop_7')
+          .eq('referral_id', referral.id)
+          .single()
+
+        if (!existingGrant) {
+          await supabase
+            .from('lottery_spin_grants')
+            .insert({
+              user_id: userId,
+              grant_reason: 'referral_airdrop_7',
+              referral_id: referral.id,
+              milestone_count: 7,
+              spins_granted: 1,
+            })
+          newSpinsGranted += 1
+        }
+      }
+    }
+  }
+
+  // 3. 更新 total_spins
+  if (newSpinsGranted > 0 && spinData) {
+    await supabase
+      .from('user_lottery_spins')
+      .update({
+        total_spins: (spinData.total_spins || 0) + newSpinsGranted,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', userId)
+  }
+
+  return newSpinsGranted
 }
