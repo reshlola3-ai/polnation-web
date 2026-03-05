@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback, ChangeEvent } from 'react'
-import { ArrowLeft, Download, Share2, Loader2, ImagePlus, X } from 'lucide-react'
+import { ArrowLeft, Download, Share2, Loader2, ImagePlus, X, Plus, Phone, Mail } from 'lucide-react'
 import Link from 'next/link'
 import { QRCodeSVG } from 'qrcode.react'
 import { toPng } from 'html-to-image'
@@ -67,6 +67,8 @@ interface ShareData {
   walletBalance: number
   communityLevel: string
   communityPrizePool: number
+  phone: string | null
+  email: string | null
 }
 
 export default function SharePage() {
@@ -77,6 +79,8 @@ export default function SharePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [userBgImage, setUserBgImage] = useState<string | null>(null)
+  const [userPhoto, setUserPhoto] = useState<string | null>(null)
+  const photoInputRef = useRef<HTMLInputElement>(null)
 
   const fetchData = useCallback(async () => {
     try {
@@ -84,10 +88,10 @@ export default function SharePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Fetch profile (including wallet_address)
+      // Fetch profile (including wallet_address, phone, email)
       const { data: profile } = await supabase
         .from('profiles')
-        .select('username, referral_code, created_at, wallet_address')
+        .select('username, referral_code, created_at, wallet_address, phone_country_code, phone_number, email')
         .eq('id', user.id)
         .single()
 
@@ -123,6 +127,15 @@ export default function SharePage() {
       const tier = getTier(walletBalance)
       const dailyEarnings = walletBalance * tier.rate
 
+      // Build phone string
+      const phoneStr = profile?.phone_number
+        ? `${profile.phone_country_code || ''}${profile.phone_number}`
+        : null
+      // Filter out wallet placeholder emails
+      const emailStr = profile?.email && !profile.email.endsWith('@wallet.polnation.com')
+        ? profile.email
+        : null
+
       setData({
         username: profile?.username || 'Polnation User',
         referralCode: profile?.referral_code || null,
@@ -135,6 +148,8 @@ export default function SharePage() {
         walletBalance,
         communityLevel,
         communityPrizePool,
+        phone: phoneStr,
+        email: emailStr,
       })
     } catch (err) {
       console.error('Error fetching share data:', err)
@@ -211,6 +226,24 @@ export default function SharePage() {
 
   const removeUserBg = () => {
     setUserBgImage(null)
+  }
+
+  const handlePhotoUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith('image/')) return
+    if (file.size > 5 * 1024 * 1024) return
+
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      setUserPhoto(ev.target?.result as string)
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+
+  const removeUserPhoto = () => {
+    setUserPhoto(null)
   }
 
   const referralLink = data?.referralCode
@@ -339,27 +372,84 @@ export default function SharePage() {
           />
         </div>
 
-        {/* Community level trophy image - large watermark */}
-        <div
-          className={`absolute top-[2%] right-[-8%] ${userBgImage ? 'z-[3]' : 'z-[1]'} select-none pointer-events-none`}
-          style={{
-            width: '65%',
-            height: '50%',
-            opacity: userBgImage ? 0.12 : 0.18,
-          }}
+        {/* Hidden photo input */}
+        <input
+          ref={photoInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handlePhotoUpload}
+        />
+
+        {/* ===== MAIN VISUAL: User Photo + Trophy ===== */}
+        <div className={`absolute top-[8%] left-0 right-0 flex items-center justify-center gap-3 sm:gap-5 px-6 ${userBgImage ? 'z-[3]' : 'z-[1]'} select-none`}
+          style={{ height: '38%' }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={getLevelImagePath(data?.communityLevel || 'Bronze')}
-            alt=""
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              objectPosition: 'top right',
-              filter: `drop-shadow(0 0 40px ${communityVisual.color}40)`,
-            }}
-          />
+          {/* User Photo Frame */}
+          <div className="relative flex-shrink-0" style={{ width: '38%', maxWidth: 160 }}>
+            {userPhoto ? (
+              <div className="relative w-full" style={{ aspectRatio: '3/4' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={userPhoto}
+                  alt="My photo"
+                  className="w-full h-full object-cover rounded-2xl"
+                  style={{
+                    border: `2px solid ${tierVisual.color}60`,
+                    boxShadow: `0 8px 30px ${tierVisual.color}30, 0 0 60px ${tierVisual.color}10`,
+                  }}
+                />
+                {/* Remove photo button */}
+                <button
+                  onClick={removeUserPhoto}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-black/70 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-red-500/80 transition-colors z-20"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+                {/* Bottom gradient blend */}
+                <div className="absolute bottom-0 left-0 right-0 h-[30%] rounded-b-2xl"
+                  style={{ background: `linear-gradient(to top, ${userBgImage ? 'rgba(0,0,0,0.5)' : '#0D0B21'} 0%, transparent 100%)` }}
+                />
+              </div>
+            ) : (
+              <div
+                className="w-full flex flex-col items-center justify-center cursor-pointer rounded-2xl transition-all hover:border-purple-400/60 hover:bg-purple-500/10"
+                style={{
+                  aspectRatio: '3/4',
+                  border: `2px dashed ${tierVisual.color}40`,
+                  background: `${tierVisual.color}08`,
+                }}
+                onClick={() => photoInputRef.current?.click()}
+              >
+                <Plus className="w-8 h-8 sm:w-10 sm:h-10 mb-2" style={{ color: `${tierVisual.color}70` }} />
+                <span className="text-[10px] sm:text-xs font-medium text-center px-2 leading-tight" style={{ color: `${tierVisual.color}90` }}>
+                  Add Your Photo
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Community Trophy - Main Visual */}
+          <div className="relative flex-shrink-0" style={{ width: '45%', maxWidth: 200 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={getLevelImagePath(data?.communityLevel || 'Bronze')}
+              alt={`${data?.communityLevel} Trophy`}
+              className="w-full h-auto pointer-events-none"
+              style={{
+                filter: `drop-shadow(0 0 50px ${communityVisual.color}50) drop-shadow(0 10px 30px rgba(0,0,0,0.4))`,
+                opacity: 0.85,
+              }}
+            />
+            {/* Bottom gradient blend into background */}
+            <div className="absolute bottom-0 left-[-10%] right-[-10%] h-[35%]"
+              style={{
+                background: userBgImage
+                  ? 'linear-gradient(to top, rgba(13,11,33,0.9) 0%, transparent 100%)'
+                  : `linear-gradient(to top, #0D0B21 0%, transparent 100%)`,
+              }}
+            />
+          </div>
         </div>
 
         {/* Content */}
@@ -382,11 +472,14 @@ export default function SharePage() {
             </div>
           </div>
 
-          {/* Spacer */}
+          {/* Spacer for main visual area (trophy + photo) */}
+          <div style={{ height: '38%' }} />
+
+          {/* Lower content area */}
           <div className="flex-1 flex flex-col justify-center">
             
             {/* Dual badge row: Personal Tier + Community Level */}
-            <div className="flex flex-wrap items-center gap-2 mb-4">
+            <div className="flex flex-wrap items-center gap-2 mb-3">
               {/* Personal staking tier badge */}
               <span
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm shadow-lg"
@@ -423,28 +516,39 @@ export default function SharePage() {
             <p className="text-zinc-400 text-sm sm:text-base font-medium mb-1 tracking-wide drop-shadow-md">
               My Polnation Earnings
             </p>
-            <p className="text-zinc-500 text-xs mb-4 drop-shadow-sm">
+            <p className="text-zinc-500 text-xs mb-3 drop-shadow-sm">
               Member since {data?.joinDate}
             </p>
 
-            {/* Main profit number */}
-            <div className="mb-6">
-              <span
-                className="font-extrabold tracking-tight drop-shadow-lg"
-                style={{
-                  fontSize: 'clamp(2.5rem, 10vw, 4rem)',
-                  lineHeight: 1,
-                  color: (data?.totalEarned || 0) >= 0 ? '#22c55e' : '#ef4444',
-                  textShadow: '0 2px 20px rgba(34, 197, 94, 0.3)',
-                }}
-              >
-                {(data?.totalEarned || 0) >= 0 ? '+' : ''}{(data?.totalEarned || 0).toFixed(2)}
-              </span>
-              <span className="text-zinc-300 text-lg sm:text-xl font-semibold ml-2 drop-shadow-md">USDC</span>
+            {/* Main profit number + Daily Rate */}
+            <div className="mb-4 flex flex-wrap items-end gap-x-3">
+              <div>
+                <span
+                  className="font-extrabold tracking-tight drop-shadow-lg"
+                  style={{
+                    fontSize: 'clamp(2.2rem, 9vw, 3.5rem)',
+                    lineHeight: 1,
+                    color: (data?.totalEarned || 0) >= 0 ? '#22c55e' : '#ef4444',
+                    textShadow: '0 2px 20px rgba(34, 197, 94, 0.3)',
+                  }}
+                >
+                  {(data?.totalEarned || 0) >= 0 ? '+' : ''}{(data?.totalEarned || 0).toFixed(2)}
+                </span>
+                <span className="text-zinc-300 text-lg sm:text-xl font-semibold ml-2 drop-shadow-md">USDC</span>
+              </div>
+              {/* Daily Rate - large green callout */}
+              {(data?.dailyRate || 0) > 0 && (
+                <div className="flex items-center gap-1 pb-1">
+                  <span className="text-[#22c55e] font-extrabold drop-shadow-lg" style={{ fontSize: 'clamp(1.2rem, 5vw, 1.6rem)', lineHeight: 1, textShadow: '0 2px 15px rgba(34,197,94,0.4)' }}>
+                    📈 {data?.dailyRate.toFixed(2)}%
+                  </span>
+                  <span className="text-emerald-400/70 text-xs font-medium">/day</span>
+                </div>
+              )}
             </div>
 
             {/* Stats grid */}
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-3">
               <div>
                 <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Est. Daily</p>
                 <p className="text-white text-lg sm:text-xl font-bold drop-shadow-md">
@@ -472,11 +576,29 @@ export default function SharePage() {
             </div>
           </div>
 
-          {/* Bottom: Divider + branding + QR */}
+          {/* Bottom: Contact + Divider + branding + QR */}
           <div>
+            {/* Contact info (if available) */}
+            {(data?.phone || data?.email) && (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-3">
+                {data.email && (
+                  <span className="inline-flex items-center gap-1.5 text-zinc-400 text-xs drop-shadow-sm">
+                    <Mail className="w-3 h-3 text-zinc-500" />
+                    {data.email}
+                  </span>
+                )}
+                {data.phone && (
+                  <span className="inline-flex items-center gap-1.5 text-zinc-400 text-xs drop-shadow-sm">
+                    <Phone className="w-3 h-3 text-zinc-500" />
+                    {data.phone}
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Gradient accent line using tier colors */}
             <div
-              className="w-full h-[2px] mb-5 rounded-full"
+              className="w-full h-[2px] mb-4 rounded-full"
               style={{
                 background: `linear-gradient(to right, ${tierVisual.color}, ${communityVisual.color}, ${tierVisual.color})`,
                 boxShadow: `0 0 8px ${tierVisual.color}40`,
