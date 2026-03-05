@@ -40,14 +40,20 @@ const TIER_VISUALS: Record<string, { emoji: string; color: string; glow: string;
 }
 
 // Community level visual config
-const COMMUNITY_VISUALS: Record<string, { emoji: string; color: string }> = {
-  'None':     { emoji: '—', color: '#666666' },
-  'Bronze':   { emoji: '🥉', color: '#cd7f32' },
-  'Silver':   { emoji: '🥈', color: '#c0c0c0' },
-  'Gold':     { emoji: '🥇', color: '#ffd700' },
-  'Platinum': { emoji: '💎', color: '#e5e4e2' },
-  'Diamond':  { emoji: '💠', color: '#00d4ff' },
-  'Elite':    { emoji: '⚡', color: '#ff6b35' },
+const COMMUNITY_VISUALS: Record<string, { emoji: string; color: string; level: number }> = {
+  'None':     { emoji: '—', color: '#666666', level: 1 },
+  'Bronze':   { emoji: '🥉', color: '#cd7f32', level: 1 },
+  'Silver':   { emoji: '🥈', color: '#c0c0c0', level: 2 },
+  'Gold':     { emoji: '🥇', color: '#ffd700', level: 3 },
+  'Platinum': { emoji: '💎', color: '#e5e4e2', level: 4 },
+  'Diamond':  { emoji: '💠', color: '#00d4ff', level: 5 },
+  'Elite':    { emoji: '⚡', color: '#ff6b35', level: 6 },
+}
+
+// Get community level image path
+function getLevelImagePath(levelName: string): string {
+  const visual = COMMUNITY_VISUALS[levelName] || COMMUNITY_VISUALS['Bronze']
+  return `/levels/level-${visual.level}.webp`
 }
 
 const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as const
@@ -345,30 +351,27 @@ export default function SharePage() {
           />
         </div>
 
-        {/* Large tier emblem watermark (replaces logo) */}
+        {/* Community level trophy image - large watermark */}
         <div
-          className={`absolute top-[5%] right-[-5%] ${userBgImage ? 'z-[3]' : 'z-[1]'} select-none pointer-events-none`}
+          className={`absolute top-[2%] right-[-8%] ${userBgImage ? 'z-[3]' : 'z-[1]'} select-none pointer-events-none`}
           style={{
-            fontSize: 'clamp(8rem, 30vw, 14rem)',
-            lineHeight: 1,
-            opacity: userBgImage ? 0.08 : 0.1,
-            filter: 'blur(2px)',
+            width: '65%',
+            height: '50%',
+            opacity: userBgImage ? 0.12 : 0.18,
           }}
         >
-          {tierVisual.emoji}
-        </div>
-
-        {/* Community level emblem watermark - bottom area */}
-        <div
-          className={`absolute bottom-[15%] left-[-3%] ${userBgImage ? 'z-[3]' : 'z-[1]'} select-none pointer-events-none`}
-          style={{
-            fontSize: 'clamp(5rem, 18vw, 8rem)',
-            lineHeight: 1,
-            opacity: userBgImage ? 0.06 : 0.08,
-            filter: 'blur(1px)',
-          }}
-        >
-          {communityVisual.emoji}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={getLevelImagePath(data?.communityLevel || 'Bronze')}
+            alt=""
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              objectPosition: 'top right',
+              filter: `drop-shadow(0 0 40px ${communityVisual.color}40)`,
+            }}
+          />
         </div>
 
         {/* Content */}
@@ -408,7 +411,7 @@ export default function SharePage() {
               >
                 {tierVisual.emoji} {data?.tier} • {data?.dailyRate.toFixed(2)}% daily
               </span>
-              {/* Community level badge */}
+              {/* Community level badge with trophy icon */}
               <span
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm shadow-lg"
                 style={{
@@ -418,7 +421,13 @@ export default function SharePage() {
                   boxShadow: `0 2px 10px ${communityVisual.color}15`,
                 }}
               >
-                {communityVisual.emoji} {data?.communityLevel} Community
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={getLevelImagePath(data?.communityLevel || 'Bronze')}
+                  alt=""
+                  style={{ width: 18, height: 18, objectFit: 'contain' }}
+                />
+                {data?.communityLevel} Community
               </span>
             </div>
 
