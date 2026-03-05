@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback, ChangeEvent } from 'react'
-import { ArrowLeft, Download, Share2, Loader2, X, Plus, Phone, Mail } from 'lucide-react'
+import { ArrowLeft, Download, Share2, Loader2, X, Plus, Phone, Mail, AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import { QRCodeSVG } from 'qrcode.react'
 import { toPng } from 'html-to-image'
@@ -69,6 +69,7 @@ interface ShareData {
   communityPrizePool: number
   phone: string | null
   email: string | null
+  profileCompleted: boolean
 }
 
 export default function SharePage() {
@@ -87,10 +88,10 @@ export default function SharePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Fetch profile (including wallet_address, phone, email)
+      // Fetch profile (including wallet_address, phone, email, profile_completed)
       const { data: profile } = await supabase
         .from('profiles')
-        .select('username, referral_code, created_at, wallet_address, phone_country_code, phone_number, email')
+        .select('username, referral_code, created_at, wallet_address, phone_country_code, phone_number, email, profile_completed')
         .eq('id', user.id)
         .single()
 
@@ -149,6 +150,7 @@ export default function SharePage() {
         communityPrizePool,
         phone: phoneStr,
         email: emailStr,
+        profileCompleted: !!profile?.profile_completed,
       })
     } catch (err) {
       console.error('Error fetching share data:', err)
@@ -161,23 +163,22 @@ export default function SharePage() {
     fetchData()
   }, [fetchData])
 
-  // Preload trophy image as data URL so html-to-image can export it
+  // Preload trophy image as data URL via fetch (works on all browsers including Safari)
   useEffect(() => {
     if (!data?.communityLevel) return
     const imgPath = getLevelImagePath(data.communityLevel)
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => {
-      try {
-        const canvas = document.createElement('canvas')
-        canvas.width = img.naturalWidth
-        canvas.height = img.naturalHeight
-        const ctx = canvas.getContext('2d')
-        ctx?.drawImage(img, 0, 0)
-        setTrophyDataUrl(canvas.toDataURL('image/png'))
-      } catch { /* fallback to URL */ }
-    }
-    img.src = imgPath
+    fetch(imgPath)
+      .then(res => res.blob())
+      .then(blob => {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          if (typeof reader.result === 'string') {
+            setTrophyDataUrl(reader.result)
+          }
+        }
+        reader.readAsDataURL(blob)
+      })
+      .catch(() => { /* fallback to URL path */ })
   }, [data?.communityLevel])
 
   const referralLink = data?.referralCode
@@ -219,7 +220,9 @@ export default function SharePage() {
         await navigator.share({
           files: [file],
           title: 'My Polnation Earnings',
-          text: `🚀 Join me on Polnation! I'm earning ${data?.dailyRate.toFixed(2)}% daily on USDC.\n\n👉 ${referralLink}`,
+          text: data?.referralCode
+            ? `🚀 Join me on Polnation! I'm earning ${data?.dailyRate.toFixed(2)}% daily on USDC.\n\n👉 ${referralLink}`
+            : `🚀 Check out Polnation - earn daily USDC rewards!\n\n👉 https://polnation.com`,
         })
       } else {
         handleSaveImage()
@@ -291,6 +294,20 @@ export default function SharePage() {
           </button>
         </div>
       </div>
+
+      {/* Profile incomplete warning */}
+      {data && (!data.profileCompleted || !data.referralCode) && (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
+          <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm text-amber-300 font-medium">Complete your profile to share</p>
+            <p className="text-xs text-amber-400/70">Your referral link will be generated after you complete your profile and bind your email.</p>
+          </div>
+          <Link href="/profile" className="px-3 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-400 transition-colors flex-shrink-0">
+            Go to Profile
+          </Link>
+        </div>
+      )}
 
       {/* ===== SHARE CARD ===== */}
       <div
@@ -566,16 +583,22 @@ export default function SharePage() {
                 )}
               </div>
 
-              {/* QR Code */}
-              <div className="bg-white rounded-lg p-1.5 sm:p-2 shadow-lg" style={{ boxShadow: `0 4px 15px ${tierVisual.color}30` }}>
-                <QRCodeSVG
-                  value={referralLink}
-                  size={72}
-                  level="M"
-                  bgColor="#ffffff"
-                  fgColor="#000000"
-                />
-              </div>
+              {/* QR Code - only show when referral code exists */}
+              {data?.referralCode ? (
+                <div className="bg-white rounded-lg p-1.5 sm:p-2 shadow-lg" style={{ boxShadow: `0 4px 15px ${tierVisual.color}30` }}>
+                  <QRCodeSVG
+                    value={referralLink}
+                    size={72}
+                    level="M"
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center rounded-lg p-3 bg-white/5 border border-white/10" style={{ width: 80, height: 80 }}>
+                  <p className="text-zinc-500 text-[9px] text-center leading-tight">Complete profile to get QR code</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
