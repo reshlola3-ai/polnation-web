@@ -263,6 +263,18 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     <div className="space-y-4">
       {/* Hero - Total Assets with Aurora + 3D Tilt */}
       <AuroraCard className="p-5 md:p-8">
+        {/* Lottery Entry - Top Right */}
+        <div className="flex justify-end mb-2 -mt-1">
+          <Link
+            href="/test-lottery"
+            className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 hover:border-purple-400/40 transition-all duration-300"
+          >
+            <span className="text-base group-hover:animate-spin" style={{ animationDuration: '1s', animationIterationCount: '1' }}>🎡</span>
+            <span className="text-xs font-medium text-purple-200 group-hover:text-white transition-colors">Lucky Wheel</span>
+            <ChevronRight className="w-3 h-3 text-purple-300/60 group-hover:text-white transition-colors" />
+          </Link>
+        </div>
+
         {/* Total Assets Row */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
           <div>
