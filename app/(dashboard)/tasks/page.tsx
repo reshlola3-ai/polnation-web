@@ -452,13 +452,13 @@ export default function TasksPage() {
           <p className="text-zinc-500 text-xs mb-2">{t('otherFeatures')}</p>
           <div className="flex justify-center gap-3">
             <Link href="/dashboard" className="text-purple-400 text-xs hover:text-purple-300">
-              Dashboard
+              {t('linkDashboard')}
             </Link>
             <Link href="/earnings" className="text-purple-400 text-xs hover:text-purple-300">
-              Earnings
+              {t('linkEarnings')}
             </Link>
             <Link href="/community" className="text-purple-400 text-xs hover:text-purple-300">
-              Community
+              {t('linkCommunity')}
             </Link>
           </div>
         </div>
@@ -801,7 +801,7 @@ export default function TasksPage() {
             <h3 className="font-semibold text-white flex items-center gap-2 text-sm md:text-base">
               <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
               {t('promotion.title')}
-              <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-[10px] rounded-full">Daily</span>
+              <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-[10px] rounded-full">{t('promotion.dailyTag')}</span>
             </h3>
             <a
               href="https://t.me/polnationsupport"
@@ -810,7 +810,7 @@ export default function TasksPage() {
               className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-purple-400 transition-colors"
             >
               <LottieIcon src="/telegram.json" className="w-5 h-5" />
-              <span className="hidden sm:inline">Support</span>
+              <span className="hidden sm:inline">{t('support')}</span>
             </a>
           </div>
           {promotionTasks.map(task => (
@@ -885,7 +885,7 @@ export default function TasksPage() {
               className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 transition-colors"
             >
               <LottieIcon src="/telegram.json" className="w-5 h-5" />
-              <span className="hidden sm:inline">Support</span>
+              <span className="hidden sm:inline">{t('support')}</span>
             </a>
           </div>
           {videoTasks.map(task => (
@@ -906,7 +906,7 @@ export default function TasksPage() {
                     </div>
                   </div>
                   <p className="text-xs text-red-400 mt-1">
-                    Approved: {task.completed_count} | Pending: {task.pending_count}
+                    {t('video.approved', { n: task.completed_count })} | {t('video.pending', { n: task.pending_count })}
                   </p>
                 </div>
               </div>
@@ -914,11 +914,11 @@ export default function TasksPage() {
               {/* Pending Submissions */}
               {task.pending_submissions && task.pending_submissions.length > 0 && (
                 <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-                  <p className="text-xs text-amber-400 font-medium mb-2">Pending Review:</p>
+                  <p className="text-xs text-amber-400 font-medium mb-2">{t('video.pendingReview')}</p>
                   {task.pending_submissions.map(sub => (
                     <div key={sub.id} className="flex items-center justify-between text-xs text-zinc-400">
                       <span className="truncate max-w-[200px]">{sub.submitted_url}</span>
-                      <span className="text-amber-400">Pending</span>
+                      <span className="text-amber-400">{t('video.pendingStatus')}</span>
                     </div>
                   ))}
                 </div>
@@ -955,7 +955,7 @@ export default function TasksPage() {
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <h3 className="font-semibold text-white flex items-center gap-2 text-sm md:text-base">
               <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" />
-              Community Tasks
+              {t('community.title')}
             </h3>
             <a
               href="https://t.me/polnationsupport"
@@ -964,7 +964,7 @@ export default function TasksPage() {
               className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-cyan-400 transition-colors"
             >
               <LottieIcon src="/telegram.json" className="w-5 h-5" />
-              <span className="hidden sm:inline">Support</span>
+              <span className="hidden sm:inline">{t('support')}</span>
             </a>
           </div>
           {communityTasks.map(task => (
@@ -981,7 +981,7 @@ export default function TasksPage() {
                     </div>
                     <div className="text-right shrink-0">
                       <p className="font-semibold text-emerald-400 currency text-sm md:text-base">+${task.reward_usd}</p>
-                      <p className="text-[10px] md:text-xs text-zinc-500">One-time</p>
+                      <p className="text-[10px] md:text-xs text-zinc-500">{t('community.oneTime')}</p>
                     </div>
                   </div>
                 </div>
@@ -990,11 +990,11 @@ export default function TasksPage() {
               {/* Pending Submissions */}
               {task.pending_submissions && task.pending_submissions.length > 0 && (
                 <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-                  <p className="text-xs text-amber-400 font-medium mb-2">Pending Review:</p>
+                  <p className="text-xs text-amber-400 font-medium mb-2">{t('video.pendingReview')}</p>
                   {task.pending_submissions.map(sub => (
                     <div key={sub.id} className="flex items-center justify-between text-xs text-zinc-400">
                       <span className="truncate max-w-[200px]">{sub.submitted_url}</span>
-                      <span className="text-amber-400">Pending</span>
+                      <span className="text-amber-400">{t('video.pendingStatus')}</span>
                     </div>
                   ))}
                 </div>
@@ -1004,7 +1004,7 @@ export default function TasksPage() {
               {task.completed_count > 0 && (
                 <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span className="text-sm text-green-400">Task Completed</span>
+                  <span className="text-sm text-green-400">{t('community.taskCompleted')}</span>
                 </div>
               )}
 
@@ -1012,7 +1012,7 @@ export default function TasksPage() {
               {task.can_complete && task.completed_count === 0 && (
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Input
-                    placeholder="Paste your community group link..."
+                    placeholder={t('community.placeholder')}
                     value={communityUrl}
                     onChange={(e) => setCommunityUrl(e.target.value)}
                     className="flex-1 text-sm"
@@ -1037,8 +1037,8 @@ export default function TasksPage() {
       <div className="glass-card-solid p-4 md:p-6 border border-emerald-500/30 bg-gradient-to-r from-emerald-900/10 to-cyan-900/10">
         <h3 className="font-semibold text-white mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
           <Gift className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
-          Referral Bonus
-          <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded-full">Auto</span>
+          {t('referral.title')}
+          <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded-full">{t('referral.autoTag')}</span>
         </h3>
         <div className="p-3 md:p-4 bg-white/5 rounded-xl border border-emerald-500/20">
           <div className="flex items-start gap-3">
@@ -1046,22 +1046,22 @@ export default function TasksPage() {
               <Gift className="w-5 h-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-white text-sm md:text-base">Invite & Earn</p>
+              <p className="font-medium text-white text-sm md:text-base">{t('referral.inviteAndEarn')}</p>
               <p className="text-xs md:text-sm text-zinc-500 mt-0.5">
-                Earn $1 for each referral who registers with email and binds wallet
+                {t('referral.description')}
               </p>
               <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-3">
                 <div className="flex items-center gap-4">
                   <div>
-                    <p className="text-xs text-zinc-500">Available</p>
+                    <p className="text-xs text-zinc-500">{t('referral.available')}</p>
                     <p className="text-lg font-bold text-emerald-400">${referralBonus.pending.toFixed(2)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">Referrals</p>
+                    <p className="text-xs text-zinc-500">{t('referral.referrals')}</p>
                     <p className="text-lg font-bold text-white">{referralBonus.count}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-zinc-500">Claimed</p>
+                    <p className="text-xs text-zinc-500">{t('referral.claimed')}</p>
                     <p className="text-lg font-bold text-zinc-400">${referralBonus.claimed.toFixed(2)}</p>
                   </div>
                 </div>
@@ -1072,8 +1072,7 @@ export default function TasksPage() {
                   className="sm:ml-auto bg-emerald-600 hover:bg-emerald-500"
                 >
                   <Gift className="w-4 h-4 mr-2" />
-                  Claim ${referralBonus.pending.toFixed(2)}
-                </Button>
+                  {t('referral.claimAmount', { amount: referralBonus.pending.toFixed(2) })}
               </div>
             </div>
           </div>
@@ -1135,7 +1134,7 @@ export default function TasksPage() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowBonusModal(false)}>
           <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">Total Tasks Bonus</h3>
+              <h3 className="text-lg font-semibold text-white">{t('bonusModal.title')}</h3>
               <button onClick={() => setShowBonusModal(false)} className="p-1 hover:bg-white/10 rounded-full">
                 <X className="w-5 h-5 text-zinc-400" />
               </button>
@@ -1144,43 +1143,43 @@ export default function TasksPage() {
             <div className="space-y-2 text-sm">
               {(bonusBreakdown.checkin || 0) > 0 && (
                 <div className="flex justify-between text-zinc-300">
-                  <span>📅 Check-in</span>
+                  <span>{t('bonusModal.checkin')}</span>
                   <span className="text-emerald-400">${(bonusBreakdown.checkin || 0).toFixed(2)}</span>
                 </div>
               )}
               {(bonusBreakdown.social || 0) > 0 && (
                 <div className="flex justify-between text-zinc-300">
-                  <span>🔗 Social Tasks</span>
+                  <span>{t('bonusModal.social')}</span>
                   <span className="text-emerald-400">${(bonusBreakdown.social || 0).toFixed(2)}</span>
                 </div>
               )}
               {(bonusBreakdown.onboarding || 0) > 0 && (
                 <div className="flex justify-between text-zinc-300">
-                  <span>👤 Profile Setup</span>
+                  <span>{t('bonusModal.profileSetup')}</span>
                   <span className="text-emerald-400">${(bonusBreakdown.onboarding || 0).toFixed(2)}</span>
                 </div>
               )}
               {(bonusBreakdown.promotion || 0) > 0 && (
                 <div className="flex justify-between text-zinc-300">
-                  <span>📢 Promotion</span>
+                  <span>{t('bonusModal.promotion')}</span>
                   <span className="text-emerald-400">${(bonusBreakdown.promotion || 0).toFixed(2)}</span>
                 </div>
               )}
               {(bonusBreakdown.video || 0) > 0 && (
                 <div className="flex justify-between text-zinc-300">
-                  <span>🎬 Video Review</span>
+                  <span>{t('bonusModal.videoReview')}</span>
                   <span className="text-emerald-400">${(bonusBreakdown.video || 0).toFixed(2)}</span>
                 </div>
               )}
               {(bonusBreakdown.community || 0) > 0 && (
                 <div className="flex justify-between text-zinc-300">
-                  <span>👥 Community</span>
+                  <span>{t('bonusModal.community')}</span>
                   <span className="text-emerald-400">${(bonusBreakdown.community || 0).toFixed(2)}</span>
                 </div>
               )}
               {(bonusBreakdown.referral || 0) > 0 && (
                 <div className="flex justify-between text-zinc-300">
-                  <span>🎁 Referral Bonus</span>
+                  <span>{t('bonusModal.referralBonus')}</span>
                   <span className="text-emerald-400">${(bonusBreakdown.referral || 0).toFixed(2)}</span>
                 </div>
               )}

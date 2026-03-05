@@ -189,6 +189,7 @@
     },
     "promotion": {
       "title": "Tugas Promosi",
+      "dailyTag": "Harian",
       "placeholder": "Tempel URL postingan Anda di sini...",
       "perSubmission": "per pengiriman",
       "completed": "Diselesaikan {n} kali",
@@ -203,7 +204,37 @@
       "title": "Tugas Video",
       "placeholder": "Tempel URL video Anda (YouTube, TikTok, dll.)...",
       "afterApproval": "setelah disetujui",
-      "submitted": "Dikirim {n} kali (Perlu review manual)"
+      "submitted": "Dikirim {n} kali (Perlu review manual)",
+      "approved": "Disetujui: {n}",
+      "pending": "Menunggu: {n}",
+      "pendingReview": "Menunggu Review:",
+      "pendingStatus": "Menunggu"
+    },
+    "community": {
+      "title": "Tugas Komunitas",
+      "oneTime": "Sekali",
+      "placeholder": "Tempel link grup komunitas Anda...",
+      "taskCompleted": "Tugas Selesai"
+    },
+    "referral": {
+      "title": "Bonus Referral",
+      "autoTag": "Otomatis",
+      "inviteAndEarn": "Undang & Dapatkan",
+      "description": "Dapatkan $1 untuk setiap referral yang mendaftar email dan menghubungkan wallet",
+      "available": "Tersedia",
+      "referrals": "Referral",
+      "claimed": "Diklaim",
+      "claimAmount": "Klaim ${amount}"
+    },
+    "bonusModal": {
+      "title": "Total Bonus Tugas",
+      "checkin": "📅 Check-in",
+      "social": "🔗 Media Sosial",
+      "profileSetup": "👤 Pengaturan Profil",
+      "promotion": "📢 Promosi",
+      "videoReview": "🎬 Video",
+      "community": "👥 Komunitas",
+      "referralBonus": "🎁 Bonus Referral"
     },
     "onboarding": {
       "title": "Bonus Awal",
@@ -227,7 +258,11 @@
     "reason1": "Mencegah penyalahgunaan dan memastikan distribusi hadiah yang adil",
     "reason2": "Melindungi akun Anda dengan opsi pemulihan",
     "reason3": "Menerima pembaruan dan notifikasi penting",
-    "otherFeatures": "Anda masih dapat mengakses fitur lain:"
+    "otherFeatures": "Anda masih dapat mengakses fitur lain:",
+    "support": "Dukungan",
+    "linkDashboard": "Dashboard",
+    "linkEarnings": "Penghasilan",
+    "linkCommunity": "Komunitas"
   },
   "earnings": {
     "title": "Penghasilan",

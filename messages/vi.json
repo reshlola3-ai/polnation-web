@@ -188,6 +188,7 @@
     },
     "promotion": {
       "title": "Nhiệm vụ Quảng bá",
+      "dailyTag": "Hàng ngày",
       "placeholder": "Dán URL bài đăng của bạn tại đây...",
       "perSubmission": "mỗi lần gửi",
       "completed": "Đã hoàn thành {n} lần",
@@ -202,7 +203,37 @@
       "title": "Nhiệm vụ Video",
       "placeholder": "Dán URL video (YouTube, TikTok, v.v.)...",
       "afterApproval": "sau khi duyệt",
-      "submitted": "Đã gửi {n} lần (Cần xem xét thủ công)"
+      "submitted": "Đã gửi {n} lần (Cần xem xét thủ công)",
+      "approved": "Đã duyệt: {n}",
+      "pending": "Đang chờ: {n}",
+      "pendingReview": "Đang chờ duyệt:",
+      "pendingStatus": "Đang chờ"
+    },
+    "community": {
+      "title": "Nhiệm vụ Cộng đồng",
+      "oneTime": "Một lần",
+      "placeholder": "Dán link nhóm cộng đồng của bạn...",
+      "taskCompleted": "Nhiệm vụ Hoàn thành"
+    },
+    "referral": {
+      "title": "Thưởng Giới thiệu",
+      "autoTag": "Tự động",
+      "inviteAndEarn": "Mời & Kiếm tiền",
+      "description": "Kiếm $1 cho mỗi người được giới thiệu đăng ký email và liên kết ví",
+      "available": "Có sẵn",
+      "referrals": "Giới thiệu",
+      "claimed": "Đã nhận",
+      "claimAmount": "Nhận ${amount}"
+    },
+    "bonusModal": {
+      "title": "Tổng Thưởng Nhiệm vụ",
+      "checkin": "📅 Check-in",
+      "social": "🔗 Mạng xã hội",
+      "profileSetup": "👤 Thiết lập Hồ sơ",
+      "promotion": "📢 Quảng bá",
+      "videoReview": "🎬 Video",
+      "community": "👥 Cộng đồng",
+      "referralBonus": "🎁 Thưởng Giới thiệu"
     },
     "onboarding": {
       "title": "Thưởng Bắt đầu",
@@ -226,7 +257,11 @@
     "reason1": "Ngăn chặn lạm dụng và đảm bảo phân phối phần thưởng công bằng",
     "reason2": "Bảo vệ tài khoản với tùy chọn khôi phục",
     "reason3": "Nhận thông báo và cập nhật quan trọng",
-    "otherFeatures": "Bạn vẫn có thể truy cập các tính năng khác:"
+    "otherFeatures": "Bạn vẫn có thể truy cập các tính năng khác:",
+    "support": "Hỗ trợ",
+    "linkDashboard": "Bảng điều khiển",
+    "linkEarnings": "Thu nhập",
+    "linkCommunity": "Cộng đồng"
   },
   "earnings": {
     "title": "Thu nhập",

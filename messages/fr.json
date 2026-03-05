@@ -188,6 +188,7 @@
     },
     "promotion": {
       "title": "Tâches de promotion",
+      "dailyTag": "Quotidien",
       "placeholder": "Collez l'URL de votre publication ici...",
       "perSubmission": "par soumission",
       "completed": "Complété {n} fois",
@@ -202,7 +203,37 @@
       "title": "Tâches vidéo",
       "placeholder": "Collez l'URL de votre vidéo (YouTube, TikTok, etc.)...",
       "afterApproval": "après approbation",
-      "submitted": "Soumis {n} fois (Vérification manuelle requise)"
+      "submitted": "Soumis {n} fois (Vérification manuelle requise)",
+      "approved": "Approuvé : {n}",
+      "pending": "En attente : {n}",
+      "pendingReview": "En attente de vérification :",
+      "pendingStatus": "En attente"
+    },
+    "community": {
+      "title": "Tâches Communauté",
+      "oneTime": "Une seule fois",
+      "placeholder": "Collez le lien de votre groupe communautaire...",
+      "taskCompleted": "Tâche Terminée"
+    },
+    "referral": {
+      "title": "Bonus de Parrainage",
+      "autoTag": "Auto",
+      "inviteAndEarn": "Invitez & Gagnez",
+      "description": "Gagnez $1 pour chaque filleul inscrit par email et ayant lié son portefeuille",
+      "available": "Disponible",
+      "referrals": "Parrainages",
+      "claimed": "Réclamé",
+      "claimAmount": "Réclamer ${amount}"
+    },
+    "bonusModal": {
+      "title": "Bonus Total des Tâches",
+      "checkin": "📅 Check-in",
+      "social": "🔗 Réseaux sociaux",
+      "profileSetup": "👤 Profil",
+      "promotion": "📢 Promotion",
+      "videoReview": "🎬 Vidéo",
+      "community": "👥 Communauté",
+      "referralBonus": "🎁 Bonus Parrainage"
     },
     "onboarding": {
       "title": "Bonus de Bienvenue",
@@ -226,7 +257,11 @@
     "reason1": "Prévenir les abus et assurer une distribution équitable des récompenses",
     "reason2": "Protéger votre compte avec des options de récupération",
     "reason3": "Recevoir des mises à jour et notifications importantes",
-    "otherFeatures": "Vous pouvez toujours accéder aux autres fonctionnalités:"
+    "otherFeatures": "Vous pouvez toujours accéder aux autres fonctionnalités:",
+    "support": "Assistance",
+    "linkDashboard": "Tableau de bord",
+    "linkEarnings": "Revenus",
+    "linkCommunity": "Communauté"
   },
   "earnings": {
     "title": "Revenus",

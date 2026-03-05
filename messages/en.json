@@ -188,6 +188,7 @@
     },
     "promotion": {
       "title": "Promotion Tasks",
+      "dailyTag": "Daily",
       "placeholder": "Paste your post URL here...",
       "perSubmission": "per submission",
       "completed": "Completed {n} times",
@@ -202,7 +203,37 @@
       "title": "Video Tasks",
       "placeholder": "Paste your video URL (YouTube, TikTok, etc.)...",
       "afterApproval": "after approval",
-      "submitted": "Submitted {n} times (Manual review required)"
+      "submitted": "Submitted {n} times (Manual review required)",
+      "approved": "Approved: {n}",
+      "pending": "Pending: {n}",
+      "pendingReview": "Pending Review:",
+      "pendingStatus": "Pending"
+    },
+    "community": {
+      "title": "Community Tasks",
+      "oneTime": "One-time",
+      "placeholder": "Paste your community group link...",
+      "taskCompleted": "Task Completed"
+    },
+    "referral": {
+      "title": "Referral Bonus",
+      "autoTag": "Auto",
+      "inviteAndEarn": "Invite & Earn",
+      "description": "Earn $1 for each referral who registers with email and binds wallet",
+      "available": "Available",
+      "referrals": "Referrals",
+      "claimed": "Claimed",
+      "claimAmount": "Claim ${amount}"
+    },
+    "bonusModal": {
+      "title": "Total Tasks Bonus",
+      "checkin": "📅 Check-in",
+      "social": "🔗 Social Tasks",
+      "profileSetup": "👤 Profile Setup",
+      "promotion": "📢 Promotion",
+      "videoReview": "🎬 Video Review",
+      "community": "👥 Community",
+      "referralBonus": "🎁 Referral Bonus"
     },
     "onboarding": {
       "title": "Get Started Bonus",
@@ -226,7 +257,11 @@
     "reason1": "Prevent abuse and ensure fair reward distribution",
     "reason2": "Protect your account with account recovery options",
     "reason3": "Receive important updates and notifications",
-    "otherFeatures": "You can still access other features:"
+    "otherFeatures": "You can still access other features:",
+    "support": "Support",
+    "linkDashboard": "Dashboard",
+    "linkEarnings": "Earnings",
+    "linkCommunity": "Community"
   },
   "earnings": {
     "title": "Earnings",
