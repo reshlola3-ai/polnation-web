@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
-  Copy, Check, Sparkles, Wallet, TrendingUp, Users, 
+  Copy, Check, Sparkles, Wallet, TrendingUp, Users, Lock,
   ArrowUpRight, CheckCircle, Circle, AlertCircle,
   ChevronRight, DollarSign, Zap, HelpCircle, X
 } from 'lucide-react'
@@ -46,6 +46,11 @@ function getNextTier(balance: number) {
   return null
 }
 
+function isWalletEmail(email: string | null | undefined): boolean {
+  if (!email) return true
+  return email.endsWith('@wallet.polnation.com')
+}
+
 interface DashboardClientProps {
   userId: string
   profile: {
@@ -53,6 +58,7 @@ interface DashboardClientProps {
     wallet_address: string | null
     profile_completed: boolean
     referral_code: string | null
+    email: string | null
   } | null
   teamStats: {
     total_team_members: number
@@ -215,7 +221,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
   // Calculate total assets = community prize pool + wallet usdc balance
   const totalAssets = profitData.communityPrizePool + usdcBalance
-  // Use short referral_code if available, fallback to userId
+  // Referral link: only show short link if profile completed + real email bound
+  const canShowReferralLink = profile?.profile_completed && !isWalletEmail(profile?.email) && !!profile?.referral_code
   const refCode = profile?.referral_code || userId
   const referralLink = typeof window !== 'undefined' 
     ? `${window.location.origin}/register?ref=${refCode}`
@@ -254,7 +261,11 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </AuroraCard>
 
         {/* Referral Link */}
-        <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
+        {canShowReferralLink ? (
+          <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
+        ) : (
+          <ReferralLinkLockedCard t={t} />
+        )}
       </div>
     )
   }
@@ -616,7 +627,11 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       )}
 
       {/* Referral Link */}
-      <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
+      {canShowReferralLink ? (
+        <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
+      ) : (
+        <ReferralLinkLockedCard t={t} />
+      )}
     </div>
   )
 }
@@ -671,6 +686,32 @@ function ReferralLinkCard({
             {copied ? t('copied') : t('copy')}
           </button>
         </div>
+      </div>
+    </div>
+  )
+}
+
+// Locked Referral Link Card — shown when profile is incomplete or email not bound
+function ReferralLinkLockedCard({ t }: { t: (key: string) => string }) {
+  return (
+    <div className="relative overflow-hidden rounded-xl p-4 md:p-5 bg-gradient-to-r from-zinc-700/80 to-zinc-600/80 border border-zinc-500/30">
+      <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full blur-2xl" />
+      
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-2">
+          <Lock className="w-4 h-4 text-zinc-400" />
+          <h3 className="text-sm font-semibold text-white">{t('shareAndEarn')}</h3>
+        </div>
+        <p className="text-zinc-400 text-xs mb-3">
+          Complete your profile &amp; bind your email to unlock your referral link.
+        </p>
+        <a 
+          href="/profile"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition-colors"
+        >
+          <ArrowUpRight className="w-3.5 h-3.5" />
+          Go to Profile
+        </a>
       </div>
     </div>
   )

@@ -95,6 +95,9 @@ export default function TeamPage() {
   const [referrals, setReferrals] = useState<Referral[]>([])
   const [filteredReferrals, setFilteredReferrals] = useState<Referral[]>([])
   const [userId, setUserId] = useState<string | null>(null)
+  const [referralCode, setReferralCode] = useState<string | null>(null)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [profileCompleted, setProfileCompleted] = useState(false)
   const [copied, setCopied] = useState(false)
   const [totalTeamMembers, setTotalTeamMembers] = useState(0)
   const [level1Members, setLevel1Members] = useState(0)
@@ -148,6 +151,18 @@ export default function TeamPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
       setUserId(user.id)
+      setUserEmail(user.email || null)
+
+      // Fetch profile for referral_code and profile_completed
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('referral_code, profile_completed')
+        .eq('id', user.id)
+        .single()
+      if (profileData) {
+        setReferralCode(profileData.referral_code)
+        setProfileCompleted(profileData.profile_completed || false)
+      }
 
       const res = await fetch('/api/referral/balances')
       if (res.ok) {
@@ -258,9 +273,12 @@ export default function TeamPage() {
     setLoadingBalances(false)
   }
 
+  const isWalletOnlyEmail = !userEmail || userEmail.endsWith('@wallet.polnation.com')
+  const canShowReferralLink = profileCompleted && !isWalletOnlyEmail && !!referralCode
+
   const copyReferralLink = () => {
-    if (userId) {
-      navigator.clipboard.writeText(`${window.location.origin}/register?ref=${userId}`)
+    if (referralCode) {
+      navigator.clipboard.writeText(`${window.location.origin}/register?ref=${referralCode}`)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
@@ -609,23 +627,40 @@ export default function TeamPage() {
 
       {/* Referral Link */}
       <div className="glass-card-solid p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-              <Link2 className="w-5 h-5 text-purple-400" />
+        {canShowReferralLink ? (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                <Link2 className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-sm text-zinc-400">{t('yourReferralLink')}</p>
+                <p className="text-white font-mono text-sm truncate max-w-[200px] sm:max-w-none">
+                  {typeof window !== 'undefined' ? `${window.location.origin}/register?ref=${referralCode}` : '...'}
+                </p>
+              </div>
             </div>
-            <div>
+            <Button onClick={copyReferralLink} variant="outline" size="sm">
+              {copied ? <Check className="w-4 h-4 mr-1" /> : <Copy className="w-4 h-4 mr-1" />}
+              {copied ? 'Copied!' : 'Copy'}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-zinc-600/30 rounded-lg flex items-center justify-center">
+              <Lock className="w-5 h-5 text-zinc-500" />
+            </div>
+            <div className="flex-1">
               <p className="text-sm text-zinc-400">{t('yourReferralLink')}</p>
-              <p className="text-white font-mono text-sm truncate max-w-[200px] sm:max-w-none">
-                {userId ? `${typeof window !== 'undefined' ? window.location.origin : ''}/register?ref=${userId.slice(0, 8)}...` : '...'}
+              <p className="text-xs text-zinc-500">
+                Complete your profile &amp; bind your email to unlock your referral link.
               </p>
             </div>
+            <a href="/profile" className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition-colors shrink-0">
+              Go to Profile
+            </a>
           </div>
-          <Button onClick={copyReferralLink} variant="outline" size="sm">
-            {copied ? <Check className="w-4 h-4 mr-1" /> : <Copy className="w-4 h-4 mr-1" />}
-            {copied ? 'Copied!' : 'Copy'}
-          </Button>
-        </div>
+        )}
       </div>
 
       {/* Team Stats */}
