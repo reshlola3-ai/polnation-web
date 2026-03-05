@@ -79,7 +79,7 @@ export function ConnectWallet() {
   }, [])
 
   useEffect(() => {
-    async function checkWalletStatus() {
+    async function checkAndBindWallet() {
       if (!address) { setWalletStatus('available'); return }
 
       if (connector && !isAllowedWallet(connector.name)) {
@@ -89,33 +89,78 @@ export function ConnectWallet() {
         return
       }
 
+      const normalizedAddress = address.toLowerCase()
+
       try {
         const supabase = createClient()
-        const { data: boundData } = await supabase
-          .from('wallets')
-          .select('user_id, bound_at, users!inner(email)')
-          .eq('address', address.toLowerCase())
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) { setWalletStatus('available'); return }
+
+        // Check if this wallet is already bound to someone in profiles
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id, email, wallet_bound_at')
+          .eq('wallet_address', normalizedAddress)
           .single()
 
-        if (boundData) {
-          const { data: currentUser } = await supabase.from('profiles').select('id').eq('id', (await supabase.auth.getUser()).data.user?.id).single()
-          
-          if (currentUser && boundData.user_id === currentUser.id) {
+        if (existingProfile) {
+          if (existingProfile.id === user.id) {
+            // Already bound to current user
             setWalletStatus('bound_to_you')
-            setBoundWalletInfo({ address: address, boundAt: boundData.bound_at })
+            setBoundWalletInfo({ address: normalizedAddress, boundAt: existingProfile.wallet_bound_at || new Date().toISOString() })
           } else {
-            const { data: boundUserData } = await supabase.from('profiles').select('email').eq('id', boundData.user_id).single()
+            // Bound to another user
             setWalletStatus('bound_to_other')
-            setBoundUser(boundUserData?.email || 'Unknown')
+            setBoundUser(existingProfile.email || 'Another user')
           }
+          return
+        }
+
+        // Wallet not bound to anyone — check if current user already has a different wallet
+        const { data: myProfile } = await supabase
+          .from('profiles')
+          .select('wallet_address, wallet_bound_at')
+          .eq('id', user.id)
+          .single()
+
+        if (myProfile?.wallet_address && myProfile.wallet_address !== normalizedAddress) {
+          // User already has a different wallet bound
+          setWalletStatus('bound_to_you')
+          setBoundWalletInfo({ address: myProfile.wallet_address, boundAt: myProfile.wallet_bound_at || new Date().toISOString() })
+          return
+        }
+
+        if (myProfile?.wallet_address === normalizedAddress) {
+          // Already bound (edge case)
+          setWalletStatus('bound_to_you')
+          setBoundWalletInfo({ address: normalizedAddress, boundAt: myProfile.wallet_bound_at || new Date().toISOString() })
+          return
+        }
+
+        // Auto-bind: wallet is available and user has no wallet yet
+        const now = new Date().toISOString()
+        const { error: bindError } = await supabase
+          .from('profiles')
+          .update({
+            wallet_address: normalizedAddress,
+            wallet_bound_at: now,
+          })
+          .eq('id', user.id)
+
+        if (!bindError) {
+          console.log(`Auto-bound wallet ${normalizedAddress} to user ${user.id}`)
+          setWalletStatus('bound_to_you')
+          setBoundWalletInfo({ address: normalizedAddress, boundAt: now })
         } else {
+          console.error('Failed to auto-bind wallet:', bindError)
           setWalletStatus('available')
         }
       } catch (error) {
+        console.error('Wallet check error:', error)
         setWalletStatus('available')
       }
     }
-    checkWalletStatus()
+    checkAndBindWallet()
   }, [address, connector])
 
   const { data: usdcBalanceRaw } = useReadContract({
