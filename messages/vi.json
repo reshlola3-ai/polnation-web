@@ -261,7 +261,45 @@
     "support": "Hỗ trợ",
     "linkDashboard": "Bảng điều khiển",
     "linkEarnings": "Thu nhập",
-    "linkCommunity": "Cộng đồng"
+    "linkCommunity": "Cộng đồng",
+    "taskDb": {
+      "profile_setup": {
+        "name": "Hoàn thành Hồ sơ",
+        "description": "Thiết lập tên người dùng và quốc gia để nhận thưởng"
+      },
+      "social_twitter": {
+        "name": "Theo dõi Twitter",
+        "description": "Theo dõi tài khoản Twitter chính thức của chúng tôi"
+      },
+      "social_telegram": {
+        "name": "Tham gia Telegram",
+        "description": "Tham gia cộng đồng Telegram của chúng tôi"
+      },
+      "social_whatsapp": {
+        "name": "Tham gia WhatsApp",
+        "description": "Tham gia cộng đồng WhatsApp của chúng tôi"
+      },
+      "social_facebook": {
+        "name": "Theo dõi Facebook",
+        "description": "Theo dõi trang Facebook chính thức của chúng tôi"
+      },
+      "promotion_post": {
+        "name": "Chia sẻ Quảng bá",
+        "description": "Chia sẻ về Polnation trên mạng xã hội (Nhiệm vụ hàng ngày - gửi mỗi ngày một lần)"
+      },
+      "daily_checkin": {
+        "name": "Check-in Hàng ngày",
+        "description": "Check-in mỗi ngày. Chuỗi 7 ngày = thưởng $1!"
+      },
+      "video_review": {
+        "name": "Đánh giá Video",
+        "description": "Tạo và chia sẻ video đánh giá về Polnation. Thưởng: $10-50 tùy chất lượng."
+      },
+      "community_devotion": {
+        "name": "Cống hiến Cộng đồng",
+        "description": "Tạo cộng đồng trên 40 thành viên và gửi liên kết nhóm để xác minh."
+      }
+    }
   },
   "earnings": {
     "title": "Thu nhập",

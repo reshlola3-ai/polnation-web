@@ -261,7 +261,45 @@
     "support": "Assistance",
     "linkDashboard": "Tableau de bord",
     "linkEarnings": "Revenus",
-    "linkCommunity": "Communauté"
+    "linkCommunity": "Communauté",
+    "taskDb": {
+      "profile_setup": {
+        "name": "Compléter le Profil",
+        "description": "Configurez votre nom d'utilisateur et votre pays pour gagner une récompense"
+      },
+      "social_twitter": {
+        "name": "Suivre sur Twitter",
+        "description": "Suivez notre compte Twitter officiel"
+      },
+      "social_telegram": {
+        "name": "Rejoindre Telegram",
+        "description": "Rejoignez notre communauté Telegram"
+      },
+      "social_whatsapp": {
+        "name": "Rejoindre WhatsApp",
+        "description": "Rejoignez notre communauté WhatsApp"
+      },
+      "social_facebook": {
+        "name": "Suivre Facebook",
+        "description": "Suivez notre page Facebook officielle"
+      },
+      "promotion_post": {
+        "name": "Partager la Promotion",
+        "description": "Partagez Polnation sur les réseaux sociaux (Tâche quotidienne - une soumission par jour)"
+      },
+      "daily_checkin": {
+        "name": "Check-in Quotidien",
+        "description": "Check-in quotidien. Série de 7 jours = bonus de 1$ !"
+      },
+      "video_review": {
+        "name": "Avis Vidéo",
+        "description": "Créez et partagez une vidéo d'avis sur Polnation. Récompense : 10-50$ selon la qualité."
+      },
+      "community_devotion": {
+        "name": "Dévouement Communautaire",
+        "description": "Créez une communauté de plus de 40 membres et soumettez le lien de votre groupe pour vérification."
+      }
+    }
   },
   "earnings": {
     "title": "Revenus",

@@ -91,6 +91,23 @@ function isWalletEmail(email: string | null | undefined): boolean {
 export default function TasksPage() {
   const t = useTranslations('tasks')
   const tCommon = useTranslations('common')
+
+  // Helper: get translated task name/description, fallback to DB value
+  const getTaskName = (task: Task) => {
+    try {
+      const translated = t(`taskDb.${task.task_key}.name`)
+      // next-intl returns the key path if not found
+      if (translated && !translated.startsWith('taskDb.')) return translated
+    } catch { /* fallback */ }
+    return task.name
+  }
+  const getTaskDesc = (task: Task) => {
+    try {
+      const translated = t(`taskDb.${task.task_key}.description`)
+      if (translated && !translated.startsWith('taskDb.')) return translated
+    } catch { /* fallback */ }
+    return task.description
+  }
   const router = useRouter()
   
   const [tasks, setTasks] = useState<Task[]>([])
@@ -557,8 +574,8 @@ export default function TasksPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="font-medium text-white text-sm md:text-base">{task.name}</p>
-                        <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{task.description}</p>
+                        <p className="font-medium text-white text-sm md:text-base">{getTaskName(task)}</p>
+                        <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{getTaskDesc(task)}</p>
                       </div>
                       <p className="font-semibold text-emerald-400 currency text-sm md:text-base shrink-0">+${task.reward_usd}</p>
                     </div>
@@ -750,8 +767,8 @@ export default function TasksPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="font-medium text-white text-sm md:text-base">{task.name}</p>
-                        <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{task.description}</p>
+                        <p className="font-medium text-white text-sm md:text-base">{getTaskName(task)}</p>
+                        <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{getTaskDesc(task)}</p>
                       </div>
                       <p className="font-semibold text-emerald-400 currency text-sm md:text-base shrink-0">+${task.reward_usd}</p>
                     </div>
@@ -822,8 +839,8 @@ export default function TasksPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="font-medium text-white text-sm md:text-base">{task.name}</p>
-                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{task.description}</p>
+                      <p className="font-medium text-white text-sm md:text-base">{getTaskName(task)}</p>
+                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{getTaskDesc(task)}</p>
                     </div>
                     <div className="text-right shrink-0">
                       <p className="font-semibold text-emerald-400 currency text-sm md:text-base">+${task.reward_usd}</p>
@@ -897,8 +914,8 @@ export default function TasksPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="font-medium text-white text-sm md:text-base">{task.name}</p>
-                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{task.description}</p>
+                      <p className="font-medium text-white text-sm md:text-base">{getTaskName(task)}</p>
+                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{getTaskDesc(task)}</p>
                     </div>
                     <div className="text-right shrink-0">
                       <p className="font-semibold text-emerald-400 currency text-sm md:text-base">$10-50</p>
@@ -976,8 +993,8 @@ export default function TasksPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="font-medium text-white text-sm md:text-base">{task.name}</p>
-                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{task.description}</p>
+                      <p className="font-medium text-white text-sm md:text-base">{getTaskName(task)}</p>
+                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{getTaskDesc(task)}</p>
                     </div>
                     <div className="text-right shrink-0">
                       <p className="font-semibold text-emerald-400 currency text-sm md:text-base">+${task.reward_usd}</p>
@@ -1073,6 +1090,7 @@ export default function TasksPage() {
                 >
                   <Gift className="w-4 h-4 mr-2" />
                   {t('referral.claimAmount', { amount: referralBonus.pending.toFixed(2) })}
+                </Button>
               </div>
             </div>
           </div>

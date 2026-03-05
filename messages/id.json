@@ -262,7 +262,45 @@
     "support": "Dukungan",
     "linkDashboard": "Dashboard",
     "linkEarnings": "Penghasilan",
-    "linkCommunity": "Komunitas"
+    "linkCommunity": "Komunitas",
+    "taskDb": {
+      "profile_setup": {
+        "name": "Lengkapi Pengaturan Profil",
+        "description": "Atur nama pengguna dan negara Anda untuk mendapatkan hadiah"
+      },
+      "social_twitter": {
+        "name": "Ikuti di Twitter",
+        "description": "Ikuti akun Twitter resmi kami"
+      },
+      "social_telegram": {
+        "name": "Gabung Telegram",
+        "description": "Bergabung dengan komunitas Telegram kami"
+      },
+      "social_whatsapp": {
+        "name": "Gabung WhatsApp",
+        "description": "Bergabung dengan komunitas WhatsApp kami"
+      },
+      "social_facebook": {
+        "name": "Ikuti Facebook",
+        "description": "Ikuti halaman Facebook resmi kami"
+      },
+      "promotion_post": {
+        "name": "Bagikan Promosi",
+        "description": "Bagikan tentang Polnation di media sosial (Tugas Harian - kirim sekali per hari)"
+      },
+      "daily_checkin": {
+        "name": "Check-in Harian",
+        "description": "Check-in setiap hari. Streak 7 hari = bonus $1!"
+      },
+      "video_review": {
+        "name": "Review Video",
+        "description": "Buat dan bagikan video review tentang Polnation. Hadiah: $10-50 berdasarkan kualitas."
+      },
+      "community_devotion": {
+        "name": "Dedikasi Komunitas",
+        "description": "Buat komunitas dengan lebih dari 40 anggota dan kirim tautan grup untuk verifikasi."
+      }
+    }
   },
   "earnings": {
     "title": "Penghasilan",

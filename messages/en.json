@@ -261,7 +261,45 @@
     "support": "Support",
     "linkDashboard": "Dashboard",
     "linkEarnings": "Earnings",
-    "linkCommunity": "Community"
+    "linkCommunity": "Community",
+    "taskDb": {
+      "profile_setup": {
+        "name": "Complete Profile Setup",
+        "description": "Set up your username and country to earn reward"
+      },
+      "social_twitter": {
+        "name": "Follow on Twitter",
+        "description": "Follow our official Twitter account"
+      },
+      "social_telegram": {
+        "name": "Join Telegram",
+        "description": "Join our Telegram community"
+      },
+      "social_whatsapp": {
+        "name": "Join WhatsApp",
+        "description": "Join our WhatsApp community"
+      },
+      "social_facebook": {
+        "name": "Follow Facebook",
+        "description": "Follow our official Facebook page"
+      },
+      "promotion_post": {
+        "name": "Share Promotion",
+        "description": "Share about Polnation on social media (Daily Task - submit once per day)"
+      },
+      "daily_checkin": {
+        "name": "Daily Check-in",
+        "description": "Check in daily. 7-day streak = $1 bonus!"
+      },
+      "video_review": {
+        "name": "Video Review",
+        "description": "Create and share a video review about Polnation. Reward: $10-50 based on quality."
+      },
+      "community_devotion": {
+        "name": "Community Devotion",
+        "description": "Create a community over 40 members and submit your group link for verification."
+      }
+    }
   },
   "earnings": {
     "title": "Earnings",
