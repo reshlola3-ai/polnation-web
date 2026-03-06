@@ -138,7 +138,7 @@ export default function SharePage() {
 
       setData({
         username: profile?.username || 'Polnation User',
-        referralCode: profile?.username || profile?.referral_code || null,
+        referralCode: profile?.referral_code || null,
         joinDate: profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '',
         totalEarned,
         dailyEarnings,

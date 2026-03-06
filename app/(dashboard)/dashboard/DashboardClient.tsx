@@ -274,8 +274,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   // Calculate total assets = community prize pool + wallet usdc balance
   const totalAssets = profitData.communityPrizePool + usdcBalance
   // Referral link: only show short link if profile completed + real email bound
-  const canShowReferralLink = profile?.profile_completed && !isWalletEmail(profile?.email) && !!(profile?.username || profile?.referral_code)
-  const refCode = profile?.username || profile?.referral_code || userId
+  const canShowReferralLink = profile?.profile_completed && !isWalletEmail(profile?.email) && !!profile?.referral_code
+  const refCode = profile?.referral_code || userId
   const referralLink = typeof window !== 'undefined' 
     ? `${window.location.origin}/register?ref=${refCode}`
     : `https://polnation.com/register?ref=${refCode}`
