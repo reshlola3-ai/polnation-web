@@ -79,6 +79,11 @@ export default function AdminCommunityPage() {
   const [editingUser, setEditingUser] = useState<CommunityUser | null>(null)
   const [newLevel, setNewLevel] = useState(0)
 
+  // Grant spins modal
+  const [grantSpinsUser, setGrantSpinsUser] = useState<CommunityUser | null>(null)
+  const [spinsToAdd, setSpinsToAdd] = useState(10)
+  const [grantingSpins, setGrantingSpins] = useState(false)
+
   const fetchData = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -104,6 +109,35 @@ export default function AdminCommunityPage() {
   const handleLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' })
     router.push('/admin/login')
+  }
+
+  const handleGrantSpins = async () => {
+    if (!grantSpinsUser || spinsToAdd <= 0) return
+    setGrantingSpins(true)
+    setError('')
+    setSuccess('')
+
+    try {
+      const res = await fetch('/api/admin/lottery/grant-spins', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: grantSpinsUser.user_id, spins_to_add: spinsToAdd }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'Failed to grant spins')
+        return
+      }
+
+      setSuccess(data.message || `Granted ${spinsToAdd} spins`)
+      setGrantSpinsUser(null)
+    } catch {
+      setError('Network error')
+    } finally {
+      setGrantingSpins(false)
+    }
   }
 
   const handleAction = async (userId: string, action: string, params?: Record<string, unknown>) => {
@@ -496,6 +530,21 @@ export default function AdminCommunityPage() {
                             设等级
                           </Button>
 
+                          {/* Grant Spins */}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setGrantSpinsUser(user)
+                              setSpinsToAdd(10)
+                            }}
+                            disabled={processing === user.user_id}
+                            className="border-emerald-500 text-emerald-400 hover:bg-emerald-500/20 text-xs px-2 py-1"
+                          >
+                            <Gift className="w-3 h-3 mr-1" />
+                            抽奖
+                          </Button>
+
                           {/* Restore Real Level */}
                           {user.is_admin_set && (
                             <Button
@@ -545,6 +594,63 @@ export default function AdminCommunityPage() {
           </div>
         </div>
       </main>
+
+      {/* Grant Spins Modal */}
+      {grantSpinsUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-white font-semibold mb-4">🎰 发放抽奖次数</h3>
+            <p className="text-zinc-400 text-sm mb-4">
+              用户: {grantSpinsUser.username || grantSpinsUser.email}
+            </p>
+            
+            <div className="mb-4">
+              <label className="text-zinc-400 text-sm mb-2 block">抽奖次数</label>
+              <div className="flex gap-2">
+                {[5, 10, 20, 50, 100].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setSpinsToAdd(n)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      spinsToAdd === n 
+                        ? 'bg-emerald-500 text-white' 
+                        : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="number"
+                value={spinsToAdd}
+                onChange={(e) => setSpinsToAdd(Math.max(1, parseInt(e.target.value) || 1))}
+                min={1}
+                className="mt-2 w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-white text-sm"
+                placeholder="或输入自定义次数"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={handleGrantSpins}
+                isLoading={grantingSpins}
+                className="flex-1 bg-emerald-500 hover:bg-emerald-600"
+              >
+                <Gift className="w-4 h-4 mr-2" />
+                确认发放 {spinsToAdd} 次
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setGrantSpinsUser(null)}
+                className="flex-1 border-zinc-600 text-zinc-400"
+              >
+                取消
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Level Modal */}
       {editingUser && (

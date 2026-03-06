@@ -82,11 +82,10 @@ export async function POST() {
     return NextResponse.json({ error: 'no_spins' }, { status: 400 })
   }
 
-  // Influencer 无限次数；否则检查剩余次数
-  const isInfluencer = spinData.is_influencer || false
+  // 所有人都按 total_spins - used_spins 检查（包括 influencer）
   const remainingSpins = (spinData.total_spins || 0) - (spinData.used_spins || 0)
 
-  if (!isInfluencer && remainingSpins <= 0) {
+  if (remainingSpins <= 0) {
     return NextResponse.json({ error: 'no_spins' }, { status: 400 })
   }
 

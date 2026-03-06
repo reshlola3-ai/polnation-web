@@ -192,12 +192,10 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
   const handleEnd = () => {
     setIsSpinning(false)
     setShowResult(true)
-    // Update remaining spins
-    if (!isInfluencer) {
-      setRemainingSpins(prev => Math.max(0, prev - 1))
-      if (remainingSpins <= 1) {
-        setCanSpin(false)
-      }
+    // Update remaining spins（所有人都扣次数）
+    setRemainingSpins(prev => Math.max(0, prev - 1))
+    if (remainingSpins <= 1) {
+      setCanSpin(false)
     }
     // Refresh history
     checkStatus()
@@ -214,10 +212,7 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/30 mb-3">
           <Sparkles className="w-4 h-4 text-purple-400" />
           <span className="text-sm font-medium text-purple-300">
-            {isInfluencer 
-              ? (t.unlimitedSpins || '∞ Unlimited Spins')
-              : `${t.remainingSpins || 'Spins'}: ${remainingSpins}`
-            }
+            {`${t.remainingSpins || 'Spins'}: ${remainingSpins}`}
           </span>
         </div>
         <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">{t.title}</h2>

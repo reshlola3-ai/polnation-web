@@ -61,8 +61,8 @@ export async function GET() {
   const usedSpins = spinData?.used_spins || 0
   const remainingSpins = totalSpins - usedSpins
 
-  // Influencer 无限次，否则看剩余次数
-  const canSpin = isInfluencer || remainingSpins > 0
+  // 所有人都按剩余次数判断（管理员可以手动加次数）
+  const canSpin = remainingSpins > 0
 
   // 获取最近抽奖历史（最近 20 条）
   const { data: history } = await admin
@@ -77,7 +77,7 @@ export async function GET() {
     isInfluencer,
     totalSpins,
     usedSpins,
-    remainingSpins: isInfluencer ? 999 : Math.max(0, remainingSpins),
+    remainingSpins: Math.max(0, remainingSpins),
     history: history || [],
   })
 }
