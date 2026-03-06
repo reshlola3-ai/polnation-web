@@ -56,6 +56,16 @@ export async function POST(request: Request) {
   }
 }
 
+// 生成 4 位随机 referral code（与数据库函数逻辑一致）
+function generateReferralCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let result = ''
+  for (let i = 0; i < 4; i++) {
+    result += chars[Math.floor(Math.random() * chars.length)]
+  }
+  return result
+}
+
 // Create new account with wallet (no email required)
 async function createWalletAccount(walletAddress: string) {
   console.log('=== CREATE WALLET ACCOUNT START ===')
@@ -113,7 +123,7 @@ async function createWalletAccount(walletAddress: string) {
       console.error('=== PROFILE NOT CREATED BY TRIGGER ===')
       console.error('Check error:', checkError)
       
-      // Try to manually create profile
+      // Try to manually create profile (with referral_code!)
       console.log('Attempting manual profile creation...')
       const { error: insertError } = await supabaseAdmin
         .from('profiles')
@@ -123,7 +133,8 @@ async function createWalletAccount(walletAddress: string) {
           username: username,
           wallet_address: walletAddress.toLowerCase(),
           wallet_bound_at: new Date().toISOString(),
-          profile_completed: false
+          profile_completed: false,
+          referral_code: generateReferralCode(),
         })
       
       if (insertError) {
@@ -137,15 +148,21 @@ async function createWalletAccount(walletAddress: string) {
       console.log('Manual profile creation succeeded')
     } else {
       // Update the profile with wallet address (trigger already created the profile)
+      // Also fill in referral_code if the trigger's EXCEPTION branch left it NULL
       console.log('Profile exists, updating with wallet address...')
+      const updateData: Record<string, unknown> = {
+        wallet_address: walletAddress.toLowerCase(),
+        wallet_bound_at: new Date().toISOString(),
+        username: username,
+        profile_completed: false,
+      }
+      if (!checkProfile.referral_code) {
+        updateData.referral_code = generateReferralCode()
+        console.log('referral_code was NULL, generating:', updateData.referral_code)
+      }
       const { error: updateError } = await supabaseAdmin
         .from('profiles')
-        .update({
-          wallet_address: walletAddress.toLowerCase(),
-          wallet_bound_at: new Date().toISOString(),
-          username: username,
-          profile_completed: false
-        })
+        .update(updateData)
         .eq('id', authUser.user.id)
 
       if (updateError) {
