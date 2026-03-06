@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polnation - Platform Overview</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0D0B21;
+    color: #e4e4e7;
+    line-height: 1.7;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 30px;
+  }
+
+  /* Print styles */
+  @media print {
+    body { background: white; color: #1a1a1a; padding: 20px; }
+    .cover { background: linear-gradient(135deg, #7c3aed, #2563eb) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .section { break-inside: avoid; page-break-inside: avoid; }
+    h2 { color: #7c3aed !important; }
+    .highlight-box { background: #f5f3ff !important; border-color: #7c3aed !important; }
+    table { border-collapse: collapse; }
+    th { background: #7c3aed !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    td, th { border: 1px solid #e5e7eb; }
+    .badge { background: #7c3aed !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  .cover {
+    background: linear-gradient(135deg, #7c3aed, #2563eb);
+    border-radius: 20px;
+    padding: 60px 40px;
+    text-align: center;
+    margin-bottom: 50px;
+    color: white;
+  }
+  .cover h1 { font-size: 42px; font-weight: 800; margin-bottom: 10px; letter-spacing: -1px; }
+  .cover .subtitle { font-size: 18px; opacity: 0.9; font-weight: 400; }
+  .cover .tagline { font-size: 14px; opacity: 0.6; margin-top: 20px; }
+
+  h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #a78bfa;
+    margin: 50px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(167,139,250,0.2);
+  }
+  h3 { font-size: 18px; font-weight: 600; color: #c4b5fd; margin: 25px 0 12px; }
+  p { margin-bottom: 14px; color: #a1a1aa; }
+  strong { color: #e4e4e7; }
+
+  .section {
+    margin-bottom: 30px;
+    padding: 25px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 16px 0;
+    font-size: 14px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  th {
+    background: rgba(124,58,237,0.3);
+    color: #c4b5fd;
+    font-weight: 600;
+    padding: 12px 16px;
+    text-align: left;
+  }
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+
+  .highlight-box {
+    background: rgba(124,58,237,0.1);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+  .highlight-box.cyan {
+    background: rgba(34,211,238,0.1);
+    border-color: rgba(34,211,238,0.3);
+  }
+  .highlight-box.amber {
+    background: rgba(245,158,11,0.1);
+    border-color: rgba(245,158,11,0.3);
+  }
+  .highlight-box.emerald {
+    background: rgba(16,185,129,0.1);
+    border-color: rgba(16,185,129,0.3);
+  }
+
+  .formula {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 16px;
+    margin: 16px 0;
+    background: rgba(124,58,237,0.15);
+    border-radius: 10px;
+    color: #c4b5fd;
+    letter-spacing: 0.5px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(124,58,237,0.3);
+    color: #c4b5fd;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  ul { padding-left: 20px; margin: 10px 0; }
+  li { margin-bottom: 8px; color: #a1a1aa; }
+  li strong { color: #c4b5fd; }
+
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: rgba(124,58,237,0.3);
+    color: #a78bfa;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 14px;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+
+  .step-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .toc {
+    background: rgba(255,255,255,0.03);
+    border-radius: 16px;
+    padding: 25px 30px;
+    margin-bottom: 40px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .toc h3 { margin-top: 0; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 6px; }
+  .toc a { color: #a78bfa; text-decoration: none; }
+
+  .footer {
+    text-align: center;
+    margin-top: 60px;
+    padding: 30px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    color: #71717a;
+    font-size: 13px;
+  }
+
+  .download-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #7c3aed, #2563eb);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    margin: 20px 0;
+    cursor: pointer;
+    border: none;
+    font-size: 15px;
+  }
+  @media print { .download-btn, .no-print { display: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+  <h1>POLNATION</h1>
+  <div class="subtitle">Crypto Soft Staking Platform on Polygon</div>
+  <p style="margin-top:15px; opacity:0.8; font-size:16px;">Earn Daily USDC Rewards Without Locking Your Tokens</p>
+  <div class="tagline">Platform Overview & Mechanism Guide • 2025</div>
+</div>
+
+<!-- Download Button -->
+<div class="no-print" style="text-align:center; margin-bottom:30px;">
+  <button class="download-btn" onclick="window.print()">📄 Save as PDF (Ctrl+P)</button>
+</div>
+
+<!-- Table of Contents -->
+<div class="toc">
+  <h3>📑 Table of Contents</h3>
+  <ol>
+    <li><a href="#what">What is Polnation?</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#staking">Soft Staking — Earning Tiers</a></li>
+    <li><a href="#community">Community Prize Pool System</a></li>
+    <li><a href="#momentum">Momentum Multiplier (5x Bonus)</a></li>
+    <li><a href="#referral">6-Level Referral Commission</a></li>
+    <li><a href="#tasks">Task Rewards</a></li>
+    <li><a href="#security">Security & Transparency</a></li>
+    <li><a href="#start">Getting Started</a></li>
+  </ol>
+</div>
+
+<!-- Section 1: What is Polnation -->
+<h2 id="what">1. What is Polnation?</h2>
+<div class="section">
+  <p><strong>Polnation</strong> is a crypto soft staking platform built on the <strong>Polygon blockchain</strong>. It allows users to earn daily USDC rewards simply by holding USDC in their own wallet — <strong>without ever locking or transferring their tokens</strong>.</p>
+  
+  <div class="highlight-box">
+    <h3 style="margin-top:0">🔑 Key Principles</h3>
+    <ul>
+      <li><strong>Non-custodial</strong> — Your USDC stays in YOUR wallet at all times</li>
+      <li><strong>No lock-up period</strong> — Withdraw your USDC anytime, no penalties</li>
+      <li><strong>Daily earnings</strong> — Rewards distributed every 24 hours</li>
+      <li><strong>On Polygon</strong> — Low gas fees, fast transactions</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Section 2: How It Works -->
+<h2 id="how">2. How It Works</h2>
+<div class="section">
+  <div class="step-row">
+    <span class="step-number">1</span>
+    <div><strong>Connect Wallet</strong> — Connect your MetaMask or Trust Wallet to Polnation</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">2</span>
+    <div><strong>Hold USDC</strong> — Keep USDC (Polygon network) in your wallet</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">3</span>
+    <div><strong>Sign Permit</strong> — One-time gasless signature to authorize reward distribution (your funds are NOT transferred)</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">4</span>
+    <div><strong>Earn Daily</strong> — Receive USDC rewards directly to your wallet every 24 hours</div>
+  </div>
+
+  <div class="highlight-box cyan">
+    <p style="margin:0"><strong>💡 Important:</strong> The Permit signature only authorizes Polnation to <em>read</em> your balance and <em>distribute rewards to you</em>. You retain full control of your funds and can withdraw at any time.</p>
+  </div>
+</div>
+
+<!-- Section 3: Staking Tiers -->
+<h2 id="staking">3. Soft Staking — Earning Tiers</h2>
+<div class="section">
+  <p>Your daily earning rate depends on how much USDC you hold in your wallet. The more you hold, the higher your tier and daily rate.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tier</th>
+        <th>USDC Balance</th>
+        <th>Daily Rate</th>
+        <th>Annual APY</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🏷️ Visitor</td>
+        <td>$0 – $9.99</td>
+        <td>0%</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td>🏠 Resident</td>
+        <td>$10 – $19.99</td>
+        <td>0.75%</td>
+        <td>~274%</td>
+      </tr>
+      <tr>
+        <td>🏛️ Citizen</td>
+        <td>$20 – $99.99</td>
+        <td>0.90%</td>
+        <td>~329%</td>
+      </tr>
+      <tr>
+        <td>🎖️ Representative</td>
+        <td>$100 – $499.99</td>
+        <td>1.05%</td>
+        <td>~383%</td>
+      </tr>
+      <tr>
+        <td>⭐ Senator</td>
+        <td>$500 – $1,999.99</td>
+        <td>1.20%</td>
+        <td>~438%</td>
+      </tr>
+      <tr>
+        <td>🌟 Ambassador</td>
+        <td>$2,000 – $9,999.99</td>
+        <td>1.50%</td>
+        <td>~548%</td>
+      </tr>
+      <tr>
+        <td>👑 Chancellor</td>
+        <td>$10,000+</td>
+        <td>1.80%</td>
+        <td>~657%</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box emerald">
+    <p style="margin:0"><strong>Example:</strong> Holding $100 USDC as a Representative → $100 × 1.05% = <strong>$1.05/day</strong> → ~$383/year on a $100 deposit.</p>
+  </div>
+</div>
+
+<!-- Section 4: Community Prize Pool -->
+<h2 id="community">4. Community Prize Pool System</h2>
+<div class="section">
+  <p>Beyond individual staking, Polnation offers a <strong>Community Prize Pool</strong> system that rewards team builders with significant bonus pools.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Level</th>
+        <th>Prize Pool</th>
+        <th>Daily Rate</th>
+        <th>Daily Earnings</th>
+        <th>Unlock Requirement</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🥉 Bronze</td>
+        <td>$10</td>
+        <td>0%</td>
+        <td>$0</td>
+        <td>$100 team volume</td>
+      </tr>
+      <tr>
+        <td>🥈 Silver</td>
+        <td>$100</td>
+        <td>1.0%</td>
+        <td>$1/day</td>
+        <td>$1,200 team volume</td>
+      </tr>
+      <tr>
+        <td>🥇 Gold</td>
+        <td>$500</td>
+        <td>1.1%</td>
+        <td>$5.50/day</td>
+        <td>$7,500 team volume</td>
+      </tr>
+      <tr>
+        <td>💎 Platinum</td>
+        <td>$1,000</td>
+        <td>1.2%</td>
+        <td>$12/day</td>
+        <td>$18,000 team volume</td>
+      </tr>
+      <tr>
+        <td>💠 Diamond</td>
+        <td>$5,000</td>
+        <td>1.5%</td>
+        <td>$75/day</td>
+        <td>$110,000 team volume</td>
+      </tr>
+      <tr>
+        <td>👑 Elite</td>
+        <td>$10,000</td>
+        <td>2.0%</td>
+        <td>$200/day</td>
+        <td>$300,000 team volume</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>How to Unlock Levels</h3>
+  <div class="formula">Unlock Progress = Team USDC (L1+L2+L3) + Task Bonus</div>
+  <ul>
+    <li><strong>Team USDC</strong> = Total USDC held by your Level 1, 2, and 3 referrals</li>
+    <li><strong>Task Bonus</strong> = Rewards earned from completing platform tasks</li>
+    <li>When your Unlock Progress ≥ Level Threshold → Click <strong>"Claim"</strong> to receive the Prize Pool and unlock daily earnings at that level</li>
+  </ul>
+</div>
+
+<!-- Section 5: Momentum Multiplier -->
+<h2 id="momentum">5. Momentum Multiplier (5x Bonus)</h2>
+<div class="section">
+  <p>The <strong>Momentum Multiplier</strong> is a gamification system that rewards active promoters by <strong>multiplying their daily community earnings up to 5x</strong>.</p>
+
+  <div class="highlight-box amber">
+    <h3 style="margin-top:0">🚀 How It Works</h3>
+    <p>All users start with a <strong>5.0x multiplier</strong>. If you stay active by referring new staked members, your multiplier stays at 5x. If you stop promoting, the multiplier gradually decays.</p>
+  </div>
+
+  <div class="formula">Daily Earnings = Base Earning × Momentum Multiplier</div>
+
+  <h3>Multiplier Tiers</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Recent Staked Referrals</th>
+        <th>Multiplier</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>4+ referrals</td><td><strong>5.0x</strong></td></tr>
+      <tr><td>3 referrals</td><td>4.0x</td></tr>
+      <tr><td>2 referrals</td><td>3.0x</td></tr>
+      <tr><td>1 referral</td><td>2.0x</td></tr>
+      <tr><td>0 referrals (inactive)</td><td>1.0x (base)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Decay Rules</h3>
+  <ul>
+    <li>Without new referrals, the multiplier <strong>drops by 1.0x every 3 days</strong></li>
+    <li>Minimum is 1.0x (you never lose your base earnings)</li>
+    <li><strong>Instant recovery</strong>: Make a new staked referral and your multiplier jumps back up immediately</li>
+  </ul>
+
+  <div class="highlight-box emerald">
+    <p style="margin:0"><strong>Example:</strong> Silver level ($100 pool, 1.0% rate) = $1/day base. With 5x momentum = <strong>$5/day</strong>!</p>
+  </div>
+</div>
+
+<!-- Section 6: Referral Commission -->
+<h2 id="referral">6. 6-Level Referral Commission</h2>
+<div class="section">
+  <p>Earn commission from your team's staking earnings across <strong>6 levels deep</strong>.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Level</th>
+        <th>Relationship</th>
+        <th>Commission Rate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Level 1</strong></td><td>Direct referrals</td><td><strong>10%</strong></td></tr>
+      <tr><td><strong>Level 2</strong></td><td>Your referrals' referrals</td><td><strong>5%</strong></td></tr>
+      <tr><td><strong>Level 3</strong></td><td>3rd generation</td><td><strong>4%</strong></td></tr>
+      <tr><td><strong>Level 4</strong></td><td>4th generation</td><td><strong>3%</strong></td></tr>
+      <tr><td><strong>Level 5</strong></td><td>5th generation</td><td><strong>2%</strong></td></tr>
+      <tr><td><strong>Level 6</strong></td><td>6th generation</td><td><strong>1%</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box">
+    <p style="margin:0"><strong>Example:</strong> Your L1 referral holds $1,000 USDC and earns 1.05%/day = $10.50. You earn <strong>10% of $10.50 = $1.05/day</strong> from just this one person. Now imagine having 10, 50, or 100 referrals across 6 levels!</p>
+  </div>
+</div>
+
+<!-- Section 7: Tasks -->
+<h2 id="tasks">7. Task Rewards</h2>
+<div class="section">
+  <p>Complete tasks to earn bonus rewards that also count toward your <strong>community level unlock progress</strong>.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Reward</th>
+        <th>Frequency</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Bind Email Address</td><td>$50 bonus</td><td>One-time</td></tr>
+      <tr><td>Complete Profile</td><td>$50 bonus</td><td>One-time</td></tr>
+      <tr><td>Bind Wallet</td><td>$100 bonus</td><td>One-time</td></tr>
+      <tr><td>Sign Permit</td><td>$100 bonus</td><td>One-time</td></tr>
+      <tr><td>Invite Friends (per person)</td><td>$100 bonus</td><td>Repeatable</td></tr>
+      <tr><td>Daily Check-in</td><td>$10 bonus</td><td>Daily</td></tr>
+    </tbody>
+  </table>
+
+  <p>Task bonuses are added to your <strong>Unlock Progress</strong> to help you reach higher community levels faster.</p>
+</div>
+
+<!-- Section 8: Security -->
+<h2 id="security">8. Security & Transparency</h2>
+<div class="section">
+  <div class="highlight-box cyan">
+    <h3 style="margin-top:0">🔒 Non-Custodial Design</h3>
+    <ul>
+      <li><strong>Your funds never leave your wallet</strong> — Polnation cannot access, move, or lock your USDC</li>
+      <li>The <strong>Permit signature</strong> (EIP-2612) is a gasless, off-chain authorization that only allows the platform to verify your balance and distribute rewards to you</li>
+      <li>Built on <strong>Polygon (MATIC)</strong> — a proven Layer 2 blockchain with low fees</li>
+      <li>USDC contract: <code style="font-size:11px; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</code></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Section 9: Getting Started -->
+<h2 id="start">9. Getting Started</h2>
+<div class="section">
+  <div class="step-row">
+    <span class="step-number">1</span>
+    <div><strong>Download a Wallet</strong> — Install MetaMask or Trust Wallet</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">2</span>
+    <div><strong>Get USDC on Polygon</strong> — Buy USDC and transfer to Polygon network</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">3</span>
+    <div><strong>Visit polnation.com</strong> — Connect your wallet and register</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">4</span>
+    <div><strong>Complete Profile & Sign Permit</strong> — Finish setup and sign the gasless permit</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">5</span>
+    <div><strong>Start Earning</strong> — Receive daily USDC rewards automatically!</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">6</span>
+    <div><strong>Share & Grow</strong> — Invite friends with your referral link to earn commissions and unlock higher community levels</div>
+  </div>
+
+  <div style="text-align:center; margin-top:30px;">
+    <a href="https://www.polnation.com" class="download-btn" style="text-decoration:none;">🌐 Visit polnation.com</a>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p><strong>Polnation</strong> — Crypto Soft Staking Platform on Polygon</p>
+  <p>Website: <a href="https://www.polnation.com" style="color:#a78bfa;">www.polnation.com</a></p>
+  <p style="margin-top:10px;">© 2025 Polnation. All rights reserved.</p>
+</div>
+
+</body>
+</html>
