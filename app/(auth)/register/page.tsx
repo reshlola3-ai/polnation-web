@@ -27,20 +27,24 @@ function RegisterForm() {
   useEffect(() => {
     async function fetchReferrer() {
       if (referrerId) {
-        // Check if it's a short code (4 chars) or UUID (36 chars with dashes)
+        const isUUID = referrerId.length === 36 && referrerId.includes('-')
         const isShortCode = referrerId.length <= 6 && !referrerId.includes('-')
         
-        let query = supabase.from('profiles').select('id, username')
-        
-        if (isShortCode) {
-          // Look up by referral_code
-          query = query.eq('referral_code', referrerId.toUpperCase())
-        } else {
+        let data = null
+
+        if (isUUID) {
           // Look up by UUID
-          query = query.eq('id', referrerId)
+          const res = await supabase.from('profiles').select('id, username').eq('id', referrerId).single()
+          data = res.data
+        } else if (isShortCode) {
+          // Look up by referral_code (4-char code like K3WP)
+          const res = await supabase.from('profiles').select('id, username').eq('referral_code', referrerId.toUpperCase()).single()
+          data = res.data
+        } else {
+          // Look up by username (e.g. patriciavang)
+          const res = await supabase.from('profiles').select('id, username').eq('username', referrerId).single()
+          data = res.data
         }
-        
-        const { data } = await query.single()
         
         if (data) {
           setReferrerName(data.username)

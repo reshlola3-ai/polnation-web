@@ -172,14 +172,14 @@ export default function TeamPage() {
       setUserId(user.id)
       setUserEmail(user.email || null)
 
-      // Fetch profile for referral_code and profile_completed
+      // Fetch profile for username, referral_code and profile_completed
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('referral_code, profile_completed')
+        .select('username, referral_code, profile_completed')
         .eq('id', user.id)
         .single()
       if (profileData) {
-        setReferralCode(profileData.referral_code)
+        setReferralCode(profileData.username || profileData.referral_code)
         setProfileCompleted(profileData.profile_completed || false)
       }
 
