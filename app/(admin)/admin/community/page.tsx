@@ -55,6 +55,8 @@ interface DailyEarningPreview {
   reward_pool: number
   daily_rate: number
   earning_amount: number
+  base_earning: number
+  momentum_multiplier: number
   already_earned_today: boolean
 }
 
@@ -341,13 +343,23 @@ export default function AdminCommunityPage() {
                       <span className={`ml-2 text-xs px-2 py-0.5 rounded ${getLevelColor(item.level)}`}>
                         L{item.level} {item.level_name}
                       </span>
+                      {item.momentum_multiplier > 1.0 && (
+                        <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">
+                          🔥 ×{item.momentum_multiplier.toFixed(0)}
+                        </span>
+                      )}
                       {item.already_earned_today && (
                         <span className="ml-2 text-xs text-amber-400">今日已发放</span>
                       )}
                     </div>
-                    <span className="text-green-400 font-mono">
-                      +${item.earning_amount.toFixed(4)}
-                    </span>
+                    <div className="text-right">
+                      <span className="text-green-400 font-mono">
+                        +${item.earning_amount.toFixed(4)}
+                      </span>
+                      {item.momentum_multiplier > 1.0 && (
+                        <p className="text-[10px] text-zinc-500">${item.base_earning?.toFixed(4)} × {item.momentum_multiplier.toFixed(0)}</p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

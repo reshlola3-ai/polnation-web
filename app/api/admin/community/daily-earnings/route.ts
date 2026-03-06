@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     const levelMap = new Map(levels?.map(l => [l.level, l]) || [])
 
-    // 计算每个用户的收益
+    // 计算每个用户的收益（含 Momentum Multiplier）
     const calculations: Array<{
       user_id: string
       username: string
@@ -65,6 +65,8 @@ export async function POST(request: NextRequest) {
       reward_pool: number
       daily_rate: number
       earning_amount: number
+      base_earning: number
+      momentum_multiplier: number
       already_earned_today: boolean
     }> = []
 
@@ -82,7 +84,13 @@ export async function POST(request: NextRequest) {
         .eq('earning_date', today)
         .single()
 
-      const earningAmount = levelInfo.reward_pool * levelInfo.daily_rate
+      // ★ 计算 Momentum Multiplier — 默认 5.0x ★
+      const momentum = calculateMomentumMultiplier(
+        status.momentum_last_referral_at ? new Date(status.momentum_last_referral_at) : null
+      )
+
+      const baseEarning = levelInfo.reward_pool * levelInfo.daily_rate
+      const earningAmount = baseEarning * momentum
 
       calculations.push({
         user_id: status.user_id,
@@ -93,6 +101,8 @@ export async function POST(request: NextRequest) {
         reward_pool: levelInfo.reward_pool,
         daily_rate: levelInfo.daily_rate,
         earning_amount: earningAmount,
+        base_earning: baseEarning,
+        momentum_multiplier: momentum,
         already_earned_today: !!existingEarning,
       })
 
@@ -119,7 +129,7 @@ export async function POST(request: NextRequest) {
     for (const calc of calculations) {
       if (calc.already_earned_today) continue
 
-      // 创建每日收益记录
+      // 创建每日收益记录（含 momentum）
       await supabaseAdmin
         .from('community_daily_earnings')
         .insert({
@@ -129,6 +139,7 @@ export async function POST(request: NextRequest) {
           reward_pool: calc.reward_pool,
           daily_rate: calc.daily_rate,
           earning_amount: calc.earning_amount,
+          momentum_multiplier: calc.momentum_multiplier,
           is_credited: true,
           credited_at: new Date().toISOString(),
         })
@@ -174,6 +185,8 @@ export async function POST(request: NextRequest) {
         .update({
           total_community_earned: (status?.total_community_earned || 0) + calc.earning_amount,
           last_daily_earning_date: today,
+          momentum_multiplier: calc.momentum_multiplier,
+          momentum_updated_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
         .eq('user_id', calc.user_id)
@@ -193,4 +206,16 @@ export async function POST(request: NextRequest) {
     console.error('Error:', error)
     return NextResponse.json({ error: 'Distribution failed' }, { status: 500 })
   }
+}
+
+// ========== Momentum Multiplier — 默认 5.0x，衰减 -1x/3天 ==========
+function calculateMomentumMultiplier(lastReferralAt: Date | null): number {
+  // 没有 referral 记录 → 保持 5.0x（新用户福利）
+  if (!lastReferralAt) return 5.0
+
+  // 有记录后，根据距离上次 referral 的天数衰减
+  const daysSinceLast = Math.floor((Date.now() - lastReferralAt.getTime()) / (1000 * 60 * 60 * 24))
+  const decaySteps = Math.floor(daysSinceLast / 3)
+
+  return Math.max(1.0, 5.0 - decaySteps)
 }
