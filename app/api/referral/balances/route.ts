@@ -58,39 +58,67 @@ export async function GET(request: NextRequest) {
       transport: http(CONFIG.rpcUrl),
     })
 
-    // 获取所有有钱包地址的下线的余额
-    const referralsWithBalance = await Promise.all(
-      referrals.map(async (r: { id: string; wallet_address: string | null; level: number; [key: string]: unknown }) => {
-        if (!r.wallet_address) {
-          return { ...r, usdc_balance: 0 }
-        }
+    // 🚀 使用 multicall 批量读取余额（1次RPC代替N次，速度提升 10-50x）
+    const withWallet = referrals.filter((r: { wallet_address: string | null }) => r.wallet_address)
+    const withoutWallet = referrals.filter((r: { wallet_address: string | null }) => !r.wallet_address)
+      .map((r: { id: string; level: number; [key: string]: unknown }) => ({ ...r, usdc_balance: 0 }))
 
-        try {
-          const balance = await publicClient.readContract({
+    let walletBalances: { [key: string]: number } = {}
+    const BATCH_SIZE = 100
+
+    for (let i = 0; i < withWallet.length; i += BATCH_SIZE) {
+      const batch = withWallet.slice(i, i + BATCH_SIZE)
+      try {
+        const results = await publicClient.multicall({
+          contracts: batch.map((r: { wallet_address: string }) => ({
             address: CONFIG.usdcAddress,
             abi: USDC_ABI,
             functionName: 'balanceOf',
             args: [r.wallet_address as `0x${string}`],
-          })
-          
-          return {
-            ...r,
-            usdc_balance: parseFloat(formatUnits(balance, 6)),
+          })),
+          allowFailure: true,
+        })
+        
+        batch.forEach((r: { wallet_address: string }, idx: number) => {
+          const result = results[idx]
+          walletBalances[r.wallet_address] = result.status === 'success' 
+            ? parseFloat(formatUnits(result.result as bigint, 6)) 
+            : 0
+        })
+      } catch (err) {
+        console.error('Multicall batch failed, falling back:', err)
+        // Fallback: individual calls
+        for (const r of batch) {
+          try {
+            const balance = await publicClient.readContract({
+              address: CONFIG.usdcAddress,
+              abi: USDC_ABI,
+              functionName: 'balanceOf',
+              args: [r.wallet_address as `0x${string}`],
+            })
+            walletBalances[r.wallet_address] = parseFloat(formatUnits(balance, 6))
+          } catch {
+            walletBalances[r.wallet_address] = 0
           }
-        } catch (err) {
-          console.error(`Failed to get balance for ${r.wallet_address}:`, err)
-          return { ...r, usdc_balance: 0 }
         }
-      })
-    )
+      }
+    }
+
+    const referralsWithBalance = [
+      ...withWallet.map((r: { wallet_address: string; [key: string]: unknown }) => ({
+        ...r,
+        usdc_balance: walletBalances[r.wallet_address] || 0,
+      })),
+      ...withoutWallet,
+    ]
 
     // 计算统计数据
-    const totalVolume = referralsWithBalance.reduce((sum, r) => sum + (r.usdc_balance || 0), 0)
+    const totalVolume = referralsWithBalance.reduce((sum: number, r: { usdc_balance?: number }) => sum + (r.usdc_balance || 0), 0)
     const level1Volume = referralsWithBalance
-      .filter(r => r.level === 1)
-      .reduce((sum, r) => sum + (r.usdc_balance || 0), 0)
+      .filter((r: { level?: number }) => r.level === 1)
+      .reduce((sum: number, r: { usdc_balance?: number }) => sum + (r.usdc_balance || 0), 0)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       referrals: referralsWithBalance,
       stats: {
         totalVolume,
@@ -99,6 +127,9 @@ export async function GET(request: NextRequest) {
         level1Members: referrals.filter((r: { level: number }) => r.level === 1).length,
       }
     })
+    // 🚀 Private cache 30s + stale-while-revalidate
+    response.headers.set('Cache-Control', 'private, max-age=30, stale-while-revalidate=60')
+    return response
   } catch (error) {
     console.error('Error:', error)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })

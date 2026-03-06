@@ -40,66 +40,51 @@ export async function GET() {
   }
 
   try {
-    // 获取配置
-    const { data: config } = await supabaseAdmin
-      .from('airdrop_config')
-      .select('*')
-      .single()
+    // 🚀 并行获取所有独立的数据查询（7个串行 → 1次并行，速度提升 ~5x）
+    const [
+      configResult,
+      tiersResult,
+      profitsResult,
+      historyResult,
+      withdrawalsResult,
+      commissionsResult,
+      profileResult,
+    ] = await Promise.all([
+      // 获取配置
+      supabaseAdmin.from('airdrop_config').select('*').single(),
+      // 获取利润等级
+      supabaseAdmin.from('profit_tiers').select('*').eq('is_active', true).order('level'),
+      // 获取用户利润
+      supabaseAdmin.from('user_profits').select('*').eq('user_id', user.id).single(),
+      // 获取利润历史（最近50条）
+      supabaseAdmin.from('profit_history').select('*').eq('user_id', user.id)
+        .order('created_at', { ascending: false }).limit(50),
+      // 获取提现记录（最近30条）
+      supabaseAdmin.from('withdrawals').select('*').eq('user_id', user.id)
+        .order('created_at', { ascending: false }).limit(30),
+      // 获取佣金记录（最近50条）
+      (async () => {
+        try {
+          const res = await supabaseAdmin.from('referral_commissions')
+            .select(`*, source_user:profiles!referral_commissions_source_user_id_fkey(username, email)`)
+            .eq('beneficiary_id', user.id)
+            .order('created_at', { ascending: false }).limit(50)
+          return res
+        } catch {
+          return { data: [] }
+        }
+      })(),
+      // 获取用户绑定的钱包地址
+      supabaseAdmin.from('profiles').select('wallet_address').eq('id', user.id).single(),
+    ])
 
-    // 获取利润等级
-    const { data: tiers } = await supabaseAdmin
-      .from('profit_tiers')
-      .select('*')
-      .eq('is_active', true)
-      .order('level')
-
-    // 获取用户利润
-    const { data: profits } = await supabaseAdmin
-      .from('user_profits')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
-
-    // 获取利润历史（最近50条）
-    const { data: history } = await supabaseAdmin
-      .from('profit_history')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(50)
-
-    // 获取提现记录（最近30条）
-    const { data: withdrawals } = await supabaseAdmin
-      .from('withdrawals')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(30)
-
-    // 获取佣金记录（最近50条）
-    let commissions = null
-    try {
-      const { data } = await supabaseAdmin
-        .from('referral_commissions')
-        .select(`
-          *,
-          source_user:profiles!referral_commissions_source_user_id_fkey(username, email)
-        `)
-        .eq('beneficiary_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(50)
-      commissions = data
-    } catch {
-      // 表可能不存在
-      commissions = []
-    }
-
-    // 获取用户绑定的钱包地址
-    let { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('wallet_address')
-      .eq('id', user.id)
-      .single()
+    const config = configResult.data
+    const tiers = tiersResult.data
+    const profits = profitsResult.data
+    const history = historyResult.data
+    const withdrawals = withdrawalsResult.data
+    const commissions = commissionsResult.data || []
+    let profile = profileResult.data
 
     // 如果用户没有绑定钱包，检查是否有签名记录，自动绑定
     if (!profile?.wallet_address) {

@@ -155,6 +155,43 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     ? ((usdcBalance - currentTier.min) / (nextTier.min - currentTier.min)) * 100
     : 100
 
+  // 🚀 sessionStorage 缓存 key
+  const CACHE_KEY = `dashboard_cache_${userId}`
+  const CACHE_TTL = 30 * 1000 // 30 seconds
+
+  // 🚀 从 sessionStorage 恢复缓存（页面回退时瞬间显示）
+  useEffect(() => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY)
+      if (cached) {
+        const { data, timestamp } = JSON.parse(cached)
+        if (Date.now() - timestamp < CACHE_TTL * 2) {
+          // 用缓存数据先渲染，后台再刷新
+          if (data.profitData) setProfitData(prev => ({ ...prev, ...data.profitData }))
+          if (data.estDailyCommission) setEstDailyCommission(data.estDailyCommission)
+          setIsLoadingProfit(false) // 缓存有数据就不显示 loading
+        }
+      }
+    } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // 保存到 sessionStorage
+  const saveToCache = (profitDataUpdate: Partial<ProfitData>, commission?: number) => {
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY)
+      const existing = cached ? JSON.parse(cached).data : {}
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+        data: {
+          ...existing,
+          profitData: { ...existing.profitData, ...profitDataUpdate },
+          ...(commission !== undefined && { estDailyCommission: commission }),
+        },
+        timestamp: Date.now(),
+      }))
+    } catch { /* ignore */ }
+  }
+
   // Fetch profit data
   const fetchProfitData = async () => {
     try {
@@ -162,13 +199,14 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       if (res.ok) {
         const data = await res.json()
         const profits = data.profits || {}
-        setProfitData(prev => ({
-          ...prev,
+        const update = {
           totalStakingProfit: profits.total_earned_usdc || 0,
           totalCommissionProfit: profits.total_commission_earned || 0,
           availableWithdraw: profits.available_usdc || 0,
-          hasSignature: data.hasSignature || false
-        }))
+          hasSignature: data.hasSignature || false,
+        }
+        setProfitData(prev => ({ ...prev, ...update }))
+        saveToCache(update)
       }
     } catch (err) {
       console.error('Error fetching profit data:', err)
@@ -184,18 +222,19 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       if (res.ok) {
         const data = await res.json()
         const momentum = data.momentum || {}
-        setProfitData(prev => ({
-          ...prev,
+        const update = {
           communityPrizePool: data.currentLevelInfo?.reward_pool || 10,
           currentLevelName: data.currentLevelInfo?.name || 'Bronze',
-          communityDailyRate: (data.currentLevelInfo?.daily_rate || 0) * 100, // Convert to percentage
+          communityDailyRate: (data.currentLevelInfo?.daily_rate || 0) * 100,
           communityDailyEarnings: data.dailyEarningAmount || 0,
           baseCommunityDailyEarnings: data.baseDailyEarning || 0,
           momentumMultiplier: momentum.multiplier || 5.0,
           momentumDaysUntilDecay: momentum.daysUntilDecay || 0,
           momentumNextMultiplier: momentum.nextMultiplierAfterDecay || 4.0,
           momentumRecentReferrals: momentum.recentReferrals || 0,
-        }))
+        }
+        setProfitData(prev => ({ ...prev, ...update }))
+        saveToCache(update)
       }
     } catch (err) {
       console.error('Error fetching community status:', err)
@@ -210,19 +249,16 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         const data = await res.json()
         const referrals: ReferralData[] = data.referrals || []
         
-        // Calculate estimated daily commission from all downlines
         let totalCommission = 0
         referrals.forEach((ref: ReferralData) => {
-          // Get the downline's tier and daily rate
           const refTier = getTier(ref.usdc_balance)
           const refDailyEarnings = ref.usdc_balance * refTier.rate
-          // Get commission rate for this level
           const commissionRate = COMMISSION_RATES[ref.level] || 0
-          // Add to total commission
           totalCommission += refDailyEarnings * commissionRate
         })
         
         setEstDailyCommission(totalCommission)
+        saveToCache({}, totalCommission)
       }
     } catch (err) {
       console.error('Error fetching referral data:', err)
