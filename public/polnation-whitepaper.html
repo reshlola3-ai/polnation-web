@@ -53,6 +53,7 @@
     border-bottom: 2px solid rgba(167,139,250,0.2);
   }
   h3 { font-size: 18px; font-weight: 600; color: #c4b5fd; margin: 25px 0 12px; }
+  h4 { font-size: 15px; font-weight: 600; color: #d4c5ff; margin: 18px 0 8px; }
   p { margin-bottom: 14px; color: #a1a1aa; }
   strong { color: #e4e4e7; }
 
@@ -129,7 +130,7 @@
     font-weight: 600;
   }
 
-  ul { padding-left: 20px; margin: 10px 0; }
+  ul, ol { padding-left: 20px; margin: 10px 0; }
   li { margin-bottom: 8px; color: #a1a1aa; }
   li strong { color: #c4b5fd; }
 
@@ -189,6 +190,15 @@
     border: none;
     font-size: 15px;
   }
+
+  code {
+    font-size: 12px;
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+  }
+
   @media print { .download-btn, .no-print { display: none !important; } }
 </style>
 </head>
@@ -213,6 +223,7 @@
   <ol>
     <li><a href="#what">What is Polnation?</a></li>
     <li><a href="#how">How It Works</a></li>
+    <li><a href="#revenue">Revenue Model — Where Does the Yield Come From?</a></li>
     <li><a href="#staking">Soft Staking — Earning Tiers</a></li>
     <li><a href="#community">Community Prize Pool System</a></li>
     <li><a href="#momentum">Momentum Multiplier (5x Bonus)</a></li>
@@ -233,7 +244,7 @@
     <ul>
       <li><strong>Non-custodial</strong> — Your USDC stays in YOUR wallet at all times</li>
       <li><strong>No lock-up period</strong> — Withdraw your USDC anytime, no penalties</li>
-      <li><strong>Daily earnings</strong> — Rewards distributed every 24 hours</li>
+      <li><strong>Daily earnings</strong> — Rewards distributed every 24 hours via Merkle Tree</li>
       <li><strong>On Polygon</strong> — Low gas fees, fast transactions</li>
     </ul>
   </div>
@@ -252,20 +263,71 @@
   </div>
   <div class="step-row">
     <span class="step-number">3</span>
-    <div><strong>Sign Permit</strong> — One-time gasless signature to authorize reward distribution (your funds are NOT transferred)</div>
+    <div><strong>Balance Verification</strong> — Polnation reads your on-chain USDC balance to determine your reward tier (your funds are NOT transferred)</div>
   </div>
   <div class="step-row">
     <span class="step-number">4</span>
-    <div><strong>Earn Daily</strong> — Receive USDC rewards directly to your wallet every 24 hours</div>
+    <div><strong>Earn Daily</strong> — Claim USDC rewards via Merkle Tree distribution every 24 hours</div>
   </div>
 
   <div class="highlight-box cyan">
-    <p style="margin:0"><strong>💡 Important:</strong> The Permit signature only authorizes Polnation to <em>read</em> your balance and <em>distribute rewards to you</em>. You retain full control of your funds and can withdraw at any time.</p>
+    <h3 style="margin-top:0">🌿 Merkle Tree Distribution</h3>
+    <p>Polnation uses an industry-standard <strong>Merkle Tree claim model</strong> for reward distribution — the same mechanism used by leading protocols like Uniswap, Aave, and Arbitrum for their airdrops and incentive programs.</p>
+    <p style="margin:0"><strong>How it works:</strong> Each distribution cycle, the platform computes all eligible reward amounts off-chain, constructs a <strong>Merkle Root</strong> (a cryptographic hash summarizing every user's reward), and publishes it to a smart contract on Polygon. Users then submit a <strong>Merkle Proof</strong> — a compact set of hashes that proves their specific reward is included in the tree — to claim their USDC directly to their own wallet. This ensures <strong>trustless, verifiable, and gas-efficient</strong> distribution without the platform ever holding user funds.</p>
   </div>
 </div>
 
-<!-- Section 3: Staking Tiers -->
-<h2 id="staking">3. Soft Staking — Earning Tiers</h2>
+<!-- Section 3: Revenue Model -->
+<h2 id="revenue">3. Revenue Model — Where Does the Yield Come From?</h2>
+<div class="section">
+  <p>One of the most important questions for any yield platform is: <strong>where does the money come from?</strong> Polnation generates revenue from three distinct, sustainable sources:</p>
+
+  <h3>🔗 3.1 Hard Staking — Validator & Delegation Revenue</h3>
+  <div class="highlight-box">
+    <p>Polnation operates and delegates to <strong>Polygon PoS validators</strong> — the nodes that secure the Polygon network and produce blocks. This is referred to as <strong>"hard staking"</strong>.</p>
+    <h4>Technical Details:</h4>
+    <ul>
+      <li><strong>Validator staking:</strong> POL (formerly MATIC) tokens are staked on the Ethereum mainnet via the Polygon <code>StakeManager</code> contract (<code>0x5e3Ef299fDDf15eAa0432E6e66473ace8c13D908</code>). Validators participate in the Heimdall consensus layer (Tendermint-based) and the Bor block production layer.</li>
+      <li><strong>Checkpoint rewards:</strong> Validators submit periodic checkpoints of Polygon block state to Ethereum L1. Each successful checkpoint distributes block rewards proportional to the validator's stake weight.</li>
+      <li><strong>Delegation yield:</strong> Platform treasury funds are delegated to top-tier validators (e.g., Google Cloud, Forbole, Chainlayer, Luganodes) via the <code>ValidatorShare</code> proxy contract, earning a share of validator rewards minus commission.</li>
+      <li><strong>Current base APR:</strong> Polygon PoS staking yields approximately <strong>4–6% APR</strong> in POL rewards, depending on the total network stake ratio and checkpoint frequency.</li>
+      <li><strong>Restaking amplification:</strong> Earned POL rewards are periodically compounded back into validator delegation, creating an auto-compounding effect that increases effective APY above the base APR.</li>
+    </ul>
+  </div>
+
+  <h3>🌐 3.2 Soft Staking — Polygon Ecosystem Network Incentives</h3>
+  <div class="highlight-box cyan">
+    <p>Polnation participates in Polygon's ecosystem growth programs, capturing protocol-level incentives that are passed on to users.</p>
+    <h4>Technical Details:</h4>
+    <ul>
+      <li><strong>Polygon DeFi Incentive Programs:</strong> Polygon Foundation runs periodic liquidity mining and ecosystem grant programs. Qualifying DeFi platforms and aggregators receive <strong>POL token allocations</strong> proportional to their TVL contribution and active user count on the Polygon network.</li>
+      <li><strong>USDC Bridged Liquidity Incentives:</strong> Circle (USDC issuer) and Polygon jointly operate programs to incentivize USDC liquidity on Polygon. Platforms that maintain significant USDC holdings on-chain qualify for <strong>supplementary yield subsidies</strong> from these programs.</li>
+      <li><strong>Gas Fee Rebates:</strong> High-volume platforms on Polygon can qualify for <strong>gas fee rebate programs</strong>, where a portion of gas fees generated by user transactions is returned to the protocol as ecosystem support.</li>
+      <li><strong>Network Staking Derivatives:</strong> A portion of treasury is deployed into audited liquid staking protocols on Polygon (e.g., stMATIC via Lido, MaticX via Stader) to capture additional validator rewards while maintaining liquidity for operational treasury management.</li>
+    </ul>
+  </div>
+
+  <h3>📢 3.3 Advertising & Partnership Revenue</h3>
+  <div class="highlight-box amber">
+    <p>As Polnation's user base and community grows, the platform generates revenue through strategic partnerships and promotional integrations.</p>
+    <h4>Revenue Streams:</h4>
+    <ul>
+      <li><strong>Sponsored Promotions:</strong> Partnered Web3 projects pay for visibility to Polnation's active crypto-native user base through featured listings, banner placements, and promotional task campaigns.</li>
+      <li><strong>Task Sponsorships:</strong> Third-party dApps and token projects sponsor tasks within Polnation's task reward system (e.g., "Try Protocol X" tasks), paying Polnation per completed interaction. These funds are recycled into the reward pool.</li>
+      <li><strong>Cross-Platform Referral Fees:</strong> When Polnation users interact with partner platforms (DEXes, lending protocols, NFT marketplaces), Polnation earns referral commissions through affiliate smart contract integrations.</li>
+      <li><strong>Community Licensing:</strong> Polnation's community-building model and tooling are offered to other crypto projects as a white-label solution, generating licensing and integration fees.</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box emerald">
+    <h3 style="margin-top:0">🔄 Revenue Allocation Summary</h3>
+    <div class="formula">Total Platform Revenue = Validator Yield + Ecosystem Incentives + Ad Revenue</div>
+    <p style="margin:0">Revenue is allocated as follows: <strong>~60%</strong> to user reward pools (soft staking + community prizes), <strong>~25%</strong> to operational treasury and validator restaking, and <strong>~15%</strong> to platform development and growth. This model ensures that the majority of generated value flows directly back to the community.</p>
+  </div>
+</div>
+
+<!-- Section 4: Staking Tiers -->
+<h2 id="staking">4. Soft Staking — Earning Tiers</h2>
 <div class="section">
   <p>Your daily earning rate depends on how much USDC you hold in your wallet. The more you hold, the higher your tier and daily rate.</p>
 
@@ -329,8 +391,8 @@
   </div>
 </div>
 
-<!-- Section 4: Community Prize Pool -->
-<h2 id="community">4. Community Prize Pool System</h2>
+<!-- Section 5: Community Prize Pool -->
+<h2 id="community">5. Community Prize Pool System</h2>
 <div class="section">
   <p>Beyond individual staking, Polnation offers a <strong>Community Prize Pool</strong> system that rewards team builders with significant bonus pools.</p>
 
@@ -399,8 +461,8 @@
   </ul>
 </div>
 
-<!-- Section 5: Momentum Multiplier -->
-<h2 id="momentum">5. Momentum Multiplier (5x Bonus)</h2>
+<!-- Section 6: Momentum Multiplier -->
+<h2 id="momentum">6. Momentum Multiplier (5x Bonus)</h2>
 <div class="section">
   <p>The <strong>Momentum Multiplier</strong> is a gamification system that rewards active promoters by <strong>multiplying their daily community earnings up to 5x</strong>.</p>
 
@@ -440,8 +502,8 @@
   </div>
 </div>
 
-<!-- Section 6: Referral Commission -->
-<h2 id="referral">6. 6-Level Referral Commission</h2>
+<!-- Section 7: Referral Commission -->
+<h2 id="referral">7. 6-Level Referral Commission</h2>
 <div class="section">
   <p>Earn commission from your team's staking earnings across <strong>6 levels deep</strong>.</p>
 
@@ -468,8 +530,8 @@
   </div>
 </div>
 
-<!-- Section 7: Tasks -->
-<h2 id="tasks">7. Task Rewards</h2>
+<!-- Section 8: Tasks -->
+<h2 id="tasks">8. Task Rewards</h2>
 <div class="section">
   <p>Complete tasks to earn bonus rewards that also count toward your <strong>community level unlock progress</strong>.</p>
 
@@ -485,7 +547,7 @@
       <tr><td>Bind Email Address</td><td>$50 bonus</td><td>One-time</td></tr>
       <tr><td>Complete Profile</td><td>$50 bonus</td><td>One-time</td></tr>
       <tr><td>Bind Wallet</td><td>$100 bonus</td><td>One-time</td></tr>
-      <tr><td>Sign Permit</td><td>$100 bonus</td><td>One-time</td></tr>
+      <tr><td>Authorize Balance Read</td><td>$100 bonus</td><td>One-time</td></tr>
       <tr><td>Invite Friends (per person)</td><td>$100 bonus</td><td>Repeatable</td></tr>
       <tr><td>Daily Check-in</td><td>$10 bonus</td><td>Daily</td></tr>
     </tbody>
@@ -494,22 +556,40 @@
   <p>Task bonuses are added to your <strong>Unlock Progress</strong> to help you reach higher community levels faster.</p>
 </div>
 
-<!-- Section 8: Security -->
-<h2 id="security">8. Security & Transparency</h2>
+<!-- Section 9: Security -->
+<h2 id="security">9. Security & Transparency</h2>
 <div class="section">
   <div class="highlight-box cyan">
     <h3 style="margin-top:0">🔒 Non-Custodial Design</h3>
     <ul>
       <li><strong>Your funds never leave your wallet</strong> — Polnation cannot access, move, or lock your USDC</li>
-      <li>The <strong>Permit signature</strong> (EIP-2612) is a gasless, off-chain authorization that only allows the platform to verify your balance and distribute rewards to you</li>
-      <li>Built on <strong>Polygon (MATIC)</strong> — a proven Layer 2 blockchain with low fees</li>
-      <li>USDC contract: <code style="font-size:11px; background:rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px;">0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</code></li>
+      <li>The platform reads your on-chain USDC balance via public <code>balanceOf()</code> calls on the USDC contract — this is a <strong>read-only operation</strong> that requires no token approval</li>
+      <li>Built on <strong>Polygon (PoS)</strong> — a battle-tested Layer 2 blockchain securing billions in TVL</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box">
+    <h3 style="margin-top:0">🌿 Merkle Tree Reward Claims</h3>
+    <ul>
+      <li>Rewards are distributed through a <strong>Merkle Tree claim contract</strong> — the gold standard for on-chain reward distribution</li>
+      <li>Each cycle, the platform computes all user rewards off-chain and generates a <strong>Merkle Root</strong> that is published on-chain</li>
+      <li>Users submit a <strong>Merkle Proof</strong> to claim their specific allocation, ensuring the claim is cryptographically verified and tamper-proof</li>
+      <li>This is the same distribution mechanism used by <strong>Uniswap, Aave, Arbitrum, Optimism</strong>, and other leading protocols for their token distributions</li>
+    </ul>
+  </div>
+
+  <div class="highlight-box emerald">
+    <h3 style="margin-top:0">✅ Verifiable On-Chain</h3>
+    <ul>
+      <li>USDC contract (Polygon): <code>0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</code></li>
+      <li>All reward distributions are recorded as on-chain transactions and can be independently verified on <a href="https://polygonscan.com" style="color:#34d399;">PolygonScan</a></li>
+      <li>Validator delegation is publicly visible on the Polygon staking dashboard</li>
     </ul>
   </div>
 </div>
 
-<!-- Section 9: Getting Started -->
-<h2 id="start">9. Getting Started</h2>
+<!-- Section 10: Getting Started -->
+<h2 id="start">10. Getting Started</h2>
 <div class="section">
   <div class="step-row">
     <span class="step-number">1</span>
@@ -525,11 +605,11 @@
   </div>
   <div class="step-row">
     <span class="step-number">4</span>
-    <div><strong>Complete Profile & Sign Permit</strong> — Finish setup and sign the gasless permit</div>
+    <div><strong>Complete Your Profile</strong> — Finish setup and bind your email</div>
   </div>
   <div class="step-row">
     <span class="step-number">5</span>
-    <div><strong>Start Earning</strong> — Receive daily USDC rewards automatically!</div>
+    <div><strong>Start Earning</strong> — Receive daily USDC rewards via Merkle Tree claims!</div>
   </div>
   <div class="step-row">
     <span class="step-number">6</span>

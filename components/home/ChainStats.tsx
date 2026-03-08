@@ -35,7 +35,7 @@ function formatCount(num: number): string {
   if (num >= 1000) {
     return `${(num / 1000).toFixed(1)}K+`
   }
-  return `${num.toLocaleString()}+`
+  return `${num.toLocaleString()}K+`
 }
 
 function shortenAddress(address: string): string {
