@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polnation — Technical Whitepaper</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0a0a1a;
+    color: #e4e4e7;
+    line-height: 1.75;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 30px;
+  }
+
+  @media print {
+    body { background: white; color: #1a1a1a; padding: 15px; font-size: 11pt; }
+    .cover { background: linear-gradient(135deg, #0f172a, #1e1b4b) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .section, .diagram-container { break-inside: avoid; page-break-inside: avoid; }
+    h2 { color: #4f46e5 !important; border-color: #4f46e5 !important; }
+    h3 { color: #6366f1 !important; }
+    .highlight-box { background: #f5f3ff !important; border-color: #6366f1 !important; }
+    .highlight-box.red { background: #fef2f2 !important; border-color: #dc2626 !important; }
+    .highlight-box.green { background: #f0fdf4 !important; border-color: #16a34a !important; }
+    .highlight-box.cyan { background: #ecfeff !important; border-color: #0891b2 !important; }
+    .highlight-box.amber { background: #fffbeb !important; border-color: #d97706 !important; }
+    table { border-collapse: collapse; }
+    th { background: #4f46e5 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    td, th { border: 1px solid #e5e7eb; }
+    code { background: #f1f5f9 !important; color: #1e293b !important; }
+    .code-block { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+    .no-print { display: none !important; }
+    svg text { fill: #1e293b !important; }
+  }
+
+  .cover {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+    border-radius: 20px;
+    padding: 60px 50px;
+    text-align: center;
+    margin-bottom: 50px;
+    color: white;
+    border: 1px solid rgba(99,102,241,0.3);
+  }
+  .cover h1 { font-size: 38px; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+  .cover .doc-type { font-size: 13px; text-transform: uppercase; letter-spacing: 4px; color: rgba(167,139,250,0.8); margin-bottom: 20px; }
+  .cover .subtitle { font-size: 17px; opacity: 0.85; font-weight: 400; line-height: 1.5; }
+  .cover .meta { font-size: 12px; opacity: 0.5; margin-top: 25px; }
+  .cover .version { display: inline-block; background: rgba(99,102,241,0.3); padding: 4px 14px; border-radius: 20px; font-size: 12px; margin-top: 12px; }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #818cf8;
+    margin: 50px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(129,140,248,0.2);
+  }
+  h3 { font-size: 17px; font-weight: 600; color: #a5b4fc; margin: 25px 0 12px; }
+  h4 { font-size: 14px; font-weight: 600; color: #c7d2fe; margin: 18px 0 8px; }
+  p { margin-bottom: 14px; color: #a1a1aa; }
+  strong { color: #e4e4e7; }
+
+  .section {
+    margin-bottom: 30px;
+    padding: 25px;
+    background: rgba(255,255,255,0.02);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .diagram-container {
+    margin: 24px 0;
+    padding: 20px;
+    background: rgba(15,23,42,0.5);
+    border-radius: 14px;
+    border: 1px solid rgba(99,102,241,0.15);
+    text-align: center;
+    overflow-x: auto;
+  }
+  .diagram-container svg { max-width: 100%; height: auto; }
+  .diagram-caption {
+    text-align: center;
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 10px;
+    font-style: italic;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 16px 0;
+    font-size: 13px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  th {
+    background: rgba(99,102,241,0.25);
+    color: #a5b4fc;
+    font-weight: 600;
+    padding: 11px 14px;
+    text-align: left;
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: #a1a1aa;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+
+  .highlight-box {
+    background: rgba(99,102,241,0.08);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+  }
+  .highlight-box.cyan { background: rgba(34,211,238,0.06); border-color: rgba(34,211,238,0.25); }
+  .highlight-box.amber { background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.25); }
+  .highlight-box.green { background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.25); }
+  .highlight-box.red { background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.25); }
+
+  .formula {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 14px;
+    margin: 16px 0;
+    background: rgba(99,102,241,0.1);
+    border-radius: 10px;
+    color: #a5b4fc;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.3px;
+  }
+
+  code {
+    font-size: 12px;
+    background: rgba(255,255,255,0.07);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #c4b5fd;
+  }
+
+  .code-block {
+    background: rgba(15,23,42,0.8);
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #a5b4fc;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .code-block .comment { color: #64748b; }
+  .code-block .keyword { color: #c084fc; }
+  .code-block .string { color: #34d399; }
+  .code-block .number { color: #fbbf24; }
+  .code-block .fn { color: #38bdf8; }
+
+  ul, ol { padding-left: 20px; margin: 10px 0; }
+  li { margin-bottom: 8px; color: #a1a1aa; }
+  li strong { color: #c7d2fe; }
+
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    background: rgba(99,102,241,0.25);
+    color: #818cf8;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 13px;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  .step-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .toc {
+    background: rgba(255,255,255,0.02);
+    border-radius: 16px;
+    padding: 25px 30px;
+    margin-bottom: 40px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .toc h3 { margin-top: 0; }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin-bottom: 5px; color: #a1a1aa; }
+  .toc a { color: #818cf8; text-decoration: none; }
+
+  .footer {
+    text-align: center;
+    margin-top: 60px;
+    padding: 30px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    color: #64748b;
+    font-size: 12px;
+  }
+
+  .download-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    margin: 20px 0;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+  }
+
+  .warning-box {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 13px;
+  }
+  .info-box {
+    background: rgba(59,130,246,0.08);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 13px;
+  }
+
+  @media print { .download-btn, .no-print { display: none !important; } }
+</style>
+</head>
+<body>
+
+<!-- ============================== COVER ============================== -->
+<div class="cover">
+  <div class="doc-type">Technical Whitepaper</div>
+  <h1>POLNATION</h1>
+  <div class="subtitle">Security Architecture, Merkle Tree Distribution,<br>Zero-Approval Model & Revenue Mechanics</div>
+  <div class="version">v1.0 — March 2025</div>
+  <div class="meta">Polygon PoS • USDC • Non-Custodial • Trustless Distribution</div>
+</div>
+
+<!-- Download -->
+<div class="no-print" style="text-align:center; margin-bottom:30px;">
+  <button class="download-btn" onclick="window.print()">📄 Save as PDF (Ctrl+P)</button>
+</div>
+
+<!-- ============================== TOC ============================== -->
+<div class="toc">
+  <h3>📑 Table of Contents</h3>
+  <ol>
+    <li><a href="#abstract">Abstract</a></li>
+    <li><a href="#architecture">System Architecture</a></li>
+    <li><a href="#non-custodial">Non-Custodial & Zero-Approval Model</a></li>
+    <li><a href="#approval-audit">How to Verify: Token Approval Audit Guide</a></li>
+    <li><a href="#merkle">Merkle Tree Distribution — Deep Dive</a></li>
+    <li><a href="#merkle-verify">How to Verify Your Merkle Claim On-Chain</a></li>
+    <li><a href="#revenue">Revenue Architecture — Technical Breakdown</a></li>
+    <li><a href="#compliance">Compliance & Risk Framework</a></li>
+    <li><a href="#contracts">Smart Contract Reference</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+  </ol>
+</div>
+
+<!-- ========================= 1. ABSTRACT ========================= -->
+<h2 id="abstract">1. Abstract</h2>
+<div class="section">
+  <p>Polnation is a non-custodial soft staking platform deployed on the Polygon Proof-of-Stake (PoS) network. The protocol enables USDC holders to earn daily yield without transferring tokens, granting approvals, or interacting with any smart contract that could move their funds.</p>
+  <p>This technical whitepaper provides a deep dive into four critical areas:</p>
+  <ul>
+    <li><strong>Zero-Approval Security Model</strong> — How user funds remain completely untouched and how users can independently verify this</li>
+    <li><strong>Merkle Tree Distribution</strong> — The cryptographic mechanism used for trustless, gas-efficient reward claims</li>
+    <li><strong>Revenue Architecture</strong> — Where yield originates, with on-chain verifiable proof for each revenue stream</li>
+    <li><strong>Compliance Framework</strong> — Regulatory considerations and risk disclosure</li>
+  </ul>
+
+  <div class="highlight-box green">
+    <p style="margin:0"><strong>Core Guarantee:</strong> At no point does Polnation have the ability to access, transfer, lock, or freeze any user's USDC. This is not a policy — it is an <strong>architectural impossibility</strong> enforced by the absence of any on-chain token approval.</p>
+  </div>
+</div>
+
+<!-- ========================= 2. ARCHITECTURE ========================= -->
+<h2 id="architecture">2. System Architecture</h2>
+<div class="section">
+  <p>The Polnation system consists of three independent layers that interact through well-defined interfaces:</p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 460" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="l1grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:0.15"/>
+          <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.15"/>
+        </linearGradient>
+        <linearGradient id="l2grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#0891b2;stop-opacity:0.12"/>
+          <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0.12"/>
+        </linearGradient>
+        <linearGradient id="l3grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style="stop-color:#16a34a;stop-opacity:0.12"/>
+          <stop offset="100%" style="stop-color:#10b981;stop-opacity:0.12"/>
+        </linearGradient>
+        <marker id="a1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#818cf8"/></marker>
+        <marker id="a2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#22d3ee"/></marker>
+        <marker id="a3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#10b981"/></marker>
+      </defs>
+
+      <text x="400" y="22" text-anchor="middle" fill="#818cf8" font-size="13" font-weight="700">Polnation 3-Layer Architecture</text>
+
+      <!-- Layer 1: User Layer -->
+      <rect x="20" y="40" width="760" height="110" rx="14" fill="url(#l1grad)" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="40" y="62" fill="#818cf8" font-size="11" font-weight="700" text-transform="uppercase" letter-spacing="2">LAYER 1 — USER LAYER (Client-Side)</text>
+
+      <rect x="40" y="75" width="150" height="60" rx="8" fill="rgba(99,102,241,0.1)" stroke="#6366f1" stroke-width="1"/>
+      <text x="115" y="98" text-anchor="middle" fill="#c7d2fe" font-size="10" font-weight="600">👛 User Wallet</text>
+      <text x="115" y="114" text-anchor="middle" fill="#64748b" font-size="9">MetaMask / Trust</text>
+
+      <rect x="220" y="75" width="170" height="60" rx="8" fill="rgba(99,102,241,0.1)" stroke="#6366f1" stroke-width="1"/>
+      <text x="305" y="98" text-anchor="middle" fill="#c7d2fe" font-size="10" font-weight="600">🌐 Polnation Web App</text>
+      <text x="305" y="114" text-anchor="middle" fill="#64748b" font-size="9">Next.js / React</text>
+
+      <rect x="420" y="75" width="170" height="60" rx="8" fill="rgba(99,102,241,0.1)" stroke="#6366f1" stroke-width="1"/>
+      <text x="505" y="98" text-anchor="middle" fill="#c7d2fe" font-size="10" font-weight="600">📊 Dashboard UI</text>
+      <text x="505" y="114" text-anchor="middle" fill="#64748b" font-size="9">Balance + Earnings</text>
+
+      <rect x="620" y="75" width="140" height="60" rx="8" fill="rgba(99,102,241,0.1)" stroke="#6366f1" stroke-width="1"/>
+      <text x="690" y="98" text-anchor="middle" fill="#c7d2fe" font-size="10" font-weight="600">🔗 RPC Provider</text>
+      <text x="690" y="114" text-anchor="middle" fill="#64748b" font-size="9">Alchemy / Infura</text>
+
+      <!-- Arrow L1 -> L2 -->
+      <line x1="400" y1="150" x2="400" y2="178" stroke="#818cf8" stroke-width="1.5" marker-end="url(#a1)"/>
+      <text x="430" y="168" fill="#64748b" font-size="8">API calls + RPC reads</text>
+
+      <!-- Layer 2: Backend -->
+      <rect x="20" y="180" width="760" height="110" rx="14" fill="url(#l2grad)" stroke="#0891b2" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="40" y="202" fill="#22d3ee" font-size="11" font-weight="700" letter-spacing="2">LAYER 2 — COMPUTATION LAYER (Server-Side)</text>
+
+      <rect x="40" y="215" width="165" height="60" rx="8" fill="rgba(8,145,178,0.1)" stroke="#0891b2" stroke-width="1"/>
+      <text x="122" y="238" text-anchor="middle" fill="#67e8f9" font-size="10" font-weight="600">⚙️ Balance Scanner</text>
+      <text x="122" y="254" text-anchor="middle" fill="#64748b" font-size="9">multicall balanceOf()</text>
+
+      <rect x="225" y="215" width="165" height="60" rx="8" fill="rgba(8,145,178,0.1)" stroke="#0891b2" stroke-width="1"/>
+      <text x="307" y="238" text-anchor="middle" fill="#67e8f9" font-size="10" font-weight="600">🧮 Reward Calculator</text>
+      <text x="307" y="254" text-anchor="middle" fill="#64748b" font-size="9">Tier matching + rate</text>
+
+      <rect x="410" y="215" width="165" height="60" rx="8" fill="rgba(8,145,178,0.1)" stroke="#0891b2" stroke-width="1"/>
+      <text x="492" y="238" text-anchor="middle" fill="#67e8f9" font-size="10" font-weight="600">🌿 Merkle Builder</text>
+      <text x="492" y="254" text-anchor="middle" fill="#64748b" font-size="9">Tree construction</text>
+
+      <rect x="595" y="215" width="165" height="60" rx="8" fill="rgba(8,145,178,0.1)" stroke="#0891b2" stroke-width="1"/>
+      <text x="677" y="238" text-anchor="middle" fill="#67e8f9" font-size="10" font-weight="600">📤 Root Publisher</text>
+      <text x="677" y="254" text-anchor="middle" fill="#64748b" font-size="9">setMerkleRoot() tx</text>
+
+      <!-- Arrow L2 -> L3 -->
+      <line x1="400" y1="290" x2="400" y2="318" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#a2)"/>
+      <text x="430" y="308" fill="#64748b" font-size="8">On-chain transactions</text>
+
+      <!-- Layer 3: Blockchain -->
+      <rect x="20" y="320" width="760" height="120" rx="14" fill="url(#l3grad)" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="40" y="342" fill="#10b981" font-size="11" font-weight="700" letter-spacing="2">LAYER 3 — BLOCKCHAIN LAYER (Polygon PoS)</text>
+
+      <rect x="40" y="355" width="175" height="70" rx="8" fill="rgba(16,163,127,0.08)" stroke="#16a34a" stroke-width="1"/>
+      <text x="127" y="378" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">📜 USDC Contract</text>
+      <text x="127" y="394" text-anchor="middle" fill="#64748b" font-size="8">0x3c499c...3359</text>
+      <text x="127" y="410" text-anchor="middle" fill="#64748b" font-size="8">Read-only: balanceOf()</text>
+
+      <rect x="240" y="355" width="175" height="70" rx="8" fill="rgba(16,163,127,0.08)" stroke="#16a34a" stroke-width="1"/>
+      <text x="327" y="378" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">🌿 Merkle Distributor</text>
+      <text x="327" y="394" text-anchor="middle" fill="#64748b" font-size="8">Stores Merkle Root</text>
+      <text x="327" y="410" text-anchor="middle" fill="#64748b" font-size="8">Verifies + distributes</text>
+
+      <rect x="440" y="355" width="175" height="70" rx="8" fill="rgba(16,163,127,0.08)" stroke="#16a34a" stroke-width="1"/>
+      <text x="527" y="378" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">🔐 StakeManager</text>
+      <text x="527" y="394" text-anchor="middle" fill="#64748b" font-size="8">Ethereum L1</text>
+      <text x="527" y="410" text-anchor="middle" fill="#64748b" font-size="8">Validator delegation</text>
+
+      <rect x="640" y="355" width="120" height="70" rx="8" fill="rgba(16,163,127,0.08)" stroke="#16a34a" stroke-width="1"/>
+      <text x="700" y="378" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">🗄️ PolygonScan</text>
+      <text x="700" y="396" text-anchor="middle" fill="#64748b" font-size="8">Public explorer</text>
+      <text x="700" y="410" text-anchor="middle" fill="#64748b" font-size="8">Full auditability</text>
+    </svg>
+    <div class="diagram-caption">Figure 1 — Three-layer architecture: User Layer → Computation Layer → Blockchain Layer</div>
+  </div>
+
+  <h3>Key Design Principles</h3>
+  <ul>
+    <li><strong>Separation of concerns:</strong> The computation layer NEVER holds private keys to user wallets. It only reads public on-chain data and publishes Merkle Roots.</li>
+    <li><strong>Trustless verification:</strong> Every output of Layer 2 (Merkle Root) is verifiable on Layer 3 by any independent observer.</li>
+    <li><strong>No single point of custody:</strong> User funds exist solely on the USDC contract. Polnation has no contract that can custody, lock, or transfer user tokens.</li>
+  </ul>
+</div>
+
+<!-- ========================= 3. ZERO-APPROVAL ========================= -->
+<h2 id="non-custodial">3. Non-Custodial & Zero-Approval Model</h2>
+<div class="section">
+  <p>The most critical security property of Polnation is its <strong>zero-approval architecture</strong>. Understanding what this means requires knowledge of how ERC-20 token approvals work — and why Polnation deliberately avoids them.</p>
+
+  <h3>3.1 What Are Token Approvals?</h3>
+  <p>In the ERC-20 standard, <code>approve(spender, amount)</code> grants a third-party contract permission to call <code>transferFrom()</code> on your tokens. This is how DEXes (Uniswap), lending protocols (Aave), and bridges move your tokens.</p>
+
+  <div class="warning-box">
+    <strong>⚠️ The Risk:</strong> Any contract with a non-zero approval on your tokens can call <code>transferFrom(owner, recipient, amount)</code> at any time to move your tokens — even without your interaction. Malicious or compromised contracts with approvals can drain wallets. This is the #1 attack vector in DeFi exploits.
+  </div>
+
+  <!-- Approval Risk Diagram -->
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ra" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#ef4444"/></marker>
+        <marker id="ga" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#10b981"/></marker>
+        <marker id="ba" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#818cf8"/></marker>
+      </defs>
+
+      <text x="400" y="22" text-anchor="middle" fill="#818cf8" font-size="13" font-weight="700">Typical DeFi Protocol vs. Polnation</text>
+
+      <!-- LEFT: Typical DeFi -->
+      <rect x="20" y="40" width="360" height="220" rx="14" fill="rgba(239,68,68,0.04)" stroke="rgba(239,68,68,0.2)" stroke-width="1.5"/>
+      <text x="200" y="62" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="700">❌ Typical DeFi Protocol</text>
+
+      <rect x="40" y="80" width="120" height="50" rx="8" fill="rgba(99,102,241,0.1)" stroke="#6366f1" stroke-width="1"/>
+      <text x="100" y="102" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">Your Wallet</text>
+      <text x="100" y="118" text-anchor="middle" fill="#64748b" font-size="9">100 USDC</text>
+
+      <line x1="160" y1="105" x2="218" y2="105" stroke="#ef4444" stroke-width="2" marker-end="url(#ra)"/>
+      <text x="190" y="97" text-anchor="middle" fill="#ef4444" font-size="8" font-weight="600">approve()</text>
+
+      <rect x="220" y="80" width="140" height="50" rx="8" fill="rgba(239,68,68,0.1)" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="290" y="100" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="600">DeFi Contract</text>
+      <text x="290" y="116" text-anchor="middle" fill="#ef4444" font-size="9">Has approval ✓</text>
+
+      <line x1="290" y1="130" x2="290" y2="168" stroke="#ef4444" stroke-width="1.5" marker-end="url(#ra)"/>
+      <text x="330" y="155" fill="#ef4444" font-size="8">transferFrom()</text>
+
+      <rect x="220" y="170" width="140" height="50" rx="8" fill="rgba(239,68,68,0.08)" stroke="rgba(239,68,68,0.3)" stroke-width="1"/>
+      <text x="290" y="192" text-anchor="middle" fill="#fca5a5" font-size="10" font-weight="600">🔓 Can move</text>
+      <text x="290" y="208" text-anchor="middle" fill="#ef4444" font-size="9">your USDC anytime</text>
+
+      <text x="200" y="245" text-anchor="middle" fill="#ef4444" font-size="10">If contract is hacked → funds drained</text>
+
+      <!-- RIGHT: Polnation -->
+      <rect x="420" y="40" width="360" height="220" rx="14" fill="rgba(16,185,129,0.04)" stroke="rgba(16,185,129,0.2)" stroke-width="1.5"/>
+      <text x="600" y="62" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">✅ Polnation</text>
+
+      <rect x="440" y="80" width="120" height="50" rx="8" fill="rgba(99,102,241,0.1)" stroke="#6366f1" stroke-width="1"/>
+      <text x="500" y="102" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">Your Wallet</text>
+      <text x="500" y="118" text-anchor="middle" fill="#64748b" font-size="9">100 USDC</text>
+
+      <line x1="560" y1="105" x2="618" y2="105" stroke="#818cf8" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#ba)"/>
+      <text x="590" y="97" text-anchor="middle" fill="#818cf8" font-size="8">balanceOf()</text>
+      <text x="590" y="128" text-anchor="middle" fill="#64748b" font-size="7">READ ONLY</text>
+
+      <rect x="620" y="80" width="140" height="50" rx="8" fill="rgba(16,185,129,0.1)" stroke="#10b981" stroke-width="1.5"/>
+      <text x="690" y="100" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">Polnation Engine</text>
+      <text x="690" y="116" text-anchor="middle" fill="#10b981" font-size="9">No approval ✗</text>
+
+      <line x1="690" y1="130" x2="690" y2="168" stroke="#10b981" stroke-width="1.5" marker-end="url(#ga)"/>
+      <text x="725" y="155" fill="#10b981" font-size="8">Merkle claim</text>
+
+      <rect x="620" y="170" width="140" height="50" rx="8" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+      <text x="690" y="192" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">🔐 Cannot move</text>
+      <text x="690" y="208" text-anchor="middle" fill="#10b981" font-size="9">your USDC ever</text>
+
+      <text x="600" y="245" text-anchor="middle" fill="#10b981" font-size="10">Even if hacked → your USDC is safe</text>
+    </svg>
+    <div class="diagram-caption">Figure 2 — Typical DeFi requires token approvals (risky) vs. Polnation's zero-approval model (safe)</div>
+  </div>
+
+  <h3>3.2 Polnation's Zero-Approval Guarantee</h3>
+  <p>Polnation's architecture is fundamentally different from traditional DeFi:</p>
+  <table>
+    <thead>
+      <tr><th>Operation</th><th>Typical DeFi</th><th>Polnation</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Balance reading</td><td>Via approval + internal tracking</td><td><code>balanceOf()</code> — public read, no auth</td></tr>
+      <tr><td>Token movement</td><td><code>transferFrom()</code> via approval</td><td><strong>None — impossible</strong></td></tr>
+      <tr><td>Reward distribution</td><td>Protocol sends from pool</td><td>User claims via Merkle Proof</td></tr>
+      <tr><td>Approval required</td><td>Yes — <code>approve(contract, MAX)</code></td><td><strong>Zero — no approval ever requested</strong></td></tr>
+      <tr><td>Risk if contract hacked</td><td>All approved tokens at risk</td><td><strong>Zero risk — no approval exists</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box green">
+    <p style="margin:0"><strong>Technical Proof:</strong> You can verify this yourself right now. Check the USDC contract's <code>allowance(your_address, any_polnation_contract)</code> — the result will always be <code>0</code>. Polnation has never and will never request a token approval from any user.</p>
+  </div>
+</div>
+
+<!-- ========================= 4. APPROVAL AUDIT ========================= -->
+<h2 id="approval-audit">4. How to Verify: Token Approval Audit Guide</h2>
+<div class="section">
+  <p>Don't trust — <strong>verify</strong>. Here's exactly how to check that Polnation has zero approval on your tokens, using public blockchain tools.</p>
+
+  <!-- Verification Flow Diagram -->
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="sa" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#818cf8"/></marker>
+      </defs>
+      <text x="400" y="22" text-anchor="middle" fill="#818cf8" font-size="13" font-weight="700">Token Approval Verification — 3 Methods</text>
+
+      <!-- Method 1 -->
+      <rect x="20" y="45" width="240" height="190" rx="12" fill="rgba(99,102,241,0.06)" stroke="#6366f1" stroke-width="1.5"/>
+      <rect x="20" y="45" width="240" height="32" rx="12" fill="rgba(99,102,241,0.15)"/>
+      <text x="140" y="66" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="700">Method 1: PolygonScan</text>
+      <text x="40" y="100" fill="#a1a1aa" font-size="10">1. Go to polygonscan.com</text>
+      <text x="40" y="118" fill="#a1a1aa" font-size="10">2. Search your wallet address</text>
+      <text x="40" y="136" fill="#a1a1aa" font-size="10">3. Click "Token Approvals"</text>
+      <text x="40" y="154" fill="#a1a1aa" font-size="10">4. Find USDC section</text>
+      <text x="40" y="180" fill="#10b981" font-size="10" font-weight="600">✅ No Polnation contract</text>
+      <text x="40" y="198" fill="#10b981" font-size="10" font-weight="600">   should appear here</text>
+      <text x="40" y="222" fill="#64748b" font-size="9">Free • No wallet connection</text>
+
+      <!-- Method 2 -->
+      <rect x="280" y="45" width="240" height="190" rx="12" fill="rgba(8,145,178,0.06)" stroke="#0891b2" stroke-width="1.5"/>
+      <rect x="280" y="45" width="240" height="32" rx="12" fill="rgba(8,145,178,0.15)"/>
+      <text x="400" y="66" text-anchor="middle" fill="#22d3ee" font-size="11" font-weight="700">Method 2: Revoke.cash</text>
+      <text x="300" y="100" fill="#a1a1aa" font-size="10">1. Visit revoke.cash</text>
+      <text x="300" y="118" fill="#a1a1aa" font-size="10">2. Connect wallet or paste</text>
+      <text x="300" y="136" fill="#a1a1aa" font-size="10">   your address</text>
+      <text x="300" y="154" fill="#a1a1aa" font-size="10">3. Select Polygon network</text>
+      <text x="300" y="172" fill="#a1a1aa" font-size="10">4. Check USDC approvals</text>
+      <text x="300" y="198" fill="#10b981" font-size="10" font-weight="600">✅ Zero Polnation approvals</text>
+      <text x="300" y="222" fill="#64748b" font-size="9">Best approval management tool</text>
+
+      <!-- Method 3 -->
+      <rect x="540" y="45" width="240" height="190" rx="12" fill="rgba(16,185,129,0.06)" stroke="#16a34a" stroke-width="1.5"/>
+      <rect x="540" y="45" width="240" height="32" rx="12" fill="rgba(16,185,129,0.15)"/>
+      <text x="660" y="66" text-anchor="middle" fill="#34d399" font-size="11" font-weight="700">Method 3: Direct RPC Call</text>
+      <text x="560" y="100" fill="#a1a1aa" font-size="10">Call USDC contract:</text>
+      <text x="560" y="120" fill="#c4b5fd" font-size="9" font-family="JetBrains Mono">allowance(</text>
+      <text x="560" y="136" fill="#c4b5fd" font-size="9" font-family="JetBrains Mono">  your_address,</text>
+      <text x="560" y="152" fill="#c4b5fd" font-size="9" font-family="JetBrains Mono">  any_contract</text>
+      <text x="560" y="168" fill="#c4b5fd" font-size="9" font-family="JetBrains Mono">)</text>
+      <text x="560" y="198" fill="#10b981" font-size="10" font-weight="600">✅ Returns: 0</text>
+      <text x="560" y="222" fill="#64748b" font-size="9">Most technical verification</text>
+    </svg>
+    <div class="diagram-caption">Figure 3 — Three independent methods to verify Polnation has zero approval on your tokens</div>
+  </div>
+
+  <h3>4.1 Step-by-Step: PolygonScan Verification</h3>
+  <div class="step-row">
+    <span class="step-number">1</span>
+    <div>Open <strong><a href="https://polygonscan.com" style="color:#818cf8;">polygonscan.com</a></strong> in your browser</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">2</span>
+    <div>Paste your wallet address in the search bar (e.g., <code>0xYourWalletAddress...</code>)</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">3</span>
+    <div>Click the <strong>"More"</strong> dropdown → select <strong>"Token Approvals"</strong></div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">4</span>
+    <div>Filter by <strong>"ERC-20"</strong> and look for the USDC token (<code>0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</code>)</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">5</span>
+    <div>Verify: <strong>No Polnation-related contract</strong> should appear in the "Approved Spender" column</div>
+  </div>
+
+  <h3>4.2 Step-by-Step: Revoke.cash Verification</h3>
+  <div class="step-row">
+    <span class="step-number">1</span>
+    <div>Open <strong><a href="https://revoke.cash" style="color:#818cf8;">revoke.cash</a></strong></div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">2</span>
+    <div>Enter your wallet address or connect your wallet</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">3</span>
+    <div>Select <strong>"Polygon"</strong> from the network dropdown</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">4</span>
+    <div>The tool will display ALL token approvals you've ever granted. Search for "USDC"</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">5</span>
+    <div>Confirm: <strong>No approval to any Polnation contract exists</strong></div>
+  </div>
+
+  <div class="info-box">
+    <strong>💡 Pro Tip:</strong> While you're on revoke.cash, check if you have old approvals from other DeFi protocols. If you see unlimited approvals (<code>115792089237...</code>) to contracts you no longer use, consider revoking them for better security. This has nothing to do with Polnation — it's good general wallet hygiene.
+  </div>
+
+  <h3>4.3 Advanced: Direct Smart Contract Call</h3>
+  <p>For developers or advanced users, you can directly query the USDC contract's <code>allowance()</code> function:</p>
+  <div class="code-block"><span class="comment">// USDC Contract on Polygon</span>
+<span class="keyword">Contract:</span> <span class="string">0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</span>
+
+<span class="comment">// Function: allowance(owner, spender)</span>
+<span class="fn">allowance</span>(
+  <span class="string">"0xYourWalletAddress"</span>,    <span class="comment">// your wallet</span>
+  <span class="string">"0xAnyPolnationContract"</span>  <span class="comment">// any address</span>
+)
+
+<span class="comment">// Expected result:</span>
+<span class="keyword">→</span> <span class="number">0</span>  <span class="comment">// Zero approval = Polnation cannot touch your tokens</span></div>
+
+  <p>You can execute this call on PolygonScan → USDC Contract → <strong>"Read Contract"</strong> tab → function #3 <code>allowance</code>.</p>
+</div>
+
+<!-- ========================= 5. MERKLE TREE ========================= -->
+<h2 id="merkle">5. Merkle Tree Distribution — Deep Dive</h2>
+<div class="section">
+  <p>Polnation distributes rewards using a <strong>Merkle Tree claim model</strong> — the same mechanism behind Uniswap's $UNI airdrop ($6.4B distributed), Arbitrum's $ARB airdrop ($2.3B), and Optimism's $OP retroactive public goods funding. This section explains the cryptography in detail.</p>
+
+  <h3>5.1 What is a Merkle Tree?</h3>
+  <p>A Merkle Tree is a binary hash tree where:</p>
+  <ul>
+    <li><strong>Leaf nodes</strong> contain the hash of raw data: <code>keccak256(abi.encodePacked(address, amount))</code></li>
+    <li><strong>Internal nodes</strong> contain the hash of their two children: <code>keccak256(leftChild + rightChild)</code></li>
+    <li><strong>Root node</strong> (Merkle Root) is a single 32-byte hash that uniquely represents ALL data in the tree</li>
+  </ul>
+
+  <!-- Detailed Merkle Tree Diagram -->
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="rootG" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:0.4"/>
+          <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.4"/>
+        </linearGradient>
+        <linearGradient id="nodeG" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.15"/>
+          <stop offset="100%" style="stop-color:#818cf8;stop-opacity:0.15"/>
+        </linearGradient>
+        <linearGradient id="leafG" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.15"/>
+          <stop offset="100%" style="stop-color:#22d3ee;stop-opacity:0.15"/>
+        </linearGradient>
+        <linearGradient id="proofG" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:0.2"/>
+          <stop offset="100%" style="stop-color:#eab308;stop-opacity:0.2"/>
+        </linearGradient>
+        <filter id="gl"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <text x="400" y="25" text-anchor="middle" fill="#818cf8" font-size="14" font-weight="700">Merkle Tree — Cryptographic Structure</text>
+
+      <!-- ROOT -->
+      <rect x="300" y="42" width="200" height="52" rx="10" fill="url(#rootG)" stroke="#6366f1" stroke-width="2" filter="url(#gl)"/>
+      <text x="400" y="63" text-anchor="middle" fill="#e4e4e7" font-size="11" font-weight="700">MERKLE ROOT</text>
+      <text x="400" y="82" text-anchor="middle" fill="#818cf8" font-size="9" font-family="JetBrains Mono">0xABCD...1234</text>
+      <text x="520" y="72" fill="#f59e0b" font-size="9" font-weight="600">← Stored on-chain</text>
+
+      <!-- Lines Root → L1 -->
+      <line x1="350" y1="94" x2="215" y2="135" stroke="#6366f1" stroke-width="1.2" opacity="0.5"/>
+      <line x1="450" y1="94" x2="585" y2="135" stroke="#6366f1" stroke-width="1.2" opacity="0.5"/>
+
+      <!-- L1 nodes -->
+      <rect x="115" y="135" width="200" height="48" rx="8" fill="url(#nodeG)" stroke="#818cf8" stroke-width="1"/>
+      <text x="215" y="156" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">Hash(H₁ + H₂)</text>
+      <text x="215" y="173" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">keccak256(concat(H₁, H₂))</text>
+
+      <rect x="485" y="135" width="200" height="48" rx="8" fill="url(#proofG)" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="585" y="156" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">Hash(H₃ + H₄)</text>
+      <text x="585" y="173" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">keccak256(concat(H₃, H₄))</text>
+      <text x="700" y="158" fill="#f59e0b" font-size="8">⭐ proof[1]</text>
+
+      <!-- Lines L1 → L2 -->
+      <line x1="175" y1="183" x2="112" y2="225" stroke="#818cf8" stroke-width="1" opacity="0.4"/>
+      <line x1="255" y1="183" x2="318" y2="225" stroke="#818cf8" stroke-width="1" opacity="0.4"/>
+      <line x1="545" y1="183" x2="482" y2="225" stroke="#f59e0b" stroke-width="1" opacity="0.4"/>
+      <line x1="625" y1="183" x2="688" y2="225" stroke="#f59e0b" stroke-width="1" opacity="0.4"/>
+
+      <!-- L2 leaf hashes -->
+      <rect x="30" y="225" width="165" height="44" rx="8" fill="rgba(16,185,129,0.1)" stroke="#10b981" stroke-width="1.5"/>
+      <text x="112" y="244" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">H₁ = hash(Alice, $12.50)</text>
+      <text x="112" y="260" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">→ 0x1F2E...8C9A</text>
+      <text x="15" y="250" fill="#10b981" font-size="9" font-weight="600">←</text>
+      <text x="15" y="262" fill="#10b981" font-size="7">target</text>
+
+      <rect x="235" y="225" width="165" height="44" rx="8" fill="url(#proofG)" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <text x="317" y="244" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">H₂ = hash(Bob, $5.25)</text>
+      <text x="317" y="260" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">→ 0x4B5C...D6E7</text>
+      <text x="410" y="244" fill="#f59e0b" font-size="8">⭐ proof[0]</text>
+
+      <rect x="400" y="225" width="165" height="44" rx="8" fill="url(#nodeG)" stroke="#818cf8" stroke-width="0.8"/>
+      <text x="482" y="244" text-anchor="middle" fill="#a5b4fc" font-size="10">H₃ = hash(Carol, $8.00)</text>
+      <text x="482" y="260" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">→ 0x9A8B...3F21</text>
+
+      <rect x="605" y="225" width="175" height="44" rx="8" fill="url(#nodeG)" stroke="#818cf8" stroke-width="0.8"/>
+      <text x="692" y="244" text-anchor="middle" fill="#a5b4fc" font-size="10">H₄ = hash(Dave, $3.75)</text>
+      <text x="692" y="260" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">→ 0xC2D3...7E8F</text>
+
+      <!-- Verification Process -->
+      <rect x="30" y="300" width="740" height="160" rx="12" fill="rgba(99,102,241,0.04)" stroke="rgba(99,102,241,0.15)" stroke-width="1"/>
+      <text x="400" y="325" text-anchor="middle" fill="#818cf8" font-size="12" font-weight="700">Verification Process — Alice Claims $12.50</text>
+
+      <text x="50" y="350" fill="#a1a1aa" font-size="10">Step 1:</text>
+      <text x="110" y="350" fill="#c7d2fe" font-size="10">Compute leaf: H₁ = keccak256(Alice_addr, 12.50 USDC)</text>
+      <text x="50" y="372" fill="#a1a1aa" font-size="10">Step 2:</text>
+      <text x="110" y="372" fill="#fbbf24" font-size="10">Combine with proof[0] (H₂): hash(H₁ + H₂) → intermediate hash</text>
+      <text x="50" y="394" fill="#a1a1aa" font-size="10">Step 3:</text>
+      <text x="110" y="394" fill="#fbbf24" font-size="10">Combine with proof[1] (Hash(H₃+H₄)): hash(intermediate + proof[1]) → computed root</text>
+      <text x="50" y="418" fill="#a1a1aa" font-size="10">Step 4:</text>
+      <text x="110" y="418" fill="#10b981" font-size="10" font-weight="600">Compare: computed_root == stored_merkle_root? → ✅ Transfer 12.50 USDC to Alice</text>
+      <text x="50" y="445" fill="#64748b" font-size="9">Proof size: only 2 hashes (64 bytes) regardless of tree containing 10,000+ users</text>
+    </svg>
+    <div class="diagram-caption">Figure 4 — Merkle Tree structure with Alice's proof path highlighted (yellow dashed = proof nodes). Only 2 hashes needed to verify a claim in a tree of any size.</div>
+  </div>
+
+  <h3>5.2 Mathematical Properties</h3>
+  <div class="formula">Proof Size = O(log₂ N) where N = number of users</div>
+
+  <table>
+    <thead>
+      <tr><th>Users in Tree</th><th>Proof Size (hashes)</th><th>Proof Data (bytes)</th><th>Gas Cost (Polygon)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>100</td><td>7</td><td>224 bytes</td><td>~$0.0003</td></tr>
+      <tr><td>1,000</td><td>10</td><td>320 bytes</td><td>~$0.0004</td></tr>
+      <tr><td>10,000</td><td>14</td><td>448 bytes</td><td>~$0.0006</td></tr>
+      <tr><td>100,000</td><td>17</td><td>544 bytes</td><td>~$0.0008</td></tr>
+      <tr><td>1,000,000</td><td>20</td><td>640 bytes</td><td>~$0.001</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.3 Security Properties</h3>
+  <ul>
+    <li><strong>Collision Resistance:</strong> Finding two different datasets that produce the same Merkle Root requires breaking keccak256 — computationally infeasible (~2¹²⁸ operations).</li>
+    <li><strong>Tamper Evidence:</strong> Modifying any single leaf (e.g., changing Alice's $12.50 to $12.51) produces a completely different root hash. The on-chain root acts as an immutable commitment.</li>
+    <li><strong>Replay Protection:</strong> The contract maintains a <code>claimed[address]</code> mapping. Each address can only claim once per distribution cycle.</li>
+    <li><strong>Double-Claim Prevention:</strong> After a successful claim, the contract sets <code>claimed[msg.sender] = true</code>, preventing re-execution of the same proof.</li>
+  </ul>
+
+  <h3>5.4 Pseudocode: Merkle Distributor Contract</h3>
+  <div class="code-block"><span class="keyword">contract</span> <span class="fn">MerkleDistributor</span> {
+  <span class="keyword">bytes32</span> <span class="keyword">public</span> merkleRoot;
+  <span class="keyword">mapping</span>(<span class="keyword">address</span> => <span class="keyword">bool</span>) <span class="keyword">public</span> claimed;
+
+  <span class="keyword">function</span> <span class="fn">claim</span>(
+    <span class="keyword">uint256</span> amount,
+    <span class="keyword">bytes32</span>[] <span class="keyword">calldata</span> proof
+  ) <span class="keyword">external</span> {
+    <span class="comment">// 1. Prevent double claims</span>
+    <span class="fn">require</span>(!claimed[msg.sender], <span class="string">"Already claimed"</span>);
+
+    <span class="comment">// 2. Compute the leaf hash</span>
+    <span class="keyword">bytes32</span> leaf = <span class="fn">keccak256</span>(
+      <span class="fn">abi.encodePacked</span>(msg.sender, amount)
+    );
+
+    <span class="comment">// 3. Verify Merkle proof</span>
+    <span class="fn">require</span>(
+      <span class="fn">MerkleProof.verify</span>(proof, merkleRoot, leaf),
+      <span class="string">"Invalid proof"</span>
+    );
+
+    <span class="comment">// 4. Mark as claimed</span>
+    claimed[msg.sender] = <span class="keyword">true</span>;
+
+    <span class="comment">// 5. Transfer USDC rewards</span>
+    USDC.<span class="fn">transfer</span>(msg.sender, amount);
+  }
+}</div>
+
+  <h3>5.5 Distribution Lifecycle</h3>
+  <!-- Lifecycle Diagram -->
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 160" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="la" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#818cf8"/></marker>
+      </defs>
+      <text x="400" y="18" text-anchor="middle" fill="#818cf8" font-size="12" font-weight="700">24-Hour Distribution Cycle</text>
+
+      <!-- Phase 1 -->
+      <rect x="10" y="35" width="145" height="75" rx="10" fill="rgba(99,102,241,0.08)" stroke="#6366f1" stroke-width="1"/>
+      <text x="82" y="58" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">📊 Snapshot</text>
+      <text x="82" y="76" text-anchor="middle" fill="#64748b" font-size="9">Read all USDC</text>
+      <text x="82" y="90" text-anchor="middle" fill="#64748b" font-size="9">balances via RPC</text>
+
+      <line x1="155" y1="72" x2="175" y2="72" stroke="#818cf8" stroke-width="1.2" marker-end="url(#la)"/>
+
+      <!-- Phase 2 -->
+      <rect x="177" y="35" width="145" height="75" rx="10" fill="rgba(99,102,241,0.08)" stroke="#6366f1" stroke-width="1"/>
+      <text x="249" y="58" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">🧮 Compute</text>
+      <text x="249" y="76" text-anchor="middle" fill="#64748b" font-size="9">Match tiers</text>
+      <text x="249" y="90" text-anchor="middle" fill="#64748b" font-size="9">Calculate rewards</text>
+
+      <line x1="322" y1="72" x2="342" y2="72" stroke="#818cf8" stroke-width="1.2" marker-end="url(#la)"/>
+
+      <!-- Phase 3 -->
+      <rect x="344" y="35" width="145" height="75" rx="10" fill="rgba(99,102,241,0.08)" stroke="#6366f1" stroke-width="1"/>
+      <text x="416" y="58" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">🌿 Build Tree</text>
+      <text x="416" y="76" text-anchor="middle" fill="#64748b" font-size="9">Construct Merkle</text>
+      <text x="416" y="90" text-anchor="middle" fill="#64748b" font-size="9">Tree from rewards</text>
+
+      <line x1="489" y1="72" x2="509" y2="72" stroke="#818cf8" stroke-width="1.2" marker-end="url(#la)"/>
+
+      <!-- Phase 4 -->
+      <rect x="511" y="35" width="145" height="75" rx="10" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="1.5"/>
+      <text x="583" y="58" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">📤 Publish</text>
+      <text x="583" y="76" text-anchor="middle" fill="#64748b" font-size="9">setMerkleRoot()</text>
+      <text x="583" y="90" text-anchor="middle" fill="#64748b" font-size="9">on Polygon</text>
+
+      <line x1="656" y1="72" x2="676" y2="72" stroke="#818cf8" stroke-width="1.2" marker-end="url(#la)"/>
+
+      <!-- Phase 5 -->
+      <rect x="678" y="35" width="110" height="75" rx="10" fill="rgba(245,158,11,0.08)" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="733" y="58" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">💰 Claim</text>
+      <text x="733" y="76" text-anchor="middle" fill="#64748b" font-size="9">Users submit</text>
+      <text x="733" y="90" text-anchor="middle" fill="#64748b" font-size="9">Merkle Proof</text>
+
+      <!-- Time markers -->
+      <text x="82" y="130" text-anchor="middle" fill="#64748b" font-size="9">T+0h</text>
+      <text x="249" y="130" text-anchor="middle" fill="#64748b" font-size="9">T+0.5h</text>
+      <text x="416" y="130" text-anchor="middle" fill="#64748b" font-size="9">T+1h</text>
+      <text x="583" y="130" text-anchor="middle" fill="#64748b" font-size="9">T+1.5h</text>
+      <text x="733" y="130" text-anchor="middle" fill="#64748b" font-size="9">T+2h → T+24h</text>
+
+      <line x1="50" y1="140" x2="750" y2="140" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="400" y="155" text-anchor="middle" fill="#64748b" font-size="9">↻ Repeats every 24 hours</text>
+    </svg>
+    <div class="diagram-caption">Figure 5 — 24-hour distribution cycle: Snapshot → Compute → Build Tree → Publish Root → Users Claim</div>
+  </div>
+</div>
+
+<!-- ========================= 6. VERIFY MERKLE ========================= -->
+<h2 id="merkle-verify">6. How to Verify Your Merkle Claim On-Chain</h2>
+<div class="section">
+  <p>Every Merkle claim is an on-chain transaction. Here's how to verify the entire process is legitimate:</p>
+
+  <h3>6.1 Verify the Merkle Root Update</h3>
+  <div class="step-row">
+    <span class="step-number">1</span>
+    <div>Go to <strong>PolygonScan</strong> → find the Merkle Distributor contract</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">2</span>
+    <div>Click <strong>"Events"</strong> tab → look for <code>MerkleRootUpdated</code> events</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">3</span>
+    <div>Each event shows the new Merkle Root and the transaction hash of the update</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">4</span>
+    <div>You can verify that roots are updated approximately every 24 hours</div>
+  </div>
+
+  <h3>6.2 Verify Your Claim Transaction</h3>
+  <div class="step-row">
+    <span class="step-number">1</span>
+    <div>After claiming, find your transaction on PolygonScan</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">2</span>
+    <div>Check the <strong>"Token Transfers"</strong> section — it should show USDC transferred to your address</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">3</span>
+    <div>The amount should exactly match what was displayed on the Polnation dashboard</div>
+  </div>
+  <div class="step-row">
+    <span class="step-number">4</span>
+    <div>The transfer comes from the Merkle Distributor contract, NOT from Polnation's admin wallet</div>
+  </div>
+
+  <div class="highlight-box green">
+    <p style="margin:0"><strong>Transparency:</strong> Every USDC transfer from the Merkle Distributor is publicly visible on PolygonScan. Anyone can independently verify the total amount distributed matches the published allocation.</p>
+  </div>
+</div>
+
+<!-- ========================= 7. REVENUE ========================= -->
+<h2 id="revenue">7. Revenue Architecture — Technical Breakdown</h2>
+<div class="section">
+  <p>Yield sustainability is the most important question for any reward platform. Polnation's revenue comes from three on-chain verifiable sources.</p>
+
+  <!-- Revenue Architecture Diagram -->
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 440" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="rv" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#818cf8"/></marker>
+        <marker id="rg" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#10b981"/></marker>
+      </defs>
+
+      <text x="400" y="22" text-anchor="middle" fill="#818cf8" font-size="13" font-weight="700">Revenue Architecture — On-Chain Verifiable Sources</text>
+
+      <!-- Source 1 -->
+      <rect x="20" y="45" width="230" height="160" rx="12" fill="rgba(99,102,241,0.06)" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="135" y="70" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="700">🔗 Hard Staking</text>
+      <text x="135" y="90" text-anchor="middle" fill="#818cf8" font-size="10" font-weight="600">~40% of revenue</text>
+      <text x="40" y="115" fill="#a1a1aa" font-size="9">• POL staked via StakeManager</text>
+      <text x="40" y="132" fill="#a1a1aa" font-size="9">• Checkpoint rewards (4-6% APR)</text>
+      <text x="40" y="149" fill="#a1a1aa" font-size="9">• Delegated to top validators</text>
+      <text x="40" y="166" fill="#a1a1aa" font-size="9">• Auto-compound restaking</text>
+      <text x="40" y="190" fill="#64748b" font-size="8">Verify: staking.polygon.technology</text>
+
+      <!-- Source 2 -->
+      <rect x="280" y="45" width="230" height="160" rx="12" fill="rgba(8,145,178,0.06)" stroke="#0891b2" stroke-width="1.5"/>
+      <text x="395" y="70" text-anchor="middle" fill="#22d3ee" font-size="12" font-weight="700">🌐 Ecosystem Rewards</text>
+      <text x="395" y="90" text-anchor="middle" fill="#06b6d4" font-size="10" font-weight="600">~35% of revenue</text>
+      <text x="300" y="115" fill="#a1a1aa" font-size="9">• Polygon DeFi incentives</text>
+      <text x="300" y="132" fill="#a1a1aa" font-size="9">• Circle USDC liquidity programs</text>
+      <text x="300" y="149" fill="#a1a1aa" font-size="9">• Liquid staking (stMATIC/MaticX)</text>
+      <text x="300" y="166" fill="#a1a1aa" font-size="9">• Gas fee rebate programs</text>
+      <text x="300" y="190" fill="#64748b" font-size="8">Verify: polygon.technology/ecosystem</text>
+
+      <!-- Source 3 -->
+      <rect x="540" y="45" width="240" height="160" rx="12" fill="rgba(245,158,11,0.06)" stroke="#d97706" stroke-width="1.5"/>
+      <text x="660" y="70" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="700">📢 Ad & Partnerships</text>
+      <text x="660" y="90" text-anchor="middle" fill="#d97706" font-size="10" font-weight="600">~25% of revenue</text>
+      <text x="560" y="115" fill="#a1a1aa" font-size="9">• Sponsored task campaigns</text>
+      <text x="560" y="132" fill="#a1a1aa" font-size="9">• Partner protocol promotions</text>
+      <text x="560" y="149" fill="#a1a1aa" font-size="9">• Cross-platform referral fees</text>
+      <text x="560" y="166" fill="#a1a1aa" font-size="9">• White-label licensing</text>
+      <text x="560" y="190" fill="#64748b" font-size="8">Growth-dependent revenue</text>
+
+      <!-- Arrows to treasury -->
+      <line x1="135" y1="205" x2="340" y2="250" stroke="#6366f1" stroke-width="1.2" marker-end="url(#rv)" opacity="0.6"/>
+      <line x1="395" y1="205" x2="395" y2="250" stroke="#0891b2" stroke-width="1.2" marker-end="url(#rv)" opacity="0.6"/>
+      <line x1="660" y1="205" x2="460" y2="250" stroke="#d97706" stroke-width="1.2" marker-end="url(#rv)" opacity="0.6"/>
+
+      <!-- Treasury -->
+      <rect x="270" y="250" width="260" height="55" rx="12" fill="rgba(99,102,241,0.12)" stroke="#818cf8" stroke-width="2"/>
+      <text x="400" y="275" text-anchor="middle" fill="#e4e4e7" font-size="13" font-weight="700">💎 Revenue Treasury</text>
+      <text x="400" y="295" text-anchor="middle" fill="#64748b" font-size="10">On-chain multisig wallet</text>
+
+      <!-- Distribution arrows -->
+      <line x1="320" y1="305" x2="150" y2="350" stroke="#10b981" stroke-width="1.5" marker-end="url(#rg)" opacity="0.7"/>
+      <line x1="400" y1="305" x2="400" y2="350" stroke="#10b981" stroke-width="1.5" marker-end="url(#rg)" opacity="0.7"/>
+      <line x1="480" y1="305" x2="650" y2="350" stroke="#10b981" stroke-width="1.5" marker-end="url(#rg)" opacity="0.7"/>
+
+      <!-- Allocation boxes -->
+      <rect x="40" y="350" width="220" height="75" rx="10" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="1.5"/>
+      <text x="150" y="375" text-anchor="middle" fill="#34d399" font-size="12" font-weight="700">💰 User Reward Pool</text>
+      <text x="150" y="395" text-anchor="middle" fill="#a1a1aa" font-size="10">Staking + Community + Referral</text>
+      <rect x="120" y="405" width="60" height="14" rx="4" fill="rgba(16,185,129,0.2)"/>
+      <text x="150" y="416" text-anchor="middle" fill="#10b981" font-size="10" font-weight="700">~60%</text>
+
+      <rect x="290" y="350" width="220" height="75" rx="10" fill="rgba(99,102,241,0.06)" stroke="#818cf8" stroke-width="1"/>
+      <text x="400" y="375" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="600">🔄 Restaking Pool</text>
+      <text x="400" y="395" text-anchor="middle" fill="#a1a1aa" font-size="10">Validator + Treasury Ops</text>
+      <rect x="370" y="405" width="60" height="14" rx="4" fill="rgba(99,102,241,0.15)"/>
+      <text x="400" y="416" text-anchor="middle" fill="#818cf8" font-size="10" font-weight="600">~25%</text>
+
+      <rect x="540" y="350" width="220" height="75" rx="10" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="650" y="375" text-anchor="middle" fill="#a1a1aa" font-size="12" font-weight="600">🛠️ Development</text>
+      <text x="650" y="395" text-anchor="middle" fill="#64748b" font-size="10">Team + Infrastructure</text>
+      <rect x="620" y="405" width="60" height="14" rx="4" fill="rgba(255,255,255,0.05)"/>
+      <text x="650" y="416" text-anchor="middle" fill="#64748b" font-size="10">~15%</text>
+    </svg>
+    <div class="diagram-caption">Figure 6 — Revenue architecture: Three sources → Treasury (multisig) → Allocated to rewards (60%), restaking (25%), development (15%)</div>
+  </div>
+
+  <h3>7.1 Hard Staking — Validator Economics</h3>
+  <div class="highlight-box">
+    <h4>On-Chain Verification</h4>
+    <ul>
+      <li><strong>StakeManager contract (Ethereum):</strong> <code>0x5e3Ef299fDDf15eAa0432E6e66473ace8c13D908</code></li>
+      <li><strong>ValidatorShare proxy:</strong> Delegation amounts are publicly queryable via <code>balanceOf()</code> on each validator's share contract</li>
+      <li><strong>Checkpoint frequency:</strong> ~30 min intervals, each distributing block rewards proportional to stake weight</li>
+      <li><strong>Current network APR:</strong> 4.2%–5.8% (real-time data at <a href="https://staking.polygon.technology" style="color:#818cf8;">staking.polygon.technology</a>)</li>
+    </ul>
+  </div>
+
+  <div class="formula">Validator Yield = (Stake_Weight / Total_Stake) × Block_Rewards × (1 - Commission)</div>
+
+  <h3>7.2 Ecosystem Incentives — Protocol-Level Rewards</h3>
+  <div class="highlight-box cyan">
+    <h4>Participating Programs:</h4>
+    <ul>
+      <li><strong>Polygon DeFi Grants:</strong> Foundation-allocated POL tokens for qualifying DeFi platforms based on TVL contribution and active users</li>
+      <li><strong>Circle USDC Growth Program:</strong> Supplementary yield for platforms maintaining significant USDC on-chain liquidity on Polygon</li>
+      <li><strong>Liquid Staking:</strong> Treasury deployed into stMATIC (Lido) and MaticX (Stader) — audited liquid staking protocols with $500M+ TVL</li>
+      <li><strong>Gas Rebates:</strong> High-volume platforms qualify for partial gas fee rebates from Polygon Foundation</li>
+    </ul>
+  </div>
+
+  <h3>7.3 Advertising & Partnerships</h3>
+  <div class="highlight-box amber">
+    <ul>
+      <li><strong>Task Sponsorships:</strong> Web3 projects pay $X per user interaction for featured tasks (e.g., "Try Protocol X"). 100% recycled into reward pool.</li>
+      <li><strong>Cross-platform Referrals:</strong> Affiliate integrations with DEXes, lending, and NFT platforms generate commissions per interaction</li>
+      <li><strong>White-label Licensing:</strong> Polnation's community model offered to other crypto projects for integration fees</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ========================= 8. COMPLIANCE ========================= -->
+<h2 id="compliance">8. Compliance & Risk Framework</h2>
+<div class="section">
+  <h3>8.1 Regulatory Positioning</h3>
+  <table>
+    <thead>
+      <tr><th>Aspect</th><th>Polnation's Approach</th><th>Regulatory Implication</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Custody of funds</td><td>Non-custodial — no custody at any point</td><td>Avoids Money Transmitter classification in most jurisdictions</td></tr>
+      <tr><td>Token issuance</td><td>No native token — rewards in USDC only</td><td>Avoids securities classification (no investment contract)</td></tr>
+      <tr><td>KYC/AML</td><td>Email + profile verification</td><td>Proportionate to non-custodial platform risk level</td></tr>
+      <tr><td>Fund flow</td><td>User-initiated claims via smart contract</td><td>No intermediary custody between claim and receipt</td></tr>
+      <tr><td>Geographic restrictions</td><td>Compliance with applicable local laws</td><td>Users responsible for local regulatory compliance</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.2 Risk Disclosures</h3>
+  <div class="warning-box">
+    <strong>⚠️ Important Risks:</strong>
+    <ul style="margin-top:8px;">
+      <li><strong>Smart Contract Risk:</strong> While the Merkle Distributor follows battle-tested patterns, all smart contracts carry inherent risk</li>
+      <li><strong>Yield Variability:</strong> Returns depend on validator performance, ecosystem programs, and platform growth — they are not guaranteed</li>
+      <li><strong>USDC Depegging Risk:</strong> USDC is a centralized stablecoin managed by Circle. A depeg event would affect all USDC holders</li>
+      <li><strong>Polygon Network Risk:</strong> Network congestion, validator downtime, or consensus failures could delay distributions</li>
+      <li><strong>Regulatory Risk:</strong> Changes in cryptocurrency regulations may affect platform operations in certain jurisdictions</li>
+    </ul>
+  </div>
+
+  <h3>8.3 User Protections</h3>
+  <div class="highlight-box green">
+    <ul>
+      <li><strong>Worst-case scenario analysis:</strong> If Polnation ceases operations tomorrow, users lose $0 — their USDC remains in their own wallet, untouched</li>
+      <li><strong>No approval = no exposure:</strong> Unlike DeFi protocols that require token approvals, Polnation has zero on-chain authority over user tokens</li>
+      <li><strong>Transparent distribution:</strong> All Merkle Root updates and claim transactions are publicly visible on PolygonScan</li>
+      <li><strong>No withdrawal lock:</strong> Users can move their USDC at any time with zero restrictions or penalties</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ========================= 9. CONTRACTS ========================= -->
+<h2 id="contracts">9. Smart Contract Reference</h2>
+<div class="section">
+  <table>
+    <thead>
+      <tr><th>Contract</th><th>Network</th><th>Address</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>USDC</strong></td>
+        <td>Polygon PoS</td>
+        <td><code>0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</code></td>
+        <td>Native USDC stablecoin</td>
+      </tr>
+      <tr>
+        <td><strong>StakeManager</strong></td>
+        <td>Ethereum L1</td>
+        <td><code>0x5e3Ef299fDDf15eAa0432E6e66473ace8c13D908</code></td>
+        <td>Polygon PoS validator staking</td>
+      </tr>
+      <tr>
+        <td><strong>Merkle Distributor</strong></td>
+        <td>Polygon PoS</td>
+        <td>Published on deployment</td>
+        <td>Trustless reward claims</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>External Verification Tools</h3>
+  <table>
+    <thead>
+      <tr><th>Tool</th><th>URL</th><th>Use Case</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>PolygonScan</td><td><a href="https://polygonscan.com" style="color:#818cf8;">polygonscan.com</a></td><td>Transaction & contract explorer</td></tr>
+      <tr><td>Revoke.cash</td><td><a href="https://revoke.cash" style="color:#818cf8;">revoke.cash</a></td><td>Token approval management</td></tr>
+      <tr><td>DeBank</td><td><a href="https://debank.com" style="color:#818cf8;">debank.com</a></td><td>Portfolio & approval overview</td></tr>
+      <tr><td>Polygon Staking</td><td><a href="https://staking.polygon.technology" style="color:#818cf8;">staking.polygon.technology</a></td><td>Validator delegation verification</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ========================= 10. GLOSSARY ========================= -->
+<h2 id="glossary">10. Glossary</h2>
+<div class="section">
+  <table>
+    <thead>
+      <tr><th>Term</th><th>Definition</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Merkle Tree</strong></td><td>A binary hash tree where each leaf contains a hash of data, and each parent contains the hash of its children. The root hash represents all data.</td></tr>
+      <tr><td><strong>Merkle Root</strong></td><td>The single 32-byte hash at the top of the tree. Stored on-chain as a commitment to all user rewards.</td></tr>
+      <tr><td><strong>Merkle Proof</strong></td><td>A compact set of sibling hashes (O(log N)) that allows verification of a specific leaf's inclusion in the tree.</td></tr>
+      <tr><td><strong>keccak256</strong></td><td>The cryptographic hash function used by Ethereum and Polygon. Produces a 256-bit (32-byte) hash.</td></tr>
+      <tr><td><strong>balanceOf()</strong></td><td>A standard ERC-20 function that returns the token balance of an address. Read-only, requires no authorization.</td></tr>
+      <tr><td><strong>approve()</strong></td><td>An ERC-20 function that grants a spender permission to move tokens. Polnation NEVER calls this.</td></tr>
+      <tr><td><strong>allowance()</strong></td><td>An ERC-20 function that returns the approved amount for a spender. For Polnation, this always returns 0.</td></tr>
+      <tr><td><strong>transferFrom()</strong></td><td>An ERC-20 function to transfer tokens on behalf of an owner. Requires prior approval. Polnation cannot call this.</td></tr>
+      <tr><td><strong>Non-custodial</strong></td><td>A design where the platform never holds, controls, or has access to user funds.</td></tr>
+      <tr><td><strong>Polygon PoS</strong></td><td>A Layer 2 Proof-of-Stake blockchain built on Ethereum, offering low fees and fast transactions.</td></tr>
+      <tr><td><strong>Checkpoint</strong></td><td>A periodic snapshot of Polygon block state submitted to Ethereum L1 by validators.</td></tr>
+      <tr><td><strong>Validator</strong></td><td>A node that participates in block production and consensus on the Polygon network.</td></tr>
+      <tr><td><strong>stMATIC / MaticX</strong></td><td>Liquid staking tokens representing staked POL via Lido and Stader protocols, respectively.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================== FOOTER ============================== -->
+<div class="footer">
+  <p><strong>Polnation — Technical Whitepaper v1.0</strong></p>
+  <p>This document is for informational purposes only and does not constitute financial advice.</p>
+  <p>Website: <a href="https://www.polnation.com" style="color:#818cf8;">www.polnation.com</a></p>
+  <p style="margin-top:10px;">© 2025 Polnation. All rights reserved.</p>
+</div>
+
+</body>
+</html>
