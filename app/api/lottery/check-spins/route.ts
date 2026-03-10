@@ -204,7 +204,7 @@ export async function POST() {
     isInfluencer: updatedInfluencer,
     totalSpins,
     usedSpins,
-    remainingSpins: updatedInfluencer ? 999 : Math.max(0, totalSpins - usedSpins),
-    canSpin: updatedInfluencer || (totalSpins - usedSpins) > 0,
+    remainingSpins: Math.max(0, totalSpins - usedSpins),
+    canSpin: (totalSpins - usedSpins) > 0,
   })
 }

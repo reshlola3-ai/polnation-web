@@ -115,20 +115,13 @@ export async function GET() {
       const isPending = pendingRecords.length > 0
 
       // Determine unlock state for quest tasks
+      // Within a chapter: ALL tasks are parallel (no step ordering required)
+      // Cross-chapter: ch2 requires ch1 complete; ch3 requires ch2 complete
       let isUnlocked = true
-      if (task.quest_group && task.quest_step > 1) {
-        // All same-chapter tasks with lower step must be completed
-        const prereqs = (taskTypes || []).filter(
-          t => t.quest_group === task.quest_group && t.quest_step < task.quest_step
-        )
-        isUnlocked = prereqs.every(t => isTaskCompleted(t.id))
-      }
-
-      // Chapter 2 requires Chapter 1 complete; Chapter 3 requires Chapter 2 complete
       if (task.quest_group === 'ch2') {
-        isUnlocked = isUnlocked && isChapterComplete('ch1')
+        isUnlocked = isChapterComplete('ch1')
       } else if (task.quest_group === 'ch3') {
-        isUnlocked = isUnlocked && isChapterComplete('ch2')
+        isUnlocked = isChapterComplete('ch2')
       }
 
       // Can complete logic
