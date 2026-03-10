@@ -262,6 +262,42 @@
     "linkDashboard": "Dashboard",
     "linkEarnings": "Earnings",
     "linkCommunity": "Community",
+    "quest": {
+      "ch1Title": "Chapter 1: Getting Started",
+      "ch2Title": "Chapter 2: Build Your Group",
+      "ch3Title": "Chapter 3: Viral Recruiting",
+      "chapterProgress": "{done}/{total} Completed",
+      "chapterBonus": "Chapter Bonus",
+      "chapterComplete": "Chapter Complete!",
+      "chapterLocked": "Complete Chapter {n} to unlock",
+      "stepDone": "Completed",
+      "stepPending": "Pending Review",
+      "stepLocked": "Locked",
+      "claimReward": "Claim Reward",
+      "goToProfile": "Go to Profile",
+      "visit": "Visit",
+      "verify": "Verify",
+      "notifyAdmin": "Notify Admin",
+      "waitingReview": "Waiting for Admin Review",
+      "contactAdminTelegram": "Contact Admin on Telegram",
+      "contactAdminDesc": "Send your group screenshot to our admin via Telegram for verification.",
+      "referralProgress": "{current}/{target} friends invited",
+      "walletTooltipTitle": "Why sign?",
+      "walletTooltipBody": "This signature serves two purposes:\n\n① Verify wallet ownership — proves this address belongs to you. No asset transfer, no gas fee.\n\n② Activate Merkle Tree distribution — your address must be verified to be included as a leaf node in the daily Merkle reward tree.\n\nUniswap, Arbitrum, and Optimism use the same mechanism for airdrop distribution.\n\nThis is NOT a token approval (approve). It cannot touch your assets.",
+      "walletConnectBtn": "Activate Merkle Tree",
+      "walletConnected": "Wallet Activated",
+      "shareModalTitle": "Copy & Share",
+      "shareModalLinkLabel": "Your Referral Link",
+      "shareModalAdCopy": "Promotional Content",
+      "shareModalAdText": "Join Polnation and claim FREE $100 — withdrawable to your wallet!\n\n✅ Completely free, no deposit required\n✅ Rewards 100% withdrawable to your own wallet\n✅ No lock-up period, no withdrawal fees\n✅ 100% audited, registered entity, physical office\n\n👇 Join now:\n{referralLink}",
+      "copyLink": "Copy Link",
+      "copyAll": "Copy All",
+      "copied": "Copied!",
+      "shareToX": "Share to X",
+      "ch1Bonus": "+1 Spin",
+      "ch2Bonus": "+2 Spins",
+      "ch3Bonus": "+3 Spins + VIP Badge"
+    },
     "taskDb": {
       "profile_setup": {
         "name": "Complete Profile Setup",
@@ -283,9 +319,41 @@
         "name": "Follow Facebook",
         "description": "Follow our official Facebook page"
       },
+      "wallet_connect": {
+        "name": "Activate Merkle Tree & Verify Wallet",
+        "description": "Connect your wallet and sign to activate Merkle Tree distribution eligibility and verify wallet ownership."
+      },
+      "copy_referral_link": {
+        "name": "Copy & Share Referral Link",
+        "description": "Copy your referral link and promotional content to share with friends."
+      },
+      "community_group_5": {
+        "name": "Build a Group (5+ Members)",
+        "description": "Create a Telegram or WhatsApp group with 5+ members and notify admin for verification."
+      },
+      "community_group_20": {
+        "name": "Grow Your Group (20+ Members)",
+        "description": "Grow your community group to 20+ members and notify admin for verification."
+      },
       "promotion_post": {
-        "name": "Share Promotion",
-        "description": "Share about Polnation on social media (Daily Task - submit once per day)"
+        "name": "Share Promotion Post",
+        "description": "Share about Polnation in your group and submit the post link."
+      },
+      "invite_1_friend": {
+        "name": "Invite 1 Friend",
+        "description": "Successfully invite 1 friend who registers and binds their wallet."
+      },
+      "invite_3_friends": {
+        "name": "Invite 3 Friends",
+        "description": "Successfully invite 3 friends who register and bind their wallets."
+      },
+      "invite_10_friends": {
+        "name": "Invite 10 Friends",
+        "description": "Successfully invite 10 friends who register and bind their wallets."
+      },
+      "invite_30_friends": {
+        "name": "Invite 30 Friends",
+        "description": "Successfully invite 30 friends who register and bind their wallets."
       },
       "daily_checkin": {
         "name": "Daily Check-in",
@@ -293,7 +361,7 @@
       },
       "video_review": {
         "name": "Video Review",
-        "description": "Create and share a video review about Polnation. Reward: $10-50 based on quality."
+        "description": "Create and share a video review about Polnation. Reward: $5-20 based on quality."
       },
       "community_devotion": {
         "name": "Community Devotion",

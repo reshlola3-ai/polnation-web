@@ -418,6 +418,21 @@ export default function AdminTasksPage() {
                     </div>
                   </div>
 
+                  {/* Group task: show badge + contact hint */}
+                  {task.task_types.task_key.startsWith('community_group_') && (
+                    <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+                      <p className="text-cyan-300 text-xs font-semibold mb-1">📣 Group Verification Task</p>
+                      <p className="text-zinc-400 text-xs">
+                        The user has been notified to contact admin on Telegram. Please verify their group screenshot/member count, then approve or reject below.
+                      </p>
+                      {task.submitted_content && (
+                        <p className="text-zinc-300 text-xs mt-2 bg-zinc-900 rounded p-2">
+                          <span className="text-zinc-500">Note from user: </span>{task.submitted_content}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   {task.submitted_url && (
                     <div className="mt-4 p-3 bg-zinc-900 rounded-lg">
                       <p className="text-zinc-400 text-xs mb-1">Submitted URL:</p>

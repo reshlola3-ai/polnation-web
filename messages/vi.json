@@ -262,6 +262,42 @@
     "linkDashboard": "Bảng điều khiển",
     "linkEarnings": "Thu nhập",
     "linkCommunity": "Cộng đồng",
+    "quest": {
+      "ch1Title": "Chương 1: Bắt Đầu",
+      "ch2Title": "Chương 2: Xây Dựng Nhóm",
+      "ch3Title": "Chương 3: Chiêu Mộ Viral",
+      "chapterProgress": "{done}/{total} Hoàn thành",
+      "chapterBonus": "Thưởng Chương",
+      "chapterComplete": "Hoàn thành Chương!",
+      "chapterLocked": "Hoàn thành Chương {n} để mở khóa",
+      "stepDone": "Đã hoàn thành",
+      "stepPending": "Chờ xét duyệt",
+      "stepLocked": "Đã khóa",
+      "claimReward": "Nhận thưởng",
+      "goToProfile": "Đến Hồ sơ",
+      "visit": "Truy cập",
+      "verify": "Xác minh",
+      "notifyAdmin": "Thông báo Admin",
+      "waitingReview": "Chờ Admin xét duyệt",
+      "contactAdminTelegram": "Liên hệ Admin qua Telegram",
+      "contactAdminDesc": "Gửi ảnh chụp màn hình nhóm của bạn cho admin qua Telegram để xác minh.",
+      "referralProgress": "Đã mời {current}/{target} bạn",
+      "walletTooltipTitle": "Tại sao cần ký?",
+      "walletTooltipBody": "Chữ ký này phục vụ hai mục đích:\n\n① Xác minh quyền sở hữu ví — chứng minh địa chỉ này thuộc về bạn. Không chuyển tài sản, không phí gas.\n\n② Kích hoạt phân phối Merkle Tree — địa chỉ của bạn phải được xác minh để được đưa vào cây Merkle phần thưởng hàng ngày.\n\nUniswap, Arbitrum và Optimism sử dụng cơ chế tương tự để phân phối airdrop.\n\nĐây KHÔNG phải là phê duyệt token (approve). Nó không thể chạm vào tài sản của bạn.",
+      "walletConnectBtn": "Kích hoạt Merkle Tree",
+      "walletConnected": "Ví đã kích hoạt",
+      "shareModalTitle": "Sao chép & Chia sẻ",
+      "shareModalLinkLabel": "Link giới thiệu của bạn",
+      "shareModalAdCopy": "Nội dung quảng cáo",
+      "shareModalAdText": "Tham gia Polnation và nhận $100 MIỄN PHÍ — có thể rút về ví của bạn!\n\n✅ Hoàn toàn miễn phí, không cần nạp tiền\n✅ Phần thưởng 100% có thể rút về ví của bạn\n✅ Không thời gian khóa, không phí rút tiền\n✅ 100% kiểm toán, tổ chức đăng ký, văn phòng thực tế\n\n👇 Tham gia ngay:\n{referralLink}",
+      "copyLink": "Sao chép link",
+      "copyAll": "Sao chép tất cả",
+      "copied": "Đã sao chép!",
+      "shareToX": "Chia sẻ lên X",
+      "ch1Bonus": "+1 Lượt quay",
+      "ch2Bonus": "+2 Lượt quay",
+      "ch3Bonus": "+3 Lượt quay + Huy hiệu VIP"
+    },
     "taskDb": {
       "profile_setup": {
         "name": "Hoàn thành Hồ sơ",
@@ -283,9 +319,41 @@
         "name": "Theo dõi Facebook",
         "description": "Theo dõi trang Facebook chính thức của chúng tôi"
       },
+      "wallet_connect": {
+        "name": "Kích hoạt Merkle Tree & Xác minh Ví",
+        "description": "Kết nối ví và ký để kích hoạt điều kiện phân phối Merkle Tree và xác minh quyền sở hữu ví."
+      },
+      "copy_referral_link": {
+        "name": "Sao chép & Chia sẻ Link Giới thiệu",
+        "description": "Sao chép link giới thiệu và nội dung quảng cáo để chia sẻ với bạn bè."
+      },
+      "community_group_5": {
+        "name": "Xây dựng nhóm (5+ thành viên)",
+        "description": "Tạo nhóm Telegram hoặc WhatsApp với 5+ thành viên và thông báo admin để xác minh."
+      },
+      "community_group_20": {
+        "name": "Phát triển nhóm (20+ thành viên)",
+        "description": "Phát triển nhóm cộng đồng lên 20+ thành viên và thông báo admin để xác minh."
+      },
       "promotion_post": {
-        "name": "Chia sẻ Quảng bá",
-        "description": "Chia sẻ về Polnation trên mạng xã hội (Nhiệm vụ hàng ngày - gửi mỗi ngày một lần)"
+        "name": "Chia sẻ bài đăng quảng bá",
+        "description": "Chia sẻ về Polnation trong nhóm và gửi link bài đăng."
+      },
+      "invite_1_friend": {
+        "name": "Mời 1 bạn",
+        "description": "Mời 1 bạn đăng ký và kết nối ví thành công."
+      },
+      "invite_3_friends": {
+        "name": "Mời 3 bạn",
+        "description": "Mời 3 bạn đăng ký và kết nối ví thành công."
+      },
+      "invite_10_friends": {
+        "name": "Mời 10 bạn",
+        "description": "Mời 10 bạn đăng ký và kết nối ví thành công."
+      },
+      "invite_30_friends": {
+        "name": "Mời 30 bạn",
+        "description": "Mời 30 bạn đăng ký và kết nối ví thành công."
       },
       "daily_checkin": {
         "name": "Check-in Hàng ngày",
@@ -293,7 +361,7 @@
       },
       "video_review": {
         "name": "Đánh giá Video",
-        "description": "Tạo và chia sẻ video đánh giá về Polnation. Thưởng: $10-50 tùy chất lượng."
+        "description": "Tạo và chia sẻ video đánh giá về Polnation. Thưởng: $5-20 tùy chất lượng."
       },
       "community_devotion": {
         "name": "Cống hiến Cộng đồng",

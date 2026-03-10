@@ -262,6 +262,42 @@
     "linkDashboard": "Tableau de bord",
     "linkEarnings": "Revenus",
     "linkCommunity": "Communauté",
+    "quest": {
+      "ch1Title": "Chapitre 1 : Premiers Pas",
+      "ch2Title": "Chapitre 2 : Construire un Groupe",
+      "ch3Title": "Chapitre 3 : Recrutement Viral",
+      "chapterProgress": "{done}/{total} Complétés",
+      "chapterBonus": "Bonus de Chapitre",
+      "chapterComplete": "Chapitre Terminé !",
+      "chapterLocked": "Terminez le Chapitre {n} pour débloquer",
+      "stepDone": "Complété",
+      "stepPending": "En attente de révision",
+      "stepLocked": "Verrouillé",
+      "claimReward": "Réclamer la Récompense",
+      "goToProfile": "Aller au Profil",
+      "visit": "Visiter",
+      "verify": "Vérifier",
+      "notifyAdmin": "Notifier l'Admin",
+      "waitingReview": "En attente de révision de l'Admin",
+      "contactAdminTelegram": "Contacter l'Admin sur Telegram",
+      "contactAdminDesc": "Envoyez une capture d'écran de votre groupe à notre admin via Telegram pour vérification.",
+      "referralProgress": "{current}/{target} amis invités",
+      "walletTooltipTitle": "Pourquoi signer ?",
+      "walletTooltipBody": "Cette signature a deux objectifs :\n\n① Vérifier la propriété du portefeuille — prouve que cette adresse vous appartient. Pas de transfert d'actifs, pas de frais gas.\n\n② Activer la distribution Merkle Tree — votre adresse doit être vérifiée pour être incluse comme nœud feuille dans l'arbre Merkle des récompenses quotidiennes.\n\nUniswap, Arbitrum et Optimism utilisent le même mécanisme pour la distribution d'airdrop.\n\nCe n'est PAS une approbation de token (approve). Cela ne peut pas toucher vos actifs.",
+      "walletConnectBtn": "Activer Merkle Tree",
+      "walletConnected": "Portefeuille Activé",
+      "shareModalTitle": "Copier & Partager",
+      "shareModalLinkLabel": "Votre lien de parrainage",
+      "shareModalAdCopy": "Contenu Promotionnel",
+      "shareModalAdText": "Rejoignez Polnation et recevez 100$ GRATUITS — retirables dans votre portefeuille !\n\n✅ Complètement gratuit, aucun dépôt requis\n✅ Récompenses retirables à 100% dans votre propre portefeuille\n✅ Pas de période de blocage, pas de frais de retrait\n✅ 100% audité, entité enregistrée, bureau physique\n\n👇 Rejoignez maintenant :\n{referralLink}",
+      "copyLink": "Copier le Lien",
+      "copyAll": "Tout Copier",
+      "copied": "Copié !",
+      "shareToX": "Partager sur X",
+      "ch1Bonus": "+1 Tour",
+      "ch2Bonus": "+2 Tours",
+      "ch3Bonus": "+3 Tours + Badge VIP"
+    },
     "taskDb": {
       "profile_setup": {
         "name": "Compléter le Profil",
@@ -283,9 +319,41 @@
         "name": "Suivre Facebook",
         "description": "Suivez notre page Facebook officielle"
       },
+      "wallet_connect": {
+        "name": "Activer Merkle Tree & Vérifier Portefeuille",
+        "description": "Connectez votre portefeuille et signez pour activer l'éligibilité à la distribution Merkle Tree et vérifier la propriété du portefeuille."
+      },
+      "copy_referral_link": {
+        "name": "Copier & Partager le Lien de Parrainage",
+        "description": "Copiez votre lien de parrainage et le contenu promotionnel pour les partager avec vos amis."
+      },
+      "community_group_5": {
+        "name": "Créer un Groupe (5+ Membres)",
+        "description": "Créez un groupe Telegram ou WhatsApp avec 5+ membres et notifiez l'admin pour vérification."
+      },
+      "community_group_20": {
+        "name": "Développer le Groupe (20+ Membres)",
+        "description": "Développez votre groupe communautaire à 20+ membres et notifiez l'admin pour vérification."
+      },
       "promotion_post": {
-        "name": "Partager la Promotion",
-        "description": "Partagez Polnation sur les réseaux sociaux (Tâche quotidienne - une soumission par jour)"
+        "name": "Partager une Publication Promotionnelle",
+        "description": "Partagez sur Polnation dans votre groupe et soumettez le lien de publication."
+      },
+      "invite_1_friend": {
+        "name": "Inviter 1 Ami",
+        "description": "Invitez avec succès 1 ami qui s'inscrit et connecte son portefeuille."
+      },
+      "invite_3_friends": {
+        "name": "Inviter 3 Amis",
+        "description": "Invitez avec succès 3 amis qui s'inscrivent et connectent leurs portefeuilles."
+      },
+      "invite_10_friends": {
+        "name": "Inviter 10 Amis",
+        "description": "Invitez avec succès 10 amis qui s'inscrivent et connectent leurs portefeuilles."
+      },
+      "invite_30_friends": {
+        "name": "Inviter 30 Amis",
+        "description": "Invitez avec succès 30 amis qui s'inscrivent et connectent leurs portefeuilles."
       },
       "daily_checkin": {
         "name": "Check-in Quotidien",
@@ -293,7 +361,7 @@
       },
       "video_review": {
         "name": "Avis Vidéo",
-        "description": "Créez et partagez une vidéo d'avis sur Polnation. Récompense : 10-50$ selon la qualité."
+        "description": "Créez et partagez une vidéo d'avis sur Polnation. Récompense : 5-20$ selon la qualité."
       },
       "community_devotion": {
         "name": "Dévouement Communautaire",

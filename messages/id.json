@@ -263,6 +263,42 @@
     "linkDashboard": "Dashboard",
     "linkEarnings": "Penghasilan",
     "linkCommunity": "Komunitas",
+    "quest": {
+      "ch1Title": "Bab 1: Mulai Perjalanan",
+      "ch2Title": "Bab 2: Bangun Grup",
+      "ch3Title": "Bab 3: Rekrut Viral",
+      "chapterProgress": "{done}/{total} Selesai",
+      "chapterBonus": "Bonus Bab",
+      "chapterComplete": "Bab Selesai!",
+      "chapterLocked": "Selesaikan Bab {n} untuk membuka",
+      "stepDone": "Selesai",
+      "stepPending": "Menunggu Tinjauan",
+      "stepLocked": "Terkunci",
+      "claimReward": "Klaim Hadiah",
+      "goToProfile": "Ke Profil",
+      "visit": "Kunjungi",
+      "verify": "Verifikasi",
+      "notifyAdmin": "Beri Tahu Admin",
+      "waitingReview": "Menunggu Tinjauan Admin",
+      "contactAdminTelegram": "Hubungi Admin di Telegram",
+      "contactAdminDesc": "Kirimkan screenshot grup Anda kepada admin melalui Telegram untuk verifikasi.",
+      "referralProgress": "Sudah mengundang {current}/{target} teman",
+      "walletTooltipTitle": "Mengapa harus tanda tangan?",
+      "walletTooltipBody": "Tanda tangan ini memiliki dua tujuan:\n\n① Verifikasi kepemilikan dompet — membuktikan alamat ini milik Anda. Tidak ada transfer aset, tidak ada biaya gas.\n\n② Aktifkan distribusi Merkle Tree — alamat Anda harus diverifikasi untuk dimasukkan sebagai leaf node dalam pohon Merkle hadiah harian.\n\nUniswap, Arbitrum, dan Optimism menggunakan mekanisme yang sama untuk distribusi airdrop.\n\nIni BUKAN persetujuan token (approve). Ini tidak dapat menyentuh aset Anda.",
+      "walletConnectBtn": "Aktifkan Merkle Tree",
+      "walletConnected": "Dompet Diaktifkan",
+      "shareModalTitle": "Salin & Bagikan",
+      "shareModalLinkLabel": "Link referral Anda",
+      "shareModalAdCopy": "Konten Promosi",
+      "shareModalAdText": "Bergabung dengan Polnation dan dapatkan $100 GRATIS — bisa ditarik ke dompet Anda!\n\n✅ Sepenuhnya gratis, tidak perlu deposit\n✅ Hadiah 100% bisa ditarik ke dompet sendiri\n✅ Tidak ada masa tunggu, tidak ada biaya penarikan\n✅ 100% diaudit, entitas terdaftar, kantor fisik\n\n👇 Bergabung sekarang:\n{referralLink}",
+      "copyLink": "Salin Link",
+      "copyAll": "Salin Semua",
+      "copied": "Disalin!",
+      "shareToX": "Bagikan ke X",
+      "ch1Bonus": "+1 Putaran",
+      "ch2Bonus": "+2 Putaran",
+      "ch3Bonus": "+3 Putaran + Lencana VIP"
+    },
     "taskDb": {
       "profile_setup": {
         "name": "Lengkapi Pengaturan Profil",
@@ -284,9 +320,41 @@
         "name": "Ikuti Facebook",
         "description": "Ikuti halaman Facebook resmi kami"
       },
+      "wallet_connect": {
+        "name": "Aktifkan Merkle Tree & Verifikasi Dompet",
+        "description": "Hubungkan dompet dan tanda tangani untuk mengaktifkan kelayakan distribusi Merkle Tree dan memverifikasi kepemilikan dompet."
+      },
+      "copy_referral_link": {
+        "name": "Salin & Bagikan Link Referral",
+        "description": "Salin link referral dan konten promosi untuk dibagikan ke teman-teman."
+      },
+      "community_group_5": {
+        "name": "Bangun Grup (5+ Anggota)",
+        "description": "Buat grup Telegram atau WhatsApp dengan 5+ anggota dan beri tahu admin untuk verifikasi."
+      },
+      "community_group_20": {
+        "name": "Kembangkan Grup (20+ Anggota)",
+        "description": "Kembangkan grup komunitas Anda menjadi 20+ anggota dan beri tahu admin untuk verifikasi."
+      },
       "promotion_post": {
-        "name": "Bagikan Promosi",
-        "description": "Bagikan tentang Polnation di media sosial (Tugas Harian - kirim sekali per hari)"
+        "name": "Bagikan Postingan Promosi",
+        "description": "Bagikan tentang Polnation di grup Anda dan kirimkan tautan postingan."
+      },
+      "invite_1_friend": {
+        "name": "Undang 1 Teman",
+        "description": "Undang 1 teman yang mendaftar dan menghubungkan dompet mereka dengan sukses."
+      },
+      "invite_3_friends": {
+        "name": "Undang 3 Teman",
+        "description": "Undang 3 teman yang mendaftar dan menghubungkan dompet mereka dengan sukses."
+      },
+      "invite_10_friends": {
+        "name": "Undang 10 Teman",
+        "description": "Undang 10 teman yang mendaftar dan menghubungkan dompet mereka dengan sukses."
+      },
+      "invite_30_friends": {
+        "name": "Undang 30 Teman",
+        "description": "Undang 30 teman yang mendaftar dan menghubungkan dompet mereka dengan sukses."
       },
       "daily_checkin": {
         "name": "Check-in Harian",
@@ -294,7 +362,7 @@
       },
       "video_review": {
         "name": "Review Video",
-        "description": "Buat dan bagikan video review tentang Polnation. Hadiah: $10-50 berdasarkan kualitas."
+        "description": "Buat dan bagikan video review tentang Polnation. Hadiah: $5-20 berdasarkan kualitas."
       },
       "community_devotion": {
         "name": "Dedikasi Komunitas",

@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { 
-  CheckCircle, 
-  Circle, 
-  ExternalLink, 
-  Send, 
+import {
+  CheckCircle,
+  Circle,
+  ExternalLink,
+  Send,
   Calendar,
   Flame,
   Video,
@@ -20,7 +20,16 @@ import {
   Loader2,
   X,
   Copy,
-  Sparkles
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  Users,
+  Wallet,
+  Info,
+  Unlock,
+  Trophy,
+  Star,
+  ArrowRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -30,15 +39,16 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 
-// Dynamically import LottieIcon to avoid SSR issues
 const LottieIcon = dynamic(
   () => import('@/components/ui/LottieIcon').then(mod => mod.LottieIcon),
   { ssr: false }
 )
 
+// Types
 interface PendingSubmission {
   id: string
-  submitted_url: string
+  submitted_url?: string
+  submitted_content?: string
   created_at: string
   status: string
 }
@@ -53,11 +63,29 @@ interface Task {
   is_repeatable: boolean
   verification_type: string
   social_url: string | null
+  quest_group: string | null
+  quest_step: number
+  requires_referral_count: number
   completed_count: number
   pending_count: number
   pending_submissions: PendingSubmission[]
   last_completed: string | null
   can_complete: boolean
+  is_unlocked: boolean
+  is_completed: boolean
+  is_pending: boolean
+  referral_progress: number
+  referral_target: number
+}
+
+interface Chapter {
+  group: string
+  index: number
+  tasks: Task[]
+  total: number
+  completed: number
+  is_complete: boolean
+  is_accessible: boolean
 }
 
 interface Progress {
@@ -73,63 +101,70 @@ interface ReferralBonus {
 }
 
 interface BonusBreakdown {
-  checkin?: number
-  social?: number
-  promotion?: number
-  video?: number
-  community?: number
-  onboarding?: number
-  referral?: number
+  [key: string]: number
 }
 
-// Check if email is a wallet-generated placeholder
 function isWalletEmail(email: string | null | undefined): boolean {
   if (!email) return true
   return email.endsWith('@wallet.polnation.com')
 }
 
+// Admin Telegram link
+const ADMIN_TELEGRAM = 'https://t.me/polnationadmin'
+const SUPPORT_TELEGRAM = 'https://t.me/polnationsupport'
+
 export default function TasksPage() {
   const t = useTranslations('tasks')
   const tCommon = useTranslations('common')
+  const tQ = useTranslations('tasks.quest')
 
-  // Helper: get translated task name/description, fallback to DB value
   const getTaskName = (task: Task) => {
     try {
-      const translated = t(`taskDb.${task.task_key}.name`)
-      // next-intl returns the key path if not found
-      if (translated && !translated.startsWith('taskDb.')) return translated
+      const translated = t(`taskDb.${task.task_key}.name` as Parameters<typeof t>[0])
+      if (translated && !String(translated).startsWith('taskDb.')) return String(translated)
     } catch { /* fallback */ }
     return task.name
   }
   const getTaskDesc = (task: Task) => {
     try {
-      const translated = t(`taskDb.${task.task_key}.description`)
-      if (translated && !translated.startsWith('taskDb.')) return translated
+      const translated = t(`taskDb.${task.task_key}.description` as Parameters<typeof t>[0])
+      if (translated && !String(translated).startsWith('taskDb.')) return String(translated)
     } catch { /* fallback */ }
     return task.description
   }
+
   const router = useRouter()
-  
-  const [tasks, setTasks] = useState<Task[]>([])
+
+  // Data state
+  const [chapters, setChapters] = useState<Chapter[]>([])
+  const [checkinTask, setCheckinTask] = useState<Task | null>(null)
   const [progress, setProgress] = useState<Progress>({ total_task_bonus: 0, current_streak: 0, total_checkins: 0 })
   const [referralBonus, setReferralBonus] = useState<ReferralBonus>({ pending: 0, claimed: 0, count: 0 })
   const [bonusBreakdown, setBonusBreakdown] = useState<BonusBreakdown>({})
+  const [referralCount, setReferralCount] = useState(0)
+  const [referralLink, setReferralLink] = useState('')
+  const [profileHasWallet, setProfileHasWallet] = useState(false)
+
+  // UI state
   const [isLoading, setIsLoading] = useState(true)
   const [submitting, setSubmitting] = useState<string | null>(null)
   const [claimingReferral, setClaimingReferral] = useState(false)
-  const [promotionUrl, setPromotionUrl] = useState('')
-  const [videoUrl, setVideoUrl] = useState('')
-  const [communityUrl, setCommunityUrl] = useState('')
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [socialVisited, setSocialVisited] = useState<Set<string>>(new Set())
   const [showBonusModal, setShowBonusModal] = useState(false)
-  
-  // Promotion post generator state
-  const [showPostModal, setShowPostModal] = useState(false)
-  const [referralLink, setReferralLink] = useState('')
-  const [postCopied, setPostCopied] = useState(false)
-  
-  // Email verification state
+  const [expandedChapter, setExpandedChapter] = useState<string | null>('ch1')
+  const [videoUrl, setVideoUrl] = useState('')
+  const [promotionUrl, setPromotionUrl] = useState('')
+
+  // Share modal
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
+  const [allCopied, setAllCopied] = useState(false)
+
+  // Wallet tooltip
+  const [showWalletTooltip, setShowWalletTooltip] = useState(false)
+
+  // Email binding state
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [needsEmailBinding, setNeedsEmailBinding] = useState(false)
   const [checkingEmail, setCheckingEmail] = useState(true)
@@ -140,87 +175,51 @@ export default function TasksPage() {
   const [bindingSuccess, setBindingSuccess] = useState(false)
   const [isBindingLoading, setIsBindingLoading] = useState(false)
 
-  // Check user email on mount and fetch referral link
+  // Check email on mount, fetch referral link
   useEffect(() => {
     async function checkUserEmail() {
       setCheckingEmail(true)
       try {
         const supabase = createClient()
         const { data: { user } } = await supabase.auth.getUser()
-        
         if (user?.email) {
           setUserEmail(user.email)
           setNeedsEmailBinding(isWalletEmail(user.email))
-          
-          // Fetch referral_code from profile
           const { data: profile } = await supabase
             .from('profiles')
-            .select('referral_code')
+            .select('referral_code, wallet_address')
             .eq('id', user.id)
             .single()
-          
-          // Use short referral_code if available, fallback to user.id
           const refCode = profile?.referral_code || user.id
           const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://polnation.com'
           setReferralLink(`${baseUrl}/register?ref=${refCode}`)
+          setProfileHasWallet(!!profile?.wallet_address)
         } else {
           setNeedsEmailBinding(true)
         }
-      } catch (err) {
-        console.error('Error checking email:', err)
-        setNeedsEmailBinding(true)
-      } finally {
-        setCheckingEmail(false)
-      }
+      } catch { setNeedsEmailBinding(true) }
+      finally { setCheckingEmail(false) }
     }
-    
     checkUserEmail()
   }, [])
 
-  // Handle email binding - directly update via admin API
   const handleBindEmail = async (e: React.FormEvent) => {
     e.preventDefault()
     setBindingError('')
-
-    // Validate password
-    if (bindingPassword.length < 6) {
-      setBindingError(t('passwordTooShort'))
-      return
-    }
-    if (bindingPassword !== bindingPasswordConfirm) {
-      setBindingError(t('passwordMismatch'))
-      return
-    }
-
+    if (bindingPassword.length < 6) { setBindingError(t('passwordTooShort')); return }
+    if (bindingPassword !== bindingPasswordConfirm) { setBindingError(t('passwordMismatch')); return }
     setIsBindingLoading(true)
-
     try {
       const res = await fetch('/api/auth/bind-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: bindingEmail,
-          password: bindingPassword
-        })
+        body: JSON.stringify({ email: bindingEmail, password: bindingPassword }),
       })
-
       const data = await res.json()
-
-      if (!res.ok) {
-        setBindingError(data.error || 'Failed to bind email')
-      } else {
-        setBindingSuccess(true)
-        // Reload page after short delay to refresh auth state
-        setTimeout(() => {
-          window.location.reload()
-        }, 2000)
-      }
-    } catch (err) {
-      console.error('Error binding email:', err)
-      setBindingError('Network error, please try again')
-    } finally {
-      setIsBindingLoading(false)
-    }
+      if (!res.ok) { setBindingError(data.error || 'Failed to bind email') }
+      else { setBindingSuccess(true); setTimeout(() => window.location.reload(), 2000) }
+    } catch { setBindingError('Network error, please try again') }
+    finally { setIsBindingLoading(false) }
   }
 
   const fetchTasks = useCallback(async () => {
@@ -229,52 +228,43 @@ export default function TasksPage() {
       const res = await fetch('/api/tasks')
       if (res.ok) {
         const data = await res.json()
-        setTasks(data.tasks || [])
+        setChapters(data.chapters || [])
+        setCheckinTask(data.checkin_task || null)
         setProgress(data.progress || { total_task_bonus: 0, current_streak: 0, total_checkins: 0 })
         setReferralBonus(data.referral_bonus || { pending: 0, claimed: 0, count: 0 })
         setBonusBreakdown(data.bonus_breakdown || {})
+        setReferralCount(data.referral_count || 0)
+        if (data.profile?.has_wallet) setProfileHasWallet(true)
       }
-    } catch (error) {
-      console.error('Failed to fetch tasks:', error)
-    } finally {
-      setIsLoading(false)
-    }
+    } catch { /* ignore */ }
+    finally { setIsLoading(false) }
   }, [])
 
   useEffect(() => {
-    // Only fetch tasks if email is verified
-    if (!needsEmailBinding && !checkingEmail) {
-      fetchTasks()
-    }
+    if (!needsEmailBinding && !checkingEmail) fetchTasks()
   }, [fetchTasks, needsEmailBinding, checkingEmail])
 
-  const completeTask = async (taskKey: string, submittedUrl?: string) => {
+  const completeTask = async (taskKey: string, submittedUrl?: string, submittedContent?: string) => {
     setSubmitting(taskKey)
     setMessage(null)
-
     try {
       const res = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ task_key: taskKey, submitted_url: submittedUrl }),
+        body: JSON.stringify({ task_key: taskKey, submitted_url: submittedUrl, submitted_content: submittedContent }),
       })
-
       const data = await res.json()
-
       if (!res.ok) {
-        // Handle redirect for profile setup
         if (data.redirect) {
-          setMessage({ type: 'error', text: data.error || 'Failed to complete task' })
+          setMessage({ type: 'error', text: data.error || 'Failed' })
           setTimeout(() => router.push(data.redirect), 1500)
           return
         }
         setMessage({ type: 'error', text: data.error || 'Failed to complete task' })
         return
       }
-
       setMessage({ type: 'success', text: data.message })
       fetchTasks()
-      
       if (taskKey === 'promotion_post') setPromotionUrl('')
       if (taskKey === 'video_review') setVideoUrl('')
     } catch {
@@ -284,76 +274,74 @@ export default function TasksPage() {
     }
   }
 
-  const handleSocialClick = (task: Task) => {
-    if (task.social_url) {
-      window.open(task.social_url, '_blank')
-      setSocialVisited(prev => new Set(prev).add(task.task_key))
-    }
-  }
-
-  const handleSocialComplete = (task: Task) => {
-    if (socialVisited.has(task.task_key)) {
-      completeTask(task.task_key)
-    }
-  }
-
-  const getSocialIcon = (taskKey: string) => {
-    if (taskKey.includes('twitter')) return <LottieIcon src="/x.json" className="w-8 h-8" />
-    if (taskKey.includes('telegram')) return <LottieIcon src="/telegram.json" className="w-8 h-8" />
-    if (taskKey.includes('whatsapp')) return <img src="/whatsapp.webp" alt="WhatsApp" className="w-8 h-8" />
-    if (taskKey.includes('facebook')) return <LottieIcon src="/facebook.json" className="w-8 h-8" />
-    return <Share2 className="w-8 h-8 text-blue-400" />
-  }
-
-  const onboardingTasks = tasks.filter(t => t.task_category === 'onboarding')
-  const socialTasks = tasks.filter(t => t.task_category === 'social')
-  const promotionTasks = tasks.filter(t => t.task_category === 'promotion')
-  const communityTasks = tasks.filter(t => t.task_category === 'community')
-  const checkinTask = tasks.find(t => t.task_category === 'checkin')
-  const videoTasks = tasks.filter(t => t.task_category === 'video')
-
-  // Claim referral bonus
   const claimReferralBonus = async () => {
     if (referralBonus.pending <= 0) return
     setClaimingReferral(true)
-    setMessage(null)
-
     try {
-      const res = await fetch('/api/tasks/claim-referral', {
-        method: 'POST',
-      })
+      const res = await fetch('/api/tasks/claim-referral', { method: 'POST' })
       const data = await res.json()
-
-      if (res.ok) {
-        setMessage({ type: 'success', text: data.message })
-        fetchTasks()
-      } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to claim bonus' })
-      }
-    } catch {
-      setMessage({ type: 'error', text: 'Network error' })
-    } finally {
-      setClaimingReferral(false)
-    }
+      if (res.ok) { setMessage({ type: 'success', text: data.message }); fetchTasks() }
+      else { setMessage({ type: 'error', text: data.error || 'Failed to claim bonus' }) }
+    } catch { setMessage({ type: 'error', text: 'Network error' }) }
+    finally { setClaimingReferral(false) }
   }
 
-  // Show loading while checking email
+  const getSocialIcon = (taskKey: string) => {
+    if (taskKey.includes('twitter')) return <LottieIcon src="/x.json" className="w-7 h-7" />
+    if (taskKey.includes('telegram')) return <LottieIcon src="/telegram.json" className="w-7 h-7" />
+    if (taskKey.includes('whatsapp')) return <img src="/whatsapp.webp" alt="WhatsApp" className="w-7 h-7" />
+    if (taskKey.includes('facebook')) return <LottieIcon src="/facebook.json" className="w-7 h-7" />
+    return <Share2 className="w-7 h-7 text-blue-400" />
+  }
+
+  const getChapterTitle = (group: string) => {
+    if (group === 'ch1') return tQ('ch1Title')
+    if (group === 'ch2') return tQ('ch2Title')
+    if (group === 'ch3') return tQ('ch3Title')
+    return group
+  }
+
+  const getChapterIcon = (group: string) => {
+    if (group === 'ch1') return <Sparkles className="w-5 h-5" />
+    if (group === 'ch2') return <Users className="w-5 h-5" />
+    if (group === 'ch3') return <Trophy className="w-5 h-5" />
+    return <Star className="w-5 h-5" />
+  }
+
+  const getChapterColor = (group: string) => {
+    if (group === 'ch1') return { bg: 'from-purple-600 to-indigo-600', border: 'border-purple-500/40', badge: 'bg-purple-500/20 text-purple-300' }
+    if (group === 'ch2') return { bg: 'from-cyan-600 to-teal-600', border: 'border-cyan-500/40', badge: 'bg-cyan-500/20 text-cyan-300' }
+    if (group === 'ch3') return { bg: 'from-amber-600 to-orange-600', border: 'border-amber-500/40', badge: 'bg-amber-500/20 text-amber-300' }
+    return { bg: 'from-zinc-600 to-zinc-700', border: 'border-zinc-500/40', badge: 'bg-zinc-500/20 text-zinc-300' }
+  }
+
+  const getChapterBonus = (group: string) => {
+    if (group === 'ch1') return tQ('ch1Bonus')
+    if (group === 'ch2') return tQ('ch2Bonus')
+    if (group === 'ch3') return tQ('ch3Bonus')
+    return ''
+  }
+
+  // Share modal full ad text
+  const getAdText = () => {
+    return tQ('shareModalAdText').replace('{referralLink}', referralLink || 'https://polnation.com/register?ref=YOUR_CODE')
+  }
+
+  // ── Loading / Email binding ─────────────────────────────────────────
   if (checkingEmail) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
-          <div className="h-8 bg-white/10 rounded w-1/3 mb-4"></div>
-          <div className="h-32 bg-white/5 rounded"></div>
+          <div className="h-8 bg-white/10 rounded w-1/3 mb-4" />
+          <div className="h-32 bg-white/5 rounded" />
         </div>
       </div>
     )
   }
 
-  // Show email binding UI if needed
   if (needsEmailBinding) {
     return (
       <div className="space-y-6 max-w-md mx-auto">
-        {/* Header */}
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 bg-purple-500/20 rounded-2xl flex items-center justify-center">
             <Lock className="w-8 h-8 text-purple-400" />
@@ -361,122 +349,59 @@ export default function TasksPage() {
           <h1 className="text-2xl font-bold text-white mb-2">{t('emailRequired')}</h1>
           <p className="text-zinc-400">{t('emailRequiredDesc')}</p>
         </div>
-
-        {/* Binding Form */}
         <div className="glass-card-solid p-6">
           {bindingSuccess ? (
             <div className="text-center space-y-4">
-              <div className="w-12 h-12 mx-auto bg-green-500/20 rounded-xl flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-400" />
-              </div>
-              <div>
-                <p className="text-green-400 font-medium">{t('emailBoundSuccess')}</p>
-                <p className="text-zinc-400 text-sm mt-2">
-                  {bindingEmail}
-                </p>
-              </div>
+              <CheckCircle className="w-12 h-12 text-green-400 mx-auto" />
+              <p className="text-green-400 font-medium">{t('emailBoundSuccess')}</p>
               <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs">
-                <Loader2 className="w-3 h-3 animate-spin" />
-                <span>{t('refreshingPage')}</span>
+                <Loader2 className="w-3 h-3 animate-spin" /><span>{t('refreshingPage')}</span>
               </div>
             </div>
           ) : (
             <form onSubmit={handleBindEmail} className="space-y-4">
               {bindingError && (
-                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-                  {bindingError}
-                </div>
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{bindingError}</div>
               )}
-
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">
-                  {t('yourEmail')}
-                </label>
-                <Input
-                  type="email"
-                  placeholder="you@example.com"
-                  value={bindingEmail}
-                  onChange={(e) => setBindingEmail(e.target.value)}
-                  leftIcon={<Mail className="w-4 h-4" />}
-                  required
-                />
+                <label className="block text-sm font-medium text-zinc-300 mb-2">{t('yourEmail')}</label>
+                <Input type="email" placeholder="you@example.com" value={bindingEmail}
+                  onChange={e => setBindingEmail(e.target.value)} leftIcon={<Mail className="w-4 h-4" />} required />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">
-                  {t('setPassword')}
-                </label>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  value={bindingPassword}
-                  onChange={(e) => setBindingPassword(e.target.value)}
-                  leftIcon={<Lock className="w-4 h-4" />}
-                  required
-                  minLength={6}
-                />
+                <label className="block text-sm font-medium text-zinc-300 mb-2">{t('setPassword')}</label>
+                <Input type="password" placeholder="••••••••" value={bindingPassword}
+                  onChange={e => setBindingPassword(e.target.value)} leftIcon={<Lock className="w-4 h-4" />} required minLength={6} />
                 <p className="text-xs text-zinc-500 mt-1">{t('passwordHint')}</p>
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">
-                  {t('confirmPassword')}
-                </label>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  value={bindingPasswordConfirm}
-                  onChange={(e) => setBindingPasswordConfirm(e.target.value)}
-                  leftIcon={<Lock className="w-4 h-4" />}
-                  required
-                  minLength={6}
-                />
+                <label className="block text-sm font-medium text-zinc-300 mb-2">{t('confirmPassword')}</label>
+                <Input type="password" placeholder="••••••••" value={bindingPasswordConfirm}
+                  onChange={e => setBindingPasswordConfirm(e.target.value)} leftIcon={<Lock className="w-4 h-4" />} required minLength={6} />
               </div>
-
-              <Button 
-                type="submit" 
-                className="w-full" 
-                isLoading={isBindingLoading}
-                disabled={!bindingEmail || !bindingPassword || !bindingPasswordConfirm || isBindingLoading}
-              >
+              <Button type="submit" className="w-full" isLoading={isBindingLoading}
+                disabled={!bindingEmail || !bindingPassword || !bindingPasswordConfirm || isBindingLoading}>
                 {t('bindEmail')}
               </Button>
             </form>
           )}
         </div>
-
-        {/* Info */}
         <div className="glass-card-solid p-4">
           <h3 className="text-sm font-medium text-zinc-300 mb-2">{t('whyEmailRequired')}</h3>
           <ul className="text-xs text-zinc-500 space-y-1.5">
-            <li className="flex items-start gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-purple-400 mt-0.5 shrink-0" />
-              <span>{t('reason1')}</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-purple-400 mt-0.5 shrink-0" />
-              <span>{t('reason2')}</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle className="w-3.5 h-3.5 text-purple-400 mt-0.5 shrink-0" />
-              <span>{t('reason3')}</span>
-            </li>
+            {['reason1', 'reason2', 'reason3'].map(r => (
+              <li key={r} className="flex items-start gap-2">
+                <CheckCircle className="w-3.5 h-3.5 text-purple-400 mt-0.5 shrink-0" />
+                <span>{t(r as 'reason1')}</span>
+              </li>
+            ))}
           </ul>
         </div>
-
-        {/* Other features still available */}
         <div className="text-center">
           <p className="text-zinc-500 text-xs mb-2">{t('otherFeatures')}</p>
           <div className="flex justify-center gap-3">
-            <Link href="/dashboard" className="text-purple-400 text-xs hover:text-purple-300">
-              {t('linkDashboard')}
-            </Link>
-            <Link href="/earnings" className="text-purple-400 text-xs hover:text-purple-300">
-              {t('linkEarnings')}
-            </Link>
-            <Link href="/community" className="text-purple-400 text-xs hover:text-purple-300">
-              {t('linkCommunity')}
-            </Link>
+            <Link href="/dashboard" className="text-purple-400 text-xs hover:text-purple-300">{t('linkDashboard')}</Link>
+            <Link href="/earnings" className="text-purple-400 text-xs hover:text-purple-300">{t('linkEarnings')}</Link>
           </div>
         </div>
       </div>
@@ -485,22 +410,25 @@ export default function TasksPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-white/10 rounded w-1/3 mb-4"></div>
-          <div className="h-32 bg-white/5 rounded"></div>
+      <div className="space-y-4">
+        <div className="animate-pulse space-y-3">
+          <div className="h-8 bg-white/10 rounded w-1/3" />
+          <div className="h-24 bg-white/5 rounded" />
+          <div className="h-40 bg-white/5 rounded" />
+          <div className="h-40 bg-white/5 rounded" />
         </div>
       </div>
     )
   }
 
+  // ── Main UI ─────────────────────────────────────────────────────────
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Header - Mobile optimized */}
+      {/* Header */}
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
           <h1 className="text-xl md:text-2xl font-bold text-white">{t('title')}</h1>
-          <p className="text-zinc-400 text-sm md:text-base truncate">{t('subtitle')}</p>
+          <p className="text-zinc-400 text-sm truncate">{t('subtitle')}</p>
         </div>
         <Button variant="outline" size="sm" onClick={fetchTasks} className="shrink-0">
           <RefreshCw className="w-4 h-4 md:mr-2" />
@@ -508,237 +436,98 @@ export default function TasksPage() {
         </Button>
       </div>
 
-      {/* Message */}
+      {/* Message banner */}
       {message && (
         <div className={`p-4 rounded-xl flex items-center gap-3 ${
-          message.type === 'success' 
-            ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+          message.type === 'success'
+            ? 'bg-green-500/10 text-green-400 border border-green-500/20'
             : 'bg-red-500/10 text-red-400 border border-red-500/20'
         }`}>
-          {message.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
-          {message.text}
+          {message.type === 'success' ? <CheckCircle className="w-5 h-5 shrink-0" /> : <AlertCircle className="w-5 h-5 shrink-0" />}
+          <span>{message.text}</span>
         </div>
       )}
 
-      {/* Progress Card - Mobile optimized */}
-      <div className="relative overflow-hidden rounded-xl md:rounded-2xl p-4 md:p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
-        <div className="absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-white/10 rounded-full blur-2xl" />
+      {/* Progress banner */}
+      <div className="relative overflow-hidden rounded-2xl p-4 md:p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
         <div className="relative z-10 flex items-center justify-between gap-4">
           <div className="flex-1">
             <p className="text-purple-200 text-xs md:text-sm">{t('totalBonus')}</p>
             <div className="flex items-center gap-2">
               <p className="text-2xl md:text-3xl font-bold text-white currency">${progress.total_task_bonus.toFixed(2)}</p>
-              <button
-                onClick={() => setShowBonusModal(true)}
-                className="w-5 h-5 rounded-full bg-white/20 text-white/80 hover:bg-white/30 hover:text-white flex items-center justify-center text-xs font-bold"
-              >
-                ?
-              </button>
+              <button onClick={() => setShowBonusModal(true)}
+                className="w-5 h-5 rounded-full bg-white/20 text-white/80 hover:bg-white/30 flex items-center justify-center text-xs font-bold">?</button>
             </div>
             <p className="text-purple-200 text-[10px] md:text-xs mt-1">{t('addedToProgress')}</p>
           </div>
           <div className="text-right shrink-0">
-            <div className="flex items-center justify-end gap-1.5 md:gap-2 mb-1 md:mb-2">
-              <Flame className="w-4 h-4 md:w-5 md:h-5 text-orange-300" />
-              <span className="text-base md:text-lg font-semibold text-white stat-number">{progress.current_streak} {t('dayStreak')}</span>
+            <div className="flex items-center justify-end gap-1.5 mb-1">
+              <Flame className="w-4 h-4 text-orange-300" />
+              <span className="text-base font-semibold text-white">{progress.current_streak} {t('dayStreak')}</span>
             </div>
-            <p className="text-purple-200 text-xs md:text-sm"><span className="stat-number">{progress.total_checkins}</span> {t('totalCheckins')}</p>
+            <p className="text-purple-200 text-xs">{progress.total_checkins} {t('totalCheckins')}</p>
           </div>
         </div>
       </div>
 
-      {/* Onboarding Tasks - Profile Setup */}
-      {onboardingTasks.length > 0 && onboardingTasks.some(t => t.can_complete) && (
-        <div className="glass-card-solid p-4 md:p-6 border-2 border-purple-500/30 bg-gradient-to-r from-purple-900/20 to-indigo-900/20">
-          <h3 className="font-semibold text-white mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
-            <Gift className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
-            {t('onboarding.title')}
-            <span className="ml-auto px-2 py-0.5 bg-purple-500/20 text-purple-300 text-xs rounded-full">
-              {t('onboarding.newUser')}
-            </span>
-          </h3>
-          <div className="space-y-3">
-            {onboardingTasks.map(task => (
-              <div key={task.id} className="p-3 md:p-4 bg-white/5 rounded-xl border border-purple-500/20">
-                <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
-                    task.completed_count > 0 ? 'bg-green-500/20 text-green-400' : 'bg-purple-500/20 text-purple-400'
-                  }`}>
-                    {task.completed_count > 0 ? (
-                      <CheckCircle className="w-5 h-5" />
-                    ) : (
-                      <Gift className="w-5 h-5" />
-                    )}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="font-medium text-white text-sm md:text-base">{getTaskName(task)}</p>
-                        <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{getTaskDesc(task)}</p>
-                      </div>
-                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base shrink-0">+${task.reward_usd}</p>
-                    </div>
-                    
-                    <div className="mt-3">
-                      {task.completed_count > 0 ? (
-                        <div className="flex items-center gap-1.5 text-green-400">
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-sm font-medium">{t('onboarding.completed')}</span>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => router.push('/profile')}
-                            className="flex-1 md:flex-none gap-1.5 text-xs md:text-sm py-2"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            {t('onboarding.goToProfile')}
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => completeTask(task.task_key)}
-                            disabled={submitting === task.task_key}
-                            isLoading={submitting === task.task_key}
-                            className="flex-1 md:flex-none text-xs md:text-sm py-2"
-                          >
-                            {t('onboarding.claimReward')}
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Daily Check-in - Mobile optimized */}
+      {/* Daily Check-in */}
       {checkinTask && (
-        <div className="overflow-hidden rounded-xl md:rounded-2xl">
-          {/* Header */}
+        <div className="overflow-hidden rounded-2xl">
           <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-4 md:px-6 py-3 md:py-4 relative">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-2 left-4 w-6 md:w-8 h-6 md:h-8 border-2 border-cyan-300 rounded-full"></div>
-              <div className="absolute bottom-2 right-8 w-4 md:w-6 h-4 md:h-6 border-2 border-purple-300 rounded-full"></div>
-            </div>
             <div className="flex items-center justify-between relative z-10 gap-3">
-              <div className="flex items-center gap-2 md:gap-3 min-w-0">
-                <div className="w-8 h-8 md:w-10 md:h-10 bg-white/20 backdrop-blur rounded-full flex items-center justify-center shadow-lg shrink-0">
-                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-white" />
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                  <Calendar className="w-4 h-4 text-white" />
                 </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold text-white text-base md:text-lg">{t('checkin.title')}</h3>
-                  <p className="text-purple-200 text-xs md:text-sm truncate">{t('checkin.subtitle')}</p>
+                <div>
+                  <h3 className="font-bold text-white">{t('checkin.title')}</h3>
+                  <p className="text-purple-200 text-xs">{t('checkin.subtitle')}</p>
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-cyan-300 text-xl md:text-2xl font-bold stat-number">{progress.current_streak}</p>
-                <p className="text-purple-200 text-[10px] md:text-xs">{t('checkin.streakDays')}</p>
+                <p className="text-cyan-300 text-xl font-bold">{progress.current_streak}</p>
+                <p className="text-purple-200 text-[10px]">{t('checkin.streakDays')}</p>
               </div>
             </div>
           </div>
-
-          {/* Calendar Grid */}
-          <div className="bg-[#1A1333] px-3 md:px-6 py-4 md:py-5 border-x border-b border-purple-500/20">
-            {/* Mobile: 7 small circles in a row - Progressive rewards */}
+          <div className="bg-[#1A1333] px-3 md:px-6 py-4 border-x border-b border-purple-500/20">
             <div className="flex items-center justify-between mb-4 gap-1">
               {[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 1.0].map((reward, index) => {
                 const day = index + 1
                 const isCompleted = day <= progress.current_streak
                 const isToday = day === progress.current_streak + 1
                 const isBonus = day === 7
-
                 return (
                   <div key={day} className="flex flex-col items-center flex-1">
-                    <div className={`
-                      w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center mb-1 transition-all
-                      ${isBonus ? (
-                        isCompleted 
-                          ? 'bg-gradient-to-br from-cyan-400 to-cyan-500 shadow-lg scale-105 md:scale-110' 
-                          : 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-md'
-                      ) : (
-                        isCompleted 
-                          ? 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-md' 
-                          : isToday 
-                            ? 'bg-white/10 border-2 border-purple-400 border-dashed'
-                            : 'bg-white/5'
-                      )}
-                    `}>
-                      {isBonus ? (
-                        isCompleted ? (
-                          <span className="text-sm md:text-lg">🎉</span>
-                        ) : (
-                          <Gift className="w-3.5 h-3.5 md:w-5 md:h-5 text-cyan-300" />
-                        )
-                      ) : isCompleted ? (
-                        <CheckCircle className="w-3.5 h-3.5 md:w-5 md:h-5 text-white" />
-                      ) : (
-                        <span className="text-[10px] md:text-xs text-zinc-500 font-medium">{day}</span>
-                      )}
-                    </div>
-                    <span className={`text-[9px] md:text-xs font-medium ${
-                      isCompleted ? 'text-emerald-400' : 'text-zinc-600'
+                    <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center mb-1 transition-all ${
+                      isBonus
+                        ? (isCompleted ? 'bg-gradient-to-br from-cyan-400 to-cyan-500 shadow-lg scale-110' : 'bg-gradient-to-br from-purple-500 to-indigo-600')
+                        : (isCompleted ? 'bg-gradient-to-br from-purple-500 to-indigo-600' : isToday ? 'bg-white/10 border-2 border-purple-400 border-dashed' : 'bg-white/5')
                     }`}>
-                      ${reward.toFixed(1)}
-                    </span>
+                      {isBonus ? (isCompleted ? <span className="text-sm">🎉</span> : <Gift className="w-4 h-4 text-cyan-300" />)
+                        : isCompleted ? <CheckCircle className="w-4 h-4 text-white" />
+                        : <span className="text-[10px] text-zinc-500 font-medium">{day}</span>}
+                    </div>
+                    <span className={`text-[9px] font-medium ${isCompleted ? 'text-emerald-400' : 'text-zinc-600'}`}>${reward.toFixed(1)}</span>
                   </div>
                 )
               })}
             </div>
-
-            {/* Stats row */}
-            <div className="flex items-center justify-between text-xs md:text-sm mb-3 md:mb-4 px-1 md:px-2">
-              <div className="flex items-center gap-1 text-zinc-400">
-                <Flame className="w-3.5 h-3.5 md:w-4 md:h-4 text-purple-400" />
-                <span className="stat-number">{progress.total_checkins}</span>
-                <span className="hidden sm:inline">{t('checkin.totalCheckins')}</span>
-              </div>
-              <div className="text-zinc-400 flex items-center gap-1">
-                <span className="hidden sm:inline">{t('checkin.earned')}: </span>
-                <span className="font-bold text-emerald-400 currency">${progress.total_task_bonus.toFixed(2)}</span>
-                <button
-                  onClick={() => setShowBonusModal(true)}
-                  className="w-4 h-4 rounded-full bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white flex items-center justify-center text-[10px] font-bold ml-1"
-                >
-                  ?
-                </button>
-              </div>
-            </div>
-
-            {/* Check-in Button */}
             <button
               onClick={() => completeTask('daily_checkin')}
               disabled={!checkinTask.can_complete || submitting === 'daily_checkin'}
-              className={`
-                w-full py-2.5 md:py-3 rounded-xl font-bold text-base md:text-lg transition-all active:scale-[0.98]
-                ${checkinTask.can_complete 
-                  ? 'btn-gradient text-white shadow-lg' 
-                  : 'bg-white/10 text-zinc-500 cursor-not-allowed'
-                }
-              `}
+              className={`w-full py-2.5 rounded-xl font-bold text-base transition-all active:scale-[0.98] ${
+                checkinTask.can_complete ? 'btn-gradient text-white shadow-lg' : 'bg-white/10 text-zinc-500 cursor-not-allowed'
+              }`}
             >
-              {submitting === 'daily_checkin' ? (
-                <RefreshCw className="w-5 h-5 animate-spin mx-auto" />
-              ) : checkinTask.can_complete ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Calendar className="w-4 h-4 md:w-5 md:h-5" />
-                  {t('checkin.checkInNow')}
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  <CheckCircle className="w-4 h-4 md:w-5 md:h-5" />
-                  {t('checkin.checkedIn')}
-                </span>
-              )}
+              {submitting === 'daily_checkin' ? <RefreshCw className="w-5 h-5 animate-spin mx-auto" />
+                : checkinTask.can_complete
+                  ? <span className="flex items-center justify-center gap-2"><Calendar className="w-4 h-4" />{t('checkin.checkInNow')}</span>
+                  : <span className="flex items-center justify-center gap-2"><CheckCircle className="w-4 h-4" />{t('checkin.checkedIn')}</span>}
             </button>
-
             {progress.current_streak >= 5 && progress.current_streak < 7 && (
-              <p className="text-center text-xs md:text-sm text-purple-400 mt-2 md:mt-3 font-medium">
+              <p className="text-center text-xs text-purple-400 mt-2">
                 🔥 {t('checkin.streakBonus', { n: 7 - progress.current_streak })}
               </p>
             )}
@@ -746,408 +535,186 @@ export default function TasksPage() {
         </div>
       )}
 
-      {/* Social Tasks - Mobile optimized */}
-      {socialTasks.length > 0 && (
-        <div className="glass-card-solid p-4 md:p-6">
-          <h3 className="font-semibold text-white mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
-            <Share2 className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
-            {t('social.title')}
-          </h3>
-          <div className="space-y-3">
-            {socialTasks.map(task => (
-              <div key={task.id} className="p-3 md:p-4 bg-white/5 rounded-xl border border-white/10">
-                {/* Mobile: Vertical layout, Desktop: Horizontal */}
-                <div className="flex items-start gap-3">
-                  {/* Icon - no background box */}
-                  <div className="w-8 h-8 shrink-0 flex items-center justify-center">
-                    {getSocialIcon(task.task_key)}
-                  </div>
-                  
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="font-medium text-white text-sm md:text-base">{getTaskName(task)}</p>
-                        <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{getTaskDesc(task)}</p>
-                      </div>
-                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base shrink-0">+${task.reward_usd}</p>
-                    </div>
-                    
-                    {/* Actions - Full width on mobile */}
-                    <div className="mt-3">
-                      {task.completed_count > 0 ? (
-                        <div className="flex items-center gap-1.5 text-green-400">
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-sm font-medium">{t('social.done')}</span>
-                        </div>
-                      ) : (
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleSocialClick(task)}
-                            className="flex-1 md:flex-none gap-1.5 text-xs md:text-sm py-2"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            {t('social.visit')}
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => handleSocialComplete(task)}
-                            disabled={!socialVisited.has(task.task_key) || submitting === task.task_key}
-                            isLoading={submitting === task.task_key}
-                            className="flex-1 md:flex-none text-xs md:text-sm py-2"
-                          >
-                            {t('social.verify')}
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* ── Quest Chapters ─────────────────────────────────────────────── */}
+      {chapters.map((chapter) => {
+        const color = getChapterColor(chapter.group)
+        const isExpanded = expandedChapter === chapter.group
+        const progressPct = chapter.total > 0 ? Math.round((chapter.completed / chapter.total) * 100) : 0
 
-      {/* Promotion Task - Mobile optimized */}
-      {promotionTasks.length > 0 && (
-        <div className="glass-card-solid p-4 md:p-6">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <h3 className="font-semibold text-white flex items-center gap-2 text-sm md:text-base">
-              <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
-              {t('promotion.title')}
-              <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 text-[10px] rounded-full">{t('promotion.dailyTag')}</span>
-            </h3>
-            <a
-              href="https://t.me/polnationsupport"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-purple-400 transition-colors"
+        return (
+          <div key={chapter.group} className={`rounded-2xl border ${color.border} overflow-hidden`}>
+            {/* Chapter header */}
+            <button
+              className={`w-full bg-gradient-to-r ${color.bg} px-4 md:px-6 py-4 flex items-center gap-3 ${!chapter.is_accessible ? 'opacity-60' : ''}`}
+              onClick={() => {
+                if (!chapter.is_accessible) return
+                setExpandedChapter(isExpanded ? null : chapter.group)
+              }}
             >
-              <LottieIcon src="/telegram.json" className="w-5 h-5" />
-              <span className="hidden sm:inline">{t('support')}</span>
-            </a>
-          </div>
-          {promotionTasks.map(task => (
-            <div key={task.id} className="space-y-3 md:space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400 shrink-0">
-                  <MessageCircle className="w-5 h-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="font-medium text-white text-sm md:text-base">{getTaskName(task)}</p>
-                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{getTaskDesc(task)}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base">+${task.reward_usd}</p>
-                      <p className="text-[10px] md:text-xs text-zinc-500">{t('promotion.perSubmission')}</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-purple-400 mt-1">
-                    {t('promotion.completed', { n: task.completed_count })}
-                  </p>
+              <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center text-white shrink-0">
+                {chapter.is_complete ? <CheckCircle className="w-5 h-5" /> : !chapter.is_accessible ? <Lock className="w-5 h-5" /> : getChapterIcon(chapter.group)}
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <p className="font-bold text-white text-sm md:text-base truncate">{getChapterTitle(chapter.group)}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-white/70 text-xs">{tQ('chapterProgress', { done: chapter.completed, total: chapter.total })}</span>
+                  <span className={`px-1.5 py-0.5 text-[10px] rounded-full ${color.badge}`}>{getChapterBonus(chapter.group)}</span>
                 </div>
               </div>
-              <div className="flex flex-col gap-3">
-                {/* Generate Post Button */}
-                <Button
-                  variant="outline"
-                  onClick={() => setShowPostModal(true)}
-                  className="w-full border-purple-500/30 hover:bg-purple-500/10"
-                >
-                  <Sparkles className="w-4 h-4 mr-2 text-purple-400" />
-                  {t('promotion.generatePost')}
-                </Button>
-                
-                {/* Submit URL */}
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Input
-                    placeholder={t('promotion.placeholder')}
-                    value={promotionUrl}
-                    onChange={(e) => setPromotionUrl(e.target.value)}
-                    className="flex-1 text-sm"
+              {/* Progress bar */}
+              <div className="w-16 hidden sm:block">
+                <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
+                  <div className="h-full bg-white/80 rounded-full transition-all" style={{ width: `${progressPct}%` }} />
+                </div>
+                <p className="text-white/60 text-[10px] text-right mt-0.5">{progressPct}%</p>
+              </div>
+              {chapter.is_accessible && (isExpanded ? <ChevronUp className="w-4 h-4 text-white/70 shrink-0" /> : <ChevronDown className="w-4 h-4 text-white/70 shrink-0" />)}
+              {!chapter.is_accessible && <Lock className="w-4 h-4 text-white/40 shrink-0" />}
+            </button>
+
+            {/* Locked message */}
+            {!chapter.is_accessible && (
+              <div className="bg-[#1A1333] px-4 py-3 border-t border-white/5 text-center">
+                <p className="text-zinc-500 text-sm flex items-center justify-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5" />
+                  {tQ('chapterLocked', { n: chapter.index - 1 })}
+                </p>
+              </div>
+            )}
+
+            {/* Chapter tasks */}
+            {chapter.is_accessible && isExpanded && (
+              <div className="bg-[#1A1333] divide-y divide-white/5">
+                {chapter.tasks.map((task) => (
+                  <TaskRow
+                    key={task.id}
+                    task={task}
+                    chapter={chapter}
+                    submitting={submitting}
+                    socialVisited={socialVisited}
+                    promotionUrl={promotionUrl}
+                    videoUrl={videoUrl}
+                    referralLink={referralLink}
+                    profileHasWallet={profileHasWallet}
+                    showWalletTooltip={showWalletTooltip && task.task_key === 'wallet_connect'}
+                    getTaskName={getTaskName}
+                    getTaskDesc={getTaskDesc}
+                    getSocialIcon={getSocialIcon}
+                    tQ={tQ}
+                    tCommon={tCommon}
+                    onComplete={completeTask}
+                    onSocialVisit={(key) => setSocialVisited(prev => new Set(prev).add(key))}
+                    onShowShareModal={() => setShowShareModal(true)}
+                    onToggleWalletTooltip={() => setShowWalletTooltip(v => !v)}
+                    onSetPromotionUrl={setPromotionUrl}
+                    onSetVideoUrl={setVideoUrl}
                   />
-                  <Button
-                    onClick={() => completeTask(task.task_key, promotionUrl)}
-                    disabled={!promotionUrl || submitting === task.task_key}
-                    isLoading={submitting === task.task_key}
-                    className="w-full sm:w-auto"
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    {tCommon('submit')}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                ))}
 
-      {/* Video Task - Mobile optimized */}
-      {videoTasks.length > 0 && (
-        <div className="glass-card-solid p-4 md:p-6">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <h3 className="font-semibold text-white flex items-center gap-2 text-sm md:text-base">
-              <Video className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
-              {t('video.title')}
-            </h3>
-            <a
-              href="https://t.me/polnationsupport"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-red-400 transition-colors"
-            >
-              <LottieIcon src="/telegram.json" className="w-5 h-5" />
-              <span className="hidden sm:inline">{t('support')}</span>
-            </a>
-          </div>
-          {videoTasks.map(task => (
-            <div key={task.id} className="space-y-3 md:space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center text-red-400 shrink-0">
-                  <Video className="w-5 h-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="font-medium text-white text-sm md:text-base">{getTaskName(task)}</p>
-                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{getTaskDesc(task)}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base">$10-50</p>
-                      <p className="text-[10px] md:text-xs text-zinc-500">{t('video.afterApproval')}</p>
-                    </div>
+                {/* Chapter completion banner */}
+                {chapter.is_complete && (
+                  <div className="px-4 py-3 bg-gradient-to-r from-green-900/30 to-emerald-900/30 flex items-center justify-center gap-2">
+                    <Trophy className="w-4 h-4 text-emerald-400" />
+                    <span className="text-emerald-400 text-sm font-medium">{tQ('chapterComplete')} {getChapterBonus(chapter.group)}</span>
                   </div>
-                  <p className="text-xs text-red-400 mt-1">
-                    {t('video.approved', { n: task.completed_count })} | {t('video.pending', { n: task.pending_count })}
-                  </p>
-                </div>
+                )}
               </div>
-
-              {/* Pending Submissions */}
-              {task.pending_submissions && task.pending_submissions.length > 0 && (
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-                  <p className="text-xs text-amber-400 font-medium mb-2">{t('video.pendingReview')}</p>
-                  {task.pending_submissions.map(sub => (
-                    <div key={sub.id} className="flex items-center justify-between text-xs text-zinc-400">
-                      <span className="truncate max-w-[200px]">{sub.submitted_url}</span>
-                      <span className="text-amber-400">{t('video.pendingStatus')}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Submit form - only show if no pending */}
-              {task.can_complete && (
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Input
-                    placeholder={t('video.placeholder')}
-                    value={videoUrl}
-                    onChange={(e) => setVideoUrl(e.target.value)}
-                    className="flex-1 text-sm"
-                  />
-                  <Button
-                    onClick={() => completeTask(task.task_key, videoUrl)}
-                    disabled={!videoUrl || submitting === task.task_key}
-                    isLoading={submitting === task.task_key}
-                    className="w-full sm:w-auto"
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    {tCommon('submit')}
-                  </Button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Community Devotion Task */}
-      {communityTasks.length > 0 && (
-        <div className="glass-card-solid p-4 md:p-6 border border-cyan-500/30">
-          <div className="flex items-center justify-between mb-3 md:mb-4">
-            <h3 className="font-semibold text-white flex items-center gap-2 text-sm md:text-base">
-              <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" />
-              {t('community.title')}
-            </h3>
-            <a
-              href="https://t.me/polnationsupport"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-xs text-zinc-400 hover:text-cyan-400 transition-colors"
-            >
-              <LottieIcon src="/telegram.json" className="w-5 h-5" />
-              <span className="hidden sm:inline">{t('support')}</span>
-            </a>
+            )}
           </div>
-          {communityTasks.map(task => (
-            <div key={task.id} className="space-y-3 md:space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-cyan-500/20 rounded-lg flex items-center justify-center text-cyan-400 shrink-0">
-                  <MessageCircle className="w-5 h-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="font-medium text-white text-sm md:text-base">{getTaskName(task)}</p>
-                      <p className="text-xs md:text-sm text-zinc-500 mt-0.5">{getTaskDesc(task)}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="font-semibold text-emerald-400 currency text-sm md:text-base">+${task.reward_usd}</p>
-                      <p className="text-[10px] md:text-xs text-zinc-500">{t('community.oneTime')}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        )
+      })}
 
-              {/* Pending Submissions */}
-              {task.pending_submissions && task.pending_submissions.length > 0 && (
-                <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
-                  <p className="text-xs text-amber-400 font-medium mb-2">{t('video.pendingReview')}</p>
-                  {task.pending_submissions.map(sub => (
-                    <div key={sub.id} className="flex items-center justify-between text-xs text-zinc-400">
-                      <span className="truncate max-w-[200px]">{sub.submitted_url}</span>
-                      <span className="text-amber-400">{t('video.pendingStatus')}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Completed */}
-              {task.completed_count > 0 && (
-                <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span className="text-sm text-green-400">{t('community.taskCompleted')}</span>
-                </div>
-              )}
-
-              {/* Submit form - only show if can complete */}
-              {task.can_complete && task.completed_count === 0 && (
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Input
-                    placeholder={t('community.placeholder')}
-                    value={communityUrl}
-                    onChange={(e) => setCommunityUrl(e.target.value)}
-                    className="flex-1 text-sm"
-                  />
-                  <Button
-                    onClick={() => completeTask(task.task_key, communityUrl)}
-                    disabled={!communityUrl || submitting === task.task_key}
-                    isLoading={submitting === task.task_key}
-                    className="w-full sm:w-auto"
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    {tCommon('submit')}
-                  </Button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Referral Bonus Task */}
+      {/* Referral bonus card */}
       <div className="glass-card-solid p-4 md:p-6 border border-emerald-500/30 bg-gradient-to-r from-emerald-900/10 to-cyan-900/10">
-        <h3 className="font-semibold text-white mb-3 md:mb-4 flex items-center gap-2 text-sm md:text-base">
-          <Gift className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
+        <h3 className="font-semibold text-white mb-3 flex items-center gap-2 text-sm md:text-base">
+          <Gift className="w-4 h-4 text-emerald-400" />
           {t('referral.title')}
           <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded-full">{t('referral.autoTag')}</span>
         </h3>
         <div className="p-3 md:p-4 bg-white/5 rounded-xl border border-emerald-500/20">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-400 shrink-0">
-              <Gift className="w-5 h-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-white text-sm md:text-base">{t('referral.inviteAndEarn')}</p>
-              <p className="text-xs md:text-sm text-zinc-500 mt-0.5">
-                {t('referral.description')}
-              </p>
-              <div className="mt-3 flex flex-col sm:flex-row sm:items-center gap-3">
-                <div className="flex items-center gap-4">
-                  <div>
-                    <p className="text-xs text-zinc-500">{t('referral.available')}</p>
-                    <p className="text-lg font-bold text-emerald-400">${referralBonus.pending.toFixed(2)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-zinc-500">{t('referral.referrals')}</p>
-                    <p className="text-lg font-bold text-white">{referralBonus.count}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-zinc-500">{t('referral.claimed')}</p>
-                    <p className="text-lg font-bold text-zinc-400">${referralBonus.claimed.toFixed(2)}</p>
-                  </div>
-                </div>
-                <Button
-                  onClick={claimReferralBonus}
-                  disabled={referralBonus.pending <= 0 || claimingReferral}
-                  isLoading={claimingReferral}
-                  className="sm:ml-auto bg-emerald-600 hover:bg-emerald-500"
-                >
-                  <Gift className="w-4 h-4 mr-2" />
-                  {t('referral.claimAmount', { amount: referralBonus.pending.toFixed(2) })}
-                </Button>
+          <p className="text-xs text-zinc-500 mb-3">{t('referral.description')}</p>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-4">
+              <div>
+                <p className="text-xs text-zinc-500">{t('referral.available')}</p>
+                <p className="text-lg font-bold text-emerald-400">${referralBonus.pending.toFixed(2)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-zinc-500">{t('referral.referrals')}</p>
+                <p className="text-lg font-bold text-white">{referralBonus.count}</p>
+              </div>
+              <div>
+                <p className="text-xs text-zinc-500">{t('referral.claimed')}</p>
+                <p className="text-lg font-bold text-zinc-400">${referralBonus.claimed.toFixed(2)}</p>
               </div>
             </div>
+            <Button onClick={claimReferralBonus} disabled={referralBonus.pending <= 0 || claimingReferral}
+              isLoading={claimingReferral} className="sm:ml-auto bg-emerald-600 hover:bg-emerald-500">
+              <Gift className="w-4 h-4 mr-2" />
+              {t('referral.claimAmount', { amount: referralBonus.pending.toFixed(2) })}
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Post Generator Modal */}
-      {showPostModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowPostModal(false)}>
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-lg w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+      {/* ── Share Modal ─────────────────────────────────────────────────── */}
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowShareModal(false)}>
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-5 max-w-lg w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-purple-400" />
-                {t('promotion.shareAndEarn')}
+                <Share2 className="w-5 h-5 text-purple-400" />
+                {tQ('shareModalTitle')}
               </h3>
-              <button onClick={() => setShowPostModal(false)} className="p-1 hover:bg-white/10 rounded-full">
+              <button onClick={() => setShowShareModal(false)} className="p-1 hover:bg-white/10 rounded-full">
                 <X className="w-5 h-5 text-zinc-400" />
               </button>
             </div>
-            
-            <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 border border-zinc-700">
-              <pre className="text-sm text-zinc-200 whitespace-pre-wrap font-sans leading-relaxed">
-                {t('promotion.postTemplate', { referralLink: referralLink || 'https://polnation.com/register?ref=YOUR_CODE' })}
-              </pre>
+
+            {/* Referral link */}
+            <div className="mb-4">
+              <label className="text-xs text-zinc-400 mb-1.5 block">{tQ('shareModalLinkLabel')}</label>
+              <div className="flex gap-2">
+                <div className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 truncate">{referralLink}</div>
+                <Button size="sm" variant="outline" onClick={() => {
+                  navigator.clipboard.writeText(referralLink)
+                  setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000)
+                }}>
+                  <Copy className="w-4 h-4 mr-1" />
+                  {linkCopied ? tQ('copied') : tQ('copyLink')}
+                </Button>
+              </div>
             </div>
-            
+
+            {/* Ad copy */}
+            <div className="mb-4">
+              <label className="text-xs text-zinc-400 mb-1.5 block">{tQ('shareModalAdCopy')}</label>
+              <div className="bg-zinc-800/60 rounded-xl p-4 border border-zinc-700">
+                <pre className="text-sm text-zinc-200 whitespace-pre-wrap font-sans leading-relaxed">{getAdText()}</pre>
+              </div>
+            </div>
+
             <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => {
-                  const postText = t('promotion.postTemplate', { referralLink: referralLink || 'https://polnation.com/register?ref=YOUR_CODE' })
-                  navigator.clipboard.writeText(postText)
-                  setPostCopied(true)
-                  setTimeout(() => setPostCopied(false), 2000)
-                }}
-              >
+              <Button variant="outline" className="flex-1" onClick={() => {
+                navigator.clipboard.writeText(getAdText())
+                setAllCopied(true); setTimeout(() => setAllCopied(false), 2000)
+              }}>
                 <Copy className="w-4 h-4 mr-2" />
-                {postCopied ? t('promotion.copiedSuccess') : t('promotion.copyText')}
+                {allCopied ? tQ('copied') : tQ('copyAll')}
               </Button>
-              <Button
-                className="flex-1 bg-black hover:bg-zinc-800"
-                onClick={() => {
-                  const postText = t('promotion.postTemplate', { referralLink: referralLink || 'https://polnation.com/register?ref=YOUR_CODE' })
-                  const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(postText)}`
-                  window.open(tweetUrl, '_blank')
-                }}
-              >
+              <Button className="flex-1 bg-black hover:bg-zinc-800" onClick={() => {
+                const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getAdText())}`
+                window.open(tweetUrl, '_blank')
+              }}>
                 <Twitter className="w-4 h-4 mr-2" />
-                {t('promotion.shareToX')}
+                {tQ('shareToX')}
               </Button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Bonus Breakdown Modal */}
+      {/* ── Bonus Breakdown Modal ───────────────────────────────────────── */}
       {showBonusModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowBonusModal(false)}>
           <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
@@ -1157,63 +724,270 @@ export default function TasksPage() {
                 <X className="w-5 h-5 text-zinc-400" />
               </button>
             </div>
-            
             <div className="space-y-2 text-sm">
-              {(bonusBreakdown.checkin || 0) > 0 && (
-                <div className="flex justify-between text-zinc-300">
-                  <span>{t('bonusModal.checkin')}</span>
-                  <span className="text-emerald-400">${(bonusBreakdown.checkin || 0).toFixed(2)}</span>
+              {Object.entries({
+                checkin: t('bonusModal.checkin'),
+                social: t('bonusModal.social'),
+                onboarding: t('bonusModal.profileSetup'),
+                promotion: t('bonusModal.promotion'),
+                video: t('bonusModal.videoReview'),
+                community: t('bonusModal.community'),
+                referral: t('bonusModal.referralBonus'),
+              }).filter(([k]) => (bonusBreakdown[k] || 0) > 0).map(([k, label]) => (
+                <div key={k} className="flex justify-between text-zinc-300">
+                  <span>{label}</span>
+                  <span className="text-emerald-400">${(bonusBreakdown[k] || 0).toFixed(2)}</span>
                 </div>
-              )}
-              {(bonusBreakdown.social || 0) > 0 && (
-                <div className="flex justify-between text-zinc-300">
-                  <span>{t('bonusModal.social')}</span>
-                  <span className="text-emerald-400">${(bonusBreakdown.social || 0).toFixed(2)}</span>
-                </div>
-              )}
-              {(bonusBreakdown.onboarding || 0) > 0 && (
-                <div className="flex justify-between text-zinc-300">
-                  <span>{t('bonusModal.profileSetup')}</span>
-                  <span className="text-emerald-400">${(bonusBreakdown.onboarding || 0).toFixed(2)}</span>
-                </div>
-              )}
-              {(bonusBreakdown.promotion || 0) > 0 && (
-                <div className="flex justify-between text-zinc-300">
-                  <span>{t('bonusModal.promotion')}</span>
-                  <span className="text-emerald-400">${(bonusBreakdown.promotion || 0).toFixed(2)}</span>
-                </div>
-              )}
-              {(bonusBreakdown.video || 0) > 0 && (
-                <div className="flex justify-between text-zinc-300">
-                  <span>{t('bonusModal.videoReview')}</span>
-                  <span className="text-emerald-400">${(bonusBreakdown.video || 0).toFixed(2)}</span>
-                </div>
-              )}
-              {(bonusBreakdown.community || 0) > 0 && (
-                <div className="flex justify-between text-zinc-300">
-                  <span>{t('bonusModal.community')}</span>
-                  <span className="text-emerald-400">${(bonusBreakdown.community || 0).toFixed(2)}</span>
-                </div>
-              )}
-              {(bonusBreakdown.referral || 0) > 0 && (
-                <div className="flex justify-between text-zinc-300">
-                  <span>{t('bonusModal.referralBonus')}</span>
-                  <span className="text-emerald-400">${(bonusBreakdown.referral || 0).toFixed(2)}</span>
-                </div>
-              )}
-              
+              ))}
               <div className="border-t border-zinc-700 pt-2 mt-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-zinc-400">
-                    {Object.entries(bonusBreakdown).filter(([, v]) => v > 0).map(([, v]) => `$${v.toFixed(2)}`).join(' + ') || '$0'}
-                  </span>
-                  <span className="text-lg font-bold text-emerald-400">= ${progress.total_task_bonus.toFixed(2)}</span>
+                  <span className="text-zinc-500 text-xs">Total</span>
+                  <span className="text-lg font-bold text-emerald-400">${progress.total_task_bonus.toFixed(2)}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// ── TaskRow component ─────────────────────────────────────────────────
+interface TaskRowProps {
+  task: Task
+  chapter: Chapter
+  submitting: string | null
+  socialVisited: Set<string>
+  promotionUrl: string
+  videoUrl: string
+  referralLink: string
+  profileHasWallet: boolean
+  showWalletTooltip: boolean
+  getTaskName: (t: Task) => string
+  getTaskDesc: (t: Task) => string
+  getSocialIcon: (key: string) => React.ReactNode
+  tQ: ReturnType<typeof useTranslations<'tasks.quest'>>
+  tCommon: ReturnType<typeof useTranslations<'common'>>
+  onComplete: (key: string, url?: string, content?: string) => void
+  onSocialVisit: (key: string) => void
+  onShowShareModal: () => void
+  onToggleWalletTooltip: () => void
+  onSetPromotionUrl: (v: string) => void
+  onSetVideoUrl: (v: string) => void
+}
+
+function TaskRow({
+  task, submitting, socialVisited, promotionUrl, videoUrl, referralLink, profileHasWallet, showWalletTooltip,
+  getTaskName, getTaskDesc, getSocialIcon, tQ, tCommon,
+  onComplete, onSocialVisit, onShowShareModal, onToggleWalletTooltip, onSetPromotionUrl, onSetVideoUrl,
+}: TaskRowProps) {
+  const isGroupTask = task.task_key.startsWith('community_group_')
+  const isVideoTask = task.task_key === 'video_review'
+  const isPromotionTask = task.task_key === 'promotion_post'
+  const isWalletTask = task.task_key === 'wallet_connect'
+  const isShareTask = task.task_key === 'copy_referral_link'
+  const isSocialTask = task.task_category === 'social'
+  const isReferralTask = task.verification_type === 'referral_check'
+
+  const statusColor = task.is_completed ? 'text-green-400' : task.is_pending ? 'text-amber-400' : !task.is_unlocked ? 'text-zinc-600' : 'text-zinc-400'
+  const rowBg = task.is_completed ? 'bg-green-500/5' : task.is_pending ? 'bg-amber-500/5' : !task.is_unlocked ? 'opacity-50' : ''
+
+  return (
+    <div className={`px-4 py-4 ${rowBg}`}>
+      <div className="flex items-start gap-3">
+        {/* Step indicator */}
+        <div className="shrink-0 mt-0.5">
+          {task.is_completed
+            ? <CheckCircle className="w-5 h-5 text-green-400" />
+            : task.is_pending
+              ? <div className="w-5 h-5 rounded-full border-2 border-amber-400 flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-amber-400" /></div>
+              : !task.is_unlocked
+                ? <Lock className="w-5 h-5 text-zinc-600" />
+                : <Circle className="w-5 h-5 text-zinc-500" />}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          {/* Task name + reward */}
+          <div className="flex items-start justify-between gap-2 mb-0.5">
+            <div className="flex items-center gap-1.5 min-w-0">
+              {/* Social icon */}
+              {isSocialTask && (
+                <div className="w-5 h-5 shrink-0">{getSocialIcon(task.task_key)}</div>
+              )}
+              {isWalletTask && <Wallet className="w-4 h-4 text-indigo-400 shrink-0" />}
+              {isGroupTask && <Users className="w-4 h-4 text-cyan-400 shrink-0" />}
+              {isReferralTask && <Gift className="w-4 h-4 text-emerald-400 shrink-0" />}
+              {isShareTask && <Share2 className="w-4 h-4 text-purple-400 shrink-0" />}
+              <p className={`font-medium text-sm ${task.is_unlocked ? 'text-white' : 'text-zinc-500'}`}>{getTaskName(task)}</p>
+              {/* Wallet tooltip trigger */}
+              {isWalletTask && (
+                <button onClick={onToggleWalletTooltip} className="p-0.5 hover:bg-white/10 rounded-full transition-colors">
+                  <Info className="w-3.5 h-3.5 text-zinc-400 hover:text-indigo-400" />
+                </button>
+              )}
+            </div>
+            <p className={`font-semibold text-sm shrink-0 ${task.is_completed ? 'text-zinc-500 line-through' : 'text-emerald-400'}`}>
+              +${task.reward_usd}
+            </p>
+          </div>
+
+          <p className="text-xs text-zinc-500">{getTaskDesc(task)}</p>
+
+          {/* Wallet tooltip */}
+          {isWalletTask && showWalletTooltip && (
+            <div className="mt-2 p-3 bg-indigo-900/30 border border-indigo-500/30 rounded-lg text-xs text-indigo-200 whitespace-pre-wrap">
+              <p className="font-semibold text-indigo-300 mb-1">{tQ('walletTooltipTitle')}</p>
+              {tQ('walletTooltipBody')}
+            </div>
+          )}
+
+          {/* Referral progress bar */}
+          {isReferralTask && task.referral_target > 0 && !task.is_completed && (
+            <div className="mt-2">
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-zinc-400">{tQ('referralProgress', { current: task.referral_progress, target: task.referral_target })}</span>
+                <span className="text-zinc-500">{Math.round((task.referral_progress / task.referral_target) * 100)}%</span>
+              </div>
+              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-500 rounded-full transition-all"
+                  style={{ width: `${Math.min(100, Math.round((task.referral_progress / task.referral_target) * 100))}%` }} />
+              </div>
+            </div>
+          )}
+
+          {/* Pending status */}
+          {task.is_pending && (
+            <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-400">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              {tQ('waitingReview')}
+            </div>
+          )}
+
+          {/* Actions */}
+          {!task.is_completed && !task.is_pending && task.is_unlocked && (
+            <div className="mt-3">
+              {/* Social task buttons */}
+              {isSocialTask && (
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => { if (task.social_url) { window.open(task.social_url, '_blank'); onSocialVisit(task.task_key) } }}
+                    className="gap-1.5 text-xs py-1.5">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    {tQ('visit')}
+                  </Button>
+                  <Button size="sm" onClick={() => onComplete(task.task_key)}
+                    disabled={!socialVisited.has(task.task_key) || submitting === task.task_key}
+                    isLoading={submitting === task.task_key}
+                    className="text-xs py-1.5">
+                    {tQ('verify')}
+                  </Button>
+                </div>
+              )}
+
+              {/* Wallet task */}
+              {isWalletTask && (
+                <Button size="sm" onClick={() => onComplete(task.task_key)}
+                  disabled={!profileHasWallet || submitting === task.task_key}
+                  isLoading={submitting === task.task_key}
+                  className="gap-2 text-xs py-1.5 bg-indigo-600 hover:bg-indigo-500">
+                  <Wallet className="w-3.5 h-3.5" />
+                  {profileHasWallet ? tQ('walletConnectBtn') : tQ('walletConnectBtn')}
+                </Button>
+              )}
+
+              {/* Share task — open modal, then auto-complete */}
+              {isShareTask && (
+                <Button size="sm" onClick={() => {
+                  onShowShareModal()
+                  // Auto-complete after delay when modal is opened
+                  setTimeout(() => onComplete(task.task_key), 3000)
+                }}
+                  disabled={submitting === task.task_key}
+                  isLoading={submitting === task.task_key}
+                  className="gap-2 text-xs py-1.5 bg-purple-600 hover:bg-purple-500">
+                  <Share2 className="w-3.5 h-3.5" />
+                  {tQ('shareModalTitle')}
+                </Button>
+              )}
+
+              {/* Group task: contact admin */}
+              {isGroupTask && (
+                <div className="space-y-2">
+                  <p className="text-xs text-zinc-500">{tQ('contactAdminDesc')}</p>
+                  <a
+                    href={ADMIN_TELEGRAM}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => {
+                      // Submit notification to API
+                      onComplete(task.task_key, undefined, `User is requesting verification for task: ${task.task_key}`)
+                    }}
+                    className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded-lg font-medium transition-colors"
+                  >
+                    <LottieIcon src="/telegram.json" className="w-4 h-4" />
+                    {tQ('contactAdminTelegram')}
+                    <ArrowRight className="w-3 h-3" />
+                  </a>
+                </div>
+              )}
+
+              {/* Profile setup */}
+              {task.verification_type === 'profile_check' && (
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => window.location.href = '/profile'}
+                    className="gap-1.5 text-xs py-1.5">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    {tQ('goToProfile')}
+                  </Button>
+                  <Button size="sm" onClick={() => onComplete(task.task_key)}
+                    disabled={submitting === task.task_key} isLoading={submitting === task.task_key}
+                    className="text-xs py-1.5">
+                    {tQ('claimReward')}
+                  </Button>
+                </div>
+              )}
+
+              {/* Referral milestone */}
+              {isReferralTask && (
+                <Button size="sm" onClick={() => onComplete(task.task_key)}
+                  disabled={!task.can_complete || submitting === task.task_key}
+                  isLoading={submitting === task.task_key}
+                  className={`text-xs py-1.5 ${task.can_complete ? 'bg-emerald-600 hover:bg-emerald-500' : ''}`}>
+                  {task.can_complete ? tQ('claimReward') : tQ('referralProgress', { current: task.referral_progress, target: task.referral_target })}
+                </Button>
+              )}
+
+              {/* Promotion task */}
+              {isPromotionTask && (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Input placeholder={useTranslations('tasks')('promotion.placeholder')} value={promotionUrl}
+                      onChange={e => onSetPromotionUrl(e.target.value)} className="flex-1 text-xs h-8" />
+                    <Button size="sm" onClick={() => onComplete(task.task_key, promotionUrl)}
+                      disabled={!promotionUrl || submitting === task.task_key}
+                      isLoading={submitting === task.task_key}>
+                      <Send className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Video task */}
+              {isVideoTask && (
+                <div className="flex gap-2">
+                  <Input placeholder={useTranslations('tasks')('video.placeholder')} value={videoUrl}
+                    onChange={e => onSetVideoUrl(e.target.value)} className="flex-1 text-xs h-8" />
+                  <Button size="sm" onClick={() => onComplete(task.task_key, videoUrl)}
+                    disabled={!videoUrl || submitting === task.task_key}
+                    isLoading={submitting === task.task_key}>
+                    <Send className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
