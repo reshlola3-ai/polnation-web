@@ -662,17 +662,36 @@
     </div>
   </div>
   <div class="module-body">
-    <p data-i18n-html="teampool_intro">The Team Pool is the cornerstone of Polnation's earning system. As your team's on-chain USDC holdings grow, you unlock <strong>progressive reward pools</strong> and begin receiving <strong>daily earnings</strong> at your current level.</p>
+    <p data-i18n-html="teampool_intro">The Team Pool is the cornerstone of Polnation's earning system. As your team's on-chain USDC holdings grow, you unlock levels and earn <strong>two kinds of rewards</strong> at each level.</p>
 
-    <h3>Two Types of Rewards</h3>
-    <p data-i18n-html="teampool_rewards_intro">Every level gives you <strong>two distinct rewards</strong>:</p>
-    <ul>
-      <li data-i18n-html="teampool_reward_claim">🎁 <strong>One-time Pool Claim</strong> — When your Team Volume reaches the threshold, you manually claim a lump-sum bonus. Each level can only be claimed once. After claiming, you automatically advance to the next level.</li>
-      <li data-i18n-html="teampool_reward_daily">💰 <strong>Daily Passive Earnings</strong> — Once you are at Silver (Lv2) or above, the platform automatically pays you every day based on your current level's configured <code>reward_pool</code> and <code>daily_rate</code>. <em>Bronze is entry-level only — it has no daily earnings.</em></li>
-    </ul>
-    <p data-i18n-html="teampool_daily_nonstack">Daily earnings are based on your <strong>current level only</strong> — they do not stack across levels. When you advance, the daily rate upgrades to the new level's rate.</p>
+    <!-- Two Parts of Team Pool Rewards (infographic) -->
+    <h3>Two Parts of Team Pool Rewards</h3>
+    <div class="diagram-container">
+      <svg viewBox="0 0 640 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:620px">
+        <defs>
+          <linearGradient id="tpPart1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="rgba(245,158,11,0.25)"/><stop offset="100%" stop-color="rgba(245,158,11,0.08)"/></linearGradient>
+          <linearGradient id="tpPart2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="rgba(16,185,129,0.25)"/><stop offset="100%" stop-color="rgba(16,185,129,0.08)"/></linearGradient>
+        </defs>
+        <!-- Part 1: One-time -->
+        <rect x="8" y="8" width="304" height="124" rx="12" fill="url(#tpPart1)" stroke="rgba(245,158,11,0.4)" stroke-width="1.5"/>
+        <text x="160" y="32" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="700">🎁 Part 1 — One-time reward</text>
+        <text x="160" y="52" text-anchor="middle" fill="#a1a1aa" font-size="11">Reach team volume → Claim once</text>
+        <text x="160" y="72" text-anchor="middle" fill="#e4e4e7" font-size="11">Get lump sum (e.g. $10, $100, $500…)</text>
+        <text x="160" y="92" text-anchor="middle" fill="#71717a" font-size="10">Then advance to next level</text>
+        <text x="160" y="112" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">Every level: claim once only</text>
+        <!-- Part 2: Daily -->
+        <rect x="328" y="8" width="304" height="124" rx="12" fill="url(#tpPart2)" stroke="rgba(16,185,129,0.4)" stroke-width="1.5"/>
+        <text x="480" y="32" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">💰 Part 2 — Daily earnings</text>
+        <text x="480" y="52" text-anchor="middle" fill="#a1a1aa" font-size="11">From Silver (Lv2) onward</text>
+        <text x="480" y="72" text-anchor="middle" fill="#e4e4e7" font-size="11">Paid every day automatically</text>
+        <text x="480" y="92" text-anchor="middle" fill="#71717a" font-size="10">Pool × Daily rate × Momentum</text>
+        <text x="480" y="112" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">Bronze has no daily rate</text>
+      </svg>
+      <div class="diagram-caption">Team Pool = one-time unlock reward (per level) + ongoing daily earnings (Silver+).</div>
+    </div>
 
-    <!-- Claim & Upgrade Cycle Flowchart -->
+    <!-- Level table: volume → one-time claim → daily earnings -->
+    <h3>Levels at a Glance</h3>
     <div class="diagram-container">
       <svg viewBox="0 0 700 460" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px">
 
@@ -778,169 +797,67 @@
         <text x="570" y="409" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">~$200 / day 👑</text>
         <text x="570" y="425" text-anchor="middle" fill="#71717a" font-size="9">$10,000 pool × 2.0% × Momentum</text>
       </svg>
-      <div class="diagram-caption" data-i18n-html="teampool_fig3_caption">Fig 3 — Each level has a one-time pool claim (left) and ongoing daily earnings (right). Bronze has no daily earnings.</div>
+      <div class="diagram-caption" data-i18n-html="teampool_fig3_caption">Each row: volume to unlock → one-time claim (Part 1) → daily earnings (Part 2, Silver+). Bronze has no daily rate.</div>
     </div>
 
-    <div class="highlight-box violet">
-      <p data-i18n-html="teampool_upgrade_note">🔄 <strong>How upgrading works:</strong> When your Team Volume crosses the Bronze threshold ($100), you can claim the $10 one-time bonus. Once claimed, you <em>automatically advance to Silver</em> and start earning $1/day. When volume reaches $1,200, you claim $100 and advance to Gold at $5.50/day — and so on. <strong>Daily earnings always reflect your current level only</strong> (they don't stack).</p>
-    </div>
+    <div class="formula" data-i18n-html="teampool_formula_daily">Daily earnings (Part 2) = Reward Pool × Daily Rate × Momentum Multiplier</div>
 
-    <div class="formula" data-i18n-html="teampool_formula_daily">Daily Income = Reward Pool × Daily Rate × Momentum Multiplier</div>
-    <div class="highlight-box amber">
-      <p data-i18n-html="teampool_important_note">📌 <strong>Important:</strong> Team Pool daily earnings are <strong>configuration-driven</strong> by level parameters (reward_pool and daily_rate), then credited by the daily distribution job. This is not a real-time deduction from a live on-chain "team pool wallet" balance.</p>
-    </div>
-
-    <h3>Community Level Table</h3>
-    <table>
-      <tr>
-        <th>Level</th>
-        <th>Name</th>
-        <th>🎁 One-time Claim</th>
-        <th>💰 Daily Rate</th>
-        <th>Est. Daily Income</th>
-        <th>Normal Volume</th>
-        <th>⭐ Influencer Volume</th>
-      </tr>
-      <tr>
-        <td><span class="level-pill pill-bronze">Lv 1</span></td>
-        <td>Bronze</td>
-        <td><strong>$10</strong></td>
-        <td style="color:#52525b">— (none)</td>
-        <td style="color:#52525b">Entry only</td>
-        <td>$100</td>
-        <td style="color:#fb7185"><strong>$50</strong> <small>(−50%)</small></td>
-      </tr>
-      <tr>
-        <td><span class="level-pill pill-silver">Lv 2</span></td>
-        <td>Silver</td>
-        <td><strong>$100</strong></td>
-        <td>1.0% / day</td>
-        <td>~$1 / day</td>
-        <td>$1,200</td>
-        <td style="color:#fb7185"><strong>$720</strong> <small>(−40%)</small></td>
-      </tr>
-      <tr>
-        <td><span class="level-pill pill-gold">Lv 3</span></td>
-        <td>Gold</td>
-        <td><strong>$500</strong></td>
-        <td>1.1% / day</td>
-        <td>~$5.50 / day</td>
-        <td>$7,500</td>
-        <td style="color:#fb7185"><strong>$5,250</strong> <small>(−30%)</small></td>
-      </tr>
-      <tr>
-        <td><span class="level-pill pill-platinum">Lv 4</span></td>
-        <td>Platinum</td>
-        <td><strong>$1,000</strong></td>
-        <td>1.2% / day</td>
-        <td>~$12 / day</td>
-        <td>$18,000</td>
-        <td style="color:#fb7185"><strong>$14,400</strong> <small>(−20%)</small></td>
-      </tr>
-      <tr>
-        <td><span class="level-pill pill-diamond">Lv 5</span></td>
-        <td>Diamond</td>
-        <td><strong>$5,000</strong></td>
-        <td>1.5% / day</td>
-        <td>~$75 / day</td>
-        <td>$110,000</td>
-        <td style="color:#fb7185"><strong>$99,000</strong> <small>(−10%)</small></td>
-      </tr>
-      <tr>
-        <td><span class="level-pill pill-elite">Lv 6</span></td>
-        <td>Elite</td>
-        <td><strong>$10,000</strong></td>
-        <td>2.0% / day</td>
-        <td>~$200 / day</td>
-        <td>$300,000</td>
-        <td style="color:#fb7185"><strong>$285,000</strong> <small>(−5%)</small></td>
-      </tr>
-    </table>
-
-    <!-- Level progression diagram -->
+    <!-- Team Volume = L1+L2+L3 USDC (infographic) -->
+    <h3>What Counts as Team Volume?</h3>
     <div class="diagram-container">
-      <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:640px">
-        <!-- Path line -->
-        <line x1="60" y1="100" x2="630" y2="100" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
-
-        <!-- Level nodes -->
-        <!-- Bronze -->
-        <circle cx="60" cy="100" r="22" fill="rgba(180,83,9,0.3)" stroke="#fb923c" stroke-width="1.5"/>
-        <text x="60" y="96" text-anchor="middle" fill="#fb923c" font-size="11" font-weight="700">Lv1</text>
-        <text x="60" y="108" text-anchor="middle" fill="#fb923c" font-size="8">$10</text>
-        <text x="60" y="140" text-anchor="middle" fill="#71717a" font-size="10">Bronze</text>
-        <text x="60" y="153" text-anchor="middle" fill="#71717a" font-size="9">$100 vol</text>
-
-        <!-- Silver -->
-        <circle cx="168" cy="100" r="24" fill="rgba(148,163,184,0.2)" stroke="#94a3b8" stroke-width="1.5"/>
-        <text x="168" y="96" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">Lv2</text>
-        <text x="168" y="108" text-anchor="middle" fill="#94a3b8" font-size="8">$100</text>
-        <text x="168" y="140" text-anchor="middle" fill="#71717a" font-size="10">Silver</text>
-        <text x="168" y="153" text-anchor="middle" fill="#71717a" font-size="9">$1.2K vol</text>
-
-        <!-- Arrow Silver daily -->
-        <text x="168" y="68" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">1%/day</text>
-        <line x1="168" y1="75" x2="168" y2="77" stroke="#94a3b8" stroke-width="1"/>
-
-        <!-- Gold -->
-        <circle cx="290" cy="100" r="26" fill="rgba(234,179,8,0.2)" stroke="#fbbf24" stroke-width="1.5"/>
-        <text x="290" y="96" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">Lv3</text>
-        <text x="290" y="108" text-anchor="middle" fill="#fbbf24" font-size="8">$500</text>
-        <text x="290" y="143" text-anchor="middle" fill="#71717a" font-size="10">Gold</text>
-        <text x="290" y="156" text-anchor="middle" fill="#71717a" font-size="9">$7.5K vol</text>
-        <text x="290" y="65" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">1.1%/day</text>
-
-        <!-- Platinum -->
-        <circle cx="420" cy="100" r="28" fill="rgba(6,182,212,0.2)" stroke="#22d3ee" stroke-width="1.5"/>
-        <text x="420" y="96" text-anchor="middle" fill="#22d3ee" font-size="11" font-weight="700">Lv4</text>
-        <text x="420" y="108" text-anchor="middle" fill="#22d3ee" font-size="8">$1K</text>
-        <text x="420" y="147" text-anchor="middle" fill="#71717a" font-size="10">Platinum</text>
-        <text x="420" y="160" text-anchor="middle" fill="#71717a" font-size="9">$18K vol</text>
-        <text x="420" y="61" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">1.2%/day</text>
-
-        <!-- Diamond -->
-        <circle cx="556" cy="100" r="30" fill="rgba(99,102,241,0.2)" stroke="#818cf8" stroke-width="1.5"/>
-        <text x="556" y="96" text-anchor="middle" fill="#818cf8" font-size="11" font-weight="700">Lv5</text>
-        <text x="556" y="108" text-anchor="middle" fill="#818cf8" font-size="8">$5K</text>
-        <text x="556" y="150" text-anchor="middle" fill="#71717a" font-size="10">Diamond</text>
-        <text x="556" y="163" text-anchor="middle" fill="#71717a" font-size="9">$110K vol</text>
-        <text x="556" y="58" text-anchor="middle" fill="#818cf8" font-size="10" font-weight="600">1.5%/day</text>
-
-        <!-- Elite -->
-        <circle cx="632" cy="100" r="34" fill="rgba(244,63,94,0.2)" stroke="#fb7185" stroke-width="2"/>
-        <text x="632" y="96" text-anchor="middle" fill="#fb7185" font-size="11" font-weight="700">Lv6</text>
-        <text x="632" y="110" text-anchor="middle" fill="#fb7185" font-size="8">$10K</text>
-        <text x="632" y="154" text-anchor="middle" fill="#71717a" font-size="10">Elite</text>
-        <text x="632" y="167" text-anchor="middle" fill="#71717a" font-size="9">$300K vol</text>
-        <text x="632" y="53" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">2%/day 👑</text>
+      <svg viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:540px">
+        <rect x="0" y="0" width="560" height="130" rx="12" fill="rgba(255,255,255,0.03)" stroke="rgba(167,139,250,0.2)" stroke-width="1"/>
+        <text x="280" y="26" text-anchor="middle" fill="#c4b5fd" font-size="12" font-weight="700">Team Volume = L1 + L2 + L3 USDC on-chain</text>
+        <!-- L1 -->
+        <rect x="24" y="38" width="160" height="36" rx="8" fill="rgba(124,58,237,0.15)" stroke="rgba(124,58,237,0.35)" stroke-width="1"/>
+        <text x="104" y="56" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">Level 1 (direct)</text>
+        <text x="104" y="68" text-anchor="middle" fill="#71717a" font-size="10">Referrals’ USDC balance</text>
+        <!-- L2 -->
+        <rect x="200" y="38" width="160" height="36" rx="8" fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.3)" stroke-width="1"/>
+        <text x="280" y="56" text-anchor="middle" fill="#818cf8" font-size="11" font-weight="600">Level 2</text>
+        <text x="280" y="68" text-anchor="middle" fill="#71717a" font-size="10">Their referrals’ USDC</text>
+        <!-- L3 -->
+        <rect x="376" y="38" width="160" height="36" rx="8" fill="rgba(99,102,241,0.1)" stroke="rgba(99,102,241,0.25)" stroke-width="1"/>
+        <text x="456" y="56" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">Level 3</text>
+        <text x="456" y="68" text-anchor="middle" fill="#71717a" font-size="10">One more level deep</text>
+        <!-- Sum -->
+        <path d="M 104 82 L 104 92 L 280 92 L 280 102" stroke="rgba(16,185,129,0.5)" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+        <polygon points="276,98 284,98 280,106" fill="rgba(16,185,129,0.6)"/>
+        <rect x="180" y="106" width="200" height="18" rx="6" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.4)" stroke-width="1"/>
+        <text x="280" y="118" text-anchor="middle" fill="#34d399" font-size="10" font-weight="700">Total volume → unlocks level (Part 1 claim)</text>
       </svg>
-      <div class="diagram-caption" data-i18n-html="teampool_fig4_caption">Fig 4 — Team Pool level progression with daily income rates</div>
+      <div class="diagram-caption">Volume is used to unlock levels and claim one-time rewards; daily earnings use your current level’s pool × rate × momentum.</div>
     </div>
 
-    <h3>What Counts as "Team Volume"?</h3>
-    <p data-i18n-html="teampool_volume_desc">Team volume is calculated from the <strong>total USDC held on-chain</strong> by members in your Level 1, Level 2, and Level 3 downline. As your team grows and holds more USDC, your volume increases — pushing you toward the next level threshold.</p>
-
-    <h3 data-i18n-html="teampool_how_produced">How Daily Team Pool Earnings Are Produced</h3>
-    <ul>
-      <li data-i18n-html="teampool_step1"><strong>Step 1:</strong> System reads your current community level (Lv2+ required for daily earnings).</li>
-      <li data-i18n-html="teampool_step2"><strong>Step 2:</strong> It loads that level's <code>reward_pool</code> and <code>daily_rate</code> from platform config.</li>
-      <li data-i18n-html="teampool_step3"><strong>Step 3:</strong> It calculates base daily earning: <code>base = reward_pool × daily_rate</code>.</li>
-      <li data-i18n-html="teampool_step4"><strong>Step 4:</strong> It applies your Momentum Multiplier: <code>final = base × momentum</code>.</li>
-      <li data-i18n-html="teampool_step5"><strong>Step 5:</strong> It writes a daily earning record and credits your earnings balance.</li>
-    </ul>
-    <p data-i18n-html="teampool_volume_role"><strong>What Team Volume does:</strong> Team Volume primarily determines level unlock and upgrades. It does not directly enter the daily earning formula itself.</p>
-
+    <!-- Momentum: visual decay meter -->
     <h3>Momentum Multiplier</h3>
-    <p data-i18n-html="teampool_momentum_intro">To reward active team builders, Polnation applies a <strong>Momentum Multiplier</strong> to daily income. Current logic uses a max of <strong>5.0×</strong> and decays over time after your last qualifying referral activity.</p>
-    <p data-i18n-html="teampool_decay_rule"><strong>Current decay rule:</strong> start at 5.0×, then every 3 full days without referral activity the multiplier drops by 1.0×, with a floor at 1.0×.</p>
-    <ul>
-      <li data-i18n-html="teampool_decay_0_2">Days 0-2: 5.0×</li>
-      <li data-i18n-html="teampool_decay_3_5">Days 3-5: 4.0×</li>
-      <li data-i18n-html="teampool_decay_6_8">Days 6-8: 3.0×</li>
-      <li data-i18n-html="teampool_decay_9_11">Days 9-11: 2.0×</li>
-      <li data-i18n-html="teampool_decay_12_plus">Day 12+: 1.0× (minimum)</li>
-    </ul>
-    <div class="formula" data-i18n-html="teampool_formula_effective">Effective Daily = Base Daily × Momentum (max 5.0×)</div>
+    <p style="margin-bottom:8px;color:#a1a1aa;font-size:14px">Daily earnings (Part 2) are multiplied by Momentum. Stay active to keep it high.</p>
+    <div class="diagram-container">
+      <svg viewBox="0 0 600 165" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:580px">
+        <text x="300" y="18" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="700">Momentum decays: −1× every 3 days without referral activity (min 1.0×)</text>
+        <!-- 5 bars -->
+        <text x="12" y="42" fill="#34d399" font-size="10" font-weight="600">5.0×</text>
+        <rect x="52" y="34" width="500" height="14" rx="4" fill="rgba(16,185,129,0.35)"/>
+        <text x="558" y="44" fill="#a1a1aa" font-size="9">0–2 days</text>
+
+        <text x="12" y="66" fill="#94a3b8" font-size="10" font-weight="600">4.0×</text>
+        <rect x="52" y="58" width="400" height="14" rx="4" fill="rgba(148,163,184,0.3)"/>
+        <text x="558" y="68" fill="#a1a1aa" font-size="9">3–5 days</text>
+
+        <text x="12" y="90" fill="#fbbf24" font-size="10" font-weight="600">3.0×</text>
+        <rect x="52" y="82" width="300" height="14" rx="4" fill="rgba(251,191,36,0.25)"/>
+        <text x="558" y="92" fill="#a1a1aa" font-size="9">6–8 days</text>
+
+        <text x="12" y="114" fill="#fb923c" font-size="10" font-weight="600">2.0×</text>
+        <rect x="52" y="106" width="200" height="14" rx="4" fill="rgba(251,146,60,0.25)"/>
+        <text x="558" y="116" fill="#a1a1aa" font-size="9">9–11 days</text>
+
+        <text x="12" y="138" fill="#71717a" font-size="10" font-weight="600">1.0×</text>
+        <rect x="52" y="130" width="100" height="14" rx="4" fill="rgba(113,113,122,0.3)"/>
+        <text x="558" y="140" fill="#a1a1aa" font-size="9">12+ days (floor)</text>
+      </svg>
+      <div class="formula" data-i18n-html="teampool_formula_effective">Effective daily = Base daily × Momentum (1.0×–5.0×)</div>
+    </div>
   </div>
 </div>
 
