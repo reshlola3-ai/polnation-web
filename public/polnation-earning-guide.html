@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polnation — Complete Earning Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0D0B21;
+    color: #e4e4e7;
+    line-height: 1.7;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 30px;
+  }
+
+  @media print {
+    body { background: white; color: #1a1a1a; padding: 20px; max-width: 100%; }
+    .cover { background: linear-gradient(135deg, #7c3aed, #2563eb) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .module-card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #e5e7eb !important; background: #fafafa !important; }
+    .diagram-container { break-inside: avoid; page-break-inside: avoid; }
+    h2 { color: #7c3aed !important; }
+    h3 { color: #6d28d9 !important; }
+    p { color: #374151 !important; }
+    .highlight-box { background: #f5f3ff !important; border-color: #7c3aed !important; }
+    .highlight-box.emerald { background: #ecfdf5 !important; border-color: #10b981 !important; }
+    .highlight-box.amber { background: #fffbeb !important; border-color: #f59e0b !important; }
+    .highlight-box.cyan { background: #ecfeff !important; border-color: #06b6d4 !important; }
+    .highlight-box.rose { background: #fff1f2 !important; border-color: #f43f5e !important; }
+    .module-badge { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    table { border-collapse: collapse; }
+    th { background: #7c3aed !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    td, th { border: 1px solid #e5e7eb; }
+    .no-print { display: none !important; }
+    .level-row td { border-bottom: 1px solid #e5e7eb !important; }
+    svg text { fill: #1a1a1a !important; }
+    a.dl-btn { display: none !important; }
+  }
+
+  /* ---- Cover ---- */
+  .cover {
+    background: linear-gradient(135deg, #7c3aed 0%, #2563eb 60%, #0ea5e9 100%);
+    border-radius: 20px;
+    padding: 64px 48px;
+    text-align: center;
+    margin-bottom: 50px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .cover .logo-text { font-size: 14px; font-weight: 600; letter-spacing: 4px; opacity: 0.7; text-transform: uppercase; margin-bottom: 16px; }
+  .cover h1 { font-size: 46px; font-weight: 800; margin-bottom: 12px; letter-spacing: -1.5px; }
+  .cover .subtitle { font-size: 19px; opacity: 0.9; font-weight: 400; margin-bottom: 8px; }
+  .cover .tagline { font-size: 13px; opacity: 0.55; margin-top: 28px; }
+  .cover .version { font-size: 12px; opacity: 0.45; margin-top: 6px; }
+
+  /* ---- Typography ---- */
+  h2 {
+    font-size: 24px; font-weight: 700; color: #a78bfa;
+    margin: 52px 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(167,139,250,0.2);
+  }
+  h3 { font-size: 17px; font-weight: 600; color: #c4b5fd; margin: 24px 0 10px; }
+  h4 { font-size: 14px; font-weight: 600; color: #ddd6fe; margin: 16px 0 8px; }
+  p { margin-bottom: 14px; color: #a1a1aa; font-size: 14.5px; }
+  strong { color: #e4e4e7; }
+  ul, ol { padding-left: 22px; margin-bottom: 14px; }
+  li { color: #a1a1aa; font-size: 14px; margin-bottom: 5px; }
+
+  /* ---- Module Card ---- */
+  .module-card {
+    margin-bottom: 36px;
+    background: rgba(255,255,255,0.025);
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+  }
+  .module-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .module-badge {
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .badge-violet { background: rgba(124,58,237,0.3); }
+  .badge-emerald { background: rgba(16,185,129,0.25); }
+  .badge-amber { background: rgba(245,158,11,0.25); }
+  .badge-cyan { background: rgba(6,182,212,0.25); }
+  .badge-rose { background: rgba(244,63,94,0.25); }
+  .badge-indigo { background: rgba(99,102,241,0.25); }
+
+  .module-title { font-size: 20px; font-weight: 700; color: #e4e4e7; }
+  .module-subtitle { font-size: 13px; color: #71717a; margin-top: 2px; }
+  .module-body { padding: 24px 28px; }
+
+  /* ---- Highlight boxes ---- */
+  .highlight-box {
+    background: rgba(124,58,237,0.1);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 12px; padding: 18px 22px; margin: 14px 0;
+  }
+  .highlight-box.emerald { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.3); }
+  .highlight-box.amber { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.3); }
+  .highlight-box.cyan { background: rgba(6,182,212,0.08); border-color: rgba(6,182,212,0.3); }
+  .highlight-box.rose { background: rgba(244,63,94,0.08); border-color: rgba(244,63,94,0.3); }
+  .highlight-box p { margin: 0; font-size: 14px; }
+
+  /* ---- Stat grid ---- */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 18px 0;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 16px 14px;
+    text-align: center;
+  }
+  .stat-value { font-size: 26px; font-weight: 800; color: #a78bfa; margin-bottom: 4px; }
+  .stat-label { font-size: 12px; color: #71717a; }
+
+  /* ---- Tables ---- */
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 14px 0; font-size: 13.5px; border-radius: 12px; overflow: hidden; }
+  th { background: rgba(124,58,237,0.25); color: #c4b5fd; font-weight: 600; padding: 11px 14px; text-align: left; }
+  td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #a1a1aa; }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+
+  /* ---- Diagram ---- */
+  .diagram-container {
+    margin: 20px 0;
+    padding: 20px 16px;
+    background: rgba(255,255,255,0.015);
+    border-radius: 14px;
+    border: 1px solid rgba(167,139,250,0.12);
+    text-align: center;
+    overflow-x: auto;
+  }
+  .diagram-container svg { max-width: 100%; height: auto; }
+  .diagram-caption { font-size: 12px; color: #52525b; margin-top: 10px; font-style: italic; }
+
+  /* ---- Formula ---- */
+  .formula {
+    text-align: center; font-size: 17px; font-weight: 600;
+    padding: 14px; margin: 14px 0;
+    background: rgba(255,255,255,0.04);
+    border-radius: 10px; color: #c4b5fd;
+    letter-spacing: 0.5px;
+  }
+
+  /* ---- Level pill ---- */
+  .level-pill {
+    display: inline-block;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; white-space: nowrap;
+  }
+  .pill-bronze { background: rgba(180,83,9,0.25); color: #fb923c; }
+  .pill-silver { background: rgba(148,163,184,0.2); color: #94a3b8; }
+  .pill-gold { background: rgba(234,179,8,0.2); color: #fbbf24; }
+  .pill-platinum { background: rgba(6,182,212,0.2); color: #22d3ee; }
+  .pill-diamond { background: rgba(99,102,241,0.2); color: #818cf8; }
+  .pill-elite { background: rgba(244,63,94,0.2); color: #fb7185; }
+
+  /* ---- Steps ---- */
+  .steps { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+  .step { display: flex; gap: 16px; align-items: flex-start; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(124,58,237,0.3); color: #a78bfa;
+    font-weight: 700; font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .step-content p { margin: 0; font-size: 14px; }
+  .step-content strong { font-size: 14px; }
+
+  /* ---- Download button ---- */
+  .dl-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 24px;
+    background: rgba(124,58,237,0.25);
+    border: 1px solid rgba(124,58,237,0.4);
+    color: #c4b5fd;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+  .dl-btn:hover { background: rgba(124,58,237,0.4); }
+
+  /* ---- Disclaimer ---- */
+  .disclaimer {
+    margin-top: 60px; padding: 20px 24px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 12px; color: #52525b; line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== COVER ==================== -->
+<div class="cover">
+  <div class="logo-text">Polnation</div>
+  <h1>Complete Earning Guide</h1>
+  <div class="subtitle">Every Way to Earn — All in One Place</div>
+  <div class="tagline">Referral Rewards · Spin Wheel · Team Pool · Task Bonuses · Influencer Program</div>
+  <div class="version">Marketing Plan · v1.0 · 2025</div>
+</div>
+
+<!-- Download button -->
+<div style="text-align:center; margin-bottom: 40px;" class="no-print">
+  <a class="dl-btn" href="#" onclick="window.print(); return false;">⬇ Download as PDF (Print → Save as PDF)</a>
+</div>
+
+<!-- ==================== OVERVIEW ==================== -->
+<h2>Overview: Multiple Income Streams, One Platform</h2>
+<p>Polnation is a community-powered earning platform built on the Polygon blockchain. Every participant can access <strong>six distinct income streams</strong> simultaneously. Earnings are distributed via a <strong>Merkle Tree verification system</strong> — fully on-chain, transparent, and non-custodial.</p>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-value">6</div>
+    <div class="stat-label">Income Streams</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">6</div>
+    <div class="stat-label">Referral Levels Deep</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">$10K</div>
+    <div class="stat-label">Max Pool (Elite)</div>
+  </div>
+</div>
+
+<!-- Earnings Ecosystem Diagram -->
+<div class="diagram-container">
+  <svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:680px">
+    <defs>
+      <radialGradient id="centerGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.1"/>
+      </radialGradient>
+    </defs>
+    <!-- Center -->
+    <ellipse cx="360" cy="180" rx="70" ry="70" fill="url(#centerGrad)" stroke="#7c3aed" stroke-width="1.5"/>
+    <text x="360" y="173" text-anchor="middle" fill="#c4b5fd" font-size="12" font-weight="700">YOUR</text>
+    <text x="360" y="190" text-anchor="middle" fill="#c4b5fd" font-size="12" font-weight="700">EARNINGS</text>
+
+    <!-- Node: Referral -->
+    <rect x="30" y="70" width="130" height="52" rx="12" fill="rgba(124,58,237,0.2)" stroke="rgba(124,58,237,0.5)" stroke-width="1"/>
+    <text x="95" y="91" text-anchor="middle" fill="#c4b5fd" font-size="13" font-weight="700">💸 Referral</text>
+    <text x="95" y="108" text-anchor="middle" fill="#71717a" font-size="11">6-level commissions</text>
+    <line x1="160" y1="96" x2="292" y2="163" stroke="rgba(124,58,237,0.35)" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+    <!-- Node: Spin Wheel -->
+    <rect x="280" y="20" width="160" height="52" rx="12" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.4)" stroke-width="1"/>
+    <text x="360" y="41" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="700">🎰 Spin Wheel</text>
+    <text x="360" y="58" text-anchor="middle" fill="#71717a" font-size="11">Up to $10 USDC per spin</text>
+    <line x1="360" y1="72" x2="360" y2="112" stroke="rgba(245,158,11,0.35)" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+    <!-- Node: Team Pool -->
+    <rect x="560" y="70" width="130" height="52" rx="12" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.4)" stroke-width="1"/>
+    <text x="625" y="91" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">🏆 Team Pool</text>
+    <text x="625" y="108" text-anchor="middle" fill="#71717a" font-size="11">Up to $10,000 pool</text>
+    <line x1="560" y1="96" x2="428" y2="163" stroke="rgba(16,185,129,0.35)" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+    <!-- Node: Tasks -->
+    <rect x="560" y="238" width="130" height="52" rx="12" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.4)" stroke-width="1"/>
+    <text x="625" y="259" text-anchor="middle" fill="#22d3ee" font-size="13" font-weight="700">✅ Task Rewards</text>
+    <text x="625" y="276" text-anchor="middle" fill="#71717a" font-size="11">$40+ in quest bonuses</text>
+    <line x1="560" y1="264" x2="428" y2="197" stroke="rgba(6,182,212,0.35)" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+    <!-- Node: Team Leader -->
+    <rect x="280" y="288" width="160" height="52" rx="12" fill="rgba(99,102,241,0.15)" stroke="rgba(99,102,241,0.4)" stroke-width="1"/>
+    <text x="360" y="309" text-anchor="middle" fill="#818cf8" font-size="13" font-weight="700">👥 Team Leader</text>
+    <text x="360" y="326" text-anchor="middle" fill="#71717a" font-size="11">Support &amp; bonus access</text>
+    <line x1="360" y1="288" x2="360" y2="248" stroke="rgba(99,102,241,0.35)" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+    <!-- Node: Influencer -->
+    <rect x="30" y="238" width="130" height="52" rx="12" fill="rgba(244,63,94,0.15)" stroke="rgba(244,63,94,0.4)" stroke-width="1"/>
+    <text x="95" y="259" text-anchor="middle" fill="#fb7185" font-size="13" font-weight="700">⭐ Influencer</text>
+    <text x="95" y="276" text-anchor="middle" fill="#71717a" font-size="11">Accelerated unlocks</text>
+    <line x1="160" y1="264" x2="292" y2="197" stroke="rgba(244,63,94,0.35)" stroke-width="1.5" stroke-dasharray="4,3"/>
+  </svg>
+  <div class="diagram-caption">Fig 1 — Six income streams connected to a single earning account</div>
+</div>
+
+<!-- ==================== MODULE 1: REFERRAL ==================== -->
+<div class="module-card">
+  <div class="module-header">
+    <div class="module-badge badge-violet">💸</div>
+    <div>
+      <div class="module-title">Module 1 — Referral Rewards</div>
+      <div class="module-subtitle">Earn commissions from your downline up to 6 levels deep</div>
+    </div>
+  </div>
+  <div class="module-body">
+    <p>Every time a member in your downline receives a profit distribution from the platform's staking &amp; advertising revenue, <strong>you automatically receive a percentage commission</strong> — passed up through the referral chain with no manual action required.</p>
+
+    <div class="highlight-box">
+      <p>💡 <strong>How it works:</strong> Commissions are calculated at the moment of each airdrop distribution cycle. The platform reads the on-chain referral tree and credits all uplines simultaneously in a single Merkle-verified batch.</p>
+    </div>
+
+    <!-- Referral tree diagram -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:640px">
+        <!-- You -->
+        <rect x="270" y="10" width="140" height="44" rx="10" fill="rgba(124,58,237,0.3)" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="340" y="28" text-anchor="middle" fill="#c4b5fd" font-size="12" font-weight="700">YOU</text>
+        <text x="340" y="44" text-anchor="middle" fill="#a78bfa" font-size="11">L1 Commission ✓</text>
+
+        <!-- L1 nodes -->
+        <line x1="280" y1="54" x2="180" y2="100" stroke="rgba(124,58,237,0.4)" stroke-width="1.5"/>
+        <line x1="340" y1="54" x2="340" y2="100" stroke="rgba(124,58,237,0.4)" stroke-width="1.5"/>
+        <line x1="400" y1="54" x2="500" y2="100" stroke="rgba(124,58,237,0.4)" stroke-width="1.5"/>
+
+        <rect x="120" y="100" width="120" height="38" rx="9" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+        <text x="180" y="116" text-anchor="middle" fill="#e4e4e7" font-size="11">Direct Referral A</text>
+        <text x="180" y="130" text-anchor="middle" fill="#71717a" font-size="10">Level 1</text>
+
+        <rect x="280" y="100" width="120" height="38" rx="9" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+        <text x="340" y="116" text-anchor="middle" fill="#e4e4e7" font-size="11">Direct Referral B</text>
+        <text x="340" y="130" text-anchor="middle" fill="#71717a" font-size="10">Level 1</text>
+
+        <rect x="440" y="100" width="120" height="38" rx="9" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+        <text x="500" y="116" text-anchor="middle" fill="#e4e4e7" font-size="11">Direct Referral C</text>
+        <text x="500" y="130" text-anchor="middle" fill="#71717a" font-size="10">Level 1</text>
+
+        <!-- L2 line from A -->
+        <line x1="150" y1="138" x2="100" y2="185" stroke="rgba(99,102,241,0.4)" stroke-width="1.2"/>
+        <line x1="200" y1="138" x2="250" y2="185" stroke="rgba(99,102,241,0.4)" stroke-width="1.2"/>
+        <rect x="48" y="185" width="110" height="36" rx="9" fill="rgba(99,102,241,0.1)" stroke="rgba(99,102,241,0.25)" stroke-width="1"/>
+        <text x="103" y="200" text-anchor="middle" fill="#a5b4fc" font-size="10">L2 Member</text>
+        <text x="103" y="213" text-anchor="middle" fill="#71717a" font-size="9">Level 2</text>
+
+        <rect x="195" y="185" width="110" height="36" rx="9" fill="rgba(99,102,241,0.1)" stroke="rgba(99,102,241,0.25)" stroke-width="1"/>
+        <text x="250" y="200" text-anchor="middle" fill="#a5b4fc" font-size="10">L2 Member</text>
+        <text x="250" y="213" text-anchor="middle" fill="#71717a" font-size="9">Level 2</text>
+
+        <!-- Deeper levels -->
+        <line x1="103" y1="221" x2="103" y2="255" stroke="rgba(99,102,241,0.25)" stroke-width="1" stroke-dasharray="3,3"/>
+        <rect x="48" y="255" width="110" height="30" rx="8" fill="rgba(99,102,241,0.06)" stroke="rgba(99,102,241,0.15)" stroke-width="1"/>
+        <text x="103" y="275" text-anchor="middle" fill="#6366f1" font-size="10">L3 → L6 deep…</text>
+
+        <!-- Commission labels -->
+        <text x="580" y="130" text-anchor="start" fill="#71717a" font-size="10">← commission</text>
+        <text x="580" y="145" text-anchor="start" fill="#71717a" font-size="10">   flows up</text>
+        <text x="580" y="160" text-anchor="start" fill="#71717a" font-size="10">   to YOU</text>
+        <line x1="555" y1="130" x2="568" y2="130" stroke="#71717a" stroke-width="1"/>
+      </svg>
+      <div class="diagram-caption">Fig 2 — Referral commission flows upward through all 6 levels automatically</div>
+    </div>
+
+    <h3>Commission Structure</h3>
+    <table>
+      <tr><th>Level</th><th>Relationship</th><th>Commission Rate</th><th>Example (on $100 profit)</th></tr>
+      <tr><td>L1</td><td>Your direct referral</td><td>Set by admin</td><td>Highest rate</td></tr>
+      <tr><td>L2</td><td>Your referral's referral</td><td>Decreasing</td><td>—</td></tr>
+      <tr><td>L3 – L6</td><td>Deeper downline</td><td>Decreasing</td><td>—</td></tr>
+    </table>
+    <div class="highlight-box amber">
+      <p>⚠️ <strong>Key rule:</strong> Commission is earned passively — every time any member in your 6-level tree receives a profit distribution, you get a cut. The larger your team, the more compounding events occur.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODULE 2: SPIN WHEEL ==================== -->
+<div class="module-card">
+  <div class="module-header">
+    <div class="module-badge badge-amber">🎰</div>
+    <div>
+      <div class="module-title">Module 2 — Spin Wheel</div>
+      <div class="module-subtitle">Daily chance to win USDC or bonus credits</div>
+    </div>
+  </div>
+  <div class="module-body">
+    <p>The Spin Wheel is an engagement reward system. Members earn <strong>spin tickets</strong> by completing tasks and inviting friends. Each spin has a provably random outcome drawn from a weighted prize table.</p>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px">
+        <!-- Wheel circle -->
+        <circle cx="130" cy="120" r="100" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.3)" stroke-width="1.5"/>
+        <circle cx="130" cy="120" r="80" fill="none" stroke="rgba(245,158,11,0.15)" stroke-width="1"/>
+
+        <!-- Segments (simplified) -->
+        <!-- Try Again 40% -->
+        <path d="M130,120 L130,20 A100,100 0 0,1 218.9,70 Z" fill="rgba(113,113,122,0.3)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+        <!-- $0.50 USDC 15% -->
+        <path d="M130,120 L218.9,70 A100,100 0 0,1 230,120 Z" fill="rgba(16,185,129,0.3)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+        <!-- +$1 bonus 20% -->
+        <path d="M130,120 L230,120 A100,100 0 0,1 195.1,190 Z" fill="rgba(124,58,237,0.3)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+        <!-- $1 USDC 7% -->
+        <path d="M130,120 L195.1,190 A100,100 0 0,1 155,219.3 Z" fill="rgba(6,182,212,0.35)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+        <!-- +$2 bonus 10% -->
+        <path d="M130,120 L155,219.3 A100,100 0 0,1 65,219.3 Z" fill="rgba(245,158,11,0.35)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+        <!-- $5 USDC 2.5% -->
+        <path d="M130,120 L65,219.3 A100,100 0 0,1 40.5,190 Z" fill="rgba(99,102,241,0.35)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+        <!-- +$3 bonus 5% -->
+        <path d="M130,120 L40.5,190 A100,100 0 0,1 30,120 Z" fill="rgba(239,68,68,0.3)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+        <!-- $10 USDC 0.5% -->
+        <path d="M130,120 L30,120 A100,100 0 0,1 130,20 Z" fill="rgba(251,191,36,0.5)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+
+        <!-- Center -->
+        <circle cx="130" cy="120" r="18" fill="#1a1a2e" stroke="rgba(245,158,11,0.6)" stroke-width="2"/>
+        <text x="130" y="125" text-anchor="middle" fill="#fbbf24" font-size="14">🎰</text>
+
+        <!-- Pointer -->
+        <polygon points="130,8 124,22 136,22" fill="#fbbf24"/>
+
+        <!-- Legend -->
+        <rect x="280" y="20" width="12" height="12" rx="3" fill="rgba(113,113,122,0.5)"/>
+        <text x="298" y="31" fill="#a1a1aa" font-size="12">Try Again — 40%</text>
+
+        <rect x="280" y="42" width="12" height="12" rx="3" fill="rgba(124,58,237,0.5)"/>
+        <text x="298" y="53" fill="#a1a1aa" font-size="12">+$1 Bonus — 20%</text>
+
+        <rect x="280" y="64" width="12" height="12" rx="3" fill="rgba(16,185,129,0.5)"/>
+        <text x="298" y="75" fill="#a1a1aa" font-size="12">$0.50 USDC — 15%</text>
+
+        <rect x="280" y="86" width="12" height="12" rx="3" fill="rgba(245,158,11,0.5)"/>
+        <text x="298" y="97" fill="#a1a1aa" font-size="12">+$2 Bonus — 10%</text>
+
+        <rect x="280" y="108" width="12" height="12" rx="3" fill="rgba(6,182,212,0.5)"/>
+        <text x="298" y="119" fill="#a1a1aa" font-size="12">$1 USDC — 7%</text>
+
+        <rect x="280" y="130" width="12" height="12" rx="3" fill="rgba(239,68,68,0.5)"/>
+        <text x="298" y="141" fill="#a1a1aa" font-size="12">+$3 Bonus — 5%</text>
+
+        <rect x="280" y="152" width="12" height="12" rx="3" fill="rgba(99,102,241,0.5)"/>
+        <text x="298" y="163" fill="#a1a1aa" font-size="12">$5 USDC — 2.5%</text>
+
+        <rect x="280" y="174" width="12" height="12" rx="3" fill="rgba(251,191,36,0.6)"/>
+        <text x="298" y="185" fill="#fbbf24" font-size="12" font-weight="700">$10 USDC — 0.5% 🏆</text>
+      </svg>
+      <div class="diagram-caption">Fig 3 — Spin Wheel prize distribution (weighted probability)</div>
+    </div>
+
+    <h3>Prize Table</h3>
+    <table>
+      <tr><th>Prize</th><th>Type</th><th>Probability</th></tr>
+      <tr><td>Try Again</td><td>No reward</td><td>40%</td></tr>
+      <tr><td>+$1 Bonus Credit</td><td>Platform bonus</td><td>20%</td></tr>
+      <tr><td>$0.50 USDC</td><td>Real USDC</td><td>15%</td></tr>
+      <tr><td>+$2 Bonus Credit</td><td>Platform bonus</td><td>10%</td></tr>
+      <tr><td>$1 USDC</td><td>Real USDC</td><td>7%</td></tr>
+      <tr><td>+$3 Bonus Credit</td><td>Platform bonus</td><td>5%</td></tr>
+      <tr><td>$5 USDC</td><td>Real USDC</td><td>2.5%</td></tr>
+      <tr><td><strong>$10 USDC</strong></td><td>Real USDC</td><td><strong>0.5%</strong></td></tr>
+    </table>
+
+    <h3>How to Get More Spins</h3>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Complete quest tasks</strong> — each chapter completion grants spin tickets</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Invite friends</strong> — each verified referral contributes toward spin rewards</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Admin grants</strong> — platform campaigns and events distribute additional spins</div></div>
+    </div>
+
+    <div class="highlight-box emerald">
+      <p>✅ <strong>USDC prizes</strong> are credited directly to your earnings balance and can be withdrawn to your wallet. <strong>Bonus credits</strong> count toward your Team Pool volume threshold.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODULE 3: TEAM POOL ==================== -->
+<div class="module-card">
+  <div class="module-header">
+    <div class="module-badge badge-emerald">🏆</div>
+    <div>
+      <div class="module-title">Module 3 — Team Pool</div>
+      <div class="module-subtitle">Unlock reward pools and earn daily passive income based on team volume</div>
+    </div>
+  </div>
+  <div class="module-body">
+    <p>The Team Pool is the cornerstone of Polnation's earning system. As your team's on-chain USDC holdings grow, you unlock <strong>progressive reward pools</strong> and begin receiving <strong>daily percentage returns</strong> on each pool.</p>
+
+    <div class="formula">Daily Income = Reward Pool × Daily Rate × Momentum Multiplier</div>
+
+    <h3>Community Level Table</h3>
+    <table>
+      <tr>
+        <th>Level</th>
+        <th>Name</th>
+        <th>Reward Pool</th>
+        <th>Daily Rate</th>
+        <th>Est. Daily Income</th>
+        <th>Team Volume Required</th>
+      </tr>
+      <tr>
+        <td><span class="level-pill pill-bronze">Lv 1</span></td>
+        <td>Bronze</td>
+        <td><strong>$10</strong></td>
+        <td>—</td>
+        <td>One-time claim</td>
+        <td>$100</td>
+      </tr>
+      <tr>
+        <td><span class="level-pill pill-silver">Lv 2</span></td>
+        <td>Silver</td>
+        <td><strong>$100</strong></td>
+        <td>1.0% / day</td>
+        <td>~$1 / day</td>
+        <td>$1,200</td>
+      </tr>
+      <tr>
+        <td><span class="level-pill pill-gold">Lv 3</span></td>
+        <td>Gold</td>
+        <td><strong>$500</strong></td>
+        <td>1.1% / day</td>
+        <td>~$5.50 / day</td>
+        <td>$7,500</td>
+      </tr>
+      <tr>
+        <td><span class="level-pill pill-platinum">Lv 4</span></td>
+        <td>Platinum</td>
+        <td><strong>$1,000</strong></td>
+        <td>1.2% / day</td>
+        <td>~$12 / day</td>
+        <td>$18,000</td>
+      </tr>
+      <tr>
+        <td><span class="level-pill pill-diamond">Lv 5</span></td>
+        <td>Diamond</td>
+        <td><strong>$5,000</strong></td>
+        <td>1.5% / day</td>
+        <td>~$75 / day</td>
+        <td>$110,000</td>
+      </tr>
+      <tr>
+        <td><span class="level-pill pill-elite">Lv 6</span></td>
+        <td>Elite</td>
+        <td><strong>$10,000</strong></td>
+        <td>2.0% / day</td>
+        <td>~$200 / day</td>
+        <td>$300,000</td>
+      </tr>
+    </table>
+
+    <!-- Level progression diagram -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:640px">
+        <!-- Path line -->
+        <line x1="60" y1="100" x2="630" y2="100" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+
+        <!-- Level nodes -->
+        <!-- Bronze -->
+        <circle cx="60" cy="100" r="22" fill="rgba(180,83,9,0.3)" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="60" y="96" text-anchor="middle" fill="#fb923c" font-size="11" font-weight="700">Lv1</text>
+        <text x="60" y="108" text-anchor="middle" fill="#fb923c" font-size="8">$10</text>
+        <text x="60" y="140" text-anchor="middle" fill="#71717a" font-size="10">Bronze</text>
+        <text x="60" y="153" text-anchor="middle" fill="#71717a" font-size="9">$100 vol</text>
+
+        <!-- Silver -->
+        <circle cx="168" cy="100" r="24" fill="rgba(148,163,184,0.2)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="168" y="96" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="700">Lv2</text>
+        <text x="168" y="108" text-anchor="middle" fill="#94a3b8" font-size="8">$100</text>
+        <text x="168" y="140" text-anchor="middle" fill="#71717a" font-size="10">Silver</text>
+        <text x="168" y="153" text-anchor="middle" fill="#71717a" font-size="9">$1.2K vol</text>
+
+        <!-- Arrow Silver daily -->
+        <text x="168" y="68" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="600">1%/day</text>
+        <line x1="168" y1="75" x2="168" y2="77" stroke="#94a3b8" stroke-width="1"/>
+
+        <!-- Gold -->
+        <circle cx="290" cy="100" r="26" fill="rgba(234,179,8,0.2)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="290" y="96" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="700">Lv3</text>
+        <text x="290" y="108" text-anchor="middle" fill="#fbbf24" font-size="8">$500</text>
+        <text x="290" y="143" text-anchor="middle" fill="#71717a" font-size="10">Gold</text>
+        <text x="290" y="156" text-anchor="middle" fill="#71717a" font-size="9">$7.5K vol</text>
+        <text x="290" y="65" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">1.1%/day</text>
+
+        <!-- Platinum -->
+        <circle cx="420" cy="100" r="28" fill="rgba(6,182,212,0.2)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="420" y="96" text-anchor="middle" fill="#22d3ee" font-size="11" font-weight="700">Lv4</text>
+        <text x="420" y="108" text-anchor="middle" fill="#22d3ee" font-size="8">$1K</text>
+        <text x="420" y="147" text-anchor="middle" fill="#71717a" font-size="10">Platinum</text>
+        <text x="420" y="160" text-anchor="middle" fill="#71717a" font-size="9">$18K vol</text>
+        <text x="420" y="61" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">1.2%/day</text>
+
+        <!-- Diamond -->
+        <circle cx="556" cy="100" r="30" fill="rgba(99,102,241,0.2)" stroke="#818cf8" stroke-width="1.5"/>
+        <text x="556" y="96" text-anchor="middle" fill="#818cf8" font-size="11" font-weight="700">Lv5</text>
+        <text x="556" y="108" text-anchor="middle" fill="#818cf8" font-size="8">$5K</text>
+        <text x="556" y="150" text-anchor="middle" fill="#71717a" font-size="10">Diamond</text>
+        <text x="556" y="163" text-anchor="middle" fill="#71717a" font-size="9">$110K vol</text>
+        <text x="556" y="58" text-anchor="middle" fill="#818cf8" font-size="10" font-weight="600">1.5%/day</text>
+
+        <!-- Elite -->
+        <circle cx="632" cy="100" r="34" fill="rgba(244,63,94,0.2)" stroke="#fb7185" stroke-width="2"/>
+        <text x="632" y="96" text-anchor="middle" fill="#fb7185" font-size="11" font-weight="700">Lv6</text>
+        <text x="632" y="110" text-anchor="middle" fill="#fb7185" font-size="8">$10K</text>
+        <text x="632" y="154" text-anchor="middle" fill="#71717a" font-size="10">Elite</text>
+        <text x="632" y="167" text-anchor="middle" fill="#71717a" font-size="9">$300K vol</text>
+        <text x="632" y="53" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">2%/day 👑</text>
+      </svg>
+      <div class="diagram-caption">Fig 4 — Team Pool level progression with daily income rates</div>
+    </div>
+
+    <h3>What Counts as "Team Volume"?</h3>
+    <p>Team volume is calculated from the <strong>total USDC held on-chain</strong> by members in your Level 1, Level 2, and Level 3 downline. As your team grows and holds more USDC, your volume increases — pushing you toward the next level threshold.</p>
+
+    <h3>Momentum Multiplier</h3>
+    <p>To reward active team builders, Polnation applies a <strong>Momentum Multiplier</strong> to daily income. Members who regularly bring in new referrals maintain a higher multiplier (up to <strong>5.0×</strong>). Inactivity causes gradual decay.</p>
+    <div class="formula">Effective Daily = Base Daily × Momentum (max 5.0×)</div>
+  </div>
+</div>
+
+<!-- ==================== MODULE 4: TASK REWARDS ==================== -->
+<div class="module-card">
+  <div class="module-header">
+    <div class="module-badge badge-cyan">✅</div>
+    <div>
+      <div class="module-title">Module 4 — Quest Task Rewards</div>
+      <div class="module-subtitle">Complete guided missions to unlock bonus USDC and spin tickets</div>
+    </div>
+  </div>
+  <div class="module-body">
+    <p>The Quest system guides every new member through <strong>3 chapters</strong> of onboarding tasks. Each completed task rewards USDC bonuses and spin tickets. Chapters unlock sequentially; tasks within each chapter can be completed in any order.</p>
+
+    <!-- Quest flow diagram -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 680 180" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:640px">
+        <!-- Chapter 1 -->
+        <rect x="10" y="30" width="190" height="120" rx="14" fill="rgba(124,58,237,0.1)" stroke="rgba(124,58,237,0.35)" stroke-width="1.5"/>
+        <text x="105" y="52" text-anchor="middle" fill="#c4b5fd" font-size="12" font-weight="700">📋 Chapter 1</text>
+        <text x="105" y="68" text-anchor="middle" fill="#a78bfa" font-size="11">Onboarding</text>
+        <text x="105" y="90" text-anchor="middle" fill="#71717a" font-size="10">• Profile setup</text>
+        <text x="105" y="105" text-anchor="middle" fill="#71717a" font-size="10">• Social follow</text>
+        <text x="105" y="120" text-anchor="middle" fill="#71717a" font-size="10">• Activate Merkle Tree</text>
+        <text x="105" y="135" text-anchor="middle" fill="#71717a" font-size="10">• Copy referral link</text>
+        <text x="105" y="155" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="600">~$3.50 reward</text>
+
+        <!-- Arrow 1→2 -->
+        <line x1="200" y1="90" x2="232" y2="90" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        <polygon points="232,86 240,90 232,94" fill="rgba(255,255,255,0.3)"/>
+
+        <!-- Chapter 2 -->
+        <rect x="245" y="30" width="190" height="120" rx="14" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.3)" stroke-width="1.5"/>
+        <text x="340" y="52" text-anchor="middle" fill="#34d399" font-size="12" font-weight="700">🏗️ Chapter 2</text>
+        <text x="340" y="68" text-anchor="middle" fill="#34d399" font-size="11">Build Your Group</text>
+        <text x="340" y="90" text-anchor="middle" fill="#71717a" font-size="10">• Share ad post</text>
+        <text x="340" y="105" text-anchor="middle" fill="#71717a" font-size="10">• Build group (5+ members)</text>
+        <text x="340" y="120" text-anchor="middle" fill="#71717a" font-size="10">• Grow group (20+ members)</text>
+        <text x="340" y="135" text-anchor="middle" fill="#71717a" font-size="10">• Invite 1 friend</text>
+        <text x="340" y="155" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600">~$8.50 reward</text>
+
+        <!-- Arrow 2→3 -->
+        <line x1="435" y1="90" x2="467" y2="90" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        <polygon points="467,86 475,90 467,94" fill="rgba(255,255,255,0.3)"/>
+
+        <!-- Chapter 3 -->
+        <rect x="480" y="30" width="190" height="120" rx="14" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.3)" stroke-width="1.5"/>
+        <text x="575" y="52" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="700">🚀 Chapter 3</text>
+        <text x="575" y="68" text-anchor="middle" fill="#fbbf24" font-size="11">Recruit &amp; Grow</text>
+        <text x="575" y="90" text-anchor="middle" fill="#71717a" font-size="10">• Invite 3 friends ($3)</text>
+        <text x="575" y="105" text-anchor="middle" fill="#71717a" font-size="10">• Invite 10 friends ($8)</text>
+        <text x="575" y="120" text-anchor="middle" fill="#71717a" font-size="10">• Video review</text>
+        <text x="575" y="135" text-anchor="middle" fill="#71717a" font-size="10">• Invite 30 friends ($20)</text>
+        <text x="575" y="155" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">~$31+ reward</text>
+      </svg>
+      <div class="diagram-caption">Fig 5 — Quest chapter progression; tasks within each chapter are completable in parallel</div>
+    </div>
+
+    <h3>Chapter Rewards Summary</h3>
+    <table>
+      <tr><th>Chapter</th><th>Key Task</th><th>Reward</th></tr>
+      <tr><td>Ch.1 — Onboarding</td><td>Profile, social, wallet activation</td><td>~$3.50 + spin tickets</td></tr>
+      <tr><td>Ch.2 — Build Group</td><td>Group 5 members, 20 members, first invite</td><td>~$8.50</td></tr>
+      <tr><td>Ch.3 — Recruit</td><td>3 / 10 / 30 verified referrals</td><td>$3 / $8 / $20</td></tr>
+    </table>
+    <div class="highlight-box cyan">
+      <p>🔑 <strong>Bonus credits</strong> earned from tasks are added to your <em>effective team volume</em>, helping you unlock higher Team Pool levels faster.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODULE 5: TEAM LEADER SUPPORT ==================== -->
+<div class="module-card">
+  <div class="module-header">
+    <div class="module-badge badge-indigo">👥</div>
+    <div>
+      <div class="module-title">Module 5 — Team Leader Support Program</div>
+      <div class="module-subtitle">Dedicated resources and tools for serious community builders</div>
+    </div>
+  </div>
+  <div class="module-body">
+    <p>Team Leaders are members who have demonstrated commitment to growing a genuine community. Polnation provides dedicated support to help leaders scale efficiently and maximize their earning potential.</p>
+
+    <!-- Team leader benefits diagram -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 660 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:620px">
+        <!-- Center: Team Leader -->
+        <ellipse cx="330" cy="110" rx="80" ry="44" fill="rgba(99,102,241,0.2)" stroke="#6366f1" stroke-width="1.5"/>
+        <text x="330" y="105" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="700">Team Leader</text>
+        <text x="330" y="121" text-anchor="middle" fill="#6366f1" font-size="11">Gold+ Level</text>
+
+        <!-- Benefit nodes -->
+        <!-- Admin contact -->
+        <rect x="10" y="10" width="155" height="44" rx="10" fill="rgba(99,102,241,0.1)" stroke="rgba(99,102,241,0.25)" stroke-width="1"/>
+        <text x="87" y="28" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">📞 Direct Admin Line</text>
+        <text x="87" y="44" text-anchor="middle" fill="#71717a" font-size="10">Priority Telegram access</text>
+        <line x1="165" y1="32" x2="252" y2="88" stroke="rgba(99,102,241,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- Extra spins -->
+        <rect x="10" y="80" width="155" height="44" rx="10" fill="rgba(99,102,241,0.1)" stroke="rgba(99,102,241,0.25)" stroke-width="1"/>
+        <text x="87" y="98" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">🎰 Bonus Spin Grants</text>
+        <text x="87" y="114" text-anchor="middle" fill="#71717a" font-size="10">Admin-issued extra spins</text>
+        <line x1="165" y1="102" x2="252" y2="110" stroke="rgba(99,102,241,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- Pool fast track -->
+        <rect x="10" y="150" width="155" height="44" rx="10" fill="rgba(99,102,241,0.1)" stroke="rgba(99,102,241,0.25)" stroke-width="1"/>
+        <text x="87" y="168" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">⚡ Volume Fast-Track</text>
+        <text x="87" y="184" text-anchor="middle" fill="#71717a" font-size="10">Admin-set level overrides</text>
+        <line x1="165" y1="172" x2="252" y2="132" stroke="rgba(99,102,241,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- Marketing kit -->
+        <rect x="495" y="10" width="155" height="44" rx="10" fill="rgba(99,102,241,0.1)" stroke="rgba(99,102,241,0.25)" stroke-width="1"/>
+        <text x="572" y="28" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">📣 Marketing Kit</text>
+        <text x="572" y="44" text-anchor="middle" fill="#71717a" font-size="10">Banners, copy, templates</text>
+        <line x1="495" y1="32" x2="408" y2="88" stroke="rgba(99,102,241,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- Group verification -->
+        <rect x="495" y="80" width="155" height="44" rx="10" fill="rgba(99,102,241,0.1)" stroke="rgba(99,102,241,0.25)" stroke-width="1"/>
+        <text x="572" y="98" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">✅ Group Verification</text>
+        <text x="572" y="114" text-anchor="middle" fill="#71717a" font-size="10">Admin reviews groups</text>
+        <line x1="495" y1="102" x2="408" y2="110" stroke="rgba(99,102,241,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+
+        <!-- Campaign access -->
+        <rect x="495" y="150" width="155" height="44" rx="10" fill="rgba(99,102,241,0.1)" stroke="rgba(99,102,241,0.25)" stroke-width="1"/>
+        <text x="572" y="168" text-anchor="middle" fill="#a5b4fc" font-size="11" font-weight="600">🎁 Exclusive Campaigns</text>
+        <text x="572" y="184" text-anchor="middle" fill="#71717a" font-size="10">Leader-only events &amp; rewards</text>
+        <line x1="495" y1="172" x2="408" y2="132" stroke="rgba(99,102,241,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+      </svg>
+      <div class="diagram-caption">Fig 6 — Team Leader support resources and privileges</div>
+    </div>
+
+    <h3>How to Qualify as a Team Leader</h3>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Reach Gold level or above</strong> — $7,500 team volume threshold</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Complete Chapter 2 quests</strong> — verify your group with admin on Telegram</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Contact Polnation admin</strong> — request team leader status and unlock exclusive benefits</div></div>
+    </div>
+
+    <div class="highlight-box">
+      <p>🤝 <strong>Team leaders receive direct admin communication</strong> to help verify members, resolve issues, and receive advance notice of platform campaigns and bonus events.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODULE 6: INFLUENCER ==================== -->
+<div class="module-card">
+  <div class="module-header">
+    <div class="module-badge badge-rose">⭐</div>
+    <div>
+      <div class="module-title">Module 6 — Influencer Program</div>
+      <div class="module-subtitle">Accelerated level unlocks and reduced volume requirements for verified influencers</div>
+    </div>
+  </div>
+  <div class="module-body">
+    <p>Verified Influencers receive <strong>significantly discounted team volume thresholds</strong> to unlock each community level. This allows high-reach individuals to access larger reward pools faster, without needing as large an on-chain team volume.</p>
+
+    <!-- Influencer vs normal comparison diagram -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:640px">
+        <!-- Labels -->
+        <text x="200" y="20" text-anchor="middle" fill="#a1a1aa" font-size="13" font-weight="600">Normal Member</text>
+        <text x="480" y="20" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">⭐ Influencer</text>
+
+        <!-- Bars for each level -->
+        <!-- Bronze -->
+        <text x="30" y="52" fill="#fb923c" font-size="11" font-weight="700">Bronze</text>
+        <rect x="90" y="38" width="220" height="20" rx="4" fill="rgba(180,83,9,0.25)" stroke="rgba(180,83,9,0.4)" stroke-width="1"/>
+        <text x="315" y="52" fill="#fb923c" font-size="11">$100</text>
+        <rect x="370" y="38" width="110" height="20" rx="4" fill="rgba(251,191,36,0.3)" stroke="rgba(251,191,36,0.5)" stroke-width="1"/>
+        <text x="485" y="52" fill="#fbbf24" font-size="11">$50 <tspan fill="#34d399" font-size="10">(-50%)</tspan></text>
+
+        <!-- Silver -->
+        <text x="30" y="92" fill="#94a3b8" font-size="11" font-weight="700">Silver</text>
+        <rect x="90" y="78" width="220" height="20" rx="4" fill="rgba(148,163,184,0.2)" stroke="rgba(148,163,184,0.3)" stroke-width="1"/>
+        <text x="315" y="92" fill="#94a3b8" font-size="11">$1,200</text>
+        <rect x="370" y="78" width="132" height="20" rx="4" fill="rgba(251,191,36,0.25)" stroke="rgba(251,191,36,0.45)" stroke-width="1"/>
+        <text x="507" y="92" fill="#fbbf24" font-size="11">$720 <tspan fill="#34d399" font-size="10">(-40%)</tspan></text>
+
+        <!-- Gold -->
+        <text x="30" y="132" fill="#fbbf24" font-size="11" font-weight="700">Gold</text>
+        <rect x="90" y="118" width="220" height="20" rx="4" fill="rgba(234,179,8,0.2)" stroke="rgba(234,179,8,0.35)" stroke-width="1"/>
+        <text x="315" y="132" fill="#fbbf24" font-size="11">$7,500</text>
+        <rect x="370" y="118" width="154" height="20" rx="4" fill="rgba(251,191,36,0.25)" stroke="rgba(251,191,36,0.45)" stroke-width="1"/>
+        <text x="529" y="132" fill="#fbbf24" font-size="11">$5,250 <tspan fill="#34d399" font-size="10">(-30%)</tspan></text>
+
+        <!-- Platinum -->
+        <text x="30" y="172" fill="#22d3ee" font-size="11" font-weight="700">Platinum</text>
+        <rect x="90" y="158" width="220" height="20" rx="4" fill="rgba(6,182,212,0.15)" stroke="rgba(6,182,212,0.35)" stroke-width="1"/>
+        <text x="315" y="172" fill="#22d3ee" font-size="11">$18,000</text>
+        <rect x="370" y="158" width="176" height="20" rx="4" fill="rgba(251,191,36,0.2)" stroke="rgba(251,191,36,0.4)" stroke-width="1"/>
+        <text x="551" y="172" fill="#fbbf24" font-size="11">$14,400 <tspan fill="#34d399" font-size="10">(-20%)</tspan></text>
+
+        <!-- Diamond -->
+        <text x="30" y="212" fill="#818cf8" font-size="11" font-weight="700">Diamond</text>
+        <rect x="90" y="198" width="220" height="20" rx="4" fill="rgba(99,102,241,0.15)" stroke="rgba(99,102,241,0.35)" stroke-width="1"/>
+        <text x="315" y="212" fill="#818cf8" font-size="11">$110,000</text>
+        <rect x="370" y="198" width="198" height="20" rx="4" fill="rgba(251,191,36,0.2)" stroke="rgba(251,191,36,0.4)" stroke-width="1"/>
+        <text x="573" y="212" fill="#fbbf24" font-size="11">$99,000 <tspan fill="#34d399" font-size="10">(-10%)</tspan></text>
+
+        <!-- Elite -->
+        <text x="30" y="252" fill="#fb7185" font-size="11" font-weight="700">Elite</text>
+        <rect x="90" y="238" width="220" height="20" rx="4" fill="rgba(244,63,94,0.15)" stroke="rgba(244,63,94,0.35)" stroke-width="1"/>
+        <text x="315" y="252" fill="#fb7185" font-size="11">$300,000</text>
+        <rect x="370" y="238" width="209" height="20" rx="4" fill="rgba(251,191,36,0.2)" stroke="rgba(251,191,36,0.4)" stroke-width="1"/>
+        <text x="584" y="252" fill="#fbbf24" font-size="11">$285,000 <tspan fill="#34d399" font-size="10">(-5%)</tspan></text>
+      </svg>
+      <div class="diagram-caption">Fig 7 — Normal vs. Influencer volume requirements per level (shorter bar = easier unlock)</div>
+    </div>
+
+    <h3>Influencer Discount Table</h3>
+    <table>
+      <tr><th>Level</th><th>Normal Threshold</th><th>Influencer Threshold</th><th>Discount</th></tr>
+      <tr><td><span class="level-pill pill-bronze">Bronze</span></td><td>$100</td><td>$50</td><td>50% off</td></tr>
+      <tr><td><span class="level-pill pill-silver">Silver</span></td><td>$1,200</td><td>$720</td><td>40% off</td></tr>
+      <tr><td><span class="level-pill pill-gold">Gold</span></td><td>$7,500</td><td>$5,250</td><td>30% off</td></tr>
+      <tr><td><span class="level-pill pill-platinum">Platinum</span></td><td>$18,000</td><td>$14,400</td><td>20% off</td></tr>
+      <tr><td><span class="level-pill pill-diamond">Diamond</span></td><td>$110,000</td><td>$99,000</td><td>10% off</td></tr>
+      <tr><td><span class="level-pill pill-elite">Elite</span></td><td>$300,000</td><td>$285,000</td><td>5% off</td></tr>
+    </table>
+
+    <h3>How to Apply for Influencer Status</h3>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Have an established social media presence</strong> — Telegram, TikTok, YouTube, Instagram, Twitter/X</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Contact Polnation admin on Telegram</strong> — submit your profile link and follower count for review</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Admin activates Influencer flag</strong> — discounted thresholds apply immediately to your account</div></div>
+    </div>
+
+    <div class="highlight-box rose">
+      <p>⭐ <strong>Influencer status is non-transferable</strong> and subject to periodic review. Accounts must remain in good standing to retain the benefit. Discounts apply to the <em>team volume unlock threshold only</em>; daily income rates remain the same as standard members.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== SUMMARY TABLE ==================== -->
+<h2>Earnings at a Glance</h2>
+<p>The table below summarizes the maximum potential earnings from each module for an active participant who progressively builds their team.</p>
+
+<table>
+  <tr>
+    <th>Income Stream</th>
+    <th>Type</th>
+    <th>Frequency</th>
+    <th>Potential Range</th>
+  </tr>
+  <tr>
+    <td>💸 Referral Commissions</td>
+    <td>Passive</td>
+    <td>Per distribution cycle</td>
+    <td>Scales with team size</td>
+  </tr>
+  <tr>
+    <td>🎰 Spin Wheel</td>
+    <td>Active</td>
+    <td>Per spin ticket</td>
+    <td>$0.50 – $10 USDC/spin</td>
+  </tr>
+  <tr>
+    <td>🏆 Team Pool — Bronze</td>
+    <td>One-time claim</td>
+    <td>—</td>
+    <td>$10</td>
+  </tr>
+  <tr>
+    <td>🏆 Team Pool — Silver</td>
+    <td>Daily passive</td>
+    <td>Daily</td>
+    <td>~$1/day</td>
+  </tr>
+  <tr>
+    <td>🏆 Team Pool — Gold</td>
+    <td>Daily passive</td>
+    <td>Daily</td>
+    <td>~$5.50/day</td>
+  </tr>
+  <tr>
+    <td>🏆 Team Pool — Platinum</td>
+    <td>Daily passive</td>
+    <td>Daily</td>
+    <td>~$12/day</td>
+  </tr>
+  <tr>
+    <td>🏆 Team Pool — Diamond</td>
+    <td>Daily passive</td>
+    <td>Daily</td>
+    <td>~$75/day</td>
+  </tr>
+  <tr>
+    <td>🏆 Team Pool — Elite</td>
+    <td>Daily passive</td>
+    <td>Daily</td>
+    <td>~$200/day</td>
+  </tr>
+  <tr>
+    <td>✅ Quest Tasks (all chapters)</td>
+    <td>One-time</td>
+    <td>Per completion</td>
+    <td>$40+ total</td>
+  </tr>
+  <tr>
+    <td>⭐ Influencer Benefit</td>
+    <td>Passive advantage</td>
+    <td>Permanent</td>
+    <td>Up to 50% faster unlock</td>
+  </tr>
+</table>
+
+<!-- ==================== GET STARTED ==================== -->
+<h2>How to Start Earning</h2>
+<div class="steps">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <strong>Register at polnation.com</strong><br>
+      <span style="color:#71717a;font-size:13px">Use a referral link to get your account properly linked to a team</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <strong>Complete Chapter 1 quests</strong><br>
+      <span style="color:#71717a;font-size:13px">Set up your profile, connect socials, activate your Merkle Tree distribution, and copy your referral link</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <strong>Build your group (Chapter 2)</strong><br>
+      <span style="color:#71717a;font-size:13px">Create a Telegram or WhatsApp group, share your referral link, grow to 5 then 20 members</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <strong>Watch your Team Pool unlock (Bronze → Silver → …)</strong><br>
+      <span style="color:#71717a;font-size:13px">As your team's USDC holdings grow, volume thresholds are reached and reward pools become claimable</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <strong>Collect passive daily income</strong><br>
+      <span style="color:#71717a;font-size:13px">Silver+ members receive automatic daily USDC earnings credited to their account</span>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <strong>Apply for Team Leader or Influencer status</strong><br>
+      <span style="color:#71717a;font-size:13px">Contact admin on Telegram to unlock exclusive program benefits as your team scales</span>
+    </div>
+  </div>
+</div>
+
+<div class="highlight-box emerald" style="margin-top: 32px;">
+  <p>🔗 <strong>All earnings are distributed on-chain via Merkle Tree verification.</strong> Polnation does not hold user funds — every USDC payment is traceable and verifiable on Polygon. Members can verify zero token approvals at any time through Polygon scan.</p>
+</div>
+
+<!-- ==================== DISCLAIMER ==================== -->
+<div class="disclaimer">
+  <strong>Risk Disclaimer:</strong> The earning projections and figures presented in this guide are illustrative estimates based on the platform's current configuration and do not constitute financial advice or guarantees of returns. Actual earnings depend on team growth, market conditions, platform revenue, and individual activity levels. Cryptocurrency investments carry inherent risks. Participants should conduct their own due diligence before joining. Polnation operates under the Polygon blockchain ecosystem; on-chain activity is subject to network conditions. &copy; 2025 Polnation. All rights reserved.
+</div>
+
+</body>
+</html>
