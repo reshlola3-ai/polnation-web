@@ -662,6 +662,84 @@
   <div class="module-body">
     <p>The Team Pool is the cornerstone of Polnation's earning system. As your team's on-chain USDC holdings grow, you unlock <strong>progressive reward pools</strong> and begin receiving <strong>daily percentage returns</strong> on each pool.</p>
 
+    <h3>How Team Pool Works</h3>
+    <p>Your <strong>Team Volume</strong> accumulates from two sources: your team members' on-chain USDC holdings (L1–L3 downline) and bonus credits earned from completing tasks. Once your volume crosses a level threshold, that level's Reward Pool <strong>unlocks permanently</strong> and begins paying you daily. <strong>Verified Influencers</strong> enjoy significantly lower thresholds.</p>
+
+    <!-- How Team Pool Works — Flowchart -->
+    <div class="diagram-container">
+      <svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:660px">
+
+        <!-- ── ROW 1: Volume Sources ── -->
+        <text x="350" y="18" text-anchor="middle" fill="#a1a1aa" font-size="11">How Team Volume is Built</text>
+
+        <!-- Source 1: Tasks -->
+        <rect x="20" y="28" width="170" height="52" rx="10" fill="rgba(99,102,241,0.12)" stroke="rgba(99,102,241,0.4)" stroke-width="1.5"/>
+        <text x="105" y="50" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="700">✅ Complete Tasks</text>
+        <text x="105" y="67" text-anchor="middle" fill="#71717a" font-size="10">Bonus credits count as volume</text>
+
+        <!-- Source 2: Team Holdings -->
+        <rect x="265" y="28" width="170" height="52" rx="10" fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.4)" stroke-width="1.5"/>
+        <text x="350" y="50" text-anchor="middle" fill="#34d399" font-size="12" font-weight="700">👥 Team Holds USDC</text>
+        <text x="350" y="67" text-anchor="middle" fill="#71717a" font-size="10">L1–L3 on-chain balance sum</text>
+
+        <!-- Source 3: Invite Members -->
+        <rect x="510" y="28" width="170" height="52" rx="10" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.4)" stroke-width="1.5"/>
+        <text x="595" y="50" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="700">🔗 Invite New Members</text>
+        <text x="595" y="67" text-anchor="middle" fill="#71717a" font-size="10">Grow your downline network</text>
+
+        <!-- Arrows from sources down to Team Volume -->
+        <line x1="105" y1="80" x2="300" y2="138" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+        <line x1="350" y1="80" x2="350" y2="138" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+        <line x1="595" y1="80" x2="400" y2="138" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+
+        <!-- ── ROW 2: Team Volume Accumulator ── -->
+        <rect x="200" y="138" width="300" height="56" rx="12" fill="rgba(124,58,237,0.2)" stroke="#7c3aed" stroke-width="2"/>
+        <text x="350" y="162" text-anchor="middle" fill="#c4b5fd" font-size="13" font-weight="700">📊 Team Volume Accumulates</text>
+        <text x="350" y="180" text-anchor="middle" fill="#a78bfa" font-size="10">Measured in total USDC (on-chain + task credits)</text>
+
+        <!-- Arrow down from Team Volume, splits into two -->
+        <line x1="300" y1="194" x2="200" y2="250" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        <line x1="400" y1="194" x2="500" y2="250" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+
+        <!-- ── ROW 3: Two paths ── -->
+        <!-- Normal User -->
+        <rect x="60" y="250" width="240" height="90" rx="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+        <text x="180" y="272" text-anchor="middle" fill="#e4e4e7" font-size="12" font-weight="700">👤 Normal User</text>
+        <text x="180" y="291" text-anchor="middle" fill="#71717a" font-size="10">Standard thresholds:</text>
+        <text x="180" y="306" text-anchor="middle" fill="#a1a1aa" font-size="10">Silver: $1,200 · Gold: $7,500</text>
+        <text x="180" y="321" text-anchor="middle" fill="#a1a1aa" font-size="10">Platinum: $18,000 · Elite: $300,000</text>
+
+        <!-- Influencer User -->
+        <rect x="400" y="250" width="240" height="90" rx="12" fill="rgba(244,63,94,0.1)" stroke="rgba(244,63,94,0.45)" stroke-width="1.5"/>
+        <text x="520" y="272" text-anchor="middle" fill="#fb7185" font-size="12" font-weight="700">⭐ Influencer</text>
+        <text x="520" y="291" text-anchor="middle" fill="#71717a" font-size="10">Reduced thresholds:</text>
+        <text x="520" y="306" text-anchor="middle" fill="#fca5a5" font-size="10">Silver: $720 · Gold: $5,250</text>
+        <text x="520" y="321" text-anchor="middle" fill="#fca5a5" font-size="10">Platinum: $14,400 · Elite: $285,000</text>
+
+        <!-- Influencer badge -->
+        <rect x="595" y="253" width="54" height="20" rx="6" fill="rgba(244,63,94,0.3)" stroke="rgba(244,63,94,0.6)" stroke-width="1"/>
+        <text x="622" y="267" text-anchor="middle" fill="#fb7185" font-size="9" font-weight="700">UP TO 50% OFF</text>
+
+        <!-- Arrows down to unlock -->
+        <line x1="180" y1="340" x2="280" y2="398" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+        <line x1="520" y1="340" x2="420" y2="398" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+
+        <!-- ── ROW 4: Threshold Met → Unlock ── -->
+        <rect x="185" y="398" width="330" height="50" rx="12" fill="rgba(16,185,129,0.2)" stroke="#10b981" stroke-width="2"/>
+        <text x="350" y="420" text-anchor="middle" fill="#10b981" font-size="13" font-weight="700">🔓 Threshold Met — Level Unlocked!</text>
+        <text x="350" y="437" text-anchor="middle" fill="#6ee7b7" font-size="10">Reward Pool becomes permanently active</text>
+
+        <!-- Arrow down to daily income -->
+        <line x1="350" y1="448" x2="350" y2="468" stroke="rgba(16,185,129,0.5)" stroke-width="2"/>
+        <polygon points="344,468 356,468 350,478" fill="#10b981"/>
+
+        <!-- ── ROW 5: Daily Income ── -->
+        <rect x="220" y="478" width="260" height="18" rx="8" fill="rgba(16,185,129,0.15)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
+        <text x="350" y="491" text-anchor="middle" fill="#34d399" font-size="11" font-weight="600">💰 Daily Income Starts Flowing</text>
+      </svg>
+      <div class="diagram-caption">Fig 3 — Team Volume accumulates from tasks &amp; team holdings; Influencers unlock levels at lower thresholds</div>
+    </div>
+
     <div class="formula">Daily Income = Reward Pool × Daily Rate × Momentum Multiplier</div>
 
     <h3>Community Level Table</h3>
@@ -672,7 +750,8 @@
         <th>Reward Pool</th>
         <th>Daily Rate</th>
         <th>Est. Daily Income</th>
-        <th>Team Volume Required</th>
+        <th>Normal Volume</th>
+        <th>⭐ Influencer Volume</th>
       </tr>
       <tr>
         <td><span class="level-pill pill-bronze">Lv 1</span></td>
@@ -681,6 +760,7 @@
         <td>—</td>
         <td>One-time claim</td>
         <td>$100</td>
+        <td style="color:#fb7185"><strong>$50</strong> <small>(−50%)</small></td>
       </tr>
       <tr>
         <td><span class="level-pill pill-silver">Lv 2</span></td>
@@ -689,6 +769,7 @@
         <td>1.0% / day</td>
         <td>~$1 / day</td>
         <td>$1,200</td>
+        <td style="color:#fb7185"><strong>$720</strong> <small>(−40%)</small></td>
       </tr>
       <tr>
         <td><span class="level-pill pill-gold">Lv 3</span></td>
@@ -697,6 +778,7 @@
         <td>1.1% / day</td>
         <td>~$5.50 / day</td>
         <td>$7,500</td>
+        <td style="color:#fb7185"><strong>$5,250</strong> <small>(−30%)</small></td>
       </tr>
       <tr>
         <td><span class="level-pill pill-platinum">Lv 4</span></td>
@@ -705,6 +787,7 @@
         <td>1.2% / day</td>
         <td>~$12 / day</td>
         <td>$18,000</td>
+        <td style="color:#fb7185"><strong>$14,400</strong> <small>(−20%)</small></td>
       </tr>
       <tr>
         <td><span class="level-pill pill-diamond">Lv 5</span></td>
@@ -713,6 +796,7 @@
         <td>1.5% / day</td>
         <td>~$75 / day</td>
         <td>$110,000</td>
+        <td style="color:#fb7185"><strong>$99,000</strong> <small>(−10%)</small></td>
       </tr>
       <tr>
         <td><span class="level-pill pill-elite">Lv 6</span></td>
@@ -721,6 +805,7 @@
         <td>2.0% / day</td>
         <td>~$200 / day</td>
         <td>$300,000</td>
+        <td style="color:#fb7185"><strong>$285,000</strong> <small>(−5%)</small></td>
       </tr>
     </table>
 
