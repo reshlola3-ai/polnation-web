@@ -223,6 +223,17 @@
   }
   .dl-btn:hover { background: rgba(124,58,237,0.4); }
 
+  /* ---- Language Switcher ---- */
+  #ls{position:fixed;top:20px;right:20px;z-index:9999;font-family:'Inter',sans-serif}
+  .ls-btn{background:rgba(14,10,40,0.93);border:1px solid rgba(124,58,237,0.55);color:#c4b5fd;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;backdrop-filter:blur(14px);white-space:nowrap;user-select:none}
+  .ls-btn:hover{border-color:rgba(167,139,250,0.85)}
+  .ls-drop{display:none;position:absolute;right:0;top:calc(100% + 6px);background:rgba(12,8,36,0.97);border:1px solid rgba(124,58,237,0.3);border-radius:10px;overflow:hidden;min-width:140px;backdrop-filter:blur(14px);box-shadow:0 8px 32px rgba(0,0,0,0.65)}
+  .ls-drop.open{display:block}
+  .ls-opt{padding:10px 16px;font-size:13px;color:#a1a1aa;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:8px}
+  .ls-opt:hover{background:rgba(124,58,237,0.22);color:#e4e4e7}
+  .ls-opt.sel{color:#c4b5fd;font-weight:700}
+  @media print{#ls{display:none!important}}
+
   /* ---- Disclaimer ---- */
   .disclaimer {
     margin-top: 60px; padding: 20px 24px;
@@ -232,6 +243,18 @@
 </style>
 </head>
 <body>
+
+<!-- Language Switcher -->
+<div id="ls">
+  <button class="ls-btn" onclick="document.querySelector('.ls-drop').classList.toggle('open')">🌐 <span id="ls-cur">EN</span> ▾</button>
+  <div class="ls-drop">
+    <div class="ls-opt" onclick="setLang('en')">🇺🇸 English</div>
+    <div class="ls-opt" onclick="setLang('vi')">🇻🇳 Tiếng Việt</div>
+    <div class="ls-opt" onclick="setLang('id')">🇮🇩 Indonesia</div>
+    <div class="ls-opt" onclick="setLang('fr')">🇫🇷 Français</div>
+    <div class="ls-opt" onclick="setLang('es')">🇪🇸 Español</div>
+  </div>
+</div>
 
 <!-- ==================== COVER ==================== -->
 <div class="cover">
@@ -998,5 +1021,297 @@
   <strong>Risk Disclaimer:</strong> The earning projections and figures presented in this guide are illustrative estimates based on the platform's current configuration and do not constitute financial advice or guarantees of returns. Actual earnings depend on team growth, market conditions, platform revenue, and individual activity levels. Cryptocurrency investments carry inherent risks. Participants should conduct their own due diligence before joining. Polnation operates under the Polygon blockchain ecosystem; on-chain activity is subject to network conditions. &copy; 2025 Polnation. All rights reserved.
 </div>
 
+<script>
+/* ============================================================
+   Polnation Earning Guide — i18n Translation Engine
+   Languages: EN | VI | ID | FR | ES
+   Strategy: on lang change → save to localStorage → reload → apply overlay
+   ============================================================ */
+const T = {
+  vi: {
+    /* Cover */
+    'Complete Earning Guide': 'Hướng Dẫn Kiếm Tiền Toàn Diện',
+    'Every Way to Earn — All in One Place': 'Tất Cả Cách Kiếm Tiền — Tại Một Nơi',
+    'Referral Rewards · Spin Wheel · Team Pool · Task Bonuses · Influencer Program': 'Thưởng Giới Thiệu · Vòng Quay · Quỹ Nhóm · Thưởng Nhiệm Vụ · Influencer',
+    'Marketing Plan · v1.0 · 2025': 'Kế Hoạch Marketing · v1.0 · 2025',
+    '⬇ Download as PDF (Print → Save as PDF)': '⬇ Tải PDF (In → Lưu dưới dạng PDF)',
+    /* Section headings */
+    'Overview: Multiple Income Streams, One Platform': 'Tổng Quan: Nhiều Nguồn Thu Nhập, Một Nền Tảng',
+    'Earnings at a Glance': 'Tổng Hợp Thu Nhập',
+    'How to Start Earning': 'Cách Bắt Đầu Kiếm Tiền',
+    /* Module titles */
+    'Module 1 — Referral Rewards': 'Mô-đun 1 — Thưởng Giới Thiệu',
+    'Module 2 — Spin Wheel': 'Mô-đun 2 — Vòng Quay May Mắn',
+    'Module 3 — Team Pool': 'Mô-đun 3 — Quỹ Nhóm',
+    'Module 4 — Quest Task Rewards': 'Mô-đun 4 — Thưởng Nhiệm Vụ Quest',
+    'Module 5 — Team Leader Support Program': 'Mô-đun 5 — Chương Trình Hỗ Trợ Trưởng Nhóm',
+    'Module 6 — Influencer Program': 'Mô-đun 6 — Chương Trình Influencer',
+    /* Module subtitles */
+    'Earn commissions from your downline up to 6 levels deep': 'Nhận hoa hồng từ mạng lưới của bạn lên đến 6 cấp',
+    'Daily chance to win USDC or bonus credits': 'Cơ hội hàng ngày để thắng USDC hoặc điểm thưởng',
+    'Unlock reward pools and earn daily passive income based on team volume': 'Mở khóa quỹ thưởng và nhận thu nhập thụ động hàng ngày dựa trên khối lượng nhóm',
+    'Complete guided missions to unlock bonus USDC and spin tickets': 'Hoàn thành nhiệm vụ để mở khóa USDC thưởng và vé quay số',
+    'Dedicated resources and tools for serious community builders': 'Tài nguyên và công cụ dành cho những người xây dựng cộng đồng nghiêm túc',
+    'Accelerated level unlocks and reduced volume requirements for verified influencers': 'Mở khóa cấp độ nhanh hơn và yêu cầu khối lượng thấp hơn cho influencer được xác minh',
+    /* h3 headings */
+    'Commission Structure': 'Cơ Cấu Hoa Hồng',
+    'Prize Table': 'Bảng Giải Thưởng',
+    'How to Get More Spins': 'Cách Nhận Thêm Lượt Quay',
+    'Community Level Table': 'Bảng Cấp Độ Cộng Đồng',
+    'What Counts as "Team Volume"?': 'Điều Gì Được Tính Là "Khối Lượng Nhóm"?',
+    'Momentum Multiplier': 'Hệ Số Momentum',
+    'Chapter Rewards Summary': 'Tóm Tắt Thưởng Theo Chương',
+    'How to Qualify as a Team Leader': 'Điều Kiện Trở Thành Trưởng Nhóm',
+    'Influencer Discount Table': 'Bảng Ưu Đãi Influencer',
+    'How to Apply for Influencer Status': 'Cách Đăng Ký Trạng Thái Influencer',
+    /* Stat labels */
+    'Income Streams': 'Nguồn Thu Nhập',
+    'Referral Levels Deep': 'Cấp Giới Thiệu',
+    'Max Pool (Elite)': 'Quỹ Tối Đa (Elite)',
+    /* Table headers */
+    'Level': 'Cấp',
+    'Relationship': 'Mối Quan Hệ',
+    'Commission Rate': 'Tỷ Lệ Hoa Hồng',
+    'Example (on $100 profit)': 'Ví Dụ (lợi nhuận $100)',
+    'Prize': 'Giải Thưởng',
+    'Type': 'Loại',
+    'Probability': 'Xác Suất',
+    'Name': 'Tên',
+    'Reward Pool': 'Quỹ Thưởng',
+    'Daily Rate': 'Tỷ Lệ Hàng Ngày',
+    'Est. Daily Income': 'Thu Nhập Hàng Ngày Ước Tính',
+    'Team Volume Required': 'Yêu Cầu Khối Lượng Nhóm',
+    'Chapter': 'Chương',
+    'Key Task': 'Nhiệm Vụ Chính',
+    'Reward': 'Phần Thưởng',
+    'Normal Threshold': 'Ngưỡng Bình Thường',
+    'Influencer Threshold': 'Ngưỡng Influencer',
+    'Discount': 'Chiết Khấu',
+    'Income Stream': 'Nguồn Thu Nhập',
+    'Frequency': 'Tần Suất',
+    'Potential Range': 'Phạm Vi Tiềm Năng',
+    /* Disclaimer */
+    'Risk Disclaimer:': 'Tuyên Bố Miễn Trừ Rủi Ro:',
+  },
+  id: {
+    'Complete Earning Guide': 'Panduan Penghasilan Lengkap',
+    'Every Way to Earn — All in One Place': 'Semua Cara Menghasilkan — Di Satu Tempat',
+    'Referral Rewards · Spin Wheel · Team Pool · Task Bonuses · Influencer Program': 'Hadiah Referral · Roda Putar · Pool Tim · Bonus Tugas · Program Influencer',
+    'Marketing Plan · v1.0 · 2025': 'Rencana Pemasaran · v1.0 · 2025',
+    '⬇ Download as PDF (Print → Save as PDF)': '⬇ Unduh PDF (Cetak → Simpan sebagai PDF)',
+    'Overview: Multiple Income Streams, One Platform': 'Ikhtisar: Banyak Sumber Penghasilan, Satu Platform',
+    'Earnings at a Glance': 'Ringkasan Penghasilan',
+    'How to Start Earning': 'Cara Mulai Menghasilkan',
+    'Module 1 — Referral Rewards': 'Modul 1 — Hadiah Referral',
+    'Module 2 — Spin Wheel': 'Modul 2 — Roda Putar',
+    'Module 3 — Team Pool': 'Modul 3 — Pool Tim',
+    'Module 4 — Quest Task Rewards': 'Modul 4 — Hadiah Tugas Quest',
+    'Module 5 — Team Leader Support Program': 'Modul 5 — Program Dukungan Pemimpin Tim',
+    'Module 6 — Influencer Program': 'Modul 6 — Program Influencer',
+    'Earn commissions from your downline up to 6 levels deep': 'Dapatkan komisi dari jaringan Anda hingga 6 tingkat',
+    'Daily chance to win USDC or bonus credits': 'Kesempatan harian memenangkan USDC atau kredit bonus',
+    'Unlock reward pools and earn daily passive income based on team volume': 'Buka pool hadiah dan dapatkan penghasilan pasif harian berdasarkan volume tim',
+    'Complete guided missions to unlock bonus USDC and spin tickets': 'Selesaikan misi untuk membuka USDC bonus dan tiket putar',
+    'Dedicated resources and tools for serious community builders': 'Sumber daya dan alat khusus untuk pembangun komunitas serius',
+    'Accelerated level unlocks and reduced volume requirements for verified influencers': 'Buka level lebih cepat dengan persyaratan volume lebih rendah untuk influencer terverifikasi',
+    'Commission Structure': 'Struktur Komisi',
+    'Prize Table': 'Tabel Hadiah',
+    'How to Get More Spins': 'Cara Mendapatkan Lebih Banyak Putaran',
+    'Community Level Table': 'Tabel Level Komunitas',
+    'What Counts as "Team Volume"?': 'Apa yang Dihitung sebagai "Volume Tim"?',
+    'Momentum Multiplier': 'Pengganda Momentum',
+    'Chapter Rewards Summary': 'Ringkasan Hadiah Chapter',
+    'How to Qualify as a Team Leader': 'Cara Memenuhi Syarat Sebagai Pemimpin Tim',
+    'Influencer Discount Table': 'Tabel Diskon Influencer',
+    'How to Apply for Influencer Status': 'Cara Mendaftar Status Influencer',
+    'Income Streams': 'Sumber Penghasilan',
+    'Referral Levels Deep': 'Tingkat Referral',
+    'Max Pool (Elite)': 'Pool Maksimal (Elite)',
+    'Level': 'Level',
+    'Relationship': 'Hubungan',
+    'Commission Rate': 'Tingkat Komisi',
+    'Example (on $100 profit)': 'Contoh (dari keuntungan $100)',
+    'Prize': 'Hadiah',
+    'Type': 'Jenis',
+    'Probability': 'Probabilitas',
+    'Name': 'Nama',
+    'Reward Pool': 'Pool Hadiah',
+    'Daily Rate': 'Tingkat Harian',
+    'Est. Daily Income': 'Estimasi Penghasilan Harian',
+    'Team Volume Required': 'Volume Tim yang Diperlukan',
+    'Chapter': 'Bab',
+    'Key Task': 'Tugas Utama',
+    'Reward': 'Hadiah',
+    'Normal Threshold': 'Ambang Normal',
+    'Influencer Threshold': 'Ambang Influencer',
+    'Discount': 'Diskon',
+    'Income Stream': 'Sumber Penghasilan',
+    'Frequency': 'Frekuensi',
+    'Potential Range': 'Potensi Penghasilan',
+    'Risk Disclaimer:': 'Penafian Risiko:',
+  },
+  fr: {
+    'Complete Earning Guide': 'Guide Complet des Gains',
+    'Every Way to Earn — All in One Place': 'Toutes vos Sources de Revenus — En Un Seul Endroit',
+    'Referral Rewards · Spin Wheel · Team Pool · Task Bonuses · Influencer Program': 'Parrainage · Roue de Fortune · Pool d\'Équipe · Bonus de Missions · Programme Influenceur',
+    'Marketing Plan · v1.0 · 2025': 'Plan Marketing · v1.0 · 2025',
+    '⬇ Download as PDF (Print → Save as PDF)': '⬇ Télécharger en PDF (Imprimer → Enregistrer en PDF)',
+    'Overview: Multiple Income Streams, One Platform': 'Vue d\'Ensemble: Multiples Sources de Revenus, Une Plateforme',
+    'Earnings at a Glance': 'Aperçu des Gains',
+    'How to Start Earning': 'Comment Commencer à Gagner',
+    'Module 1 — Referral Rewards': 'Module 1 — Récompenses de Parrainage',
+    'Module 2 — Spin Wheel': 'Module 2 — Roue de Fortune',
+    'Module 3 — Team Pool': 'Module 3 — Pool d\'Équipe',
+    'Module 4 — Quest Task Rewards': 'Module 4 — Récompenses de Quête',
+    'Module 5 — Team Leader Support Program': 'Module 5 — Programme de Soutien aux Leaders',
+    'Module 6 — Influencer Program': 'Module 6 — Programme Influenceur',
+    'Earn commissions from your downline up to 6 levels deep': 'Gagnez des commissions sur votre réseau jusqu\'à 6 niveaux de profondeur',
+    'Daily chance to win USDC or bonus credits': 'Chance quotidienne de gagner des USDC ou des crédits bonus',
+    'Unlock reward pools and earn daily passive income based on team volume': 'Débloquez des pools de récompenses et gagnez des revenus passifs quotidiens basés sur le volume de l\'équipe',
+    'Complete guided missions to unlock bonus USDC and spin tickets': 'Accomplissez des missions pour débloquer des USDC bonus et des tickets de rotation',
+    'Dedicated resources and tools for serious community builders': 'Ressources et outils dédiés aux bâtisseurs de communautés sérieux',
+    'Accelerated level unlocks and reduced volume requirements for verified influencers': 'Déblocages de niveaux accélérés et exigences de volume réduites pour les influenceurs vérifiés',
+    'Commission Structure': 'Structure des Commissions',
+    'Prize Table': 'Tableau des Prix',
+    'How to Get More Spins': 'Comment Obtenir Plus de Tours',
+    'Community Level Table': 'Tableau des Niveaux Communautaires',
+    'What Counts as "Team Volume"?': 'Qu\'est-ce qui Compte comme «Volume d\'Équipe»?',
+    'Momentum Multiplier': 'Multiplicateur de Momentum',
+    'Chapter Rewards Summary': 'Résumé des Récompenses par Chapitre',
+    'How to Qualify as a Team Leader': 'Comment Devenir Leader d\'Équipe',
+    'Influencer Discount Table': 'Tableau des Réductions Influenceur',
+    'How to Apply for Influencer Status': 'Comment Demander le Statut Influenceur',
+    'Income Streams': 'Sources de Revenus',
+    'Referral Levels Deep': 'Niveaux de Parrainage',
+    'Max Pool (Elite)': 'Pool Maximum (Elite)',
+    'Level': 'Niveau',
+    'Relationship': 'Relation',
+    'Commission Rate': 'Taux de Commission',
+    'Example (on $100 profit)': 'Exemple (sur $100 de profit)',
+    'Prize': 'Prix',
+    'Type': 'Type',
+    'Probability': 'Probabilité',
+    'Name': 'Nom',
+    'Reward Pool': 'Pool de Récompenses',
+    'Daily Rate': 'Taux Quotidien',
+    'Est. Daily Income': 'Revenu Quotidien Estimé',
+    'Team Volume Required': 'Volume d\'Équipe Requis',
+    'Chapter': 'Chapitre',
+    'Key Task': 'Tâche Principale',
+    'Reward': 'Récompense',
+    'Normal Threshold': 'Seuil Normal',
+    'Influencer Threshold': 'Seuil Influenceur',
+    'Discount': 'Réduction',
+    'Income Stream': 'Source de Revenus',
+    'Frequency': 'Fréquence',
+    'Potential Range': 'Plage Potentielle',
+    'Risk Disclaimer:': 'Avertissement sur les Risques:',
+  },
+  es: {
+    'Complete Earning Guide': 'Guía Completa de Ganancias',
+    'Every Way to Earn — All in One Place': 'Todas las Formas de Ganar — En Un Solo Lugar',
+    'Referral Rewards · Spin Wheel · Team Pool · Task Bonuses · Influencer Program': 'Referidos · Ruleta · Pool del Equipo · Bonos de Misiones · Programa Influencer',
+    'Marketing Plan · v1.0 · 2025': 'Plan de Marketing · v1.0 · 2025',
+    '⬇ Download as PDF (Print → Save as PDF)': '⬇ Descargar PDF (Imprimir → Guardar como PDF)',
+    'Overview: Multiple Income Streams, One Platform': 'Resumen: Múltiples Fuentes de Ingresos, Una Plataforma',
+    'Earnings at a Glance': 'Ganancias de un Vistazo',
+    'How to Start Earning': 'Cómo Empezar a Ganar',
+    'Module 1 — Referral Rewards': 'Módulo 1 — Recompensas por Referidos',
+    'Module 2 — Spin Wheel': 'Módulo 2 — Ruleta de la Suerte',
+    'Module 3 — Team Pool': 'Módulo 3 — Pool del Equipo',
+    'Module 4 — Quest Task Rewards': 'Módulo 4 — Recompensas de Misiones',
+    'Module 5 — Team Leader Support Program': 'Módulo 5 — Programa de Apoyo a Líderes',
+    'Module 6 — Influencer Program': 'Módulo 6 — Programa de Influencers',
+    'Earn commissions from your downline up to 6 levels deep': 'Gana comisiones de tu red hasta 6 niveles de profundidad',
+    'Daily chance to win USDC or bonus credits': 'Oportunidad diaria de ganar USDC o créditos de bonificación',
+    'Unlock reward pools and earn daily passive income based on team volume': 'Desbloquea pools de recompensas y gana ingresos pasivos diarios basados en el volumen del equipo',
+    'Complete guided missions to unlock bonus USDC and spin tickets': 'Completa misiones guiadas para desbloquear USDC bonus y tickets de giro',
+    'Dedicated resources and tools for serious community builders': 'Recursos y herramientas dedicados para constructores de comunidades serios',
+    'Accelerated level unlocks and reduced volume requirements for verified influencers': 'Desbloqueos de nivel acelerados y requisitos de volumen reducidos para influencers verificados',
+    'Commission Structure': 'Estructura de Comisiones',
+    'Prize Table': 'Tabla de Premios',
+    'How to Get More Spins': 'Cómo Obtener Más Giros',
+    'Community Level Table': 'Tabla de Niveles Comunitarios',
+    'What Counts as "Team Volume"?': '¿Qué Cuenta como "Volumen de Equipo"?',
+    'Momentum Multiplier': 'Multiplicador de Momentum',
+    'Chapter Rewards Summary': 'Resumen de Recompensas por Capítulo',
+    'How to Qualify as a Team Leader': 'Cómo Calificar como Líder de Equipo',
+    'Influencer Discount Table': 'Tabla de Descuentos para Influencers',
+    'How to Apply for Influencer Status': 'Cómo Solicitar el Estado de Influencer',
+    'Income Streams': 'Fuentes de Ingresos',
+    'Referral Levels Deep': 'Niveles de Referidos',
+    'Max Pool (Elite)': 'Pool Máximo (Elite)',
+    'Level': 'Nivel',
+    'Relationship': 'Relación',
+    'Commission Rate': 'Tasa de Comisión',
+    'Example (on $100 profit)': 'Ejemplo (en ganancia de $100)',
+    'Prize': 'Premio',
+    'Type': 'Tipo',
+    'Probability': 'Probabilidad',
+    'Name': 'Nombre',
+    'Reward Pool': 'Pool de Recompensas',
+    'Daily Rate': 'Tasa Diaria',
+    'Est. Daily Income': 'Ingreso Diario Estimado',
+    'Team Volume Required': 'Volumen de Equipo Requerido',
+    'Chapter': 'Capítulo',
+    'Key Task': 'Tarea Principal',
+    'Reward': 'Recompensa',
+    'Normal Threshold': 'Umbral Normal',
+    'Influencer Threshold': 'Umbral Influencer',
+    'Discount': 'Descuento',
+    'Income Stream': 'Fuente de Ingresos',
+    'Frequency': 'Frecuencia',
+    'Potential Range': 'Rango Potencial',
+    'Risk Disclaimer:': 'Descargo de Responsabilidad de Riesgo:',
+  }
+}
+
+function applyTranslations(lang) {
+  const map = T[lang]
+  if (!map) return
+  // Walk all non-SVG, non-script, non-code text nodes
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(n) {
+      const p = n.parentElement
+      if (!p) return NodeFilter.FILTER_REJECT
+      const t = p.tagName
+      if (['SCRIPT','STYLE','CODE','PRE'].includes(t)) return NodeFilter.FILTER_REJECT
+      if (p.closest('svg')) return NodeFilter.FILTER_REJECT
+      return NodeFilter.FILTER_ACCEPT
+    }
+  })
+  const nodes = []
+  while (walker.nextNode()) nodes.push(walker.currentNode)
+  nodes.forEach(n => {
+    const trimmed = n.textContent.trim()
+    if (trimmed && map[trimmed] !== undefined) {
+      n.textContent = n.textContent.replace(trimmed, map[trimmed])
+    }
+  })
+  document.documentElement.lang = lang
+}
+
+function setLang(lang) {
+  localStorage.setItem('pn-eg-lang', lang)
+  location.reload()
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('pn-eg-lang') || 'en'
+  // Update UI
+  const cur = document.getElementById('ls-cur')
+  if (cur) cur.textContent = saved.toUpperCase()
+  document.querySelectorAll('.ls-opt').forEach(o => {
+    o.classList.toggle('sel', o.getAttribute('onclick') === `setLang('${saved}')`)
+  })
+  // Apply translations
+  if (saved !== 'en') applyTranslations(saved)
+  // Close dropdown on outside click
+  document.addEventListener('click', e => {
+    if (!document.getElementById('ls')?.contains(e.target))
+      document.querySelector('.ls-drop')?.classList.remove('open')
+  })
+})
+</script>
 </body>
 </html>

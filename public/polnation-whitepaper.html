@@ -222,10 +222,33 @@
     font-family: 'Courier New', monospace;
   }
 
+  /* ---- Language Switcher ---- */
+  #ls{position:fixed;top:20px;right:20px;z-index:9999;font-family:'Inter',sans-serif}
+  .ls-btn{background:rgba(14,10,40,0.93);border:1px solid rgba(124,58,237,0.55);color:#c4b5fd;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;backdrop-filter:blur(14px);white-space:nowrap;user-select:none}
+  .ls-btn:hover{border-color:rgba(167,139,250,0.85)}
+  .ls-drop{display:none;position:absolute;right:0;top:calc(100% + 6px);background:rgba(12,8,36,0.97);border:1px solid rgba(124,58,237,0.3);border-radius:10px;overflow:hidden;min-width:140px;backdrop-filter:blur(14px);box-shadow:0 8px 32px rgba(0,0,0,0.65)}
+  .ls-drop.open{display:block}
+  .ls-opt{padding:10px 16px;font-size:13px;color:#a1a1aa;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:8px}
+  .ls-opt:hover{background:rgba(124,58,237,0.22);color:#e4e4e7}
+  .ls-opt.sel{color:#c4b5fd;font-weight:700}
+  @media print{#ls{display:none!important}}
+
   @media print { .download-btn, .no-print { display: none !important; } }
 </style>
 </head>
 <body>
+
+<!-- Language Switcher -->
+<div id="ls">
+  <button class="ls-btn" onclick="document.querySelector('.ls-drop').classList.toggle('open')">🌐 <span id="ls-cur">EN</span> ▾</button>
+  <div class="ls-drop">
+    <div class="ls-opt" onclick="setLang('en')">🇺🇸 English</div>
+    <div class="ls-opt" onclick="setLang('vi')">🇻🇳 Tiếng Việt</div>
+    <div class="ls-opt" onclick="setLang('id')">🇮🇩 Indonesia</div>
+    <div class="ls-opt" onclick="setLang('fr')">🇫🇷 Français</div>
+    <div class="ls-opt" onclick="setLang('es')">🇪🇸 Español</div>
+  </div>
+</div>
 
 <!-- Cover -->
 <div class="cover">
@@ -1275,6 +1298,200 @@
   <p>Website: <a href="https://www.polnation.com" style="color:#a78bfa;">www.polnation.com</a></p>
   <p style="margin-top:10px;">© 2025 Polnation. All rights reserved.</p>
 </div>
+<script>
+/* ============================================================
+   Polnation Whitepaper — i18n Translation Engine
+   Languages: EN | VI | ID | FR | ES
+   ============================================================ */
+const T = {
+  vi: {
+    /* Cover */
+    'Crypto Soft Staking Platform on Polygon': 'Nền Tảng Soft Staking Crypto trên Polygon',
+    'Earn Daily USDC Rewards Without Locking Your Tokens': 'Kiếm USDC Hàng Ngày Mà Không Cần Khóa Token',
+    'Platform Overview & Mechanism Guide • 2025': 'Tổng Quan Nền Tảng & Hướng Dẫn Cơ Chế • 2025',
+    '📄 Save as PDF (Ctrl+P)': '📄 Lưu dạng PDF (Ctrl+P)',
+    /* TOC */
+    '📑 Table of Contents': '📑 Mục Lục',
+    /* h2 headings */
+    '1. What is Polnation?': '1. Polnation Là Gì?',
+    '2. How It Works — Platform Architecture': '2. Cách Hoạt Động — Kiến Trúc Nền Tảng',
+    '3. Merkle Tree Distribution — Technical Deep Dive': '3. Phân Phối Merkle Tree — Phân Tích Kỹ Thuật',
+    '4. Revenue Model — Where Does the Yield Come From?': '4. Mô Hình Doanh Thu — Lợi Nhuận Đến Từ Đâu?',
+    '5. Soft Staking — Earning Tiers': '5. Soft Staking — Các Cấp Thu Nhập',
+    '6. Community Prize Pool System': '6. Hệ Thống Quỹ Thưởng Cộng Đồng',
+    '7. Momentum Multiplier (5x Bonus)': '7. Hệ Số Momentum (Thưởng 5x)',
+    '8. 6-Level Referral Commission': '8. Hoa Hồng Giới Thiệu 6 Cấp',
+    '9. Task Rewards': '9. Thưởng Nhiệm Vụ',
+    '10. Security & Transparency': '10. Bảo Mật & Minh Bạch',
+    '11. Getting Started': '11. Bắt Đầu',
+    /* h3 headings */
+    '🔑 Key Principles': '🔑 Nguyên Tắc Cốt Lõi',
+    '🌿 What is a Merkle Tree?': '🌿 Merkle Tree Là Gì?',
+    '🔐 How Merkle Proof Claims Work': '🔐 Cách Hoạt Động Của Merkle Proof',
+    '🛡️ Why Merkle Trees?': '🛡️ Tại Sao Dùng Merkle Tree?',
+    '🔗 4.1 Hard Staking — Validator & Delegation Revenue': '🔗 4.1 Hard Staking — Doanh Thu Validator & Uỷ Quyền',
+    '🌐 4.2 Soft Staking — Polygon Ecosystem Network Incentives': '🌐 4.2 Soft Staking — Ưu Đãi Mạng Lưới Hệ Sinh Thái Polygon',
+    '📢 4.3 Advertising & Partnership Revenue': '📢 4.3 Doanh Thu Quảng Cáo & Đối Tác',
+    '🔄 Revenue Allocation Summary': '🔄 Tóm Tắt Phân Bổ Doanh Thu',
+    'How to Unlock Levels': 'Cách Mở Khóa Cấp Độ',
+    '🚀 How It Works': '🚀 Cách Hoạt Động',
+    'Multiplier Tiers': 'Các Cấp Hệ Số',
+    'Decay Rules': 'Quy Tắc Suy Giảm',
+    '🔒 Non-Custodial Design': '🔒 Thiết Kế Không Giám Sát',
+    '🌿 Merkle Tree Reward Claims': '🌿 Yêu Cầu Thưởng Merkle Tree',
+    '✅ Verifiable On-Chain': '✅ Có Thể Xác Minh Trên Chuỗi',
+    /* Key paragraph fragments */
+    'Non-custodial': 'Không giám sát',
+    'No lock-up period': 'Không có thời gian khóa',
+    'Daily earnings': 'Thu nhập hàng ngày',
+    'On Polygon': 'Trên Polygon',
+    /* Footer */
+    '© 2025 Polnation. All rights reserved.': '© 2025 Polnation. Bảo lưu mọi quyền.',
+  },
+  id: {
+    'Crypto Soft Staking Platform on Polygon': 'Platform Soft Staking Crypto di Polygon',
+    'Earn Daily USDC Rewards Without Locking Your Tokens': 'Dapatkan Hadiah USDC Harian Tanpa Mengunci Token Anda',
+    'Platform Overview & Mechanism Guide • 2025': 'Ikhtisar Platform & Panduan Mekanisme • 2025',
+    '📄 Save as PDF (Ctrl+P)': '📄 Simpan sebagai PDF (Ctrl+P)',
+    '📑 Table of Contents': '📑 Daftar Isi',
+    '1. What is Polnation?': '1. Apa Itu Polnation?',
+    '2. How It Works — Platform Architecture': '2. Cara Kerja — Arsitektur Platform',
+    '3. Merkle Tree Distribution — Technical Deep Dive': '3. Distribusi Merkle Tree — Penjelasan Teknis',
+    '4. Revenue Model — Where Does the Yield Come From?': '4. Model Pendapatan — Dari Mana Hasilnya?',
+    '5. Soft Staking — Earning Tiers': '5. Soft Staking — Tingkatan Penghasilan',
+    '6. Community Prize Pool System': '6. Sistem Pool Hadiah Komunitas',
+    '7. Momentum Multiplier (5x Bonus)': '7. Pengganda Momentum (Bonus 5x)',
+    '8. 6-Level Referral Commission': '8. Komisi Referral 6 Tingkat',
+    '9. Task Rewards': '9. Hadiah Tugas',
+    '10. Security & Transparency': '10. Keamanan & Transparansi',
+    '11. Getting Started': '11. Cara Memulai',
+    '🔑 Key Principles': '🔑 Prinsip Utama',
+    '🌿 What is a Merkle Tree?': '🌿 Apa Itu Merkle Tree?',
+    '🔐 How Merkle Proof Claims Work': '🔐 Cara Kerja Klaim Merkle Proof',
+    '🛡️ Why Merkle Trees?': '🛡️ Mengapa Merkle Tree?',
+    '🔗 4.1 Hard Staking — Validator & Delegation Revenue': '🔗 4.1 Hard Staking — Pendapatan Validator & Delegasi',
+    '🌐 4.2 Soft Staking — Polygon Ecosystem Network Incentives': '🌐 4.2 Soft Staking — Insentif Jaringan Ekosistem Polygon',
+    '📢 4.3 Advertising & Partnership Revenue': '📢 4.3 Pendapatan Iklan & Kemitraan',
+    '🔄 Revenue Allocation Summary': '🔄 Ringkasan Alokasi Pendapatan',
+    'How to Unlock Levels': 'Cara Membuka Level',
+    '🚀 How It Works': '🚀 Cara Kerjanya',
+    'Multiplier Tiers': 'Tingkatan Pengganda',
+    'Decay Rules': 'Aturan Penurunan',
+    '🔒 Non-Custodial Design': '🔒 Desain Non-Kustodial',
+    '🌿 Merkle Tree Reward Claims': '🌿 Klaim Hadiah Merkle Tree',
+    '✅ Verifiable On-Chain': '✅ Dapat Diverifikasi Di Blockchain',
+    '© 2025 Polnation. All rights reserved.': '© 2025 Polnation. Semua hak dilindungi.',
+  },
+  fr: {
+    'Crypto Soft Staking Platform on Polygon': 'Plateforme de Soft Staking Crypto sur Polygon',
+    'Earn Daily USDC Rewards Without Locking Your Tokens': 'Gagnez des Récompenses USDC Quotidiennes Sans Bloquer vos Tokens',
+    'Platform Overview & Mechanism Guide • 2025': 'Aperçu de la Plateforme & Guide des Mécanismes • 2025',
+    '📄 Save as PDF (Ctrl+P)': '📄 Enregistrer en PDF (Ctrl+P)',
+    '📑 Table of Contents': '📑 Table des Matières',
+    '1. What is Polnation?': '1. Qu\'est-ce que Polnation?',
+    '2. How It Works — Platform Architecture': '2. Comment Ça Fonctionne — Architecture',
+    '3. Merkle Tree Distribution — Technical Deep Dive': '3. Distribution Merkle Tree — Analyse Technique',
+    '4. Revenue Model — Where Does the Yield Come From?': '4. Modèle de Revenus — D\'où Vient le Rendement?',
+    '5. Soft Staking — Earning Tiers': '5. Soft Staking — Niveaux de Gains',
+    '6. Community Prize Pool System': '6. Système de Pool de Prix Communautaire',
+    '7. Momentum Multiplier (5x Bonus)': '7. Multiplicateur de Momentum (Bonus 5x)',
+    '8. 6-Level Referral Commission': '8. Commission de Parrainage à 6 Niveaux',
+    '9. Task Rewards': '9. Récompenses de Tâches',
+    '10. Security & Transparency': '10. Sécurité & Transparence',
+    '11. Getting Started': '11. Premiers Pas',
+    '🔑 Key Principles': '🔑 Principes Clés',
+    '🌿 What is a Merkle Tree?': '🌿 Qu\'est-ce qu\'un Merkle Tree?',
+    '🔐 How Merkle Proof Claims Work': '🔐 Comment Fonctionnent les Preuves Merkle',
+    '🛡️ Why Merkle Trees?': '🛡️ Pourquoi les Merkle Trees?',
+    '🔗 4.1 Hard Staking — Validator & Delegation Revenue': '🔗 4.1 Hard Staking — Revenus Validateur & Délégation',
+    '🌐 4.2 Soft Staking — Polygon Ecosystem Network Incentives': '🌐 4.2 Soft Staking — Incitations Réseau Polygon',
+    '📢 4.3 Advertising & Partnership Revenue': '📢 4.3 Revenus Publicitaires & Partenariats',
+    '🔄 Revenue Allocation Summary': '🔄 Résumé de l\'Allocation des Revenus',
+    'How to Unlock Levels': 'Comment Débloquer les Niveaux',
+    '🚀 How It Works': '🚀 Comment Ça Fonctionne',
+    'Multiplier Tiers': 'Niveaux du Multiplicateur',
+    'Decay Rules': 'Règles de Décroissance',
+    '🔒 Non-Custodial Design': '🔒 Conception Non-Dépositaire',
+    '🌿 Merkle Tree Reward Claims': '🌿 Réclamations de Récompenses Merkle Tree',
+    '✅ Verifiable On-Chain': '✅ Vérifiable On-Chain',
+    '© 2025 Polnation. All rights reserved.': '© 2025 Polnation. Tous droits réservés.',
+  },
+  es: {
+    'Crypto Soft Staking Platform on Polygon': 'Plataforma de Soft Staking Cripto en Polygon',
+    'Earn Daily USDC Rewards Without Locking Your Tokens': 'Gana Recompensas USDC Diarias Sin Bloquear tus Tokens',
+    'Platform Overview & Mechanism Guide • 2025': 'Descripción General de la Plataforma & Guía de Mecanismos • 2025',
+    '📄 Save as PDF (Ctrl+P)': '📄 Guardar como PDF (Ctrl+P)',
+    '📑 Table of Contents': '📑 Tabla de Contenidos',
+    '1. What is Polnation?': '1. ¿Qué es Polnation?',
+    '2. How It Works — Platform Architecture': '2. Cómo Funciona — Arquitectura de la Plataforma',
+    '3. Merkle Tree Distribution — Technical Deep Dive': '3. Distribución Merkle Tree — Análisis Técnico',
+    '4. Revenue Model — Where Does the Yield Come From?': '4. Modelo de Ingresos — ¿De Dónde Viene el Rendimiento?',
+    '5. Soft Staking — Earning Tiers': '5. Soft Staking — Niveles de Ganancias',
+    '6. Community Prize Pool System': '6. Sistema de Pool de Premios Comunitario',
+    '7. Momentum Multiplier (5x Bonus)': '7. Multiplicador de Momentum (Bono 5x)',
+    '8. 6-Level Referral Commission': '8. Comisión de Referidos a 6 Niveles',
+    '9. Task Rewards': '9. Recompensas de Tareas',
+    '10. Security & Transparency': '10. Seguridad y Transparencia',
+    '11. Getting Started': '11. Cómo Empezar',
+    '🔑 Key Principles': '🔑 Principios Clave',
+    '🌿 What is a Merkle Tree?': '🌿 ¿Qué es un Merkle Tree?',
+    '🔐 How Merkle Proof Claims Work': '🔐 Cómo Funcionan las Pruebas Merkle',
+    '🛡️ Why Merkle Trees?': '🛡️ ¿Por Qué Merkle Trees?',
+    '🔗 4.1 Hard Staking — Validator & Delegation Revenue': '🔗 4.1 Hard Staking — Ingresos de Validadores y Delegación',
+    '🌐 4.2 Soft Staking — Polygon Ecosystem Network Incentives': '🌐 4.2 Soft Staking — Incentivos de Red del Ecosistema Polygon',
+    '📢 4.3 Advertising & Partnership Revenue': '📢 4.3 Ingresos de Publicidad y Asociaciones',
+    '🔄 Revenue Allocation Summary': '🔄 Resumen de Asignación de Ingresos',
+    'How to Unlock Levels': 'Cómo Desbloquear Niveles',
+    '🚀 How It Works': '🚀 Cómo Funciona',
+    'Multiplier Tiers': 'Niveles del Multiplicador',
+    'Decay Rules': 'Reglas de Decaimiento',
+    '🔒 Non-Custodial Design': '🔒 Diseño No Custodial',
+    '🌿 Merkle Tree Reward Claims': '🌿 Reclamaciones de Recompensas Merkle Tree',
+    '✅ Verifiable On-Chain': '✅ Verificable En Cadena',
+    '© 2025 Polnation. All rights reserved.': '© 2025 Polnation. Todos los derechos reservados.',
+  }
+}
+
+function applyTranslations(lang) {
+  const map = T[lang]
+  if (!map) return
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode(n) {
+      const p = n.parentElement
+      if (!p) return NodeFilter.FILTER_REJECT
+      if (['SCRIPT','STYLE','CODE','PRE'].includes(p.tagName)) return NodeFilter.FILTER_REJECT
+      if (p.closest('svg')) return NodeFilter.FILTER_REJECT
+      return NodeFilter.FILTER_ACCEPT
+    }
+  })
+  const nodes = []
+  while (walker.nextNode()) nodes.push(walker.currentNode)
+  nodes.forEach(n => {
+    const trimmed = n.textContent.trim()
+    if (trimmed && map[trimmed] !== undefined) n.textContent = n.textContent.replace(trimmed, map[trimmed])
+  })
+  document.documentElement.lang = lang
+}
+
+function setLang(lang) {
+  localStorage.setItem('pn-wp-lang', lang)
+  location.reload()
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('pn-wp-lang') || 'en'
+  const cur = document.getElementById('ls-cur')
+  if (cur) cur.textContent = saved.toUpperCase()
+  document.querySelectorAll('.ls-opt').forEach(o => {
+    o.classList.toggle('sel', o.getAttribute('onclick') === `setLang('${saved}')`)
+  })
+  if (saved !== 'en') applyTranslations(saved)
+  document.addEventListener('click', e => {
+    if (!document.getElementById('ls')?.contains(e.target))
+      document.querySelector('.ls-drop')?.classList.remove('open')
+  })
+})
+</script>
 
 </body>
 </html>
