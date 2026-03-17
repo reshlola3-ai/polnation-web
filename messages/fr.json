@@ -498,9 +498,9 @@
     "momentumTitle": "Multiplicateur Momentum",
     "momentumActive": "Vos gains quotidiens sont multipliés par {multiplier}x !",
     "momentumDecayCountdown": "Descend à {next}x dans {days} jour(s)",
-    "momentumInactive": "Recrutez des filleuls stakés pour débloquer jusqu'à 5x de gains quotidiens !",
-    "momentumDecayExplain": "Le multiplicateur est basé sur vos filleuls stakés récents. Il décroît de -1x tous les 3 jours sans nouveaux filleuls.",
-    "momentumDecayRate": "↓ -1x tous les 3 jours sans activité · Nouveau filleul = récupération instantanée"
+    "momentumInactive": "Multiplicateur au plancher (0.2×). Recrutez un nouveau filleul pour revenir à 1.0× !",
+    "momentumDecayExplain": "Le multiplicateur commence à 1.0× et décroît de −0.2× tous les 3 jours sans activité de parrainage (min 0.2×).",
+    "momentumDecayRate": "↓ −0.2× tous les 3 jours sans activité · Nouveau filleul = reset à 1.0×"
   },
   "referral": {
     "title": "Réseau de parrainage",
@@ -758,9 +758,9 @@
       },
       "momentum": {
         "title": "Multiplicateur Momentum",
-        "intro": "Boostez vos gains communautaires quotidiens jusqu'à 5x ! Plus vous recrutez activement, plus votre multiplicateur est élevé.",
+        "intro": "Vos gains communautaires quotidiens sont multipliés par Momentum — démarre à 1.0× et décroît progressivement si vous arrêtez de recruter.",
         "whatIsTitle": "Qu'est-ce que le Momentum ?",
-        "whatIsDesc": "Le Momentum est un multiplicateur appliqué à vos gains quotidiens du Community Pool. Quand vous recrutez activement de nouveaux filleuls qui ont staké, votre multiplicateur augmente jusqu'à 5.0x. Si vous arrêtez, il redescend progressivement à 1.0x en 12 jours.",
+        "whatIsDesc": "Le Momentum est un multiplicateur appliqué à vos gains quotidiens du Community Pool. Il commence à 1.0× et décroît de −0.2× tous les 3 jours sans nouveaux filleuls stakés, jusqu'à un minimum de 0.2×. Un nouveau filleul remet instantanément le multiplicateur à 1.0×.",
         "formulaTitle": "Formule de Gains",
         "formula": "Gains Quotidiens = Prize Pool × Taux × Momentum",
         "baseEarning": "Gain de Base",
@@ -772,10 +772,10 @@
         "decayTitle": "Règles de Déclin",
         "decayDesc": "Si vous arrêtez de recruter, votre multiplicateur diminuera progressivement :",
         "decayRule1": "Garder le multiplicateur actuel",
-        "decayRule2": "Baisse -1.0x (ex: 5.0x → 4.0x)",
-        "decayRule3": "Retour à 1.0x de base (chaque 3 jours -1.0x)",
+        "decayRule2": "Baisse −0.2× (ex: 1.0× → 0.8×)",
+        "decayRule3": "Atteint le plancher 0.2× (chaque 3 jours −0.2×)",
         "recoveryTitle": "Récupération Instantanée",
-        "recoveryDesc": "Recrutez de nouveaux filleuls stakés à tout moment pour revenir instantanément au niveau de multiplicateur correspondant. Pas de pénalité — vous pouvez toujours récupérer votre momentum !",
+        "recoveryDesc": "Recrutez un nouveau filleul staké à tout moment pour remettre instantanément votre multiplicateur à 1.0×. Pas de pénalité — vous pouvez toujours récupérer votre momentum !",
         "exampleTitle": "Exemple",
         "exampleDesc": "Promoteur Gold (base $5.50/jour) :",
         "tipTitle": "Conseil Pro",

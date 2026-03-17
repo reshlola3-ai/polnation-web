@@ -498,9 +498,9 @@
     "momentumTitle": "Hệ số Momentum",
     "momentumActive": "Thu nhập hàng ngày của bạn được nhân {multiplier}x!",
     "momentumDecayCountdown": "Giảm xuống {next}x trong {days} ngày",
-    "momentumInactive": "Giới thiệu người stake để mở khóa thu nhập lên đến 5x!",
-    "momentumDecayExplain": "Hệ số dựa trên số người giới thiệu stake gần đây. Giảm -1x mỗi 3 ngày nếu không có người giới thiệu mới.",
-    "momentumDecayRate": "↓ -1x mỗi 3 ngày không hoạt động · Giới thiệu mới = phục hồi ngay"
+    "momentumInactive": "Hệ số đã chạm mức sàn (0.2×). Giới thiệu người mới để reset về 1.0×!",
+    "momentumDecayExplain": "Hệ số bắt đầu ở 1.0× và giảm −0.2× mỗi 3 ngày không có hoạt động giới thiệu (tối thiểu 0.2×).",
+    "momentumDecayRate": "↓ −0.2× mỗi 3 ngày không hoạt động · Giới thiệu mới = reset về 1.0×"
   },
   "referral": {
     "title": "Mạng lưới Giới thiệu",
@@ -758,9 +758,9 @@
       },
       "momentum": {
         "title": "Hệ Số Momentum",
-        "intro": "Tăng thu nhập cộng đồng hàng ngày lên tới 5x! Bạn càng tích cực giới thiệu, hệ số càng cao.",
+        "intro": "Thu nhập cộng đồng hàng ngày của bạn được nhân với Momentum — bắt đầu ở 1.0× và giảm dần nếu bạn ngừng giới thiệu.",
         "whatIsTitle": "Momentum là gì?",
-        "whatIsDesc": "Momentum là hệ số nhân áp dụng cho thu nhập hàng ngày từ Community Pool. Khi bạn tích cực giới thiệu người dùng mới đã stake, hệ số tăng lên tới 5.0x. Nếu ngừng giới thiệu, hệ số sẽ giảm dần về 1.0x trong 12 ngày.",
+        "whatIsDesc": "Momentum là hệ số nhân áp dụng cho thu nhập hàng ngày từ Community Pool. Hệ số bắt đầu ở 1.0× và giảm −0.2× mỗi 3 ngày không có giới thiệu mới, tối thiểu là 0.2×. Giới thiệu người mới sẽ reset hệ số về 1.0× ngay lập tức.",
         "formulaTitle": "Công Thức Thu Nhập",
         "formula": "Thu Nhập Ngày = Prize Pool × Tỷ Lệ × Momentum",
         "baseEarning": "Thu Nhập Cơ Bản",
@@ -772,14 +772,14 @@
         "decayTitle": "Quy Tắc Giảm",
         "decayDesc": "Nếu ngừng giới thiệu, hệ số sẽ giảm dần:",
         "decayRule1": "Giữ nguyên hệ số hiện tại",
-        "decayRule2": "Giảm -1.0x (ví dụ: 5.0x → 4.0x)",
-        "decayRule3": "Về 1.0x cơ bản (mỗi 3 ngày -1.0x)",
+        "decayRule2": "Giảm −0.2× (ví dụ: 1.0× → 0.8×)",
+        "decayRule3": "Chạm sàn 0.2× (mỗi 3 ngày −0.2×)",
         "recoveryTitle": "Phục Hồi Ngay Lập Tức",
-        "recoveryDesc": "Giới thiệu referral mới đã stake bất kỳ lúc nào để nhảy về hệ số tương ứng ngay lập tức. Không có hình phạt — bạn luôn có thể phục hồi momentum!",
+        "recoveryDesc": "Giới thiệu người mới đã stake bất kỳ lúc nào để reset hệ số về 1.0× ngay lập tức. Không có hình phạt — bạn luôn có thể phục hồi momentum!",
         "exampleTitle": "Ví Dụ",
         "exampleDesc": "Promoter Gold (cơ bản $5.50/ngày):",
         "tipTitle": "Mẹo Hay",
-        "tipDesc": "Giới thiệu chỉ 1 referral mới mỗi 3 ngày để duy trì ít nhất 2.0x momentum. Nỗ lực nhỏ nhưng đều đặn giúp tăng thu nhập đáng kể!"
+        "tipDesc": "Giới thiệu ít nhất 1 referral mới mỗi 12 ngày để giữ momentum trên mức sàn 0.2×. Hoạt động đều đặn giúp duy trì hệ số cao và thu nhập tốt hơn!"
       }
     }
   },

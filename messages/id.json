@@ -499,9 +499,9 @@
     "momentumTitle": "Momentum Multiplier",
     "momentumActive": "Penghasilan harian Anda dilipatgandakan {multiplier}x!",
     "momentumDecayCountdown": "Turun ke {next}x dalam {days} hari",
-    "momentumInactive": "Rekrut referral yang stake untuk membuka penghasilan hingga 5x!",
-    "momentumDecayExplain": "Multiplier berdasarkan referral stake terbaru. Menurun -1x setiap 3 hari tanpa referral baru.",
-    "momentumDecayRate": "↓ -1x setiap 3 hari tanpa aktivitas · Referral baru = pemulihan instan"
+    "momentumInactive": "Multiplier sudah di titik terendah (0.2×). Tambahkan referral baru untuk reset ke 1.0×!",
+    "momentumDecayExplain": "Multiplier dimulai dari 1.0× dan berkurang −0.2× setiap 3 hari tanpa aktivitas referral (min 0.2×).",
+    "momentumDecayRate": "↓ −0.2× setiap 3 hari tanpa aktivitas · Referral baru = reset ke 1.0×"
   },
   "referral": {
     "title": "Jaringan Referral",
@@ -759,9 +759,9 @@
       },
       "momentum": {
         "title": "Momentum Multiplier",
-        "intro": "Tingkatkan penghasilan komunitas harian hingga 5x! Semakin aktif merekrut referral yang sudah stake, semakin tinggi multiplier Anda.",
+        "intro": "Penghasilan komunitas harian Anda dikalikan dengan Momentum — dimulai dari 1.0× dan perlahan berkurang jika Anda berhenti merekrut.",
         "whatIsTitle": "Apa itu Momentum?",
-        "whatIsDesc": "Momentum adalah multiplier yang diterapkan pada penghasilan harian Community Pool. Saat aktif merekrut referral baru yang sudah stake, multiplier meningkat hingga 5.0x. Jika berhenti merekrut, akan turun perlahan ke 1.0x dalam 12 hari.",
+        "whatIsDesc": "Momentum adalah multiplier yang diterapkan pada penghasilan harian Community Pool. Dimulai dari 1.0× dan berkurang −0.2× setiap 3 hari tanpa referral baru, hingga minimum 0.2×. Menambahkan referral baru akan mereset multiplier ke 1.0× secara instan.",
         "formulaTitle": "Rumus Penghasilan",
         "formula": "Penghasilan Harian = Prize Pool × Rate × Momentum",
         "baseEarning": "Penghasilan Dasar",
@@ -773,14 +773,14 @@
         "decayTitle": "Aturan Penurunan",
         "decayDesc": "Jika berhenti merekrut, multiplier akan turun perlahan:",
         "decayRule1": "Pertahankan multiplier saat ini",
-        "decayRule2": "Turun -1.0x (contoh: 5.0x → 4.0x)",
-        "decayRule3": "Kembali ke 1.0x dasar (setiap 3 hari -1.0x)",
+        "decayRule2": "Turun −0.2× (contoh: 1.0× → 0.8×)",
+        "decayRule3": "Mencapai lantai 0.2× (setiap 3 hari −0.2×)",
         "recoveryTitle": "Pemulihan Instan",
-        "recoveryDesc": "Rekrut referral baru yang sudah stake kapan saja untuk langsung kembali ke tier multiplier yang sesuai. Tidak ada penalti — Anda selalu bisa memulihkan momentum!",
+        "recoveryDesc": "Rekrut referral baru yang sudah stake kapan saja untuk langsung mereset multiplier ke 1.0×. Tidak ada penalti — Anda selalu bisa memulihkan momentum!",
         "exampleTitle": "Contoh",
         "exampleDesc": "Promoter Gold (dasar $5.50/hari):",
         "tipTitle": "Tips Pro",
-        "tipDesc": "Rekrut hanya 1 referral baru setiap 3 hari untuk mempertahankan minimal 2.0x momentum. Usaha kecil yang konsisten menghasilkan pendapatan yang jauh lebih tinggi!"
+        "tipDesc": "Rekrut minimal 1 referral baru setiap 12 hari untuk menjaga momentum di atas minimum 0.2×. Aktivitas yang konsisten mempertahankan multiplier lebih tinggi dan penghasilan lebih baik!"
       }
     }
   },

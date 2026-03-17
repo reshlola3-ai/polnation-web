@@ -498,9 +498,9 @@
     "momentumTitle": "Momentum Multiplier",
     "momentumActive": "Your daily earnings are boosted {multiplier}x!",
     "momentumDecayCountdown": "Drops to {next}x in {days} day(s)",
-    "momentumInactive": "Recruit staked referrals to unlock up to 5x daily earnings!",
-    "momentumDecayExplain": "Multiplier is based on your recent staked referrals. It decays -1x every 3 days without new referrals.",
-    "momentumDecayRate": "↓ -1x every 3 days without activity · New referral = instant recovery"
+    "momentumInactive": "Multiplier is at the floor (0.2×). Make a new referral to reset to 1.0×!",
+    "momentumDecayExplain": "Multiplier starts at 1.0× and decays −0.2× every 3 days without referral activity (min 0.2×).",
+    "momentumDecayRate": "↓ −0.2× every 3 days without activity · New referral = reset to 1.0×"
   },
   "referral": {
     "title": "Referral Network",
@@ -758,9 +758,9 @@
       },
       "momentum": {
         "title": "Momentum Multiplier",
-        "intro": "Boost your daily community earnings by up to 5x! The more you actively recruit staked referrals, the higher your multiplier.",
+        "intro": "Your daily community earnings are multiplied by Momentum — starts at 1.0× and gradually decays if you stop recruiting.",
         "whatIsTitle": "What is Momentum?",
-        "whatIsDesc": "Momentum is a reward multiplier applied to your daily Community Pool earnings. When you actively recruit new staked referrals, your multiplier increases up to 5.0x. If you stop recruiting, it gradually decays back to 1.0x over 12 days.",
+        "whatIsDesc": "Momentum is a multiplier applied to your daily Community Pool earnings. It starts at 1.0× and decays −0.2× every 3 days without new staked referrals, down to a minimum of 0.2×. Making a new referral instantly resets it to 1.0×.",
         "formulaTitle": "Earnings Formula",
         "formula": "Daily Earnings = Prize Pool × Daily Rate × Momentum",
         "baseEarning": "Base Earning",
@@ -772,14 +772,14 @@
         "decayTitle": "Decay Rules",
         "decayDesc": "If you stop recruiting, your multiplier will gradually decrease:",
         "decayRule1": "Keep current multiplier",
-        "decayRule2": "Drop -1.0x (e.g. 5.0x → 4.0x)",
-        "decayRule3": "Back to 1.0x base (every 3 days -1.0x)",
-        "recoveryTitle": "Instant Recovery",
-        "recoveryDesc": "Recruit new staked referrals at any time to instantly jump back to the corresponding multiplier tier. There is no penalty — you can always recover your momentum!",
+        "decayRule2": "Drop −0.2× (e.g. 1.0× → 0.8×)",
+        "decayRule3": "Reaches 0.2× floor (every 3 days −0.2×)",
+        "recoveryTitle": "Instant Reset",
+        "recoveryDesc": "Make a new staked referral at any time to instantly reset your multiplier back to 1.0×. There is no penalty — you can always recover your momentum!",
         "exampleTitle": "Example",
         "exampleDesc": "Gold promoter (base $5.50/day):",
         "tipTitle": "Pro Tip",
-        "tipDesc": "Recruit just one new staked referral every 3 days to maintain at least 2.0x momentum. Consistent small effort leads to significantly higher earnings over time!"
+        "tipDesc": "Recruit at least one new staked referral every 12 days to keep your momentum above the minimum 0.2×. Consistent activity maintains a higher multiplier and better earnings!"
       }
     }
   },

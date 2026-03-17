@@ -507,7 +507,7 @@ export default function TeamPage() {
               <span className="text-xl font-bold text-amber-400">{momentum.multiplier.toFixed(1)}x</span>
             </div>
 
-            {momentum.multiplier > 1.0 ? (
+            {momentum.multiplier > 0.2 ? (
               <div className="space-y-1.5">
                 <p className="text-xs text-zinc-400">
                   {t('momentumActive', { multiplier: momentum.multiplier.toFixed(1) })}
@@ -531,11 +531,11 @@ export default function TeamPage() {
                 {t('momentumDecayExplain')}
               </p>
               <div className="flex flex-wrap gap-1 mt-1.5">
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 5.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>4+ ref = 5x</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 4.0 && momentum.multiplier < 5.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>3 ref = 4x</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 3.0 && momentum.multiplier < 4.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>2 ref = 3x</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 2.0 && momentum.multiplier < 3.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>1 ref = 2x</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier < 2.0 ? 'bg-white/10 text-zinc-400 font-bold' : 'bg-white/5 text-zinc-500'}`}>0 ref = 1x</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 1.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>0–2d: 1.0×</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.8 && momentum.multiplier < 1.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>3–5d: 0.8×</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.6 && momentum.multiplier < 0.8 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>6–8d: 0.6×</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.4 && momentum.multiplier < 0.6 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>9–11d: 0.4×</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier < 0.4 ? 'bg-white/10 text-zinc-400 font-bold' : 'bg-white/5 text-zinc-500'}`}>12+d: 0.2×</span>
               </div>
               <p className="text-[10px] text-zinc-600 mt-1">
                 {t('momentumDecayRate')}
