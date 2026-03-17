@@ -208,14 +208,14 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// ========== Momentum Multiplier — 默认 5.0x，衰减 -1x/3天 ==========
+// ========== Momentum Multiplier — 初始 1.0x，衰减 -0.2x/3天，最低 0.2x ==========
 function calculateMomentumMultiplier(lastReferralAt: Date | null): number {
-  // 没有 referral 记录 → 保持 5.0x（新用户福利）
-  if (!lastReferralAt) return 5.0
+  // 没有 referral 记录 → 初始 1.0x
+  if (!lastReferralAt) return 1.0
 
   // 有记录后，根据距离上次 referral 的天数衰减
   const daysSinceLast = Math.floor((Date.now() - lastReferralAt.getTime()) / (1000 * 60 * 60 * 24))
   const decaySteps = Math.floor(daysSinceLast / 3)
 
-  return Math.max(1.0, 5.0 - decaySteps)
+  return Math.max(0.2, parseFloat((1.0 - decaySteps * 0.2).toFixed(1)))
 }
