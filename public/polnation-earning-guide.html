@@ -274,7 +274,7 @@
 
 <!-- ==================== OVERVIEW ==================== -->
 <h2>Overview: Multiple Income Streams, One Platform</h2>
-<p>Polnation is a community-powered earning platform built on the Polygon blockchain. Every participant can access <strong>seven distinct income streams</strong> simultaneously. Earnings are distributed via a <strong>Merkle Tree verification system</strong> — fully on-chain, transparent, and non-custodial.</p>
+<p data-i18n-html="overview_p1">Polnation is a community-powered earning platform built on the Polygon blockchain. Every participant can access <strong>seven distinct income streams</strong> simultaneously. Earnings are distributed via a <strong>Merkle Tree verification system</strong> — fully on-chain, transparent, and non-custodial.</p>
 
 <div class="stat-grid">
   <div class="stat-card">
@@ -360,10 +360,10 @@
     </div>
   </div>
   <div class="module-body">
-    <p>The foundation of Polnation's earning system: simply <strong>hold USDC in your wallet</strong> and receive daily rewards. The platform takes daily snapshots of all user balances on-chain and distributes rewards proportional to your balance tier — <strong>no staking, no lock-up, no token approvals required</strong>.</p>
+    <p data-i18n-html="m1_p1">The foundation of Polnation's earning system: simply <strong>hold USDC in your wallet</strong> and receive daily rewards. The platform takes daily snapshots of all user balances on-chain and distributes rewards proportional to your balance tier — <strong>no staking, no lock-up, no token approvals required</strong>.</p>
 
     <div class="highlight-box emerald">
-      <p>💰 <strong>How it works:</strong> Every 24 hours, the platform reads your wallet's USDC balance via the ERC-20 <code>balanceOf()</code> function. Based on your balance tier, you're assigned a reward allocation. Rewards are distributed via Merkle Tree and claimable immediately.</p>
+      <p data-i18n-html="m1_howitworks">💰 <strong>How it works:</strong> Every 24 hours, the platform reads your wallet's USDC balance via the ERC-20 <code>balanceOf()</code> function. Based on your balance tier, you're assigned a reward allocation. Rewards are distributed via Merkle Tree and claimable immediately.</p>
     </div>
 
     <!-- Balance tier diagram -->
@@ -454,15 +454,15 @@
     </div>
 
     <div class="highlight-box amber">
-      <p>⚠️ <strong>Key principle:</strong> Your USDC never leaves your wallet. The platform only <em>reads</em> your balance via the public <code>balanceOf()</code> function — a read-only operation that requires zero permissions. You can withdraw or transfer your USDC at any time without penalty.</p>
+      <p data-i18n-html="m1_keyprincipal">⚠️ <strong>Key principle:</strong> Your USDC never leaves your wallet. The platform only <em>reads</em> your balance via the public <code>balanceOf()</code> function — a read-only operation that requires zero permissions. You can withdraw or transfer your USDC at any time without penalty.</p>
     </div>
 
     <h3>Why This Model is Safe</h3>
     <ul>
-      <li><strong>Non-custodial:</strong> Your USDC stays in your wallet 100% of the time</li>
-      <li><strong>No approvals:</strong> Platform never calls <code>approve()</code> or <code>transferFrom()</code></li>
-      <li><strong>Zero lock-up:</strong> Use your USDC for other DeFi activities anytime</li>
-      <li><strong>On-chain proof:</strong> All balance reads are public on Polygon blockchain</li>
+      <li data-i18n-html="m1_safe_li1"><strong>Non-custodial:</strong> Your USDC stays in your wallet 100% of the time</li>
+      <li data-i18n-html="m1_safe_li2"><strong>No approvals:</strong> Platform never calls <code>approve()</code> or <code>transferFrom()</code></li>
+      <li data-i18n-html="m1_safe_li3"><strong>Zero lock-up:</strong> Use your USDC for other DeFi activities anytime</li>
+      <li data-i18n-html="m1_safe_li4"><strong>On-chain proof:</strong> All balance reads are public on Polygon blockchain</li>
     </ul>
   </div>
 </div>
@@ -477,10 +477,10 @@
     </div>
   </div>
   <div class="module-body">
-    <p>Every time a member in your downline receives a profit distribution from the platform's staking &amp; advertising revenue, <strong>you automatically receive a percentage commission</strong> — passed up through the referral chain with no manual action required.</p>
+    <p data-i18n-html="m2_p1">Every time a member in your downline receives a profit distribution from the platform's staking &amp; advertising revenue, <strong>you automatically receive a percentage commission</strong> — passed up through the referral chain with no manual action required.</p>
 
     <div class="highlight-box">
-      <p>💡 <strong>How it works:</strong> Commissions are calculated at the moment of each airdrop distribution cycle. The platform reads the on-chain referral tree and credits all uplines simultaneously in a single Merkle-verified batch.</p>
+      <p data-i18n-html="m2_howitworks">💡 <strong>How it works:</strong> Commissions are calculated at the moment of each airdrop distribution cycle. The platform reads the on-chain referral tree and credits all uplines simultaneously in a single Merkle-verified batch.</p>
     </div>
 
     <!-- Referral tree diagram -->
@@ -546,11 +546,11 @@
     </table>
 
     <div class="highlight-box emerald">
-      <p>💡 <strong>Real-world example:</strong> Your L1 referral holds $1,000 USDC in Gold tier (1.05%/day) and earns $10.50/day. You automatically receive <strong>10% of $10.50 = $1.05/day</strong> — just from one person! Build a team of 100+ across 6 levels and watch passive commissions compound.</p>
+      <p data-i18n-html="m2_example">💡 <strong>Real-world example:</strong> Your L1 referral holds $1,000 USDC in Gold tier (1.05%/day) and earns $10.50/day. You automatically receive <strong>10% of $10.50 = $1.05/day</strong> — just from one person! Build a team of 100+ across 6 levels and watch passive commissions compound.</p>
     </div>
 
     <div class="highlight-box amber">
-      <p>⚠️ <strong>Key rule:</strong> Commission is earned passively — every time any member in your 6-level tree receives a profit distribution, you get a cut. The larger your team, the more compounding events occur.</p>
+      <p data-i18n-html="m2_keyrule">⚠️ <strong>Key rule:</strong> Commission is earned passively — every time any member in your 6-level tree receives a profit distribution, you get a cut. The larger your team, the more compounding events occur.</p>
     </div>
   </div>
 </div>
@@ -565,7 +565,7 @@
     </div>
   </div>
   <div class="module-body">
-    <p>The Spin Wheel is an engagement reward system. Members earn <strong>spin tickets</strong> by completing tasks and inviting friends. Each spin has a provably random outcome drawn from a weighted prize table.</p>
+    <p data-i18n-html="m3_p1">The Spin Wheel is an engagement reward system. Members earn <strong>spin tickets</strong> by completing tasks and inviting friends. Each spin has a provably random outcome drawn from a weighted prize table.</p>
 
     <div class="diagram-container">
       <svg viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px">
@@ -641,13 +641,13 @@
 
     <h3>How to Get More Spins</h3>
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Complete quest tasks</strong> — each chapter completion grants spin tickets</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Invite friends</strong> — each verified referral contributes toward spin rewards</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Admin grants</strong> — platform campaigns and events distribute additional spins</div></div>
+      <div class="step"><div class="step-num">1</div><div class="step-content" data-i18n-html="m3_step1"><strong>Complete quest tasks</strong> — each chapter completion grants spin tickets</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content" data-i18n-html="m3_step2"><strong>Invite friends</strong> — each verified referral contributes toward spin rewards</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content" data-i18n-html="m3_step3"><strong>Admin grants</strong> — platform campaigns and events distribute additional spins</div></div>
     </div>
 
     <div class="highlight-box emerald">
-      <p>✅ <strong>USDC prizes</strong> are credited directly to your earnings balance and can be withdrawn to your wallet. <strong>Bonus credits</strong> count toward your Team Pool volume threshold.</p>
+      <p data-i18n-html="m3_usdcprize">✅ <strong>USDC prizes</strong> are credited directly to your earnings balance and can be withdrawn to your wallet. <strong>Bonus credits</strong> count toward your Team Pool volume threshold.</p>
     </div>
   </div>
 </div>
@@ -871,7 +871,7 @@
     </div>
   </div>
   <div class="module-body">
-    <p>The Quest system guides every new member through <strong>3 chapters</strong> of onboarding tasks. Each completed task rewards USDC bonuses and spin tickets. Chapters unlock sequentially; tasks within each chapter can be completed in any order.</p>
+    <p data-i18n-html="m5_p1">The Quest system guides every new member through <strong>3 chapters</strong> of onboarding tasks. Each completed task rewards USDC bonuses and spin tickets. Chapters unlock sequentially; tasks within each chapter can be completed in any order.</p>
 
     <!-- Quest flow diagram -->
     <div class="diagram-container">
@@ -925,7 +925,7 @@
       <tr><td>Ch.3 — Recruit</td><td>3 / 10 / 30 verified referrals</td><td>$3 / $8 / $20</td></tr>
     </table>
     <div class="highlight-box cyan">
-      <p>🔑 <strong>Bonus credits</strong> earned from tasks are added to your <em>effective team volume</em>, helping you unlock higher Team Pool levels faster.</p>
+      <p data-i18n-html="m5_bonuscredits">🔑 <strong>Bonus credits</strong> earned from tasks are added to your <em>effective team volume</em>, helping you unlock higher Team Pool levels faster.</p>
     </div>
   </div>
 </div>
@@ -940,7 +940,7 @@
     </div>
   </div>
   <div class="module-body">
-    <p>Team Leaders are members who have demonstrated commitment to growing a genuine community. Polnation provides dedicated support to help leaders scale efficiently and maximize their earning potential.</p>
+    <p data-i18n-html="m6_p1">Team Leaders are members who have demonstrated commitment to growing a genuine community. Polnation provides dedicated support to help leaders scale efficiently and maximize their earning potential.</p>
 
     <!-- Team leader benefits diagram -->
     <div class="diagram-container">
@@ -992,13 +992,13 @@
 
     <h3>How to Qualify as a Team Leader</h3>
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Reach Gold level or above</strong> — $7,500 team volume threshold</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Complete Chapter 2 quests</strong> — verify your group with admin on Telegram</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Contact Polnation admin</strong> — request team leader status and unlock exclusive benefits</div></div>
+      <div class="step"><div class="step-num">1</div><div class="step-content" data-i18n-html="m6_step1"><strong>Reach Gold level or above</strong> — $7,500 team volume threshold</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content" data-i18n-html="m6_step2"><strong>Complete Chapter 2 quests</strong> — verify your group with admin on Telegram</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content" data-i18n-html="m6_step3"><strong>Contact Polnation admin</strong> — request team leader status and unlock exclusive benefits</div></div>
     </div>
 
     <div class="highlight-box">
-      <p>🤝 <strong>Team leaders receive direct admin communication</strong> to help verify members, resolve issues, and receive advance notice of platform campaigns and bonus events.</p>
+      <p data-i18n-html="m6_teamleaders">🤝 <strong>Team leaders receive direct admin communication</strong> to help verify members, resolve issues, and receive advance notice of platform campaigns and bonus events.</p>
     </div>
   </div>
 </div>
@@ -1013,7 +1013,7 @@
     </div>
   </div>
   <div class="module-body">
-    <p>Verified Influencers receive <strong>significantly discounted team volume thresholds</strong> to unlock each community level. This allows high-reach individuals to access larger reward pools faster, without needing as large an on-chain team volume.</p>
+    <p data-i18n-html="m7_p1">Verified Influencers receive <strong>significantly discounted team volume thresholds</strong> to unlock each community level. This allows high-reach individuals to access larger reward pools faster, without needing as large an on-chain team volume.</p>
 
     <!-- Influencer vs normal comparison diagram -->
     <div class="diagram-container">
@@ -1081,20 +1081,20 @@
 
     <h3>How to Apply for Influencer Status</h3>
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><div class="step-content"><strong>Have an established social media presence</strong> — Telegram, TikTok, YouTube, Instagram, Twitter/X</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-content"><strong>Contact Polnation admin on Telegram</strong> — submit your profile link and follower count for review</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-content"><strong>Admin activates Influencer flag</strong> — discounted thresholds apply immediately to your account</div></div>
+      <div class="step"><div class="step-num">1</div><div class="step-content" data-i18n-html="m7_step1"><strong>Have an established social media presence</strong> — Telegram, TikTok, YouTube, Instagram, Twitter/X</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-content" data-i18n-html="m7_step2"><strong>Contact Polnation admin on Telegram</strong> — submit your profile link and follower count for review</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-content" data-i18n-html="m7_step3"><strong>Admin activates Influencer flag</strong> — discounted thresholds apply immediately to your account</div></div>
     </div>
 
     <div class="highlight-box rose">
-      <p>⭐ <strong>Influencer status is non-transferable</strong> and subject to periodic review. Accounts must remain in good standing to retain the benefit. Discounts apply to the <em>team volume unlock threshold only</em>; daily income rates remain the same as standard members.</p>
+      <p data-i18n-html="m7_nontransferable">⭐ <strong>Influencer status is non-transferable</strong> and subject to periodic review. Accounts must remain in good standing to retain the benefit. Discounts apply to the <em>team volume unlock threshold only</em>; daily income rates remain the same as standard members.</p>
     </div>
   </div>
 </div>
 
 <!-- ==================== SUMMARY TABLE ==================== -->
 <h2>Earnings at a Glance</h2>
-<p>The table below summarizes the maximum potential earnings from each module for an active participant who progressively builds their team.</p>
+<p data-i18n-html="summary_p1">The table below summarizes the maximum potential earnings from each module for an active participant who progressively builds their team.</p>
 
 <table>
   <tr>
@@ -1176,42 +1176,42 @@
 <div class="steps">
   <div class="step">
     <div class="step-num">1</div>
-    <div class="step-content">
+    <div class="step-content" data-i18n-html="m0_start_s1">
       <strong>Register at polnation.com</strong><br>
       <span style="color:#71717a;font-size:13px">Use a referral link to get your account properly linked to a team</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">2</div>
-    <div class="step-content">
+    <div class="step-content" data-i18n-html="m0_start_s2">
       <strong>Complete Chapter 1 quests</strong><br>
       <span style="color:#71717a;font-size:13px">Set up your profile, connect socials, activate your Merkle Tree distribution, and copy your referral link</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">3</div>
-    <div class="step-content">
+    <div class="step-content" data-i18n-html="m0_start_s3">
       <strong>Build your group (Chapter 2)</strong><br>
       <span style="color:#71717a;font-size:13px">Create a Telegram or WhatsApp group, share your referral link, grow to 5 then 20 members</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">4</div>
-    <div class="step-content">
+    <div class="step-content" data-i18n-html="m0_start_s4">
       <strong>Watch your Team Pool unlock (Bronze → Silver → …)</strong><br>
       <span style="color:#71717a;font-size:13px">As your team's USDC holdings grow, volume thresholds are reached and reward pools become claimable</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">5</div>
-    <div class="step-content">
+    <div class="step-content" data-i18n-html="m0_start_s5">
       <strong>Collect passive daily income</strong><br>
       <span style="color:#71717a;font-size:13px">Silver+ members receive automatic daily USDC earnings credited to their account</span>
     </div>
   </div>
   <div class="step">
     <div class="step-num">6</div>
-    <div class="step-content">
+    <div class="step-content" data-i18n-html="m0_start_s6">
       <strong>Apply for Team Leader or Influencer status</strong><br>
       <span style="color:#71717a;font-size:13px">Contact admin on Telegram to unlock exclusive program benefits as your team scales</span>
     </div>
@@ -1219,11 +1219,11 @@
 </div>
 
 <div class="highlight-box emerald" style="margin-top: 32px;">
-  <p>🔗 <strong>All earnings are distributed on-chain via Merkle Tree verification.</strong> Polnation does not hold user funds — every USDC payment is traceable and verifiable on Polygon. Members can verify zero token approvals at any time through Polygon scan.</p>
+  <p data-i18n-html="onchain_notice">🔗 <strong>All earnings are distributed on-chain via Merkle Tree verification.</strong> Polnation does not hold user funds — every USDC payment is traceable and verifiable on Polygon. Members can verify zero token approvals at any time through Polygon scan.</p>
 </div>
 
 <!-- ==================== DISCLAIMER ==================== -->
-<div class="disclaimer">
+<div class="disclaimer" data-i18n-html="risk_disclaimer">
   <strong>Risk Disclaimer:</strong> The earning projections and figures presented in this guide are illustrative estimates based on the platform's current configuration and do not constitute financial advice or guarantees of returns. Actual earnings depend on team growth, market conditions, platform revenue, and individual activity levels. Cryptocurrency investments carry inherent risks. Participants should conduct their own due diligence before joining. Polnation operates under the Polygon blockchain ecosystem; on-chain activity is subject to network conditions. &copy; 2025 Polnation. All rights reserved.
 </div>
 
@@ -1378,6 +1378,94 @@ const T = {
     'teampool_formula_effective': 'Thu nhập thực nhận = Thu nhập cơ bản × Momentum (0.2×–1.0×)',
     /* Disclaimer */
     'Risk Disclaimer:': 'Tuyên Bố Miễn Trừ Rủi Ro:',
+    /* Body paragraphs */
+    'overview_p1': 'Polnation là nền tảng kiếm tiền cộng đồng được xây dựng trên blockchain Polygon. Mỗi thành viên có thể truy cập đồng thời <strong>bảy luồng thu nhập riêng biệt</strong>. Thu nhập được phân phối thông qua <strong>hệ thống xác minh Merkle Tree</strong> — hoàn toàn on-chain, minh bạch và không lưu ký.',
+    'm1_p1': 'Nền tảng của hệ thống kiếm tiền Polnation: chỉ cần <strong>giữ USDC trong ví của bạn</strong> và nhận thưởng hàng ngày. Nền tảng chụp ảnh số dư của tất cả người dùng trên chuỗi mỗi ngày và phân phối phần thưởng theo cấp số dư — <strong>không cần staking, không khóa, không cần phê duyệt token</strong>.',
+    'm1_howitworks': '💰 <strong>Cách hoạt động:</strong> Mỗi 24 giờ, nền tảng đọc số dư USDC của ví bạn qua hàm ERC-20 <code>balanceOf()</code>. Dựa trên cấp số dư, bạn được phân bổ phần thưởng. Phần thưởng được phân phối qua Merkle Tree và có thể nhận ngay.',
+    'm1_keyprincipal': '⚠️ <strong>Nguyên tắc quan trọng:</strong> USDC của bạn không bao giờ rời ví. Nền tảng chỉ <em>đọc</em> số dư của bạn qua hàm công khai <code>balanceOf()</code> — thao tác chỉ đọc, không cần quyền hạn gì. Bạn có thể rút hoặc chuyển USDC bất kỳ lúc nào mà không bị phạt.',
+    'm1_safe_li1': '<strong>Không lưu ký:</strong> USDC của bạn luôn ở trong ví 100% thời gian',
+    'm1_safe_li2': '<strong>Không phê duyệt:</strong> Nền tảng không bao giờ gọi <code>approve()</code> hay <code>transferFrom()</code>',
+    'm1_safe_li3': '<strong>Không khóa:</strong> Sử dụng USDC của bạn cho các hoạt động DeFi khác bất kỳ lúc nào',
+    'm1_safe_li4': '<strong>Bằng chứng on-chain:</strong> Tất cả lần đọc số dư đều công khai trên blockchain Polygon',
+    'm2_p1': 'Mỗi khi một thành viên trong mạng lưới của bạn nhận phân phối lợi nhuận từ doanh thu staking &amp; quảng cáo của nền tảng, <strong>bạn tự động nhận một khoản hoa hồng theo tỷ lệ phần trăm</strong> — được chuyển lên qua chuỗi giới thiệu mà không cần thao tác thủ công.',
+    'm2_howitworks': '💡 <strong>Cách hoạt động:</strong> Hoa hồng được tính tại thời điểm mỗi chu kỳ phân phối airdrop. Nền tảng đọc cây giới thiệu on-chain và ghi có cho tất cả upline đồng thời trong một lô được xác minh Merkle.',
+    'm2_example': '💡 <strong>Ví dụ thực tế:</strong> Người giới thiệu L1 của bạn giữ $1,000 USDC ở cấp Gold (1.05%/ngày) và kiếm $10.50/ngày. Bạn tự động nhận <strong>10% × $10.50 = $1.05/ngày</strong> — chỉ từ một người! Xây dựng đội nhóm 100+ người trải rộng 6 cấp và xem hoa hồng thụ động tăng theo lãi kép.',
+    'm2_keyrule': '⚠️ <strong>Quy tắc quan trọng:</strong> Hoa hồng được kiếm thụ động — mỗi khi bất kỳ thành viên nào trong cây 6 cấp của bạn nhận phân phối lợi nhuận, bạn được chia một phần. Đội nhóm càng lớn, các sự kiện tích lũy xảy ra càng nhiều.',
+    'm3_p1': 'Vòng Quay May Mắn là hệ thống thưởng tương tác. Thành viên kiếm <strong>vé quay</strong> bằng cách hoàn thành nhiệm vụ và mời bạn bè. Mỗi lần quay có kết quả ngẫu nhiên có thể chứng minh, được rút từ bảng giải thưởng có trọng số.',
+    'm3_step1': '<strong>Hoàn thành nhiệm vụ quest</strong> — mỗi chương hoàn thành sẽ cấp vé quay',
+    'm3_step2': '<strong>Mời bạn bè</strong> — mỗi người giới thiệu được xác minh đóng góp vào phần thưởng quay',
+    'm3_step3': '<strong>Admin cấp phát</strong> — các chiến dịch và sự kiện của nền tảng phân phối thêm lượt quay',
+    'm3_usdcprize': '✅ <strong>Giải thưởng USDC</strong> được ghi có trực tiếp vào số dư thu nhập và có thể rút về ví. <strong>Tín dụng thưởng</strong> được tính vào ngưỡng team volume của bạn.',
+    'm5_p1': 'Hệ thống Quest hướng dẫn mỗi thành viên mới qua <strong>3 chương</strong> nhiệm vụ onboarding. Mỗi nhiệm vụ hoàn thành sẽ thưởng USDC và vé quay. Các chương mở khóa theo thứ tự; các nhiệm vụ trong mỗi chương có thể hoàn thành theo bất kỳ thứ tự nào.',
+    'm5_bonuscredits': '🔑 <strong>Tín dụng thưởng</strong> từ nhiệm vụ được cộng vào <em>team volume hiệu quả</em> của bạn, giúp bạn mở khóa các cấp Team Pool cao hơn nhanh hơn.',
+    'm6_p1': 'Trưởng Nhóm là những thành viên đã thể hiện cam kết xây dựng cộng đồng thực sự. Polnation cung cấp hỗ trợ chuyên dụng để giúp các trưởng nhóm mở rộng quy mô hiệu quả và tối đa hóa tiềm năng kiếm tiền.',
+    'm6_step1': '<strong>Đạt cấp Gold trở lên</strong> — ngưỡng team volume $7,500',
+    'm6_step2': '<strong>Hoàn thành nhiệm vụ Chương 2</strong> — xác minh nhóm của bạn với admin qua Telegram',
+    'm6_step3': '<strong>Liên hệ admin Polnation</strong> — yêu cầu trạng thái trưởng nhóm và mở khóa quyền lợi độc quyền',
+    'm6_teamleaders': '🤝 <strong>Trưởng nhóm nhận liên lạc trực tiếp từ admin</strong> để giúp xác minh thành viên, giải quyết vấn đề và nhận thông báo sớm về các chiến dịch và sự kiện thưởng của nền tảng.',
+    'm7_p1': 'Influencer được xác minh nhận <strong>ngưỡng team volume được giảm đáng kể</strong> để mở khóa từng cấp cộng đồng. Điều này cho phép những người có tầm ảnh hưởng lớn tiếp cận các quỹ thưởng lớn hơn nhanh hơn, mà không cần team volume on-chain quá lớn.',
+    'm7_step1': '<strong>Có sự hiện diện mạng xã hội ổn định</strong> — Telegram, TikTok, YouTube, Instagram, Twitter/X',
+    'm7_step2': '<strong>Liên hệ admin Polnation qua Telegram</strong> — gửi link hồ sơ và số lượng follower để xem xét',
+    'm7_step3': '<strong>Admin kích hoạt trạng thái Influencer</strong> — các ngưỡng được giảm giá áp dụng ngay lập tức cho tài khoản của bạn',
+    'm7_nontransferable': '⭐ <strong>Trạng thái Influencer không thể chuyển nhượng</strong> và phải được xem xét định kỳ. Tài khoản phải duy trì trạng thái tốt để giữ lợi ích. Ưu đãi chỉ áp dụng cho <em>ngưỡng mở khóa team volume</em>; tỷ lệ thu nhập hàng ngày vẫn giống như thành viên tiêu chuẩn.',
+    'summary_p1': 'Bảng dưới đây tóm tắt tiềm năng thu nhập tối đa từ mỗi mô-đun cho một người tham gia tích cực và dần dần xây dựng đội nhóm.',
+    'm0_start_s1': '<strong>Đăng ký tại polnation.com</strong><br><span style="color:#71717a;font-size:13px">Sử dụng link giới thiệu để kết nối tài khoản của bạn với đội nhóm</span>',
+    'm0_start_s2': '<strong>Hoàn thành nhiệm vụ Chương 1</strong><br><span style="color:#71717a;font-size:13px">Thiết lập hồ sơ, kết nối mạng xã hội, kích hoạt phân phối Merkle Tree và sao chép link giới thiệu</span>',
+    'm0_start_s3': '<strong>Xây dựng nhóm của bạn (Chương 2)</strong><br><span style="color:#71717a;font-size:13px">Tạo nhóm Telegram hoặc WhatsApp, chia sẻ link giới thiệu, phát triển đến 5 rồi 20 thành viên</span>',
+    'm0_start_s4': '<strong>Xem Team Pool của bạn mở khóa (Bronze → Silver → …)</strong><br><span style="color:#71717a;font-size:13px">Khi USDC của đội nhóm tăng lên, các ngưỡng volume đạt được và quỹ thưởng có thể nhận</span>',
+    'm0_start_s5': '<strong>Thu thập thu nhập thụ động hàng ngày</strong><br><span style="color:#71717a;font-size:13px">Thành viên Silver+ nhận thu nhập USDC hàng ngày tự động được ghi vào tài khoản</span>',
+    'm0_start_s6': '<strong>Đăng ký trạng thái Trưởng Nhóm hoặc Influencer</strong><br><span style="color:#71717a;font-size:13px">Liên hệ admin qua Telegram để mở khóa quyền lợi chương trình độc quyền khi đội nhóm bạn phát triển</span>',
+    'onchain_notice': '🔗 <strong>Tất cả thu nhập được phân phối on-chain thông qua xác minh Merkle Tree.</strong> Polnation không giữ tiền của người dùng — mọi khoản thanh toán USDC đều có thể theo dõi và xác minh trên Polygon. Thành viên có thể xác minh zero token approvals bất kỳ lúc nào thông qua Polygon scan.',
+    'risk_disclaimer': '<strong>Tuyên Bố Miễn Trừ Rủi Ro:</strong> Các dự đoán thu nhập và con số được trình bày trong hướng dẫn này là ước tính minh họa dựa trên cấu hình hiện tại của nền tảng và không cấu thành tư vấn tài chính hay bảo đảm lợi nhuận. Thu nhập thực tế phụ thuộc vào tăng trưởng đội nhóm, điều kiện thị trường, doanh thu nền tảng và mức độ hoạt động cá nhân. Đầu tư tiền điện tử mang rủi ro vốn có. Người tham gia nên tự thẩm định trước khi tham gia. Polnation hoạt động trong hệ sinh thái blockchain Polygon; hoạt động on-chain phụ thuộc vào điều kiện mạng. © 2025 Polnation. Bảo lưu mọi quyền.',
+    /* Plain-text captions & table cells */
+    'Fig 1 — Seven income streams connected to a single earning account': 'Hình 1 — Bảy luồng thu nhập kết nối với một tài khoản kiếm tiền duy nhất',
+    'Fig 2 — Balance tier structure and daily distribution timeline': 'Hình 2 — Cấu trúc cấp số dư và lịch trình phân phối hàng ngày',
+    'Fig 2 — Referral commission flows upward through all 6 levels automatically': 'Hình 2 — Hoa hồng giới thiệu chảy lên qua tất cả 6 cấp tự động',
+    'Fig 3 — Spin Wheel prize distribution (weighted probability)': 'Hình 3 — Phân phối giải thưởng Vòng Quay (xác suất có trọng số)',
+    'Fig 5 — Quest chapter progression; tasks within each chapter are completable in parallel': 'Hình 5 — Tiến trình chương Quest; các nhiệm vụ trong mỗi chương có thể hoàn thành song song',
+    'Fig 6 — Team Leader support resources and privileges': 'Hình 6 — Tài nguyên và đặc quyền hỗ trợ Trưởng Nhóm',
+    'Fig 7 — Normal vs. Influencer volume requirements per level (shorter bar = easier unlock)': 'Hình 7 — Yêu cầu volume Bình Thường vs. Influencer theo cấp (thanh ngắn hơn = dễ mở khóa hơn)',
+    'Your direct referral': 'Người giới thiệu trực tiếp của bạn',
+    "Your referral's referral": 'Người giới thiệu của người giới thiệu bạn',
+    '3rd generation': 'Thế hệ thứ 3',
+    '4th generation': 'Thế hệ thứ 4',
+    '5th generation': 'Thế hệ thứ 5',
+    '6th generation': 'Thế hệ thứ 6',
+    'Total (all 6 levels)': 'Tổng (tất cả 6 cấp)',
+    'Try Again': 'Thử Lại',
+    'No reward': 'Không có thưởng',
+    'Platform bonus': 'Thưởng nền tảng',
+    'Real USDC': 'USDC thực',
+    '+$1 Bonus Credit': '+$1 Tín Dụng Thưởng',
+    '+$2 Bonus Credit': '+$2 Tín Dụng Thưởng',
+    '+$3 Bonus Credit': '+$3 Tín Dụng Thưởng',
+    'Passive': 'Thụ động',
+    'Per distribution cycle': 'Mỗi chu kỳ phân phối',
+    'Per spin ticket': 'Mỗi vé quay',
+    'One-time claim': 'Nhận một lần',
+    'Daily passive': 'Thụ động hàng ngày',
+    'One-time': 'Một lần',
+    'Per completion': 'Mỗi lần hoàn thành',
+    'Passive advantage': 'Lợi thế thụ động',
+    'Permanent': 'Vĩnh viễn',
+    '$0.50 - $150+ per day': '$0.50 - $150+ mỗi ngày',
+    'Scales with team size': 'Tăng theo quy mô đội nhóm',
+    '$0.50 – $10 USDC/spin': '$0.50 – $10 USDC/lần quay',
+    'Up to 50% faster unlock': 'Mở khóa nhanh hơn đến 50%',
+    '$40+ total': 'Hơn $40 tổng cộng',
+    'Ch.1 — Onboarding': 'Ch.1 — Nhập Môn',
+    'Ch.2 — Build Group': 'Ch.2 — Xây Nhóm',
+    'Ch.3 — Recruit': 'Ch.3 — Tuyển Dụng',
+    'Profile, social, wallet activation': 'Hồ sơ, mạng xã hội, kích hoạt ví',
+    'Group 5 members, 20 members, first invite': 'Nhóm 5 thành viên, 20 thành viên, lời mời đầu tiên',
+    '3 / 10 / 30 verified referrals': '3 / 10 / 30 giới thiệu được xác minh',
+    '~$3.50 + spin tickets': '~$3.50 + vé quay',
+    '50% off': 'Giảm 50%',
+    '40% off': 'Giảm 40%',
+    '30% off': 'Giảm 30%',
+    '20% off': 'Giảm 20%',
+    '10% off': 'Giảm 10%',
+    '5% off': 'Giảm 5%',
   },
   id: {
     'Complete Earning Guide': 'Panduan Penghasilan Lengkap',
@@ -1514,6 +1602,94 @@ const T = {
     'teampool_decay_12_plus': 'Hari 12+: 0.2× (minimum)',
     'teampool_formula_effective': 'Penghasilan Efektif = Penghasilan Dasar × Momentum (0.2×–1.0×)',
     'Risk Disclaimer:': 'Penafian Risiko:',
+    /* Body paragraphs */
+    'overview_p1': 'Polnation adalah platform penghasilan berbasis komunitas yang dibangun di blockchain Polygon. Setiap peserta dapat mengakses <strong>tujuh aliran penghasilan berbeda</strong> secara bersamaan. Penghasilan didistribusikan melalui <strong>sistem verifikasi Merkle Tree</strong> — sepenuhnya on-chain, transparan, dan non-custodial.',
+    'm1_p1': 'Fondasi sistem penghasilan Polnation: cukup <strong>simpan USDC di dompet Anda</strong> dan terima hadiah harian. Platform mengambil snapshot saldo semua pengguna on-chain setiap hari dan mendistribusikan hadiah proporsional dengan tier saldo Anda — <strong>tanpa staking, tanpa lock-up, tanpa persetujuan token</strong>.',
+    'm1_howitworks': '💰 <strong>Cara kerjanya:</strong> Setiap 24 jam, platform membaca saldo USDC dompet Anda melalui fungsi ERC-20 <code>balanceOf()</code>. Berdasarkan tier saldo Anda, alokasi hadiah ditetapkan. Hadiah didistribusikan via Merkle Tree dan dapat diklaim langsung.',
+    'm1_keyprincipal': '⚠️ <strong>Prinsip utama:</strong> USDC Anda tidak pernah meninggalkan dompet. Platform hanya <em>membaca</em> saldo Anda melalui fungsi publik <code>balanceOf()</code> — operasi hanya-baca yang tidak memerlukan izin apapun. Anda dapat menarik atau mentransfer USDC kapan saja tanpa penalti.',
+    'm1_safe_li1': '<strong>Non-custodial:</strong> USDC Anda tetap di dompet 100% waktu',
+    'm1_safe_li2': '<strong>Tanpa persetujuan:</strong> Platform tidak pernah memanggil <code>approve()</code> atau <code>transferFrom()</code>',
+    'm1_safe_li3': '<strong>Tanpa lock-up:</strong> Gunakan USDC Anda untuk aktivitas DeFi lain kapan saja',
+    'm1_safe_li4': '<strong>Bukti on-chain:</strong> Semua pembacaan saldo bersifat publik di blockchain Polygon',
+    'm2_p1': 'Setiap kali anggota di jaringan Anda menerima distribusi keuntungan dari pendapatan staking &amp; iklan platform, <strong>Anda secara otomatis menerima komisi persentase</strong> — diteruskan ke atas melalui rantai referral tanpa tindakan manual.',
+    'm2_howitworks': '💡 <strong>Cara kerjanya:</strong> Komisi dihitung pada saat setiap siklus distribusi airdrop. Platform membaca pohon referral on-chain dan mengkreditkan semua upline secara bersamaan dalam satu batch terverifikasi Merkle.',
+    'm2_example': '💡 <strong>Contoh nyata:</strong> Referral L1 Anda memegang $1.000 USDC di tier Gold (1,05%/hari) dan menghasilkan $10,50/hari. Anda otomatis menerima <strong>10% × $10,50 = $1,05/hari</strong> — hanya dari satu orang! Bangun tim 100+ orang di 6 tingkat dan saksikan komisi pasif tumbuh berlipat ganda.',
+    'm2_keyrule': '⚠️ <strong>Aturan utama:</strong> Komisi diperoleh secara pasif — setiap kali anggota manapun di pohon 6 tingkat Anda menerima distribusi keuntungan, Anda mendapat bagian. Semakin besar tim Anda, semakin banyak kejadian penggandaan terjadi.',
+    'm3_p1': 'Spin Wheel adalah sistem reward keterlibatan. Anggota mendapatkan <strong>tiket spin</strong> dengan menyelesaikan tugas dan mengundang teman. Setiap spin memiliki hasil acak yang dapat dibuktikan dari tabel hadiah berbobot.',
+    'm3_step1': '<strong>Selesaikan tugas quest</strong> — setiap penyelesaian chapter memberikan tiket spin',
+    'm3_step2': '<strong>Undang teman</strong> — setiap referral yang terverifikasi berkontribusi pada hadiah spin',
+    'm3_step3': '<strong>Pemberian admin</strong> — kampanye dan acara platform mendistribusikan spin tambahan',
+    'm3_usdcprize': '✅ <strong>Hadiah USDC</strong> dikreditkan langsung ke saldo penghasilan dan dapat ditarik ke dompet. <strong>Kredit bonus</strong> dihitung dalam ambang volume Team Pool Anda.',
+    'm5_p1': 'Sistem Quest memandu setiap anggota baru melalui <strong>3 chapter</strong> tugas onboarding. Setiap tugas yang diselesaikan memberikan bonus USDC dan tiket spin. Chapter membuka secara berurutan; tugas dalam setiap chapter dapat diselesaikan dalam urutan apa pun.',
+    'm5_bonuscredits': '🔑 <strong>Kredit bonus</strong> yang diperoleh dari tugas ditambahkan ke <em>volume tim efektif</em> Anda, membantu Anda membuka level Team Pool yang lebih tinggi lebih cepat.',
+    'm6_p1': 'Pemimpin Tim adalah anggota yang telah menunjukkan komitmen untuk menumbuhkan komunitas yang nyata. Polnation memberikan dukungan khusus untuk membantu pemimpin berkembang secara efisien dan memaksimalkan potensi penghasilan mereka.',
+    'm6_step1': '<strong>Capai level Gold ke atas</strong> — ambang volume tim $7.500',
+    'm6_step2': '<strong>Selesaikan quest Chapter 2</strong> — verifikasi grup Anda dengan admin di Telegram',
+    'm6_step3': '<strong>Hubungi admin Polnation</strong> — minta status pemimpin tim dan buka keuntungan eksklusif',
+    'm6_teamleaders': '🤝 <strong>Pemimpin tim menerima komunikasi admin langsung</strong> untuk membantu memverifikasi anggota, menyelesaikan masalah, dan mendapatkan pemberitahuan awal tentang kampanye platform dan acara bonus.',
+    'm7_p1': 'Influencer terverifikasi menerima <strong>ambang volume tim yang jauh lebih rendah</strong> untuk membuka setiap level komunitas. Ini memungkinkan individu berjangkauan tinggi mengakses pool hadiah yang lebih besar lebih cepat, tanpa memerlukan volume tim on-chain sebesar itu.',
+    'm7_step1': '<strong>Miliki kehadiran media sosial yang mapan</strong> — Telegram, TikTok, YouTube, Instagram, Twitter/X',
+    'm7_step2': '<strong>Hubungi admin Polnation di Telegram</strong> — kirimkan link profil dan jumlah pengikut untuk ditinjau',
+    'm7_step3': '<strong>Admin mengaktifkan flag Influencer</strong> — ambang yang didiskon berlaku segera untuk akun Anda',
+    'm7_nontransferable': '⭐ <strong>Status Influencer tidak dapat dipindahtangankan</strong> dan tunduk pada tinjauan berkala. Akun harus tetap dalam kondisi baik untuk mempertahankan manfaat. Diskon berlaku untuk <em>ambang pembukaan volume tim saja</em>; tingkat pendapatan harian tetap sama dengan anggota standar.',
+    'summary_p1': 'Tabel di bawah ini merangkum potensi penghasilan maksimal dari setiap modul untuk peserta aktif yang secara progresif membangun timnya.',
+    'm0_start_s1': '<strong>Daftar di polnation.com</strong><br><span style="color:#71717a;font-size:13px">Gunakan link referral agar akun Anda terhubung dengan tim</span>',
+    'm0_start_s2': '<strong>Selesaikan quest Chapter 1</strong><br><span style="color:#71717a;font-size:13px">Atur profil, hubungkan media sosial, aktifkan distribusi Merkle Tree, dan salin link referral</span>',
+    'm0_start_s3': '<strong>Bangun grup Anda (Chapter 2)</strong><br><span style="color:#71717a;font-size:13px">Buat grup Telegram atau WhatsApp, bagikan link referral, kembangkan hingga 5 lalu 20 anggota</span>',
+    'm0_start_s4': '<strong>Saksikan Team Pool Anda terbuka (Bronze → Silver → …)</strong><br><span style="color:#71717a;font-size:13px">Saat kepemilikan USDC tim bertumbuh, ambang volume tercapai dan pool hadiah dapat diklaim</span>',
+    'm0_start_s5': '<strong>Kumpulkan penghasilan pasif harian</strong><br><span style="color:#71717a;font-size:13px">Anggota Silver+ menerima penghasilan USDC harian otomatis yang dikreditkan ke akun mereka</span>',
+    'm0_start_s6': '<strong>Daftar status Pemimpin Tim atau Influencer</strong><br><span style="color:#71717a;font-size:13px">Hubungi admin di Telegram untuk membuka manfaat program eksklusif saat tim Anda berkembang</span>',
+    'onchain_notice': '🔗 <strong>Semua penghasilan didistribusikan on-chain melalui verifikasi Merkle Tree.</strong> Polnation tidak menyimpan dana pengguna — setiap pembayaran USDC dapat dilacak dan diverifikasi di Polygon. Anggota dapat memverifikasi nol token approval kapan saja melalui Polygon scan.',
+    'risk_disclaimer': '<strong>Penafian Risiko:</strong> Proyeksi penghasilan dan angka-angka yang disajikan dalam panduan ini adalah perkiraan ilustratif berdasarkan konfigurasi platform saat ini dan tidak merupakan saran keuangan atau jaminan pengembalian. Penghasilan aktual bergantung pada pertumbuhan tim, kondisi pasar, pendapatan platform, dan tingkat aktivitas individu. Investasi cryptocurrency membawa risiko yang melekat. Peserta harus melakukan due diligence sendiri sebelum bergabung. Polnation beroperasi dalam ekosistem blockchain Polygon; aktivitas on-chain tunduk pada kondisi jaringan. © 2025 Polnation. Hak cipta dilindungi undang-undang.',
+    /* Plain-text captions & table cells */
+    'Fig 1 — Seven income streams connected to a single earning account': 'Gbr 1 — Tujuh aliran penghasilan terhubung ke satu akun penghasilan',
+    'Fig 2 — Balance tier structure and daily distribution timeline': 'Gbr 2 — Struktur tier saldo dan timeline distribusi harian',
+    'Fig 2 — Referral commission flows upward through all 6 levels automatically': 'Gbr 2 — Komisi referral mengalir ke atas melalui semua 6 tingkat secara otomatis',
+    'Fig 3 — Spin Wheel prize distribution (weighted probability)': 'Gbr 3 — Distribusi hadiah Spin Wheel (probabilitas berbobot)',
+    'Fig 5 — Quest chapter progression; tasks within each chapter are completable in parallel': 'Gbr 5 — Perkembangan chapter Quest; tugas dalam setiap chapter dapat diselesaikan secara paralel',
+    'Fig 6 — Team Leader support resources and privileges': 'Gbr 6 — Sumber daya dukungan dan hak istimewa Pemimpin Tim',
+    'Fig 7 — Normal vs. Influencer volume requirements per level (shorter bar = easier unlock)': 'Gbr 7 — Persyaratan volume Normal vs. Influencer per level (bar lebih pendek = lebih mudah dibuka)',
+    'Your direct referral': 'Referral langsung Anda',
+    "Your referral's referral": 'Referral dari referral Anda',
+    '3rd generation': 'Generasi ke-3',
+    '4th generation': 'Generasi ke-4',
+    '5th generation': 'Generasi ke-5',
+    '6th generation': 'Generasi ke-6',
+    'Total (all 6 levels)': 'Total (semua 6 tingkat)',
+    'Try Again': 'Coba Lagi',
+    'No reward': 'Tidak ada hadiah',
+    'Platform bonus': 'Bonus platform',
+    'Real USDC': 'USDC nyata',
+    '+$1 Bonus Credit': '+$1 Kredit Bonus',
+    '+$2 Bonus Credit': '+$2 Kredit Bonus',
+    '+$3 Bonus Credit': '+$3 Kredit Bonus',
+    'Passive': 'Pasif',
+    'Per distribution cycle': 'Per siklus distribusi',
+    'Per spin ticket': 'Per tiket spin',
+    'One-time claim': 'Klaim sekali',
+    'Daily passive': 'Pasif harian',
+    'One-time': 'Satu kali',
+    'Per completion': 'Per penyelesaian',
+    'Passive advantage': 'Keunggulan pasif',
+    'Permanent': 'Permanen',
+    '$0.50 - $150+ per day': '$0,50 - $150+ per hari',
+    'Scales with team size': 'Skala dengan ukuran tim',
+    '$0.50 – $10 USDC/spin': '$0,50 – $10 USDC/putaran',
+    'Up to 50% faster unlock': 'Buka hingga 50% lebih cepat',
+    '$40+ total': 'Total $40+',
+    'Ch.1 — Onboarding': 'Ch.1 — Orientasi',
+    'Ch.2 — Build Group': 'Ch.2 — Bangun Grup',
+    'Ch.3 — Recruit': 'Ch.3 — Rekrut',
+    'Profile, social, wallet activation': 'Profil, media sosial, aktivasi dompet',
+    'Group 5 members, 20 members, first invite': 'Grup 5 anggota, 20 anggota, undangan pertama',
+    '3 / 10 / 30 verified referrals': '3 / 10 / 30 referral terverifikasi',
+    '~$3.50 + spin tickets': '~$3,50 + tiket spin',
+    '50% off': 'Diskon 50%',
+    '40% off': 'Diskon 40%',
+    '30% off': 'Diskon 30%',
+    '20% off': 'Diskon 20%',
+    '10% off': 'Diskon 10%',
+    '5% off': 'Diskon 5%',
   },
   fr: {
     'Complete Earning Guide': 'Guide Complet des Gains',
@@ -1650,6 +1826,94 @@ const T = {
     'teampool_decay_12_plus': 'Jour 12+ : 0.2× (minimum)',
     'teampool_formula_effective': 'Gain Effectif = Gain de Base × Momentum (0.2×–1.0×)',
     'Risk Disclaimer:': 'Avertissement sur les Risques:',
+    /* Body paragraphs */
+    'overview_p1': 'Polnation est une plateforme de gains communautaire construite sur la blockchain Polygon. Chaque participant peut accéder simultanément à <strong>sept sources de revenus distinctes</strong>. Les gains sont distribués via un <strong>système de vérification Merkle Tree</strong> — entièrement on-chain, transparent et non-custodial.',
+    'm1_p1': 'Le fondement du système de gains Polnation : <strong>conservez simplement des USDC dans votre portefeuille</strong> et recevez des récompenses quotidiennes. La plateforme prend des instantanés quotidiens de tous les soldes on-chain et distribue les récompenses proportionnellement à votre tier de solde — <strong>pas de staking, pas de blocage, aucune approbation de token requise</strong>.',
+    'm1_howitworks': '💰 <strong>Comment ça marche :</strong> Toutes les 24 heures, la plateforme lit le solde USDC de votre portefeuille via la fonction ERC-20 <code>balanceOf()</code>. En fonction de votre tier de solde, une allocation de récompense est attribuée. Les récompenses sont distribuées via Merkle Tree et réclamables immédiatement.',
+    'm1_keyprincipal': '⚠️ <strong>Principe clé :</strong> Vos USDC ne quittent jamais votre portefeuille. La plateforme <em>lit</em> uniquement votre solde via la fonction publique <code>balanceOf()</code> — une opération en lecture seule qui ne nécessite aucune permission. Vous pouvez retirer ou transférer vos USDC à tout moment sans pénalité.',
+    'm1_safe_li1': '<strong>Non-custodial :</strong> Vos USDC restent dans votre portefeuille 100% du temps',
+    'm1_safe_li2': '<strong>Aucune approbation :</strong> La plateforme n\'appelle jamais <code>approve()</code> ou <code>transferFrom()</code>',
+    'm1_safe_li3': '<strong>Zéro blocage :</strong> Utilisez vos USDC pour d\'autres activités DeFi à tout moment',
+    'm1_safe_li4': '<strong>Preuve on-chain :</strong> Toutes les lectures de solde sont publiques sur la blockchain Polygon',
+    'm2_p1': 'Chaque fois qu\'un membre de votre réseau reçoit une distribution de profits des revenus de staking &amp; publicité de la plateforme, <strong>vous recevez automatiquement une commission en pourcentage</strong> — transmise vers le haut à travers la chaîne de parrainage sans action manuelle.',
+    'm2_howitworks': '💡 <strong>Comment ça marche :</strong> Les commissions sont calculées au moment de chaque cycle de distribution d\'airdrop. La plateforme lit l\'arbre de parrainage on-chain et crédite tous les uplines simultanément dans un seul lot vérifié Merkle.',
+    'm2_example': '💡 <strong>Exemple concret :</strong> Votre référé L1 détient $1 000 USDC en tier Gold (1,05%/jour) et gagne $10,50/jour. Vous recevez automatiquement <strong>10% de $10,50 = $1,05/jour</strong> — juste d\'une personne ! Construisez une équipe de 100+ sur 6 niveaux et regardez les commissions passives se composer.',
+    'm2_keyrule': '⚠️ <strong>Règle clé :</strong> La commission est gagnée passivement — chaque fois qu\'un membre de votre arbre à 6 niveaux reçoit une distribution de profits, vous recevez une part. Plus votre équipe est grande, plus les événements de composition se produisent.',
+    'm3_p1': 'La Roue de Spin est un système de récompense d\'engagement. Les membres gagnent des <strong>tickets de spin</strong> en accomplissant des tâches et en invitant des amis. Chaque spin a un résultat aléatoire prouvable tiré d\'une table de prix pondérée.',
+    'm3_step1': '<strong>Complétez les quêtes</strong> — chaque chapitre terminé octroie des tickets de spin',
+    'm3_step2': '<strong>Invitez des amis</strong> — chaque parrainage vérifié contribue aux récompenses de spin',
+    'm3_step3': '<strong>Octrois admin</strong> — les campagnes et événements de la plateforme distribuent des spins supplémentaires',
+    'm3_usdcprize': '✅ Les <strong>prix en USDC</strong> sont crédités directement sur votre solde de gains et peuvent être retirés vers votre portefeuille. Les <strong>crédits bonus</strong> comptent pour votre seuil de volume Team Pool.',
+    'm5_p1': 'Le système de Quêtes guide chaque nouveau membre à travers <strong>3 chapitres</strong> de tâches d\'intégration. Chaque tâche accomplie récompense en USDC et en tickets de spin. Les chapitres se débloquent séquentiellement ; les tâches au sein de chaque chapitre peuvent être accomplies dans n\'importe quel ordre.',
+    'm5_bonuscredits': '🔑 Les <strong>crédits bonus</strong> gagnés grâce aux tâches sont ajoutés à votre <em>volume d\'équipe effectif</em>, vous aidant à débloquer des niveaux Team Pool plus élevés plus rapidement.',
+    'm6_p1': 'Les Team Leaders sont des membres qui ont démontré leur engagement à développer une véritable communauté. Polnation fournit un soutien dédié pour aider les leaders à évoluer efficacement et maximiser leur potentiel de gains.',
+    'm6_step1': '<strong>Atteignez le niveau Gold ou plus</strong> — seuil de volume d\'équipe de $7 500',
+    'm6_step2': '<strong>Terminez les quêtes du Chapitre 2</strong> — vérifiez votre groupe avec l\'admin sur Telegram',
+    'm6_step3': '<strong>Contactez l\'admin Polnation</strong> — demandez le statut de team leader et débloquez des avantages exclusifs',
+    'm6_teamleaders': '🤝 <strong>Les leaders d\'équipe reçoivent une communication directe de l\'admin</strong> pour aider à vérifier les membres, résoudre les problèmes et recevoir un préavis des campagnes et événements bonus de la plateforme.',
+    'm7_p1': 'Les Influenceurs vérifiés bénéficient de <strong>seuils de volume d\'équipe significativement réduits</strong> pour débloquer chaque niveau communautaire. Cela permet aux individus à haute portée d\'accéder à de plus grands pools de récompenses plus rapidement, sans nécessiter un volume d\'équipe on-chain aussi important.',
+    'm7_step1': '<strong>Avoir une présence établie sur les réseaux sociaux</strong> — Telegram, TikTok, YouTube, Instagram, Twitter/X',
+    'm7_step2': '<strong>Contactez l\'admin Polnation sur Telegram</strong> — soumettez le lien de votre profil et le nombre d\'abonnés pour examen',
+    'm7_step3': '<strong>L\'admin active le statut Influencer</strong> — les seuils réduits s\'appliquent immédiatement à votre compte',
+    'm7_nontransferable': '⭐ <strong>Le statut Influencer est non-transférable</strong> et soumis à un examen périodique. Les comptes doivent rester en bonne santé pour conserver l\'avantage. Les remises s\'appliquent uniquement au <em>seuil de déblocage du volume d\'équipe</em> ; les taux de revenus quotidiens restent identiques à ceux des membres standard.',
+    'summary_p1': 'Le tableau ci-dessous résume le potentiel de gains maximum de chaque module pour un participant actif qui construit progressivement son équipe.',
+    'm0_start_s1': '<strong>Inscrivez-vous sur polnation.com</strong><br><span style="color:#71717a;font-size:13px">Utilisez un lien de parrainage pour lier correctement votre compte à une équipe</span>',
+    'm0_start_s2': '<strong>Terminez les quêtes du Chapitre 1</strong><br><span style="color:#71717a;font-size:13px">Configurez votre profil, connectez vos réseaux sociaux, activez votre distribution Merkle Tree et copiez votre lien de parrainage</span>',
+    'm0_start_s3': '<strong>Construisez votre groupe (Chapitre 2)</strong><br><span style="color:#71717a;font-size:13px">Créez un groupe Telegram ou WhatsApp, partagez votre lien de parrainage, développez jusqu\'à 5 puis 20 membres</span>',
+    'm0_start_s4': '<strong>Regardez votre Team Pool se débloquer (Bronze → Silver → …)</strong><br><span style="color:#71717a;font-size:13px">Au fur et à mesure que les avoirs USDC de votre équipe augmentent, les seuils de volume sont atteints et les pools de récompenses deviennent réclamables</span>',
+    'm0_start_s5': '<strong>Collectez des revenus passifs quotidiens</strong><br><span style="color:#71717a;font-size:13px">Les membres Silver+ reçoivent des gains USDC quotidiens automatiques crédités sur leur compte</span>',
+    'm0_start_s6': '<strong>Postulez pour le statut de Team Leader ou Influencer</strong><br><span style="color:#71717a;font-size:13px">Contactez l\'admin sur Telegram pour débloquer des avantages exclusifs au fur et à mesure que votre équipe grandit</span>',
+    'onchain_notice': '🔗 <strong>Tous les gains sont distribués on-chain via la vérification Merkle Tree.</strong> Polnation ne conserve pas les fonds des utilisateurs — chaque paiement USDC est traçable et vérifiable sur Polygon. Les membres peuvent vérifier zéro approbation de token à tout moment via Polygon scan.',
+    'risk_disclaimer': '<strong>Avertissement sur les Risques :</strong> Les projections de gains et les chiffres présentés dans ce guide sont des estimations illustratives basées sur la configuration actuelle de la plateforme et ne constituent pas des conseils financiers ou des garanties de rendement. Les gains réels dépendent de la croissance de l\'équipe, des conditions du marché, des revenus de la plateforme et des niveaux d\'activité individuels. Les investissements en cryptomonnaie comportent des risques inhérents. Les participants doivent effectuer leur propre due diligence avant de rejoindre. Polnation opère dans l\'écosystème blockchain Polygon ; l\'activité on-chain est soumise aux conditions du réseau. © 2025 Polnation. Tous droits réservés.',
+    /* Plain-text captions & table cells */
+    'Fig 1 — Seven income streams connected to a single earning account': 'Fig. 1 — Sept sources de revenus connectées à un seul compte de gains',
+    'Fig 2 — Balance tier structure and daily distribution timeline': 'Fig. 2 — Structure des tiers de solde et calendrier de distribution quotidienne',
+    'Fig 2 — Referral commission flows upward through all 6 levels automatically': 'Fig. 2 — Les commissions de parrainage remontent automatiquement à travers les 6 niveaux',
+    'Fig 3 — Spin Wheel prize distribution (weighted probability)': 'Fig. 3 — Distribution des prix de la Roue de Spin (probabilité pondérée)',
+    'Fig 5 — Quest chapter progression; tasks within each chapter are completable in parallel': 'Fig. 5 — Progression des chapitres de Quête ; les tâches de chaque chapitre sont réalisables en parallèle',
+    'Fig 6 — Team Leader support resources and privileges': 'Fig. 6 — Ressources de soutien et privilèges du Team Leader',
+    'Fig 7 — Normal vs. Influencer volume requirements per level (shorter bar = easier unlock)': 'Fig. 7 — Exigences de volume Normal vs. Influencer par niveau (barre plus courte = déblocage plus facile)',
+    'Your direct referral': 'Votre parrainage direct',
+    "Your referral's referral": 'Le parrainage de votre filleul',
+    '3rd generation': '3ème génération',
+    '4th generation': '4ème génération',
+    '5th generation': '5ème génération',
+    '6th generation': '6ème génération',
+    'Total (all 6 levels)': 'Total (tous les 6 niveaux)',
+    'Try Again': 'Réessayer',
+    'No reward': 'Pas de récompense',
+    'Platform bonus': 'Bonus de plateforme',
+    'Real USDC': 'USDC réel',
+    '+$1 Bonus Credit': '+$1 Crédit Bonus',
+    '+$2 Bonus Credit': '+$2 Crédit Bonus',
+    '+$3 Bonus Credit': '+$3 Crédit Bonus',
+    'Passive': 'Passif',
+    'Per distribution cycle': 'Par cycle de distribution',
+    'Per spin ticket': 'Par ticket de spin',
+    'One-time claim': 'Réclamation unique',
+    'Daily passive': 'Passif quotidien',
+    'One-time': 'Unique',
+    'Per completion': 'Par achèvement',
+    'Passive advantage': 'Avantage passif',
+    'Permanent': 'Permanent',
+    '$0.50 - $150+ per day': '$0,50 - $150+ par jour',
+    'Scales with team size': 'Évolue avec la taille de l\'équipe',
+    '$0.50 – $10 USDC/spin': '$0,50 – $10 USDC/spin',
+    'Up to 50% faster unlock': 'Déverrouillage jusqu\'à 50% plus rapide',
+    '$40+ total': '$40+ au total',
+    'Ch.1 — Onboarding': 'Ch.1 — Intégration',
+    'Ch.2 — Build Group': 'Ch.2 — Construire un Groupe',
+    'Ch.3 — Recruit': 'Ch.3 — Recruter',
+    'Profile, social, wallet activation': 'Profil, réseaux sociaux, activation du portefeuille',
+    'Group 5 members, 20 members, first invite': 'Groupe de 5 membres, 20 membres, première invitation',
+    '3 / 10 / 30 verified referrals': '3 / 10 / 30 parrainages vérifiés',
+    '~$3.50 + spin tickets': '~$3,50 + tickets de spin',
+    '50% off': '-50%',
+    '40% off': '-40%',
+    '30% off': '-30%',
+    '20% off': '-20%',
+    '10% off': '-10%',
+    '5% off': '-5%',
   },
   es: {
     'Complete Earning Guide': 'Guía Completa de Ganancias',
@@ -1786,6 +2050,94 @@ const T = {
     'teampool_decay_12_plus': 'Día 12+: 0.2× (mínimo)',
     'teampool_formula_effective': 'Ingreso Efectivo = Ingreso Base × Momentum (0.2×–1.0×)',
     'Risk Disclaimer:': 'Descargo de Responsabilidad de Riesgo:',
+    /* Body paragraphs */
+    'overview_p1': 'Polnation es una plataforma de ganancias impulsada por la comunidad, construida en la blockchain Polygon. Cada participante puede acceder a <strong>siete fuentes de ingresos distintas</strong> simultáneamente. Las ganancias se distribuyen a través de un <strong>sistema de verificación Merkle Tree</strong> — completamente on-chain, transparente y no custodiado.',
+    'm1_p1': 'El fundamento del sistema de ganancias de Polnation: simplemente <strong>mantén USDC en tu billetera</strong> y recibe recompensas diarias. La plataforma toma instantáneas diarias de todos los saldos on-chain y distribuye recompensas proporcionales a tu nivel de saldo — <strong>sin staking, sin bloqueo, sin aprobaciones de token</strong>.',
+    'm1_howitworks': '💰 <strong>Cómo funciona:</strong> Cada 24 horas, la plataforma lee el saldo USDC de tu billetera mediante la función ERC-20 <code>balanceOf()</code>. Según tu nivel de saldo, se te asigna una asignación de recompensa. Las recompensas se distribuyen vía Merkle Tree y son reclamables inmediatamente.',
+    'm1_keyprincipal': '⚠️ <strong>Principio clave:</strong> Tu USDC nunca abandona tu billetera. La plataforma solo <em>lee</em> tu saldo a través de la función pública <code>balanceOf()</code> — una operación de solo lectura que no requiere ningún permiso. Puedes retirar o transferir tu USDC en cualquier momento sin penalización.',
+    'm1_safe_li1': '<strong>No custodial:</strong> Tu USDC permanece en tu billetera el 100% del tiempo',
+    'm1_safe_li2': '<strong>Sin aprobaciones:</strong> La plataforma nunca llama <code>approve()</code> o <code>transferFrom()</code>',
+    'm1_safe_li3': '<strong>Sin bloqueo:</strong> Usa tu USDC para otras actividades DeFi en cualquier momento',
+    'm1_safe_li4': '<strong>Prueba on-chain:</strong> Todas las lecturas de saldo son públicas en la blockchain Polygon',
+    'm2_p1': 'Cada vez que un miembro de tu red recibe una distribución de ganancias de los ingresos de staking &amp; publicidad de la plataforma, <strong>recibes automáticamente una comisión porcentual</strong> — transmitida hacia arriba a través de la cadena de referidos sin ninguna acción manual.',
+    'm2_howitworks': '💡 <strong>Cómo funciona:</strong> Las comisiones se calculan en el momento de cada ciclo de distribución de airdrop. La plataforma lee el árbol de referidos on-chain y acredita a todos los uplines simultáneamente en un solo lote verificado por Merkle.',
+    'm2_example': '💡 <strong>Ejemplo real:</strong> Tu referido L1 tiene $1,000 USDC en tier Gold (1.05%/día) y gana $10.50/día. Recibes automáticamente <strong>10% de $10.50 = $1.05/día</strong> — ¡solo de una persona! Construye un equipo de 100+ a través de 6 niveles y observa cómo las comisiones pasivas se acumulan.',
+    'm2_keyrule': '⚠️ <strong>Regla clave:</strong> La comisión se gana pasivamente — cada vez que cualquier miembro de tu árbol de 6 niveles recibe una distribución de ganancias, recibes una parte. Cuanto más grande sea tu equipo, más eventos de capitalización ocurren.',
+    'm3_p1': 'La Rueda de Giro es un sistema de recompensas de participación. Los miembros ganan <strong>tickets de giro</strong> completando tareas e invitando amigos. Cada giro tiene un resultado aleatoriamente demostrable extraído de una tabla de premios ponderada.',
+    'm3_step1': '<strong>Completa las misiones</strong> — cada capítulo completado otorga tickets de giro',
+    'm3_step2': '<strong>Invita amigos</strong> — cada referido verificado contribuye a las recompensas de giro',
+    'm3_step3': '<strong>Concesiones de admin</strong> — las campañas y eventos de la plataforma distribuyen giros adicionales',
+    'm3_usdcprize': '✅ Los <strong>premios en USDC</strong> se acreditan directamente en tu saldo de ganancias y pueden retirarse a tu billetera. Los <strong>créditos de bonificación</strong> cuentan para tu umbral de volumen del Team Pool.',
+    'm5_p1': 'El sistema de Misiones guía a cada nuevo miembro a través de <strong>3 capítulos</strong> de tareas de incorporación. Cada tarea completada recompensa con bonos USDC y tickets de giro. Los capítulos se desbloquean secuencialmente; las tareas dentro de cada capítulo pueden completarse en cualquier orden.',
+    'm5_bonuscredits': '🔑 Los <strong>créditos de bonificación</strong> ganados en las tareas se agregan a tu <em>volumen de equipo efectivo</em>, ayudándote a desbloquear niveles más altos del Team Pool más rápido.',
+    'm6_p1': 'Los Líderes de Equipo son miembros que han demostrado compromiso con el crecimiento de una comunidad genuina. Polnation proporciona apoyo dedicado para ayudar a los líderes a escalar eficientemente y maximizar su potencial de ganancias.',
+    'm6_step1': '<strong>Alcanza el nivel Gold o superior</strong> — umbral de volumen de equipo de $7,500',
+    'm6_step2': '<strong>Completa las misiones del Capítulo 2</strong> — verifica tu grupo con el admin en Telegram',
+    'm6_step3': '<strong>Contacta al admin de Polnation</strong> — solicita el estado de líder de equipo y desbloquea beneficios exclusivos',
+    'm6_teamleaders': '🤝 <strong>Los líderes de equipo reciben comunicación directa del admin</strong> para ayudar a verificar miembros, resolver problemas y recibir aviso anticipado de campañas y eventos de bonificación de la plataforma.',
+    'm7_p1': 'Los Influencers verificados reciben <strong>umbrales de volumen de equipo significativamente reducidos</strong> para desbloquear cada nivel comunitario. Esto permite que individuos de alto alcance accedan a pools de recompensas mayores más rápido, sin necesitar un volumen de equipo on-chain tan grande.',
+    'm7_step1': '<strong>Tener una presencia establecida en redes sociales</strong> — Telegram, TikTok, YouTube, Instagram, Twitter/X',
+    'm7_step2': '<strong>Contacta al admin de Polnation en Telegram</strong> — envía tu enlace de perfil y recuento de seguidores para revisión',
+    'm7_step3': '<strong>El admin activa el estado de Influencer</strong> — los umbrales con descuento se aplican de inmediato a tu cuenta',
+    'm7_nontransferable': '⭐ <strong>El estado de Influencer no es transferible</strong> y está sujeto a revisión periódica. Las cuentas deben mantenerse en buen estado para conservar el beneficio. Los descuentos se aplican solo al <em>umbral de desbloqueo de volumen de equipo</em>; las tasas de ingresos diarios siguen siendo las mismas que las de los miembros estándar.',
+    'summary_p1': 'La tabla a continuación resume el potencial máximo de ganancias de cada módulo para un participante activo que construye progresivamente su equipo.',
+    'm0_start_s1': '<strong>Regístrate en polnation.com</strong><br><span style="color:#71717a;font-size:13px">Usa un enlace de referido para vincular correctamente tu cuenta a un equipo</span>',
+    'm0_start_s2': '<strong>Completa las misiones del Capítulo 1</strong><br><span style="color:#71717a;font-size:13px">Configura tu perfil, conecta redes sociales, activa tu distribución Merkle Tree y copia tu enlace de referido</span>',
+    'm0_start_s3': '<strong>Construye tu grupo (Capítulo 2)</strong><br><span style="color:#71717a;font-size:13px">Crea un grupo de Telegram o WhatsApp, comparte tu enlace de referido, crece hasta 5 y luego 20 miembros</span>',
+    'm0_start_s4': '<strong>Observa cómo se desbloquea tu Team Pool (Bronze → Silver → …)</strong><br><span style="color:#71717a;font-size:13px">A medida que crecen los holdings USDC de tu equipo, se alcanzan los umbrales de volumen y los pools de recompensas se vuelven reclamables</span>',
+    'm0_start_s5': '<strong>Recoge ingresos pasivos diarios</strong><br><span style="color:#71717a;font-size:13px">Los miembros Silver+ reciben ganancias USDC diarias automáticas acreditadas en su cuenta</span>',
+    'm0_start_s6': '<strong>Solicita el estado de Líder de Equipo o Influencer</strong><br><span style="color:#71717a;font-size:13px">Contacta al admin en Telegram para desbloquear beneficios exclusivos del programa a medida que tu equipo crece</span>',
+    'onchain_notice': '🔗 <strong>Todas las ganancias se distribuyen on-chain mediante verificación Merkle Tree.</strong> Polnation no custodia fondos de usuarios — cada pago de USDC es rastreable y verificable en Polygon. Los miembros pueden verificar cero aprobaciones de token en cualquier momento a través de Polygon scan.',
+    'risk_disclaimer': '<strong>Descargo de Responsabilidad de Riesgo:</strong> Las proyecciones de ganancias y las cifras presentadas en esta guía son estimaciones ilustrativas basadas en la configuración actual de la plataforma y no constituyen asesoramiento financiero ni garantías de rendimiento. Las ganancias reales dependen del crecimiento del equipo, las condiciones del mercado, los ingresos de la plataforma y los niveles de actividad individual. Las inversiones en criptomonedas conllevan riesgos inherentes. Los participantes deben realizar su propia diligencia debida antes de unirse. Polnation opera dentro del ecosistema blockchain Polygon; la actividad on-chain está sujeta a las condiciones de la red. © 2025 Polnation. Todos los derechos reservados.',
+    /* Plain-text captions & table cells */
+    'Fig 1 — Seven income streams connected to a single earning account': 'Fig. 1 — Siete fuentes de ingresos conectadas a una sola cuenta de ganancias',
+    'Fig 2 — Balance tier structure and daily distribution timeline': 'Fig. 2 — Estructura de niveles de saldo y cronograma de distribución diaria',
+    'Fig 2 — Referral commission flows upward through all 6 levels automatically': 'Fig. 2 — Las comisiones de referido fluyen hacia arriba a través de los 6 niveles automáticamente',
+    'Fig 3 — Spin Wheel prize distribution (weighted probability)': 'Fig. 3 — Distribución de premios de la Rueda de Giro (probabilidad ponderada)',
+    'Fig 5 — Quest chapter progression; tasks within each chapter are completable in parallel': 'Fig. 5 — Progresión de capítulos de Misión; las tareas dentro de cada capítulo son completables en paralelo',
+    'Fig 6 — Team Leader support resources and privileges': 'Fig. 6 — Recursos de apoyo y privilegios del Líder de Equipo',
+    'Fig 7 — Normal vs. Influencer volume requirements per level (shorter bar = easier unlock)': 'Fig. 7 — Requisitos de volumen Normal vs. Influencer por nivel (barra más corta = desbloqueo más fácil)',
+    'Your direct referral': 'Tu referido directo',
+    "Your referral's referral": 'El referido de tu referido',
+    '3rd generation': '3ra generación',
+    '4th generation': '4ta generación',
+    '5th generation': '5ta generación',
+    '6th generation': '6ta generación',
+    'Total (all 6 levels)': 'Total (todos los 6 niveles)',
+    'Try Again': 'Intentar de Nuevo',
+    'No reward': 'Sin recompensa',
+    'Platform bonus': 'Bono de plataforma',
+    'Real USDC': 'USDC real',
+    '+$1 Bonus Credit': '+$1 Crédito de Bonificación',
+    '+$2 Bonus Credit': '+$2 Crédito de Bonificación',
+    '+$3 Bonus Credit': '+$3 Crédito de Bonificación',
+    'Passive': 'Pasivo',
+    'Per distribution cycle': 'Por ciclo de distribución',
+    'Per spin ticket': 'Por ticket de giro',
+    'One-time claim': 'Reclamación única',
+    'Daily passive': 'Pasivo diario',
+    'One-time': 'Único',
+    'Per completion': 'Por finalización',
+    'Passive advantage': 'Ventaja pasiva',
+    'Permanent': 'Permanente',
+    '$0.50 - $150+ per day': '$0.50 - $150+ por día',
+    'Scales with team size': 'Escala con el tamaño del equipo',
+    '$0.50 – $10 USDC/spin': '$0.50 – $10 USDC/giro',
+    'Up to 50% faster unlock': 'Desbloqueo hasta 50% más rápido',
+    '$40+ total': '$40+ en total',
+    'Ch.1 — Onboarding': 'Cap.1 — Incorporación',
+    'Ch.2 — Build Group': 'Cap.2 — Construir Grupo',
+    'Ch.3 — Recruit': 'Cap.3 — Reclutar',
+    'Profile, social, wallet activation': 'Perfil, redes sociales, activación de billetera',
+    'Group 5 members, 20 members, first invite': 'Grupo de 5 miembros, 20 miembros, primera invitación',
+    '3 / 10 / 30 verified referrals': '3 / 10 / 30 referidos verificados',
+    '~$3.50 + spin tickets': '~$3.50 + tickets de giro',
+    '50% off': '50% de descuento',
+    '40% off': '40% de descuento',
+    '30% off': '30% de descuento',
+    '20% off': '20% de descuento',
+    '10% off': '10% de descuento',
+    '5% off': '5% de descuento',
   }
 }
 
