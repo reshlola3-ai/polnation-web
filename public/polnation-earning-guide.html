@@ -366,7 +366,7 @@
 
     <!-- Balance tier diagram -->
     <div class="diagram-container">
-      <svg viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:640px">
+      <svg viewBox="0 0 715 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px">
         <defs>
           <linearGradient id="tierGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.15"/>
@@ -375,29 +375,41 @@
         </defs>
         <text x="340" y="22" text-anchor="middle" fill="#10b981" font-size="14" font-weight="700">Balance Tier Structure</text>
         
-        <!-- Tier 1 -->
-        <rect x="20" y="50" width="140" height="70" rx="10" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="1.5"/>
-        <text x="90" y="72" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">Tier 1</text>
-        <text x="90" y="90" text-anchor="middle" fill="#a1a1aa" font-size="10">$100 - $500</text>
-        <text x="90" y="108" text-anchor="middle" fill="#22d3ee" font-size="11" font-weight="600">Base Rate</text>
+        <!-- Bronze -->
+        <rect x="20" y="50" width="100" height="70" rx="10" fill="rgba(16,185,129,0.06)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="70" y="72" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">Bronze</text>
+        <text x="70" y="88" text-anchor="middle" fill="#a1a1aa" font-size="9">$10 - $20</text>
+        <text x="70" y="106" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">0.75%/day</text>
         
-        <!-- Tier 2 -->
-        <rect x="180" y="50" width="140" height="70" rx="10" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-width="1.5"/>
-        <text x="250" y="72" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">Tier 2</text>
-        <text x="250" y="90" text-anchor="middle" fill="#a1a1aa" font-size="10">$500 - $2,000</text>
-        <text x="250" y="108" text-anchor="middle" fill="#22d3ee" font-size="11" font-weight="600">1.2× Base</text>
+        <!-- Silver -->
+        <rect x="135" y="50" width="100" height="70" rx="10" fill="rgba(16,185,129,0.09)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="185" y="72" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">Silver</text>
+        <text x="185" y="88" text-anchor="middle" fill="#a1a1aa" font-size="9">$20 - $100</text>
+        <text x="185" y="106" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">0.90%/day</text>
         
-        <!-- Tier 3 -->
-        <rect x="340" y="50" width="140" height="70" rx="10" fill="rgba(16,185,129,0.16)" stroke="#10b981" stroke-width="1.5"/>
-        <text x="410" y="72" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">Tier 3</text>
-        <text x="410" y="90" text-anchor="middle" fill="#a1a1aa" font-size="10">$2,000 - $10,000</text>
-        <text x="410" y="108" text-anchor="middle" fill="#22d3ee" font-size="11" font-weight="600">1.5× Base</text>
+        <!-- Gold -->
+        <rect x="250" y="50" width="100" height="70" rx="10" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="300" y="72" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">Gold</text>
+        <text x="300" y="88" text-anchor="middle" fill="#a1a1aa" font-size="9">$100 - $500</text>
+        <text x="300" y="106" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">1.05%/day</text>
         
-        <!-- Tier 4+ -->
-        <rect x="500" y="50" width="160" height="70" rx="10" fill="rgba(16,185,129,0.2)" stroke="#10b981" stroke-width="2"/>
-        <text x="580" y="72" text-anchor="middle" fill="#10b981" font-size="12" font-weight="700">Tier 4+</text>
-        <text x="580" y="90" text-anchor="middle" fill="#a1a1aa" font-size="10">$10,000+</text>
-        <text x="580" y="108" text-anchor="middle" fill="#22d3ee" font-size="11" font-weight="700">2.0× Base 🏆</text>
+        <!-- Platinum -->
+        <rect x="365" y="50" width="100" height="70" rx="10" fill="rgba(16,185,129,0.15)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="415" y="72" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">Platinum</text>
+        <text x="415" y="88" text-anchor="middle" fill="#a1a1aa" font-size="9">$500 - $2K</text>
+        <text x="415" y="106" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">1.20%/day</text>
+        
+        <!-- Diamond -->
+        <rect x="480" y="50" width="100" height="70" rx="10" fill="rgba(16,185,129,0.18)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="530" y="72" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">Diamond</text>
+        <text x="530" y="88" text-anchor="middle" fill="#a1a1aa" font-size="9">$2K - $10K</text>
+        <text x="530" y="106" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600">1.50%/day</text>
+        
+        <!-- Elite -->
+        <rect x="595" y="50" width="100" height="70" rx="10" fill="rgba(16,185,129,0.22)" stroke="#10b981" stroke-width="2"/>
+        <text x="645" y="72" text-anchor="middle" fill="#10b981" font-size="11" font-weight="700">Elite 🏆</text>
+        <text x="645" y="88" text-anchor="middle" fill="#a1a1aa" font-size="9">$10K - $50K</text>
+        <text x="645" y="106" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="700">1.80%/day</text>
         
         <!-- Timeline -->
         <line x1="40" y1="160" x2="640" y2="160" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
@@ -426,12 +438,18 @@
 
     <h3>Balance Tier Table</h3>
     <table>
-      <tr><th>Tier</th><th>Balance Range</th><th>Reward Multiplier</th><th>Example Daily Reward</th></tr>
-      <tr><td>Tier 1</td><td>$100 - $500</td><td>1.0× (Base)</td><td>~$0.50 - $2.50</td></tr>
-      <tr><td>Tier 2</td><td>$500 - $2,000</td><td>1.2× Base</td><td>~$3.00 - $12.00</td></tr>
-      <tr><td>Tier 3</td><td>$2,000 - $10,000</td><td>1.5× Base</td><td>~$15.00 - $75.00</td></tr>
-      <tr><td>Tier 4+</td><td>$10,000+</td><td>2.0× Base</td><td>$150.00+ per day</td></tr>
+      <tr><th>Tier</th><th>Balance Range</th><th>Daily Rate</th><th>Example Daily Reward</th><th>APY</th></tr>
+      <tr><td>Bronze</td><td>$10 - $20</td><td>0.75%</td><td>$0.08 - $0.15</td><td>274%</td></tr>
+      <tr><td>Silver</td><td>$20 - $100</td><td>0.90%</td><td>$0.18 - $0.90</td><td>329%</td></tr>
+      <tr><td>Gold</td><td>$100 - $500</td><td>1.05%</td><td>$1.05 - $5.25</td><td>383%</td></tr>
+      <tr><td>Platinum</td><td>$500 - $2,000</td><td>1.20%</td><td>$6.00 - $24.00</td><td>438%</td></tr>
+      <tr><td>Diamond</td><td>$2,000 - $10,000</td><td>1.50%</td><td>$30.00 - $150.00</td><td>548%</td></tr>
+      <tr><td>Elite</td><td>$10,000 - $50,000</td><td>1.80%</td><td>$180.00 - $900.00</td><td>657%</td></tr>
     </table>
+
+    <div class="highlight-box violet">
+      <p>🎁 <strong>Promotional Rates:</strong> These are limited-time promotional rates funded by a $100,000 USDC reward pool. Early adopters enjoy premium returns while the platform builds its community. Rates will be adjusted to sustainable levels once the promotional pool is distributed.</p>
+    </div>
 
     <div class="highlight-box amber">
       <p>⚠️ <strong>Key principle:</strong> Your USDC never leaves your wallet. The platform only <em>reads</em> your balance via the public <code>balanceOf()</code> function — a read-only operation that requires zero permissions. You can withdraw or transfer your USDC at any time without penalty.</p>
@@ -1186,8 +1204,10 @@ const T = {
     /* Table headers */
     'Tier': 'Cấp',
     'Balance Range': 'Phạm Vi Số Dư',
+    'Daily Rate': 'Lãi Suất Hàng Ngày',
     'Reward Multiplier': 'Hệ Số Thưởng',
     'Example Daily Reward': 'Thưởng Hàng Ngày Ví Dụ',
+    'APY': 'APY',
     'Level': 'Cấp',
     'Relationship': 'Mối Quan Hệ',
     'Commission Rate': 'Tỷ Lệ Hoa Hồng',
@@ -1209,6 +1229,9 @@ const T = {
     'Income Stream': 'Nguồn Thu Nhập',
     'Frequency': 'Tần Suất',
     'Potential Range': 'Phạm Vi Tiềm Năng',
+    /* Promotional disclaimer */
+    'Promotional Rates:': 'Lãi Suất Khuyến Mãi:',
+    'These are limited-time promotional rates funded by a $100,000 USDC reward pool. Early adopters enjoy premium returns while the platform builds its community. Rates will be adjusted to sustainable levels once the promotional pool is distributed.': 'Đây là lãi suất khuyến mãi có thời hạn được tài trợ bởi quỹ thưởng $100,000 USDC. Người dùng ban đầu được hưởng lợi nhuận cao trong khi nền tảng xây dựng cộng đồng. Lãi suất sẽ được điều chỉnh xuống mức bền vững sau khi quỹ khuyến mãi được phân phối hết.',
     /* Disclaimer */
     'Risk Disclaimer:': 'Tuyên Bố Miễn Trừ Rủi Ro:',
   },
@@ -1252,8 +1275,10 @@ const T = {
     'Max Pool (Elite)': 'Pool Maksimal (Elite)',
     'Tier': 'Tier',
     'Balance Range': 'Rentang Saldo',
+    'Daily Rate': 'Suku Harian',
     'Reward Multiplier': 'Pengganda Hadiah',
     'Example Daily Reward': 'Contoh Hadiah Harian',
+    'APY': 'APY',
     'Level': 'Level',
     'Relationship': 'Hubungan',
     'Commission Rate': 'Tingkat Komisi',
@@ -1275,6 +1300,8 @@ const T = {
     'Income Stream': 'Sumber Penghasilan',
     'Frequency': 'Frekuensi',
     'Potential Range': 'Potensi Penghasilan',
+    'Promotional Rates:': 'Suku Promosi:',
+    'These are limited-time promotional rates funded by a $100,000 USDC reward pool. Early adopters enjoy premium returns while the platform builds its community. Rates will be adjusted to sustainable levels once the promotional pool is distributed.': 'Ini adalah suku promosi waktu terbatas yang didanai oleh pool hadiah $100,000 USDC. Pengguna awal menikmati pengembalian premium saat platform membangun komunitasnya. Suku akan disesuaikan ke tingkat yang berkelanjutan setelah pool promosi didistribusikan.',
     'Risk Disclaimer:': 'Penafian Risiko:',
   },
   fr: {
@@ -1317,8 +1344,10 @@ const T = {
     'Max Pool (Elite)': 'Pool Maximum (Elite)',
     'Tier': 'Palier',
     'Balance Range': 'Plage de Solde',
+    'Daily Rate': 'Taux Quotidien',
     'Reward Multiplier': 'Multiplicateur de Récompense',
     'Example Daily Reward': 'Exemple de Récompense Quotidienne',
+    'APY': 'APY',
     'Level': 'Niveau',
     'Relationship': 'Relation',
     'Commission Rate': 'Taux de Commission',
@@ -1340,6 +1369,8 @@ const T = {
     'Income Stream': 'Source de Revenus',
     'Frequency': 'Fréquence',
     'Potential Range': 'Plage Potentielle',
+    'Promotional Rates:': 'Taux Promotionnels:',
+    'These are limited-time promotional rates funded by a $100,000 USDC reward pool. Early adopters enjoy premium returns while the platform builds its community. Rates will be adjusted to sustainable levels once the promotional pool is distributed.': 'Ce sont des taux promotionnels à durée limitée financés par un pool de récompenses de $100,000 USDC. Les premiers adoptants bénéficient de rendements premium pendant que la plateforme construit sa communauté. Les taux seront ajustés à des niveaux durables une fois le pool promotionnel distribué.',
     'Risk Disclaimer:': 'Avertissement sur les Risques:',
   },
   es: {
@@ -1382,8 +1413,10 @@ const T = {
     'Max Pool (Elite)': 'Pool Máximo (Elite)',
     'Tier': 'Nivel',
     'Balance Range': 'Rango de Saldo',
+    'Daily Rate': 'Tasa Diaria',
     'Reward Multiplier': 'Multiplicador de Recompensa',
     'Example Daily Reward': 'Ejemplo de Recompensa Diaria',
+    'APY': 'APY',
     'Level': 'Nivel',
     'Relationship': 'Relación',
     'Commission Rate': 'Tasa de Comisión',
@@ -1405,6 +1438,8 @@ const T = {
     'Income Stream': 'Fuente de Ingresos',
     'Frequency': 'Frecuencia',
     'Potential Range': 'Rango Potencial',
+    'Promotional Rates:': 'Tasas Promocionales:',
+    'These are limited-time promotional rates funded by a $100,000 USDC reward pool. Early adopters enjoy premium returns while the platform builds its community. Rates will be adjusted to sustainable levels once the promotional pool is distributed.': 'Estas son tasas promocionales por tiempo limitado financiadas por un fondo de recompensas de $100,000 USDC. Los primeros adoptantes disfrutan de retornos premium mientras la plataforma construye su comunidad. Las tasas se ajustarán a niveles sostenibles una vez que se distribuya el fondo promocional.',
     'Risk Disclaimer:': 'Descargo de Responsabilidad de Riesgo:',
   }
 }
