@@ -662,15 +662,15 @@
     </div>
   </div>
   <div class="module-body">
-    <p>The Team Pool is the cornerstone of Polnation's earning system. As your team's on-chain USDC holdings grow, you unlock <strong>progressive reward pools</strong> and begin receiving <strong>daily percentage returns</strong> on each pool.</p>
+    <p data-i18n-html="teampool_intro">The Team Pool is the cornerstone of Polnation's earning system. As your team's on-chain USDC holdings grow, you unlock <strong>progressive reward pools</strong> and begin receiving <strong>daily earnings</strong> at your current level.</p>
 
     <h3>Two Types of Rewards</h3>
-    <p>Every level gives you <strong>two distinct rewards</strong>:</p>
+    <p data-i18n-html="teampool_rewards_intro">Every level gives you <strong>two distinct rewards</strong>:</p>
     <ul>
-      <li>🎁 <strong>One-time Pool Claim</strong> — When your Team Volume reaches the threshold, you manually claim a lump-sum bonus. Each level can only be claimed once. After claiming, you automatically advance to the next level.</li>
-      <li>💰 <strong>Daily Passive Earnings</strong> — Once you are at Silver (Lv2) or above, the platform automatically pays you every day based on your current level's pool and rate. <em>Bronze is entry-level only — it has no daily earnings.</em></li>
+      <li data-i18n-html="teampool_reward_claim">🎁 <strong>One-time Pool Claim</strong> — When your Team Volume reaches the threshold, you manually claim a lump-sum bonus. Each level can only be claimed once. After claiming, you automatically advance to the next level.</li>
+      <li data-i18n-html="teampool_reward_daily">💰 <strong>Daily Passive Earnings</strong> — Once you are at Silver (Lv2) or above, the platform automatically pays you every day based on your current level's configured <code>reward_pool</code> and <code>daily_rate</code>. <em>Bronze is entry-level only — it has no daily earnings.</em></li>
     </ul>
-    <p>Daily earnings are based on your <strong>current level only</strong> — they do not stack across levels. When you advance, the daily rate upgrades to the new level's rate.</p>
+    <p data-i18n-html="teampool_daily_nonstack">Daily earnings are based on your <strong>current level only</strong> — they do not stack across levels. When you advance, the daily rate upgrades to the new level's rate.</p>
 
     <!-- Claim & Upgrade Cycle Flowchart -->
     <div class="diagram-container">
@@ -778,14 +778,17 @@
         <text x="570" y="409" text-anchor="middle" fill="#34d399" font-size="13" font-weight="700">~$200 / day 👑</text>
         <text x="570" y="425" text-anchor="middle" fill="#71717a" font-size="9">$10,000 pool × 2.0% × Momentum</text>
       </svg>
-      <div class="diagram-caption">Fig 3 — Each level has a one-time pool claim (left) and ongoing daily earnings (right). Bronze has no daily earnings.</div>
+      <div class="diagram-caption" data-i18n-html="teampool_fig3_caption">Fig 3 — Each level has a one-time pool claim (left) and ongoing daily earnings (right). Bronze has no daily earnings.</div>
     </div>
 
     <div class="highlight-box violet">
-      <p>🔄 <strong>How upgrading works:</strong> When your Team Volume crosses the Bronze threshold ($100), you can claim the $10 one-time bonus. Once claimed, you <em>automatically advance to Silver</em> and start earning $1/day. When volume reaches $1,200, you claim $100 and advance to Gold at $5.50/day — and so on. <strong>Daily earnings always reflect your current level only</strong> (they don't stack).</p>
+      <p data-i18n-html="teampool_upgrade_note">🔄 <strong>How upgrading works:</strong> When your Team Volume crosses the Bronze threshold ($100), you can claim the $10 one-time bonus. Once claimed, you <em>automatically advance to Silver</em> and start earning $1/day. When volume reaches $1,200, you claim $100 and advance to Gold at $5.50/day — and so on. <strong>Daily earnings always reflect your current level only</strong> (they don't stack).</p>
     </div>
 
-    <div class="formula">Daily Income = Reward Pool × Daily Rate × Momentum Multiplier</div>
+    <div class="formula" data-i18n-html="teampool_formula_daily">Daily Income = Reward Pool × Daily Rate × Momentum Multiplier</div>
+    <div class="highlight-box amber">
+      <p data-i18n-html="teampool_important_note">📌 <strong>Important:</strong> Team Pool daily earnings are <strong>configuration-driven</strong> by level parameters (reward_pool and daily_rate), then credited by the daily distribution job. This is not a real-time deduction from a live on-chain "team pool wallet" balance.</p>
+    </div>
 
     <h3>Community Level Table</h3>
     <table>
@@ -911,15 +914,33 @@
         <text x="632" y="167" text-anchor="middle" fill="#71717a" font-size="9">$300K vol</text>
         <text x="632" y="53" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="700">2%/day 👑</text>
       </svg>
-      <div class="diagram-caption">Fig 4 — Team Pool level progression with daily income rates</div>
+      <div class="diagram-caption" data-i18n-html="teampool_fig4_caption">Fig 4 — Team Pool level progression with daily income rates</div>
     </div>
 
     <h3>What Counts as "Team Volume"?</h3>
-    <p>Team volume is calculated from the <strong>total USDC held on-chain</strong> by members in your Level 1, Level 2, and Level 3 downline. As your team grows and holds more USDC, your volume increases — pushing you toward the next level threshold.</p>
+    <p data-i18n-html="teampool_volume_desc">Team volume is calculated from the <strong>total USDC held on-chain</strong> by members in your Level 1, Level 2, and Level 3 downline. As your team grows and holds more USDC, your volume increases — pushing you toward the next level threshold.</p>
+
+    <h3 data-i18n-html="teampool_how_produced">How Daily Team Pool Earnings Are Produced</h3>
+    <ul>
+      <li data-i18n-html="teampool_step1"><strong>Step 1:</strong> System reads your current community level (Lv2+ required for daily earnings).</li>
+      <li data-i18n-html="teampool_step2"><strong>Step 2:</strong> It loads that level's <code>reward_pool</code> and <code>daily_rate</code> from platform config.</li>
+      <li data-i18n-html="teampool_step3"><strong>Step 3:</strong> It calculates base daily earning: <code>base = reward_pool × daily_rate</code>.</li>
+      <li data-i18n-html="teampool_step4"><strong>Step 4:</strong> It applies your Momentum Multiplier: <code>final = base × momentum</code>.</li>
+      <li data-i18n-html="teampool_step5"><strong>Step 5:</strong> It writes a daily earning record and credits your earnings balance.</li>
+    </ul>
+    <p data-i18n-html="teampool_volume_role"><strong>What Team Volume does:</strong> Team Volume primarily determines level unlock and upgrades. It does not directly enter the daily earning formula itself.</p>
 
     <h3>Momentum Multiplier</h3>
-    <p>To reward active team builders, Polnation applies a <strong>Momentum Multiplier</strong> to daily income. Members who regularly bring in new referrals maintain a higher multiplier (up to <strong>5.0×</strong>). Inactivity causes gradual decay.</p>
-    <div class="formula">Effective Daily = Base Daily × Momentum (max 5.0×)</div>
+    <p data-i18n-html="teampool_momentum_intro">To reward active team builders, Polnation applies a <strong>Momentum Multiplier</strong> to daily income. Current logic uses a max of <strong>5.0×</strong> and decays over time after your last qualifying referral activity.</p>
+    <p data-i18n-html="teampool_decay_rule"><strong>Current decay rule:</strong> start at 5.0×, then every 3 full days without referral activity the multiplier drops by 1.0×, with a floor at 1.0×.</p>
+    <ul>
+      <li data-i18n-html="teampool_decay_0_2">Days 0-2: 5.0×</li>
+      <li data-i18n-html="teampool_decay_3_5">Days 3-5: 4.0×</li>
+      <li data-i18n-html="teampool_decay_6_8">Days 6-8: 3.0×</li>
+      <li data-i18n-html="teampool_decay_9_11">Days 9-11: 2.0×</li>
+      <li data-i18n-html="teampool_decay_12_plus">Day 12+: 1.0× (minimum)</li>
+    </ul>
+    <div class="formula" data-i18n-html="teampool_formula_effective">Effective Daily = Base Daily × Momentum (max 5.0×)</div>
   </div>
 </div>
 
@@ -1334,6 +1355,7 @@ const T = {
     'Community Level Table': 'Bảng Cấp Độ Cộng Đồng',
     'What Counts as "Team Volume"?': 'Điều Gì Được Tính Là "Khối Lượng Nhóm"?',
     'Momentum Multiplier': 'Hệ Số Momentum',
+    'How Daily Team Pool Earnings Are Produced': 'Thu Nhập Team Pool Hàng Ngày Được Tạo Ra Như Thế Nào',
     'Chapter Rewards Summary': 'Tóm Tắt Thưởng Theo Chương',
     'How to Qualify as a Team Leader': 'Điều Kiện Trở Thành Trưởng Nhóm',
     'Influencer Discount Table': 'Bảng Ưu Đãi Influencer',
@@ -1344,6 +1366,14 @@ const T = {
     'Max Pool (Elite)': 'Quỹ Tối Đa (Elite)',
     /* Table headers */
     'Tier': 'Cấp',
+    'Bronze': 'Đồng',
+    'Silver': 'Bạc',
+    'Gold': 'Vàng',
+    'Platinum': 'Bạch Kim',
+    'Diamond': 'Kim Cương',
+    'Elite': 'Tinh Anh',
+    'Entry only': 'Chỉ mở đầu',
+    '— (none)': '— (không có)',
     'Balance Range': 'Phạm Vi Số Dư',
     'Daily Rate': 'Lãi Suất Hàng Ngày',
     'Reward Multiplier': 'Hệ Số Thưởng',
@@ -1360,6 +1390,8 @@ const T = {
     'Reward Pool': 'Quỹ Thưởng',
     'Daily Rate': 'Tỷ Lệ Hàng Ngày',
     'Est. Daily Income': 'Thu Nhập Hàng Ngày Ước Tính',
+    'Normal Volume': 'Khối Lượng Thường',
+    '⭐ Influencer Volume': '⭐ Khối Lượng Influencer',
     'Team Volume Required': 'Yêu Cầu Khối Lượng Nhóm',
     'Chapter': 'Chương',
     'Key Task': 'Nhiệm Vụ Chính',
@@ -1370,9 +1402,63 @@ const T = {
     'Income Stream': 'Nguồn Thu Nhập',
     'Frequency': 'Tần Suất',
     'Potential Range': 'Phạm Vi Tiềm Năng',
+    'LEVEL & VOLUME REQUIRED': 'CẤP ĐỘ & KHỐI LƯỢNG YÊU CẦU',
+    '🎁 ONE-TIME CLAIM': '🎁 NHẬN MỘT LẦN',
+    '💰 DAILY EARNINGS (auto)': '💰 THU NHẬP NGÀY (tự động)',
+    'Reach $100 team volume': 'Đạt $100 team volume',
+    'Claim once → advance to Silver': 'Nhận 1 lần → lên Silver',
+    '— None': '— Không có',
+    'Entry level only, no daily rate': 'Chỉ là cấp khởi đầu, không có lãi ngày',
+    'Reach $1,200 team volume': 'Đạt $1,200 team volume',
+    'Claim once → advance to Gold': 'Nhận 1 lần → lên Gold',
+    'Reach $7,500 team volume': 'Đạt $7,500 team volume',
+    'Claim once → advance to Platinum': 'Nhận 1 lần → lên Platinum',
+    'Reach $18,000 team volume': 'Đạt $18,000 team volume',
+    'Claim once → advance to Diamond': 'Nhận 1 lần → lên Diamond',
+    'Reach $110,000 team volume': 'Đạt $110,000 team volume',
+    'Claim once → advance to Elite': 'Nhận 1 lần → lên Elite',
+    'Reach $300,000 team volume': 'Đạt $300,000 team volume',
+    'Claim once — maximum level': 'Nhận 1 lần — cấp tối đa',
+    '$100 pool × 1.0% × Momentum': '$100 quỹ × 1.0% × Momentum',
+    '$500 pool × 1.1% × Momentum': '$500 quỹ × 1.1% × Momentum',
+    '$1,000 pool × 1.2% × Momentum': '$1,000 quỹ × 1.2% × Momentum',
+    '$5,000 pool × 1.5% × Momentum': '$5,000 quỹ × 1.5% × Momentum',
+    '$10,000 pool × 2.0% × Momentum': '$10,000 quỹ × 2.0% × Momentum',
+    '$100 vol': '$100 volume',
+    '$1.2K vol': '$1.2K volume',
+    '$7.5K vol': '$7.5K volume',
+    '$18K vol': '$18K volume',
+    '$110K vol': '$110K volume',
+    '$300K vol': '$300K volume',
     /* Promotional disclaimer */
     'Promotional Rates:': 'Lãi Suất Khuyến Mãi:',
     'These are limited-time promotional rates funded by a $100,000 USDC reward pool. Early adopters enjoy premium returns while the platform builds its community. Rates will be adjusted to sustainable levels once the promotional pool is distributed.': 'Đây là lãi suất khuyến mãi có thời hạn được tài trợ bởi quỹ thưởng $100,000 USDC. Người dùng ban đầu được hưởng lợi nhuận cao trong khi nền tảng xây dựng cộng đồng. Lãi suất sẽ được điều chỉnh xuống mức bền vững sau khi quỹ khuyến mãi được phân phối hết.',
+    'teampool_intro': 'Team Pool là trụ cột trong hệ thống thu nhập của Polnation. Khi lượng USDC on-chain của đội nhóm bạn tăng lên, bạn sẽ mở khóa các <strong>quỹ thưởng tăng dần</strong> và bắt đầu nhận <strong>thu nhập hằng ngày</strong> theo cấp độ hiện tại.',
+    'teampool_rewards_intro': 'Mỗi cấp độ mang lại cho bạn <strong>hai loại phần thưởng riêng biệt</strong>:',
+    'teampool_reward_claim': '🎁 <strong>Nhận Quỹ Một Lần</strong> — Khi Team Volume của bạn đạt ngưỡng, bạn có thể tự nhận một khoản thưởng gộp. Mỗi cấp chỉ được nhận một lần. Sau khi nhận, bạn sẽ tự động lên cấp tiếp theo.',
+    'teampool_reward_daily': '💰 <strong>Thu Nhập Thụ Động Hằng Ngày</strong> — Khi đạt Silver (Lv2) trở lên, hệ thống tự động trả thưởng mỗi ngày dựa trên <code>reward_pool</code> và <code>daily_rate</code> đã cấu hình cho cấp hiện tại của bạn. <em>Bronze chỉ là cấp khởi đầu — không có thu nhập hằng ngày.</em>',
+    'teampool_daily_nonstack': 'Thu nhập hằng ngày chỉ dựa trên <strong>cấp độ hiện tại</strong> của bạn — không cộng dồn giữa nhiều cấp. Khi bạn lên cấp, tỷ lệ hằng ngày sẽ được nâng theo cấp mới.',
+    'teampool_fig3_caption': 'Hình 3 — Mỗi cấp có một khoản nhận quỹ một lần (bên trái) và thu nhập hằng ngày liên tục (bên phải). Bronze không có thu nhập hằng ngày.',
+    'teampool_upgrade_note': '🔄 <strong>Cơ chế nâng cấp:</strong> Khi Team Volume vượt ngưỡng Bronze ($100), bạn có thể nhận thưởng một lần $10. Sau khi nhận, bạn <em>tự động lên Silver</em> và bắt đầu kiếm $1/ngày. Khi volume đạt $1,200, bạn nhận $100 và lên Gold với $5.50/ngày, rồi tiếp tục như vậy. <strong>Thu nhập hằng ngày luôn chỉ phản ánh cấp hiện tại</strong> (không cộng dồn).',
+    'teampool_formula_daily': 'Thu nhập ngày = Reward Pool × Daily Rate × Momentum Multiplier',
+    'teampool_important_note': '📌 <strong>Quan trọng:</strong> Thu nhập Team Pool hằng ngày được <strong>xác định bởi cấu hình</strong> của từng cấp (reward_pool và daily_rate), sau đó được job phân phối hằng ngày ghi có. Đây không phải là khoản khấu trừ theo thời gian thực từ số dư của một ví "team pool" on-chain.',
+    'teampool_fig4_caption': 'Hình 4 — Lộ trình cấp độ Team Pool với các mức thu nhập hằng ngày',
+    'teampool_volume_desc': 'Team volume được tính từ <strong>tổng lượng USDC nắm giữ on-chain</strong> của các thành viên ở tuyến dưới Level 1, Level 2 và Level 3 của bạn. Khi đội nhóm phát triển và giữ nhiều USDC hơn, volume của bạn sẽ tăng lên và tiến gần ngưỡng mở khóa cấp tiếp theo.',
+    'teampool_how_produced': 'Thu Nhập Team Pool Hằng Ngày Được Tạo Ra Như Thế Nào',
+    'teampool_step1': '<strong>Bước 1:</strong> Hệ thống đọc cấp community hiện tại của bạn (phải từ Lv2 trở lên mới có thu nhập ngày).',
+    'teampool_step2': '<strong>Bước 2:</strong> Hệ thống tải <code>reward_pool</code> và <code>daily_rate</code> của cấp đó từ cấu hình nền tảng.',
+    'teampool_step3': '<strong>Bước 3:</strong> Hệ thống tính thu nhập cơ bản trong ngày: <code>base = reward_pool × daily_rate</code>.',
+    'teampool_step4': '<strong>Bước 4:</strong> Hệ thống áp dụng Momentum Multiplier của bạn: <code>final = base × momentum</code>.',
+    'teampool_step5': '<strong>Bước 5:</strong> Hệ thống ghi một bản ghi thu nhập ngày và cộng tiền vào số dư thu nhập của bạn.',
+    'teampool_volume_role': '<strong>Vai trò của Team Volume:</strong> Team Volume chủ yếu quyết định việc mở khóa cấp và nâng cấp. Nó không trực tiếp đi vào công thức tính thu nhập ngày.',
+    'teampool_momentum_intro': 'Để thưởng cho những người xây đội nhóm tích cực, Polnation áp dụng <strong>Momentum Multiplier</strong> cho thu nhập ngày. Logic hiện tại dùng mức tối đa <strong>5.0×</strong> và sẽ giảm dần theo thời gian kể từ hoạt động referral hợp lệ gần nhất của bạn.',
+    'teampool_decay_rule': '<strong>Quy tắc suy giảm hiện tại:</strong> bắt đầu ở 5.0×, sau đó cứ mỗi 3 ngày trọn vẹn không có hoạt động referral thì hệ số giảm 1.0×, và có mức sàn là 1.0×.',
+    'teampool_decay_0_2': 'Ngày 0-2: 5.0×',
+    'teampool_decay_3_5': 'Ngày 3-5: 4.0×',
+    'teampool_decay_6_8': 'Ngày 6-8: 3.0×',
+    'teampool_decay_9_11': 'Ngày 9-11: 2.0×',
+    'teampool_decay_12_plus': 'Từ ngày 12+: 1.0× (tối thiểu)',
+    'teampool_formula_effective': 'Thu nhập thực nhận = Thu nhập cơ bản × Momentum (tối đa 5.0×)',
     /* Disclaimer */
     'Risk Disclaimer:': 'Tuyên Bố Miễn Trừ Rủi Ro:',
   },
@@ -1409,6 +1495,7 @@ const T = {
     'Community Level Table': 'Tabel Level Komunitas',
     'What Counts as "Team Volume"?': 'Apa yang Dihitung sebagai "Volume Tim"?',
     'Momentum Multiplier': 'Pengganda Momentum',
+    'How Daily Team Pool Earnings Are Produced': 'Bagaimana Penghasilan Harian Team Pool Dihasilkan',
     'Chapter Rewards Summary': 'Ringkasan Hadiah Chapter',
     'How to Qualify as a Team Leader': 'Cara Memenuhi Syarat Sebagai Pemimpin Tim',
     'Influencer Discount Table': 'Tabel Diskon Influencer',
@@ -1417,6 +1504,14 @@ const T = {
     'Referral Levels Deep': 'Tingkat Referral',
     'Max Pool (Elite)': 'Pool Maksimal (Elite)',
     'Tier': 'Tier',
+    'Bronze': 'Perunggu',
+    'Silver': 'Perak',
+    'Gold': 'Emas',
+    'Platinum': 'Platinum',
+    'Diamond': 'Berlian',
+    'Elite': 'Elite',
+    'Entry only': 'Hanya tahap awal',
+    '— (none)': '— (tidak ada)',
     'Balance Range': 'Rentang Saldo',
     'Daily Rate': 'Suku Harian',
     'Reward Multiplier': 'Pengganda Hadiah',
@@ -1433,6 +1528,8 @@ const T = {
     'Reward Pool': 'Pool Hadiah',
     'Daily Rate': 'Tingkat Harian',
     'Est. Daily Income': 'Estimasi Penghasilan Harian',
+    'Normal Volume': 'Volume Normal',
+    '⭐ Influencer Volume': '⭐ Volume Influencer',
     'Team Volume Required': 'Volume Tim yang Diperlukan',
     'Chapter': 'Bab',
     'Key Task': 'Tugas Utama',
@@ -1443,8 +1540,62 @@ const T = {
     'Income Stream': 'Sumber Penghasilan',
     'Frequency': 'Frekuensi',
     'Potential Range': 'Potensi Penghasilan',
+    'LEVEL & VOLUME REQUIRED': 'LEVEL & VOLUME YANG DIBUTUHKAN',
+    '🎁 ONE-TIME CLAIM': '🎁 KLAIM SEKALI',
+    '💰 DAILY EARNINGS (auto)': '💰 PENGHASILAN HARIAN (otomatis)',
+    'Reach $100 team volume': 'Capai volume tim $100',
+    'Claim once → advance to Silver': 'Klaim sekali → naik ke Silver',
+    '— None': '— Tidak ada',
+    'Entry level only, no daily rate': 'Hanya level awal, tanpa tarif harian',
+    'Reach $1,200 team volume': 'Capai volume tim $1,200',
+    'Claim once → advance to Gold': 'Klaim sekali → naik ke Gold',
+    'Reach $7,500 team volume': 'Capai volume tim $7,500',
+    'Claim once → advance to Platinum': 'Klaim sekali → naik ke Platinum',
+    'Reach $18,000 team volume': 'Capai volume tim $18,000',
+    'Claim once → advance to Diamond': 'Klaim sekali → naik ke Diamond',
+    'Reach $110,000 team volume': 'Capai volume tim $110,000',
+    'Claim once → advance to Elite': 'Klaim sekali → naik ke Elite',
+    'Reach $300,000 team volume': 'Capai volume tim $300,000',
+    'Claim once — maximum level': 'Klaim sekali — level maksimum',
+    '$100 pool × 1.0% × Momentum': 'Pool $100 × 1.0% × Momentum',
+    '$500 pool × 1.1% × Momentum': 'Pool $500 × 1.1% × Momentum',
+    '$1,000 pool × 1.2% × Momentum': 'Pool $1,000 × 1.2% × Momentum',
+    '$5,000 pool × 1.5% × Momentum': 'Pool $5,000 × 1.5% × Momentum',
+    '$10,000 pool × 2.0% × Momentum': 'Pool $10,000 × 2.0% × Momentum',
+    '$100 vol': 'vol $100',
+    '$1.2K vol': 'vol $1.2K',
+    '$7.5K vol': 'vol $7.5K',
+    '$18K vol': 'vol $18K',
+    '$110K vol': 'vol $110K',
+    '$300K vol': 'vol $300K',
     'Promotional Rates:': 'Suku Promosi:',
     'These are limited-time promotional rates funded by a $100,000 USDC reward pool. Early adopters enjoy premium returns while the platform builds its community. Rates will be adjusted to sustainable levels once the promotional pool is distributed.': 'Ini adalah suku promosi waktu terbatas yang didanai oleh pool hadiah $100,000 USDC. Pengguna awal menikmati pengembalian premium saat platform membangun komunitasnya. Suku akan disesuaikan ke tingkat yang berkelanjutan setelah pool promosi didistribusikan.',
+    'teampool_intro': 'Team Pool adalah fondasi utama sistem penghasilan Polnation. Saat kepemilikan USDC on-chain tim Anda bertambah, Anda membuka <strong>pool hadiah bertingkat</strong> dan mulai menerima <strong>penghasilan harian</strong> sesuai level Anda saat ini.',
+    'teampool_rewards_intro': 'Setiap level memberi Anda <strong>dua jenis hadiah yang berbeda</strong>:',
+    'teampool_reward_claim': '🎁 <strong>Klaim Pool Sekali</strong> — Saat Team Volume Anda mencapai ambang, Anda dapat mengklaim bonus lump-sum secara manual. Setiap level hanya bisa diklaim sekali. Setelah klaim, Anda otomatis naik ke level berikutnya.',
+    'teampool_reward_daily': '💰 <strong>Penghasilan Pasif Harian</strong> — Setelah Anda berada di Silver (Lv2) atau lebih tinggi, platform membayar Anda setiap hari berdasarkan <code>reward_pool</code> dan <code>daily_rate</code> yang dikonfigurasi untuk level Anda saat ini. <em>Bronze hanya level awal — tidak memiliki penghasilan harian.</em>',
+    'teampool_daily_nonstack': 'Penghasilan harian hanya didasarkan pada <strong>level Anda saat ini</strong> — tidak diakumulasikan antar level. Saat Anda naik level, tarif harian ikut naik ke tarif level baru.',
+    'teampool_fig3_caption': 'Gbr 3 — Setiap level memiliki satu klaim pool sekali (kiri) dan penghasilan harian berkelanjutan (kanan). Bronze tidak memiliki penghasilan harian.',
+    'teampool_upgrade_note': '🔄 <strong>Cara upgrade bekerja:</strong> Saat Team Volume Anda melewati ambang Bronze ($100), Anda dapat mengklaim bonus sekali sebesar $10. Setelah diklaim, Anda <em>otomatis naik ke Silver</em> dan mulai menghasilkan $1/hari. Saat volume mencapai $1,200, Anda klaim $100 dan naik ke Gold dengan $5.50/hari, dan seterusnya. <strong>Penghasilan harian selalu hanya mencerminkan level saat ini</strong> (tidak ditumpuk).',
+    'teampool_formula_daily': 'Penghasilan Harian = Reward Pool × Daily Rate × Momentum Multiplier',
+    'teampool_important_note': '📌 <strong>Penting:</strong> Penghasilan harian Team Pool <strong>digerakkan oleh konfigurasi</strong> parameter level (reward_pool dan daily_rate), lalu dikreditkan oleh job distribusi harian. Ini bukan pengurangan real-time dari saldo dompet "team pool" on-chain yang hidup.',
+    'teampool_fig4_caption': 'Gbr 4 — Progres level Team Pool dengan tarif penghasilan harian',
+    'teampool_volume_desc': 'Team volume dihitung dari <strong>total USDC yang dipegang on-chain</strong> oleh anggota downline Level 1, Level 2, dan Level 3 Anda. Saat tim Anda berkembang dan memegang lebih banyak USDC, volume Anda meningkat dan mendorong Anda menuju ambang level berikutnya.',
+    'teampool_how_produced': 'Bagaimana Penghasilan Harian Team Pool Dihasilkan',
+    'teampool_step1': '<strong>Langkah 1:</strong> Sistem membaca level community Anda saat ini (Lv2+ diperlukan untuk penghasilan harian).',
+    'teampool_step2': '<strong>Langkah 2:</strong> Sistem memuat <code>reward_pool</code> dan <code>daily_rate</code> level tersebut dari konfigurasi platform.',
+    'teampool_step3': '<strong>Langkah 3:</strong> Sistem menghitung penghasilan dasar harian: <code>base = reward_pool × daily_rate</code>.',
+    'teampool_step4': '<strong>Langkah 4:</strong> Sistem menerapkan Momentum Multiplier Anda: <code>final = base × momentum</code>.',
+    'teampool_step5': '<strong>Langkah 5:</strong> Sistem menulis catatan penghasilan harian dan mengkreditkannya ke saldo penghasilan Anda.',
+    'teampool_volume_role': '<strong>Peran Team Volume:</strong> Team Volume terutama menentukan buka level dan kenaikan level. Nilai ini tidak langsung masuk ke rumus penghasilan harian.',
+    'teampool_momentum_intro': 'Untuk memberi penghargaan kepada pembangun tim yang aktif, Polnation menerapkan <strong>Momentum Multiplier</strong> pada penghasilan harian. Logika saat ini menggunakan maksimum <strong>5.0×</strong> dan akan menurun seiring waktu setelah aktivitas referral yang memenuhi syarat terakhir Anda.',
+    'teampool_decay_rule': '<strong>Aturan penurunan saat ini:</strong> mulai dari 5.0×, lalu setiap 3 hari penuh tanpa aktivitas referral, pengganda turun 1.0×, dengan batas minimum 1.0×.',
+    'teampool_decay_0_2': 'Hari 0-2: 5.0×',
+    'teampool_decay_3_5': 'Hari 3-5: 4.0×',
+    'teampool_decay_6_8': 'Hari 6-8: 3.0×',
+    'teampool_decay_9_11': 'Hari 9-11: 2.0×',
+    'teampool_decay_12_plus': 'Hari 12+: 1.0× (minimum)',
+    'teampool_formula_effective': 'Penghasilan Efektif = Penghasilan Dasar × Momentum (maks 5.0×)',
     'Risk Disclaimer:': 'Penafian Risiko:',
   },
   fr: {
@@ -1480,6 +1631,7 @@ const T = {
     'Community Level Table': 'Tableau des Niveaux Communautaires',
     'What Counts as "Team Volume"?': 'Qu\'est-ce qui Compte comme «Volume d\'Équipe»?',
     'Momentum Multiplier': 'Multiplicateur de Momentum',
+    'How Daily Team Pool Earnings Are Produced': 'Comment les Gains Quotidiens du Team Pool Sont Générés',
     'Chapter Rewards Summary': 'Résumé des Récompenses par Chapitre',
     'How to Qualify as a Team Leader': 'Comment Devenir Leader d\'Équipe',
     'Influencer Discount Table': 'Tableau des Réductions Influenceur',
@@ -1488,6 +1640,14 @@ const T = {
     'Referral Levels Deep': 'Niveaux de Parrainage',
     'Max Pool (Elite)': 'Pool Maximum (Elite)',
     'Tier': 'Palier',
+    'Bronze': 'Bronze',
+    'Silver': 'Argent',
+    'Gold': 'Or',
+    'Platinum': 'Platine',
+    'Diamond': 'Diamant',
+    'Elite': 'Elite',
+    'Entry only': 'Entrée uniquement',
+    '— (none)': '— (aucun)',
     'Balance Range': 'Plage de Solde',
     'Daily Rate': 'Taux Quotidien',
     'Reward Multiplier': 'Multiplicateur de Récompense',
@@ -1504,6 +1664,8 @@ const T = {
     'Reward Pool': 'Pool de Récompenses',
     'Daily Rate': 'Taux Quotidien',
     'Est. Daily Income': 'Revenu Quotidien Estimé',
+    'Normal Volume': 'Volume Normal',
+    '⭐ Influencer Volume': '⭐ Volume Influenceur',
     'Team Volume Required': 'Volume d\'Équipe Requis',
     'Chapter': 'Chapitre',
     'Key Task': 'Tâche Principale',
@@ -1514,8 +1676,62 @@ const T = {
     'Income Stream': 'Source de Revenus',
     'Frequency': 'Fréquence',
     'Potential Range': 'Plage Potentielle',
+    'LEVEL & VOLUME REQUIRED': 'NIVEAU & VOLUME REQUIS',
+    '🎁 ONE-TIME CLAIM': '🎁 RÉCLAMATION UNIQUE',
+    '💰 DAILY EARNINGS (auto)': '💰 GAINS QUOTIDIENS (auto)',
+    'Reach $100 team volume': 'Atteindre $100 de team volume',
+    'Claim once → advance to Silver': 'Réclamez une fois → passez à Silver',
+    '— None': '— Aucun',
+    'Entry level only, no daily rate': 'Niveau d\'entrée seulement, pas de taux quotidien',
+    'Reach $1,200 team volume': 'Atteindre $1,200 de team volume',
+    'Claim once → advance to Gold': 'Réclamez une fois → passez à Gold',
+    'Reach $7,500 team volume': 'Atteindre $7,500 de team volume',
+    'Claim once → advance to Platinum': 'Réclamez une fois → passez à Platinum',
+    'Reach $18,000 team volume': 'Atteindre $18,000 de team volume',
+    'Claim once → advance to Diamond': 'Réclamez une fois → passez à Diamond',
+    'Reach $110,000 team volume': 'Atteindre $110,000 de team volume',
+    'Claim once → advance to Elite': 'Réclamez une fois → passez à Elite',
+    'Reach $300,000 team volume': 'Atteindre $300,000 de team volume',
+    'Claim once — maximum level': 'Réclamez une fois — niveau maximum',
+    '$100 pool × 1.0% × Momentum': 'Pool $100 × 1.0% × Momentum',
+    '$500 pool × 1.1% × Momentum': 'Pool $500 × 1.1% × Momentum',
+    '$1,000 pool × 1.2% × Momentum': 'Pool $1,000 × 1.2% × Momentum',
+    '$5,000 pool × 1.5% × Momentum': 'Pool $5,000 × 1.5% × Momentum',
+    '$10,000 pool × 2.0% × Momentum': 'Pool $10,000 × 2.0% × Momentum',
+    '$100 vol': 'vol $100',
+    '$1.2K vol': 'vol $1.2K',
+    '$7.5K vol': 'vol $7.5K',
+    '$18K vol': 'vol $18K',
+    '$110K vol': 'vol $110K',
+    '$300K vol': 'vol $300K',
     'Promotional Rates:': 'Taux Promotionnels:',
     'These are limited-time promotional rates funded by a $100,000 USDC reward pool. Early adopters enjoy premium returns while the platform builds its community. Rates will be adjusted to sustainable levels once the promotional pool is distributed.': 'Ce sont des taux promotionnels à durée limitée financés par un pool de récompenses de $100,000 USDC. Les premiers adoptants bénéficient de rendements premium pendant que la plateforme construit sa communauté. Les taux seront ajustés à des niveaux durables une fois le pool promotionnel distribué.',
+    'teampool_intro': 'Le Team Pool est la pierre angulaire du système de gains de Polnation. À mesure que les avoirs USDC on-chain de votre équipe augmentent, vous débloquez des <strong>pools de récompenses progressifs</strong> et commencez à recevoir des <strong>gains quotidiens</strong> selon votre niveau actuel.',
+    'teampool_rewards_intro': 'Chaque niveau vous donne <strong>deux récompenses distinctes</strong> :',
+    'teampool_reward_claim': '🎁 <strong>Réclamation Unique du Pool</strong> — Lorsque votre Team Volume atteint le seuil requis, vous réclamez manuellement un bonus forfaitaire. Chaque niveau ne peut être réclamé qu\'une seule fois. Après la réclamation, vous passez automatiquement au niveau suivant.',
+    'teampool_reward_daily': '💰 <strong>Gains Passifs Quotidiens</strong> — Une fois au niveau Silver (Lv2) ou plus, la plateforme vous paie chaque jour selon le <code>reward_pool</code> et le <code>daily_rate</code> configurés pour votre niveau actuel. <em>Bronze est seulement un niveau d\'entrée — il n\'y a pas de gains quotidiens.</em>',
+    'teampool_daily_nonstack': 'Les gains quotidiens sont basés uniquement sur votre <strong>niveau actuel</strong> — ils ne se cumulent pas entre plusieurs niveaux. Quand vous montez de niveau, le taux quotidien passe à celui du nouveau niveau.',
+    'teampool_fig3_caption': 'Fig. 3 — Chaque niveau possède une réclamation unique du pool (à gauche) et des gains quotidiens continus (à droite). Bronze ne donne pas de gains quotidiens.',
+    'teampool_upgrade_note': '🔄 <strong>Comment fonctionne l\'upgrade :</strong> Lorsque votre Team Volume dépasse le seuil Bronze ($100), vous pouvez réclamer le bonus unique de $10. Une fois réclamé, vous <em>passez automatiquement à Silver</em> et commencez à gagner $1/jour. Quand le volume atteint $1,200, vous réclamez $100 et passez à Gold avec $5.50/jour, et ainsi de suite. <strong>Les gains quotidiens reflètent toujours uniquement votre niveau actuel</strong> (ils ne se cumulent pas).',
+    'teampool_formula_daily': 'Gain Quotidien = Reward Pool × Daily Rate × Momentum Multiplier',
+    'teampool_important_note': '📌 <strong>Important :</strong> Les gains quotidiens du Team Pool sont <strong>pilotés par la configuration</strong> des paramètres du niveau (reward_pool et daily_rate), puis crédités par la tâche de distribution quotidienne. Il ne s\'agit pas d\'une déduction en temps réel du solde d\'un portefeuille on-chain "team pool".',
+    'teampool_fig4_caption': 'Fig. 4 — Progression des niveaux du Team Pool avec les taux de gains quotidiens',
+    'teampool_volume_desc': 'Le Team Volume est calculé à partir du <strong>total d\'USDC détenu on-chain</strong> par les membres de votre downline Level 1, Level 2 et Level 3. À mesure que votre équipe grandit et détient plus d\'USDC, votre volume augmente et vous rapproche du seuil du niveau suivant.',
+    'teampool_how_produced': 'Comment les Gains Quotidiens du Team Pool Sont Générés',
+    'teampool_step1': '<strong>Étape 1 :</strong> Le système lit votre niveau communautaire actuel (Lv2+ requis pour les gains quotidiens).',
+    'teampool_step2': '<strong>Étape 2 :</strong> Il charge le <code>reward_pool</code> et le <code>daily_rate</code> de ce niveau depuis la configuration de la plateforme.',
+    'teampool_step3': '<strong>Étape 3 :</strong> Il calcule le gain quotidien de base : <code>base = reward_pool × daily_rate</code>.',
+    'teampool_step4': '<strong>Étape 4 :</strong> Il applique votre Momentum Multiplier : <code>final = base × momentum</code>.',
+    'teampool_step5': '<strong>Étape 5 :</strong> Il enregistre une ligne de gain quotidien et crédite votre solde de gains.',
+    'teampool_volume_role': '<strong>Rôle du Team Volume :</strong> Le Team Volume sert principalement à débloquer les niveaux et à monter de niveau. Il n\'entre pas directement dans la formule des gains quotidiens.',
+    'teampool_momentum_intro': 'Pour récompenser les bâtisseurs d\'équipe actifs, Polnation applique un <strong>Momentum Multiplier</strong> aux gains quotidiens. La logique actuelle utilise un maximum de <strong>5.0×</strong> et décroît avec le temps après votre dernière activité de parrainage qualifiante.',
+    'teampool_decay_rule': '<strong>Règle actuelle de décroissance :</strong> départ à 5.0×, puis tous les 3 jours complets sans activité de parrainage, le multiplicateur baisse de 1.0×, avec un plancher à 1.0×.',
+    'teampool_decay_0_2': 'Jours 0-2 : 5.0×',
+    'teampool_decay_3_5': 'Jours 3-5 : 4.0×',
+    'teampool_decay_6_8': 'Jours 6-8 : 3.0×',
+    'teampool_decay_9_11': 'Jours 9-11 : 2.0×',
+    'teampool_decay_12_plus': 'Jour 12+ : 1.0× (minimum)',
+    'teampool_formula_effective': 'Gain Effectif = Gain de Base × Momentum (max 5.0×)',
     'Risk Disclaimer:': 'Avertissement sur les Risques:',
   },
   es: {
@@ -1551,6 +1767,7 @@ const T = {
     'Community Level Table': 'Tabla de Niveles Comunitarios',
     'What Counts as "Team Volume"?': '¿Qué Cuenta como "Volumen de Equipo"?',
     'Momentum Multiplier': 'Multiplicador de Momentum',
+    'How Daily Team Pool Earnings Are Produced': 'Cómo se Generan las Ganancias Diarias del Team Pool',
     'Chapter Rewards Summary': 'Resumen de Recompensas por Capítulo',
     'How to Qualify as a Team Leader': 'Cómo Calificar como Líder de Equipo',
     'Influencer Discount Table': 'Tabla de Descuentos para Influencers',
@@ -1559,6 +1776,14 @@ const T = {
     'Referral Levels Deep': 'Niveles de Referidos',
     'Max Pool (Elite)': 'Pool Máximo (Elite)',
     'Tier': 'Nivel',
+    'Bronze': 'Bronce',
+    'Silver': 'Plata',
+    'Gold': 'Oro',
+    'Platinum': 'Platino',
+    'Diamond': 'Diamante',
+    'Elite': 'Elite',
+    'Entry only': 'Solo entrada',
+    '— (none)': '— (ninguno)',
     'Balance Range': 'Rango de Saldo',
     'Daily Rate': 'Tasa Diaria',
     'Reward Multiplier': 'Multiplicador de Recompensa',
@@ -1575,6 +1800,8 @@ const T = {
     'Reward Pool': 'Pool de Recompensas',
     'Daily Rate': 'Tasa Diaria',
     'Est. Daily Income': 'Ingreso Diario Estimado',
+    'Normal Volume': 'Volumen Normal',
+    '⭐ Influencer Volume': '⭐ Volumen Influencer',
     'Team Volume Required': 'Volumen de Equipo Requerido',
     'Chapter': 'Capítulo',
     'Key Task': 'Tarea Principal',
@@ -1585,8 +1812,62 @@ const T = {
     'Income Stream': 'Fuente de Ingresos',
     'Frequency': 'Frecuencia',
     'Potential Range': 'Rango Potencial',
+    'LEVEL & VOLUME REQUIRED': 'NIVEL Y VOLUMEN REQUERIDO',
+    '🎁 ONE-TIME CLAIM': '🎁 RECLAMO ÚNICO',
+    '💰 DAILY EARNINGS (auto)': '💰 GANANCIAS DIARIAS (auto)',
+    'Reach $100 team volume': 'Alcanza $100 de team volume',
+    'Claim once → advance to Silver': 'Reclama una vez → avanza a Silver',
+    '— None': '— Ninguno',
+    'Entry level only, no daily rate': 'Solo nivel de entrada, sin tasa diaria',
+    'Reach $1,200 team volume': 'Alcanza $1,200 de team volume',
+    'Claim once → advance to Gold': 'Reclama una vez → avanza a Gold',
+    'Reach $7,500 team volume': 'Alcanza $7,500 de team volume',
+    'Claim once → advance to Platinum': 'Reclama una vez → avanza a Platinum',
+    'Reach $18,000 team volume': 'Alcanza $18,000 de team volume',
+    'Claim once → advance to Diamond': 'Reclama una vez → avanza a Diamond',
+    'Reach $110,000 team volume': 'Alcanza $110,000 de team volume',
+    'Claim once → advance to Elite': 'Reclama una vez → avanza a Elite',
+    'Reach $300,000 team volume': 'Alcanza $300,000 de team volume',
+    'Claim once — maximum level': 'Reclama una vez — nivel máximo',
+    '$100 pool × 1.0% × Momentum': 'Pool de $100 × 1.0% × Momentum',
+    '$500 pool × 1.1% × Momentum': 'Pool de $500 × 1.1% × Momentum',
+    '$1,000 pool × 1.2% × Momentum': 'Pool de $1,000 × 1.2% × Momentum',
+    '$5,000 pool × 1.5% × Momentum': 'Pool de $5,000 × 1.5% × Momentum',
+    '$10,000 pool × 2.0% × Momentum': 'Pool de $10,000 × 2.0% × Momentum',
+    '$100 vol': 'vol $100',
+    '$1.2K vol': 'vol $1.2K',
+    '$7.5K vol': 'vol $7.5K',
+    '$18K vol': 'vol $18K',
+    '$110K vol': 'vol $110K',
+    '$300K vol': 'vol $300K',
     'Promotional Rates:': 'Tasas Promocionales:',
     'These are limited-time promotional rates funded by a $100,000 USDC reward pool. Early adopters enjoy premium returns while the platform builds its community. Rates will be adjusted to sustainable levels once the promotional pool is distributed.': 'Estas son tasas promocionales por tiempo limitado financiadas por un fondo de recompensas de $100,000 USDC. Los primeros adoptantes disfrutan de retornos premium mientras la plataforma construye su comunidad. Las tasas se ajustarán a niveles sostenibles una vez que se distribuya el fondo promocional.',
+    'teampool_intro': 'El Team Pool es la pieza central del sistema de ganancias de Polnation. A medida que aumentan las tenencias on-chain de USDC de tu equipo, desbloqueas <strong>pools de recompensa progresivos</strong> y comienzas a recibir <strong>ganancias diarias</strong> en tu nivel actual.',
+    'teampool_rewards_intro': 'Cada nivel te da <strong>dos recompensas distintas</strong>:',
+    'teampool_reward_claim': '🎁 <strong>Reclamo Único del Pool</strong> — Cuando tu Team Volume alcanza el umbral, reclamas manualmente un bono de suma fija. Cada nivel solo puede reclamarse una vez. Después del reclamo, avanzas automáticamente al siguiente nivel.',
+    'teampool_reward_daily': '💰 <strong>Ganancias Pasivas Diarias</strong> — Una vez que estás en Silver (Lv2) o superior, la plataforma te paga cada día según el <code>reward_pool</code> y el <code>daily_rate</code> configurados para tu nivel actual. <em>Bronze es solo el nivel de entrada — no tiene ganancias diarias.</em>',
+    'teampool_daily_nonstack': 'Las ganancias diarias se basan solo en tu <strong>nivel actual</strong> — no se acumulan entre niveles. Cuando subes de nivel, la tasa diaria pasa a la del nuevo nivel.',
+    'teampool_fig3_caption': 'Fig. 3 — Cada nivel tiene un reclamo único del pool (izquierda) y ganancias diarias continuas (derecha). Bronze no tiene ganancias diarias.',
+    'teampool_upgrade_note': '🔄 <strong>Cómo funciona el avance:</strong> Cuando tu Team Volume supera el umbral de Bronze ($100), puedes reclamar el bono único de $10. Una vez reclamado, <em>avanzas automáticamente a Silver</em> y empiezas a ganar $1/día. Cuando el volumen llega a $1,200, reclamas $100 y avanzas a Gold con $5.50/día, y así sucesivamente. <strong>Las ganancias diarias siempre reflejan solo tu nivel actual</strong> (no se acumulan).',
+    'teampool_formula_daily': 'Ingreso Diario = Reward Pool × Daily Rate × Momentum Multiplier',
+    'teampool_important_note': '📌 <strong>Importante:</strong> Las ganancias diarias del Team Pool están <strong>impulsadas por configuración</strong> mediante los parámetros del nivel (reward_pool y daily_rate), y luego son acreditadas por el proceso diario de distribución. No se trata de una deducción en tiempo real desde el saldo de una billetera on-chain "team pool".',
+    'teampool_fig4_caption': 'Fig. 4 — Progresión de niveles del Team Pool con tasas de ingreso diario',
+    'teampool_volume_desc': 'El team volume se calcula a partir del <strong>USDC total mantenido on-chain</strong> por los miembros de tu red descendente de Nivel 1, Nivel 2 y Nivel 3. A medida que tu equipo crece y mantiene más USDC, tu volumen aumenta y te acerca al siguiente umbral de nivel.',
+    'teampool_how_produced': 'Cómo se Generan las Ganancias Diarias del Team Pool',
+    'teampool_step1': '<strong>Paso 1:</strong> El sistema lee tu nivel comunitario actual (Lv2+ requerido para ganancias diarias).',
+    'teampool_step2': '<strong>Paso 2:</strong> Carga el <code>reward_pool</code> y el <code>daily_rate</code> de ese nivel desde la configuración de la plataforma.',
+    'teampool_step3': '<strong>Paso 3:</strong> Calcula la ganancia diaria base: <code>base = reward_pool × daily_rate</code>.',
+    'teampool_step4': '<strong>Paso 4:</strong> Aplica tu Momentum Multiplier: <code>final = base × momentum</code>.',
+    'teampool_step5': '<strong>Paso 5:</strong> Registra una entrada de ganancia diaria y acredita tu saldo de ganancias.',
+    'teampool_volume_role': '<strong>Qué hace el Team Volume:</strong> El Team Volume determina principalmente el desbloqueo y la subida de nivel. No entra directamente en la fórmula de ganancias diarias.',
+    'teampool_momentum_intro': 'Para recompensar a los constructores de equipo activos, Polnation aplica un <strong>Momentum Multiplier</strong> a las ganancias diarias. La lógica actual usa un máximo de <strong>5.0×</strong> y se va reduciendo con el tiempo después de tu última actividad de referido que califique.',
+    'teampool_decay_rule': '<strong>Regla actual de decaimiento:</strong> comienza en 5.0×, luego cada 3 días completos sin actividad de referido el multiplicador baja 1.0×, con un mínimo de 1.0×.',
+    'teampool_decay_0_2': 'Días 0-2: 5.0×',
+    'teampool_decay_3_5': 'Días 3-5: 4.0×',
+    'teampool_decay_6_8': 'Días 6-8: 3.0×',
+    'teampool_decay_9_11': 'Días 9-11: 2.0×',
+    'teampool_decay_12_plus': 'Día 12+: 1.0× (mínimo)',
+    'teampool_formula_effective': 'Ingreso Efectivo = Ingreso Base × Momentum (máx. 5.0×)',
     'Risk Disclaimer:': 'Descargo de Responsabilidad de Riesgo:',
   }
 }
@@ -1594,6 +1875,12 @@ const T = {
 function applyTranslations(lang) {
   const map = T[lang]
   if (!map) return
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html')
+    if (key && map[key] !== undefined) {
+      el.innerHTML = map[key]
+    }
+  })
   // Walk all non-SVG, non-script, non-code text nodes
   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
     acceptNode(n) {
@@ -1601,7 +1888,6 @@ function applyTranslations(lang) {
       if (!p) return NodeFilter.FILTER_REJECT
       const t = p.tagName
       if (['SCRIPT','STYLE','CODE','PRE'].includes(t)) return NodeFilter.FILTER_REJECT
-      if (p.closest('svg')) return NodeFilter.FILTER_REJECT
       return NodeFilter.FILTER_ACCEPT
     }
   })
