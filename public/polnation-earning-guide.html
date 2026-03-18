@@ -274,7 +274,7 @@
 
 <!-- ==================== OVERVIEW ==================== -->
 <h2>Overview: Multiple Income Streams, One Platform</h2>
-<p data-i18n-html="overview_p1">Polnation is a community-powered earning platform built on the Polygon blockchain. Every participant can access <strong>seven distinct income streams</strong> simultaneously. Earnings are distributed via a <strong>Merkle Tree verification system</strong> — fully on-chain, transparent, and non-custodial.</p>
+<p data-i18n-html="overview_p1">Polnation is a community-powered distribution platform built on the Polygon blockchain. Every participant can access <strong>seven distinct income streams</strong> simultaneously. Reward distributions are supported by <strong>verifiable protocol revenue</strong> (validator economics), ecosystem incentives, and partnerships, then delivered via a <strong>Merkle Tree verification system</strong> — fully on-chain, transparent, and non-custodial.</p>
 
 <div class="stat-grid">
   <div class="stat-card">
@@ -360,7 +360,7 @@
     </div>
   </div>
   <div class="module-body">
-    <p data-i18n-html="m1_p1">The foundation of Polnation's earning system: simply <strong>hold USDC in your wallet</strong> and receive daily rewards. The platform takes daily snapshots of all user balances on-chain and distributes rewards proportional to your balance tier — <strong>no staking, no lock-up, no token approvals required</strong>.</p>
+    <p data-i18n-html="m1_p1">The foundation of Polnation's Community Dividend: simply <strong>hold USDC in your wallet</strong> and receive daily reward distributions. The platform takes daily snapshots of on-chain balances and assigns you a balance tier (your <em>distribution weight</em>) — <strong>no staking, no lock-up, no token approvals required</strong>.</p>
 
     <div class="highlight-box emerald">
       <p data-i18n-html="m1_howitworks">💰 <strong>How it works:</strong> Every 24 hours, the platform reads your wallet's USDC balance via the ERC-20 <code>balanceOf()</code> function. Based on your balance tier, you're assigned a reward allocation. Rewards are distributed via Merkle Tree and claimable immediately.</p>
@@ -450,7 +450,7 @@
     </table>
 
     <div class="highlight-box violet">
-      <p>🎁 <strong>Promotional Rates:</strong> These are limited-time promotional rates funded by a $100,000 USDC reward pool. Early adopters enjoy premium returns while the platform builds its community. Rates will be adjusted to sustainable levels once the promotional pool is distributed.</p>
+      <p data-i18n-html="promo_rates_box">🎁 <strong>Promotional Rates:</strong> Current distribution rates are promotional and supported by a limited-time <strong>$100,000 USDC promo reward pool</strong>. Once the promo pool is fully distributed, rates will be reduced to sustainable levels.</p>
     </div>
 
     <div class="highlight-box amber">
@@ -1379,8 +1379,9 @@ const T = {
     /* Disclaimer */
     'Risk Disclaimer:': 'Tuyên Bố Miễn Trừ Rủi Ro:',
     /* Body paragraphs */
-    'overview_p1': 'Polnation là nền tảng kiếm tiền cộng đồng được xây dựng trên blockchain Polygon. Mỗi thành viên có thể truy cập đồng thời <strong>bảy luồng thu nhập riêng biệt</strong>. Thu nhập được phân phối thông qua <strong>hệ thống xác minh Merkle Tree</strong> — hoàn toàn on-chain, minh bạch và không lưu ký.',
-    'm1_p1': 'Nền tảng của hệ thống kiếm tiền Polnation: chỉ cần <strong>giữ USDC trong ví của bạn</strong> và nhận thưởng hàng ngày. Nền tảng chụp ảnh số dư của tất cả người dùng trên chuỗi mỗi ngày và phân phối phần thưởng theo cấp số dư — <strong>không cần staking, không khóa, không cần phê duyệt token</strong>.',
+    'overview_p1': 'Polnation là nền tảng phân phối thưởng dựa trên cộng đồng được xây dựng trên blockchain Polygon. Mỗi thành viên có thể truy cập đồng thời <strong>bảy luồng thu nhập riêng biệt</strong>. Phân phối thưởng được hỗ trợ bởi <strong>doanh thu giao thức có thể xác minh</strong> (kinh tế validator), các chương trình khuyến khích hệ sinh thái và hợp tác, sau đó được gửi qua <strong>hệ thống xác minh Merkle Tree</strong> — hoàn toàn on-chain, minh bạch và không lưu ký.',
+    'm1_p1': 'Nền tảng của Community Dividend Polnation: chỉ cần <strong>giữ USDC trong ví của bạn</strong> và nhận phân phối thưởng hằng ngày. Nền tảng chụp ảnh số dư on-chain mỗi ngày và gán cấp số dư (trọng số phân phối của bạn) — <strong>không cần staking, không khóa, không cần phê duyệt token</strong>.',
+    'promo_rates_box': '🎁 <strong>Lãi suất khuyến mãi:</strong> Tỷ lệ phân phối hiện tại mang tính khuyến mãi và được hỗ trợ bởi <strong>quỹ thưởng promo $100,000 USDC</strong> có thời hạn. Khi quỹ promo được phân phối hết, tỷ lệ sẽ được điều chỉnh xuống mức bền vững.',
     'm1_howitworks': '💰 <strong>Cách hoạt động:</strong> Mỗi 24 giờ, nền tảng đọc số dư USDC của ví bạn qua hàm ERC-20 <code>balanceOf()</code>. Dựa trên cấp số dư, bạn được phân bổ phần thưởng. Phần thưởng được phân phối qua Merkle Tree và có thể nhận ngay.',
     'm1_keyprincipal': '⚠️ <strong>Nguyên tắc quan trọng:</strong> USDC của bạn không bao giờ rời ví. Nền tảng chỉ <em>đọc</em> số dư của bạn qua hàm công khai <code>balanceOf()</code> — thao tác chỉ đọc, không cần quyền hạn gì. Bạn có thể rút hoặc chuyển USDC bất kỳ lúc nào mà không bị phạt.',
     'm1_safe_li1': '<strong>Không lưu ký:</strong> USDC của bạn luôn ở trong ví 100% thời gian',
@@ -1603,8 +1604,9 @@ const T = {
     'teampool_formula_effective': 'Penghasilan Efektif = Penghasilan Dasar × Momentum (0.2×–1.0×)',
     'Risk Disclaimer:': 'Penafian Risiko:',
     /* Body paragraphs */
-    'overview_p1': 'Polnation adalah platform penghasilan berbasis komunitas yang dibangun di blockchain Polygon. Setiap peserta dapat mengakses <strong>tujuh aliran penghasilan berbeda</strong> secara bersamaan. Penghasilan didistribusikan melalui <strong>sistem verifikasi Merkle Tree</strong> — sepenuhnya on-chain, transparan, dan non-custodial.',
-    'm1_p1': 'Fondasi sistem penghasilan Polnation: cukup <strong>simpan USDC di dompet Anda</strong> dan terima hadiah harian. Platform mengambil snapshot saldo semua pengguna on-chain setiap hari dan mendistribusikan hadiah proporsional dengan tier saldo Anda — <strong>tanpa staking, tanpa lock-up, tanpa persetujuan token</strong>.',
+    'overview_p1': 'Polnation adalah platform distribusi berbasis komunitas yang dibangun di blockchain Polygon. Setiap peserta dapat mengakses <strong>tujuh aliran penghasilan berbeda</strong> secara bersamaan. Distribusi reward didukung oleh <strong>pendapatan protokol yang dapat diverifikasi</strong> (ekonomi validator), insentif ekosistem, dan kemitraan, lalu dikirim melalui <strong>sistem verifikasi Merkle Tree</strong> — sepenuhnya on-chain, transparan, dan non-custodial.',
+    'm1_p1': 'Fondasi Community Dividend Polnation: cukup <strong>simpan USDC di dompet Anda</strong> dan terima distribusi reward harian. Platform mengambil snapshot saldo on-chain setiap hari dan menetapkan tier saldo (bobot distribusi Anda) — <strong>tanpa staking, tanpa lock-up, tanpa persetujuan token</strong>.',
+    'promo_rates_box': '🎁 <strong>Suku promosi:</strong> Tingkat distribusi saat ini bersifat promosi dan didukung oleh <strong>pool reward promo $100.000 USDC</strong> yang terbatas. Setelah pool promo didistribusikan penuh, suku akan diturunkan ke tingkat yang berkelanjutan.',
     'm1_howitworks': '💰 <strong>Cara kerjanya:</strong> Setiap 24 jam, platform membaca saldo USDC dompet Anda melalui fungsi ERC-20 <code>balanceOf()</code>. Berdasarkan tier saldo Anda, alokasi hadiah ditetapkan. Hadiah didistribusikan via Merkle Tree dan dapat diklaim langsung.',
     'm1_keyprincipal': '⚠️ <strong>Prinsip utama:</strong> USDC Anda tidak pernah meninggalkan dompet. Platform hanya <em>membaca</em> saldo Anda melalui fungsi publik <code>balanceOf()</code> — operasi hanya-baca yang tidak memerlukan izin apapun. Anda dapat menarik atau mentransfer USDC kapan saja tanpa penalti.',
     'm1_safe_li1': '<strong>Non-custodial:</strong> USDC Anda tetap di dompet 100% waktu',
@@ -1827,8 +1829,9 @@ const T = {
     'teampool_formula_effective': 'Gain Effectif = Gain de Base × Momentum (0.2×–1.0×)',
     'Risk Disclaimer:': 'Avertissement sur les Risques:',
     /* Body paragraphs */
-    'overview_p1': 'Polnation est une plateforme de gains communautaire construite sur la blockchain Polygon. Chaque participant peut accéder simultanément à <strong>sept sources de revenus distinctes</strong>. Les gains sont distribués via un <strong>système de vérification Merkle Tree</strong> — entièrement on-chain, transparent et non-custodial.',
-    'm1_p1': 'Le fondement du système de gains Polnation : <strong>conservez simplement des USDC dans votre portefeuille</strong> et recevez des récompenses quotidiennes. La plateforme prend des instantanés quotidiens de tous les soldes on-chain et distribue les récompenses proportionnellement à votre tier de solde — <strong>pas de staking, pas de blocage, aucune approbation de token requise</strong>.',
+    'overview_p1': 'Polnation est une plateforme de distribution communautaire construite sur la blockchain Polygon. Chaque participant peut accéder simultanément à <strong>sept sources de revenus distinctes</strong>. Les distributions de récompenses sont soutenues par des <strong>revenus de protocole vérifiables</strong> (économie des validateurs), des incitations d’écosystème et des partenariats, puis livrées via un <strong>système de vérification Merkle Tree</strong> — entièrement on-chain, transparent et non-custodial.',
+    'm1_p1': 'Le fondement du Community Dividend Polnation : <strong>conservez des USDC dans votre portefeuille</strong> et recevez des distributions quotidiennes. La plateforme prend des instantanés quotidiens des soldes on-chain et vous attribue un tier de solde (votre poids de distribution) — <strong>pas de staking, pas de blocage, aucune approbation de token requise</strong>.',
+    'promo_rates_box': '🎁 <strong>Taux promotionnels :</strong> Les taux de distribution actuels sont promotionnels et soutenus par un <strong>pool promo limité de 100 000 USDC</strong>. Une fois le pool promo entièrement distribué, les taux seront réduits à des niveaux durables.',
     'm1_howitworks': '💰 <strong>Comment ça marche :</strong> Toutes les 24 heures, la plateforme lit le solde USDC de votre portefeuille via la fonction ERC-20 <code>balanceOf()</code>. En fonction de votre tier de solde, une allocation de récompense est attribuée. Les récompenses sont distribuées via Merkle Tree et réclamables immédiatement.',
     'm1_keyprincipal': '⚠️ <strong>Principe clé :</strong> Vos USDC ne quittent jamais votre portefeuille. La plateforme <em>lit</em> uniquement votre solde via la fonction publique <code>balanceOf()</code> — une opération en lecture seule qui ne nécessite aucune permission. Vous pouvez retirer ou transférer vos USDC à tout moment sans pénalité.',
     'm1_safe_li1': '<strong>Non-custodial :</strong> Vos USDC restent dans votre portefeuille 100% du temps',
@@ -2051,8 +2054,9 @@ const T = {
     'teampool_formula_effective': 'Ingreso Efectivo = Ingreso Base × Momentum (0.2×–1.0×)',
     'Risk Disclaimer:': 'Descargo de Responsabilidad de Riesgo:',
     /* Body paragraphs */
-    'overview_p1': 'Polnation es una plataforma de ganancias impulsada por la comunidad, construida en la blockchain Polygon. Cada participante puede acceder a <strong>siete fuentes de ingresos distintas</strong> simultáneamente. Las ganancias se distribuyen a través de un <strong>sistema de verificación Merkle Tree</strong> — completamente on-chain, transparente y no custodiado.',
-    'm1_p1': 'El fundamento del sistema de ganancias de Polnation: simplemente <strong>mantén USDC en tu billetera</strong> y recibe recompensas diarias. La plataforma toma instantáneas diarias de todos los saldos on-chain y distribuye recompensas proporcionales a tu nivel de saldo — <strong>sin staking, sin bloqueo, sin aprobaciones de token</strong>.',
+    'overview_p1': 'Polnation es una plataforma de distribución impulsada por la comunidad, construida en la blockchain Polygon. Cada participante puede acceder a <strong>siete fuentes de ingresos distintas</strong> simultáneamente. Las distribuciones se apoyan en <strong>ingresos de protocolo verificables</strong> (economía de validadores), incentivos del ecosistema y alianzas, y se entregan mediante un <strong>sistema de verificación Merkle Tree</strong> — completamente on-chain, transparente y no custodiado.',
+    'm1_p1': 'El fundamento del Community Dividend de Polnation: simplemente <strong>mantén USDC en tu billetera</strong> y recibe distribuciones diarias. La plataforma toma instantáneas diarias de saldos on-chain y te asigna un nivel (tu peso de distribución) — <strong>sin staking, sin bloqueo, sin aprobaciones de token</strong>.',
+    'promo_rates_box': '🎁 <strong>Tasas promocionales:</strong> Las tasas de distribución actuales son promocionales y están respaldadas por un <strong>pool promocional limitado de $100,000 USDC</strong>. Una vez que el pool promo se distribuya por completo, las tasas se reducirán a niveles sostenibles.',
     'm1_howitworks': '💰 <strong>Cómo funciona:</strong> Cada 24 horas, la plataforma lee el saldo USDC de tu billetera mediante la función ERC-20 <code>balanceOf()</code>. Según tu nivel de saldo, se te asigna una asignación de recompensa. Las recompensas se distribuyen vía Merkle Tree y son reclamables inmediatamente.',
     'm1_keyprincipal': '⚠️ <strong>Principio clave:</strong> Tu USDC nunca abandona tu billetera. La plataforma solo <em>lee</em> tu saldo a través de la función pública <code>balanceOf()</code> — una operación de solo lectura que no requiere ningún permiso. Puedes retirar o transferir tu USDC en cualquier momento sin penalización.',
     'm1_safe_li1': '<strong>No custodial:</strong> Tu USDC permanece en tu billetera el 100% del tiempo',

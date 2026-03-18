@@ -41,8 +41,9 @@
   },
   "home": {
     "welcome": "Chào mừng đến với",
-    "tagline": "Tương lai của Soft Staking",
-    "subtitle": "Nền tảng soft staking hàng đầu. Xây dựng mạng lưới, phát triển đội ngũ và cùng nhận thưởng.",
+    "tagline": "Community Dividend trên Polygon",
+    "subtitle": "Giữ USDC trong ví của bạn và nhận phân phối phần thưởng dựa trên cấp số dư.",
+    "promoNote": "Lãi suất mang tính khuyến mãi. Được tài trợ bởi quỹ thưởng khuyến mãi giới hạn $100,000 USDC. Khi quỹ khuyến mãi được phân phối hết, lãi suất sẽ được điều chỉnh xuống mức bền vững.",
     "goToDashboard": "Đến Bảng điều khiển",
     "features": {
       "safe": {
@@ -51,7 +52,7 @@
       },
       "stable": {
         "title": "Không Rủi ro Giá",
-        "description": "Kiếm 1%-1.8% phần thưởng hàng ngày từ USDC. Không token biến động, không mất 90%."
+        "description": "Lãi suất phân phối khuyến mãi (theo cấp). Không token thưởng biến động, không rủi ro giá."
       },
       "easy": {
         "title": "Một Click, Xong",
@@ -65,7 +66,7 @@
     "stats": {
       "totalVolume": "Tổng Khối lượng",
       "activeUsers": "Người dùng Hoạt động",
-      "avgApy": "APY Trung bình",
+      "avgApy": "Lãi suất khuyến mãi (ước tính)",
       "nonCustodial": "Non-Custodial"
     },
     "academy": {
@@ -92,8 +93,8 @@
         },
         "earn": {
           "title": "Kiếm Hàng Ngày",
-          "description": "Ngồi lại và xem USDC của bạn tăng lên mỗi ngày",
-          "details": ["Thưởng tự động tính", "Rút bất cứ lúc nào", "Số dư cao = tỷ lệ cao", "Tái đầu tư để kiếm thêm"]
+          "description": "Nhận phân phối phần thưởng hằng ngày theo cấp của bạn",
+          "details": ["Phân phối tự động tính", "Rút bất cứ lúc nào", "Số dư cao = trọng số cao hơn", "Lãi suất khuyến mãi có thể thay đổi"]
         }
       }
     }
@@ -371,7 +372,7 @@
   },
   "earnings": {
     "title": "Thu nhập",
-    "subtitle": "Theo dõi thu nhập thụ động Soft Staking của bạn",
+    "subtitle": "Theo dõi các khoản phân phối Community Dividend của bạn",
     "usdcBalance": "Số dư USDC của bạn",
     "currentRate": "Tỷ lệ Hiện tại",
     "estimatedDaily": "Ước tính Hàng ngày",
@@ -380,7 +381,7 @@
     "nextDistribution": "Phân phối Tiếp theo",
     "comingSoon": "Sắp ra mắt",
     "distributionInterval": "Phần thưởng phân phối mỗi {interval}",
-    "stakingEarnings": "Thu nhập Staking",
+    "stakingEarnings": "Phân phối Dividends",
     "referralCommission": "Hoa hồng Giới thiệu",
     "availableWithdraw": "Có thể Rút",
     "withdraw": {
@@ -557,7 +558,7 @@
     "boundToOther": "Ví này đã liên kết với tài khoản khác",
     "available": "Có thể liên kết",
     "sign": "Ký để Ủy quyền",
-    "signDesc": "Ký để ủy quyền soft staking và đủ điều kiện nhận airdrop",
+    "signDesc": "Ký một lần để kích hoạt phân phối theo số dư và đủ điều kiện nhận airdrop",
     "authorized": "Đã Ủy quyền",
     "signing": "Đang ký...",
     "unsupportedWallet": {

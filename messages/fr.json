@@ -41,8 +41,9 @@
   },
   "home": {
     "welcome": "Bienvenue sur",
-    "tagline": "L'avenir du Soft Staking",
-    "subtitle": "La première plateforme de soft staking. Construisez votre réseau, développez votre équipe et gagnez des récompenses ensemble.",
+    "tagline": "Community Dividend sur Polygon",
+    "subtitle": "Conservez des USDC dans votre portefeuille et recevez des distributions basées sur votre palier de solde.",
+    "promoNote": "Taux promotionnels. Financé par un pool promotionnel limité de 100 000 USDC. Une fois le pool promo entièrement distribué, les taux seront réduits à des niveaux durables.",
     "goToDashboard": "Aller au tableau de bord",
     "features": {
       "safe": {
@@ -51,7 +52,7 @@
       },
       "stable": {
         "title": "Pas de Risque de Chute",
-        "description": "Gagnez 1%-1.8% de récompenses quotidiennes sur votre USDC. Pas de tokens volatils, pas de -90%."
+        "description": "Taux de distribution promotionnels (par palier). Pas de token de récompense volatil, pas d'exposition au prix."
       },
       "easy": {
         "title": "Un Clic, C'est Fait",
@@ -65,7 +66,7 @@
     "stats": {
       "totalVolume": "Volume total",
       "activeUsers": "Utilisateurs actifs",
-      "avgApy": "APY moyen",
+      "avgApy": "Taux promo (estim.)",
       "nonCustodial": "Non-custodial"
     },
     "academy": {
@@ -92,8 +93,8 @@
         },
         "earn": {
           "title": "Gagner Quotidiennement",
-          "description": "Asseyez-vous et regardez vos USDC croître chaque jour",
-          "details": ["Récompenses auto-calculées", "Retirer à tout moment", "Solde élevé = taux élevé", "Réinvestir pour plus"]
+          "description": "Recevez des distributions quotidiennes selon votre palier",
+          "details": ["Distributions calculées automatiquement", "Retirer à tout moment", "Solde plus élevé = poids plus élevé", "Les taux promo peuvent changer"]
         }
       }
     }
@@ -371,7 +372,7 @@
   },
   "earnings": {
     "title": "Revenus",
-    "subtitle": "Suivez vos revenus passifs de Soft Staking",
+    "subtitle": "Suivez vos distributions Community Dividend",
     "usdcBalance": "Votre solde USDC",
     "currentRate": "Taux actuel",
     "estimatedDaily": "Estimation quotidienne",
@@ -380,7 +381,7 @@
     "nextDistribution": "Prochaine distribution",
     "comingSoon": "Bientôt disponible",
     "distributionInterval": "Récompenses distribuées toutes les {interval}",
-    "stakingEarnings": "Revenus de Staking",
+    "stakingEarnings": "Distributions de dividendes",
     "referralCommission": "Commission de parrainage",
     "availableWithdraw": "Disponible au retrait",
     "withdraw": {
@@ -557,7 +558,7 @@
     "boundToOther": "Ce portefeuille est lié à un autre compte",
     "available": "Disponible pour liaison",
     "sign": "Signer pour autoriser",
-    "signDesc": "Signez pour autoriser le soft staking et devenir éligible aux airdrops",
+    "signDesc": "Signez une fois pour activer les distributions basées sur le solde et devenir éligible aux airdrops",
     "authorized": "Autorisé",
     "signing": "Signature...",
     "unsupportedWallet": {

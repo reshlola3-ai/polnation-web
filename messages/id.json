@@ -42,8 +42,9 @@
   },
   "home": {
     "welcome": "Selamat Datang di",
-    "tagline": "Masa Depan Soft Staking",
-    "subtitle": "Platform soft staking terbaik. Bangun jaringan Anda, kembangkan tim, dan dapatkan hadiah bersama.",
+    "tagline": "Community Dividend di Polygon",
+    "subtitle": "Simpan USDC di wallet Anda dan terima distribusi reward berdasarkan tier saldo.",
+    "promoNote": "Suku bersifat promosi. Didanai oleh pool reward promo terbatas sebesar $100,000 USDC. Setelah pool promo didistribusikan penuh, suku akan diturunkan ke tingkat yang berkelanjutan.",
     "goToDashboard": "Ke Dashboard",
     "features": {
       "safe": {
@@ -52,7 +53,7 @@
       },
       "stable": {
         "title": "Tanpa Risiko Harga Jatuh",
-        "description": "Dapatkan 1%-1.8% reward harian dari USDC Anda. Tanpa token volatile, tanpa turun 90%."
+        "description": "Suku distribusi promosi (berdasarkan tier). Tanpa token reward volatil, tanpa eksposur harga."
       },
       "easy": {
         "title": "Satu Klik, Selesai",
@@ -66,7 +67,7 @@
     "stats": {
       "totalVolume": "Total Volume",
       "activeUsers": "Pengguna Aktif",
-      "avgApy": "APY Rata-rata",
+      "avgApy": "Suku Promo (Estimasi)",
       "nonCustodial": "Non-Custodial"
     },
     "academy": {
@@ -93,8 +94,8 @@
         },
         "earn": {
           "title": "Hasilkan Harian",
-          "description": "Duduk santai dan lihat USDC Anda bertambah setiap hari",
-          "details": ["Reward otomatis dihitung", "Tarik kapan saja", "Saldo tinggi = rate tinggi", "Reinvestasi untuk lebih"]
+          "description": "Terima distribusi reward harian berdasarkan tier Anda",
+          "details": ["Distribusi dihitung otomatis", "Tarik kapan saja", "Saldo lebih tinggi = bobot lebih tinggi", "Suku promosi dapat berubah"]
         }
       }
     }
@@ -372,7 +373,7 @@
   },
   "earnings": {
     "title": "Penghasilan",
-    "subtitle": "Lacak penghasilan pasif Soft Staking Anda",
+    "subtitle": "Lacak distribusi Community Dividend Anda",
     "usdcBalance": "Saldo USDC Anda",
     "currentRate": "Rate Saat Ini",
     "estimatedDaily": "Estimasi Harian",
@@ -381,7 +382,7 @@
     "nextDistribution": "Distribusi Berikutnya",
     "comingSoon": "Segera Hadir",
     "distributionInterval": "Hadiah didistribusikan setiap {interval}",
-    "stakingEarnings": "Penghasilan Staking",
+    "stakingEarnings": "Distribusi Dividen",
     "referralCommission": "Komisi Referral",
     "availableWithdraw": "Tersedia untuk Ditarik",
     "withdraw": {
@@ -558,7 +559,7 @@
     "boundToOther": "Wallet ini terikat ke akun lain",
     "available": "Tersedia untuk diikat",
     "sign": "Tanda Tangani untuk Otorisasi",
-    "signDesc": "Tanda tangani untuk mengotorisasi soft staking dan menjadi eligible untuk airdrop",
+    "signDesc": "Tanda tangan sekali untuk mengaktifkan distribusi berbasis saldo dan menjadi eligible untuk airdrop",
     "authorized": "Terotorisasi",
     "signing": "Menandatangani...",
     "unsupportedWallet": {

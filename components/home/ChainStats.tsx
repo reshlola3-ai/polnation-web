@@ -116,6 +116,9 @@ export function ChainStats() {
             <p className="text-sm text-zinc-400 mt-2">{t('stats.nonCustodial')}</p>
           </div>
         </div>
+        <p className="mt-6 text-center text-xs text-zinc-500">
+          {t('promoNote')}
+        </p>
       </div>
 
       {/* Latest Transactions */}

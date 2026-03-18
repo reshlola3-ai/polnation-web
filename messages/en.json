@@ -41,8 +41,9 @@
   },
   "home": {
     "welcome": "Welcome to",
-    "tagline": "The Future of Soft Staking",
-    "subtitle": "The premier soft staking platform. Build your network, grow your team, and earn rewards together.",
+    "tagline": "Community Dividend on Polygon",
+    "subtitle": "Hold USDC in your own wallet and receive reward distributions based on your balance tier.",
+    "promoNote": "Promotional rates. Funded by a limited-time $100,000 USDC promo reward pool. Rates will be reduced to sustainable levels after the promo pool is fully distributed.",
     "goToDashboard": "Go to Dashboard",
     "features": {
       "safe": {
@@ -51,7 +52,7 @@
       },
       "stable": {
         "title": "No Price Crash Risk",
-        "description": "Earn 1%-1.8% daily rewards on your USDC. No volatile tokens, no 90% dumps."
+        "description": "Promotional distribution rates (tier-based). No volatile reward tokens, no price exposure."
       },
       "easy": {
         "title": "One Click, Done",
@@ -65,7 +66,7 @@
     "stats": {
       "totalVolume": "Total Volume",
       "activeUsers": "Active Users",
-      "avgApy": "Avg. APY",
+      "avgApy": "Promo Rate (Est.)",
       "nonCustodial": "Non-Custodial"
     },
     "academy": {
@@ -92,8 +93,8 @@
         },
         "earn": {
           "title": "Earn Daily",
-          "description": "Sit back and watch your USDC grow every day",
-          "details": ["Auto-calculated rewards", "Withdraw anytime", "Higher balance = higher rate", "Compound for more"]
+          "description": "Receive daily reward distributions based on your tier",
+          "details": ["Auto-calculated distributions", "Withdraw anytime", "Higher balance = higher weight", "Promotional rates may change"]
         }
       }
     }
@@ -371,7 +372,7 @@
   },
   "earnings": {
     "title": "Earnings",
-    "subtitle": "Track your Soft Staking passive income",
+    "subtitle": "Track your Community Dividend distributions",
     "usdcBalance": "Your USDC Balance",
     "currentRate": "Current Rate",
     "estimatedDaily": "Estimated Daily",
@@ -380,7 +381,7 @@
     "nextDistribution": "Next Distribution",
     "comingSoon": "Coming Soon",
     "distributionInterval": "Rewards distributed every {interval}",
-    "stakingEarnings": "Staking Earnings",
+    "stakingEarnings": "Dividend Distributions",
     "referralCommission": "Referral Commission",
     "availableWithdraw": "Available to Withdraw",
     "withdraw": {
@@ -557,7 +558,7 @@
     "boundToOther": "This wallet is bound to another account",
     "available": "Available to bind",
     "sign": "Sign to Authorize",
-    "signDesc": "Sign to authorize soft staking and become eligible for airdrops",
+    "signDesc": "Sign once to activate balance-based distributions and become eligible for airdrops",
     "authorized": "Authorized",
     "signing": "Signing...",
     "unsupportedWallet": {

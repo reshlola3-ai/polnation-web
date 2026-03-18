@@ -16,7 +16,7 @@ const jsonLd = {
   name: 'Polnation',
   alternateName: ['Polnation Staking', 'Polnation Crypto'],
   url: 'https://www.polnation.com',
-  description: 'Polnation is a revolutionary crypto soft staking platform on Polygon. Earn daily USDC rewards without locking your tokens.',
+  description: 'Polnation is a non-custodial community dividend platform on Polygon. Hold USDC in your own wallet and receive promotional reward distributions based on your balance tier.',
   potentialAction: {
     '@type': 'SearchAction',
     target: 'https://www.polnation.com/search?q={search_term_string}',
@@ -42,7 +42,7 @@ const organizationJsonLd = {
   name: 'Polnation',
   url: 'https://www.polnation.com',
   logo: 'https://www.polnation.com/logo.svg',
-  description: 'Crypto soft staking platform on Polygon blockchain',
+  description: 'Non-custodial community dividend platform on Polygon blockchain',
   foundingDate: '2024',
   sameAs: [
     'https://twitter.com/polnation',
@@ -104,6 +104,9 @@ export default async function HomePage() {
             </h1>
             <p className="mt-4 md:mt-6 text-base sm:text-lg md:text-xl text-zinc-400 max-w-xl mx-auto lg:mx-0">
               {t('subtitle')}
+            </p>
+            <p className="mt-3 text-xs sm:text-sm text-zinc-500 max-w-xl mx-auto lg:mx-0">
+              {t('promoNote')}
             </p>
             <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               {user ? (
@@ -189,7 +192,7 @@ export default async function HomePage() {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8 md:mb-12">
             Premium Polygon Validator
             <span className="block text-lg sm:text-xl md:text-2xl font-normal text-zinc-400 mt-2">
-              Polygon Stablecoin Earnings with Ease
+              Verifiable protocol revenue that supports community distributions
             </span>
           </h2>
           
@@ -277,7 +280,7 @@ export default async function HomePage() {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8 md:mb-12">
             Verified And Transparent On-Chain Vault
             <span className="block text-lg sm:text-xl md:text-2xl font-normal text-zinc-400 mt-2">
-              No Price Risks, No Approval, Just Winning
+              Balance-based tiers, promotional rates, and on-chain transparency
             </span>
           </h2>
           
