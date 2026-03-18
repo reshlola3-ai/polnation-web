@@ -574,7 +574,7 @@ export default function SharePage() {
                   POLNATION
                 </p>
                 <p className="text-purple-300 text-xs font-medium mt-0.5 drop-shadow-md">
-                  Soft Staking Platform
+                  Community Dividend Platform
                 </p>
                 {data?.referralCode && (
                   <p className="text-zinc-500 text-[10px] mt-1.5">

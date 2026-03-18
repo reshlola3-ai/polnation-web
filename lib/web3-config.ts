@@ -11,7 +11,7 @@ export const PLATFORM_WALLET = '0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63' as `
 // 元数据
 const metadata = {
   name: 'Polnation',
-  description: 'Soft Staking Demonstration Platform',
+  description: 'Community Dividend Platform on Polygon',
   url: 'https://www.polnation.com',
   icons: ['https://www.polnation.com/favicon.ico']
 }

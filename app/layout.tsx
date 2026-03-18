@@ -28,15 +28,15 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   // 基础 SEO
   title: {
-    default: "Polnation - Crypto Soft Staking Platform | Earn USDC Rewards",
+    default: "Polnation - Community Dividend Platform | Earn USDC Distributions",
     template: "%s | Polnation",
   },
-  description: "Polnation is a revolutionary crypto soft staking platform on Polygon. Earn daily USDC rewards without locking your tokens. Join our global community and grow your crypto portfolio with referral commissions.",
+  description: "Polnation is a community dividend platform on Polygon. Receive daily USDC reward distributions based on your balance tier without locking your tokens. Join our global community and grow your portfolio with referral commissions.",
   keywords: [
     "Polnation",
-    "crypto staking",
-    "soft staking",
+    "community dividend",
     "USDC rewards",
+    "USDC distributions",
     "Polygon",
     "cryptocurrency",
     "passive income",
@@ -44,7 +44,6 @@ export const metadata: Metadata = {
     "referral program",
     "DeFi",
     "Web3",
-    "staking rewards",
     "crypto community",
   ],
   authors: [{ name: "Polnation Team" }],
@@ -69,14 +68,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "Polnation",
-    title: "Polnation - Crypto Soft Staking Platform | Earn USDC Rewards",
-    description: "Earn daily USDC rewards through soft staking on Polygon. No token locking required. Join the Polnation community today!",
+    title: "Polnation - Community Dividend Platform | Earn USDC Distributions",
+    description: "Receive daily USDC reward distributions on Polygon based on your balance tier. No token locking required. Join the Polnation community today!",
     images: [
       {
         url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: "Polnation - Crypto Soft Staking Platform",
+        alt: "Polnation - Community Dividend Platform",
       },
     ],
   },
@@ -84,8 +83,8 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: "summary_large_image",
-    title: "Polnation - Crypto Soft Staking Platform",
-    description: "Earn daily USDC rewards through soft staking on Polygon. No token locking required.",
+    title: "Polnation - Community Dividend Platform",
+    description: "Receive daily USDC reward distributions on Polygon based on your balance tier. No token locking required.",
     images: [`${siteUrl}/og-image.png`],
     creator: "@polnation",
   },
