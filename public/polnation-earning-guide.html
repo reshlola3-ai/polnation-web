@@ -573,23 +573,23 @@
         <circle cx="130" cy="120" r="100" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.3)" stroke-width="1.5"/>
         <circle cx="130" cy="120" r="80" fill="none" stroke="rgba(245,158,11,0.15)" stroke-width="1"/>
 
-        <!-- Segments (simplified) -->
-        <!-- Try Again 40% -->
-        <path d="M130,120 L130,20 A100,100 0 0,1 218.9,70 Z" fill="rgba(113,113,122,0.3)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
-        <!-- $0.50 USDC 15% -->
-        <path d="M130,120 L218.9,70 A100,100 0 0,1 230,120 Z" fill="rgba(16,185,129,0.3)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
-        <!-- +$1 bonus 20% -->
-        <path d="M130,120 L230,120 A100,100 0 0,1 195.1,190 Z" fill="rgba(124,58,237,0.3)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
-        <!-- $1 USDC 7% -->
-        <path d="M130,120 L195.1,190 A100,100 0 0,1 155,219.3 Z" fill="rgba(6,182,212,0.35)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
-        <!-- +$2 bonus 10% -->
-        <path d="M130,120 L155,219.3 A100,100 0 0,1 65,219.3 Z" fill="rgba(245,158,11,0.35)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
-        <!-- $5 USDC 2.5% -->
-        <path d="M130,120 L65,219.3 A100,100 0 0,1 40.5,190 Z" fill="rgba(99,102,241,0.35)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
-        <!-- +$3 bonus 5% -->
-        <path d="M130,120 L40.5,190 A100,100 0 0,1 30,120 Z" fill="rgba(239,68,68,0.3)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
-        <!-- $10 USDC 0.5% -->
-        <path d="M130,120 L30,120 A100,100 0 0,1 130,20 Z" fill="rgba(251,191,36,0.5)" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+        <!-- Segments — proportional arcs, clockwise from top -->
+        <!-- Try Again 40% → 144° arc, ends at 54° -->
+        <path d="M130,120 L130,20 A100,100 0 0,1 188.8,200.9 Z" fill="rgba(113,113,122,0.45)" stroke="rgba(0,0,0,0.25)" stroke-width="1.2"/>
+        <!-- +$1 Bonus 20% → 72° arc, ends at 126° -->
+        <path d="M130,120 L188.8,200.9 A100,100 0 0,1 71.2,200.9 Z" fill="rgba(124,58,237,0.45)" stroke="rgba(0,0,0,0.25)" stroke-width="1.2"/>
+        <!-- $0.50 USDC 15% → 54° arc, ends at 180° -->
+        <path d="M130,120 L71.2,200.9 A100,100 0 0,1 30,120 Z" fill="rgba(16,185,129,0.45)" stroke="rgba(0,0,0,0.25)" stroke-width="1.2"/>
+        <!-- +$2 Bonus 10% → 36° arc, ends at 216° -->
+        <path d="M130,120 L30,120 A100,100 0 0,1 49.1,61.2 Z" fill="rgba(245,158,11,0.5)" stroke="rgba(0,0,0,0.25)" stroke-width="1.2"/>
+        <!-- $1 USDC 7% → 25.2° arc, ends at 241.2° -->
+        <path d="M130,120 L49.1,61.2 A100,100 0 0,1 81.8,32.4 Z" fill="rgba(6,182,212,0.5)" stroke="rgba(0,0,0,0.25)" stroke-width="1.2"/>
+        <!-- +$3 Bonus 5% → 18° arc, ends at 259.2° -->
+        <path d="M130,120 L81.8,32.4 A100,100 0 0,1 111.3,21.8 Z" fill="rgba(239,68,68,0.5)" stroke="rgba(0,0,0,0.25)" stroke-width="1.2"/>
+        <!-- $5 USDC 2.5% → 9° arc, ends at 268.2° -->
+        <path d="M130,120 L111.3,21.8 A100,100 0 0,1 126.9,20.1 Z" fill="rgba(99,102,241,0.5)" stroke="rgba(0,0,0,0.25)" stroke-width="1.2"/>
+        <!-- $10 USDC 0.5% → 1.8° arc, ends at top -->
+        <path d="M130,120 L126.9,20.1 A100,100 0 0,1 130,20 Z" fill="rgba(251,191,36,0.75)" stroke="rgba(0,0,0,0.25)" stroke-width="1.2"/>
 
         <!-- Center -->
         <circle cx="130" cy="120" r="18" fill="#1a1a2e" stroke="rgba(245,158,11,0.6)" stroke-width="2"/>
