@@ -364,6 +364,27 @@ input, select, textarea {
   }
 }
 
+@keyframes sparkle-wiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  20%       { transform: rotate(-18deg) scale(1.15); }
+  50%       { transform: rotate(12deg) scale(1.1); }
+  75%       { transform: rotate(-6deg) scale(1.05); }
+}
+.animate-sparkle-wiggle {
+  animation: sparkle-wiggle 4s ease-in-out infinite;
+  display: inline-block;
+  transform-origin: center;
+}
+
+@keyframes arrow-nudge {
+  0%, 100% { transform: translateX(0); }
+  50%       { transform: translateX(4px); }
+}
+.animate-arrow-nudge {
+  animation: arrow-nudge 1.6s ease-in-out infinite;
+  display: inline-block;
+}
+
 /* Mobile Typography Adjustments */
 @media (max-width: 640px) {
   h1 {

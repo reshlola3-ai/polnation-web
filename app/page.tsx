@@ -92,7 +92,7 @@ export default async function HomePage() {
           {/* Left: Text Content */}
           <div className="text-center lg:text-left order-2 lg:order-1">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 mb-6 md:mb-8">
-              <Sparkles className="w-4 h-4 text-purple-400" />
+              <Sparkles className="w-4 h-4 text-purple-400 animate-sparkle-wiggle" />
               <span className="text-sm text-purple-300">{t('tagline')}</span>
             </div>
             
@@ -115,7 +115,7 @@ export default async function HomePage() {
                   className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
                 >
                   {t('goToDashboard')}
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  <ArrowRight className="ml-2 w-5 h-5 animate-arrow-nudge" />
                 </Link>
               ) : (
                 <>
@@ -123,9 +123,9 @@ export default async function HomePage() {
                     href="/register"
                     className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
                   >
-                    {tNav('getStarted')}
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </Link>
+                  {tNav('getStarted')}
+                  <ArrowRight className="ml-2 w-5 h-5 animate-arrow-nudge" />
+                </Link>
                   <Link
                     href="/login"
                     className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white bg-white/5 rounded-xl hover:bg-white/10 transition-all border border-white/10"

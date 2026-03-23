@@ -59,7 +59,7 @@ export function FeaturesSection({ translations }: FeaturesSectionProps) {
         {features.map((feature) => (
           <div
             key={feature.key}
-            className="glass-card-solid p-6 hover:border-purple-500/40 transition-all duration-300 group"
+            className="glass-card-solid p-6 hover:border-purple-500/40 hover:-translate-y-1 transition-all duration-300 group"
           >
             <div
               className={`w-14 h-14 ${feature.bgColor} rounded-xl flex items-center justify-center mb-4 ${feature.hoverColor} transition-colors overflow-hidden`}
@@ -67,6 +67,7 @@ export function FeaturesSection({ translations }: FeaturesSectionProps) {
               <LottieIcon
                 src={feature.iconSrc}
                 className="w-10 h-10"
+                hoverPlay
               />
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
