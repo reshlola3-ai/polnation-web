@@ -84,6 +84,8 @@ interface ProfitData {
   teamNextUnlockVolume: number
   teamNextLevelName: string
   communityTotalEarned: number
+  taskBonus: number
+  teamVolumeOnly: number
 }
 
 interface ReferralData {
@@ -138,6 +140,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     teamNextUnlockVolume: 0,
     teamNextLevelName: '',
     communityTotalEarned: 0,
+    taskBonus: 0,
+    teamVolumeOnly: 0,
   })
   const [isLoadingProfit, setIsLoadingProfit] = useState(true)
 
@@ -245,6 +249,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           teamNextUnlockVolume: data.nextUnlockVolume || 0,
           teamNextLevelName: data.nextLevelInfo?.name || '',
           communityTotalEarned: data.status?.total_community_earned || 0,
+          taskBonus: data.taskBonus || 0,
+          teamVolumeOnly: data.status?.team_volume_l123 || 0,
         }
         setProfitData(prev => ({ ...prev, ...update }))
         saveToCache(update)
@@ -386,130 +392,126 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           </div>
         </div>
 
-        {/* Asset Details - Two Columns */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Row 2: Wallet + Tier Progress side by side */}
+        <div className="grid grid-cols-2 gap-3">
           {/* Wallet Balance */}
           <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-purple-200 mb-1">{t('walletBalance')}</p>
-                {isBalanceLoading ? (
-                  <div className="animate-pulse h-8 w-24 bg-white/10 rounded" />
-                ) : (
-                  <p className="text-2xl md:text-3xl font-bold text-white stat-number">
-                    ${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </p>
-                )}
-                <p className="text-xs text-white/70 mt-1">{t('usdcOnPolygon')}</p>
-              </div>
-              <img src="/usdc.webp" alt="USDC" className="w-10 h-10 md:w-12 md:h-12" />
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-purple-200">{t('walletBalance')}</p>
+              <img src="/usdc.webp" alt="USDC" className="w-7 h-7" />
             </div>
+            {isBalanceLoading ? (
+              <div className="animate-pulse h-7 w-24 bg-white/10 rounded" />
+            ) : (
+              <p className="text-xl font-bold text-white stat-number leading-tight">
+                ${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+            )}
+            <p className="text-[10px] text-white/50 mt-1">{t('usdcOnPolygon')}</p>
           </div>
 
-          {/* Community Dividend Pool */}
-          <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-xs text-purple-200 mb-1 flex items-center gap-1">
-                  🏆 Community Pool
-                </p>
-                {isLoadingProfit ? (
-                  <div className="animate-pulse h-7 w-20 bg-white/10 rounded mb-1" />
-                ) : (
-                  <p className="text-xl font-bold text-white stat-number leading-tight">
-                    ${profitData.communityPrizePool.toFixed(2)}
-                  </p>
-                )}
-                <p className="text-[10px] text-emerald-400 font-medium">
-                  +${profitData.communityDailyEarnings.toFixed(3)}/day
-                </p>
-                <div className="flex items-center gap-1 mt-1.5 flex-wrap">
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/30 text-purple-200">
-                    {profitData.currentLevelName}
-                  </span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
-                    profitData.momentumMultiplier >= 1.0
-                      ? 'bg-amber-500/20 text-amber-300'
-                      : 'bg-white/10 text-white/50'
-                  }`}>
-                    🔥 {profitData.momentumMultiplier.toFixed(1)}x
-                  </span>
-                  {profitData.momentumDaysUntilDecay > 0 && (
-                    <span className="text-[10px] text-white/40">⏱️{profitData.momentumDaysUntilDecay}d</span>
-                  )}
-                </div>
-              </div>
-              <img src="/crowdfunding.webp" alt="Community" className="w-9 h-9 shrink-0" />
+          {/* Personal Tier — compact, tappable */}
+          <div
+            className="bg-white/10 rounded-xl p-4 backdrop-blur cursor-pointer hover:bg-white/15 transition-colors"
+            onClick={() => setShowTierModal(true)}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-purple-200">Personal Tier</p>
+              <span className="text-base">{TIER_ICONS[currentTier.name] || '⭐'}</span>
             </div>
+            <p className="text-sm font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent leading-tight">
+              {currentTier.name}
+            </p>
+            <p className="text-[10px] text-cyan-300 mb-2">
+              {(currentTier.rate * 100).toFixed(2)}%/day
+              {yearlyAPY > 0 && <span className="text-white/40"> ({yearlyAPY.toFixed(0)}% APY)</span>}
+            </p>
+            <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(progressToNext, 100)}%` }}
+              />
+            </div>
+            {nextTier ? (
+              <p className="text-[10px] text-purple-300/60 mt-1">
+                ${(nextTier.min - usdcBalance).toFixed(2)} → {nextTier.name}
+              </p>
+            ) : (
+              <p className="text-[10px] text-amber-400/70 mt-1">Max tier reached 👑</p>
+            )}
+            {usdcBalance < 10 && (
+              <p className="text-[10px] text-amber-300 mt-1">{t('depositToStart')}</p>
+            )}
           </div>
         </div>
 
-        {/* Tier Progress */}
-        <div 
-          className="bg-white/10 rounded-xl p-4 backdrop-blur cursor-pointer hover:bg-white/15 transition-colors"
-          onClick={() => setShowTierModal(true)}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm flex items-center gap-2">
-              <span className="text-lg">{TIER_ICONS[currentTier.name] || '⭐'}</span>
-              <span className="font-semibold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
-                {currentTier.name}
+        {/* Row 3: Community block — level info + unlock progress */}
+        <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
+          {/* Header: level + momentum + daily */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-semibold text-white flex items-center gap-1.5">
+                🏆 {profitData.currentLevelName}
               </span>
-              <span className="text-purple-200">• {(currentTier.rate * 100).toFixed(2)}% daily</span>
-              {yearlyAPY > 0 && <span className="text-cyan-300">({yearlyAPY.toFixed(0)}% APY)</span>}
-            </span>
-            {nextTier && (
-              <span className="text-xs text-purple-300">
-                {t('toNextTier', { amount: (nextTier.min - usdcBalance).toFixed(2), name: nextTier.name })}
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${
+                profitData.momentumMultiplier >= 1.0
+                  ? 'bg-amber-500/20 text-amber-300'
+                  : 'bg-white/10 text-white/40'
+              }`}>
+                🔥 {profitData.momentumMultiplier.toFixed(1)}x
+              </span>
+              {profitData.momentumDaysUntilDecay > 0 && (
+                <span className="text-[10px] text-white/35">⏱️ {profitData.momentumDaysUntilDecay}d</span>
+              )}
+            </div>
+            {isLoadingProfit ? (
+              <div className="animate-pulse h-4 w-16 bg-white/10 rounded" />
+            ) : (
+              <span className="text-xs text-emerald-400 font-medium shrink-0">
+                +${profitData.communityDailyEarnings.toFixed(3)}/day
               </span>
             )}
           </div>
-          <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(progressToNext, 100)}%` }}
-            />
-          </div>
-          {usdcBalance < 10 && (
-            <p className="text-amber-300 text-xs mt-2">
-              {t('depositToStart')}
-            </p>
-          )}
-          <p className="text-xs text-purple-300/60 mt-2 text-center">Tap to view all tiers</p>
-        </div>
 
-        {/* Team Progress */}
-        {profitData.teamNextUnlockVolume > 0 && (
-          <div className="mt-3 bg-white/10 rounded-xl p-4 backdrop-blur">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm flex items-center gap-2">
-                <span>🌐</span>
-                <span className="font-medium text-purple-200">Team Progress</span>
-              </span>
-              {profitData.teamNextLevelName && (
-                <span className="text-xs text-emerald-400 font-medium">
-                  → {profitData.teamNextLevelName}
+          {/* Unlock Progress bar */}
+          {profitData.teamNextUnlockVolume > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs text-purple-200/80">Unlock Progress</span>
+                <span className="text-xs font-semibold text-emerald-400">
+                  {Math.min(
+                    (profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100,
+                    100
+                  ).toFixed(0)}%
+                  {profitData.teamNextLevelName && (
+                    <span className="text-white/40 font-normal"> → {profitData.teamNextLevelName}</span>
+                  )}
                 </span>
-              )}
+              </div>
+              <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full transition-all duration-700"
+                  style={{
+                    width: `${Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100)}%`
+                  }}
+                />
+              </div>
+              <div className="flex items-center justify-between mt-1.5">
+                <div className="flex items-center gap-2 text-[10px] text-white/40">
+                  {profitData.teamVolumeOnly > 0 && (
+                    <span>🌐 Team <span className="text-white/60">${profitData.teamVolumeOnly.toFixed(2)}</span></span>
+                  )}
+                  {profitData.taskBonus > 0 && (
+                    <span>✅ Tasks <span className="text-white/60">${profitData.taskBonus.toFixed(2)}</span></span>
+                  )}
+                </div>
+                <span className="text-[10px] text-white/40">
+                  ${profitData.teamEffectiveVolume.toFixed(2)} / ${profitData.teamNextUnlockVolume.toFixed(0)}
+                </span>
+              </div>
             </div>
-            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full transition-all duration-700"
-                style={{
-                  width: `${Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100)}%`
-                }}
-              />
-            </div>
-            <div className="flex justify-between text-xs mt-1.5">
-              <span className="text-white/60">
-                ${profitData.teamEffectiveVolume.toFixed(2)} / ${profitData.teamNextUnlockVolume.toFixed(0)} vol.
-              </span>
-              <span className="text-emerald-400 font-semibold">
-                {Math.min(((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100), 100).toFixed(0)}%
-              </span>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </AuroraCard>
 
       {/* Earnings Calculation Modal */}
