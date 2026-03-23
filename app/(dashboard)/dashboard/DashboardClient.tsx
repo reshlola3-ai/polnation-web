@@ -353,65 +353,77 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
   return (
     <div className="space-y-3">
-      {/* Hero — balance centered, clean */}
-      <AuroraCard className="p-5 md:p-8">
-        {/* Balance */}
-        <div className="text-center mb-4">
-          <p className="text-zinc-400 text-xs mb-1">{t('totalAssets')}</p>
+      {/* Hero — balance centered, premium grain gradient */}
+      <AuroraCard className="p-5 md:p-7">
+        {/* Balance — large, dominant */}
+        <div className="text-center mb-5">
+          <p className="text-white/40 text-xs tracking-widest uppercase mb-2">{t('totalAssets')}</p>
           {isBalanceLoading ? (
-            <div className="animate-pulse h-10 w-40 bg-zinc-800 rounded-lg mx-auto" />
+            <div className="animate-pulse h-14 w-44 bg-white/5 rounded-lg mx-auto" />
           ) : (
-            <p className="text-3xl md:text-4xl font-bold text-white stat-number">
+            <p className="text-5xl md:text-6xl font-bold text-white stat-number tracking-tight">
               ${totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           )}
-          <div className="flex items-center justify-center gap-1.5 mt-1.5">
-            <p className="text-emerald-400 text-sm font-medium stat-number">
-              +${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}{t('perDay')}
-            </p>
+          <div className="flex items-center justify-center gap-1.5 mt-2">
+            <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+              <span className="text-emerald-400 text-xs font-medium stat-number">
+                +${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}{t('perDay')}
+              </span>
+            </div>
             <button
               onClick={() => setShowEarningsModal(true)}
-              className="p-1.5 hover:bg-zinc-800 rounded-lg transition-colors"
+              className="p-1 hover:bg-white/5 rounded-full transition-colors"
             >
-              <HelpCircle className="w-4 h-4 text-zinc-500" />
+              <HelpCircle className="w-3.5 h-3.5 text-white/25" />
             </button>
           </div>
         </div>
 
-        {/* Status tags — single row */}
-        <div className="flex items-center justify-center gap-2 flex-wrap mb-4">
-          <span className="text-xs px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300">
+        {/* Status pills */}
+        <div className="flex items-center justify-center gap-2 flex-wrap mb-5">
+          <span className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/70">
             {TIER_ICONS[currentTier.name] || '⭐'} {currentTier.name} · {(currentTier.rate * 100).toFixed(2)}%
           </span>
-          <span className="text-xs px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300">
+          <span className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/70">
             <Flame className="w-3 h-3 inline -mt-0.5 text-amber-400" /> {profitData.momentumMultiplier.toFixed(1)}x
             {profitData.momentumDaysUntilDecay > 0 && (
-              <span className="text-zinc-500 ml-1">{profitData.momentumDaysUntilDecay}d</span>
+              <span className="text-white/30 ml-1">{profitData.momentumDaysUntilDecay}d</span>
             )}
           </span>
           <button
-            className="text-xs px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
+            className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/40 hover:text-white/70 transition-colors"
             onClick={() => setShowTierModal(true)}
           >
-            View tiers →
+            View tiers
           </button>
         </div>
 
-        {/* Withdraw CTA — full width */}
-        <div className="flex items-center justify-between bg-zinc-800/80 rounded-xl p-3.5">
+        {/* Withdraw CTA */}
+        <div
+          className="flex items-center justify-between rounded-xl p-4"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.07)',
+          }}
+        >
           <div>
-            <p className="text-xs text-zinc-500">{t('available')}</p>
+            <p className="text-xs text-white/35 mb-0.5">{t('available')}</p>
             {isLoadingProfit ? (
-              <div className="animate-pulse h-6 w-20 bg-zinc-700 rounded mt-0.5" />
+              <div className="animate-pulse h-7 w-20 bg-white/5 rounded mt-0.5" />
             ) : (
-              <p className="text-xl font-bold text-white stat-number">
+              <p className="text-2xl font-bold text-white stat-number">
                 ${profitData.availableWithdraw.toFixed(2)}
               </p>
             )}
           </div>
           <Link
             href="/earnings"
-            className="flex items-center gap-1.5 px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-white rounded-xl text-sm font-semibold transition-colors"
+            className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
+            style={{
+              background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+              boxShadow: '0 2px 12px rgba(6,182,212,0.3)',
+            }}
           >
             {t('withdraw')} <ArrowUpRight className="w-4 h-4" />
           </Link>
@@ -420,35 +432,28 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {/* Quick Actions — 4 icon buttons */}
       <div className="grid grid-cols-4 gap-2">
-        <Link href="/share" className="glass-card-solid flex flex-col items-center gap-1.5 py-3 hover:bg-zinc-800 transition-colors">
-          <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
-            <Copy className="w-4 h-4 text-purple-400" />
-          </div>
-          <span className="text-xs text-zinc-400">Share</span>
-        </Link>
-        <Link href="/test-lottery" className="glass-card-solid flex flex-col items-center gap-1.5 py-3 hover:bg-zinc-800 transition-colors relative">
-          <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <Award className="w-4 h-4 text-amber-400" />
-          </div>
-          <span className="text-xs text-zinc-400">Wheel</span>
-          {spinCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-              {spinCount}
-            </span>
-          )}
-        </Link>
-        <Link href="/team" className="glass-card-solid flex flex-col items-center gap-1.5 py-3 hover:bg-zinc-800 transition-colors">
-          <div className="w-9 h-9 rounded-lg bg-cyan-500/10 flex items-center justify-center">
-            <Users className="w-4 h-4 text-cyan-400" />
-          </div>
-          <span className="text-xs text-zinc-400">Team</span>
-        </Link>
-        <Link href="/tasks" className="glass-card-solid flex flex-col items-center gap-1.5 py-3 hover:bg-zinc-800 transition-colors">
-          <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-            <CheckCircle className="w-4 h-4 text-emerald-400" />
-          </div>
-          <span className="text-xs text-zinc-400">Tasks</span>
-        </Link>
+        {[
+          { href: '/share', icon: Copy, label: 'Share', iconColor: 'text-violet-400', bgColor: 'bg-violet-500/10' },
+          { href: '/test-lottery', icon: Award, label: 'Wheel', iconColor: 'text-amber-400', bgColor: 'bg-amber-500/10', badge: spinCount },
+          { href: '/team', icon: Users, label: 'Team', iconColor: 'text-cyan-400', bgColor: 'bg-cyan-500/10' },
+          { href: '/tasks', icon: CheckCircle, label: 'Tasks', iconColor: 'text-emerald-400', bgColor: 'bg-emerald-500/10' },
+        ].map(({ href, icon: Icon, label, iconColor, bgColor, badge }) => (
+          <Link
+            key={href}
+            href={href}
+            className="glass-card-solid flex flex-col items-center gap-1.5 py-3.5 relative active:scale-95 transition-transform"
+          >
+            <div className={`w-10 h-10 rounded-xl ${bgColor} flex items-center justify-center`}>
+              <Icon className={`w-5 h-5 ${iconColor}`} />
+            </div>
+            <span className="text-xs text-zinc-400">{label}</span>
+            {badge != null && badge > 0 && (
+              <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow shadow-amber-500/40">
+                {badge}
+              </span>
+            )}
+          </Link>
+        ))}
       </div>
 
       {/* Community + Progress — unified card */}
