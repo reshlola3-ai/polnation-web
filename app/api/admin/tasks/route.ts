@@ -188,13 +188,22 @@ export async function POST(request: NextRequest) {
           .eq('user_id', task.user_id)
           .single()
 
-        await supabaseAdmin
-          .from('user_task_progress')
-          .upsert({
-            user_id: task.user_id,
-            total_task_bonus: (progress?.total_task_bonus || 0) + finalReward,
-            updated_at: now,
-          })
+        if (progress) {
+          await supabaseAdmin
+            .from('user_task_progress')
+            .update({
+              total_task_bonus: (progress.total_task_bonus || 0) + finalReward,
+              updated_at: now,
+            })
+            .eq('user_id', task.user_id)
+        } else {
+          await supabaseAdmin
+            .from('user_task_progress')
+            .insert({
+              user_id: task.user_id,
+              total_task_bonus: finalReward,
+            })
+        }
       }
 
       return NextResponse.json({
