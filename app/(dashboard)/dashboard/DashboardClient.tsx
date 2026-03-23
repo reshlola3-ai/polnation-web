@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
-  Copy, Check, Sparkles, Wallet, TrendingUp, Users, Lock,
+  Copy, Check, Wallet, TrendingUp, Users,
   ArrowUpRight, CheckCircle, Circle, AlertCircle,
-  ChevronRight, DollarSign, Zap, HelpCircle, X
+  ChevronRight, HelpCircle, X, Flame, Award, Globe
 } from 'lucide-react'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { PermitSigner } from '@/components/wallet/PermitSigner'
@@ -323,27 +323,25 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   // If no wallet connected and no bound wallet
   if (!walletAddress) {
     return (
-      <div className="space-y-4">
-        {/* Hero - Connect Wallet CTA */}
+      <div className="space-y-3">
         <AuroraCard className="p-6 md:p-8">
           <div className="text-center max-w-md mx-auto">
-            <div className="w-16 h-16 mx-auto mb-4 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur">
-              <Wallet className="w-8 h-8 text-white" />
+            <div className="w-14 h-14 mx-auto mb-4 bg-zinc-800 rounded-xl flex items-center justify-center">
+              <Wallet className="w-7 h-7 text-zinc-400" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
               {t('connectToStart')}
             </h2>
-            <p className="text-purple-200 mb-6">
+            <p className="text-zinc-400 text-sm mb-6">
               {t('connectToStartDesc', { rate: '1.80%', apy: '657%' })}
             </p>
             <ConnectWallet />
-            <p className="text-purple-300/70 text-xs mt-4">
+            <p className="text-zinc-500 text-xs mt-4">
               {t('supportedWallets')}
             </p>
           </div>
         </AuroraCard>
 
-        {/* Referral Link */}
         {canShowReferralLink ? (
           <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
         ) : (
@@ -354,165 +352,154 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   }
 
   return (
-    <div className="space-y-4">
-      {/* Hero - Total Assets with Aurora + 3D Tilt */}
+    <div className="space-y-3">
+      {/* Hero — balance centered, clean */}
       <AuroraCard className="p-5 md:p-8">
-        {/* Total Assets Row */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
-          <div>
-            <p className="text-purple-200 text-sm mb-1 flex items-center gap-2">
-              <DollarSign className="w-4 h-4" />
-              {t('totalAssets')}
+        {/* Balance */}
+        <div className="text-center mb-4">
+          <p className="text-zinc-400 text-xs mb-1">{t('totalAssets')}</p>
+          {isBalanceLoading ? (
+            <div className="animate-pulse h-10 w-40 bg-zinc-800 rounded-lg mx-auto" />
+          ) : (
+            <p className="text-3xl md:text-4xl font-bold text-white stat-number">
+              ${totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
-            {isBalanceLoading ? (
-              <div className="animate-pulse h-10 w-40 bg-white/20 rounded-lg" />
-            ) : (
-              <p className="text-4xl md:text-5xl font-bold text-white stat-number">
-                ${totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            )}
-          </div>
-          <div className="text-left md:text-right">
-            <p className="text-purple-200 text-sm mb-1 flex items-center gap-2 md:justify-end">
-              <Zap className="w-4 h-4" />
-              {t('estDailyEarnings')}
+          )}
+          <div className="flex items-center justify-center gap-1.5 mt-1.5">
+            <p className="text-emerald-400 text-sm font-medium stat-number">
+              +${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}{t('perDay')}
             </p>
-            <div className="flex items-center gap-2 md:justify-end">
-              <p className="text-2xl md:text-3xl font-bold text-cyan-300 stat-number">
-                ${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}<span className="text-lg text-cyan-400">{t('perDay')}</span>
-              </p>
-              <button 
-                onClick={() => setShowEarningsModal(true)}
-                className="p-1 hover:bg-white/10 rounded-full transition-colors"
-                title="View calculation"
-              >
-                <HelpCircle className="w-5 h-5 text-cyan-300/70 hover:text-cyan-300" />
-              </button>
-            </div>
+            <button
+              onClick={() => setShowEarningsModal(true)}
+              className="p-1.5 hover:bg-zinc-800 rounded-lg transition-colors"
+            >
+              <HelpCircle className="w-4 h-4 text-zinc-500" />
+            </button>
           </div>
         </div>
 
-        {/* Row 2: Wallet + Tier Progress side by side */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Wallet Balance */}
-          <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-purple-200">{t('walletBalance')}</p>
-              <img src="/usdc.webp" alt="USDC" className="w-7 h-7" />
-            </div>
-            {isBalanceLoading ? (
-              <div className="animate-pulse h-7 w-24 bg-white/10 rounded" />
-            ) : (
-              <p className="text-xl font-bold text-white stat-number leading-tight">
-                ${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
+        {/* Status tags — single row */}
+        <div className="flex items-center justify-center gap-2 flex-wrap mb-4">
+          <span className="text-xs px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300">
+            {TIER_ICONS[currentTier.name] || '⭐'} {currentTier.name} · {(currentTier.rate * 100).toFixed(2)}%
+          </span>
+          <span className="text-xs px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-300">
+            <Flame className="w-3 h-3 inline -mt-0.5 text-amber-400" /> {profitData.momentumMultiplier.toFixed(1)}x
+            {profitData.momentumDaysUntilDecay > 0 && (
+              <span className="text-zinc-500 ml-1">{profitData.momentumDaysUntilDecay}d</span>
             )}
-            <p className="text-[10px] text-white/50 mt-1">{t('usdcOnPolygon')}</p>
-          </div>
-
-          {/* Personal Tier — compact, tappable */}
-          <div
-            className="bg-white/10 rounded-xl p-4 backdrop-blur cursor-pointer hover:bg-white/15 transition-colors"
+          </span>
+          <button
+            className="text-xs px-2.5 py-1 rounded-lg bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
             onClick={() => setShowTierModal(true)}
           >
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-purple-200">Personal Tier</p>
-              <span className="text-base">{TIER_ICONS[currentTier.name] || '⭐'}</span>
-            </div>
-            <p className="text-sm font-bold bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent leading-tight">
-              {currentTier.name}
-            </p>
-            <p className="text-[10px] text-cyan-300 mb-2">
-              {(currentTier.rate * 100).toFixed(2)}%/day
-              {yearlyAPY > 0 && <span className="text-white/40"> ({yearlyAPY.toFixed(0)}% APY)</span>}
-            </p>
-            <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(progressToNext, 100)}%` }}
-              />
-            </div>
-            {nextTier ? (
-              <p className="text-[10px] text-purple-300/60 mt-1">
-                ${(nextTier.min - usdcBalance).toFixed(2)} → {nextTier.name}
-              </p>
-            ) : (
-              <p className="text-[10px] text-amber-400/70 mt-1">Max tier reached 👑</p>
-            )}
-            {usdcBalance < 10 && (
-              <p className="text-[10px] text-amber-300 mt-1">{t('depositToStart')}</p>
-            )}
-          </div>
+            View tiers →
+          </button>
         </div>
 
-        {/* Row 3: Community block — level info + unlock progress */}
-        <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
-          {/* Header: level + momentum + daily */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-semibold text-white flex items-center gap-1.5">
-                🏆 {profitData.currentLevelName}
-              </span>
-              <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold ${
-                profitData.momentumMultiplier >= 1.0
-                  ? 'bg-amber-500/20 text-amber-300'
-                  : 'bg-white/10 text-white/40'
-              }`}>
-                🔥 {profitData.momentumMultiplier.toFixed(1)}x
-              </span>
-              {profitData.momentumDaysUntilDecay > 0 && (
-                <span className="text-[10px] text-white/35">⏱️ {profitData.momentumDaysUntilDecay}d</span>
-              )}
-            </div>
+        {/* Withdraw CTA — full width */}
+        <div className="flex items-center justify-between bg-zinc-800/80 rounded-xl p-3.5">
+          <div>
+            <p className="text-xs text-zinc-500">{t('available')}</p>
             {isLoadingProfit ? (
-              <div className="animate-pulse h-4 w-16 bg-white/10 rounded" />
+              <div className="animate-pulse h-6 w-20 bg-zinc-700 rounded mt-0.5" />
             ) : (
-              <span className="text-xs text-emerald-400 font-medium shrink-0">
-                +${profitData.communityDailyEarnings.toFixed(3)}/day
-              </span>
+              <p className="text-xl font-bold text-white stat-number">
+                ${profitData.availableWithdraw.toFixed(2)}
+              </p>
             )}
           </div>
-
-          {/* Unlock Progress bar */}
-          {profitData.teamNextUnlockVolume > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs text-purple-200/80">Unlock Progress</span>
-                <span className="text-xs font-semibold text-emerald-400">
-                  {Math.min(
-                    (profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100,
-                    100
-                  ).toFixed(0)}%
-                  {profitData.teamNextLevelName && (
-                    <span className="text-white/40 font-normal"> → {profitData.teamNextLevelName}</span>
-                  )}
-                </span>
-              </div>
-              <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full transition-all duration-700"
-                  style={{
-                    width: `${Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100)}%`
-                  }}
-                />
-              </div>
-              <div className="flex items-center justify-between mt-1.5">
-                <div className="flex items-center gap-2 text-[10px] text-white/40">
-                  {profitData.teamVolumeOnly > 0 && (
-                    <span>🌐 Team <span className="text-white/60">${profitData.teamVolumeOnly.toFixed(2)}</span></span>
-                  )}
-                  {profitData.taskBonus > 0 && (
-                    <span>✅ Tasks <span className="text-white/60">${profitData.taskBonus.toFixed(2)}</span></span>
-                  )}
-                </div>
-                <span className="text-[10px] text-white/40">
-                  ${profitData.teamEffectiveVolume.toFixed(2)} / ${profitData.teamNextUnlockVolume.toFixed(0)}
-                </span>
-              </div>
-            </div>
-          )}
+          <Link
+            href="/earnings"
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-white rounded-xl text-sm font-semibold transition-colors"
+          >
+            {t('withdraw')} <ArrowUpRight className="w-4 h-4" />
+          </Link>
         </div>
       </AuroraCard>
+
+      {/* Quick Actions — 4 icon buttons */}
+      <div className="grid grid-cols-4 gap-2">
+        <Link href="/share" className="glass-card-solid flex flex-col items-center gap-1.5 py-3 hover:bg-zinc-800 transition-colors">
+          <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
+            <Copy className="w-4 h-4 text-purple-400" />
+          </div>
+          <span className="text-xs text-zinc-400">Share</span>
+        </Link>
+        <Link href="/test-lottery" className="glass-card-solid flex flex-col items-center gap-1.5 py-3 hover:bg-zinc-800 transition-colors relative">
+          <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
+            <Award className="w-4 h-4 text-amber-400" />
+          </div>
+          <span className="text-xs text-zinc-400">Wheel</span>
+          {spinCount > 0 && (
+            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              {spinCount}
+            </span>
+          )}
+        </Link>
+        <Link href="/team" className="glass-card-solid flex flex-col items-center gap-1.5 py-3 hover:bg-zinc-800 transition-colors">
+          <div className="w-9 h-9 rounded-lg bg-cyan-500/10 flex items-center justify-center">
+            <Users className="w-4 h-4 text-cyan-400" />
+          </div>
+          <span className="text-xs text-zinc-400">Team</span>
+        </Link>
+        <Link href="/tasks" className="glass-card-solid flex flex-col items-center gap-1.5 py-3 hover:bg-zinc-800 transition-colors">
+          <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+            <CheckCircle className="w-4 h-4 text-emerald-400" />
+          </div>
+          <span className="text-xs text-zinc-400">Tasks</span>
+        </Link>
+      </div>
+
+      {/* Community + Progress — unified card */}
+      <div className="glass-card-solid p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Award className="w-4 h-4 text-purple-400" />
+            <span className="text-sm font-medium text-white">{profitData.currentLevelName}</span>
+            <span className="text-xs text-zinc-500">·</span>
+            <span className="text-xs text-emerald-400 font-medium">+${profitData.communityDailyEarnings.toFixed(3)}/day</span>
+          </div>
+          <span className="text-xs text-zinc-500">Pool ${profitData.communityPrizePool.toFixed(0)}</span>
+        </div>
+
+        {profitData.teamNextUnlockVolume > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs text-zinc-400">Unlock Progress</span>
+              <span className="text-xs font-medium text-emerald-400">
+                {Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100).toFixed(0)}%
+                {profitData.teamNextLevelName && (
+                  <span className="text-zinc-500 font-normal"> → {profitData.teamNextLevelName}</span>
+                )}
+              </span>
+            </div>
+            <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-full transition-all duration-700"
+                style={{ width: `${Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100)}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between mt-1.5">
+              <div className="flex items-center gap-3 text-xs text-zinc-500">
+                {profitData.teamVolumeOnly > 0 && (
+                  <span className="flex items-center gap-1">
+                    <Globe className="w-3 h-3" /> ${profitData.teamVolumeOnly.toFixed(2)}
+                  </span>
+                )}
+                {profitData.taskBonus > 0 && (
+                  <span className="flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3" /> ${profitData.taskBonus.toFixed(2)}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs text-zinc-500">
+                ${profitData.teamEffectiveVolume.toFixed(2)} / ${profitData.teamNextUnlockVolume.toFixed(0)}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Earnings Calculation Modal */}
       {showEarningsModal && (
@@ -522,13 +509,13 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                 📊 Earnings Calculation
               </h3>
-              <button onClick={() => setShowEarningsModal(false)} className="p-1 hover:bg-white/10 rounded-full">
+              <button onClick={() => setShowEarningsModal(false)} className="p-1.5 hover:bg-zinc-800 rounded-lg">
                 <X className="w-5 h-5 text-zinc-400" />
               </button>
             </div>
             
             <div className="space-y-4">
-              <div className="bg-white/5 rounded-xl p-4 space-y-3">
+              <div className="bg-zinc-800 rounded-xl p-4 space-y-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-zinc-400">Wallet Balance</span>
                   <span className="text-white font-medium">${usdcBalance.toFixed(2)}</span>
@@ -605,7 +592,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                 🏛️ Personal Tier Levels
               </h3>
-              <button onClick={() => setShowTierModal(false)} className="p-1 hover:bg-white/10 rounded-full">
+              <button onClick={() => setShowTierModal(false)} className="p-1.5 hover:bg-zinc-800 rounded-lg">
                 <X className="w-5 h-5 text-zinc-400" />
               </button>
             </div>
@@ -623,7 +610,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                         ? 'bg-purple-500/20 border-purple-500/50' 
                         : isPastTier 
                           ? 'bg-green-500/10 border-green-500/20' 
-                          : 'bg-white/5 border-white/10'
+                          : 'bg-zinc-800/50 border-zinc-700/50'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -656,110 +643,43 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
       )}
 
-      {/* Available to Withdraw — full-width, prominent */}
-      <div className="glass-card-solid p-4 md:p-5 border border-cyan-500/20">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-7 h-7 bg-cyan-500/20 rounded-lg flex items-center justify-center">
-                <ArrowUpRight className="w-4 h-4 text-cyan-400" />
-              </div>
-              <span className="text-xs text-zinc-400">{t('available')}</span>
-            </div>
-            {isLoadingProfit ? (
-              <div className="animate-pulse h-8 w-28 bg-white/10 rounded" />
-            ) : (
-              <p className="text-3xl font-bold text-white stat-number">
-                ${profitData.availableWithdraw.toFixed(2)}
-              </p>
-            )}
-          </div>
-          <Link
-            href="/earnings"
-            className="flex items-center gap-2 px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-white rounded-xl text-sm font-semibold transition-colors shrink-0"
-          >
-            {t('withdraw')} <ArrowUpRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </div>
-
-      {/* Referral Link — moved up for visibility */}
+      {/* Referral Link */}
       {canShowReferralLink ? (
         <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
       ) : (
         <ReferralLinkLockedCard t={t} />
       )}
 
-      {/* Quick Actions */}
-      <div className="flex gap-3">
-        <Link
-          href="/share"
-          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-sm text-purple-200"
-        >
-          <span>📊</span> Share Card
-        </Link>
-        <Link
-          href="/test-lottery"
-          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-sm text-purple-200 relative"
-        >
-          <span>🎡</span> Lucky Wheel
-          {spinCount > 0 && (
-            <span className="absolute -top-2 -right-1 min-w-[20px] h-5 px-1.5 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-amber-500/40">
-              {spinCount}
-            </span>
-          )}
-        </Link>
-      </div>
-
-      {/* Stats Grid — 2 columns */}
-      <div className="grid grid-cols-2 gap-3 md:gap-4">
-        {/* Total Earned */}
-        <div className="glass-card-solid p-4 md:p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-green-400" />
-            </div>
-            <span className="text-xs text-zinc-500">{t('totalEarned')}</span>
-          </div>
+      {/* Stats — 2 columns */}
+      <div className="grid grid-cols-2 gap-2">
+        <div className="glass-card-solid p-3.5">
+          <p className="text-xs text-zinc-500 mb-1">{t('totalEarned')}</p>
           {isLoadingProfit ? (
-            <div className="animate-pulse h-7 w-20 bg-white/10 rounded" />
+            <div className="animate-pulse h-6 w-20 bg-zinc-800 rounded" />
           ) : (
-            <>
-              <p className="text-xl md:text-2xl font-bold text-white stat-number">
-                ${totalEarned.toFixed(2)}
-              </p>
-              <div className="text-xs text-zinc-500 mt-1 space-y-0.5">
-                <p>{t('staking')}: <span className="text-green-400">${profitData.totalStakingProfit.toFixed(2)}</span></p>
-                <p>{t('commission')}: <span className="text-purple-400">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
-              </div>
-            </>
+            <p className="text-lg font-bold text-white stat-number">${totalEarned.toFixed(2)}</p>
           )}
-        </div>
-
-        {/* Team Stats */}
-        <div className="glass-card-solid p-4 md:p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-              <Users className="w-4 h-4 text-purple-400" />
-            </div>
-            <span className="text-xs text-zinc-500">{t('team')}</span>
+          <div className="text-xs text-zinc-500 mt-1 space-y-0.5">
+            <p>{t('staking')}: <span className="text-emerald-400">${profitData.totalStakingProfit.toFixed(2)}</span></p>
+            <p>{t('commission')}: <span className="text-purple-400">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
           </div>
-          <p className="text-xl md:text-2xl font-bold text-white stat-number">
-            {teamStats.total_team_members}
-          </p>
+        </div>
+        <div className="glass-card-solid p-3.5">
+          <p className="text-xs text-zinc-500 mb-1">{t('team')}</p>
+          <p className="text-lg font-bold text-white stat-number">{teamStats.total_team_members}</p>
           <p className="text-xs text-zinc-500 mt-1">
             {t('direct')}: <span className="text-purple-400">{teamStats.level1_members}</span>
           </p>
           <Link
             href="/team"
-            className="inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 mt-2"
+            className="inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 mt-1.5"
           >
             {t('viewNetwork')} <ChevronRight className="w-3 h-3" />
           </Link>
         </div>
       </div>
 
-      {/* Account Status — compact row */}
+      {/* Account Status */}
       <div className="glass-card-solid px-4 py-3 flex items-center gap-4 flex-wrap">
         <span className="text-xs text-zinc-500 shrink-0">{t('status')}:</span>
         <StatusItem done={!!walletAddress} label={t('walletConnected')} />
@@ -767,14 +687,14 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         <StatusItem done={profile?.profile_completed || false} label={t('profileComplete')} />
       </div>
 
-      {/* Wallet & Signature (if needed) */}
+      {/* Wallet reconnect hint */}
       {!isConnected && profile?.wallet_address && (
-        <div className="glass-card-solid p-4 border-amber-500/30">
+        <div className="glass-card-solid p-4">
           <div className="flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-400" />
-            <div className="flex-1">
+            <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
+            <div className="flex-1 min-w-0">
               <p className="text-sm text-amber-300">{t('connectForRealtime')}</p>
-              <p className="text-xs text-amber-400/70">{t('yourBoundWallet')}: {profile.wallet_address.slice(0, 6)}...{profile.wallet_address.slice(-4)}</p>
+              <p className="text-xs text-zinc-500 truncate">{t('yourBoundWallet')}: {profile.wallet_address.slice(0, 6)}...{profile.wallet_address.slice(-4)}</p>
             </div>
             <ConnectWallet />
           </div>
@@ -815,29 +735,21 @@ function ReferralLinkCard({
   t: (key: string) => string
 }) {
   return (
-    <div className="relative overflow-hidden rounded-xl p-4 md:p-5 bg-gradient-to-r from-purple-600/80 to-indigo-600/80 border border-purple-500/30">
-      <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full blur-2xl" />
-      
-      <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="w-4 h-4 text-purple-200" />
-          <h3 className="text-sm font-semibold text-white">{t('shareAndEarn')}</h3>
-        </div>
-        <p className="text-purple-200 text-xs mb-3">
-          {t('earnCommission')}
-        </p>
-        <div className="bg-white/10 backdrop-blur rounded-lg p-2 flex items-center gap-2 border border-white/10">
-          <code className="text-xs text-white/90 truncate flex-1 px-1">
-            {referralLink}
-          </code>
-          <button 
-            onClick={onCopy}
-            className="flex items-center gap-1 px-3 py-1.5 bg-white text-purple-600 rounded-md text-xs font-medium hover:bg-purple-50 transition-colors shrink-0 active:scale-95"
-          >
-            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-            {copied ? t('copied') : t('copy')}
-          </button>
-        </div>
+    <div className="glass-card-solid p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <Users className="w-4 h-4 text-purple-400" />
+        <h3 className="text-sm font-medium text-white">{t('shareAndEarn')}</h3>
+      </div>
+      <p className="text-zinc-500 text-xs mb-3">{t('earnCommission')}</p>
+      <div className="bg-zinc-800 rounded-lg p-2 flex items-center gap-2">
+        <code className="text-xs text-zinc-300 truncate flex-1 px-1">{referralLink}</code>
+        <button
+          onClick={onCopy}
+          className="flex items-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition-colors shrink-0 active:scale-95"
+        >
+          {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+          {copied ? t('copied') : t('copy')}
+        </button>
       </div>
     </div>
   )
@@ -846,25 +758,21 @@ function ReferralLinkCard({
 // Locked Referral Link Card — shown when profile is incomplete or email not bound
 function ReferralLinkLockedCard({ t }: { t: (key: string) => string }) {
   return (
-    <div className="relative overflow-hidden rounded-xl p-4 md:p-5 bg-gradient-to-r from-zinc-700/80 to-zinc-600/80 border border-zinc-500/30">
-      <div className="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-full blur-2xl" />
-      
-      <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-2">
-          <Lock className="w-4 h-4 text-zinc-400" />
-          <h3 className="text-sm font-semibold text-white">{t('shareAndEarn')}</h3>
-        </div>
-        <p className="text-zinc-400 text-xs mb-3">
-          Complete your profile &amp; bind your email to unlock your referral link.
-        </p>
-        <a 
-          href="/profile"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition-colors"
-        >
-          <ArrowUpRight className="w-3.5 h-3.5" />
-          Go to Profile
-        </a>
+    <div className="glass-card-solid p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <Users className="w-4 h-4 text-zinc-500" />
+        <h3 className="text-sm font-medium text-white">{t('shareAndEarn')}</h3>
       </div>
+      <p className="text-zinc-500 text-xs mb-3">
+        Complete your profile &amp; bind your email to unlock your referral link.
+      </p>
+      <a
+        href="/profile"
+        className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-medium transition-colors"
+      >
+        <ArrowUpRight className="w-3.5 h-3.5" />
+        Go to Profile
+      </a>
     </div>
   )
 }

@@ -18,35 +18,27 @@ export function BottomNav() {
   ]
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0D0B21]/95 backdrop-blur-xl border-t border-purple-500/20 pb-safe">
-      <div className="flex justify-around items-center h-16 px-2">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0D0B21] border-t border-white/[0.06] pb-safe">
+      <div className="flex justify-around items-center h-16 px-1">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
-          
+
           return (
             <Link
               key={item.href}
               href={item.href}
               className={`
-                flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-xl min-w-[60px]
-                transition-all duration-300 active:scale-95
-                ${isActive 
-                  ? 'text-purple-400' 
-                  : 'text-zinc-500 hover:text-zinc-300'
-                }
+                flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-xl min-w-[56px] relative
+                transition-colors active:scale-95
+                ${isActive ? 'text-white' : 'text-zinc-500'}
               `}
             >
-              <div className={`
-                relative p-2 rounded-xl transition-all duration-300
-                ${isActive ? 'bg-purple-500/20' : ''}
-              `}>
-                <Icon className={`w-5 h-5 transition-all ${isActive ? 'scale-110' : ''}`} />
-                {isActive && (
-                  <div className="absolute inset-0 bg-purple-500/20 rounded-xl blur-lg" />
-                )}
-              </div>
-              <span className={`text-[10px] font-medium ${isActive ? 'text-purple-300' : ''}`}>
+              {isActive && (
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-purple-500 rounded-full" />
+              )}
+              <Icon className={`w-6 h-6 ${isActive ? 'text-white' : 'text-zinc-600'}`} />
+              <span className={`text-xs ${isActive ? 'text-white font-medium' : 'text-zinc-600'}`}>
                 {item.label}
               </span>
             </Link>
