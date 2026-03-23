@@ -437,14 +437,17 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           { href: '/test-lottery', icon: Award, label: 'Wheel', iconColor: 'text-amber-400', bgColor: 'bg-amber-500/10', badge: spinCount },
           { href: '/team', icon: Users, label: 'Team', iconColor: 'text-cyan-400', bgColor: 'bg-cyan-500/10' },
           { href: '/tasks', icon: CheckCircle, label: 'Tasks', iconColor: 'text-emerald-400', bgColor: 'bg-emerald-500/10' },
-        ].map(({ href, icon: Icon, label, iconColor, bgColor, badge }) => (
+        ].map(({ href, icon: Icon, label, iconColor, bgColor, badge }, idx) => (
           <Link
             key={href}
             href={href}
-            className="glass-card-solid flex flex-col items-center gap-1.5 py-3.5 relative active:scale-95 transition-transform"
+            className="quick-action-card glass-card-solid flex flex-col items-center gap-1.5 py-3.5 relative active:scale-95 transition-transform"
           >
-            <div className={`w-10 h-10 rounded-xl ${bgColor} flex items-center justify-center`}>
-              <Icon className={`w-5 h-5 ${iconColor}`} />
+            <div
+              className={`quick-action-icon-wrap w-10 h-10 rounded-xl ${bgColor} flex items-center justify-center`}
+              style={{ animationDelay: `${idx * 0.18}s` }}
+            >
+              <Icon className={`quick-action-icon w-5 h-5 ${iconColor}`} style={{ animationDelay: `${idx * 0.14}s` }} />
             </div>
             <span className="text-xs text-zinc-400">{label}</span>
             {badge != null && badge > 0 && (

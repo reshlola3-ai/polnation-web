@@ -385,6 +385,42 @@ input, select, textarea {
   display: inline-block;
 }
 
+@keyframes quick-icon-breathe {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(139, 92, 246, 0);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 14px rgba(139, 92, 246, 0.28);
+  }
+}
+
+@keyframes quick-icon-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+.quick-action-card {
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.quick-action-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(139, 92, 246, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.32);
+}
+
+.quick-action-icon-wrap {
+  will-change: transform;
+  animation: quick-icon-breathe 3.2s ease-in-out infinite;
+}
+
+.quick-action-icon {
+  will-change: transform;
+  animation: quick-icon-float 2.6s ease-in-out infinite;
+}
+
 /* Mobile Typography Adjustments */
 @media (max-width: 640px) {
   h1 {
