@@ -307,15 +307,11 @@ export default function TestLotteryPage() {
           {spinData && (
             <div className="mt-4 flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20">
               <div className="text-2xl font-bold text-white">
-                {spinData.isInfluencer ? '∞' : spinData.remainingSpins}
+                {spinData.remainingSpins}
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">
-                  {spinData.isInfluencer ? t.unlimitedSpins : `${t.remainingSpins}`}
-                </p>
-                {!spinData.isInfluencer && (
-                  <p className="text-xs text-zinc-500">{spinData.usedSpins} used · {spinData.totalSpins} total earned</p>
-                )}
+                <p className="text-sm font-semibold text-white">{t.remainingSpins}</p>
+                <p className="text-xs text-zinc-500">{spinData.usedSpins} used · {spinData.totalSpins} total earned</p>
               </div>
             </div>
           )}
