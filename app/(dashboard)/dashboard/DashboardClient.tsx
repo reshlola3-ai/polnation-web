@@ -80,6 +80,10 @@ interface ProfitData {
   momentumDaysUntilDecay: number
   momentumNextMultiplier: number
   momentumRecentReferrals: number
+  teamEffectiveVolume: number
+  teamNextUnlockVolume: number
+  teamNextLevelName: string
+  communityTotalEarned: number
 }
 
 interface ReferralData {
@@ -115,20 +119,25 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   const [showEarningsModal, setShowEarningsModal] = useState(false)
   const [showTierModal, setShowTierModal] = useState(false)
   const [estDailyCommission, setEstDailyCommission] = useState(0)
+  const [spinCount, setSpinCount] = useState(0)
   const [profitData, setProfitData] = useState<ProfitData>({
     totalStakingProfit: 0,
     totalCommissionProfit: 0,
     availableWithdraw: 0,
     hasSignature: false,
-    communityPrizePool: 10, // 默认 Level 1 奖池
+    communityPrizePool: 10,
     currentLevelName: 'Bronze',
     communityDailyRate: 0,
     communityDailyEarnings: 0,
     baseCommunityDailyEarnings: 0,
-    momentumMultiplier: 5.0,
+    momentumMultiplier: 1.0,
     momentumDaysUntilDecay: 0,
-    momentumNextMultiplier: 4.0,
+    momentumNextMultiplier: 0.8,
     momentumRecentReferrals: 0,
+    teamEffectiveVolume: 0,
+    teamNextUnlockVolume: 0,
+    teamNextLevelName: '',
+    communityTotalEarned: 0,
   })
   const [isLoadingProfit, setIsLoadingProfit] = useState(true)
 
@@ -215,7 +224,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     }
   }
 
-  // Fetch community status for prize pool + momentum
+  // Fetch community status for prize pool + momentum + team progress
   const fetchCommunityStatus = async () => {
     try {
       const res = await fetch('/api/community/status')
@@ -228,10 +237,14 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           communityDailyRate: (data.currentLevelInfo?.daily_rate || 0) * 100,
           communityDailyEarnings: data.dailyEarningAmount || 0,
           baseCommunityDailyEarnings: data.baseDailyEarning || 0,
-          momentumMultiplier: momentum.multiplier || 5.0,
+          momentumMultiplier: momentum.multiplier || 1.0,
           momentumDaysUntilDecay: momentum.daysUntilDecay || 0,
-          momentumNextMultiplier: momentum.nextMultiplierAfterDecay || 4.0,
+          momentumNextMultiplier: momentum.nextMultiplierAfterDecay || 0.8,
           momentumRecentReferrals: momentum.recentReferrals || 0,
+          teamEffectiveVolume: data.effectiveVolume || 0,
+          teamNextUnlockVolume: data.nextUnlockVolume || 0,
+          teamNextLevelName: data.nextLevelInfo?.name || '',
+          communityTotalEarned: data.status?.total_community_earned || 0,
         }
         setProfitData(prev => ({ ...prev, ...update }))
         saveToCache(update)
@@ -239,6 +252,17 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     } catch (err) {
       console.error('Error fetching community status:', err)
     }
+  }
+
+  // Fetch remaining Lucky Wheel spins
+  const fetchSpinCount = async () => {
+    try {
+      const res = await fetch('/api/lottery')
+      if (res.ok) {
+        const data = await res.json()
+        setSpinCount(data.remainingSpins || 0)
+      }
+    } catch { /* ignore */ }
   }
 
   // Fetch referrals and calculate estimated daily commission
@@ -269,10 +293,11 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     fetchProfitData()
     fetchCommunityStatus()
     fetchEstDailyCommission()
+    fetchSpinCount()
   }, [])
 
-  // Calculate total assets = community prize pool + wallet usdc balance
-  const totalAssets = profitData.communityPrizePool + usdcBalance
+  // Total Assets = wallet USDC + available to withdraw + community prize pool
+  const totalAssets = usdcBalance + profitData.availableWithdraw + profitData.communityPrizePool
   // Referral link: only show short link if profile completed + real email bound
   const canShowReferralLink = profile?.profile_completed && !isWalletEmail(profile?.email) && !!profile?.referral_code
   const refCode = profile?.referral_code || userId
@@ -381,31 +406,40 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             </div>
           </div>
 
-          {/* Community Prize Pool */}
+          {/* Community Dividend Pool */}
           <div className="bg-white/10 rounded-xl p-4 backdrop-blur">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-purple-200 mb-1">{t('communityPrizePool')}</p>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs text-purple-200 mb-1 flex items-center gap-1">
+                  🏆 Community Pool
+                </p>
                 {isLoadingProfit ? (
-                  <div className="animate-pulse h-8 w-24 bg-white/10 rounded" />
+                  <div className="animate-pulse h-7 w-20 bg-white/10 rounded mb-1" />
                 ) : (
-                  <p className="text-2xl md:text-3xl font-bold text-white stat-number">
+                  <p className="text-xl font-bold text-white stat-number leading-tight">
                     ${profitData.communityPrizePool.toFixed(2)}
                   </p>
                 )}
-                <p className="text-xs text-white/70 mt-1">{t('level', { name: profitData.currentLevelName })}</p>
-                {profitData.momentumMultiplier > 1.0 && (
-                  <div className="flex items-center gap-1 mt-1.5">
-                    <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-semibold animate-pulse">
-                      🔥 {profitData.momentumMultiplier.toFixed(1)}x
-                    </span>
-                    {profitData.momentumDaysUntilDecay > 0 && (
-                      <span className="text-[10px] text-amber-400/60">⏱️ {profitData.momentumDaysUntilDecay}d</span>
-                    )}
-                  </div>
-                )}
+                <p className="text-[10px] text-emerald-400 font-medium">
+                  +${profitData.communityDailyEarnings.toFixed(3)}/day
+                </p>
+                <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/30 text-purple-200">
+                    {profitData.currentLevelName}
+                  </span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
+                    profitData.momentumMultiplier >= 1.0
+                      ? 'bg-amber-500/20 text-amber-300'
+                      : 'bg-white/10 text-white/50'
+                  }`}>
+                    🔥 {profitData.momentumMultiplier.toFixed(1)}x
+                  </span>
+                  {profitData.momentumDaysUntilDecay > 0 && (
+                    <span className="text-[10px] text-white/40">⏱️{profitData.momentumDaysUntilDecay}d</span>
+                  )}
+                </div>
               </div>
-              <img src="/crowdfunding.webp" alt="Community" className="w-10 h-10 md:w-12 md:h-12" />
+              <img src="/crowdfunding.webp" alt="Community" className="w-9 h-9 shrink-0" />
             </div>
           </div>
         </div>
@@ -443,6 +477,39 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           )}
           <p className="text-xs text-purple-300/60 mt-2 text-center">Tap to view all tiers</p>
         </div>
+
+        {/* Team Progress */}
+        {profitData.teamNextUnlockVolume > 0 && (
+          <div className="mt-3 bg-white/10 rounded-xl p-4 backdrop-blur">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm flex items-center gap-2">
+                <span>🌐</span>
+                <span className="font-medium text-purple-200">Team Progress</span>
+              </span>
+              {profitData.teamNextLevelName && (
+                <span className="text-xs text-emerald-400 font-medium">
+                  → {profitData.teamNextLevelName}
+                </span>
+              )}
+            </div>
+            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-emerald-400 to-cyan-400 rounded-full transition-all duration-700"
+                style={{
+                  width: `${Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100)}%`
+                }}
+              />
+            </div>
+            <div className="flex justify-between text-xs mt-1.5">
+              <span className="text-white/60">
+                ${profitData.teamEffectiveVolume.toFixed(2)} / ${profitData.teamNextUnlockVolume.toFixed(0)} vol.
+              </span>
+              <span className="text-emerald-400 font-semibold">
+                {Math.min(((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100), 100).toFixed(0)}%
+              </span>
+            </div>
+          </div>
+        )}
       </AuroraCard>
 
       {/* Earnings Calculation Modal */}
@@ -631,9 +698,14 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </Link>
         <Link
           href="/test-lottery"
-          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-sm text-purple-200"
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-sm text-purple-200 relative"
         >
           <span>🎡</span> Lucky Wheel
+          {spinCount > 0 && (
+            <span className="absolute -top-2 -right-1 min-w-[20px] h-5 px-1.5 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-amber-500/40">
+              {spinCount}
+            </span>
+          )}
         </Link>
       </div>
 

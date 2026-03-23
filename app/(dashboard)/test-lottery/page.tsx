@@ -190,19 +190,36 @@ function getLocale(): string {
   return match ? match[1] : 'en'
 }
 
+interface SpinData {
+  remainingSpins: number
+  totalSpins: number
+  usedSpins: number
+  isInfluencer: boolean
+  selfAirdropCount: number
+  progressToNextSpin: number
+  nextMilestone: number
+}
+
 export default function TestLotteryPage() {
   const [locale, setLocale] = useState('en')
+  const [spinData, setSpinData] = useState<SpinData | null>(null)
 
   useEffect(() => {
     setLocale(getLocale())
+    fetch('/api/lottery')
+      .then(r => r.json())
+      .then(d => setSpinData(d))
+      .catch(() => {})
   }, [])
 
   const t = translations[locale] || translations.en
 
+  const progressPct = spinData ? (spinData.progressToNextSpin / 7) * 100 : 0
+
   return (
-    <div className="min-h-[80vh] flex flex-col items-center justify-center py-8">
+    <div className="min-h-[80vh] flex flex-col items-center py-6 px-4">
       {/* Back button */}
-      <div className="w-full max-w-lg mb-6">
+      <div className="w-full max-w-lg mb-4">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors text-sm"
@@ -213,78 +230,137 @@ export default function TestLotteryPage() {
       </div>
 
       {/* Page header */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+      <div className="text-center mb-5">
+        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-amber-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent mb-1">
           🎡 {t.pageTitle}
         </h1>
-        <p className="text-zinc-400 text-sm max-w-md mx-auto">{t.pageDesc}</p>
+        <p className="text-zinc-400 text-sm">{t.pageDesc}</p>
       </div>
 
-      {/* Lottery Wheel */}
-      <div className="glass-card-solid p-6 md:p-10 rounded-2xl max-w-lg w-full">
-        <LotteryWheel t={t} />
-      </div>
-
-      {/* Prize table */}
-      <div className="mt-8 max-w-lg w-full">
-        <div className="glass-card-solid rounded-2xl p-6">
-          <h3 className="text-white font-semibold mb-4 text-center">🎁 Prize Pool</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { emoji: '💰', label: t.prizes.usdc_05, chance: '15%', note: 'Withdrawable' },
-              { emoji: '💰', label: t.prizes.usdc_1, chance: '7%', note: 'Withdrawable' },
-              { emoji: '🏆', label: t.prizes.usdc_5, chance: '2.5%', note: 'Withdrawable' },
-              { emoji: '👑', label: t.prizes.usdc_10, chance: '0.5%', note: 'Withdrawable' },
-              { emoji: '⭐', label: t.prizes.bonus_1, chance: '20%', note: 'Unlock Progress' },
-              { emoji: '⭐', label: t.prizes.bonus_2, chance: '10%', note: 'Unlock Progress' },
-              { emoji: '⭐', label: t.prizes.bonus_3, chance: '5%', note: 'Unlock Progress' },
-              { emoji: '😊', label: t.prizes.thanks, chance: '40%', note: '' },
-            ].map((p, i) => (
-              <div key={i} className="flex items-center justify-between p-2.5 bg-white/5 rounded-xl">
-                <div>
-                  <span className="text-sm text-white">
-                    {p.emoji} {p.label}
-                  </span>
-                  {p.note && (
-                    <p className="text-[10px] text-zinc-600">{p.note}</p>
-                  )}
-                </div>
-                <span className="text-xs text-zinc-500">{p.chance}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* How to earn spins */}
-      <div className="mt-4 max-w-lg w-full">
-        <div className="glass-card-solid rounded-2xl p-6">
-          <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+      {/* ─── How to Earn Spins — shown ABOVE the wheel ─── */}
+      <div className="max-w-lg w-full mb-5">
+        <div className="glass-card-solid rounded-2xl p-5 border border-purple-500/20">
+          <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
             <Info className="w-4 h-4 text-cyan-400" />
             {t.howToEarn}
           </h3>
-          <div className="space-y-2">
-            <div className="flex items-start gap-2 p-2.5 bg-white/5 rounded-xl">
-              <span className="text-purple-400 font-bold text-sm mt-0.5">1.</span>
-              <p className="text-zinc-300 text-sm">{t.earnMethod1}</p>
+
+          <div className="space-y-3">
+            {/* Method 1: referral */}
+            <div className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
+              <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-sm">👥</span>
+              </div>
+              <div>
+                <p className="text-white text-sm font-medium">Invite a Friend</p>
+                <p className="text-zinc-400 text-xs mt-0.5">{t.earnMethod1}</p>
+              </div>
             </div>
-            <div className="flex items-start gap-2 p-2.5 bg-white/5 rounded-xl">
-              <span className="text-purple-400 font-bold text-sm mt-0.5">2.</span>
-              <p className="text-zinc-300 text-sm">{t.earnMethod2}</p>
+
+            {/* Method 2: self airdrops — with live progress */}
+            <div className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
+              <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-sm">✈️</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white text-sm font-medium">Claim Airdrops</p>
+                <p className="text-zinc-400 text-xs mt-0.5">{t.earnMethod2}</p>
+                {spinData && (
+                  <div className="mt-2">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-zinc-400">
+                        {spinData.progressToNextSpin} / 7 claims toward next spin
+                      </span>
+                      <span className="text-cyan-400 font-medium">
+                        {spinData.selfAirdropCount} total
+                      </span>
+                    </div>
+                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full transition-all duration-700"
+                        style={{ width: `${progressPct}%` }}
+                      />
+                    </div>
+                    {spinData.progressToNextSpin > 0 && (
+                      <p className="text-[10px] text-cyan-400/70 mt-1">
+                        {7 - spinData.progressToNextSpin} more claims → unlock 1 spin 🎰
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="flex items-start gap-2 p-2.5 bg-white/5 rounded-xl">
-              <span className="text-purple-400 font-bold text-sm mt-0.5">3.</span>
-              <p className="text-zinc-300 text-sm">{t.earnMethod3}</p>
+
+            {/* Method 3: influencer */}
+            <div className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
+              <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-sm">⭐</span>
+              </div>
+              <div>
+                <p className="text-white text-sm font-medium">Become Influencer</p>
+                <p className="text-zinc-400 text-xs mt-0.5">{t.earnMethod3}</p>
+              </div>
             </div>
           </div>
 
-          {/* Reward info */}
-          <div className="mt-4 pt-3 border-t border-white/5">
-            <h4 className="text-white text-sm font-medium mb-2">{t.rewardInfo}</h4>
-            <div className="space-y-1">
-              <p className="text-xs text-green-400/80">💰 {t.rewardUsdc}</p>
-              <p className="text-xs text-purple-400/80">⭐ {t.rewardBonus}</p>
+          {/* Spin count summary */}
+          {spinData && (
+            <div className="mt-4 flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20">
+              <div className="text-2xl font-bold text-white">
+                {spinData.isInfluencer ? '∞' : spinData.remainingSpins}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">
+                  {spinData.isInfluencer ? t.unlimitedSpins : `${t.remainingSpins}`}
+                </p>
+                {!spinData.isInfluencer && (
+                  <p className="text-xs text-zinc-500">{spinData.usedSpins} used · {spinData.totalSpins} total earned</p>
+                )}
+              </div>
             </div>
+          )}
+        </div>
+      </div>
+
+      {/* ─── Lottery Wheel ─── */}
+      <div className="glass-card-solid p-5 md:p-8 rounded-2xl max-w-lg w-full border border-white/10">
+        <LotteryWheel t={t} />
+      </div>
+
+      {/* ─── Reward info ─── */}
+      <div className="mt-3 max-w-lg w-full flex gap-2">
+        <div className="flex-1 flex items-center gap-2 p-2.5 bg-green-500/10 rounded-xl border border-green-500/20">
+          <span className="text-base">💰</span>
+          <p className="text-xs text-green-400">{t.rewardUsdc}</p>
+        </div>
+        <div className="flex-1 flex items-center gap-2 p-2.5 bg-purple-500/10 rounded-xl border border-purple-500/20">
+          <span className="text-base">⭐</span>
+          <p className="text-xs text-purple-400">{t.rewardBonus}</p>
+        </div>
+      </div>
+
+      {/* ─── Prize table (compact) ─── */}
+      <div className="mt-4 max-w-lg w-full">
+        <div className="glass-card-solid rounded-2xl p-5">
+          <h3 className="text-white font-semibold mb-3 text-center text-sm">🎁 Prize Odds</h3>
+          <div className="grid grid-cols-2 gap-1.5">
+            {[
+              { emoji: '💰', label: t.prizes.usdc_05, chance: '15%', color: 'text-green-400' },
+              { emoji: '💰', label: t.prizes.usdc_1, chance: '7%', color: 'text-green-400' },
+              { emoji: '🏆', label: t.prizes.usdc_5, chance: '2.5%', color: 'text-green-400' },
+              { emoji: '👑', label: t.prizes.usdc_10, chance: '0.5%', color: 'text-green-400' },
+              { emoji: '⭐', label: t.prizes.bonus_1, chance: '20%', color: 'text-purple-400' },
+              { emoji: '⭐', label: t.prizes.bonus_2, chance: '10%', color: 'text-purple-400' },
+              { emoji: '⭐', label: t.prizes.bonus_3, chance: '5%', color: 'text-purple-400' },
+              { emoji: '😊', label: t.prizes.thanks, chance: '40%', color: 'text-zinc-500' },
+            ].map((p, i) => (
+              <div key={i} className="flex items-center justify-between p-2 bg-white/5 rounded-lg">
+                <span className={`text-xs font-medium ${p.color}`}>
+                  {p.emoji} {p.label}
+                </span>
+                <span className="text-[10px] text-zinc-600 ml-1">{p.chance}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

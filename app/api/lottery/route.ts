@@ -72,12 +72,25 @@ export async function GET() {
     .order('created_at', { ascending: false })
     .limit(20)
 
+  // 获取自己的空投领取次数（用于显示进度）
+  const { data: selfAirdrops } = await admin
+    .from('airdrop_calculations')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('is_credited', true)
+  const selfAirdropCount = selfAirdrops?.length || 0
+  const nextMilestone = (Math.floor(selfAirdropCount / 7) + 1) * 7
+  const progressToNextSpin = selfAirdropCount % 7
+
   return NextResponse.json({
     canSpin,
     isInfluencer,
     totalSpins,
     usedSpins,
     remainingSpins: Math.max(0, remainingSpins),
+    selfAirdropCount,
+    progressToNextSpin,
+    nextMilestone,
     history: history || [],
   })
 }
