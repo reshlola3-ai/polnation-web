@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
-  Copy, Check, Wallet, TrendingUp, Users,
+  Copy, Check, Wallet, TrendingUp, Users, DollarSign,
   ArrowUpRight, CheckCircle, Circle, AlertCircle,
   ChevronRight, HelpCircle, X, Flame, Award, Globe
 } from 'lucide-react'
@@ -456,45 +456,68 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         ))}
       </div>
 
-      {/* Community + Progress — unified card */}
-      <div className="glass-card-solid p-4">
+      {/* Community + Progress — Plan A: left accent border + thick bar */}
+      <div
+        className="glass-card-solid p-4"
+        style={{ borderLeft: '3px solid rgba(139,92,246,0.7)' }}
+      >
+        {/* Header */}
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Award className="w-4 h-4 text-purple-400" />
-            <span className="text-sm font-medium text-white">{profitData.currentLevelName}</span>
-            <span className="text-xs text-zinc-500">·</span>
-            <span className="text-xs text-emerald-400 font-medium">+${profitData.communityDailyEarnings.toFixed(3)}/day</span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center">
+              <Award className="w-4 h-4 text-purple-400" />
+            </div>
+            <div>
+              <span className="text-sm font-semibold text-white">{profitData.currentLevelName}</span>
+              <span className="text-xs text-zinc-500 ml-2">Community</span>
+            </div>
           </div>
-          <span className="text-xs text-zinc-500">Pool ${profitData.communityPrizePool.toFixed(0)}</span>
+          <div className="text-right">
+            <p className="text-sm font-semibold text-emerald-400">+${profitData.communityDailyEarnings.toFixed(3)}</p>
+            <p className="text-[10px] text-zinc-500">per day · Pool ${profitData.communityPrizePool.toFixed(0)}</p>
+          </div>
         </div>
 
         {profitData.teamNextUnlockVolume > 0 && (
           <div>
-            <div className="flex items-center justify-between mb-1.5">
+            {/* Label + percentage pill */}
+            <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-zinc-400">Unlock Progress</span>
-              <span className="text-xs font-medium text-emerald-400">
-                {Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100).toFixed(0)}%
+              <div className="flex items-center gap-1.5">
                 {profitData.teamNextLevelName && (
-                  <span className="text-zinc-500 font-normal"> → {profitData.teamNextLevelName}</span>
+                  <span className="text-xs text-zinc-500">→ {profitData.teamNextLevelName}</span>
                 )}
-              </span>
+                <span className="text-xs font-bold text-white bg-emerald-500/20 border border-emerald-500/30 rounded-full px-2 py-0.5">
+                  {Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100).toFixed(0)}%
+                </span>
+              </div>
             </div>
-            <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+
+            {/* Thick progress bar */}
+            <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-full transition-all duration-700"
-                style={{ width: `${Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100)}%` }}
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100)}%`,
+                  background: 'linear-gradient(90deg, #10b981 0%, #06b6d4 100%)',
+                  boxShadow: '0 0 8px rgba(16,185,129,0.4)',
+                }}
               />
             </div>
-            <div className="flex items-center justify-between mt-1.5">
-              <div className="flex items-center gap-3 text-xs text-zinc-500">
+
+            {/* Breakdown */}
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center gap-3">
                 {profitData.teamVolumeOnly > 0 && (
-                  <span className="flex items-center gap-1">
-                    <Globe className="w-3 h-3" /> ${profitData.teamVolumeOnly.toFixed(2)}
+                  <span className="flex items-center gap-1 text-xs text-zinc-500">
+                    <Globe className="w-3 h-3 text-cyan-500" />
+                    <span className="text-zinc-400">${profitData.teamVolumeOnly.toFixed(2)}</span>
                   </span>
                 )}
                 {profitData.taskBonus > 0 && (
-                  <span className="flex items-center gap-1">
-                    <CheckCircle className="w-3 h-3" /> ${profitData.taskBonus.toFixed(2)}
+                  <span className="flex items-center gap-1 text-xs text-zinc-500">
+                    <CheckCircle className="w-3 h-3 text-emerald-500" />
+                    <span className="text-zinc-400">${profitData.taskBonus.toFixed(2)}</span>
                   </span>
                 )}
               </div>
@@ -657,22 +680,32 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {/* Stats — 2 columns */}
       <div className="grid grid-cols-2 gap-2">
-        <div className="glass-card-solid p-3.5">
-          <p className="text-xs text-zinc-500 mb-1">{t('totalEarned')}</p>
+        <div className="glass-card-solid p-3.5" style={{ borderLeft: '3px solid rgba(16,185,129,0.5)' }}>
+          <div className="flex items-center gap-1.5 mb-2">
+            <div className="w-5 h-5 rounded bg-emerald-500/15 flex items-center justify-center">
+              <DollarSign className="w-3 h-3 text-emerald-400" />
+            </div>
+            <p className="text-xs text-zinc-400 font-medium">{t('totalEarned')}</p>
+          </div>
           {isLoadingProfit ? (
             <div className="animate-pulse h-6 w-20 bg-zinc-800 rounded" />
           ) : (
-            <p className="text-lg font-bold text-white stat-number">${totalEarned.toFixed(2)}</p>
+            <p className="text-xl font-bold text-white stat-number">${totalEarned.toFixed(2)}</p>
           )}
-          <div className="text-xs text-zinc-500 mt-1 space-y-0.5">
+          <div className="text-xs text-zinc-500 mt-1.5 space-y-0.5">
             <p>{t('staking')}: <span className="text-emerald-400">${profitData.totalStakingProfit.toFixed(2)}</span></p>
             <p>{t('commission')}: <span className="text-purple-400">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
           </div>
         </div>
-        <div className="glass-card-solid p-3.5">
-          <p className="text-xs text-zinc-500 mb-1">{t('team')}</p>
-          <p className="text-lg font-bold text-white stat-number">{teamStats.total_team_members}</p>
-          <p className="text-xs text-zinc-500 mt-1">
+        <div className="glass-card-solid p-3.5" style={{ borderLeft: '3px solid rgba(139,92,246,0.5)' }}>
+          <div className="flex items-center gap-1.5 mb-2">
+            <div className="w-5 h-5 rounded bg-purple-500/15 flex items-center justify-center">
+              <Users className="w-3 h-3 text-purple-400" />
+            </div>
+            <p className="text-xs text-zinc-400 font-medium">{t('team')}</p>
+          </div>
+          <p className="text-xl font-bold text-white stat-number">{teamStats.total_team_members}</p>
+          <p className="text-xs text-zinc-500 mt-1.5">
             {t('direct')}: <span className="text-purple-400">{teamStats.level1_members}</span>
           </p>
           <Link
@@ -684,13 +717,68 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
       </div>
 
-      {/* Account Status */}
-      <div className="glass-card-solid px-4 py-3 flex items-center gap-4 flex-wrap">
-        <span className="text-xs text-zinc-500 shrink-0">{t('status')}:</span>
-        <StatusItem done={!!walletAddress} label={t('walletConnected')} />
-        <StatusItem done={profitData.hasSignature} label={t('signatureDone')} />
-        <StatusItem done={profile?.profile_completed || false} label={t('profileComplete')} />
-      </div>
+      {/* Account Setup — Plan C: onboarding progress card */}
+      {(() => {
+        const steps = [
+          { done: !!walletAddress,                     label: t('walletConnected'),  href: null },
+          { done: profitData.hasSignature,             label: t('signatureDone'),    href: null },
+          { done: profile?.profile_completed || false, label: t('profileComplete'),  href: '/profile' },
+        ]
+        const doneCount = steps.filter(s => s.done).length
+        const allDone = doneCount === steps.length
+        return (
+          <div
+            className="glass-card-solid p-4"
+            style={{ borderLeft: '3px solid rgba(16,185,129,0.5)' }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                </div>
+                <span className="text-sm font-semibold text-white">Account Setup</span>
+              </div>
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${allDone ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-zinc-800 text-zinc-400'}`}>
+                {doneCount}/{steps.length}
+              </span>
+            </div>
+
+            {/* Steps list */}
+            <div className="space-y-2 mb-3">
+              {steps.map((step, i) => (
+                <div key={i} className="flex items-center gap-2.5">
+                  {step.done ? (
+                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                  ) : (
+                    <Circle className="w-4 h-4 text-zinc-600 shrink-0" />
+                  )}
+                  <span className={`text-xs flex-1 ${step.done ? 'text-zinc-300 line-through decoration-zinc-600' : 'text-zinc-400'}`}>
+                    {step.label}
+                  </span>
+                  {!step.done && step.href && (
+                    <a href={step.href} className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-0.5">
+                      Fix <ArrowUpRight className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Progress bar */}
+            <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${(doneCount / steps.length) * 100}%`,
+                  background: allDone
+                    ? 'linear-gradient(90deg, #10b981, #34d399)'
+                    : 'linear-gradient(90deg, #8b5cf6, #06b6d4)',
+                }}
+              />
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Wallet reconnect hint */}
       {!isConnected && profile?.wallet_address && (
@@ -727,7 +815,7 @@ function StatusItem({ done, label }: { done: boolean; label: string }) {
   )
 }
 
-// Referral Link Card Component
+// Referral Link Card — Plan B: gradient invite card
 function ReferralLinkCard({ 
   referralLink, 
   copied, 
@@ -740,44 +828,72 @@ function ReferralLinkCard({
   t: (key: string) => string
 }) {
   return (
-    <div className="glass-card-solid p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <Users className="w-4 h-4 text-purple-400" />
-        <h3 className="text-sm font-medium text-white">{t('shareAndEarn')}</h3>
-      </div>
-      <p className="text-zinc-500 text-xs mb-3">{t('earnCommission')}</p>
-      <div className="bg-zinc-800 rounded-lg p-2 flex items-center gap-2">
-        <code className="text-xs text-zinc-300 truncate flex-1 px-1">{referralLink}</code>
-        <button
-          onClick={onCopy}
-          className="flex items-center gap-1 px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition-colors shrink-0 active:scale-95"
-        >
-          {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-          {copied ? t('copied') : t('copy')}
-        </button>
+    <div
+      className="relative overflow-hidden rounded-xl p-4 border border-purple-500/20"
+      style={{
+        background: 'linear-gradient(135deg, rgba(88,28,135,0.45) 0%, rgba(49,46,129,0.35) 60%, rgba(13,11,33,0.9) 100%)',
+        boxShadow: '0 2px 16px rgba(88,28,135,0.15)',
+      }}
+    >
+      {/* Decorative circles */}
+      <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-purple-500/10 pointer-events-none" />
+      <div className="absolute -bottom-4 -right-2 w-14 h-14 rounded-full bg-indigo-500/10 pointer-events-none" />
+
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center">
+            <Users className="w-3.5 h-3.5 text-purple-300" />
+          </div>
+          <h3 className="text-sm font-semibold text-white">{t('shareAndEarn')}</h3>
+        </div>
+        <p className="text-purple-200/70 text-xs mb-3">{t('earnCommission')}</p>
+
+        <div className="bg-black/30 rounded-xl p-2.5 flex items-center gap-2 border border-white/10">
+          <code className="text-xs text-purple-100/80 truncate flex-1 px-1">{referralLink}</code>
+          <button
+            onClick={onCopy}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 active:scale-95"
+            style={{
+              background: copied ? 'rgba(16,185,129,0.3)' : 'rgba(139,92,246,0.6)',
+              border: `1px solid ${copied ? 'rgba(16,185,129,0.4)' : 'rgba(139,92,246,0.4)'}`,
+              color: copied ? '#6ee7b7' : '#e9d5ff',
+            }}
+          >
+            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            {copied ? t('copied') : t('copy')}
+          </button>
+        </div>
       </div>
     </div>
   )
 }
 
-// Locked Referral Link Card — shown when profile is incomplete or email not bound
+// Locked Referral Link Card
 function ReferralLinkLockedCard({ t }: { t: (key: string) => string }) {
   return (
-    <div className="glass-card-solid p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <Users className="w-4 h-4 text-zinc-500" />
-        <h3 className="text-sm font-medium text-white">{t('shareAndEarn')}</h3>
+    <div
+      className="relative overflow-hidden rounded-xl p-4 border border-zinc-700/50"
+      style={{ background: 'linear-gradient(135deg, rgba(39,39,42,0.8) 0%, rgba(24,24,27,0.9) 100%)' }}
+    >
+      <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-zinc-700/20 pointer-events-none" />
+      <div className="relative z-10">
+        <div className="flex items-center gap-2 mb-1">
+          <div className="w-7 h-7 rounded-lg bg-zinc-700/50 flex items-center justify-center">
+            <Users className="w-3.5 h-3.5 text-zinc-500" />
+          </div>
+          <h3 className="text-sm font-semibold text-zinc-300">{t('shareAndEarn')}</h3>
+        </div>
+        <p className="text-zinc-500 text-xs mb-3">
+          Complete your profile &amp; bind your email to unlock your referral link.
+        </p>
+        <a
+          href="/profile"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-zinc-200 rounded-xl text-xs font-medium transition-colors"
+        >
+          <ArrowUpRight className="w-3.5 h-3.5" />
+          Go to Profile
+        </a>
       </div>
-      <p className="text-zinc-500 text-xs mb-3">
-        Complete your profile &amp; bind your email to unlock your referral link.
-      </p>
-      <a
-        href="/profile"
-        className="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-medium transition-colors"
-      >
-        <ArrowUpRight className="w-3.5 h-3.5" />
-        Go to Profile
-      </a>
     </div>
   )
 }
