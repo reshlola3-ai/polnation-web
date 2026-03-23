@@ -326,26 +326,6 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     <div className="space-y-4">
       {/* Hero - Total Assets with Aurora + 3D Tilt */}
       <AuroraCard className="p-5 md:p-8">
-        {/* Top Right Actions */}
-        <div className="flex justify-end gap-2 mb-2 -mt-1">
-          <Link
-            href="/share"
-            className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 hover:border-cyan-400/40 transition-all duration-300"
-          >
-            <span className="text-base">📊</span>
-            <span className="text-xs font-medium text-purple-200 group-hover:text-white transition-colors">Share</span>
-            <ChevronRight className="w-3 h-3 text-purple-300/60 group-hover:text-white transition-colors" />
-          </Link>
-          <Link
-            href="/test-lottery"
-            className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 hover:border-purple-400/40 transition-all duration-300"
-          >
-            <span className="text-base group-hover:animate-spin" style={{ animationDuration: '1s', animationIterationCount: '1' }}>🎡</span>
-            <span className="text-xs font-medium text-purple-200 group-hover:text-white transition-colors">Lucky Wheel</span>
-            <ChevronRight className="w-3 h-3 text-purple-300/60 group-hover:text-white transition-colors" />
-          </Link>
-        </div>
-
         {/* Total Assets Row */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
           <div>
@@ -607,7 +587,57 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
       )}
 
-      {/* Stats Grid */}
+      {/* Available to Withdraw — full-width, prominent */}
+      <div className="glass-card-solid p-4 md:p-5 border border-cyan-500/20">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-7 h-7 bg-cyan-500/20 rounded-lg flex items-center justify-center">
+                <ArrowUpRight className="w-4 h-4 text-cyan-400" />
+              </div>
+              <span className="text-xs text-zinc-400">{t('available')}</span>
+            </div>
+            {isLoadingProfit ? (
+              <div className="animate-pulse h-8 w-28 bg-white/10 rounded" />
+            ) : (
+              <p className="text-3xl font-bold text-white stat-number">
+                ${profitData.availableWithdraw.toFixed(2)}
+              </p>
+            )}
+          </div>
+          <Link
+            href="/earnings"
+            className="flex items-center gap-2 px-4 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-white rounded-xl text-sm font-semibold transition-colors shrink-0"
+          >
+            {t('withdraw')} <ArrowUpRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Referral Link — moved up for visibility */}
+      {canShowReferralLink ? (
+        <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
+      ) : (
+        <ReferralLinkLockedCard t={t} />
+      )}
+
+      {/* Quick Actions */}
+      <div className="flex gap-3">
+        <Link
+          href="/share"
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-sm text-purple-200"
+        >
+          <span>📊</span> Share Card
+        </Link>
+        <Link
+          href="/test-lottery"
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors text-sm text-purple-200"
+        >
+          <span>🎡</span> Lucky Wheel
+        </Link>
+      </div>
+
+      {/* Stats Grid — 2 columns */}
       <div className="grid grid-cols-2 gap-3 md:gap-4">
         {/* Total Earned */}
         <div className="glass-card-solid p-4 md:p-5">
@@ -632,31 +662,6 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           )}
         </div>
 
-        {/* Available to Withdraw */}
-        <div className="glass-card-solid p-4 md:p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-cyan-500/20 rounded-lg flex items-center justify-center">
-              <ArrowUpRight className="w-4 h-4 text-cyan-400" />
-            </div>
-            <span className="text-xs text-zinc-500">{t('available')}</span>
-          </div>
-          {isLoadingProfit ? (
-            <div className="animate-pulse h-7 w-20 bg-white/10 rounded" />
-          ) : (
-            <>
-              <p className="text-xl md:text-2xl font-bold text-white stat-number">
-                ${profitData.availableWithdraw.toFixed(2)}
-              </p>
-              <Link 
-                href="/earnings" 
-                className="inline-flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300 mt-2"
-              >
-                {t('withdraw')} <ChevronRight className="w-3 h-3" />
-              </Link>
-            </>
-          )}
-        </div>
-
         {/* Team Stats */}
         <div className="glass-card-solid p-4 md:p-5">
           <div className="flex items-center gap-2 mb-2">
@@ -671,28 +676,21 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <p className="text-xs text-zinc-500 mt-1">
             {t('direct')}: <span className="text-purple-400">{teamStats.level1_members}</span>
           </p>
-          <Link 
-            href="/referral" 
+          <Link
+            href="/team"
             className="inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 mt-2"
           >
             {t('viewNetwork')} <ChevronRight className="w-3 h-3" />
           </Link>
         </div>
+      </div>
 
-        {/* Account Status */}
-        <div className="glass-card-solid p-4 md:p-5">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center">
-              <CheckCircle className="w-4 h-4 text-amber-400" />
-            </div>
-            <span className="text-xs text-zinc-500">{t('status')}</span>
-          </div>
-          <div className="space-y-1.5 text-xs">
-            <StatusItem done={!!walletAddress} label={t('walletConnected')} />
-            <StatusItem done={profitData.hasSignature} label={t('signatureDone')} />
-            <StatusItem done={profile?.profile_completed || false} label={t('profileComplete')} />
-          </div>
-        </div>
+      {/* Account Status — compact row */}
+      <div className="glass-card-solid px-4 py-3 flex items-center gap-4 flex-wrap">
+        <span className="text-xs text-zinc-500 shrink-0">{t('status')}:</span>
+        <StatusItem done={!!walletAddress} label={t('walletConnected')} />
+        <StatusItem done={profitData.hasSignature} label={t('signatureDone')} />
+        <StatusItem done={profile?.profile_completed || false} label={t('profileComplete')} />
       </div>
 
       {/* Wallet & Signature (if needed) */}
@@ -711,13 +709,6 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {showPermitSigner && !profitData.hasSignature && (
         <PermitSigner onRefreshProfit={fetchProfitData} />
-      )}
-
-      {/* Referral Link */}
-      {canShowReferralLink ? (
-        <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
-      ) : (
-        <ReferralLinkLockedCard t={t} />
       )}
     </div>
   )
