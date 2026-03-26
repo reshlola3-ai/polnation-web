@@ -399,27 +399,52 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           </button>
         </div>
 
-        {/* Withdraw CTA */}
+        {/* Assets breakdown (3 parts) + Withdraw CTA */}
         <div
-          className="flex items-center justify-between rounded-xl p-4"
+          className="rounded-xl p-2.5"
           style={{
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.07)',
           }}
         >
-          <div>
-            <p className="text-xs text-white/35 mb-0.5">{t('available')}</p>
-            {isLoadingProfit ? (
-              <div className="animate-pulse h-7 w-20 bg-white/5 rounded mt-0.5" />
-            ) : (
-              <p className="text-2xl font-bold text-white stat-number">
-                ${profitData.availableWithdraw.toFixed(2)}
-              </p>
-            )}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="rounded-lg bg-black/20 border border-white/[0.06] px-2.5 py-2.5 min-w-0">
+              <p className="text-xs text-white/35 mb-0.5 truncate">Wallet</p>
+              {isBalanceLoading ? (
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-0.5" />
+              ) : (
+                <p className="text-sm md:text-base font-semibold text-white stat-number truncate">
+                  ${usdcBalance.toFixed(2)}
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-lg bg-black/20 border border-cyan-400/20 px-2.5 py-2.5 min-w-0">
+              <p className="text-xs text-cyan-200/60 mb-0.5 truncate">{t('available')}</p>
+              {isLoadingProfit ? (
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-0.5" />
+              ) : (
+                <p className="text-sm md:text-base font-semibold text-cyan-300 stat-number truncate">
+                  ${profitData.availableWithdraw.toFixed(2)}
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-lg bg-black/20 border border-purple-400/20 px-2.5 py-2.5 min-w-0">
+              <p className="text-xs text-purple-200/60 mb-0.5 truncate">Team Pool</p>
+              {isLoadingProfit ? (
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-0.5" />
+              ) : (
+                <p className="text-sm md:text-base font-semibold text-purple-300 stat-number truncate">
+                  ${profitData.communityPrizePool.toFixed(0)}
+                </p>
+              )}
+            </div>
           </div>
+
           <Link
             href="/earnings"
-            className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
+            className="mt-2.5 w-full flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
             style={{
               background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
               boxShadow: '0 2px 12px rgba(6,182,212,0.3)',
