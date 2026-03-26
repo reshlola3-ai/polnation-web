@@ -120,6 +120,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   const [copied, setCopied] = useState(false)
   const [showEarningsModal, setShowEarningsModal] = useState(false)
   const [showTierModal, setShowTierModal] = useState(false)
+  const [activeAssetTip, setActiveAssetTip] = useState<'wallet' | 'available' | 'team' | null>(null)
   const [estDailyCommission, setEstDailyCommission] = useState(0)
   const [spinCount, setSpinCount] = useState(0)
   const [profitData, setProfitData] = useState<ProfitData>({
@@ -399,17 +400,31 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           </button>
         </div>
 
-        {/* Assets breakdown (3 parts) + Withdraw CTA */}
+        {/* Assets breakdown (3 parts) */}
         <div
           className="rounded-xl p-2.5"
           style={{
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.07)',
           }}
+          onClick={() => setActiveAssetTip(null)}
         >
           <div className="grid grid-cols-3 gap-2">
-            <div className="rounded-lg bg-black/20 border border-white/[0.06] px-2.5 py-2.5 min-w-0">
-              <p className="text-xs text-white/35 mb-0.5 truncate">Wallet</p>
+            <div className="asset-split-card asset-split-wallet rounded-lg bg-black/20 border border-white/[0.06] px-2.5 py-2.5 min-w-0 relative">
+              <div className="flex items-center gap-1 mb-0.5 min-w-0">
+                <p className="text-xs text-zinc-400 truncate">{t('assetWalletTitle')}</p>
+                <button
+                  type="button"
+                  className="asset-help-btn shrink-0"
+                  aria-label={t('assetHelpWalletAria')}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setActiveAssetTip(activeAssetTip === 'wallet' ? null : 'wallet')
+                  }}
+                >
+                  <HelpCircle className="w-3 h-3" />
+                </button>
+              </div>
               {isBalanceLoading ? (
                 <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-0.5" />
               ) : (
@@ -417,41 +432,83 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   ${usdcBalance.toFixed(2)}
                 </p>
               )}
+
+              {activeAssetTip === 'wallet' && (
+                <div className="asset-help-pop">
+                  <p>{t('assetHelpWalletLine1')}</p>
+                  <p>{t('assetHelpWalletLine2')}</p>
+                </div>
+              )}
             </div>
 
-            <div className="rounded-lg bg-black/20 border border-cyan-400/20 px-2.5 py-2.5 min-w-0">
-              <p className="text-xs text-cyan-200/60 mb-0.5 truncate">{t('available')}</p>
+            <div className="asset-split-card asset-split-available rounded-lg bg-black/20 border border-cyan-400/20 px-2.5 py-2.5 min-w-0 relative">
+              <div className="flex items-center gap-1 mb-0.5 min-w-0">
+                <p className="text-xs text-zinc-400 truncate">{t('assetAvailableTitle')}</p>
+                <button
+                  type="button"
+                  className="asset-help-btn shrink-0"
+                  aria-label={t('assetHelpAvailableAria')}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setActiveAssetTip(activeAssetTip === 'available' ? null : 'available')
+                  }}
+                >
+                  <HelpCircle className="w-3 h-3" />
+                </button>
+              </div>
               {isLoadingProfit ? (
                 <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-0.5" />
               ) : (
-                <p className="text-sm md:text-base font-semibold text-cyan-300 stat-number truncate">
+                <p className="text-sm md:text-base font-semibold text-white stat-number truncate">
                   ${profitData.availableWithdraw.toFixed(2)}
                 </p>
               )}
+              <Link
+                href="/earnings"
+                className="mt-1.5 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 asset-withdraw-btn"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {t('withdraw')} <ArrowUpRight className="w-3 h-3" />
+              </Link>
+
+              {activeAssetTip === 'available' && (
+                <div className="asset-help-pop">
+                  <p>{t('assetHelpAvailableLine1')}</p>
+                  <p>{t('assetHelpAvailableLine2')}</p>
+                </div>
+              )}
             </div>
 
-            <div className="rounded-lg bg-black/20 border border-purple-400/20 px-2.5 py-2.5 min-w-0">
-              <p className="text-xs text-purple-200/60 mb-0.5 truncate">Team Pool</p>
+            <div className="asset-split-card asset-split-team rounded-lg bg-black/20 border border-purple-400/20 px-2.5 py-2.5 min-w-0 relative">
+              <div className="flex items-center gap-1 mb-0.5 min-w-0">
+                <p className="text-xs text-zinc-400 truncate">{t('assetTeamPoolTitle')}</p>
+                <button
+                  type="button"
+                  className="asset-help-btn shrink-0"
+                  aria-label={t('assetHelpTeamAria')}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setActiveAssetTip(activeAssetTip === 'team' ? null : 'team')
+                  }}
+                >
+                  <HelpCircle className="w-3 h-3" />
+                </button>
+              </div>
               {isLoadingProfit ? (
                 <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-0.5" />
               ) : (
-                <p className="text-sm md:text-base font-semibold text-purple-300 stat-number truncate">
+                <p className="text-sm md:text-base font-semibold text-white stat-number truncate">
                   ${profitData.communityPrizePool.toFixed(0)}
                 </p>
               )}
+              {activeAssetTip === 'team' && (
+                <div className="asset-help-pop">
+                  <p>{t('assetHelpTeamLine1')}</p>
+                  <p>{t('assetHelpTeamLine2')}</p>
+                </div>
+              )}
             </div>
           </div>
-
-          <Link
-            href="/earnings"
-            className="mt-2.5 w-full flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95"
-            style={{
-              background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-              boxShadow: '0 2px 12px rgba(6,182,212,0.3)',
-            }}
-          >
-            {t('withdraw')} <ArrowUpRight className="w-4 h-4" />
-          </Link>
         </div>
       </AuroraCard>
 
