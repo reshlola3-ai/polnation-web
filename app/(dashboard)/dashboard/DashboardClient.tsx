@@ -410,7 +410,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           onClick={() => setActiveAssetTip(null)}
         >
           <div className="grid grid-cols-3 gap-2">
-            <div className="asset-split-card asset-split-wallet rounded-lg bg-black/20 border border-white/[0.06] px-2.5 py-2.5 min-w-0 relative">
+            <div className="asset-split-card asset-split-wallet rounded-lg bg-black/20 border border-white/[0.06] px-2.5 py-2.5 min-w-0 relative h-[84px] flex flex-col">
               <div className="flex items-center gap-1 mb-0.5 min-w-0">
                 <p className="text-xs text-zinc-400 truncate">{t('assetWalletTitle')}</p>
                 <button
@@ -426,9 +426,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 </button>
               </div>
               {isBalanceLoading ? (
-                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-0.5" />
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-auto" />
               ) : (
-                <p className="text-sm md:text-base font-semibold text-white stat-number truncate">
+                <p className="text-sm md:text-base font-semibold text-white stat-number truncate mt-auto">
                   ${usdcBalance.toFixed(2)}
                 </p>
               )}
@@ -441,7 +441,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               )}
             </div>
 
-            <div className="asset-split-card asset-split-available rounded-lg bg-black/20 border border-cyan-400/20 px-2.5 py-2.5 min-w-0 relative">
+            <div className="asset-split-card asset-split-available rounded-lg bg-black/20 border border-cyan-400/20 px-2.5 py-2.5 min-w-0 relative h-[84px] flex flex-col">
               <div className="flex items-center gap-1 mb-0.5 min-w-0">
                 <p className="text-xs text-zinc-400 truncate">{t('assetAvailableTitle')}</p>
                 <button
@@ -456,20 +456,22 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   <HelpCircle className="w-3 h-3" />
                 </button>
               </div>
-              {isLoadingProfit ? (
-                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-0.5" />
-              ) : (
-                <p className="text-sm md:text-base font-semibold text-white stat-number truncate">
-                  ${profitData.availableWithdraw.toFixed(2)}
-                </p>
-              )}
-              <Link
-                href="/earnings"
-                className="mt-1.5 inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 asset-withdraw-btn"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {t('withdraw')} <ArrowUpRight className="w-3 h-3" />
-              </Link>
+              <div className="mt-auto flex items-center justify-between gap-1.5">
+                {isLoadingProfit ? (
+                  <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
+                ) : (
+                  <p className="text-sm md:text-base font-semibold text-white stat-number truncate">
+                    ${profitData.availableWithdraw.toFixed(2)}
+                  </p>
+                )}
+                <Link
+                  href="/earnings"
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 asset-withdraw-btn shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {t('withdraw')} <ArrowUpRight className="w-3 h-3" />
+                </Link>
+              </div>
 
               {activeAssetTip === 'available' && (
                 <div className="asset-help-pop">
@@ -479,7 +481,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               )}
             </div>
 
-            <div className="asset-split-card asset-split-team rounded-lg bg-black/20 border border-purple-400/20 px-2.5 py-2.5 min-w-0 relative">
+            <div className="asset-split-card asset-split-team rounded-lg bg-black/20 border border-purple-400/20 px-2.5 py-2.5 min-w-0 relative h-[84px] flex flex-col">
               <div className="flex items-center gap-1 mb-0.5 min-w-0">
                 <p className="text-xs text-zinc-400 truncate">{t('assetTeamPoolTitle')}</p>
                 <button
@@ -495,9 +497,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 </button>
               </div>
               {isLoadingProfit ? (
-                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-0.5" />
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-auto" />
               ) : (
-                <p className="text-sm md:text-base font-semibold text-white stat-number truncate">
+                <p className="text-sm md:text-base font-semibold text-white stat-number truncate mt-auto">
                   ${profitData.communityPrizePool.toFixed(0)}
                 </p>
               )}
