@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { ExternalLink } from 'lucide-react'
 
@@ -58,8 +58,29 @@ export function ChainStats() {
   const t = useTranslations('home')
   const [stats, setStats] = useState<ChainStatsData | null>(null)
   const [loading, setLoading] = useState(true)
+  const sectionRef = useRef<HTMLElement | null>(null)
+  const [shouldFetch, setShouldFetch] = useState(false)
 
   useEffect(() => {
+    const sectionEl = sectionRef.current
+    if (!sectionEl) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        setShouldFetch(true)
+        observer.disconnect()
+      },
+      { threshold: 0.1, rootMargin: '200px 0px' }
+    )
+
+    observer.observe(sectionEl)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!shouldFetch) return
+
     async function fetchStats() {
       try {
         const response = await fetch('/api/chain-stats')
@@ -77,10 +98,10 @@ export function ChainStats() {
     // 每 5 分钟刷新一次
     const interval = setInterval(fetchStats, 5 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [shouldFetch])
 
   return (
-    <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+    <section ref={sectionRef} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
       {/* Stats Cards */}
       <div className="glass-card-solid p-8 md:p-12 mb-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
