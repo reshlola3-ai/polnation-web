@@ -7,7 +7,8 @@ import { Navbar } from '@/components/layout/Navbar'
 import { LazyFeaturesSection } from '@/components/home/LazyFeaturesSection'
 import { LazyChainStats } from '@/components/home/LazyChainStats'
 import { ViewportVideo } from '@/components/home/ViewportVideo'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { HeroCtaButtons } from '@/components/home/HeroCtaButtons'
+import { Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 
@@ -111,31 +112,12 @@ export default async function HomePage() {
               {t('promoNote')}
             </p>
             <div className="mt-8 md:mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              {user ? (
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
-                >
-                  {t('goToDashboard')}
-                  <ArrowRight className="ml-2 w-5 h-5 animate-arrow-nudge" />
-                </Link>
-              ) : (
-                <>
-                  <Link
-                    href="/register"
-                    className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white btn-gradient rounded-xl transition-all glow-purple"
-                  >
-                  {tNav('getStarted')}
-                  <ArrowRight className="ml-2 w-5 h-5 animate-arrow-nudge" />
-                </Link>
-                  <Link
-                    href="/login"
-                    className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-medium text-white bg-white/5 rounded-xl hover:bg-white/10 transition-all border border-white/10"
-                  >
-                    {tNav('signIn')}
-                  </Link>
-                </>
-              )}
+              <HeroCtaButtons
+                isLoggedIn={Boolean(user)}
+                goToDashboardLabel={t('goToDashboard')}
+                getStartedLabel={tNav('getStarted')}
+                signInLabel={tNav('signIn')}
+              />
             </div>
           </div>
 
