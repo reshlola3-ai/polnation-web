@@ -401,21 +401,21 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
         {/* Status pills */}
         <div className="flex items-center justify-center gap-2 flex-wrap mb-5">
-          <span className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/70">
+          <button
+            className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/70 hover:bg-white/10 hover:text-white transition-colors active:scale-95"
+            onClick={() => setShowTierModal(true)}
+          >
             {TIER_ICONS[currentTier.name] || '⭐'} {currentTier.name} · {(currentTier.rate * 100).toFixed(2)}%
-          </span>
-          <span className="momentum-fire-pill text-xs px-2.5 py-1 rounded-full text-amber-200 font-medium">
+          </button>
+          <button
+            className="momentum-fire-pill text-xs px-2.5 py-1 rounded-full text-amber-200 font-medium active:scale-95"
+            onClick={() => setShowEarningsModal(true)}
+          >
             <span className="fire-icon"><Flame className="w-3 h-3 inline -mt-0.5 text-orange-400" /></span>
             {' '}{profitData.momentumMultiplier.toFixed(1)}x
             {profitData.momentumDaysUntilDecay > 0 && (
               <span className="text-orange-300/50 ml-1">{profitData.momentumDaysUntilDecay}d</span>
             )}
-          </span>
-          <button
-            className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/40 hover:text-white/70 transition-colors"
-            onClick={() => setShowTierModal(true)}
-          >
-            View tiers
           </button>
         </div>
 
@@ -461,7 +461,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   <p className="text-sm font-semibold text-white stat-number truncate">${profitData.availableWithdraw.toFixed(2)}</p>
                 )}
                 <Link href="/earnings"
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 asset-withdraw-btn shrink-0"
+                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 asset-withdraw-btn shrink-0${profitData.availableWithdraw > 0.15 ? ' withdraw-pulse' : ''}`}
                   onClick={(e) => e.stopPropagation()}>
                   <span className="hidden sm:inline">{t('withdraw')}</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />

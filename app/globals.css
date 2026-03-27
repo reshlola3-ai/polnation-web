@@ -538,6 +538,21 @@ input, select, textarea {
   box-shadow: 0 3px 12px rgba(6,182,212,0.35);
 }
 
+@keyframes withdraw-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(6,182,212,0.4), 0 0 10px rgba(6,182,212,0.2);
+    border-color: rgba(6, 182, 212, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(6,182,212,0.7), 0 0 20px rgba(6,182,212,0.35);
+    border-color: rgba(6, 182, 212, 0.85);
+  }
+}
+
+.withdraw-pulse {
+  animation: withdraw-pulse-glow 1.8s ease-in-out infinite;
+}
+
 /* Mobile Typography Adjustments */
 @media (max-width: 640px) {
   h1 {
