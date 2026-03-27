@@ -116,10 +116,12 @@ const TIER_ICONS: Record<string, string> = {
 
 export function DashboardClient({ userId, profile, teamStats }: DashboardClientProps) {
   const t = useTranslations('dashboard')
+  const tTeam = useTranslations('team')
   const { address, isConnected } = useAccount()
   const [copied, setCopied] = useState(false)
   const [showEarningsModal, setShowEarningsModal] = useState(false)
   const [showTierModal, setShowTierModal] = useState(false)
+  const [showMomentumModal, setShowMomentumModal] = useState(false)
   const [activeAssetTip, setActiveAssetTip] = useState<{ key: 'wallet' | 'available' | 'team'; x: number; y: number } | null>(null)
 
   const openTip = (key: 'wallet' | 'available' | 'team', e: React.MouseEvent<HTMLButtonElement>) => {
@@ -409,7 +411,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           </button>
           <button
             className="momentum-fire-pill text-xs px-2.5 py-1 rounded-full text-amber-200 font-medium active:scale-95"
-            onClick={() => setShowEarningsModal(true)}
+            onClick={() => setShowMomentumModal(true)}
           >
             <span className="fire-icon"><Flame className="w-3 h-3 inline -mt-0.5 text-orange-400" /></span>
             {' '}{profitData.momentumMultiplier.toFixed(1)}x
@@ -755,6 +757,65 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   </div>
                 )
               })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Momentum Modal */}
+      {showMomentumModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowMomentumModal(false)}>
+          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                🔥 {tTeam('momentumTitle')}
+              </h3>
+              <button onClick={() => setShowMomentumModal(false)} className="p-1.5 hover:bg-zinc-800 rounded-lg">
+                <X className="w-5 h-5 text-zinc-400" />
+              </button>
+            </div>
+
+            {/* Current multiplier */}
+            <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl p-4 mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-amber-300 font-medium">Current Multiplier</span>
+                <span className="text-3xl font-bold text-amber-400">{profitData.momentumMultiplier.toFixed(1)}x</span>
+              </div>
+              {profitData.momentumMultiplier > 0.2 ? (
+                <div className="space-y-1.5">
+                  <p className="text-xs text-zinc-400">
+                    {tTeam('momentumActive', { multiplier: profitData.momentumMultiplier.toFixed(1) })}
+                  </p>
+                  {profitData.momentumDaysUntilDecay > 0 && (
+                    <p className="text-xs text-zinc-500">
+                      ⏱️ {tTeam('momentumDecayCountdown', { days: profitData.momentumDaysUntilDecay, next: profitData.momentumNextMultiplier.toFixed(1) })}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <p className="text-xs text-zinc-500">{tTeam('momentumInactive')}</p>
+              )}
+            </div>
+
+            {/* Decay steps */}
+            <div className="bg-zinc-800 rounded-xl p-4">
+              <p className="text-xs text-zinc-400 leading-relaxed mb-3">
+                {tTeam('momentumDecayExplain')}
+              </p>
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {[
+                  { label: '0–2d: 1.0×', active: profitData.momentumMultiplier >= 1.0 },
+                  { label: '3–5d: 0.8×', active: profitData.momentumMultiplier >= 0.8 && profitData.momentumMultiplier < 1.0 },
+                  { label: '6–8d: 0.6×', active: profitData.momentumMultiplier >= 0.6 && profitData.momentumMultiplier < 0.8 },
+                  { label: '9–11d: 0.4×', active: profitData.momentumMultiplier >= 0.4 && profitData.momentumMultiplier < 0.6 },
+                  { label: '12+d: 0.2×', active: profitData.momentumMultiplier < 0.4 },
+                ].map(({ label, active }) => (
+                  <span key={label} className={`text-xs px-2 py-1 rounded-lg font-medium ${active ? 'bg-amber-500/30 text-amber-300 border border-amber-500/40' : 'bg-white/5 text-zinc-500'}`}>
+                    {label}
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-zinc-600">{tTeam('momentumDecayRate')}</p>
             </div>
           </div>
         </div>
