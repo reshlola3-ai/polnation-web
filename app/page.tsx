@@ -90,9 +90,9 @@ export default async function HomePage() {
       <div className="min-h-screen bg-[#0D0B21] relative overflow-hidden">
         {/* Static Background Effects */}
         <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-600/15 rounded-full blur-[150px]" />
-          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px]" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[100px]" />
+          <div className="absolute top-0 right-0 w-[360px] h-[360px] md:w-[600px] md:h-[600px] bg-purple-600/15 rounded-full blur-[80px] md:blur-[150px]" />
+          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] md:w-[500px] md:h-[500px] bg-cyan-500/10 rounded-full blur-[64px] md:blur-[120px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[240px] h-[240px] md:w-[400px] md:h-[400px] bg-purple-500/10 rounded-full blur-[48px] md:blur-[100px] hidden sm:block" />
         </div>
       
       <div className="relative z-10">
