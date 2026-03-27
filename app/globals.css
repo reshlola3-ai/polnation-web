@@ -447,6 +447,8 @@ input, select, textarea {
 .asset-help-btn {
   width: 16px;
   height: 16px;
+  min-width: 16px;
+  min-height: 16px;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   color: rgba(255, 255, 255, 0.5);
@@ -455,6 +457,12 @@ input, select, textarea {
   justify-content: center;
   background: rgba(255, 255, 255, 0.04);
   transition: all 160ms ease;
+  /* prevent browser default button sizing on iOS */
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .asset-help-btn:hover {

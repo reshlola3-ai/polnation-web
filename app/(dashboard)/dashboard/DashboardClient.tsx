@@ -469,7 +469,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 asset-withdraw-btn shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {t('withdraw')} <ArrowUpRight className="w-3 h-3" />
+                  <span className="hidden sm:inline">{t('withdraw')}</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
 
