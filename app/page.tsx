@@ -6,6 +6,7 @@ import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
 import { LazyFeaturesSection } from '@/components/home/LazyFeaturesSection'
 import { LazyChainStats } from '@/components/home/LazyChainStats'
+import { ViewportVideo } from '@/components/home/ViewportVideo'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
@@ -212,16 +213,12 @@ export default async function HomePage() {
           {/* Video Container */}
           <div className="relative mx-auto max-w-2xl">
             <div className="absolute inset-0 bg-purple-500/20 rounded-2xl blur-[40px]" />
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
+            <ViewportVideo
+              src="/video/home-polygon.webm"
+              poster="/hero-crystal.webp"
               preload="none"
               className="relative w-full rounded-2xl border border-purple-500/20 shadow-2xl"
-            >
-              <source src="/video/home-polygon.webm" type="video/webm" />
-            </video>
+            />
           </div>
         </div>
       </section>
@@ -301,16 +298,12 @@ export default async function HomePage() {
           {/* Video Container */}
           <div className="relative mx-auto max-w-2xl">
             <div className="absolute inset-0 bg-cyan-500/20 rounded-2xl blur-[40px]" />
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
+            <ViewportVideo
+              src="/video/home loop.webm"
+              poster="/hero-crystal.webp"
               preload="none"
               className="relative w-full rounded-2xl border border-cyan-500/20 shadow-2xl"
-            >
-              <source src="/video/home loop.webm" type="video/webm" />
-            </video>
+            />
           </div>
         </div>
       </section>
