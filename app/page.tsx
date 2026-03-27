@@ -53,6 +53,15 @@ const organizationJsonLd = {
   ],
 }
 
+const PARTNER_LOGOS = [
+  { src: '/partners/trust wallet.webp', alt: 'Trust Wallet' },
+  { src: '/partners/Binance.png', alt: 'Binance' },
+  { src: '/partners/bitget.png', alt: 'Bitget' },
+  { src: '/partners/safepal.svg', alt: 'SafePal' },
+  { src: '/partners/polygon lab.webp', alt: 'Polygon Labs' },
+  { src: '/partners/usdc.webp', alt: 'USDC' },
+]
+
 export default async function HomePage() {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -183,7 +192,7 @@ export default async function HomePage() {
       </Suspense>
 
       {/* Polygon Validator Video Section */}
-      <section className="relative z-10 py-16 md:py-24">
+      <section className="relative z-10 py-16 md:py-24 [content-visibility:auto] [contain-intrinsic-size:1px_700px]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8 md:mb-12">
             Premium Polygon Validator
@@ -206,7 +215,7 @@ export default async function HomePage() {
       </section>
 
       {/* Partners Section */}
-      <section className="relative z-10 py-16 overflow-hidden">
+      <section className="relative z-10 py-16 overflow-hidden [content-visibility:auto] [contain-intrinsic-size:1px_420px]">
         <div className="text-center mb-10">
           <p className="text-sm uppercase tracking-widest text-zinc-500">Supported By</p>
         </div>
@@ -220,14 +229,7 @@ export default async function HomePage() {
           {/* Scrolling track - pauses on hover/touch */}
           <div className="flex animate-marquee group-hover:[animation-play-state:paused] group-active:[animation-play-state:paused]">
             {/* First set of logos */}
-            {[
-              { src: '/partners/trust wallet.webp', alt: 'Trust Wallet' },
-              { src: '/partners/Binance.png', alt: 'Binance' },
-              { src: '/partners/bitget.png', alt: 'Bitget' },
-              { src: '/partners/safepal.svg', alt: 'SafePal' },
-              { src: '/partners/polygon lab.webp', alt: 'Polygon Labs' },
-              { src: '/partners/usdc.webp', alt: 'USDC' },
-            ].map((partner, i) => (
+            {PARTNER_LOGOS.map((partner, i) => (
               <div
                 key={`first-${i}`}
                 className="flex-shrink-0 mx-8 md:mx-12"
@@ -237,19 +239,16 @@ export default async function HomePage() {
                   alt={partner.alt}
                   width={140}
                   height={56}
+                  sizes="(max-width: 768px) 96px, 140px"
+                  loading="lazy"
+                  decoding="async"
+                  fetchPriority="low"
                   className="h-12 md:h-14 w-auto object-contain"
                 />
               </div>
             ))}
             {/* Duplicate for seamless loop */}
-            {[
-              { src: '/partners/trust wallet.webp', alt: 'Trust Wallet' },
-              { src: '/partners/Binance.png', alt: 'Binance' },
-              { src: '/partners/bitget.png', alt: 'Bitget' },
-              { src: '/partners/safepal.svg', alt: 'SafePal' },
-              { src: '/partners/polygon lab.webp', alt: 'Polygon Labs' },
-              { src: '/partners/usdc.webp', alt: 'USDC' },
-            ].map((partner, i) => (
+            {PARTNER_LOGOS.map((partner, i) => (
               <div
                 key={`second-${i}`}
                 className="flex-shrink-0 mx-8 md:mx-12"
@@ -259,6 +258,10 @@ export default async function HomePage() {
                   alt={partner.alt}
                   width={140}
                   height={56}
+                  sizes="(max-width: 768px) 96px, 140px"
+                  loading="lazy"
+                  decoding="async"
+                  fetchPriority="low"
                   className="h-12 md:h-14 w-auto object-contain"
                 />
               </div>
@@ -268,7 +271,7 @@ export default async function HomePage() {
       </section>
 
       {/* On-Chain Vault Video Section */}
-      <section className="relative z-10 py-16 md:py-24">
+      <section className="relative z-10 py-16 md:py-24 [content-visibility:auto] [contain-intrinsic-size:1px_700px]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8 md:mb-12">
             Verified And Transparent On-Chain Vault
