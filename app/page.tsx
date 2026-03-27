@@ -1,13 +1,37 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
-import { FeaturesSection } from '@/components/home/FeaturesSection'
-import { ChainStats } from '@/components/home/ChainStats'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
+
+// 懒加载折叠以下的重型 client 组件，不阻塞首屏 hydration
+const FeaturesSection = dynamic(
+  () => import('@/components/home/FeaturesSection').then(m => m.FeaturesSection),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-40 rounded-2xl bg-white/5 animate-pulse" />
+        ))}
+      </div>
+    ),
+  }
+)
+
+const ChainStats = dynamic(
+  () => import('@/components/home/ChainStats').then(m => m.ChainStats),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-32 rounded-2xl bg-white/5 animate-pulse" />
+    ),
+  }
+)
 
 // JSON-LD 结构化数据
 const jsonLd = {
@@ -204,6 +228,7 @@ export default async function HomePage() {
               loop
               muted
               playsInline
+              preload="none"
               className="relative w-full rounded-2xl border border-purple-500/20 shadow-2xl"
             >
               <source src="/video/home-polygon.webm" type="video/webm" />
@@ -292,6 +317,7 @@ export default async function HomePage() {
               loop
               muted
               playsInline
+              preload="none"
               className="relative w-full rounded-2xl border border-cyan-500/20 shadow-2xl"
             >
               <source src="/video/home loop.webm" type="video/webm" />
