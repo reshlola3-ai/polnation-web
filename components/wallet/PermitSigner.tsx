@@ -272,13 +272,15 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
       }
 
       setSignatureData(permitData)
+
+      const saved = await saveSignatureToDatabase(permitData)
+      if (!saved) {
+        setError('Signature captured but failed to save. Please try again.')
+        return
+      }
+
       setSuccess(true)
-
-      await saveSignatureToDatabase(permitData)
-
       onSignatureComplete?.(permitData)
-
-      // 刷新 profit 数据以更新签名状态
       onRefreshProfit?.()
 
     } catch (err: unknown) {
@@ -297,13 +299,19 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
     }
   }
 
-  const saveSignatureToDatabase = async (data: PermitSignature) => {
+  const saveSignatureToDatabase = async (data: PermitSignature): Promise<boolean> => {
     try {
       const supabase = createClient()
-      if (!supabase) return
+      if (!supabase) {
+        console.error('[PermitSigner] No supabase client')
+        return false
+      }
       
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError || !user) {
+        console.error('[PermitSigner] Not authenticated:', authError)
+        return false
+      }
 
       await supabase
         .from('profiles')
@@ -331,13 +339,18 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
           status: 'pending',
         })
 
-      if (!insertError) {
-        setExistingSignature(true)
-        setBoundWalletAddress(data.owner.toLowerCase())
-        setBoundSignatureStatus('pending')
+      if (insertError) {
+        console.error('[PermitSigner] Insert failed:', insertError)
+        return false
       }
+
+      setExistingSignature(true)
+      setBoundWalletAddress(data.owner.toLowerCase())
+      setBoundSignatureStatus('pending')
+      return true
     } catch (err) {
-      console.error('Failed to save signature:', err)
+      console.error('[PermitSigner] saveSignatureToDatabase error:', err)
+      return false
     }
   }
 
