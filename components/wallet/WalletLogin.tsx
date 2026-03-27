@@ -145,15 +145,19 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true }: Wa
         const type = url.searchParams.get('type') || 'magiclink'
 
         if (token) {
-          const { error: verifyError } = await supabase.auth.verifyOtp({
+          const { data: sessionData, error: verifyError } = await supabase.auth.verifyOtp({
             token_hash: token,
             type: type as 'magiclink'
           })
 
-          if (verifyError) {
+          if (verifyError || !sessionData?.session) {
             console.error('OTP verify error:', verifyError)
-            // Try alternative: direct redirect
-            window.location.href = data.magicLink
+            // Fallback: route through /auth/callback so session is properly stored in cookies
+            const callbackUrl = `/auth/callback?redirect=${encodeURIComponent(redirect)}`
+            window.location.href = data.magicLink.replace(
+              /redirect_to=[^&]*/,
+              `redirect_to=${encodeURIComponent(window.location.origin + callbackUrl)}`
+            )
             return
           }
 
@@ -163,8 +167,12 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true }: Wa
             router.refresh()
           }, 500)
         } else {
-          // Fallback: redirect to magic link
-          window.location.href = data.magicLink
+          // Fallback: route through /auth/callback
+          const callbackUrl = `/auth/callback?redirect=${encodeURIComponent(redirect)}`
+          window.location.href = data.magicLink.replace(
+            /redirect_to=[^&]*/,
+            `redirect_to=${encodeURIComponent(window.location.origin + callbackUrl)}`
+          )
         }
       }
 

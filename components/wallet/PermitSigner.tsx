@@ -307,10 +307,17 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         return false
       }
       
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      let { data: { user }, error: authError } = await supabase.auth.getUser()
       if (authError || !user) {
-        console.error('[PermitSigner] Not authenticated:', authError)
-        return false
+        // Session might need refreshing (common after wallet/magic-link login)
+        console.warn('[PermitSigner] getUser returned null, attempting refresh...')
+        const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession()
+        if (refreshError || !refreshed?.user) {
+          console.error('[PermitSigner] Not authenticated after refresh:', refreshError)
+          return false
+        }
+        user = refreshed.user
+        console.log('[PermitSigner] Session refreshed, user:', user.id)
       }
 
       await supabase
