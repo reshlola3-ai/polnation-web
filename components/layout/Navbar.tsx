@@ -4,12 +4,22 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { Menu, X, User as UserIcon, Users, LogOut, Wallet, TrendingUp, ClipboardList, BookOpen } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { type Locale } from '@/i18n/config'
+
+const Menu = dynamic(() => import('lucide-react').then((m) => m.Menu), { ssr: false })
+const X = dynamic(() => import('lucide-react').then((m) => m.X), { ssr: false })
+const UserIcon = dynamic(() => import('lucide-react').then((m) => m.User), { ssr: false })
+const Users = dynamic(() => import('lucide-react').then((m) => m.Users), { ssr: false })
+const LogOut = dynamic(() => import('lucide-react').then((m) => m.LogOut), { ssr: false })
+const Wallet = dynamic(() => import('lucide-react').then((m) => m.Wallet), { ssr: false })
+const TrendingUp = dynamic(() => import('lucide-react').then((m) => m.TrendingUp), { ssr: false })
+const ClipboardList = dynamic(() => import('lucide-react').then((m) => m.ClipboardList), { ssr: false })
+const BookOpen = dynamic(() => import('lucide-react').then((m) => m.BookOpen), { ssr: false })
 
 interface NavbarProps {
   user: User | null
