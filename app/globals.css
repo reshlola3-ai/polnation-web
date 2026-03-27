@@ -421,6 +421,41 @@ input, select, textarea {
   animation: quick-icon-float 2.6s ease-in-out infinite;
 }
 
+/* ── Momentum fire pill ── */
+@keyframes fire-glow {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(251,146,60,0.5), 0 0 14px rgba(239,68,68,0.25);
+    border-color: rgba(251,146,60,0.5);
+  }
+  40% {
+    box-shadow: 0 0 10px rgba(251,146,60,0.75), 0 0 22px rgba(239,68,68,0.45);
+    border-color: rgba(239,68,68,0.65);
+  }
+  70% {
+    box-shadow: 0 0 8px rgba(234,88,12,0.6), 0 0 18px rgba(251,146,60,0.35);
+    border-color: rgba(234,88,12,0.55);
+  }
+}
+
+@keyframes fire-flicker {
+  0%, 100% { opacity: 1; transform: scale(1) rotate(-2deg); }
+  30%       { opacity: 0.85; transform: scale(1.15) rotate(3deg); }
+  60%       { opacity: 0.95; transform: scale(0.95) rotate(-1deg); }
+  80%       { opacity: 1; transform: scale(1.1) rotate(2deg); }
+}
+
+.momentum-fire-pill {
+  background: linear-gradient(135deg, rgba(251,146,60,0.18) 0%, rgba(239,68,68,0.12) 100%);
+  border: 1px solid rgba(251,146,60,0.5);
+  animation: fire-glow 2.4s ease-in-out infinite;
+}
+
+.momentum-fire-pill .fire-icon {
+  display: inline-block;
+  animation: fire-flicker 1.8s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
 .asset-split-card {
   transition: transform 180ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }

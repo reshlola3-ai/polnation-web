@@ -120,7 +120,25 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   const [copied, setCopied] = useState(false)
   const [showEarningsModal, setShowEarningsModal] = useState(false)
   const [showTierModal, setShowTierModal] = useState(false)
-  const [activeAssetTip, setActiveAssetTip] = useState<'wallet' | 'available' | 'team' | null>(null)
+  const [activeAssetTip, setActiveAssetTip] = useState<{ key: 'wallet' | 'available' | 'team'; x: number; y: number } | null>(null)
+
+  const openTip = (key: 'wallet' | 'available' | 'team', e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    if (activeAssetTip?.key === key) { setActiveAssetTip(null); return }
+    const rect = e.currentTarget.getBoundingClientRect()
+    setActiveAssetTip({ key, x: rect.left, y: rect.bottom + 6 })
+  }
+
+  useEffect(() => {
+    if (!activeAssetTip) return
+    const close = () => setActiveAssetTip(null)
+    window.addEventListener('click', close)
+    window.addEventListener('touchstart', close)
+    return () => {
+      window.removeEventListener('click', close)
+      window.removeEventListener('touchstart', close)
+    }
+  }, [activeAssetTip])
   const [estDailyCommission, setEstDailyCommission] = useState(0)
   const [spinCount, setSpinCount] = useState(0)
   const [profitData, setProfitData] = useState<ProfitData>({
@@ -386,10 +404,11 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <span className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/70">
             {TIER_ICONS[currentTier.name] || '⭐'} {currentTier.name} · {(currentTier.rate * 100).toFixed(2)}%
           </span>
-          <span className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/70">
-            <Flame className="w-3 h-3 inline -mt-0.5 text-amber-400" /> {profitData.momentumMultiplier.toFixed(1)}x
+          <span className="momentum-fire-pill text-xs px-2.5 py-1 rounded-full text-amber-200 font-medium">
+            <span className="fire-icon"><Flame className="w-3 h-3 inline -mt-0.5 text-orange-400" /></span>
+            {' '}{profitData.momentumMultiplier.toFixed(1)}x
             {profitData.momentumDaysUntilDecay > 0 && (
-              <span className="text-white/30 ml-1">{profitData.momentumDaysUntilDecay}d</span>
+              <span className="text-orange-300/50 ml-1">{profitData.momentumDaysUntilDecay}d</span>
             )}
           </span>
           <button
@@ -410,49 +429,28 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           onClick={() => setActiveAssetTip(null)}
         >
           <div className="grid grid-cols-3 gap-2">
-            <div className="asset-split-card asset-split-wallet rounded-lg bg-black/20 border border-white/[0.06] px-2.5 py-2.5 min-w-0 relative h-[84px] flex flex-col">
+            {/* Wallet card */}
+            <div className="asset-split-card asset-split-wallet rounded-lg bg-black/20 border border-white/[0.06] px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
               <div className="flex items-center gap-1 mb-0.5 min-w-0">
                 <p className="text-xs text-zinc-400 truncate">{t('assetWalletTitle')}</p>
-                <button
-                  type="button"
-                  className="asset-help-btn shrink-0"
-                  aria-label={t('assetHelpWalletAria')}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setActiveAssetTip(activeAssetTip === 'wallet' ? null : 'wallet')
-                  }}
-                >
+                <button type="button" className="asset-help-btn" aria-label={t('assetHelpWalletAria')}
+                  onClick={(e) => openTip('wallet', e)}>
                   <HelpCircle className="w-3 h-3" />
                 </button>
               </div>
               {isBalanceLoading ? (
                 <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-auto" />
               ) : (
-                <p className="text-sm md:text-base font-semibold text-white stat-number truncate mt-auto">
-                  ${usdcBalance.toFixed(2)}
-                </p>
-              )}
-
-              {activeAssetTip === 'wallet' && (
-                <div className="asset-help-pop">
-                  <p>{t('assetHelpWalletLine1')}</p>
-                  <p>{t('assetHelpWalletLine2')}</p>
-                </div>
+                <p className="text-sm font-semibold text-white stat-number truncate mt-auto">${usdcBalance.toFixed(2)}</p>
               )}
             </div>
 
-            <div className="asset-split-card asset-split-available rounded-lg bg-black/20 border border-cyan-400/20 px-2.5 py-2.5 min-w-0 relative h-[84px] flex flex-col">
+            {/* Available card */}
+            <div className="asset-split-card asset-split-available rounded-lg bg-black/20 border border-cyan-400/20 px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
               <div className="flex items-center gap-1 mb-0.5 min-w-0">
                 <p className="text-xs text-zinc-400 truncate">{t('assetAvailableTitle')}</p>
-                <button
-                  type="button"
-                  className="asset-help-btn shrink-0"
-                  aria-label={t('assetHelpAvailableAria')}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setActiveAssetTip(activeAssetTip === 'available' ? null : 'available')
-                  }}
-                >
+                <button type="button" className="asset-help-btn" aria-label={t('assetHelpAvailableAria')}
+                  onClick={(e) => openTip('available', e)}>
                   <HelpCircle className="w-3 h-3" />
                 </button>
               </div>
@@ -460,59 +458,62 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 {isLoadingProfit ? (
                   <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
                 ) : (
-                  <p className="text-sm md:text-base font-semibold text-white stat-number truncate">
-                    ${profitData.availableWithdraw.toFixed(2)}
-                  </p>
+                  <p className="text-sm font-semibold text-white stat-number truncate">${profitData.availableWithdraw.toFixed(2)}</p>
                 )}
-                <Link
-                  href="/earnings"
+                <Link href="/earnings"
                   className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 asset-withdraw-btn shrink-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
+                  onClick={(e) => e.stopPropagation()}>
                   <span className="hidden sm:inline">{t('withdraw')}</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
-
-              {activeAssetTip === 'available' && (
-                <div className="asset-help-pop">
-                  <p>{t('assetHelpAvailableLine1')}</p>
-                  <p>{t('assetHelpAvailableLine2')}</p>
-                </div>
-              )}
             </div>
 
-            <div className="asset-split-card asset-split-team rounded-lg bg-black/20 border border-purple-400/20 px-2.5 py-2.5 min-w-0 relative h-[84px] flex flex-col">
+            {/* Team Pool card */}
+            <div className="asset-split-card asset-split-team rounded-lg bg-black/20 border border-purple-400/20 px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
               <div className="flex items-center gap-1 mb-0.5 min-w-0">
                 <p className="text-xs text-zinc-400 truncate">{t('assetTeamPoolTitle')}</p>
-                <button
-                  type="button"
-                  className="asset-help-btn shrink-0"
-                  aria-label={t('assetHelpTeamAria')}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setActiveAssetTip(activeAssetTip === 'team' ? null : 'team')
-                  }}
-                >
+                <button type="button" className="asset-help-btn" aria-label={t('assetHelpTeamAria')}
+                  onClick={(e) => openTip('team', e)}>
                   <HelpCircle className="w-3 h-3" />
                 </button>
               </div>
               {isLoadingProfit ? (
                 <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-auto" />
               ) : (
-                <p className="text-sm md:text-base font-semibold text-white stat-number truncate mt-auto">
-                  ${profitData.communityPrizePool.toFixed(0)}
-                </p>
-              )}
-              {activeAssetTip === 'team' && (
-                <div className="asset-help-pop">
-                  <p>{t('assetHelpTeamLine1')}</p>
-                  <p>{t('assetHelpTeamLine2')}</p>
-                </div>
+                <p className="text-sm font-semibold text-white stat-number truncate mt-auto">${profitData.communityPrizePool.toFixed(0)}</p>
               )}
             </div>
           </div>
         </div>
+
+        {/* Fixed-position tooltip — escapes overflow:hidden on AuroraCard */}
+        {activeAssetTip && (
+          <div
+            className="fixed z-[999] rounded-xl border border-white/10 shadow-2xl p-3 text-[11px] leading-relaxed"
+            style={{
+              left: Math.min(activeAssetTip.x, window.innerWidth - 228),
+              top: activeAssetTip.y,
+              width: 220,
+              background: '#151325',
+              boxShadow: '0 8px 28px rgba(0,0,0,0.55)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {activeAssetTip.key === 'wallet' && (<>
+              <p className="text-zinc-100">{t('assetHelpWalletLine1')}</p>
+              <p className="text-zinc-400 mt-1">{t('assetHelpWalletLine2')}</p>
+            </>)}
+            {activeAssetTip.key === 'available' && (<>
+              <p className="text-zinc-100">{t('assetHelpAvailableLine1')}</p>
+              <p className="text-zinc-400 mt-1">{t('assetHelpAvailableLine2')}</p>
+            </>)}
+            {activeAssetTip.key === 'team' && (<>
+              <p className="text-zinc-100">{t('assetHelpTeamLine1')}</p>
+              <p className="text-zinc-400 mt-1">{t('assetHelpTeamLine2')}</p>
+            </>)}
+          </div>
+        )}
       </AuroraCard>
 
       {/* Quick Actions — 4 icon buttons */}
