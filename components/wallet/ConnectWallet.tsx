@@ -5,21 +5,10 @@ import { useAccount, useDisconnect, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
-import { Wallet, LogOut, ExternalLink, AlertTriangle, CheckCircle, Link2, XCircle } from 'lucide-react'
+import { Wallet, LogOut, ExternalLink, AlertTriangle, CheckCircle, Link2 } from 'lucide-react'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
 import { createClient } from '@/lib/supabase'
-
-const ALLOWED_WALLETS = [
-  'bitget', 'bitget wallet',
-  'trust', 'trust wallet', 'trustwallet',
-]
-
-function isAllowedWallet(connectorName: string | undefined): boolean {
-  if (!connectorName) return false
-  const name = connectorName.toLowerCase()
-  return ALLOWED_WALLETS.some(allowed => name.includes(allowed))
-}
 
 interface BoundWalletInfo {
   address: string
@@ -30,25 +19,12 @@ export function ConnectWallet() {
   const { open } = useWeb3Modal()
   const { address, isConnected, chain, connector } = useAccount()
   const { disconnect } = useDisconnect()
-  const [walletStatus, setWalletStatus] = useState<'checking' | 'available' | 'bound_to_you' | 'bound_to_other' | 'unsupported_wallet'>('checking')
+  const [walletStatus, setWalletStatus] = useState<'checking' | 'available' | 'bound_to_you' | 'bound_to_other'>('checking')
   const [boundUser, setBoundUser] = useState<string | null>(null)
-  const [unsupportedWalletName, setUnsupportedWalletName] = useState<string | null>(null)
-  const [showUnsupportedModal, setShowUnsupportedModal] = useState(false)
   const [boundWalletInfo, setBoundWalletInfo] = useState<BoundWalletInfo | null>(null)
   const [isLoadingBoundWallet, setIsLoadingBoundWallet] = useState(true)
 
   const handleOpenWallet = () => open()
-
-  useEffect(() => {
-    if (isConnected && connector) {
-      const isSupported = isAllowedWallet(connector.name)
-      if (!isSupported) {
-        setWalletStatus('unsupported_wallet')
-        setUnsupportedWalletName(connector.name)
-        setShowUnsupportedModal(true)
-      }
-    }
-  }, [isConnected, connector])
 
   useEffect(() => {
     async function loadBoundWallet() {
@@ -81,13 +57,6 @@ export function ConnectWallet() {
   useEffect(() => {
     async function checkAndBindWallet() {
       if (!address) { setWalletStatus('available'); return }
-
-      if (connector && !isAllowedWallet(connector.name)) {
-        setWalletStatus('unsupported_wallet')
-        setUnsupportedWalletName(connector.name)
-        setShowUnsupportedModal(true)
-        return
-      }
 
       const normalizedAddress = address.toLowerCase()
 
@@ -208,12 +177,15 @@ export function ConnectWallet() {
     return (
       <div className="glass-card-solid p-4 md:p-6">
         <h3 className="font-semibold text-white mb-3 md:mb-4 text-sm md:text-base">Connect Your Wallet</h3>
-        <p className="text-xs md:text-sm text-zinc-400 mb-3 md:mb-4">Connect and bind your wallet to start staking.</p>
+        <p className="text-xs md:text-sm text-zinc-400 mb-3 md:mb-4">Connect and bind your wallet to start earning.</p>
         <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-          <p className="text-[10px] md:text-xs text-purple-300 font-medium mb-1.5 md:mb-2">Supported Wallets:</p>
+          <p className="text-[10px] md:text-xs text-purple-300 font-medium mb-1.5 md:mb-2">All major wallets supported:</p>
           <div className="flex flex-wrap gap-1.5">
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">Bitget</span>
             <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">Trust</span>
+            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">Bitget</span>
+            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">MetaMask</span>
+            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">WalletConnect</span>
+            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">& more</span>
           </div>
         </div>
         <Button onClick={handleOpenWallet} className="gap-2 w-full text-sm md:text-base py-2.5 md:py-3"><Wallet className="w-4 h-4" />Connect Wallet</Button>
@@ -277,39 +249,6 @@ export function ConnectWallet() {
         )}
       </div>
 
-      {/* Unsupported Wallet Modal */}
-      {showUnsupportedModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-md w-full">
-            <div className="flex items-center gap-3 mb-4">
-              <XCircle className="w-8 h-8 text-red-400" />
-              <h2 className="text-xl font-bold text-white">Unsupported Wallet</h2>
-            </div>
-            <p className="text-zinc-400 mb-4">
-              {unsupportedWalletName || 'This wallet'} is not supported. Please use one of the supported wallets below:
-            </p>
-            <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-3 p-3 bg-zinc-800 rounded-xl">
-                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold">B</div>
-                <div>
-                  <p className="text-white font-medium">Bitget Wallet</p>
-                  <p className="text-zinc-500 text-sm">Most popular choice</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-zinc-800 rounded-xl">
-                <div className="w-10 h-10 bg-cyan-500 rounded-lg flex items-center justify-center text-white font-bold">T</div>
-                <div>
-                  <p className="text-white font-medium">Trust Wallet</p>
-                  <p className="text-zinc-500 text-sm">Simple and secure</p>
-                </div>
-              </div>
-            </div>
-            <Button onClick={() => { disconnect(); setShowUnsupportedModal(false) }} className="w-full">
-              Disconnect Wallet
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
