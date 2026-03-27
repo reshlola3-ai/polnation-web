@@ -13,15 +13,18 @@ interface HeroCtaButtonsProps {
 }
 
 function runOnIdle(task: () => void) {
-  if (typeof window === 'undefined') return () => {}
-
-  if ('requestIdleCallback' in window) {
-    const id = window.requestIdleCallback(() => task(), { timeout: 1200 })
-    return () => window.cancelIdleCallback(id)
+  const g = globalThis as typeof globalThis & {
+    requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number
+    cancelIdleCallback?: (id: number) => void
   }
 
-  const timeoutId = window.setTimeout(task, 350)
-  return () => window.clearTimeout(timeoutId)
+  if (typeof g.requestIdleCallback === 'function') {
+    const id = g.requestIdleCallback(() => task(), { timeout: 1200 })
+    return () => g.cancelIdleCallback?.(id)
+  }
+
+  const timeoutId = globalThis.setTimeout(task, 350)
+  return () => globalThis.clearTimeout(timeoutId)
 }
 
 export function HeroCtaButtons({
