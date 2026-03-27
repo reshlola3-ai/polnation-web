@@ -1,37 +1,14 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
 import { Navbar } from '@/components/layout/Navbar'
+import { LazyFeaturesSection } from '@/components/home/LazyFeaturesSection'
+import { LazyChainStats } from '@/components/home/LazyChainStats'
 import { ArrowRight, Sparkles } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
-
-// 懒加载折叠以下的重型 client 组件，不阻塞首屏 hydration
-const FeaturesSection = dynamic(
-  () => import('@/components/home/FeaturesSection').then(m => m.FeaturesSection),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-40 rounded-2xl bg-white/5 animate-pulse" />
-        ))}
-      </div>
-    ),
-  }
-)
-
-const ChainStats = dynamic(
-  () => import('@/components/home/ChainStats').then(m => m.ChainStats),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-32 rounded-2xl bg-white/5 animate-pulse" />
-    ),
-  }
-)
 
 // JSON-LD 结构化数据
 const jsonLd = {
@@ -189,26 +166,38 @@ export default async function HomePage() {
       </section>
 
       {/* Features Section */}
-      <FeaturesSection
-        translations={{
-          safe: {
-            title: t('features.safe.title'),
-            description: t('features.safe.description'),
-          },
-          stable: {
-            title: t('features.stable.title'),
-            description: t('features.stable.description'),
-          },
-          easy: {
-            title: t('features.easy.title'),
-            description: t('features.easy.description'),
-          },
-          verified: {
-            title: t('features.verified.title'),
-            description: t('features.verified.description'),
-          },
-        }}
-      />
+      <Suspense
+        fallback={
+          <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="h-44 rounded-2xl bg-white/5 animate-pulse" />
+              ))}
+            </div>
+          </section>
+        }
+      >
+        <LazyFeaturesSection
+          translations={{
+            safe: {
+              title: t('features.safe.title'),
+              description: t('features.safe.description'),
+            },
+            stable: {
+              title: t('features.stable.title'),
+              description: t('features.stable.description'),
+            },
+            easy: {
+              title: t('features.easy.title'),
+              description: t('features.easy.description'),
+            },
+            verified: {
+              title: t('features.verified.title'),
+              description: t('features.verified.description'),
+            },
+          }}
+        />
+      </Suspense>
 
       {/* Polygon Validator Video Section */}
       <section className="relative z-10 py-16 md:py-24">
@@ -327,7 +316,9 @@ export default async function HomePage() {
       </section>
 
       {/* Stats Section - Live Chain Data */}
-      <ChainStats />
+      <Suspense fallback={<div className="h-32 rounded-2xl bg-white/5 animate-pulse mx-4 sm:mx-6 lg:mx-8" />}>
+        <LazyChainStats />
+      </Suspense>
 
       {/* Footer */}
       <footer className="relative border-t border-purple-500/20 bg-[#0D0B21]/80 backdrop-blur-xl">
