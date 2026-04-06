@@ -1,8 +1,11 @@
 import { createServerClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
+import Link from 'next/link'
+import Image from 'next/image'
 import { Navbar } from '@/components/layout/Navbar'
 import { BottomNav } from '@/components/layout/BottomNav'
+import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { Web3Provider } from '@/components/providers/Web3Provider'
 import { UnsupportedWalletOverlay } from '@/components/layout/UnsupportedWalletOverlay'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
@@ -37,14 +40,20 @@ export default async function DashboardLayout({
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-[80px]" />
         </div>
         
-        {/* Top Navigation - Hidden on mobile */}
+        {/* Desktop Navigation */}
         <div className="hidden md:block relative z-20">
           <Navbar user={user} locale={locale} />
         </div>
-        
-        {/* Mobile Header */}
-        <div className="md:hidden relative z-20">
-          <Navbar user={user} locale={locale} isMobile />
+
+        {/* Mobile Header — logo + language only; navigation is in BottomNav */}
+        <div className="md:hidden sticky top-0 z-20 bg-[#0D0B21] border-b border-white/[0.05]">
+          <div className="flex items-center justify-between h-12 px-4">
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <Image src="/logo.svg" alt="Polnation" width={26} height={26} className="rounded-lg" />
+              <span className="font-display text-base text-white">Polnation</span>
+            </Link>
+            <LanguageSwitcher currentLocale={locale} />
+          </div>
         </div>
         
         {/* Main Content - Add bottom padding for mobile nav */}

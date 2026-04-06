@@ -295,17 +295,11 @@ export default function SharePage() {
         </div>
       </div>
 
-      {/* Profile incomplete warning */}
-      {data && (!data.profileCompleted || !data.referralCode) && (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30">
-          <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0" />
-          <div className="flex-1">
-            <p className="text-sm text-amber-300 font-medium">Complete your profile to share</p>
-            <p className="text-xs text-amber-400/70">Your referral link will be generated after you complete your profile and bind your email.</p>
-          </div>
-          <Link href="/profile" className="px-3 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-medium hover:bg-amber-400 transition-colors flex-shrink-0">
-            Go to Profile
-          </Link>
+      {/* Gentle tip if no wallet bound yet */}
+      {data && !data.referralCode && (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/[0.06]">
+          <AlertTriangle className="w-4 h-4 text-zinc-400 flex-shrink-0" />
+          <p className="text-xs text-zinc-400">Connect and authorize your wallet on the Dashboard to generate your referral link.</p>
         </div>
       )}
 

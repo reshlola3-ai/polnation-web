@@ -27,8 +27,8 @@ export const wagmiConfig = defaultWagmiConfig({
   projectId,
   metadata,
   enableWalletConnect: true,
-  enableInjected: true,
-  enableEIP6963: true,
+  enableInjected: false, // Blocks MetaMask and other browser-injected wallets
+  enableEIP6963: false,  // Blocks EIP-6963 auto-detected desktop extensions
   enableCoinbase: false,
 })
 

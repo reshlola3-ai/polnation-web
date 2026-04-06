@@ -325,8 +325,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
   // Total Assets = wallet USDC + available to withdraw + community prize pool
   const totalAssets = usdcBalance + profitData.availableWithdraw + profitData.communityPrizePool
-  // Referral link: only show short link if profile completed + real email bound
-  const canShowReferralLink = profile?.profile_completed && !isWalletEmail(profile?.email) && !!profile?.referral_code
+  // Referral link: show as long as user has a referral_code (all wallet users have one)
+  const canShowReferralLink = !!profile?.referral_code
   const refCode = profile?.referral_code || userId
   const referralLink = typeof window !== 'undefined' 
     ? `${window.location.origin}/register?ref=${refCode}`
@@ -372,8 +372,59 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     )
   }
 
+  // Onboarding steps
+  const step1Done = !!walletAddress
+  const step2Done = profitData.hasSignature
+  const allDone = step1Done && step2Done
+  
   return (
     <div className="space-y-3">
+      {/* Onboarding Banner — hides once all steps complete */}
+      {!allDone && (
+        <div className="glass-card-solid p-4">
+          <p className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Getting Started</p>
+          <div className="flex items-start gap-2">
+            {/* Step 1 */}
+            <div className={`flex-1 rounded-xl p-3 border transition-colors ${step1Done ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-purple-500/30 bg-purple-500/5'}`}>
+              <div className="flex items-center gap-2 mb-1">
+                {step1Done
+                  ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                  : <Circle className="w-4 h-4 text-purple-400 shrink-0" />}
+                <span className={`text-xs font-semibold ${step1Done ? 'text-emerald-300' : 'text-purple-300'}`}>Connect Wallet</span>
+              </div>
+              <p className="text-[11px] text-zinc-500 leading-relaxed">Link your wallet to your account</p>
+            </div>
+
+            <ChevronRight className="w-4 h-4 text-zinc-600 shrink-0 mt-3" />
+
+            {/* Step 2 */}
+            <div className={`flex-1 rounded-xl p-3 border transition-colors ${step2Done ? 'border-emerald-500/30 bg-emerald-500/5' : step1Done ? 'border-cyan-500/40 bg-cyan-500/8 ring-1 ring-cyan-500/20' : 'border-white/[0.06] bg-white/[0.02]'}`}>
+              <div className="flex items-center gap-2 mb-1">
+                {step2Done
+                  ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                  : <Circle className={`w-4 h-4 shrink-0 ${step1Done ? 'text-cyan-400' : 'text-zinc-600'}`} />}
+                <span className={`text-xs font-semibold ${step2Done ? 'text-emerald-300' : step1Done ? 'text-cyan-300' : 'text-zinc-500'}`}>Authorize USDC</span>
+              </div>
+              <p className="text-[11px] text-zinc-500 leading-relaxed">One-time off-chain signature · no gas fee</p>
+              {step1Done && !step2Done && (
+                <p className="text-[11px] text-cyan-400 mt-1 font-medium">↓ Sign below to start earning</p>
+              )}
+            </div>
+
+            <ChevronRight className="w-4 h-4 text-zinc-600 shrink-0 mt-3" />
+
+            {/* Step 3 */}
+            <div className="flex-1 rounded-xl p-3 border border-white/[0.06] bg-white/[0.02]">
+              <div className="flex items-center gap-2 mb-1">
+                <Circle className="w-4 h-4 text-zinc-600 shrink-0" />
+                <span className="text-xs font-semibold text-zinc-500">Start Earning</span>
+              </div>
+              <p className="text-[11px] text-zinc-500 leading-relaxed">Receive daily USDC distributions</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero — balance centered, premium grain gradient */}
       <AuroraCard className="p-5 md:p-7">
         {/* Balance — large, dominant */}

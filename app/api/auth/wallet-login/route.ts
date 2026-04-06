@@ -10,7 +10,7 @@ const supabaseAdmin = createClient(
 
 export async function POST(request: Request) {
   try {
-    const { walletAddress, autoRegister = false } = await request.json()
+    const { walletAddress, autoRegister = false, referrerId = null } = await request.json()
 
     if (!walletAddress) {
       return NextResponse.json(
@@ -21,6 +21,18 @@ export async function POST(request: Request) {
 
     const normalizedAddress = walletAddress.toLowerCase()
 
+    // Resolve referrerId: support both short code (e.g. "AB3X") and UUID
+    let resolvedReferrerId: string | null = null
+    if (referrerId) {
+      const isShortCode = referrerId.length <= 6 && !referrerId.includes('-')
+      const { data: refProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq(isShortCode ? 'referral_code' : 'id', isShortCode ? referrerId.toUpperCase() : referrerId)
+        .single()
+      resolvedReferrerId = refProfile?.id || null
+    }
+
     // Find user with this wallet address
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
@@ -30,7 +42,7 @@ export async function POST(request: Request) {
 
     // If no profile found and autoRegister is true, create new account
     if ((profileError || !profile) && autoRegister) {
-      return await createWalletAccount(normalizedAddress)
+      return await createWalletAccount(normalizedAddress, resolvedReferrerId)
     }
 
     if (profileError || !profile) {
@@ -67,7 +79,7 @@ function generateReferralCode(): string {
 }
 
 // Create new account with wallet (no email required)
-async function createWalletAccount(walletAddress: string) {
+async function createWalletAccount(walletAddress: string, referrerId: string | null = null) {
   console.log('=== CREATE WALLET ACCOUNT START ===')
   console.log('Wallet address:', walletAddress)
   
@@ -86,10 +98,11 @@ async function createWalletAccount(walletAddress: string) {
     const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
       email: walletEmail,
       password: randomPassword,
-      email_confirm: true, // Auto-confirm since this is wallet auth
+      email_confirm: true,
       user_metadata: {
         wallet_address: walletAddress,
-        auth_type: 'wallet'
+        auth_type: 'wallet',
+        referrer_id: referrerId,
       }
     })
 
@@ -135,6 +148,7 @@ async function createWalletAccount(walletAddress: string) {
           wallet_bound_at: new Date().toISOString(),
           profile_completed: false,
           referral_code: generateReferralCode(),
+          ...(referrerId ? { referred_by: referrerId } : {}),
         })
       
       if (insertError) {
@@ -155,6 +169,7 @@ async function createWalletAccount(walletAddress: string) {
         wallet_bound_at: new Date().toISOString(),
         username: username,
         profile_completed: false,
+        ...(referrerId ? { referred_by: referrerId } : {}),
       }
       if (!checkProfile.referral_code) {
         updateData.referral_code = generateReferralCode()

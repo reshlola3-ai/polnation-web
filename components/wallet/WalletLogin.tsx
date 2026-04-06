@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase'
 interface WalletLoginProps {
   redirect?: string
   autoRegister?: boolean // If true, automatically create account for new wallets
+  referrerId?: string | null
 }
 
 // Detect if user is in a DApp browser (WebView)
@@ -71,7 +72,7 @@ export function isMobileNonDApp(): boolean {
   return isMobile && !isDAppBrowser()
 }
 
-export function WalletLogin({ redirect = '/dashboard', autoRegister = true }: WalletLoginProps) {
+export function WalletLogin({ redirect = '/dashboard', autoRegister = true, referrerId }: WalletLoginProps) {
   const router = useRouter()
   const { open } = useWeb3Modal()
   const { address, isConnected } = useAccount()
@@ -112,7 +113,8 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true }: Wa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           walletAddress,
-          autoRegister: shouldAutoRegister 
+          autoRegister: shouldAutoRegister,
+          referrerId: referrerId || null,
         })
       })
 
