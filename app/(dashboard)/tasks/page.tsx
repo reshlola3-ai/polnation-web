@@ -15,7 +15,6 @@ import {
   RefreshCw,
   AlertCircle,
   Gift,
-  Mail,
   Lock,
   Loader2,
   X,
@@ -104,11 +103,6 @@ interface BonusBreakdown {
   [key: string]: number
 }
 
-function isWalletEmail(email: string | null | undefined): boolean {
-  if (!email) return true
-  return email.endsWith('@wallet.polnation.com')
-}
-
 // Admin Telegram link
 const ADMIN_TELEGRAM = 'https://t.me/polnationadmin'
 const SUPPORT_TELEGRAM = 'https://t.me/polnationsupport'
@@ -164,63 +158,26 @@ export default function TasksPage() {
   // Wallet tooltip
   const [showWalletTooltip, setShowWalletTooltip] = useState(false)
 
-  // Email binding state
-  const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [needsEmailBinding, setNeedsEmailBinding] = useState(false)
-  const [checkingEmail, setCheckingEmail] = useState(true)
-  const [bindingEmail, setBindingEmail] = useState('')
-  const [bindingPassword, setBindingPassword] = useState('')
-  const [bindingPasswordConfirm, setBindingPasswordConfirm] = useState('')
-  const [bindingError, setBindingError] = useState('')
-  const [bindingSuccess, setBindingSuccess] = useState(false)
-  const [isBindingLoading, setIsBindingLoading] = useState(false)
-
-  // Check email on mount, fetch referral link
+  // Load referral link on mount
   useEffect(() => {
-    async function checkUserEmail() {
-      setCheckingEmail(true)
+    async function loadReferralLink() {
       try {
         const supabase = createClient()
         const { data: { user } } = await supabase.auth.getUser()
-        if (user?.email) {
-          setUserEmail(user.email)
-          setNeedsEmailBinding(isWalletEmail(user.email))
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('referral_code, wallet_address')
-            .eq('id', user.id)
-            .single()
-          const refCode = profile?.referral_code || user.id
-          const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://polnation.com'
-          setReferralLink(`${baseUrl}/register?ref=${refCode}`)
-          setProfileHasWallet(!!profile?.wallet_address)
-        } else {
-          setNeedsEmailBinding(true)
-        }
-      } catch { setNeedsEmailBinding(true) }
-      finally { setCheckingEmail(false) }
+        if (!user) return
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('referral_code, wallet_address')
+          .eq('id', user.id)
+          .single()
+        const refCode = profile?.referral_code || user.id
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://polnation.com'
+        setReferralLink(`${baseUrl}/register?ref=${refCode}`)
+        setProfileHasWallet(!!profile?.wallet_address)
+      } catch { /* ignore */ }
     }
-    checkUserEmail()
+    loadReferralLink()
   }, [])
-
-  const handleBindEmail = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setBindingError('')
-    if (bindingPassword.length < 6) { setBindingError(t('passwordTooShort')); return }
-    if (bindingPassword !== bindingPasswordConfirm) { setBindingError(t('passwordMismatch')); return }
-    setIsBindingLoading(true)
-    try {
-      const res = await fetch('/api/auth/bind-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: bindingEmail, password: bindingPassword }),
-      })
-      const data = await res.json()
-      if (!res.ok) { setBindingError(data.error || 'Failed to bind email') }
-      else { setBindingSuccess(true); setTimeout(() => window.location.reload(), 2000) }
-    } catch { setBindingError('Network error, please try again') }
-    finally { setIsBindingLoading(false) }
-  }
 
   const fetchTasks = useCallback(async () => {
     setIsLoading(true)
@@ -241,8 +198,8 @@ export default function TasksPage() {
   }, [])
 
   useEffect(() => {
-    if (!needsEmailBinding && !checkingEmail) fetchTasks()
-  }, [fetchTasks, needsEmailBinding, checkingEmail])
+    fetchTasks()
+  }, [fetchTasks])
 
   const completeTask = async (taskKey: string, submittedUrl?: string, submittedContent?: string) => {
     setSubmitting(taskKey)
@@ -327,82 +284,13 @@ export default function TasksPage() {
     return tQ('shareModalAdText').replace('{referralLink}', referralLink || 'https://polnation.com/register?ref=YOUR_CODE')
   }
 
-  // ── Loading / Email binding ─────────────────────────────────────────
-  if (checkingEmail) {
+  // ── Loading ─────────────────────────────────────────────────────────
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-white/10 rounded w-1/3 mb-4" />
           <div className="h-32 bg-white/5 rounded" />
-        </div>
-      </div>
-    )
-  }
-
-  if (needsEmailBinding) {
-    return (
-      <div className="space-y-6 max-w-md mx-auto">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 bg-purple-500/20 rounded-2xl flex items-center justify-center">
-            <Lock className="w-8 h-8 text-purple-400" />
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-2">{t('emailRequired')}</h1>
-          <p className="text-zinc-400">{t('emailRequiredDesc')}</p>
-        </div>
-        <div className="glass-card-solid p-6">
-          {bindingSuccess ? (
-            <div className="text-center space-y-4">
-              <CheckCircle className="w-12 h-12 text-green-400 mx-auto" />
-              <p className="text-green-400 font-medium">{t('emailBoundSuccess')}</p>
-              <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs">
-                <Loader2 className="w-3 h-3 animate-spin" /><span>{t('refreshingPage')}</span>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleBindEmail} className="space-y-4">
-              {bindingError && (
-                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{bindingError}</div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">{t('yourEmail')}</label>
-                <Input type="email" placeholder="you@example.com" value={bindingEmail}
-                  onChange={e => setBindingEmail(e.target.value)} leftIcon={<Mail className="w-4 h-4" />} required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">{t('setPassword')}</label>
-                <Input type="password" placeholder="••••••••" value={bindingPassword}
-                  onChange={e => setBindingPassword(e.target.value)} leftIcon={<Lock className="w-4 h-4" />} required minLength={6} />
-                <p className="text-xs text-zinc-500 mt-1">{t('passwordHint')}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">{t('confirmPassword')}</label>
-                <Input type="password" placeholder="••••••••" value={bindingPasswordConfirm}
-                  onChange={e => setBindingPasswordConfirm(e.target.value)} leftIcon={<Lock className="w-4 h-4" />} required minLength={6} />
-              </div>
-              <Button type="submit" className="w-full" isLoading={isBindingLoading}
-                disabled={!bindingEmail || !bindingPassword || !bindingPasswordConfirm || isBindingLoading}>
-                {t('bindEmail')}
-              </Button>
-            </form>
-          )}
-        </div>
-        <div className="glass-card-solid p-4">
-          <h3 className="text-sm font-medium text-zinc-300 mb-2">{t('whyEmailRequired')}</h3>
-          <ul className="text-xs text-zinc-500 space-y-1.5">
-            {['reason1', 'reason2', 'reason3'].map(r => (
-              <li key={r} className="flex items-start gap-2">
-                <CheckCircle className="w-3.5 h-3.5 text-purple-400 mt-0.5 shrink-0" />
-                <span>{t(r as 'reason1')}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="text-center">
-          <p className="text-zinc-500 text-xs mb-2">{t('otherFeatures')}</p>
-          <div className="flex justify-center gap-3">
-            <Link href="/dashboard" className="text-purple-400 text-xs hover:text-purple-300">{t('linkDashboard')}</Link>
-            <Link href="/earnings" className="text-purple-400 text-xs hover:text-purple-300">{t('linkEarnings')}</Link>
-          </div>
         </div>
       </div>
     )
