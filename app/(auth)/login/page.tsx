@@ -54,7 +54,7 @@ function LoginForm() {
         </Web3Provider>
         <button
           onClick={() => setShowWallet(false)}
-          className="mt-4 w-full text-center text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          className="mt-4 w-full text-center text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
         >
           ← Back to email login
         </button>
@@ -95,7 +95,7 @@ function LoginForm() {
             required
           />
           <div className="mt-1.5 text-right">
-            <Link href="/forgot-password" className="text-xs text-gray-500 hover:text-[#16A34A] transition-colors">
+            <Link href="/forgot-password" className="text-xs text-zinc-500 hover:text-purple-400 transition-colors">
               Forgot password?
             </Link>
           </div>
@@ -108,10 +108,10 @@ function LoginForm() {
 
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200" />
+          <div className="w-full border-t border-white/10" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="px-3 bg-white text-gray-500">or</span>
+          <span className="px-3 bg-[#1A1333] text-zinc-500">or</span>
         </div>
       </div>
 
@@ -119,14 +119,14 @@ function LoginForm() {
       <button
         type="button"
         onClick={() => setShowWallet(true)}
-        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-purple-500/30 text-sm text-purple-300 hover:bg-purple-500/10 transition-colors"
       >
         Continue with Wallet
       </button>
 
-      <p className="mt-5 text-center text-sm text-gray-500">
+      <p className="mt-5 text-center text-sm text-zinc-500">
         Don&apos;t have an account?{' '}
-        <Link href={`/register${ref ? `?ref=${ref}` : ''}`} className="text-[#16A34A] hover:underline font-medium">
+        <Link href={`/register${ref ? `?ref=${ref}` : ''}`} className="text-purple-400 hover:underline font-medium">
           Create one
         </Link>
       </p>
@@ -139,7 +139,7 @@ export default function LoginPage() {
     <Suspense fallback={
       <AuthLayout title="Welcome back" subtitle="Sign in to your Polnation account">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#16A34A]" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
         </div>
       </AuthLayout>
     }>
