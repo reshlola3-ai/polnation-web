@@ -37,6 +37,7 @@ import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import { TelegramVerify } from '@/components/telegram/TelegramVerify'
 
 const LottieIcon = dynamic(
   () => import('@/components/ui/LottieIcon').then(mod => mod.LottieIcon),
@@ -158,25 +159,29 @@ export default function TasksPage() {
   // Wallet tooltip
   const [showWalletTooltip, setShowWalletTooltip] = useState(false)
 
-  // Load referral link on mount
+  // Telegram verification
+  const [telegramVerified, setTelegramVerified] = useState<boolean | null>(null)
+
+  // Load referral link + telegram status on mount
   useEffect(() => {
-    async function loadReferralLink() {
+    async function loadData() {
       try {
         const supabase = createClient()
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
         const { data: profile } = await supabase
           .from('profiles')
-          .select('referral_code, wallet_address')
+          .select('referral_code, wallet_address, telegram_verified')
           .eq('id', user.id)
           .single()
         const refCode = profile?.referral_code || user.id
         const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://polnation.com'
         setReferralLink(`${baseUrl}/register?ref=${refCode}`)
         setProfileHasWallet(!!profile?.wallet_address)
+        setTelegramVerified(!!profile?.telegram_verified)
       } catch { /* ignore */ }
     }
-    loadReferralLink()
+    loadData()
   }, [])
 
   const fetchTasks = useCallback(async () => {
@@ -335,6 +340,14 @@ export default function TasksPage() {
           <span>{message.text}</span>
         </div>
       )}
+
+      {/* Telegram verification gate */}
+      {telegramVerified === false && (
+        <TelegramVerify onVerified={() => setTelegramVerified(true)} />
+      )}
+
+      {/* Block rest of content until verified */}
+      {telegramVerified === false ? null : <>
 
       {/* Progress banner */}
       <div className="relative overflow-hidden rounded-2xl p-4 md:p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
@@ -637,6 +650,8 @@ export default function TasksPage() {
           </div>
         </div>
       )}
+
+      </> /* end telegram gate */}
     </div>
   )
 }

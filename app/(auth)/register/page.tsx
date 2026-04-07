@@ -1,40 +1,168 @@
 'use client'
 
-import { Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase'
 import { AuthLayout } from '@/components/layout/AuthLayout'
-import { WalletLogin } from '@/components/wallet/WalletLogin'
-import { Web3Provider } from '@/components/providers/Web3Provider'
-import { User } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Mail, Lock, User } from 'lucide-react'
 
 function RegisterForm() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const referrerId = searchParams.get('ref')
+  const supabase = createClient()
+
+  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [referrerName, setReferrerName] = useState<string | null>(null)
+  const [referrerUuid, setReferrerUuid] = useState<string | null>(null)
+
+  // Resolve referrer info from ref param
+  useEffect(() => {
+    async function fetchReferrer() {
+      if (!referrerId) return
+      const isShortCode = referrerId.length <= 6 && !referrerId.includes('-')
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, username')
+        .eq(isShortCode ? 'referral_code' : 'id', isShortCode ? referrerId.toUpperCase() : referrerId)
+        .single()
+      if (data) {
+        setReferrerName(data.username)
+        setReferrerUuid(data.id)
+      }
+    }
+    fetchReferrer()
+  }, [referrerId, supabase])
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+
+    if (password !== confirmPassword) { setError('Passwords do not match'); return }
+    if (password.length < 6) { setError('Password must be at least 6 characters'); return }
+
+    setIsLoading(true)
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            username: username.trim() || undefined,
+            referrer_id: referrerUuid || null,
+          },
+        },
+      })
+
+      if (error) {
+        setError(error.message)
+      } else {
+        router.push('/register/verify?email=' + encodeURIComponent(email))
+      }
+    } catch {
+      setError('An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <AuthLayout
-      title="Join Polnation"
-      subtitle={referrerId ? 'You were invited — connect your wallet to get started' : 'Connect your wallet to create an account'}
+      title="Create your account"
+      subtitle={referrerName ? `Invited by ${referrerName}` : 'Join Polnation today'}
     >
-      {referrerId && (
-        <div className="mb-5 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center gap-2 text-sm text-purple-300">
-          <User className="w-4 h-4 shrink-0" />
-          Referral code: <span className="font-mono font-bold">{referrerId}</span>
+      <form onSubmit={handleRegister} className="space-y-4">
+        {error && (
+          <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+
+        {referrerName && (
+          <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm flex items-center gap-2">
+            <User className="w-4 h-4" />
+            Referred by: <strong>{referrerName}</strong>
+          </div>
+        )}
+
+        <Input
+          type="email"
+          label="Email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          leftIcon={<Mail className="w-4 h-4" />}
+          required
+        />
+
+        <Input
+          type="text"
+          label="Username (optional)"
+          placeholder="e.g. crypto_alice"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          leftIcon={<User className="w-4 h-4" />}
+        />
+
+        <Input
+          type="password"
+          label="Password"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          leftIcon={<Lock className="w-4 h-4" />}
+          required
+        />
+
+        <Input
+          type="password"
+          label="Confirm Password"
+          placeholder="••••••••"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          leftIcon={<Lock className="w-4 h-4" />}
+          required
+        />
+
+        <Button type="submit" className="w-full" isLoading={isLoading}>
+          Create Account
+        </Button>
+      </form>
+
+      <div className="relative my-5">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-white/10" />
         </div>
-      )}
+        <div className="relative flex justify-center text-xs">
+          <span className="px-3 bg-[#1A1333] text-zinc-500">or sign up with wallet</span>
+        </div>
+      </div>
 
-      <Web3Provider>
-        <WalletLogin redirect="/dashboard" autoRegister={true} referrerId={referrerId} />
-      </Web3Provider>
+      <Link
+        href="/login"
+        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-purple-500/30 text-sm text-purple-300 hover:bg-purple-500/10 transition-colors"
+      >
+        Continue with Wallet instead
+      </Link>
 
-      <p className="mt-6 text-center text-xs text-zinc-500">
+      <p className="mt-5 text-center text-sm text-zinc-500">
         Already have an account?{' '}
-        <Link href="/login" className="text-purple-400 hover:underline">Sign in</Link>
+        <Link href="/login" className="text-purple-400 hover:underline font-medium">
+          Sign in
+        </Link>
       </p>
 
-      <p className="mt-3 text-center text-xs text-zinc-500">
-        By connecting you agree to our{' '}
+      <p className="mt-2 text-center text-xs text-zinc-600">
+        By creating an account you agree to our{' '}
         <Link href="/terms" className="text-purple-400 hover:underline">Terms</Link>
         {' '}and{' '}
         <Link href="/privacy" className="text-purple-400 hover:underline">Privacy Policy</Link>
@@ -46,7 +174,7 @@ function RegisterForm() {
 export default function RegisterPage() {
   return (
     <Suspense fallback={
-      <AuthLayout title="Join Polnation" subtitle="Connect your wallet to get started">
+      <AuthLayout title="Create your account" subtitle="Join Polnation today">
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
         </div>
