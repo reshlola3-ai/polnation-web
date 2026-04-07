@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
+import { generateAdminToken } from '@/lib/admin-auth'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -43,8 +44,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 生成简单的 session token
-    const token = Buffer.from(`${username}:${Date.now()}`).toString('base64')
+    // 生成 HMAC-SHA256 签名 token
+    const token = generateAdminToken()
     
     // 设置 cookie
     const cookieStore = await cookies()

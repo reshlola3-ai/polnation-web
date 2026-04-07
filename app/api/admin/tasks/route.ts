@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { verifyAdmin } from '@/lib/admin-auth'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -9,15 +9,10 @@ function getSupabaseAdmin() {
   return createClient(url, key)
 }
 
-async function checkAdminAuth() {
-  const cookieStore = await cookies()
-  const adminSession = cookieStore.get('admin_session')?.value
-  return !!adminSession
-}
 
 // GET: 获取所有待审核任务和任务配置
 export async function GET(request: NextRequest) {
-  const isAdmin = await checkAdminAuth()
+  const isAdmin = await verifyAdmin()
   if (!isAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -120,7 +115,7 @@ export async function GET(request: NextRequest) {
 
 // POST: 审核任务 / 更新任务配置
 export async function POST(request: NextRequest) {
-  const isAdmin = await checkAdminAuth()
+  const isAdmin = await verifyAdmin()
   if (!isAdmin) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

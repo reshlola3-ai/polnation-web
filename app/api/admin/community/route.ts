@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
 import { createPublicClient, http, parseAbi, formatUnits } from 'viem'
+import { verifyAdmin } from '@/lib/admin-auth'
 import { polygon } from 'viem/chains'
 
 function getSupabaseAdmin() {
@@ -11,11 +11,6 @@ function getSupabaseAdmin() {
   return createClient(url, key)
 }
 
-async function verifyAdmin() {
-  const cookieStore = await cookies()
-  const session = cookieStore.get('admin_session')?.value
-  return !!session
-}
 
 const CONFIG = {
   rpcUrl: process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com',

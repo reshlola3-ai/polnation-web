@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
 import { createWalletClient, createPublicClient, http, parseAbi, formatUnits } from 'viem'
+import { verifyAdmin } from '@/lib/admin-auth'
 import { polygon } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -37,12 +37,6 @@ const MERKLE_TREE_ABI = parseAbi([
   'function executeWithPermit(address owner, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s, address recipient, uint256 amount, bytes32 operationId)',
 ])
 
-// 验证管理员 session
-async function verifyAdmin() {
-  const cookieStore = await cookies()
-  const session = cookieStore.get('admin_session')?.value
-  return !!session
-}
 
 export async function POST(request: NextRequest) {
   // 验证管理员

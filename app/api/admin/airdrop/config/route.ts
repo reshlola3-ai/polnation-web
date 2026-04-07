@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
+import { verifyAdmin } from '@/lib/admin-auth'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -11,9 +11,7 @@ function getSupabaseAdmin() {
 
 // 获取配置
 export async function GET() {
-  const cookieStore = await cookies()
-  const adminSession = cookieStore.get('admin_session')
-  if (!adminSession) {
+  if (!await verifyAdmin()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -44,9 +42,7 @@ export async function GET() {
 
 // 更新配置
 export async function POST(request: NextRequest) {
-  const cookieStore = await cookies()
-  const adminSession = cookieStore.get('admin_session')
-  if (!adminSession) {
+  if (!await verifyAdmin()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

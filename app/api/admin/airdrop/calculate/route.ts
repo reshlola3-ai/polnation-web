@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
 import { createPublicClient, http, parseAbi, formatUnits } from 'viem'
 import { polygon } from 'viem/chains'
+import { verifyAdmin } from '@/lib/admin-auth'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -25,9 +25,7 @@ interface ProfitTier {
 
 // 创建预览（计算但不发放）
 export async function POST(request: NextRequest) {
-  const cookieStore = await cookies()
-  const adminSession = cookieStore.get('admin_session')
-  if (!adminSession) {
+  if (!await verifyAdmin()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -349,9 +347,7 @@ export async function POST(request: NextRequest) {
 
 // 获取待发放的轮次
 export async function GET() {
-  const cookieStore = await cookies()
-  const adminSession = cookieStore.get('admin_session')
-  if (!adminSession) {
+  if (!await verifyAdmin()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { verifyAdmin } from '@/lib/admin-auth'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -9,11 +9,6 @@ function getSupabaseAdmin() {
   return createClient(url, key)
 }
 
-async function verifyAdmin() {
-  const cookieStore = await cookies()
-  const session = cookieStore.get('admin_session')?.value
-  return !!session
-}
 
 // 计算并发放每日社群收益
 export async function POST(request: NextRequest) {

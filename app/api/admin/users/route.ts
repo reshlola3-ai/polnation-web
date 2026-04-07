@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { verifyAdmin } from '@/lib/admin-auth'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -13,12 +13,6 @@ function getSupabaseAdmin() {
   return createClient(url, key)
 }
 
-// 验证管理员 session
-async function verifyAdmin() {
-  const cookieStore = await cookies()
-  const session = cookieStore.get('admin_session')?.value
-  return !!session
-}
 
 // POST: 同步钱包地址 - 从 permit_signatures 同步到 profiles
 export async function POST(request: NextRequest) {
