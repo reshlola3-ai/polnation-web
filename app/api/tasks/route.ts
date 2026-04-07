@@ -251,13 +251,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  if (isWalletEmail(user.email)) {
-    return NextResponse.json({
-      error: 'Email verification required to complete tasks',
-      code: 'EMAIL_REQUIRED'
-    }, { status: 403 })
-  }
-
   const supabaseAdmin = getSupabaseAdmin()
   if (!supabaseAdmin) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
