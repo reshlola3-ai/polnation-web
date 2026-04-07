@@ -27,12 +27,6 @@ async function getUser() {
   return user
 }
 
-// Check if email is a wallet-generated placeholder
-function isWalletEmail(email: string | null | undefined): boolean {
-  if (!email) return true
-  return email.endsWith('@wallet.polnation.com')
-}
-
 // Quest chapter definitions (order matters for unlock logic)
 const QUEST_CHAPTERS = ['ch1', 'ch2', 'ch3']
 
@@ -41,13 +35,6 @@ export async function GET() {
   const user = await getUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  if (isWalletEmail(user.email)) {
-    return NextResponse.json({
-      error: 'Email verification required to access tasks',
-      code: 'EMAIL_REQUIRED'
-    }, { status: 403 })
   }
 
   const supabaseAdmin = getSupabaseAdmin()
