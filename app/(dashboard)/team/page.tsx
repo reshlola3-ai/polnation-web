@@ -106,7 +106,7 @@ export default function TeamPage() {
   const [userId, setUserId] = useState<string | null>(null)
   const [referralCode, setReferralCode] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
-  const [profileCompleted, setProfileCompleted] = useState(false)
+
   const [copied, setCopied] = useState(false)
   const [totalTeamMembers, setTotalTeamMembers] = useState(0)
   const [level1Members, setLevel1Members] = useState(0)
@@ -172,15 +172,14 @@ export default function TeamPage() {
       setUserId(user.id)
       setUserEmail(user.email || null)
 
-      // Fetch profile for referral_code and profile_completed
+      // Fetch profile for referral_code
       const { data: profileData } = await supabase
         .from('profiles')
-        .select('referral_code, profile_completed')
+        .select('referral_code')
         .eq('id', user.id)
         .single()
       if (profileData) {
         setReferralCode(profileData.referral_code)
-        setProfileCompleted(profileData.profile_completed || false)
       }
 
       const res = await fetch('/api/referral/balances')
@@ -292,7 +291,7 @@ export default function TeamPage() {
     setLoadingBalances(false)
   }
 
-  const canShowReferralLink = profileCompleted && !!referralCode
+  const canShowReferralLink = !!referralCode
 
   const copyReferralLink = () => {
     if (referralCode) {
@@ -709,17 +708,9 @@ export default function TeamPage() {
         ) : (
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-zinc-600/30 rounded-lg flex items-center justify-center">
-              <Lock className="w-5 h-5 text-zinc-500" />
+              <Link2 className="w-5 h-5 text-zinc-500" />
             </div>
-            <div className="flex-1">
-              <p className="text-sm text-zinc-400">{t('yourReferralLink')}</p>
-              <p className="text-xs text-zinc-500">
-                Complete your profile &amp; bind your email to unlock your referral link.
-              </p>
-            </div>
-            <a href="/profile" className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-medium transition-colors shrink-0">
-              Go to Profile
-            </a>
+            <p className="text-sm text-zinc-500">Loading referral link...</p>
           </div>
         )}
       </div>
