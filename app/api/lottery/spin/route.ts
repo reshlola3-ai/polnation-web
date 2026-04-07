@@ -42,14 +42,14 @@ const PRIZES = [
 function pickPrize() {
   const totalWeight = PRIZES.reduce((sum, p) => sum + p.weight, 0)
   let random = Math.random() * totalWeight
-  
+
   for (const prize of PRIZES) {
     random -= prize.weight
     if (random <= 0) {
       return prize
     }
   }
-  
+
   // Fallback
   return PRIZES[0]
 }
@@ -66,7 +66,7 @@ export async function POST() {
     return NextResponse.json({ error: 'server_error' }, { status: 500 })
   }
 
-  // ========== 检查可用抽奖次数 ==========
+  // ========== 读取当前次数 ==========
   const { data: spinData } = await admin
     .from('user_lottery_spins')
     .select('*')
@@ -78,22 +78,37 @@ export async function POST() {
     await admin
       .from('user_lottery_spins')
       .insert({ user_id: user.id, total_spins: 0, used_spins: 0, is_influencer: false })
-
     return NextResponse.json({ error: 'no_spins' }, { status: 400 })
   }
 
-  // 所有人都按 total_spins - used_spins 检查（包括 influencer）
-  const remainingSpins = (spinData.total_spins || 0) - (spinData.used_spins || 0)
+  const remaining = (spinData.total_spins || 0) - (spinData.used_spins || 0)
+  if (remaining <= 0) {
+    return NextResponse.json({ error: 'no_spins' }, { status: 400 })
+  }
 
-  if (remainingSpins <= 0) {
+  // ========== 原子扣减：乐观锁 ==========
+  // 只在 used_spins 未被其他请求修改时才更新（防并发双消耗）
+  const { data: claimed } = await admin
+    .from('user_lottery_spins')
+    .update({
+      used_spins: spinData.used_spins + 1,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', user.id)
+    .eq('used_spins', spinData.used_spins) // 乐观锁：若已被其他请求修改则无匹配行
+    .select('id')
+    .single()
+
+  if (!claimed) {
+    // 另一个并发请求抢先消耗了次数
     return NextResponse.json({ error: 'no_spins' }, { status: 400 })
   }
 
   // ========== 抽奖 ==========
   const prize = pickPrize()
 
-  // 记录抽奖结果
-  const { error: insertError } = await admin
+  // 记录抽奖结果，返回 id 用于后续精确标记
+  const { data: record, error: insertError } = await admin
     .from('lottery_records')
     .insert({
       user_id: user.id,
@@ -102,26 +117,23 @@ export async function POST() {
       prize_amount: prize.amount,
       reward_credited: false,
     })
+    .select('id')
+    .single()
 
-  if (insertError) {
+  if (insertError || !record) {
     console.error('Lottery insert error:', insertError)
+    // 插入失败：退还次数
+    await admin
+      .from('user_lottery_spins')
+      .update({ used_spins: spinData.used_spins })
+      .eq('user_id', user.id)
     return NextResponse.json({ error: 'insert_failed' }, { status: 500 })
   }
-
-  // 扣减次数（influencer 也记录使用次数，但不会被限制）
-  await admin
-    .from('user_lottery_spins')
-    .update({
-      used_spins: (spinData.used_spins || 0) + 1,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('user_id', user.id)
 
   // ========== 发放奖励 ==========
   let rewardCredited = false
 
   if (prize.type === 'thanks') {
-    // 没中奖，不需要发放
     rewardCredited = true
   } else if (prize.type.startsWith('bonus_')) {
     // Bonus → 进入 unlock progress (user_task_progress.total_task_bonus)
@@ -188,15 +200,12 @@ export async function POST() {
     }
   }
 
-  // 标记奖励已发放
+  // 精确标记该条记录（使用 id，不用 order+limit）
   if (rewardCredited) {
     await admin
       .from('lottery_records')
       .update({ reward_credited: true })
-      .eq('user_id', user.id)
-      .eq('reward_credited', false)
-      .order('created_at', { ascending: false })
-      .limit(1)
+      .eq('id', record.id)
   }
 
   return NextResponse.json({
