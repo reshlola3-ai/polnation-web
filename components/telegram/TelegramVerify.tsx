@@ -1,87 +1,85 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Send, CheckCircle, RefreshCw, ExternalLink } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { Send, CheckCircle } from 'lucide-react'
 
 interface TelegramVerifyProps {
   onVerified?: () => void
 }
 
-type Step = 'idle' | 'code_ready' | 'polling' | 'verified'
+interface TelegramAuthData {
+  id: number
+  first_name?: string
+  last_name?: string
+  username?: string
+  photo_url?: string
+  auth_date: number
+  hash: string
+}
+
+declare global {
+  interface Window {
+    onTelegramAuth: (user: TelegramAuthData) => void
+  }
+}
 
 export function TelegramVerify({ onVerified }: TelegramVerifyProps) {
-  const [step, setStep] = useState<Step>('idle')
-  const [code, setCode] = useState<string | null>(null)
-  const [botUrl, setBotUrl] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [status, setStatus] = useState<'idle' | 'loading' | 'verified' | 'error'>('idle')
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current)
-    }
-  }, [])
+    const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'PolnationBot'
 
-  const generateCode = async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const res = await fetch('/api/auth/telegram-verify', { method: 'POST' })
-      const data = await res.json()
-
-      if (data.already_verified) {
-        setStep('verified')
-        onVerified?.()
-        return
-      }
-
-      if (data.code) {
-        setCode(data.code)
-        setBotUrl(data.bot_url)
-        setStep('code_ready')
-      } else {
-        setError('Failed to generate code, please try again.')
-      }
-    } catch {
-      setError('Network error, please try again.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const startPolling = () => {
-    setStep('polling')
-    pollRef.current = setInterval(async () => {
+    window.onTelegramAuth = async (user: TelegramAuthData) => {
+      setStatus('loading')
+      setErrorMsg(null)
       try {
-        const res = await fetch('/api/auth/telegram-verify')
+        const res = await fetch('/api/auth/telegram-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(user),
+        })
         const data = await res.json()
-        if (data.verified) {
-          clearInterval(pollRef.current!)
-          setStep('verified')
+        if (data.ok) {
+          setStatus('verified')
           onVerified?.()
+        } else {
+          setErrorMsg(data.error || 'Verification failed. Please try again.')
+          setStatus('error')
         }
-      } catch { /* ignore transient errors */ }
-    }, 3000)
-
-    // Stop polling after 15 minutes
-    globalThis.setTimeout(() => {
-      if (pollRef.current) {
-        clearInterval(pollRef.current)
-        setStep('code_ready')
-        setError('Verification timed out. Please generate a new code.')
+      } catch {
+        setErrorMsg('Network error. Please try again.')
+        setStatus('error')
       }
-    }, 15 * 60 * 1000)
-  }
+    }
 
-  if (step === 'verified') {
+    // Inject Telegram widget script
+    const script = document.createElement('script')
+    script.src = 'https://telegram.org/js/telegram-widget.js?22'
+    script.setAttribute('data-telegram-login', botUsername)
+    script.setAttribute('data-size', 'large')
+    script.setAttribute('data-onauth', 'onTelegramAuth(user)')
+    script.setAttribute('data-request-access', 'write')
+    script.async = true
+
+    if (containerRef.current) {
+      containerRef.current.innerHTML = ''
+      containerRef.current.appendChild(script)
+    }
+
+    return () => {
+      window.onTelegramAuth = undefined as unknown as typeof window.onTelegramAuth
+    }
+  }, [onVerified])
+
+  if (status === 'verified') {
     return (
       <div className="flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
         <CheckCircle className="w-6 h-6 text-emerald-400 shrink-0" />
         <div>
           <p className="text-emerald-400 font-semibold text-sm">Telegram Verified</p>
-          <p className="text-emerald-500/70 text-xs">You are verified as a real person. Tasks are now unlocked.</p>
+          <p className="text-emerald-500/70 text-xs">You are verified. Tasks are now unlocked.</p>
         </div>
       </div>
     )
@@ -96,77 +94,29 @@ export function TelegramVerify({ onVerified }: TelegramVerifyProps) {
         </div>
         <div>
           <p className="font-semibold text-white text-sm">Verify with Telegram</p>
-          <p className="text-zinc-500 text-xs">Required to access tasks — proves you&apos;re human</p>
+          <p className="text-zinc-500 text-xs">One-tap verification — proves you&apos;re human</p>
         </div>
       </div>
 
-      <div className="px-5 py-4 space-y-4">
-        {error && (
+      <div className="px-5 py-5 space-y-4">
+        {status === 'error' && errorMsg && (
           <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-            {error}
+            {errorMsg}
           </div>
         )}
 
-        {step === 'idle' && (
-          <>
-            <p className="text-zinc-400 text-sm leading-relaxed">
-              To prevent bots, we require a one-time Telegram verification before you can complete tasks.
-              This only takes 30 seconds.
-            </p>
-            <Button
-              onClick={generateCode}
-              isLoading={isLoading}
-              className="w-full gap-2"
-            >
-              <Send className="w-4 h-4" />
-              Get Verification Code
-            </Button>
-          </>
-        )}
+        <p className="text-zinc-400 text-sm leading-relaxed">
+          To prevent bots, we require a one-time Telegram login before you can complete tasks.
+          Tap the button below — it only takes a few seconds.
+        </p>
 
-        {(step === 'code_ready' || step === 'polling') && code && (
-          <>
-            <div className="space-y-3">
-              <p className="text-zinc-400 text-sm">Your verification code:</p>
-              <div className="flex items-center justify-center py-3 rounded-xl bg-white/5 border border-white/10">
-                <code className="text-2xl font-mono font-bold tracking-widest text-white">
-                  {code}
-                </code>
-              </div>
-              <ol className="text-zinc-400 text-sm space-y-1 list-decimal list-inside">
-                <li>Click the button below to open Telegram</li>
-                <li>The bot will appear — tap <strong className="text-white">Start</strong></li>
-                <li>Verification happens automatically</li>
-              </ol>
-            </div>
-
-            <a
-              href={botUrl || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => step === 'code_ready' && startPolling()}
-              className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-500/90 hover:bg-blue-500 text-white font-semibold text-sm transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Open Telegram Bot
-            </a>
-
-            {step === 'polling' && (
-              <div className="flex items-center justify-center gap-2 text-zinc-500 text-xs">
-                <RefreshCw className="w-3 h-3 animate-spin" />
-                Waiting for verification...
-              </div>
-            )}
-
-            <button
-              type="button"
-              onClick={generateCode}
-              disabled={isLoading}
-              className="w-full text-center text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
-            >
-              Code expired? Generate a new one
-            </button>
-          </>
+        {status === 'loading' ? (
+          <div className="flex items-center justify-center py-3 text-zinc-400 text-sm gap-2">
+            <div className="w-4 h-4 border-2 border-zinc-600 border-t-blue-400 rounded-full animate-spin" />
+            Verifying...
+          </div>
+        ) : (
+          <div ref={containerRef} className="flex justify-center" />
         )}
       </div>
     </div>
