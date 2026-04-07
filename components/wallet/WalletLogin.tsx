@@ -287,41 +287,6 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true, refe
     )
   }
 
-  // Mobile hint for users not in DApp browser
-  if (isMobileNonDAppBrowser && showMobileHint) {
-    return (
-      <div className="space-y-3">
-        <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
-          <div className="flex items-start gap-3">
-            <Wallet className="w-6 h-6 text-purple-400 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-purple-300 text-sm font-medium mb-2">
-                Open in Wallet App
-              </p>
-              <p className="text-zinc-400 text-xs mb-3">
-                For the best experience, open this page in your wallet's built-in browser:
-              </p>
-              <ol className="text-zinc-400 text-xs space-y-1.5 list-decimal list-inside">
-                <li>Open <span className="text-purple-300">Trust Wallet</span> or <span className="text-purple-300">SafePal</span></li>
-                <li>Go to the <span className="text-purple-300">Browser/DApp</span> tab</li>
-                <li>Enter: <code className="bg-white/10 px-1.5 py-0.5 rounded text-purple-300">polnation.com</code></li>
-              </ol>
-            </div>
-          </div>
-        </div>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowMobileHint(false)}
-          className="w-full"
-        >
-          Try connecting anyway
-        </Button>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-3">
       {error && (
@@ -335,13 +300,7 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true, refe
         type="button"
         variant="outline"
         className="w-full gap-2 py-3 border-purple-500/30 hover:bg-purple-500/10 hover:border-purple-500/50"
-        onClick={() => {
-          if (isMobileNonDAppBrowser) {
-            setShowMobileHint(true)
-          } else {
-            handleConnect()
-          }
-        }}
+        onClick={handleConnect}
         disabled={status === 'connecting'}
       >
         {status === 'connecting' ? (
@@ -352,11 +311,36 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true, refe
         {status === 'connecting' ? 'Connecting...' : 'Continue with Wallet'}
       </Button>
 
-      <p className="text-center text-xs text-zinc-500">
-        {isMobileNonDAppBrowser 
-          ? 'Best experience in wallet DApp browser'
-          : 'For DApp browser users • Auto-creates account'
-        }
+      {/* Non-blocking DApp browser tip for mobile users */}
+      {isMobileNonDAppBrowser && !showMobileHint && (
+        <button
+          type="button"
+          onClick={() => setShowMobileHint(true)}
+          className="w-full text-center text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+        >
+          💡 Best experience in Trust Wallet / SafePal browser
+        </button>
+      )}
+      {isMobileNonDAppBrowser && showMobileHint && (
+        <div className="p-3 rounded-xl bg-zinc-800/60 border border-white/[0.06] text-xs text-zinc-400 space-y-1">
+          <p className="font-medium text-zinc-300">Open in Wallet DApp Browser:</p>
+          <ol className="list-decimal list-inside space-y-1">
+            <li>Open <span className="text-purple-300">Trust Wallet</span> or <span className="text-purple-300">SafePal</span></li>
+            <li>Go to the <span className="text-purple-300">Browser / DApp</span> tab</li>
+            <li>Enter: <code className="bg-white/10 px-1 rounded text-purple-300">polnation.com</code></li>
+          </ol>
+          <button
+            type="button"
+            onClick={() => setShowMobileHint(false)}
+            className="text-zinc-600 hover:text-zinc-400 mt-1"
+          >
+            Close
+          </button>
+        </div>
+      )}
+
+      <p className="text-center text-xs text-zinc-600">
+        Auto-creates account for new wallets
       </p>
     </div>
   )
