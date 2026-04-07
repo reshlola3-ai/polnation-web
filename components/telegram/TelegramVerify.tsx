@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Send, CheckCircle } from 'lucide-react'
+import Script from 'next/script'
 
 interface TelegramVerifyProps {
   onVerified?: () => void
@@ -19,18 +20,17 @@ interface TelegramAuthData {
 
 declare global {
   interface Window {
-    onTelegramAuth: (user: TelegramAuthData) => void
+    onTelegramAuth?: (user: TelegramAuthData) => void
   }
 }
+
+const BOT_USERNAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'PolnationBot'
 
 export function TelegramVerify({ onVerified }: TelegramVerifyProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'verified' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'PolnationBot'
-
     window.onTelegramAuth = async (user: TelegramAuthData) => {
       setStatus('loading')
       setErrorMsg(null)
@@ -54,22 +54,8 @@ export function TelegramVerify({ onVerified }: TelegramVerifyProps) {
       }
     }
 
-    // Inject Telegram widget script
-    const script = document.createElement('script')
-    script.src = 'https://telegram.org/js/telegram-widget.js?22'
-    script.setAttribute('data-telegram-login', botUsername)
-    script.setAttribute('data-size', 'large')
-    script.setAttribute('data-onauth', 'onTelegramAuth(user)')
-    script.setAttribute('data-request-access', 'write')
-    script.async = true
-
-    if (containerRef.current) {
-      containerRef.current.innerHTML = ''
-      containerRef.current.appendChild(script)
-    }
-
     return () => {
-      window.onTelegramAuth = undefined as unknown as typeof window.onTelegramAuth
+      window.onTelegramAuth = undefined
     }
   }, [onVerified])
 
@@ -87,7 +73,6 @@ export function TelegramVerify({ onVerified }: TelegramVerifyProps) {
 
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden">
-      {/* Header */}
       <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.06]">
         <div className="w-9 h-9 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
           <Send className="w-4 h-4 text-blue-400" />
@@ -116,7 +101,15 @@ export function TelegramVerify({ onVerified }: TelegramVerifyProps) {
             Verifying...
           </div>
         ) : (
-          <div ref={containerRef} className="flex justify-center" />
+          <div className="flex justify-center">
+            <Script
+              src="https://telegram.org/js/telegram-widget.js?22"
+              data-telegram-login={BOT_USERNAME}
+              data-size="large"
+              data-onauth="onTelegramAuth(user)"
+              strategy="lazyOnload"
+            />
+          </div>
         )}
       </div>
     </div>
