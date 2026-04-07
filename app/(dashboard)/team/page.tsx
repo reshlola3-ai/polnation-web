@@ -292,8 +292,7 @@ export default function TeamPage() {
     setLoadingBalances(false)
   }
 
-  const isWalletOnlyEmail = !userEmail || userEmail.endsWith('@wallet.polnation.com')
-  const canShowReferralLink = profileCompleted && !isWalletOnlyEmail && !!referralCode
+  const canShowReferralLink = profileCompleted && !!referralCode
 
   const copyReferralLink = () => {
     if (referralCode) {
@@ -335,33 +334,6 @@ export default function TeamPage() {
     )
   }
 
-  // Locked state for wallet users without email
-  if (isLocked) {
-    return (
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
-            <p className="text-zinc-500">{t('subtitle')}</p>
-          </div>
-        </div>
-        <div className="relative overflow-hidden rounded-3xl">
-          <div className="absolute inset-0 bg-gradient-to-b from-zinc-800/90 via-zinc-900/95 to-black" />
-          <div className="relative z-10 p-8 md:p-12 text-center">
-            <div className="w-20 h-20 bg-zinc-700/50 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Lock className="w-10 h-10 text-zinc-400" />
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold text-white/80 mb-4">{t('accountLocked')}</h2>
-            <p className="text-zinc-400 mb-8 max-w-md mx-auto">{t('bindEmailToUnlock')}</p>
-            <a href="/tasks" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-600 text-white font-semibold rounded-xl">
-              <Unlock className="w-5 h-5" />
-              {t('goBindEmail')}
-            </a>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="space-y-6">

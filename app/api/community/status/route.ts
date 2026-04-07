@@ -120,10 +120,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // 检查用户邮箱是否是钱包占位符（未绑定邮箱）
-    const userEmail = user.email || ''
-    const isWalletOnlyUser = userEmail.endsWith('@wallet.polnation.com')
-
     // 🚀 并行获取: 等级配置 + 用户状态
     const [levelsResult, statusResult] = await Promise.all([
       supabaseAdmin
@@ -141,8 +137,8 @@ export async function GET(request: NextRequest) {
     let status = statusResult.data
 
     if (!status) {
-      // 创建初始状态 - 已绑定邮箱的用户默认 Level 1
-      const defaultLevel = isWalletOnlyUser ? 0 : 1
+      // 创建初始状态 - 默认 Level 1
+      const defaultLevel = 1
       const { data: newStatus } = await supabaseAdmin
         .from('user_community_status')
         .insert({
@@ -156,32 +152,6 @@ export async function GET(request: NextRequest) {
     }
 
     // 如果是钱包用户且未绑定邮箱，返回锁定状态
-    if (isWalletOnlyUser) {
-      return NextResponse.json({
-        isLocked: true,
-        lockReason: 'email_required',
-        status: {
-          real_level: 0,
-          current_level: 0,
-          is_admin_set: false,
-          is_influencer: false,
-          team_volume_l123: 0,
-          total_community_earned: 0,
-        },
-        levels,
-        currentLevelInfo: null,
-        nextLevelInfo: null,
-        nextUnlockVolume: 0,
-        effectiveVolume: 0,
-        taskBonus: 0,
-        volumeToNextLevel: 0,
-        claimedLevels: [],
-        claimableLevels: [],
-        dailyEarnings: [],
-        dailyEarningAmount: 0,
-      })
-    }
-
     // 🚀 缓存优先策略：如果缓存的 volume 不超过 10 分钟，直接使用缓存值
     const CACHE_TTL_MS = 10 * 60 * 1000 // 10 分钟
     const cachedVolumeUpdatedAt = status?.team_volume_updated_at 
