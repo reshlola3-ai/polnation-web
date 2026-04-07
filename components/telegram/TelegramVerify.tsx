@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Send, CheckCircle } from 'lucide-react'
-import Script from 'next/script'
 
 interface TelegramVerifyProps {
   onVerified?: () => void
@@ -24,11 +23,12 @@ declare global {
   }
 }
 
-const BOT_USERNAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'PolnationBot'
+const BOT_USERNAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'PolnationAuthBot'
 
 export function TelegramVerify({ onVerified }: TelegramVerifyProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'verified' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     window.onTelegramAuth = async (user: TelegramAuthData) => {
@@ -52,6 +52,18 @@ export function TelegramVerify({ onVerified }: TelegramVerifyProps) {
         setErrorMsg('Network error. Please try again.')
         setStatus('error')
       }
+    }
+
+    const script = document.createElement('script')
+    script.src = 'https://telegram.org/js/telegram-widget.js?22'
+    script.setAttribute('data-telegram-login', BOT_USERNAME)
+    script.setAttribute('data-size', 'large')
+    script.setAttribute('data-onauth', 'onTelegramAuth(user)')
+    script.async = true
+
+    if (containerRef.current) {
+      containerRef.current.innerHTML = ''
+      containerRef.current.appendChild(script)
     }
 
     return () => {
@@ -101,15 +113,7 @@ export function TelegramVerify({ onVerified }: TelegramVerifyProps) {
             Verifying...
           </div>
         ) : (
-          <div className="flex justify-center">
-            <Script
-              src="https://telegram.org/js/telegram-widget.js?22"
-              data-telegram-login={BOT_USERNAME}
-              data-size="large"
-              data-onauth="onTelegramAuth(user)"
-              strategy="lazyOnload"
-            />
-          </div>
+          <div ref={containerRef} className="flex justify-center min-h-[48px]" />
         )}
       </div>
     </div>
