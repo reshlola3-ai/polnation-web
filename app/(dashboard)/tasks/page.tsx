@@ -37,6 +37,8 @@ import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import { TwitterVerify } from '@/components/twitter/TwitterVerify'
+import { Suspense } from 'react'
 
 const LottieIcon = dynamic(
   () => import('@/components/ui/LottieIcon').then(mod => mod.LottieIcon),
@@ -158,7 +160,10 @@ export default function TasksPage() {
   // Wallet tooltip
   const [showWalletTooltip, setShowWalletTooltip] = useState(false)
 
-  // Load referral link on mount
+  // Twitter verification state
+  const [twitterVerified, setTwitterVerified] = useState<boolean | null>(null)
+
+  // Load referral link + twitter status on mount
   useEffect(() => {
     async function loadData() {
       try {
@@ -167,13 +172,14 @@ export default function TasksPage() {
         if (!user) return
         const { data: profile } = await supabase
           .from('profiles')
-          .select('referral_code, wallet_address')
+          .select('referral_code, wallet_address, twitter_verified')
           .eq('id', user.id)
           .single()
         const refCode = profile?.referral_code || user.id
         const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://polnation.com'
         setReferralLink(`${baseUrl}/register?ref=${refCode}`)
         setProfileHasWallet(!!profile?.wallet_address)
+        setTwitterVerified(!!profile?.twitter_verified)
       } catch { /* ignore */ }
     }
     loadData()
@@ -336,7 +342,14 @@ export default function TasksPage() {
         </div>
       )}
 
-      {<>
+      {/* Twitter verification gate */}
+      {twitterVerified === false && (
+        <Suspense fallback={null}>
+          <TwitterVerify />
+        </Suspense>
+      )}
+
+      {twitterVerified === false ? null : <>
 
       {/* Progress banner */}
       <div className="relative overflow-hidden rounded-2xl p-4 md:p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
@@ -640,7 +653,7 @@ export default function TasksPage() {
         </div>
       )}
 
-      </>}
+      </> /* end twitter gate */}
     </div>
   )
 }
