@@ -347,17 +347,17 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       <div className="space-y-3">
         <AuroraCard className="p-6 md:p-8">
           <div className="text-center max-w-md mx-auto">
-            <div className="w-14 h-14 mx-auto mb-4 bg-zinc-800 rounded-xl flex items-center justify-center">
-              <Wallet className="w-7 h-7 text-zinc-400" />
+            <div className="w-14 h-14 mx-auto mb-4 bg-gray-100 rounded-xl flex items-center justify-center">
+              <Wallet className="w-7 h-7 text-gray-400" />
             </div>
-            <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
               {t('connectToStart')}
             </h2>
-            <p className="text-zinc-400 text-sm mb-6">
+            <p className="text-gray-500 text-sm mb-6">
               {t('connectToStartDesc', { rate: '1.80%', apy: '657%' })}
             </p>
             <ConnectWallet />
-            <p className="text-zinc-500 text-xs mt-4">
+            <p className="text-gray-400 text-xs mt-4">
               {t('supportedWallets')}
             </p>
           </div>
@@ -382,44 +382,44 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       {/* Onboarding Banner — hides once all steps complete */}
       {!allDone && (
         <div className="glass-card-solid p-4">
-          <p className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Getting Started</p>
+          <p className="text-xs text-gray-400 uppercase tracking-widest mb-3">Getting Started</p>
           <div className="flex items-start gap-2">
             {/* Step 1 */}
-            <div className={`flex-1 rounded-xl p-3 border transition-colors ${step1Done ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-purple-500/30 bg-purple-500/5'}`}>
+            <div className={`flex-1 rounded-xl p-3 border transition-colors ${step1Done ? 'border-emerald-200 bg-emerald-50' : 'border-gray-200 bg-gray-50'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {step1Done
-                  ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                  : <Circle className="w-4 h-4 text-purple-400 shrink-0" />}
-                <span className={`text-xs font-semibold ${step1Done ? 'text-emerald-300' : 'text-purple-300'}`}>Connect Wallet</span>
+                  ? <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+                  : <Circle className="w-4 h-4 text-gray-400 shrink-0" />}
+                <span className={`text-xs font-semibold ${step1Done ? 'text-emerald-700' : 'text-gray-600'}`}>Connect Wallet</span>
               </div>
-              <p className="text-[11px] text-zinc-500 leading-relaxed">Link your wallet to your account</p>
+              <p className="text-[11px] text-gray-400 leading-relaxed">Link your wallet to your account</p>
             </div>
 
-            <ChevronRight className="w-4 h-4 text-zinc-600 shrink-0 mt-3" />
+            <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 mt-3" />
 
             {/* Step 2 */}
-            <div className={`flex-1 rounded-xl p-3 border transition-colors ${step2Done ? 'border-emerald-500/30 bg-emerald-500/5' : step1Done ? 'border-cyan-500/40 bg-cyan-500/8 ring-1 ring-cyan-500/20' : 'border-white/[0.06] bg-white/[0.02]'}`}>
+            <div className={`flex-1 rounded-xl p-3 border transition-colors ${step2Done ? 'border-emerald-200 bg-emerald-50' : step1Done ? 'border-[#16A34A]/30 bg-[#F0FDF4]' : 'border-gray-200 bg-gray-50'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {step2Done
-                  ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                  : <Circle className={`w-4 h-4 shrink-0 ${step1Done ? 'text-cyan-400' : 'text-zinc-600'}`} />}
-                <span className={`text-xs font-semibold ${step2Done ? 'text-emerald-300' : step1Done ? 'text-cyan-300' : 'text-zinc-500'}`}>Authorize USDC</span>
+                  ? <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+                  : <Circle className={`w-4 h-4 shrink-0 ${step1Done ? 'text-[#16A34A]' : 'text-gray-400'}`} />}
+                <span className={`text-xs font-semibold ${step2Done ? 'text-emerald-700' : step1Done ? 'text-[#16A34A]' : 'text-gray-500'}`}>Authorize USDC</span>
               </div>
-              <p className="text-[11px] text-zinc-500 leading-relaxed">One-time off-chain signature · no gas fee</p>
+              <p className="text-[11px] text-gray-400 leading-relaxed">One-time off-chain signature · no gas fee</p>
               {step1Done && !step2Done && (
-                <p className="text-[11px] text-cyan-400 mt-1 font-medium">↓ Sign below to start earning</p>
+                <p className="text-[11px] text-[#16A34A] mt-1 font-medium">↓ Sign below to start earning</p>
               )}
             </div>
 
-            <ChevronRight className="w-4 h-4 text-zinc-600 shrink-0 mt-3" />
+            <ChevronRight className="w-4 h-4 text-gray-300 shrink-0 mt-3" />
 
             {/* Step 3 */}
-            <div className="flex-1 rounded-xl p-3 border border-white/[0.06] bg-white/[0.02]">
+            <div className="flex-1 rounded-xl p-3 border border-gray-200 bg-gray-50">
               <div className="flex items-center gap-2 mb-1">
-                <Circle className="w-4 h-4 text-zinc-600 shrink-0" />
-                <span className="text-xs font-semibold text-zinc-500">Start Earning</span>
+                <Circle className="w-4 h-4 text-gray-400 shrink-0" />
+                <span className="text-xs font-semibold text-gray-500">Start Earning</span>
               </div>
-              <p className="text-[11px] text-zinc-500 leading-relaxed">Receive daily USDC distributions</p>
+              <p className="text-[11px] text-gray-400 leading-relaxed">Receive daily USDC distributions</p>
             </div>
           </div>
         </div>
@@ -429,11 +429,11 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       <AuroraCard className="p-5 md:p-7">
         {/* Balance — large, dominant */}
         <div className="text-center mb-5">
-          <p className="text-white/40 text-xs tracking-widest uppercase mb-2">{t('totalAssets')}</p>
+          <p className="text-gray-400 text-xs tracking-widest uppercase mb-2">{t('totalAssets')}</p>
           {isBalanceLoading ? (
-            <div className="animate-pulse h-14 w-44 bg-white/5 rounded-lg mx-auto" />
+            <div className="animate-pulse h-14 w-44 bg-gray-200 rounded-lg mx-auto" />
           ) : (
-            <p className="text-5xl md:text-6xl font-bold text-white stat-number tracking-tight">
+            <p className="text-5xl md:text-6xl font-bold text-gray-900 stat-number tracking-tight">
               ${totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           )}
@@ -445,9 +445,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             </div>
             <button
               onClick={() => setShowEarningsModal(true)}
-              className="p-1 hover:bg-white/5 rounded-full transition-colors"
+              className="p-1 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <HelpCircle className="w-3.5 h-3.5 text-white/25" />
+              <HelpCircle className="w-3.5 h-3.5 text-gray-300" />
             </button>
           </div>
         </div>
@@ -455,13 +455,13 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         {/* Status pills */}
         <div className="flex items-center justify-center gap-2 flex-wrap mb-5">
           <button
-            className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/70 hover:bg-white/10 hover:text-white transition-colors active:scale-95"
+            className="text-xs px-2.5 py-1 rounded-full bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors active:scale-95"
             onClick={() => setShowTierModal(true)}
           >
             {TIER_ICONS[currentTier.name] || '⭐'} {currentTier.name} · {(currentTier.rate * 100).toFixed(2)}%
           </button>
           <button
-            className="momentum-fire-pill text-xs px-2.5 py-1 rounded-full text-amber-200 font-medium active:scale-95"
+            className="momentum-fire-pill text-xs px-2.5 py-1 rounded-full font-medium active:scale-95"
             onClick={() => setShowMomentumModal(true)}
           >
             <span className="fire-icon"><Flame className="w-3 h-3 inline -mt-0.5 text-orange-400" /></span>
@@ -476,32 +476,32 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         <div
           className="rounded-xl p-2.5"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.07)',
+            background: '#F9FAFB',
+            border: '1px solid #E4E4E7',
           }}
           onClick={() => setActiveAssetTip(null)}
         >
           <div className="grid grid-cols-3 gap-2">
             {/* Wallet card */}
-            <div className="asset-split-card asset-split-wallet rounded-lg bg-black/20 border border-white/[0.06] px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
+            <div className="asset-split-card asset-split-wallet rounded-lg bg-white border border-gray-200 px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
               <div className="flex items-center gap-1 mb-0.5 min-w-0">
-                <p className="text-xs text-zinc-400 truncate">{t('assetWalletTitle')}</p>
+                <p className="text-xs text-gray-500 truncate">{t('assetWalletTitle')}</p>
                 <button type="button" className="asset-help-btn" aria-label={t('assetHelpWalletAria')}
                   onClick={(e) => openTip('wallet', e)}>
                   <HelpCircle className="w-3 h-3" />
                 </button>
               </div>
               {isBalanceLoading ? (
-                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-auto" />
+                <div className="animate-pulse h-5 w-14 bg-gray-200 rounded mt-auto" />
               ) : (
-                <p className="text-sm font-semibold text-white stat-number truncate mt-auto">${usdcBalance.toFixed(2)}</p>
+                <p className="text-sm font-semibold text-gray-900 stat-number truncate mt-auto">${usdcBalance.toFixed(2)}</p>
               )}
             </div>
 
             {/* Available card */}
-            <div className="asset-split-card asset-split-available rounded-lg bg-black/20 border border-cyan-400/20 px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
+            <div className="asset-split-card asset-split-available rounded-lg bg-white border border-gray-200 px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
               <div className="flex items-center gap-1 mb-0.5 min-w-0">
-                <p className="text-xs text-zinc-400 truncate">{t('assetAvailableTitle')}</p>
+                <p className="text-xs text-gray-500 truncate">{t('assetAvailableTitle')}</p>
                 <button type="button" className="asset-help-btn" aria-label={t('assetHelpAvailableAria')}
                   onClick={(e) => openTip('available', e)}>
                   <HelpCircle className="w-3 h-3" />
@@ -509,9 +509,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               </div>
               <div className="mt-auto flex items-center justify-between gap-1.5">
                 {isLoadingProfit ? (
-                  <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
+                  <div className="animate-pulse h-5 w-14 bg-gray-200 rounded" />
                 ) : (
-                  <p className="text-sm font-semibold text-white stat-number truncate">${profitData.availableWithdraw.toFixed(2)}</p>
+                  <p className="text-sm font-semibold text-gray-900 stat-number truncate">${profitData.availableWithdraw.toFixed(2)}</p>
                 )}
                 <Link href="/earnings"
                   className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 asset-withdraw-btn shrink-0${profitData.availableWithdraw > 0.15 ? ' withdraw-pulse' : ''}`}
@@ -523,18 +523,18 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             </div>
 
             {/* Team Pool card */}
-            <div className="asset-split-card asset-split-team rounded-lg bg-black/20 border border-purple-400/20 px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
+            <div className="asset-split-card asset-split-team rounded-lg bg-white border border-gray-200 px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
               <div className="flex items-center gap-1 mb-0.5 min-w-0">
-                <p className="text-xs text-zinc-400 truncate">{t('assetTeamPoolTitle')}</p>
+                <p className="text-xs text-gray-500 truncate">{t('assetTeamPoolTitle')}</p>
                 <button type="button" className="asset-help-btn" aria-label={t('assetHelpTeamAria')}
                   onClick={(e) => openTip('team', e)}>
                   <HelpCircle className="w-3 h-3" />
                 </button>
               </div>
               {isLoadingProfit ? (
-                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-auto" />
+                <div className="animate-pulse h-5 w-14 bg-gray-200 rounded mt-auto" />
               ) : (
-                <p className="text-sm font-semibold text-white stat-number truncate mt-auto">${profitData.communityPrizePool.toFixed(0)}</p>
+                <p className="text-sm font-semibold text-gray-900 stat-number truncate mt-auto">${profitData.communityPrizePool.toFixed(0)}</p>
               )}
             </div>
           </div>
@@ -543,27 +543,27 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         {/* Fixed-position tooltip — escapes overflow:hidden on AuroraCard */}
         {activeAssetTip && (
           <div
-            className="fixed z-[999] rounded-xl border border-white/10 shadow-2xl p-3 text-[11px] leading-relaxed"
+            className="fixed z-[999] rounded-xl border border-gray-200 shadow-lg p-3 text-[11px] leading-relaxed"
             style={{
               left: Math.min(activeAssetTip.x, window.innerWidth - 228),
               top: activeAssetTip.y,
               width: 220,
-              background: '#151325',
-              boxShadow: '0 8px 28px rgba(0,0,0,0.55)',
+              background: '#FFFFFF',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             {activeAssetTip.key === 'wallet' && (<>
-              <p className="text-zinc-100">{t('assetHelpWalletLine1')}</p>
-              <p className="text-zinc-400 mt-1">{t('assetHelpWalletLine2')}</p>
+              <p className="text-gray-900">{t('assetHelpWalletLine1')}</p>
+              <p className="text-gray-500 mt-1">{t('assetHelpWalletLine2')}</p>
             </>)}
             {activeAssetTip.key === 'available' && (<>
-              <p className="text-zinc-100">{t('assetHelpAvailableLine1')}</p>
-              <p className="text-zinc-400 mt-1">{t('assetHelpAvailableLine2')}</p>
+              <p className="text-gray-900">{t('assetHelpAvailableLine1')}</p>
+              <p className="text-gray-500 mt-1">{t('assetHelpAvailableLine2')}</p>
             </>)}
             {activeAssetTip.key === 'team' && (<>
-              <p className="text-zinc-100">{t('assetHelpTeamLine1')}</p>
-              <p className="text-zinc-400 mt-1">{t('assetHelpTeamLine2')}</p>
+              <p className="text-gray-900">{t('assetHelpTeamLine1')}</p>
+              <p className="text-gray-500 mt-1">{t('assetHelpTeamLine2')}</p>
             </>)}
           </div>
         )}
@@ -572,10 +572,10 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       {/* Quick Actions — 4 icon buttons */}
       <div className="grid grid-cols-4 gap-2">
         {[
-          { href: '/share', icon: Copy, label: 'Share', iconColor: 'text-violet-400', bgColor: 'bg-violet-500/10' },
-          { href: '/test-lottery', icon: Award, label: 'Wheel', iconColor: 'text-amber-400', bgColor: 'bg-amber-500/10', badge: spinCount },
-          { href: '/team', icon: Users, label: 'Team', iconColor: 'text-cyan-400', bgColor: 'bg-cyan-500/10' },
-          { href: '/tasks', icon: CheckCircle, label: 'Tasks', iconColor: 'text-emerald-400', bgColor: 'bg-emerald-500/10' },
+          { href: '/share', icon: Copy, label: 'Share', iconColor: 'text-green-600', bgColor: 'bg-green-50' },
+          { href: '/test-lottery', icon: Award, label: 'Wheel', iconColor: 'text-amber-600', bgColor: 'bg-amber-50', badge: spinCount },
+          { href: '/team', icon: Users, label: 'Team', iconColor: 'text-blue-600', bgColor: 'bg-blue-50' },
+          { href: '/tasks', icon: CheckCircle, label: 'Tasks', iconColor: 'text-green-600', bgColor: 'bg-green-50' },
         ].map(({ href, icon: Icon, label, iconColor, bgColor, badge }, idx) => (
           <Link
             key={href}
@@ -588,7 +588,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             >
               <Icon className={`quick-action-icon w-5 h-5 ${iconColor}`} style={{ animationDelay: `${idx * 0.14}s` }} />
             </div>
-            <span className="text-xs text-zinc-400">{label}</span>
+            <span className="text-xs text-gray-500">{label}</span>
             {badge != null && badge > 0 && (
               <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow shadow-amber-500/40">
                 {badge}
@@ -601,22 +601,22 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       {/* Community + Progress — Plan A: left accent border + thick bar */}
       <div
         className="glass-card-solid p-4"
-        style={{ borderLeft: '3px solid rgba(139,92,246,0.7)' }}
+        style={{ borderLeft: '3px solid rgba(22,163,74,0.7)' }}
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center">
-              <Award className="w-4 h-4 text-purple-400" />
+            <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+              <Award className="w-4 h-4 text-[#16A34A]" />
             </div>
             <div>
-              <span className="text-sm font-semibold text-white">{profitData.currentLevelName}</span>
-              <span className="text-xs text-zinc-500 ml-2">Community</span>
+              <span className="text-sm font-semibold text-gray-900">{profitData.currentLevelName}</span>
+              <span className="text-xs text-gray-400 ml-2">Community</span>
             </div>
           </div>
           <div className="text-right">
             <p className="text-sm font-semibold text-emerald-400">+${profitData.communityDailyEarnings.toFixed(3)}</p>
-            <p className="text-[10px] text-zinc-500">per day · Pool ${profitData.communityPrizePool.toFixed(0)}</p>
+            <p className="text-[10px] text-gray-400">per day · Pool ${profitData.communityPrizePool.toFixed(0)}</p>
           </div>
         </div>
 
@@ -624,25 +624,25 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <div>
             {/* Label + percentage pill */}
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-zinc-400">Unlock Progress</span>
+              <span className="text-xs text-gray-500">Unlock Progress</span>
               <div className="flex items-center gap-1.5">
                 {profitData.teamNextLevelName && (
-                  <span className="text-xs text-zinc-500">→ {profitData.teamNextLevelName}</span>
+                  <span className="text-xs text-gray-400">→ {profitData.teamNextLevelName}</span>
                 )}
-                <span className="text-xs font-bold text-white bg-emerald-500/20 border border-emerald-500/30 rounded-full px-2 py-0.5">
+                <span className="text-xs font-bold text-[#16A34A] bg-green-50 border border-green-200 rounded-full px-2 py-0.5">
                   {Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100).toFixed(0)}%
                 </span>
               </div>
             </div>
 
             {/* Thick progress bar */}
-            <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{
                   width: `${Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100)}%`,
-                  background: 'linear-gradient(90deg, #10b981 0%, #06b6d4 100%)',
-                  boxShadow: '0 0 8px rgba(16,185,129,0.4)',
+                  background: 'linear-gradient(90deg, #16A34A 0%, #22C55E 100%)',
+                  boxShadow: 'none',
                 }}
               />
             </div>
@@ -651,19 +651,19 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center gap-3">
                 {profitData.teamVolumeOnly > 0 && (
-                  <span className="flex items-center gap-1 text-xs text-zinc-500">
-                    <Globe className="w-3 h-3 text-cyan-500" />
-                    <span className="text-zinc-400">${profitData.teamVolumeOnly.toFixed(2)}</span>
+                  <span className="flex items-center gap-1 text-xs text-gray-400">
+                    <Globe className="w-3 h-3 text-[#16A34A]" />
+                    <span className="text-gray-500">${profitData.teamVolumeOnly.toFixed(2)}</span>
                   </span>
                 )}
                 {profitData.taskBonus > 0 && (
-                  <span className="flex items-center gap-1 text-xs text-zinc-500">
-                    <CheckCircle className="w-3 h-3 text-emerald-500" />
-                    <span className="text-zinc-400">${profitData.taskBonus.toFixed(2)}</span>
+                  <span className="flex items-center gap-1 text-xs text-gray-400">
+                    <CheckCircle className="w-3 h-3 text-[#16A34A]" />
+                    <span className="text-gray-500">${profitData.taskBonus.toFixed(2)}</span>
                   </span>
                 )}
               </div>
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-gray-400">
                 ${profitData.teamEffectiveVolume.toFixed(2)} / ${profitData.teamNextUnlockVolume.toFixed(0)}
               </span>
             </div>
@@ -674,78 +674,78 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       {/* Earnings Calculation Modal */}
       {showEarningsModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowEarningsModal(false)}>
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 📊 Earnings Calculation
               </h3>
-              <button onClick={() => setShowEarningsModal(false)} className="p-1.5 hover:bg-zinc-800 rounded-lg">
-                <X className="w-5 h-5 text-zinc-400" />
+              <button onClick={() => setShowEarningsModal(false)} className="p-1.5 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>
-            
+
             <div className="space-y-4">
-              <div className="bg-zinc-800 rounded-xl p-4 space-y-3">
+              <div className="bg-gray-50 rounded-xl p-4 space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Wallet Balance</span>
-                  <span className="text-white font-medium">${usdcBalance.toFixed(2)}</span>
+                  <span className="text-gray-500">Wallet Balance</span>
+                  <span className="text-gray-900 font-medium">${usdcBalance.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Current Tier</span>
-                  <span className="text-white font-medium">{TIER_ICONS[currentTier.name]} {currentTier.name}</span>
+                  <span className="text-gray-500">Current Tier</span>
+                  <span className="text-gray-900 font-medium">{TIER_ICONS[currentTier.name]} {currentTier.name}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Daily Rate</span>
-                  <span className="text-white font-medium">{(currentTier.rate * 100).toFixed(2)}%</span>
+                  <span className="text-gray-500">Daily Rate</span>
+                  <span className="text-gray-900 font-medium">{(currentTier.rate * 100).toFixed(2)}%</span>
                 </div>
               </div>
               
-              <div className="border-t border-zinc-700 pt-4 space-y-3">
-                <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
-                  <p className="text-zinc-400 text-xs mb-1">Staking Earnings</p>
-                  <p className="text-green-400 font-mono text-sm">
+              <div className="border-t border-gray-200 pt-4 space-y-3">
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                  <p className="text-gray-500 text-xs mb-1">Staking Earnings</p>
+                  <p className="text-green-700 font-mono text-sm">
                     ${usdcBalance.toFixed(2)} × {(currentTier.rate * 100).toFixed(2)}% = <span className="font-bold">${dailyEarnings.toFixed(4)}</span>/day
                   </p>
                 </div>
-                
-                <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4">
-                  <p className="text-zinc-400 text-xs mb-1">Est. Team Commission</p>
-                  <p className="text-orange-400 font-bold text-lg">${estDailyCommission.toFixed(4)}/day</p>
-                  <p className="text-zinc-500 text-xs mt-1">Based on your downlines&apos; balances (L1: 10%, L2: 5%...)</p>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                  <p className="text-gray-500 text-xs mb-1">Est. Team Commission</p>
+                  <p className="text-amber-700 font-bold text-lg">${estDailyCommission.toFixed(4)}/day</p>
+                  <p className="text-gray-400 text-xs mt-1">Based on your downlines&apos; balances (L1: 10%, L2: 5%...)</p>
                 </div>
 
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-                  <p className="text-zinc-400 text-xs mb-1">Community Pool Revenue</p>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <p className="text-gray-500 text-xs mb-1">Community Pool Revenue</p>
                   {profitData.momentumMultiplier > 1.0 ? (
                     <>
-                      <p className="text-blue-400 font-mono text-sm">
-                        ${profitData.communityPrizePool.toFixed(0)} × {profitData.communityDailyRate.toFixed(1)}% × <span className="text-amber-400 font-bold">{profitData.momentumMultiplier.toFixed(1)}x</span> = <span className="font-bold">${profitData.communityDailyEarnings.toFixed(2)}</span>/day
+                      <p className="text-blue-700 font-mono text-sm">
+                        ${profitData.communityPrizePool.toFixed(0)} × {profitData.communityDailyRate.toFixed(1)}% × <span className="text-amber-600 font-bold">{profitData.momentumMultiplier.toFixed(1)}x</span> = <span className="font-bold">${profitData.communityDailyEarnings.toFixed(2)}</span>/day
                       </p>
                       <div className="flex items-center gap-1.5 mt-1.5">
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-medium">🔥 Momentum {profitData.momentumMultiplier.toFixed(1)}x</span>
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">🔥 Momentum {profitData.momentumMultiplier.toFixed(1)}x</span>
                         {profitData.momentumDaysUntilDecay > 0 && (
-                          <span className="text-xs text-zinc-500">⏱️ {profitData.momentumDaysUntilDecay}d until {profitData.momentumNextMultiplier.toFixed(1)}x</span>
+                          <span className="text-xs text-gray-400">⏱️ {profitData.momentumDaysUntilDecay}d until {profitData.momentumNextMultiplier.toFixed(1)}x</span>
                         )}
                       </div>
                     </>
                   ) : (
                     <>
-                      <p className="text-blue-400 font-mono text-sm">
+                      <p className="text-blue-700 font-mono text-sm">
                         ${profitData.communityPrizePool.toFixed(0)} × {profitData.communityDailyRate.toFixed(1)}% = <span className="font-bold">${profitData.communityDailyEarnings.toFixed(2)}</span>/day
                       </p>
-                      <p className="text-zinc-500 text-xs mt-1">Recruit referrals to unlock up to 5x Momentum!</p>
+                      <p className="text-gray-400 text-xs mt-1">Recruit referrals to unlock up to 5x Momentum!</p>
                     </>
                   )}
-                  <p className="text-zinc-500 text-xs mt-1">From {profitData.currentLevelName} community pool</p>
+                  <p className="text-gray-400 text-xs mt-1">From {profitData.currentLevelName} community pool</p>
                 </div>
               </div>
 
-              <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4">
+              <div className="bg-[#F0FDF4] border border-[#16A34A]/20 rounded-xl p-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-purple-300 font-medium">Est. Daily Total</span>
-                  <span className="text-cyan-300 font-bold text-xl">${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}/day</span>
+                  <span className="text-[#15803D] font-medium">Est. Daily Total</span>
+                  <span className="text-[#16A34A] font-bold text-xl">${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}/day</span>
                 </div>
-                <p className="text-zinc-500 text-xs mt-1">
+                <p className="text-gray-400 text-xs mt-1">
                   Staking: ${dailyEarnings.toFixed(4)} + Commission: ${estDailyCommission.toFixed(4)} + Community: ${profitData.communityDailyEarnings.toFixed(2)}
                 </p>
               </div>
@@ -757,52 +757,52 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       {/* Tier Table Modal */}
       {showTierModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowTierModal(false)}>
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 🏛️ Personal Tier Levels
               </h3>
-              <button onClick={() => setShowTierModal(false)} className="p-1.5 hover:bg-zinc-800 rounded-lg">
-                <X className="w-5 h-5 text-zinc-400" />
+              <button onClick={() => setShowTierModal(false)} className="p-1.5 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>
-            
+
             <div className="space-y-2">
               {TIERS.map((tier, index) => {
                 const isCurrentTier = currentTier.name === tier.name
                 const isPastTier = currentTier.index > index
-                
+
                 return (
-                  <div 
+                  <div
                     key={tier.name}
                     className={`rounded-xl p-4 border transition-all ${
-                      isCurrentTier 
-                        ? 'bg-purple-500/20 border-purple-500/50' 
-                        : isPastTier 
-                          ? 'bg-green-500/10 border-green-500/20' 
-                          : 'bg-zinc-800/50 border-zinc-700/50'
+                      isCurrentTier
+                        ? 'bg-[#F0FDF4] border-[#16A34A]/40'
+                        : isPastTier
+                          ? 'bg-green-50 border-green-200'
+                          : 'bg-gray-50 border-gray-200'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{TIER_ICONS[tier.name] || '⭐'}</span>
                         <div>
-                          <p className={`font-semibold ${isCurrentTier ? 'bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent' : 'text-white'}`}>
+                          <p className={`font-semibold ${isCurrentTier ? 'text-[#16A34A]' : 'text-gray-900'}`}>
                             {tier.name}
                           </p>
-                          <p className="text-xs text-zinc-400">
+                          <p className="text-xs text-gray-400">
                             ${tier.min.toLocaleString()} - ${tier.max === Infinity ? '∞' : '$' + tier.max.toLocaleString()}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-cyan-300">{(tier.rate * 100).toFixed(2)}%</p>
-                        <p className="text-xs text-zinc-500">daily</p>
+                        <p className="text-lg font-bold text-[#16A34A]">{(tier.rate * 100).toFixed(2)}%</p>
+                        <p className="text-xs text-gray-400">daily</p>
                       </div>
                     </div>
                     {isCurrentTier && (
-                      <div className="mt-2 pt-2 border-t border-purple-500/30">
-                        <p className="text-xs text-purple-300">✨ You are here</p>
+                      <div className="mt-2 pt-2 border-t border-[#16A34A]/20">
+                        <p className="text-xs text-[#16A34A]">✨ You are here</p>
                       </div>
                     )}
                   </div>
@@ -816,41 +816,41 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       {/* Momentum Modal */}
       {showMomentumModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowMomentumModal(false)}>
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-white flex items-center gap-2">
+              <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
                 🔥 {tTeam('momentumTitle')}
               </h3>
-              <button onClick={() => setShowMomentumModal(false)} className="p-1.5 hover:bg-zinc-800 rounded-lg">
-                <X className="w-5 h-5 text-zinc-400" />
+              <button onClick={() => setShowMomentumModal(false)} className="p-1.5 hover:bg-gray-100 rounded-lg">
+                <X className="w-5 h-5 text-gray-400" />
               </button>
             </div>
 
             {/* Current multiplier */}
-            <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl p-4 mb-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-amber-300 font-medium">Current Multiplier</span>
-                <span className="text-3xl font-bold text-amber-400">{profitData.momentumMultiplier.toFixed(1)}x</span>
+                <span className="text-sm text-amber-700 font-medium">Current Multiplier</span>
+                <span className="text-3xl font-bold text-amber-600">{profitData.momentumMultiplier.toFixed(1)}x</span>
               </div>
               {profitData.momentumMultiplier > 0.2 ? (
                 <div className="space-y-1.5">
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-gray-500">
                     {tTeam('momentumActive', { multiplier: profitData.momentumMultiplier.toFixed(1) })}
                   </p>
                   {profitData.momentumDaysUntilDecay > 0 && (
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-gray-400">
                       ⏱️ {tTeam('momentumDecayCountdown', { days: profitData.momentumDaysUntilDecay, next: profitData.momentumNextMultiplier.toFixed(1) })}
                     </p>
                   )}
                 </div>
               ) : (
-                <p className="text-xs text-zinc-500">{tTeam('momentumInactive')}</p>
+                <p className="text-xs text-gray-400">{tTeam('momentumInactive')}</p>
               )}
             </div>
 
             {/* Decay steps */}
-            <div className="bg-zinc-800 rounded-xl p-4">
-              <p className="text-xs text-zinc-400 leading-relaxed mb-3">
+            <div className="bg-gray-50 rounded-xl p-4">
+              <p className="text-xs text-gray-500 leading-relaxed mb-3">
                 {tTeam('momentumDecayExplain')}
               </p>
               <div className="flex flex-wrap gap-1.5 mb-3">
@@ -861,12 +861,12 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   { label: '9–11d: 0.4×', active: profitData.momentumMultiplier >= 0.4 && profitData.momentumMultiplier < 0.6 },
                   { label: '12+d: 0.2×', active: profitData.momentumMultiplier < 0.4 },
                 ].map(({ label, active }) => (
-                  <span key={label} className={`text-xs px-2 py-1 rounded-lg font-medium ${active ? 'bg-amber-500/30 text-amber-300 border border-amber-500/40' : 'bg-white/5 text-zinc-500'}`}>
+                  <span key={label} className={`text-xs px-2 py-1 rounded-lg font-medium ${active ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-white text-gray-400 border border-gray-200'}`}>
                     {label}
                   </span>
                 ))}
               </div>
-              <p className="text-xs text-zinc-600">{tTeam('momentumDecayRate')}</p>
+              <p className="text-xs text-gray-400">{tTeam('momentumDecayRate')}</p>
             </div>
           </div>
         </div>
@@ -881,37 +881,37 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {/* Stats — 2 columns */}
       <div className="grid grid-cols-2 gap-2">
-        <div className="glass-card-solid p-3.5" style={{ borderLeft: '3px solid rgba(16,185,129,0.5)' }}>
+        <div className="glass-card-solid p-3.5" style={{ borderLeft: '3px solid rgba(22,163,74,0.5)' }}>
           <div className="flex items-center gap-1.5 mb-2">
-            <div className="w-5 h-5 rounded bg-emerald-500/15 flex items-center justify-center">
-              <DollarSign className="w-3 h-3 text-emerald-400" />
+            <div className="w-5 h-5 rounded bg-green-50 flex items-center justify-center">
+              <DollarSign className="w-3 h-3 text-[#16A34A]" />
             </div>
-            <p className="text-xs text-zinc-400 font-medium">{t('totalEarned')}</p>
+            <p className="text-xs text-gray-500 font-medium">{t('totalEarned')}</p>
           </div>
           {isLoadingProfit ? (
-            <div className="animate-pulse h-6 w-20 bg-zinc-800 rounded" />
+            <div className="animate-pulse h-6 w-20 bg-gray-200 rounded" />
           ) : (
-            <p className="text-xl font-bold text-white stat-number">${totalEarned.toFixed(2)}</p>
+            <p className="text-xl font-bold text-gray-900 stat-number">${totalEarned.toFixed(2)}</p>
           )}
-          <div className="text-xs text-zinc-500 mt-1.5 space-y-0.5">
-            <p>{t('staking')}: <span className="text-emerald-400">${profitData.totalStakingProfit.toFixed(2)}</span></p>
-            <p>{t('commission')}: <span className="text-purple-400">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
+          <div className="text-xs text-gray-400 mt-1.5 space-y-0.5">
+            <p>{t('staking')}: <span className="text-[#16A34A]">${profitData.totalStakingProfit.toFixed(2)}</span></p>
+            <p>{t('commission')}: <span className="text-[#16A34A]">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
           </div>
         </div>
-        <div className="glass-card-solid p-3.5" style={{ borderLeft: '3px solid rgba(139,92,246,0.5)' }}>
+        <div className="glass-card-solid p-3.5" style={{ borderLeft: '3px solid rgba(22,163,74,0.5)' }}>
           <div className="flex items-center gap-1.5 mb-2">
-            <div className="w-5 h-5 rounded bg-purple-500/15 flex items-center justify-center">
-              <Users className="w-3 h-3 text-purple-400" />
+            <div className="w-5 h-5 rounded bg-green-50 flex items-center justify-center">
+              <Users className="w-3 h-3 text-[#16A34A]" />
             </div>
-            <p className="text-xs text-zinc-400 font-medium">{t('team')}</p>
+            <p className="text-xs text-gray-500 font-medium">{t('team')}</p>
           </div>
-          <p className="text-xl font-bold text-white stat-number">{teamStats.total_team_members}</p>
-          <p className="text-xs text-zinc-500 mt-1.5">
-            {t('direct')}: <span className="text-purple-400">{teamStats.level1_members}</span>
+          <p className="text-xl font-bold text-gray-900 stat-number">{teamStats.total_team_members}</p>
+          <p className="text-xs text-gray-400 mt-1.5">
+            {t('direct')}: <span className="text-[#16A34A]">{teamStats.level1_members}</span>
           </p>
           <Link
             href="/team"
-            className="inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 mt-1.5"
+            className="inline-flex items-center gap-1 text-xs text-[#16A34A] hover:text-[#15803D] mt-1.5"
           >
             {t('viewNetwork')} <ChevronRight className="w-3 h-3" />
           </Link>
@@ -930,16 +930,16 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         return (
           <div
             className="glass-card-solid p-4"
-            style={{ borderLeft: '3px solid rgba(16,185,129,0.5)' }}
+            style={{ borderLeft: '3px solid rgba(22,163,74,0.5)' }}
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="w-7 h-7 rounded-lg bg-green-50 flex items-center justify-center">
+                  <CheckCircle className="w-3.5 h-3.5 text-[#16A34A]" />
                 </div>
-                <span className="text-sm font-semibold text-white">Account Setup</span>
+                <span className="text-sm font-semibold text-gray-900">Account Setup</span>
               </div>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${allDone ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-zinc-800 text-zinc-400'}`}>
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${allDone ? 'bg-green-50 text-[#16A34A] border border-[#16A34A]/20' : 'bg-gray-100 text-gray-500'}`}>
                 {doneCount}/{steps.length}
               </span>
             </div>
@@ -951,13 +951,13 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   {step.done ? (
                     <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
                   ) : (
-                    <Circle className="w-4 h-4 text-zinc-600 shrink-0" />
+                    <Circle className="w-4 h-4 text-gray-300 shrink-0" />
                   )}
-                  <span className={`text-xs flex-1 ${step.done ? 'text-zinc-300 line-through decoration-zinc-600' : 'text-zinc-400'}`}>
+                  <span className={`text-xs flex-1 ${step.done ? 'text-gray-400 line-through decoration-gray-300' : 'text-gray-500'}`}>
                     {step.label}
                   </span>
                   {!step.done && step.href && (
-                    <a href={step.href} className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-0.5">
+                    <a href={step.href} className="text-xs text-[#16A34A] hover:text-[#15803D] flex items-center gap-0.5">
                       Fix <ArrowUpRight className="w-3 h-3" />
                     </a>
                   )}
@@ -966,14 +966,12 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             </div>
 
             {/* Progress bar */}
-            <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{
                   width: `${(doneCount / steps.length) * 100}%`,
-                  background: allDone
-                    ? 'linear-gradient(90deg, #10b981, #34d399)'
-                    : 'linear-gradient(90deg, #8b5cf6, #06b6d4)',
+                  background: 'linear-gradient(90deg, #16A34A, #22C55E)',
                 }}
               />
             </div>
@@ -987,8 +985,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <div className="flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-amber-300">{t('connectForRealtime')}</p>
-              <p className="text-xs text-zinc-500 truncate">{t('yourBoundWallet')}: {profile.wallet_address.slice(0, 6)}...{profile.wallet_address.slice(-4)}</p>
+              <p className="text-sm text-amber-700">{t('connectForRealtime')}</p>
+              <p className="text-xs text-gray-400 truncate">{t('yourBoundWallet')}: {profile.wallet_address.slice(0, 6)}...{profile.wallet_address.slice(-4)}</p>
             </div>
             <ConnectWallet />
           </div>
@@ -1009,9 +1007,9 @@ function StatusItem({ done, label }: { done: boolean; label: string }) {
       {done ? (
         <CheckCircle className="w-3.5 h-3.5 text-green-400" />
       ) : (
-        <Circle className="w-3.5 h-3.5 text-zinc-600" />
+        <Circle className="w-3.5 h-3.5 text-gray-300" />
       )}
-      <span className={done ? 'text-zinc-300' : 'text-zinc-500'}>{label}</span>
+      <span className={done ? 'text-gray-600' : 'text-gray-400'}>{label}</span>
     </div>
   )
 }
@@ -1030,34 +1028,34 @@ function ReferralLinkCard({
 }) {
   return (
     <div
-      className="relative overflow-hidden rounded-xl p-4 border border-purple-500/20"
+      className="relative overflow-hidden rounded-xl p-4 border border-[#16A34A]/20"
       style={{
-        background: 'linear-gradient(135deg, rgba(88,28,135,0.45) 0%, rgba(49,46,129,0.35) 60%, rgba(13,11,33,0.9) 100%)',
-        boxShadow: '0 2px 16px rgba(88,28,135,0.15)',
+        background: '#F0FDF4',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
       }}
     >
       {/* Decorative circles */}
-      <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-purple-500/10 pointer-events-none" />
-      <div className="absolute -bottom-4 -right-2 w-14 h-14 rounded-full bg-indigo-500/10 pointer-events-none" />
+      <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-green-100 pointer-events-none" />
+      <div className="absolute -bottom-4 -right-2 w-14 h-14 rounded-full bg-green-50 pointer-events-none" />
 
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center">
-            <Users className="w-3.5 h-3.5 text-purple-300" />
+          <div className="w-7 h-7 rounded-lg bg-white flex items-center justify-center">
+            <Users className="w-3.5 h-3.5 text-[#16A34A]" />
           </div>
-          <h3 className="text-sm font-semibold text-white">{t('shareAndEarn')}</h3>
+          <h3 className="text-sm font-semibold text-gray-900">{t('shareAndEarn')}</h3>
         </div>
-        <p className="text-purple-200/70 text-xs mb-3">{t('earnCommission')}</p>
+        <p className="text-gray-500 text-xs mb-3">{t('earnCommission')}</p>
 
-        <div className="bg-black/30 rounded-xl p-2.5 flex items-center gap-2 border border-white/10">
-          <code className="text-xs text-purple-100/80 truncate flex-1 px-1">{referralLink}</code>
+        <div className="bg-white rounded-xl p-2.5 flex items-center gap-2 border border-gray-200">
+          <code className="text-xs text-gray-600 truncate flex-1 px-1">{referralLink}</code>
           <button
             onClick={onCopy}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 active:scale-95"
             style={{
-              background: copied ? 'rgba(16,185,129,0.3)' : 'rgba(139,92,246,0.6)',
-              border: `1px solid ${copied ? 'rgba(16,185,129,0.4)' : 'rgba(139,92,246,0.4)'}`,
-              color: copied ? '#6ee7b7' : '#e9d5ff',
+              background: copied ? 'rgba(22,163,74,0.12)' : '#16A34A',
+              border: `1px solid ${copied ? 'rgba(22,163,74,0.3)' : '#16A34A'}`,
+              color: copied ? '#15803D' : '#FFFFFF',
             }}
           >
             {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
@@ -1073,23 +1071,23 @@ function ReferralLinkCard({
 function ReferralLinkLockedCard({ t }: { t: (key: string) => string }) {
   return (
     <div
-      className="relative overflow-hidden rounded-xl p-4 border border-zinc-700/50"
-      style={{ background: 'linear-gradient(135deg, rgba(39,39,42,0.8) 0%, rgba(24,24,27,0.9) 100%)' }}
+      className="relative overflow-hidden rounded-xl p-4 border border-gray-200"
+      style={{ background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
     >
-      <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-zinc-700/20 pointer-events-none" />
+      <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-gray-50 pointer-events-none" />
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-7 h-7 rounded-lg bg-zinc-700/50 flex items-center justify-center">
-            <Users className="w-3.5 h-3.5 text-zinc-500" />
+          <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center">
+            <Users className="w-3.5 h-3.5 text-gray-400" />
           </div>
-          <h3 className="text-sm font-semibold text-zinc-300">{t('shareAndEarn')}</h3>
+          <h3 className="text-sm font-semibold text-gray-700">{t('shareAndEarn')}</h3>
         </div>
-        <p className="text-zinc-500 text-xs mb-3">
+        <p className="text-gray-400 text-xs mb-3">
           Complete your profile &amp; bind your email to unlock your referral link.
         </p>
         <a
           href="/profile"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-zinc-200 rounded-xl text-xs font-medium transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-medium transition-colors"
         >
           <ArrowUpRight className="w-3.5 h-3.5" />
           Go to Profile

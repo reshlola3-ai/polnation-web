@@ -51,7 +51,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
   // Mobile header - simplified version
   if (isMobile) {
     return (
-      <nav className="bg-[#0D0B21]/80 backdrop-blur-xl border-b border-purple-500/20 sticky top-0 z-50">
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -63,7 +63,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                 height={32}
                 className="rounded-lg"
               />
-              <span className="font-display text-lg text-white">Polnation</span>
+              <span className="font-display text-lg text-gray-900">Polnation</span>
             </Link>
 
             {/* Right side actions */}
@@ -72,7 +72,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               {user && (
                 <button
                   onClick={handleSignOut}
-                  className="p-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                  className="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"
                 >
                   <LogOut className="w-5 h-5" />
                 </button>
@@ -86,7 +86,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
 
   // Desktop navigation - full version
   return (
-    <nav className="bg-[#0D0B21]/80 backdrop-blur-xl border-b border-purple-500/20 sticky top-0 z-50">
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
@@ -97,9 +97,9 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                 alt="Polnation"
                 width={36}
                 height={36}
-                className="rounded-xl glow-purple-sm group-hover:glow-purple transition-all duration-300"
+                className="rounded-xl transition-all duration-300"
               />
-              <span className="font-display text-xl text-white group-hover:glow-text transition-all duration-300">Polnation</span>
+              <span className="font-display text-xl text-gray-900 transition-all duration-300">Polnation</span>
             </Link>
           </div>
 
@@ -115,9 +115,9 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                     href={link.href}
                     className={`
                       flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300
-                      ${isActive 
-                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' 
-                        : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                      ${isActive
+                        ? 'bg-[#F0FDF4] text-[#16A34A] border border-[#16A34A]/20'
+                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                       }
                     `}
                   >
@@ -139,9 +139,9 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               href="/academy"
               className={`
                 hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300
-                ${pathname === '/academy' 
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' 
-                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                ${pathname === '/academy'
+                  ? 'bg-[#F0FDF4] text-[#16A34A] border border-[#16A34A]/20'
+                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                 }
               `}
             >
@@ -151,12 +151,12 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
 
             {user ? (
               <>
-                <span className="hidden lg:block text-sm text-zinc-500 truncate max-w-[120px]">
+                <span className="hidden lg:block text-sm text-gray-500 truncate max-w-[120px]">
                   {user.email}
                 </span>
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-300"
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all duration-300"
                 >
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline">{t('signOut')}</span>
@@ -166,7 +166,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-all"
+                  className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-all"
                 >
                   {t('signIn')}
                 </Link>
@@ -183,7 +183,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
             {user && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                className="md:hidden p-2 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -193,7 +193,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
 
         {/* Mobile Navigation Dropdown */}
         {user && mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-purple-500/20">
+          <div className="md:hidden py-4 border-t border-gray-200">
             <div className="flex flex-col gap-1">
               {navLinks.map((link) => {
                 const Icon = link.icon
@@ -205,9 +205,9 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
-                      ${isActive 
-                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' 
-                        : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                      ${isActive
+                        ? 'bg-[#F0FDF4] text-[#16A34A] border border-[#16A34A]/20'
+                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                       }
                     `}
                   >

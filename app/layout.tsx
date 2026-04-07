@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { cookies } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 import "./globals.css";
 
-// Space Grotesk - 主要字体，用于标题和正文
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+// Inter - clean fintech font for all UI
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
   weight: ["400", "500", "600", "700"],
@@ -127,7 +127,7 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
           {children}

@@ -88,7 +88,7 @@ function RegisterForm() {
         )}
 
         {referrerName && (
-          <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm flex items-center gap-2">
+          <div className="p-3 rounded-xl bg-[#F0FDF4] border border-[#16A34A]/20 text-[#16A34A] text-sm flex items-center gap-2">
             <User className="w-4 h-4" />
             Referred by: <strong>{referrerName}</strong>
           </div>
@@ -140,32 +140,32 @@ function RegisterForm() {
 
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/10" />
+          <div className="w-full border-t border-gray-200" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="px-3 bg-[#1A1333] text-zinc-500">or sign up with wallet</span>
+          <span className="px-3 bg-white text-gray-500">or sign up with wallet</span>
         </div>
       </div>
 
       <Link
         href="/login"
-        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-purple-500/30 text-sm text-purple-300 hover:bg-purple-500/10 transition-colors"
+        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-gray-200 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
       >
         Continue with Wallet instead
       </Link>
 
-      <p className="mt-5 text-center text-sm text-zinc-500">
+      <p className="mt-5 text-center text-sm text-gray-500">
         Already have an account?{' '}
-        <Link href="/login" className="text-purple-400 hover:underline font-medium">
+        <Link href="/login" className="text-[#16A34A] hover:underline font-medium">
           Sign in
         </Link>
       </p>
 
-      <p className="mt-2 text-center text-xs text-zinc-600">
+      <p className="mt-2 text-center text-xs text-gray-400">
         By creating an account you agree to our{' '}
-        <Link href="/terms" className="text-purple-400 hover:underline">Terms</Link>
+        <Link href="/terms" className="text-[#16A34A] hover:underline">Terms</Link>
         {' '}and{' '}
-        <Link href="/privacy" className="text-purple-400 hover:underline">Privacy Policy</Link>
+        <Link href="/privacy" className="text-[#16A34A] hover:underline">Privacy Policy</Link>
       </p>
     </AuthLayout>
   )
@@ -176,7 +176,7 @@ export default function RegisterPage() {
     <Suspense fallback={
       <AuthLayout title="Create your account" subtitle="Join Polnation today">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#16A34A]" />
         </div>
       </AuthLayout>
     }>
