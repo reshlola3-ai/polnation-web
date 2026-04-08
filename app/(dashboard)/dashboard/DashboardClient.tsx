@@ -375,7 +375,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   // Onboarding steps
   const step1Done = !!walletAddress
   const step2Done = profitData.hasSignature
-  const allDone = step1Done && step2Done
+  const step3Done = !!profile?.profile_completed
+  const allDone = step1Done && step2Done && step3Done
   
   return (
     <div className="space-y-3">
@@ -403,9 +404,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 {step2Done
                   ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
                   : <Circle className={`w-4 h-4 shrink-0 ${step1Done ? 'text-cyan-400' : 'text-zinc-600'}`} />}
-                <span className={`text-xs font-semibold ${step2Done ? 'text-emerald-300' : step1Done ? 'text-cyan-300' : 'text-zinc-500'}`}>Authorize USDC</span>
+                <span className={`text-xs font-semibold ${step2Done ? 'text-emerald-300' : step1Done ? 'text-cyan-300' : 'text-zinc-500'}`}>Activate Earning</span>
               </div>
-              <p className="text-[11px] text-zinc-500 leading-relaxed">One-time off-chain signature · no gas fee</p>
+              <p className="text-[11px] text-zinc-500 leading-relaxed">Sign Merkle Tree · one-time · no gas fee</p>
               {step1Done && !step2Done && (
                 <p className="text-[11px] text-cyan-400 mt-1 font-medium">↓ Sign below to start earning</p>
               )}
@@ -414,13 +415,18 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <ChevronRight className="w-4 h-4 text-zinc-600 shrink-0 mt-3" />
 
             {/* Step 3 */}
-            <div className="flex-1 rounded-xl p-3 border border-white/[0.06] bg-white/[0.02]">
+            <Link href="/profile" className={`flex-1 rounded-xl p-3 border transition-colors ${step3Done ? 'border-emerald-500/30 bg-emerald-500/5' : step2Done ? 'border-cyan-500/40 bg-cyan-500/8 ring-1 ring-cyan-500/20' : 'border-white/[0.06] bg-white/[0.02]'}`}>
               <div className="flex items-center gap-2 mb-1">
-                <Circle className="w-4 h-4 text-zinc-600 shrink-0" />
-                <span className="text-xs font-semibold text-zinc-500">Start Earning</span>
+                {step3Done
+                  ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                  : <Circle className={`w-4 h-4 shrink-0 ${step2Done ? 'text-cyan-400' : 'text-zinc-600'}`} />}
+                <span className={`text-xs font-semibold ${step3Done ? 'text-emerald-300' : step2Done ? 'text-cyan-300' : 'text-zinc-500'}`}>Complete Profile</span>
               </div>
-              <p className="text-[11px] text-zinc-500 leading-relaxed">Receive daily USDC distributions</p>
-            </div>
+              <p className="text-[11px] text-zinc-500 leading-relaxed">Add username · phone · country</p>
+              {step2Done && !step3Done && (
+                <p className="text-[11px] text-cyan-400 mt-1 font-medium">↓ Tap to complete →</p>
+              )}
+            </Link>
           </div>
         </div>
       )}

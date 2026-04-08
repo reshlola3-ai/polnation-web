@@ -299,7 +299,7 @@ export default function SharePage() {
       {data && !data.referralCode && (
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-zinc-800/60 border border-white/[0.06]">
           <AlertTriangle className="w-4 h-4 text-zinc-400 flex-shrink-0" />
-          <p className="text-xs text-zinc-400">Connect and authorize your wallet on the Dashboard to generate your referral link.</p>
+          <p className="text-xs text-zinc-400">Connect your wallet and activate earning on the Dashboard to generate your referral link.</p>
         </div>
       )}
 

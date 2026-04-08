@@ -8,9 +8,22 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { countries } from '@/lib/countries'
 import { Profile } from '@/lib/types'
-import { User, Phone, Send, Wallet, Check, ExternalLink, CheckCircle } from 'lucide-react'
+import { User, Phone, Send, Wallet, Check, ExternalLink, CheckCircle, Mail, AlertCircle } from 'lucide-react'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useAccount } from 'wagmi'
+
+function isWalletEmail(email: string | null | undefined) {
+  if (!email) return true
+  return email.endsWith('@wallet.polnation.com')
+}
+
+function RequiredLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="block text-sm font-medium text-zinc-300 mb-2">
+      {children} <span className="text-red-400">*</span>
+    </label>
+  )
+}
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -31,9 +44,15 @@ export default function ProfilePage() {
   const [countryCode, setCountryCode] = useState('CN')
   const [telegramUsername, setTelegramUsername] = useState('')
 
+  // Email binding for wallet users
+  const [newEmail, setNewEmail] = useState('')
+  const [emailSent, setEmailSent] = useState(false)
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
+  const [emailError, setEmailError] = useState('')
+
   const loadProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser()
-    
+
     if (!user) {
       router.push('/login')
       return
@@ -59,7 +78,7 @@ export default function ProfilePage() {
           .select('username')
           .eq('id', profileData.referrer_id)
           .single()
-        
+
         if (referrer) {
           setReferrerName(referrer.username)
         }
@@ -111,10 +130,8 @@ export default function ProfilePage() {
             console.error('Failed to auto-bind wallet:', bindError)
             return
           }
-          console.log(`Auto-bound wallet ${normalizedAddress} to user ${user.id}`)
         }
 
-        // 绑定成功，刷新 profile 数据
         loadProfile()
       } catch (err) {
         console.error('Auto-bind wallet error:', err)
@@ -129,11 +146,15 @@ export default function ProfilePage() {
     e.preventDefault()
     setError('')
     setSuccess('')
+
+    if (!username.trim()) { setError('Username is required'); return }
+    if (!phoneNumber.trim()) { setError('Phone number is required'); return }
+
     setIsSaving(true)
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      
+
       if (!user) {
         router.push('/login')
         return
@@ -170,7 +191,7 @@ export default function ProfilePage() {
         setError(updateError.message)
       } else {
         setSuccess('Profile updated successfully!')
-        
+
         if (!profile?.profile_completed) {
           setTimeout(() => {
             router.push('/dashboard')
@@ -181,6 +202,25 @@ export default function ProfilePage() {
       setError('An unexpected error occurred')
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleBindEmail = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setEmailError('')
+    if (!newEmail.trim()) return
+    setIsSendingEmail(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail.trim() })
+      if (error) {
+        setEmailError(error.message)
+      } else {
+        setEmailSent(true)
+      }
+    } catch {
+      setEmailError('An unexpected error occurred')
+    } finally {
+      setIsSendingEmail(false)
     }
   }
 
@@ -202,22 +242,28 @@ export default function ProfilePage() {
     )
   }
 
+  const walletUser = isWalletEmail(profile?.email)
+
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto space-y-4">
       <div className="glass-card-solid p-8">
         <h1 className="text-2xl font-bold text-white mb-2">
           {profile?.profile_completed ? 'Edit Profile' : 'Complete Your Profile'}
         </h1>
-        <p className="text-zinc-400 mb-8">
-          {profile?.profile_completed 
+        <p className="text-zinc-400 mb-2">
+          {profile?.profile_completed
             ? 'Update your account information'
-            : 'Please fill in your details to continue'
+            : 'Fill in your details to start earning'
           }
         </p>
+        {!profile?.profile_completed && (
+          <p className="text-xs text-zinc-500 mb-6">Fields marked <span className="text-red-400">*</span> are required</p>
+        )}
 
         <form onSubmit={handleSave} className="space-y-6">
           {error && (
-            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
               {error}
             </div>
           )}
@@ -241,28 +287,30 @@ export default function ProfilePage() {
             </div>
           )}
 
+          {/* Email — show real email or wallet placeholder */}
           <div>
-            <label className="block text-sm font-medium text-zinc-400 mb-2">
-              Email
-            </label>
-            <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-zinc-400">
-              {profile?.email}
+            <label className="block text-sm font-medium text-zinc-400 mb-2">Email</label>
+            <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-zinc-400 text-sm">
+              {walletUser ? <span className="text-zinc-600 italic">No email — wallet account</span> : profile?.email}
             </div>
           </div>
 
-          <Input
-            label="Username"
-            placeholder="Enter your username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            leftIcon={<User className="w-4 h-4" />}
-            required
-          />
-
+          {/* Username — required, highlighted */}
           <div>
-            <label className="block text-sm font-medium text-zinc-400 mb-2">
-              Phone Number
-            </label>
+            <RequiredLabel>Username</RequiredLabel>
+            <Input
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              leftIcon={<User className="w-4 h-4" />}
+              required
+            />
+            <p className="text-xs text-zinc-600 mt-1">This is your public display name</p>
+          </div>
+
+          {/* Phone — required */}
+          <div>
+            <RequiredLabel>Phone Number</RequiredLabel>
             <div className="flex gap-2">
               <div className="w-32">
                 <Select
@@ -284,21 +332,31 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <Select
-            label="Country"
-            options={countryOptions}
-            value={countryCode}
-            onChange={(e) => setCountryCode(e.target.value)}
-          />
+          {/* Country — required */}
+          <div>
+            <RequiredLabel>Country</RequiredLabel>
+            <Select
+              options={countryOptions}
+              value={countryCode}
+              onChange={(e) => setCountryCode(e.target.value)}
+            />
+          </div>
 
-          <Input
-            label="Telegram Username (Optional)"
-            placeholder="@username"
-            value={telegramUsername}
-            onChange={(e) => setTelegramUsername(e.target.value)}
-            leftIcon={<Send className="w-4 h-4" />}
-          />
+          {/* Telegram — optional */}
+          <div>
+            <label className="block text-sm font-medium text-zinc-400 mb-2">
+              Telegram Username <span className="text-zinc-600 text-xs font-normal">(optional)</span>
+            </label>
+            <Input
+              placeholder="@username"
+              value={telegramUsername}
+              onChange={(e) => setTelegramUsername(e.target.value)}
+              leftIcon={<Send className="w-4 h-4" />}
+            />
+            <p className="text-xs text-zinc-600 mt-1">Used for community notifications</p>
+          </div>
 
+          {/* Wallet */}
           <div>
             <label className="block text-sm font-medium text-zinc-400 mb-2">
               Wallet Address
@@ -338,9 +396,9 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   {!isConnected && (
-                    <Button 
+                    <Button
                       type="button"
-                      size="sm" 
+                      size="sm"
                       onClick={() => open()}
                       className="shrink-0"
                     >
@@ -354,6 +412,7 @@ export default function ProfilePage() {
                   <div className="flex flex-wrap gap-1.5">
                     <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">Bitget</span>
                     <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">Trust</span>
+                    <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">MetaMask</span>
                   </div>
                 </div>
               </div>
@@ -365,6 +424,47 @@ export default function ProfilePage() {
           </Button>
         </form>
       </div>
+
+      {/* #7 — Email binding for wallet-registered users */}
+      {walletUser && (
+        <div className="glass-card-solid p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-xl bg-blue-500/15 flex items-center justify-center">
+              <Mail className="w-4 h-4 text-blue-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white text-sm">Bind Email Address</h3>
+              <p className="text-xs text-zinc-500">Add an email for account recovery</p>
+            </div>
+          </div>
+
+          {emailSent ? (
+            <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm flex items-center gap-2">
+              <Check className="w-4 h-4 shrink-0" />
+              Confirmation sent to {newEmail}. Check your inbox and click the link to verify.
+            </div>
+          ) : (
+            <form onSubmit={handleBindEmail} className="space-y-3">
+              {emailError && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                  {emailError}
+                </div>
+              )}
+              <Input
+                type="email"
+                placeholder="you@example.com"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                leftIcon={<Mail className="w-4 h-4" />}
+                required
+              />
+              <Button type="submit" className="w-full" isLoading={isSendingEmail}>
+                Send Verification Email
+              </Button>
+            </form>
+          )}
+        </div>
+      )}
     </div>
   )
 }
