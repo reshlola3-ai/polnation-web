@@ -14,13 +14,13 @@ export async function GET(request: NextRequest) {
   const admin = createClient(url, key)
 
   const isShortCode = ref.length <= 6 && !ref.includes('-')
-  const { data } = await admin
-    .from('profiles')
-    .select('id, username')
-    .eq(isShortCode ? 'referral_code' : 'id', isShortCode ? ref.toUpperCase() : ref)
-    .single()
+  const query = admin.from('profiles').select('id, username')
+  const { data } = await (isShortCode
+    ? query.ilike('referral_code', ref)  // case-insensitive: handles 221e == 221E
+    : query.eq('id', ref)
+  ).single()
 
   if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  return NextResponse.json({ id: data.id, name: data.username })
+  return NextResponse.json({ id: data.id, name: data.username ?? data.id.slice(0, 8) })
 }
