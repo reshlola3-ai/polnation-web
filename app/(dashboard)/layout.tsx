@@ -22,6 +22,13 @@ export default async function DashboardLayout({
     redirect('/login')
   }
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('wallet_address')
+    .eq('id', user.id)
+    .single()
+  const walletAddress: string | null = profile?.wallet_address ?? null
+
   // Get locale from cookie
   const cookieStore = await cookies()
   const localeCookie = cookieStore.get('locale')?.value as Locale | undefined
@@ -52,7 +59,14 @@ export default async function DashboardLayout({
               <Image src="/logo.svg" alt="Polnation" width={26} height={26} className="rounded-lg" />
               <span className="font-display text-base text-white">Polnation</span>
             </Link>
-            <LanguageSwitcher currentLocale={locale} />
+            <div className="flex items-center gap-2">
+              {walletAddress && (
+                <span className="text-xs font-mono text-zinc-400 bg-white/5 border border-white/10 px-2 py-1 rounded-lg">
+                  {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
+                </span>
+              )}
+              <LanguageSwitcher currentLocale={locale} />
+            </div>
           </div>
         </div>
         
