@@ -319,6 +319,9 @@ export default async function HomePage() {
               <Link href="/terms" className="text-sm text-zinc-500 hover:text-purple-400 transition-colors">
                 {tFooter('terms')}
               </Link>
+              <Link href="/disclaimer" className="text-sm text-zinc-500 hover:text-purple-400 transition-colors">
+                Disclaimer
+              </Link>
               <a
                 href="mailto:Support@polnation.com"
                 className="text-sm text-zinc-500 hover:text-purple-400 transition-colors"
