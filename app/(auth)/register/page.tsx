@@ -7,6 +7,8 @@ import { createClient } from '@/lib/supabase'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { WalletLogin } from '@/components/wallet/WalletLogin'
+import { Web3Provider } from '@/components/providers/Web3Provider'
 import { Mail, Lock, User } from 'lucide-react'
 
 function RegisterForm() {
@@ -23,6 +25,7 @@ function RegisterForm() {
   const [error, setError] = useState('')
   const [referrerName, setReferrerName] = useState<string | null>(null)
   const [referrerUuid, setReferrerUuid] = useState<string | null>(null)
+  const [showWallet, setShowWallet] = useState(false)
 
   // Resolve referrer info from ref param
   useEffect(() => {
@@ -73,6 +76,32 @@ function RegisterForm() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // 钱包注册视图 — 原地展开，不跳转，referrerId 全程保留
+  if (showWallet) {
+    return (
+      <AuthLayout
+        title="Connect Wallet"
+        subtitle={referrerName ? `Invited by ${referrerName}` : 'Create account with your wallet'}
+      >
+        {referrerName && (
+          <div className="mb-4 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-sm flex items-center gap-2">
+            <User className="w-4 h-4" />
+            Referred by: <strong>{referrerName}</strong>
+          </div>
+        )}
+        <Web3Provider>
+          <WalletLogin redirect="/dashboard" autoRegister={true} referrerId={referrerUuid} />
+        </Web3Provider>
+        <button
+          onClick={() => setShowWallet(false)}
+          className="mt-4 w-full text-center text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
+        >
+          ← Back to email registration
+        </button>
+      </AuthLayout>
+    )
   }
 
   return (
@@ -147,12 +176,14 @@ function RegisterForm() {
         </div>
       </div>
 
-      <Link
-        href="/login"
+      {/* 原地展开钱包注册，不跳转到 /login，referrerId 全程保留 */}
+      <button
+        type="button"
+        onClick={() => setShowWallet(true)}
         className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-purple-500/30 text-sm text-purple-300 hover:bg-purple-500/10 transition-colors"
       >
         Continue with Wallet instead
-      </Link>
+      </button>
 
       <p className="mt-5 text-center text-sm text-zinc-500">
         Already have an account?{' '}
