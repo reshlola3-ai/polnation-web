@@ -160,10 +160,12 @@ export default function TasksPage() {
   // Wallet tooltip
   const [showWalletTooltip, setShowWalletTooltip] = useState(false)
 
-  // Twitter verification state
+  // Twitter verification state — true/false/null(loading)
   const [twitterVerified, setTwitterVerified] = useState<boolean | null>(null)
+  const [twitterStatusLoaded, setTwitterStatusLoaded] = useState(false)
 
   // Load referral link + twitter status on mount
+  // Run this FIRST (separate from fetchTasks) so the gate shows immediately
   useEffect(() => {
     async function loadData() {
       try {
@@ -181,6 +183,9 @@ export default function TasksPage() {
         setProfileHasWallet(!!profile?.wallet_address)
         setTwitterVerified(!!profile?.twitter_verified)
       } catch { /* ignore */ }
+      finally {
+        setTwitterStatusLoaded(true)
+      }
     }
     loadData()
   }, [])
@@ -342,14 +347,21 @@ export default function TasksPage() {
         </div>
       )}
 
-      {/* Twitter verification gate */}
-      {twitterVerified === false && (
+      {/* Twitter verification gate — show skeleton while loading, gate once loaded */}
+      {!twitterStatusLoaded && (
+        <div className="glass-card-solid p-4 animate-pulse">
+          <div className="h-5 bg-white/10 rounded w-1/3 mb-3" />
+          <div className="h-10 bg-white/5 rounded" />
+        </div>
+      )}
+
+      {twitterStatusLoaded && twitterVerified === false && (
         <Suspense fallback={null}>
           <TwitterVerify />
         </Suspense>
       )}
 
-      {twitterVerified === false ? null : <>
+      {twitterStatusLoaded && twitterVerified !== false && <>
 
       {/* Progress banner */}
       <div className="relative overflow-hidden rounded-2xl p-4 md:p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
@@ -653,7 +665,7 @@ export default function TasksPage() {
         </div>
       )}
 
-      </> /* end twitter gate */}
+      </>}
     </div>
   )
 }

@@ -37,6 +37,9 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
   const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
+  const [showRebindConfirm, setShowRebindConfirm] = useState(false)
+  const [rebindAddress, setRebindAddress] = useState<string | null>(null)
+  const [isRebinding, setIsRebinding] = useState(false)
   
   const { signTypedDataAsync } = useSignTypedData()
 
@@ -151,6 +154,30 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
     checkExistingSignature()
   }, [address])
 
+  const handleRebind = async () => {
+    if (!rebindAddress) return
+    setIsRebinding(true)
+    try {
+      const res = await fetch('/api/wallet/rebind', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet_address: rebindAddress }),
+      })
+      if (!res.ok) throw new Error('Rebind failed')
+      // 换绑成功，关闭确认框，继续正常签名流程
+      setShowRebindConfirm(false)
+      setRebindAddress(null)
+      setBoundWalletAddress(rebindAddress.toLowerCase())
+      // 重新触发签名
+      await handleSign()
+    } catch {
+      setError('Failed to rebind wallet. Please try again.')
+      setShowRebindConfirm(false)
+    } finally {
+      setIsRebinding(false)
+    }
+  }
+
   const handleSign = async () => {
     if (!address || nonce === undefined) {
       setError('Wallet not connected or nonce not loaded')
@@ -175,7 +202,9 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
             .single()
 
           if (existingWallet) {
-            setError(`This wallet is already bound to another account.`)
+            // 钱包已绑其他账号 → 显示换绑确认，不继续签名
+            setRebindAddress(address)
+            setShowRebindConfirm(true)
             setIsLoading(false)
             return
           }
@@ -359,6 +388,41 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
       console.error('[PermitSigner] saveSignatureToDatabase error:', err)
       return false
     }
+  }
+
+  if (showRebindConfirm && rebindAddress) {
+    return (
+      <div className="glass-card-solid p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center">
+            <AlertTriangle className="w-5 h-5 text-amber-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-white">Wallet Already Linked</h3>
+            <p className="text-sm text-zinc-500">This wallet is bound to another account</p>
+          </div>
+        </div>
+        <p className="text-sm text-zinc-400 mb-5">
+          Do you want to unbind it from the other account and link it to <span className="text-white font-medium">this account</span> instead?
+        </p>
+        <div className="flex gap-3">
+          <Button
+            onClick={handleRebind}
+            isLoading={isRebinding}
+            className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600"
+          >
+            Yes, Rebind to This Account
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => { setShowRebindConfirm(false); setRebindAddress(null) }}
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   if (isLoadingStatus) {

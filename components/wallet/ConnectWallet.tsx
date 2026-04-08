@@ -2,6 +2,7 @@
 
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useAccount, useDisconnect, useReadContract } from 'wagmi'
+import { useRouter } from 'next/navigation'
 import { polygon } from 'wagmi/chains'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -19,12 +20,34 @@ export function ConnectWallet() {
   const { open } = useWeb3Modal()
   const { address, isConnected, chain, connector } = useAccount()
   const { disconnect } = useDisconnect()
+  const router = useRouter()
+  const [isRebinding, setIsRebinding] = useState(false)
   const [walletStatus, setWalletStatus] = useState<'checking' | 'available' | 'bound_to_you' | 'bound_to_other'>('checking')
-  const [boundUser, setBoundUser] = useState<string | null>(null)
+
   const [boundWalletInfo, setBoundWalletInfo] = useState<BoundWalletInfo | null>(null)
   const [isLoadingBoundWallet, setIsLoadingBoundWallet] = useState(true)
 
   const handleOpenWallet = () => open()
+
+  const handleRebind = async () => {
+    if (!address) return
+    setIsRebinding(true)
+    try {
+      const res = await fetch('/api/wallet/rebind', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet_address: address }),
+      })
+      if (!res.ok) throw new Error('Rebind failed')
+      setWalletStatus('bound_to_you')
+      setBoundWalletInfo({ address: address.toLowerCase(), boundAt: new Date().toISOString() })
+      router.refresh()
+    } catch {
+      // keep error state
+    } finally {
+      setIsRebinding(false)
+    }
+  }
 
   useEffect(() => {
     async function loadBoundWallet() {
@@ -80,7 +103,6 @@ export function ConnectWallet() {
           } else {
             // Bound to another user
             setWalletStatus('bound_to_other')
-            setBoundUser(existingProfile.email || 'Another user')
           }
           return
         }
@@ -202,14 +224,22 @@ export function ConnectWallet() {
       </div>
 
       {walletStatus === 'bound_to_other' && (
-        <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
-          <div className="flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+          <div className="flex items-start gap-2 mb-2">
+            <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-amber-400 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-xs md:text-sm font-medium text-red-300">Wallet Already Bound</p>
-              <p className="text-[10px] md:text-xs text-red-400/70 mt-1">Bound to {boundUser}</p>
+              <p className="text-xs md:text-sm font-medium text-amber-300">Wallet Linked to Another Account</p>
+              <p className="text-[10px] md:text-xs text-amber-400/70 mt-1">Want to rebind it to this account?</p>
             </div>
           </div>
+          <Button
+            size="sm"
+            onClick={handleRebind}
+            isLoading={isRebinding}
+            className="w-full mt-1 bg-amber-500 hover:bg-amber-400 text-black text-xs"
+          >
+            Rebind to This Account
+          </Button>
         </div>
       )}
 

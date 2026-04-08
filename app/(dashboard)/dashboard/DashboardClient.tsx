@@ -229,7 +229,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   // Fetch profit data
   const fetchProfitData = async () => {
     try {
-      const res = await fetch('/api/profits/user')
+      const res = await fetch('/api/profits/user', { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         const profits = data.profits || {}
