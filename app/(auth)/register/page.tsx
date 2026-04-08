@@ -27,23 +27,22 @@ function RegisterForm() {
   const [referrerUuid, setReferrerUuid] = useState<string | null>(null)
   const [showWallet, setShowWallet] = useState(false)
 
-  // Resolve referrer info from ref param
+  // Resolve referrer info from ref param — uses API to bypass Supabase RLS on public page
   useEffect(() => {
     async function fetchReferrer() {
       if (!referrerId) return
-      const isShortCode = referrerId.length <= 6 && !referrerId.includes('-')
-      const { data } = await supabase
-        .from('profiles')
-        .select('id, username')
-        .eq(isShortCode ? 'referral_code' : 'id', isShortCode ? referrerId.toUpperCase() : referrerId)
-        .single()
-      if (data) {
-        setReferrerName(data.username)
-        setReferrerUuid(data.id)
+      try {
+        const res = await fetch(`/api/referrer?ref=${encodeURIComponent(referrerId)}`)
+        if (!res.ok) return
+        const data = await res.json()
+        if (data.name) setReferrerName(data.name)
+        if (data.id) setReferrerUuid(data.id)
+      } catch {
+        // silently fail — referrer display is non-critical
       }
     }
     fetchReferrer()
-  }, [referrerId, supabase])
+  }, [referrerId])
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
