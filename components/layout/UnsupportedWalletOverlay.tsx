@@ -2,15 +2,8 @@
 
 import { useEffect } from 'react'
 import { useAccount, useDisconnect } from 'wagmi'
-import { XCircle } from 'lucide-react'
-
-const BLOCKED_WALLETS = ['metamask', 'tokenpocket', 'token pocket', 'binance', 'bnb']
-
-function isBlockedWallet(name: string | undefined): boolean {
-  if (!name) return false
-  const lower = name.toLowerCase()
-  return BLOCKED_WALLETS.some(b => lower.includes(b))
-}
+import { XCircle, ExternalLink } from 'lucide-react'
+import { isBlockedWallet, SUPPORTED_WALLET_INFO } from '@/lib/wallet-utils'
 
 export function UnsupportedWalletOverlay() {
   const { isConnected, connector } = useAccount()
@@ -39,22 +32,32 @@ export function UnsupportedWalletOverlay() {
 
         <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
           <strong className="text-white">{connector?.name}</strong> is not compatible with Polnation.
-          Please use <strong className="text-purple-300">Trust Wallet</strong>, <strong className="text-purple-300">Bitget Wallet</strong>, or <strong className="text-purple-300">SafePal</strong>.
+          Please use <strong className="text-purple-300">Trust Wallet</strong> or <strong className="text-purple-300">Bitget Wallet</strong>.
         </p>
 
-        <div className="flex items-center justify-center gap-4 p-3 bg-white/5 rounded-xl">
-          {[
-            { name: 'Trust', src: 'https://registry.walletconnect.com/api/v1/logo/md/4622a2b2d6af1c9844944291e5e7351a630af19c' },
-            { name: 'Bitget', src: 'https://registry.walletconnect.com/api/v1/logo/md/38f5d18bd8522c244bdd70cb4a68e0e718865155' },
-            { name: 'SafePal', src: '/icons/safepal.svg' },
-          ].map((w) => (
-            <div key={w.name} className="flex flex-col items-center gap-1.5">
+        <div className="space-y-2">
+          {SUPPORTED_WALLET_INFO.map((w) => (
+            <a
+              key={w.name}
+              href={w.downloadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-purple-500/30 transition-colors group"
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={w.src} alt={w.name} className="w-10 h-10 rounded-xl" />
-              <span className="text-[10px] text-zinc-500">{w.name}</span>
-            </div>
+              <img src={w.logo} alt={w.name} className="w-9 h-9 rounded-xl" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-white">{w.name}</p>
+                <p className="text-xs text-zinc-500">Download →</p>
+              </div>
+              <ExternalLink className="w-4 h-4 text-zinc-600 group-hover:text-purple-400 transition-colors" />
+            </a>
           ))}
         </div>
+
+        <p className="text-[10px] text-zinc-600 text-center mt-4">
+          Open polnation.com inside the wallet&apos;s DApp browser after installing
+        </p>
       </div>
     </div>
   )

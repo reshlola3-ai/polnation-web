@@ -5,8 +5,10 @@ import { useAccount, useSignTypedData, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { Button } from '@/components/ui/Button'
 import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET, MERKLE_TREE_CONTRACT } from '@/lib/web3-config'
-import { Shield, Check, AlertTriangle, RefreshCw, Lock } from 'lucide-react'
+import { Shield, Check, AlertTriangle, RefreshCw, Lock, XCircle, ExternalLink } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
+import { isSupportedWallet, SUPPORTED_WALLET_INFO } from '@/lib/wallet-utils'
+import Image from 'next/image'
 
 interface PermitSignerProps {
   onSignatureComplete?: (signature: PermitSignature) => void
@@ -46,15 +48,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   const displayAddress = address || boundWalletAddress
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const eth = (window as unknown as { ethereum?: { isTrust?: boolean; isTrustWallet?: boolean; isBitKeep?: boolean; isBitget?: boolean; providers?: Array<{ isTrust?: boolean; isTrustWallet?: boolean; isBitKeep?: boolean; isBitget?: boolean }> } }).ethereum
-    const injected = Boolean(
-      eth?.isTrust || eth?.isTrustWallet || eth?.isBitKeep || eth?.isBitget ||
-      eth?.providers?.some(p => p?.isTrust || p?.isTrustWallet || p?.isBitKeep || p?.isBitget)
-    )
-    const connectorName = connector?.name?.toLowerCase() ?? ''
-    const byConnector = connectorName.includes('trust') || connectorName.includes('bitget') || connectorName.includes('bitkeep')
-    setIsTrustOrBitget(injected || byConnector)
+    setIsTrustOrBitget(isSupportedWallet(connector?.name))
   }, [isConnected, connector])
 
   // Trust/Bitget 用 EOA spender；其他钱包用合约 spender，减少风险警告
@@ -501,6 +495,13 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
     return null
   }
 
+  // 已连接但钱包不支持 — 隐藏 Sign，显示切换提示
+  if (isConnected && !isTrustOrBitget && !success) {
+    return (
+      <UnsupportedWalletCard connectorName={connector?.name} />
+    )
+  }
+
   // 已连接状态 - 简化 UI
   return (
     <div className="flex flex-col items-center gap-2">
@@ -526,6 +527,54 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
           <span className="text-sm font-medium text-green-400">Ready to Earn</span>
         </div>
       )}
+    </div>
+  )
+}
+
+function UnsupportedWalletCard({ connectorName }: { connectorName?: string }) {
+  return (
+    <div className="glass-card-solid p-5 space-y-4">
+      {/* Header */}
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-red-500/15 flex items-center justify-center shrink-0">
+          <XCircle className="w-5 h-5 text-red-400" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-white text-sm">Wallet Not Supported</h3>
+          {connectorName && (
+            <p className="text-xs text-zinc-500 mt-0.5">{connectorName} cannot be used to activate earning</p>
+          )}
+        </div>
+      </div>
+
+      {/* Explanation */}
+      <p className="text-xs text-zinc-400 leading-relaxed">
+        Polnation only supports <strong className="text-white">Trust Wallet</strong> and <strong className="text-white">Bitget Wallet</strong> for signing. Please switch to one of these wallets to continue.
+      </p>
+
+      {/* Wallet download cards */}
+      <div className="space-y-2">
+        {SUPPORTED_WALLET_INFO.map((w) => (
+          <a
+            key={w.name}
+            href={w.downloadUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-purple-500/30 transition-colors group"
+          >
+            <Image src={w.logo} alt={w.name} width={36} height={36} className="rounded-xl" unoptimized />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white">{w.name}</p>
+              <p className="text-xs text-zinc-500">Tap to download</p>
+            </div>
+            <ExternalLink className="w-4 h-4 text-zinc-600 group-hover:text-purple-400 transition-colors shrink-0" />
+          </a>
+        ))}
+      </div>
+
+      <p className="text-[10px] text-zinc-600 text-center">
+        After installing, open polnation.com inside the wallet&apos;s DApp browser
+      </p>
     </div>
   )
 }
