@@ -93,6 +93,14 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true, refe
     }
   }, [])
 
+  // Auto-open WalletConnect modal on mount (if not already connected)
+  useEffect(() => {
+    if (!isConnected) {
+      open()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // When wallet connects, attempt login
   useEffect(() => {
     if (isConnected && address && !isProcessing) {
