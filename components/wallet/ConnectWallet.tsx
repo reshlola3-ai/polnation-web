@@ -6,10 +6,35 @@ import { useRouter } from 'next/navigation'
 import { polygon } from 'wagmi/chains'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/Button'
-import { Wallet, LogOut, ExternalLink, AlertTriangle, CheckCircle, Link2 } from 'lucide-react'
+import { Wallet, ExternalLink, AlertTriangle, CheckCircle, Link2, XCircle } from 'lucide-react'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
 import { createClient } from '@/lib/supabase'
+import Image from 'next/image'
+
+// Wallets blocked from connecting
+const BLOCKED_WALLETS = ['metamask', 'tokenpocket', 'token pocket', 'binance', 'bnb']
+
+function isBlockedWallet(connectorName: string | undefined): boolean {
+  if (!connectorName) return false
+  const lower = connectorName.toLowerCase()
+  return BLOCKED_WALLETS.some(b => lower.includes(b))
+}
+
+const SUPPORTED_WALLETS = [
+  {
+    name: 'Trust Wallet',
+    logo: 'https://registry.walletconnect.com/api/v1/logo/md/4622a2b2d6af1c9844944291e5e7351a630af19c',
+  },
+  {
+    name: 'Bitget Wallet',
+    logo: 'https://registry.walletconnect.com/api/v1/logo/md/38f5d18bd8522c244bdd70cb4a68e0e718865155',
+  },
+  {
+    name: 'SafePal',
+    logo: '/icons/safepal.svg',
+  },
+]
 
 interface BoundWalletInfo {
   address: string
@@ -23,6 +48,7 @@ export function ConnectWallet() {
   const router = useRouter()
   const [isRebinding, setIsRebinding] = useState(false)
   const [walletStatus, setWalletStatus] = useState<'checking' | 'available' | 'bound_to_you' | 'bound_to_other'>('checking')
+  const [blockedName, setBlockedName] = useState<string | null>(null)
 
   const [boundWalletInfo, setBoundWalletInfo] = useState<BoundWalletInfo | null>(null)
   const [isLoadingBoundWallet, setIsLoadingBoundWallet] = useState(true)
@@ -48,6 +74,16 @@ export function ConnectWallet() {
       setIsRebinding(false)
     }
   }
+
+  // Auto-disconnect blocked wallets
+  useEffect(() => {
+    if (isConnected && connector && isBlockedWallet(connector.name)) {
+      setBlockedName(connector.name)
+      disconnect()
+    } else if (!isConnected) {
+      setBlockedName(null)
+    }
+  }, [isConnected, connector, disconnect])
 
   useEffect(() => {
     async function loadBoundWallet() {
@@ -80,6 +116,8 @@ export function ConnectWallet() {
   useEffect(() => {
     async function checkAndBindWallet() {
       if (!address) { setWalletStatus('available'); return }
+      // Don't bind if wallet is blocked
+      if (connector && isBlockedWallet(connector.name)) return
 
       const normalizedAddress = address.toLowerCase()
 
@@ -88,7 +126,6 @@ export function ConnectWallet() {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) { setWalletStatus('available'); return }
 
-        // Check if this wallet is already bound to someone in profiles
         const { data: existingProfile } = await supabase
           .from('profiles')
           .select('id, email, wallet_bound_at')
@@ -97,17 +134,14 @@ export function ConnectWallet() {
 
         if (existingProfile) {
           if (existingProfile.id === user.id) {
-            // Already bound to current user
             setWalletStatus('bound_to_you')
             setBoundWalletInfo({ address: normalizedAddress, boundAt: existingProfile.wallet_bound_at || new Date().toISOString() })
           } else {
-            // Bound to another user
             setWalletStatus('bound_to_other')
           }
           return
         }
 
-        // Wallet not bound to anyone — check if current user already has a different wallet
         const { data: myProfile } = await supabase
           .from('profiles')
           .select('wallet_address, wallet_bound_at')
@@ -115,39 +149,30 @@ export function ConnectWallet() {
           .single()
 
         if (myProfile?.wallet_address && myProfile.wallet_address !== normalizedAddress) {
-          // User already has a different wallet bound
           setWalletStatus('bound_to_you')
           setBoundWalletInfo({ address: myProfile.wallet_address, boundAt: myProfile.wallet_bound_at || new Date().toISOString() })
           return
         }
 
         if (myProfile?.wallet_address === normalizedAddress) {
-          // Already bound (edge case)
           setWalletStatus('bound_to_you')
           setBoundWalletInfo({ address: normalizedAddress, boundAt: myProfile.wallet_bound_at || new Date().toISOString() })
           return
         }
 
-        // Auto-bind: wallet is available and user has no wallet yet
         const now = new Date().toISOString()
         const { error: bindError } = await supabase
           .from('profiles')
-          .update({
-            wallet_address: normalizedAddress,
-            wallet_bound_at: now,
-          })
+          .update({ wallet_address: normalizedAddress, wallet_bound_at: now })
           .eq('id', user.id)
 
         if (!bindError) {
-          console.log(`Auto-bound wallet ${normalizedAddress} to user ${user.id}`)
           setWalletStatus('bound_to_you')
           setBoundWalletInfo({ address: normalizedAddress, boundAt: now })
         } else {
-          console.error('Failed to auto-bind wallet:', bindError)
           setWalletStatus('available')
         }
-      } catch (error) {
-        console.error('Wallet check error:', error)
+      } catch {
         setWalletStatus('available')
       }
     }
@@ -166,7 +191,6 @@ export function ConnectWallet() {
   const isWrongNetwork = chain?.id !== polygon.id
   const isBalanceLoading = usdcBalanceRaw === undefined
 
-  // Loading state
   if (isLoadingBoundWallet) {
     return (
       <div className="glass-card-solid p-4 md:p-6">
@@ -174,6 +198,24 @@ export function ConnectWallet() {
           <div className="h-5 md:h-6 bg-white/10 rounded w-1/3 mb-3 md:mb-4" />
           <div className="h-16 md:h-20 bg-white/5 rounded" />
         </div>
+      </div>
+    )
+  }
+
+  // Blocked wallet notice
+  if (blockedName) {
+    return (
+      <div className="glass-card-solid p-4 md:p-6">
+        <div className="flex items-start gap-3 mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+          <XCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-red-300">Wallet Not Supported</p>
+            <p className="text-xs text-red-400/70 mt-0.5">
+              <strong>{blockedName}</strong> is not supported. Please use one of the wallets below.
+            </p>
+          </div>
+        </div>
+        <SupportedWalletList onConnect={handleOpenWallet} />
       </div>
     )
   }
@@ -199,18 +241,8 @@ export function ConnectWallet() {
     return (
       <div className="glass-card-solid p-4 md:p-6">
         <h3 className="font-semibold text-white mb-3 md:mb-4 text-sm md:text-base">Connect Your Wallet</h3>
-        <p className="text-xs md:text-sm text-zinc-400 mb-3 md:mb-4">Connect and bind your wallet to start earning.</p>
-        <div className="mb-3 md:mb-4 p-2.5 md:p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-          <p className="text-[10px] md:text-xs text-purple-300 font-medium mb-1.5 md:mb-2">All major wallets supported:</p>
-          <div className="flex flex-wrap gap-1.5">
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">Trust</span>
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">Bitget</span>
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">MetaMask</span>
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">WalletConnect</span>
-            <span className="text-[10px] md:text-xs bg-purple-500/20 px-1.5 md:px-2 py-0.5 rounded text-purple-300">& more</span>
-          </div>
-        </div>
-        <Button onClick={handleOpenWallet} className="gap-2 w-full text-sm md:text-base py-2.5 md:py-3"><Wallet className="w-4 h-4" />Connect Wallet</Button>
+        <p className="text-xs md:text-sm text-zinc-400 mb-4">Connect and bind your wallet to start earning.</p>
+        <SupportedWalletList onConnect={handleOpenWallet} />
       </div>
     )
   }
@@ -220,7 +252,6 @@ export function ConnectWallet() {
     <div className="glass-card-solid p-4 md:p-6">
       <div className="flex items-center justify-between mb-3 md:mb-4">
         <h3 className="font-semibold text-white text-sm md:text-base">Wallet Connected</h3>
-        {!boundWalletInfo && <button onClick={() => disconnect()} className="text-zinc-500 hover:text-zinc-300 transition-colors p-1" title="Disconnect"><LogOut className="w-4 h-4" /></button>}
       </div>
 
       {walletStatus === 'bound_to_other' && (
@@ -232,12 +263,7 @@ export function ConnectWallet() {
               <p className="text-[10px] md:text-xs text-amber-400/70 mt-1">Want to rebind it to this account?</p>
             </div>
           </div>
-          <Button
-            size="sm"
-            onClick={handleRebind}
-            isLoading={isRebinding}
-            className="w-full mt-1 bg-amber-500 hover:bg-amber-400 text-black text-xs"
-          >
+          <Button size="sm" onClick={handleRebind} isLoading={isRebinding} className="w-full mt-1 bg-amber-500 hover:bg-amber-400 text-black text-xs">
             Rebind to This Account
           </Button>
         </div>
@@ -278,7 +304,30 @@ export function ConnectWallet() {
           <p className="text-xl md:text-2xl font-bold text-white currency">${Number(usdcBalance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         )}
       </div>
-
     </div>
+  )
+}
+
+function SupportedWalletList({ onConnect }: { onConnect: () => void }) {
+  return (
+    <>
+      <div className="mb-4 p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
+        <p className="text-xs text-purple-300 font-medium mb-3">Supported wallets only:</p>
+        <div className="flex items-center gap-3">
+          {SUPPORTED_WALLETS.map((w) => (
+            <div key={w.name} className="flex flex-col items-center gap-1.5">
+              <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                <Image src={w.logo} alt={w.name} width={32} height={32} className="rounded-lg" unoptimized />
+              </div>
+              <span className="text-[10px] text-zinc-400">{w.name.split(' ')[0]}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-zinc-600 mt-3">MetaMask, TokenPocket and Binance Web3 are not supported.</p>
+      </div>
+      <Button onClick={onConnect} className="gap-2 w-full text-sm md:text-base py-2.5 md:py-3">
+        <Wallet className="w-4 h-4" />Connect Wallet
+      </Button>
+    </>
   )
 }
