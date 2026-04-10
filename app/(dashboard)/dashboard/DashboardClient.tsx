@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { 
+import {
   Copy, Check, Wallet, TrendingUp, Users, DollarSign,
   ArrowUpRight, CheckCircle, Circle, AlertCircle,
-  ChevronRight, HelpCircle, X, Flame, Award, Globe
+  ChevronRight, HelpCircle, X, Flame, Award, Globe,
+  Share2, Dices, ListChecks
 } from 'lucide-react'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { PermitSigner } from '@/components/wallet/PermitSigner'
@@ -582,21 +583,25 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       {/* Quick Actions — 4 icon buttons */}
       <div className="grid grid-cols-4 gap-2">
         {[
-          { href: '/share', icon: Copy, label: 'Share', iconColor: 'text-violet-400', bgColor: 'bg-violet-500/15', ringColor: 'rgba(139,92,246,0.2)' },
-          { href: '/test-lottery', icon: Award, label: 'Wheel', iconColor: 'text-amber-400', bgColor: 'bg-amber-500/15', ringColor: 'rgba(245,158,11,0.2)', badge: spinCount },
-          { href: '/team', icon: Users, label: 'Team', iconColor: 'text-cyan-400', bgColor: 'bg-cyan-500/15', ringColor: 'rgba(6,182,212,0.2)' },
-          { href: '/tasks', icon: CheckCircle, label: 'Tasks', iconColor: 'text-emerald-400', bgColor: 'bg-emerald-500/15', ringColor: 'rgba(16,185,129,0.2)' },
-        ].map(({ href, icon: Icon, label, iconColor, bgColor, ringColor, badge }, idx) => (
+          { href: '/share',        icon: Share2,     label: 'Invite',  badge: undefined },
+          { href: '/test-lottery', icon: Dices,      label: 'Lottery', badge: spinCount  },
+          { href: '/team',         icon: Users,      label: 'Team',    badge: undefined },
+          { href: '/tasks',        icon: ListChecks, label: 'Tasks',   badge: undefined },
+        ].map(({ href, icon: Icon, label, badge }, idx) => (
           <Link
             key={href}
             href={href}
             className="quick-action-card glass-card-solid flex flex-col items-center gap-2 py-4 relative active:scale-95 transition-transform"
           >
             <div
-              className={`quick-action-icon-wrap w-14 h-14 rounded-full ${bgColor} flex items-center justify-center`}
-              style={{ animationDelay: `${idx * 0.18}s`, boxShadow: `0 0 0 4px ${ringColor}` }}
+              className="quick-action-icon-wrap w-14 h-14 rounded-full flex items-center justify-center"
+              style={{
+                background: 'radial-gradient(circle at 32% 28%, #c084fc 0%, #7c3aed 50%, #2e0f70 100%)',
+                boxShadow: '0 4px 18px rgba(124,58,237,0.45), inset 0 1px 0 rgba(255,255,255,0.18)',
+                animationDelay: `${idx * 0.18}s`,
+              }}
             >
-              <Icon className={`quick-action-icon w-6 h-6 ${iconColor}`} style={{ animationDelay: `${idx * 0.14}s` }} />
+              <Icon className="quick-action-icon w-6 h-6 text-white drop-shadow-sm" style={{ animationDelay: `${idx * 0.14}s` }} />
             </div>
             <span className="text-xs text-zinc-300 font-medium">{label}</span>
             {badge != null && badge > 0 && (
