@@ -478,70 +478,74 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           </button>
         </div>
 
-        {/* Assets breakdown (3 parts) */}
+        {/* Assets breakdown — single row with dividers */}
         <div
-          className="rounded-xl p-2.5"
+          className="rounded-2xl overflow-hidden"
           style={{
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.07)',
           }}
           onClick={() => setActiveAssetTip(null)}
         >
-          <div className="grid grid-cols-3 gap-2">
-            {/* Wallet card */}
-            <div className="asset-split-card asset-split-wallet rounded-lg bg-black/20 border border-white/[0.06] px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
-              <div className="flex items-center gap-1 mb-0.5 min-w-0">
-                <p className="text-xs text-zinc-400 truncate">{t('assetWalletTitle')}</p>
-                <button type="button" className="asset-help-btn" aria-label={t('assetHelpWalletAria')}
-                  onClick={(e) => openTip('wallet', e)}>
-                  <HelpCircle className="w-3 h-3" />
-                </button>
+          <div className="grid grid-cols-3 divide-x divide-white/[0.07]">
+            {/* Wallet */}
+            <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center mb-0.5">
+                <Wallet className="w-4 h-4 text-zinc-300" />
               </div>
               {isBalanceLoading ? (
-                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-auto" />
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
               ) : (
-                <p className="text-sm font-semibold text-white stat-number truncate mt-auto">${usdcBalance.toFixed(2)}</p>
+                <p className="text-sm font-bold text-white stat-number">${usdcBalance.toFixed(2)}</p>
               )}
-            </div>
-
-            {/* Available card */}
-            <div className="asset-split-card asset-split-available rounded-lg bg-black/20 border border-cyan-400/20 px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
-              <div className="flex items-center gap-1 mb-0.5 min-w-0">
-                <p className="text-xs text-zinc-400 truncate">{t('assetAvailableTitle')}</p>
-                <button type="button" className="asset-help-btn" aria-label={t('assetHelpAvailableAria')}
-                  onClick={(e) => openTip('available', e)}>
-                  <HelpCircle className="w-3 h-3" />
+              <div className="flex items-center gap-0.5">
+                <p className="text-[10px] text-zinc-500">{t('assetWalletTitle')}</p>
+                <button type="button" className="asset-help-btn" aria-label={t('assetHelpWalletAria')}
+                  onClick={(e) => openTip('wallet', e)}>
+                  <HelpCircle className="w-2.5 h-2.5" />
                 </button>
-              </div>
-              <div className="mt-auto flex items-center justify-between gap-1.5">
-                {isLoadingProfit ? (
-                  <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
-                ) : (
-                  <p className="text-sm font-semibold text-white stat-number truncate">${profitData.availableWithdraw.toFixed(2)}</p>
-                )}
-                <Link href="/earnings"
-                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all active:scale-95 asset-withdraw-btn shrink-0${profitData.availableWithdraw > 0.15 ? ' withdraw-pulse' : ''}`}
-                  onClick={(e) => e.stopPropagation()}>
-                  <span className="hidden sm:inline">{t('withdraw')}</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </Link>
               </div>
             </div>
 
-            {/* Team Pool card */}
-            <div className="asset-split-card asset-split-team rounded-lg bg-black/20 border border-purple-400/20 px-2.5 py-2.5 min-w-0 h-[84px] flex flex-col">
-              <div className="flex items-center gap-1 mb-0.5 min-w-0">
-                <p className="text-xs text-zinc-400 truncate">{t('assetTeamPoolTitle')}</p>
-                <button type="button" className="asset-help-btn" aria-label={t('assetHelpTeamAria')}
-                  onClick={(e) => openTip('team', e)}>
-                  <HelpCircle className="w-3 h-3" />
-                </button>
+            {/* Withdrawable */}
+            <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-0.5">
+                <ArrowUpRight className="w-4 h-4 text-cyan-400" />
               </div>
               {isLoadingProfit ? (
-                <div className="animate-pulse h-5 w-14 bg-white/5 rounded mt-auto" />
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
               ) : (
-                <p className="text-sm font-semibold text-white stat-number truncate mt-auto">${profitData.communityPrizePool.toFixed(0)}</p>
+                <Link href="/earnings" onClick={(e) => e.stopPropagation()}
+                  className={`text-sm font-bold text-white stat-number hover:text-cyan-300 transition-colors${profitData.availableWithdraw > 0.15 ? ' text-cyan-300' : ''}`}>
+                  ${profitData.availableWithdraw.toFixed(2)}
+                </Link>
               )}
+              <div className="flex items-center gap-0.5">
+                <p className="text-[10px] text-zinc-500">{t('assetAvailableTitle')}</p>
+                <button type="button" className="asset-help-btn" aria-label={t('assetHelpAvailableAria')}
+                  onClick={(e) => openTip('available', e)}>
+                  <HelpCircle className="w-2.5 h-2.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Team Pool */}
+            <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-purple-500/10 flex items-center justify-center mb-0.5">
+                <Users className="w-4 h-4 text-purple-400" />
+              </div>
+              {isLoadingProfit ? (
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
+              ) : (
+                <p className="text-sm font-bold text-white stat-number">${profitData.communityPrizePool.toFixed(0)}</p>
+              )}
+              <div className="flex items-center gap-0.5">
+                <p className="text-[10px] text-zinc-500">{t('assetTeamPoolTitle')}</p>
+                <button type="button" className="asset-help-btn" aria-label={t('assetHelpTeamAria')}
+                  onClick={(e) => openTip('team', e)}>
+                  <HelpCircle className="w-2.5 h-2.5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -578,23 +582,23 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       {/* Quick Actions — 4 icon buttons */}
       <div className="grid grid-cols-4 gap-2">
         {[
-          { href: '/share', icon: Copy, label: 'Share', iconColor: 'text-violet-400', bgColor: 'bg-violet-500/10' },
-          { href: '/test-lottery', icon: Award, label: 'Wheel', iconColor: 'text-amber-400', bgColor: 'bg-amber-500/10', badge: spinCount },
-          { href: '/team', icon: Users, label: 'Team', iconColor: 'text-cyan-400', bgColor: 'bg-cyan-500/10' },
-          { href: '/tasks', icon: CheckCircle, label: 'Tasks', iconColor: 'text-emerald-400', bgColor: 'bg-emerald-500/10' },
-        ].map(({ href, icon: Icon, label, iconColor, bgColor, badge }, idx) => (
+          { href: '/share', icon: Copy, label: 'Share', iconColor: 'text-violet-400', bgColor: 'bg-violet-500/15', ringColor: 'rgba(139,92,246,0.2)' },
+          { href: '/test-lottery', icon: Award, label: 'Wheel', iconColor: 'text-amber-400', bgColor: 'bg-amber-500/15', ringColor: 'rgba(245,158,11,0.2)', badge: spinCount },
+          { href: '/team', icon: Users, label: 'Team', iconColor: 'text-cyan-400', bgColor: 'bg-cyan-500/15', ringColor: 'rgba(6,182,212,0.2)' },
+          { href: '/tasks', icon: CheckCircle, label: 'Tasks', iconColor: 'text-emerald-400', bgColor: 'bg-emerald-500/15', ringColor: 'rgba(16,185,129,0.2)' },
+        ].map(({ href, icon: Icon, label, iconColor, bgColor, ringColor, badge }, idx) => (
           <Link
             key={href}
             href={href}
-            className="quick-action-card glass-card-solid flex flex-col items-center gap-1.5 py-3.5 relative active:scale-95 transition-transform"
+            className="quick-action-card glass-card-solid flex flex-col items-center gap-2 py-4 relative active:scale-95 transition-transform"
           >
             <div
-              className={`quick-action-icon-wrap w-10 h-10 rounded-xl ${bgColor} flex items-center justify-center`}
-              style={{ animationDelay: `${idx * 0.18}s` }}
+              className={`quick-action-icon-wrap w-14 h-14 rounded-full ${bgColor} flex items-center justify-center`}
+              style={{ animationDelay: `${idx * 0.18}s`, boxShadow: `0 0 0 4px ${ringColor}` }}
             >
-              <Icon className={`quick-action-icon w-5 h-5 ${iconColor}`} style={{ animationDelay: `${idx * 0.14}s` }} />
+              <Icon className={`quick-action-icon w-6 h-6 ${iconColor}`} style={{ animationDelay: `${idx * 0.14}s` }} />
             </div>
-            <span className="text-xs text-zinc-400">{label}</span>
+            <span className="text-xs text-zinc-300 font-medium">{label}</span>
             {badge != null && badge > 0 && (
               <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow shadow-amber-500/40">
                 {badge}
@@ -604,11 +608,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         ))}
       </div>
 
-      {/* Community + Progress — Plan A: left accent border + thick bar */}
-      <div
-        className="glass-card-solid p-4"
-        style={{ borderLeft: '3px solid rgba(139,92,246,0.7)' }}
-      >
+      {/* Community + Progress */}
+      <div className="glass-card-solid p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2.5">
@@ -887,7 +888,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {/* Stats — 2 columns */}
       <div className="grid grid-cols-2 gap-2">
-        <div className="glass-card-solid p-3.5" style={{ borderLeft: '3px solid rgba(16,185,129,0.5)' }}>
+        <div className="glass-card-solid p-3.5">
           <div className="flex items-center gap-1.5 mb-2">
             <div className="w-5 h-5 rounded bg-emerald-500/15 flex items-center justify-center">
               <DollarSign className="w-3 h-3 text-emerald-400" />
@@ -904,7 +905,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <p>{t('commission')}: <span className="text-purple-400">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
           </div>
         </div>
-        <div className="glass-card-solid p-3.5" style={{ borderLeft: '3px solid rgba(139,92,246,0.5)' }}>
+        <div className="glass-card-solid p-3.5">
           <div className="flex items-center gap-1.5 mb-2">
             <div className="w-5 h-5 rounded bg-purple-500/15 flex items-center justify-center">
               <Users className="w-3 h-3 text-purple-400" />
@@ -936,7 +937,6 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         return (
           <div
             className="glass-card-solid p-4"
-            style={{ borderLeft: '3px solid rgba(16,185,129,0.5)' }}
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
