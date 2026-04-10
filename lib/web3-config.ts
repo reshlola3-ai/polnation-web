@@ -27,8 +27,8 @@ export const wagmiConfig = defaultWagmiConfig({
   projectId,
   metadata,
   enableWalletConnect: true,
-  enableInjected: true,  // 允许 DApp 内置浏览器注入（Trust/Bitget/OKX 等 App 内打开时必须）
-  enableEIP6963: true,   // 允许桌面端 MetaMask 等 EIP-6963 插件自动识别
+  enableInjected: true,  // needed for DApp browser injected wallets (Trust/Bitget in-app)
+  enableEIP6963: false,  // disable — prevents desktop extensions (MetaMask etc) appearing
   enableCoinbase: false,
 })
 
