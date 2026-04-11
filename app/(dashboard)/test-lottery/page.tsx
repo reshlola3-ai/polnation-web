@@ -43,9 +43,9 @@ const translations: Record<string, any> = {
     pageTitle: "Lucky Wheel",
     pageDesc: "Win real USDC and bonus rewards!",
     howToEarn: "How to Earn Spins",
-    earnMethod1: "Invite a friend who participates in staking and claims 7 days of airdrops → +1 Spin",
+    earnMethod1: "Invite a friend who verifies Twitter and claims their first airdrop → +1 Spin",
     earnMethod2: "Your airdrop claims reach multiples of 7 (7, 14, 21...) → +1 Spin each",
-    earnMethod3: "Become an Influencer → Unlimited Spins",
+    earnMethod3: "Become an Influencer → Contact admin for exclusive spin bonuses",
     rewardInfo: "Reward Info",
     rewardUsdc: "USDC rewards go directly to your withdrawable balance",
     rewardBonus: "Bonus rewards are added to your unlock progress",
@@ -87,9 +87,9 @@ const translations: Record<string, any> = {
     pageTitle: "Vòng Quay May Mắn",
     pageDesc: "Thắng USDC và phần thưởng thật!",
     howToEarn: "Cách Kiếm Lượt Quay",
-    earnMethod1: "Mời bạn tham gia staking và nhận 7 ngày airdrop → +1 Lượt",
+    earnMethod1: "Mời bạn xác minh Twitter và nhận airdrop lần đầu → +1 Lượt",
     earnMethod2: "Số lần nhận airdrop đạt bội của 7 (7, 14, 21...) → +1 Lượt mỗi lần",
-    earnMethod3: "Trở thành Influencer → Quay Không Giới Hạn",
+    earnMethod3: "Trở thành Influencer → Liên hệ admin để nhận spin độc quyền",
     rewardInfo: "Thông Tin Thưởng",
     rewardUsdc: "USDC thưởng được chuyển thẳng vào số dư rút được",
     rewardBonus: "Bonus thưởng được thêm vào tiến trình mở khóa",
@@ -131,9 +131,9 @@ const translations: Record<string, any> = {
     pageTitle: "Roda Keberuntungan",
     pageDesc: "Menangkan USDC dan bonus nyata!",
     howToEarn: "Cara Mendapat Putaran",
-    earnMethod1: "Undang teman yang ikut staking dan klaim 7 hari airdrop → +1 Putaran",
+    earnMethod1: "Undang teman yang verifikasi Twitter dan klaim airdrop pertama → +1 Putaran",
     earnMethod2: "Klaim airdrop Anda mencapai kelipatan 7 (7, 14, 21...) → +1 Putaran",
-    earnMethod3: "Jadi Influencer → Putaran Tak Terbatas",
+    earnMethod3: "Jadi Influencer → Hubungi admin untuk bonus putaran eksklusif",
     rewardInfo: "Info Hadiah",
     rewardUsdc: "Hadiah USDC langsung masuk saldo yang dapat ditarik",
     rewardBonus: "Hadiah bonus ditambahkan ke progres buka kunci",
@@ -175,9 +175,9 @@ const translations: Record<string, any> = {
     pageTitle: "Roue de la Chance",
     pageDesc: "Gagnez de vrais USDC et des bonus !",
     howToEarn: "Comment Gagner des Tours",
-    earnMethod1: "Invitez un ami qui participe au staking et réclame 7 jours d'airdrop → +1 Tour",
+    earnMethod1: "Invitez un ami qui vérifie Twitter et réclame son premier airdrop → +1 Tour",
     earnMethod2: "Vos réclamations d'airdrop atteignent un multiple de 7 (7, 14, 21...) → +1 Tour",
-    earnMethod3: "Devenez Influencer → Tours Illimités",
+    earnMethod3: "Devenez Influencer → Contactez l'admin pour des tours exclusifs",
     rewardInfo: "Info Récompenses",
     rewardUsdc: "Les récompenses USDC vont directement dans votre solde retirable",
     rewardBonus: "Les bonus sont ajoutés à votre progression de déverrouillage",
@@ -296,9 +296,17 @@ export default function TestLotteryPage() {
               <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
                 <span className="text-sm">⭐</span>
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-white text-sm font-medium">Become Influencer</p>
                 <p className="text-zinc-400 text-xs mt-0.5">{t.earnMethod3}</p>
+                <a
+                  href="https://t.me/polnation_official"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-medium hover:bg-amber-500/25 transition-colors"
+                >
+                  Contact Admin →
+                </a>
               </div>
             </div>
           </div>

@@ -131,32 +131,33 @@ export async function POST() {
     }
   }
 
-  // ========== 3. 检查推荐人的下线空投领取（下线领取7次 → 推荐人 +1 次）==========
-  // 获取自己的直推下线
+  // ========== 3. 检查直推下线：已认证 Twitter + 领取 ≥1 次 airdrop → 推荐人 +1 次 ==========
+  // 只取已认证 Twitter 的直推下线
   const { data: directReferrals } = await admin
     .from('profiles')
     .select('id')
     .eq('referrer_id', user.id)
+    .eq('twitter_verified', true)
 
   if (directReferrals && directReferrals.length > 0) {
     for (const referral of directReferrals) {
-      // 计算该下线的空投领取次数
+      // 检查该下线是否至少领取过 1 次 airdrop
       const { data: referralAirdrops } = await admin
         .from('airdrop_calculations')
         .select('id')
         .eq('user_id', referral.id)
         .eq('is_credited', true)
+        .limit(1)
 
-      const referralClaimCount = referralAirdrops?.length || 0
+      const hasClaimedAirdrop = (referralAirdrops?.length || 0) >= 1
 
-      // 只有达到7次才发放
-      if (referralClaimCount >= 7) {
-        // 检查是否已经为该推荐人+下线组合发放过
+      if (hasClaimedAirdrop) {
+        // 检查是否已经为该下线发放过
         const { data: existingGrant } = await admin
           .from('lottery_spin_grants')
           .select('id')
           .eq('user_id', user.id)
-          .eq('grant_reason', 'referral_airdrop_7')
+          .eq('grant_reason', 'referral_twitter_airdrop_1')
           .eq('referral_id', referral.id)
           .single()
 
@@ -165,9 +166,9 @@ export async function POST() {
             .from('lottery_spin_grants')
             .insert({
               user_id: user.id,
-              grant_reason: 'referral_airdrop_7',
+              grant_reason: 'referral_twitter_airdrop_1',
               referral_id: referral.id,
-              milestone_count: 7,
+              milestone_count: 1,
               spins_granted: 1,
             })
           newSpinsGranted += 1
