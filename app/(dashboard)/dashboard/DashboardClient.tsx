@@ -596,12 +596,12 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <div
               className="quick-action-icon-wrap w-14 h-14 rounded-full flex items-center justify-center"
               style={{
-                background: 'radial-gradient(circle at 32% 28%, #c084fc 0%, #7c3aed 50%, #2e0f70 100%)',
-                boxShadow: '0 4px 18px rgba(124,58,237,0.45), inset 0 1px 0 rgba(255,255,255,0.18)',
+                background: 'radial-gradient(circle at 32% 28%, #ffffff 0%, #e9e4f0 55%, #cfc8de 100%)',
+                boxShadow: '0 4px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -2px 6px rgba(0,0,0,0.12)',
                 animationDelay: `${idx * 0.18}s`,
               }}
             >
-              <Icon className="quick-action-icon w-6 h-6 text-white drop-shadow-sm" style={{ animationDelay: `${idx * 0.14}s` }} />
+              <Icon className="quick-action-icon w-6 h-6 text-violet-600 drop-shadow-sm" style={{ animationDelay: `${idx * 0.14}s` }} />
             </div>
             <span className="text-xs text-zinc-300 font-medium">{label}</span>
             {badge != null && badge > 0 && (
