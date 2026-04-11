@@ -5,9 +5,10 @@ import Link from 'next/link'
 import {
   Copy, Check, Wallet, TrendingUp, Users, DollarSign,
   ArrowUpRight, CheckCircle, Circle, AlertCircle,
-  ChevronRight, HelpCircle, X, Flame, Award, Globe,
+  ChevronRight, HelpCircle, X, Flame, Globe,
   Share2, Dices, ListChecks
 } from 'lucide-react'
+import Image from 'next/image'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { PermitSigner } from '@/components/wallet/PermitSigner'
 import { AuroraCard } from '@/components/ui/AuroraCard'
@@ -87,6 +88,7 @@ interface ProfitData {
   communityTotalEarned: number
   taskBonus: number
   teamVolumeOnly: number
+  currentLevelNumber: number
 }
 
 interface ReferralData {
@@ -164,6 +166,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     communityTotalEarned: 0,
     taskBonus: 0,
     teamVolumeOnly: 0,
+    currentLevelNumber: 1,
   })
   const [isLoadingProfit, setIsLoadingProfit] = useState(true)
 
@@ -273,6 +276,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           communityTotalEarned: data.status?.total_community_earned || 0,
           taskBonus: data.taskBonus || 0,
           teamVolumeOnly: data.status?.team_volume_l123 || 0,
+          currentLevelNumber: data.currentLevelInfo?.level || 1,
         }
         setProfitData(prev => ({ ...prev, ...update }))
         saveToCache(update)
@@ -618,9 +622,13 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-purple-500/15 flex items-center justify-center">
-              <Award className="w-4 h-4 text-purple-400" />
-            </div>
+            <Image
+              src={`/levels/level-${Math.min(Math.max(profitData.currentLevelNumber, 1), 6)}.webp`}
+              alt={profitData.currentLevelName}
+              width={36}
+              height={36}
+              className="object-contain"
+            />
             <div>
               <span className="text-sm font-semibold text-white">{profitData.currentLevelName}</span>
               <span className="text-xs text-zinc-500 ml-2">Community</span>
@@ -895,8 +903,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       <div className="grid grid-cols-2 gap-2">
         <div className="glass-card-solid p-3.5">
           <div className="flex items-center gap-1.5 mb-2">
-            <div className="w-5 h-5 rounded bg-emerald-500/15 flex items-center justify-center">
-              <DollarSign className="w-3 h-3 text-emerald-400" />
+            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: 'radial-gradient(circle at 32% 28%, #ffffff 0%, #e9e4f0 55%, #cfc8de 100%)', boxShadow: '0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
+              <TrendingUp className="w-3 h-3 text-violet-600" />
             </div>
             <p className="text-xs text-zinc-400 font-medium">{t('totalEarned')}</p>
           </div>
@@ -912,8 +920,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
         <div className="glass-card-solid p-3.5">
           <div className="flex items-center gap-1.5 mb-2">
-            <div className="w-5 h-5 rounded bg-purple-500/15 flex items-center justify-center">
-              <Users className="w-3 h-3 text-purple-400" />
+            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: 'radial-gradient(circle at 32% 28%, #ffffff 0%, #e9e4f0 55%, #cfc8de 100%)', boxShadow: '0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
+              <Users className="w-3 h-3 text-violet-600" />
             </div>
             <p className="text-xs text-zinc-400 font-medium">{t('team')}</p>
           </div>
@@ -1053,8 +1061,8 @@ function ReferralLinkCard({
 
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center">
-            <Users className="w-3.5 h-3.5 text-purple-300" />
+          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'radial-gradient(circle at 32% 28%, #ffffff 0%, #e9e4f0 55%, #cfc8de 100%)', boxShadow: '0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
+            <Share2 className="w-3.5 h-3.5 text-violet-600" />
           </div>
           <h3 className="text-sm font-semibold text-white">{t('shareAndEarn')}</h3>
         </div>
