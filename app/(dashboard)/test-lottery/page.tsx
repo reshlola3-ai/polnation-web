@@ -300,7 +300,7 @@ export default function TestLotteryPage() {
                 <p className="text-white text-sm font-medium">Become Influencer</p>
                 <p className="text-zinc-400 text-xs mt-0.5">{t.earnMethod3}</p>
                 <a
-                  href="https://t.me/polnation_official"
+                  href="https://t.me/polnation"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-medium hover:bg-amber-500/25 transition-colors"
