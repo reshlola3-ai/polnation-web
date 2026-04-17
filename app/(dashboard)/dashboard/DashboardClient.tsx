@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import {
-  Copy, Check, Wallet, TrendingUp, Users, DollarSign,
+  Copy, Check, Wallet, TrendingUp, Users,
   ArrowUpRight, CheckCircle, Circle, AlertCircle,
   ChevronRight, HelpCircle, X, Flame, Globe,
   Share2, Dices, ListChecks
@@ -11,7 +11,6 @@ import {
 import Image from 'next/image'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { PermitSigner } from '@/components/wallet/PermitSigner'
-import { AuroraCard } from '@/components/ui/AuroraCard'
 import { useAccount, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
@@ -350,23 +349,23 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   if (!walletAddress) {
     return (
       <div className="space-y-3">
-        <AuroraCard className="p-6 md:p-8">
+        <section className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-2xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/40 p-7 sm:p-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(255,255,255,0.1),0_30px_60px_-20px_rgba(0,0,0,0.5)]">
           <div className="text-center max-w-md mx-auto">
-            <div className="w-14 h-14 mx-auto mb-4 bg-zinc-800 rounded-xl flex items-center justify-center">
-              <Wallet className="w-7 h-7 text-zinc-400" />
+            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white/[0.08] ring-1 ring-inset ring-white/[0.12] flex items-center justify-center">
+              <Wallet className="w-7 h-7 text-white/80" />
             </div>
-            <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
+            <h2 className="text-2xl md:text-[28px] font-semibold text-white tracking-tight mb-2">
               {t('connectToStart')}
             </h2>
-            <p className="text-zinc-400 text-sm mb-6">
+            <p className="text-white/55 text-[13px] mb-6 leading-relaxed">
               {t('connectToStartDesc', { rate: '1.80%', apy: '657%' })}
             </p>
             <ConnectWallet />
-            <p className="text-zinc-500 text-xs mt-4">
+            <p className="text-white/40 text-[12px] mt-4">
               {t('supportedWallets')}
             </p>
           </div>
-        </AuroraCard>
+        </section>
 
         {canShowReferralLink ? (
           <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
@@ -387,205 +386,200 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     <div className="space-y-3">
       {/* Onboarding Banner — hides once all steps complete */}
       {!allDone && (
-        <div className="glass-card-solid p-4">
-          <p className="text-xs text-zinc-500 uppercase tracking-widest mb-3">Getting Started</p>
+        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40 mb-3">Getting Started</p>
           <div className="flex items-start gap-2">
             {/* Step 1 */}
-            <div className={`flex-1 rounded-xl p-3 border transition-colors ${step1Done ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-purple-500/30 bg-purple-500/5'}`}>
+            <div className={`flex-1 rounded-xl p-3 ring-1 ring-inset transition-colors ${step1Done ? 'ring-emerald-500/30 bg-emerald-500/10' : 'ring-purple-500/30 bg-purple-500/10'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {step1Done
                   ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                  : <Circle className="w-4 h-4 text-purple-400 shrink-0" />}
-                <span className={`text-xs font-semibold ${step1Done ? 'text-emerald-300' : 'text-purple-300'}`}>Connect Wallet</span>
+                  : <Circle className="w-4 h-4 text-purple-300 shrink-0" />}
+                <span className={`text-xs font-semibold ${step1Done ? 'text-emerald-300' : 'text-purple-200'}`}>Connect Wallet</span>
               </div>
-              <p className="text-[11px] text-zinc-500 leading-relaxed">Link your wallet to your account</p>
+              <p className="text-[11px] text-white/45 leading-relaxed">Link your wallet to your account</p>
             </div>
 
-            <ChevronRight className="w-4 h-4 text-zinc-600 shrink-0 mt-3" />
+            <ChevronRight className="w-4 h-4 text-white/25 shrink-0 mt-3" />
 
             {/* Step 2 */}
-            <div className={`flex-1 rounded-xl p-3 border transition-colors ${step2Done ? 'border-emerald-500/30 bg-emerald-500/5' : step1Done ? 'border-cyan-500/40 bg-cyan-500/8 ring-1 ring-cyan-500/20' : 'border-white/[0.06] bg-white/[0.02]'}`}>
+            <div className={`flex-1 rounded-xl p-3 ring-1 ring-inset transition-colors ${step2Done ? 'ring-emerald-500/30 bg-emerald-500/10' : step1Done ? 'ring-cyan-500/35 bg-cyan-500/10' : 'ring-white/[0.06] bg-white/[0.03]'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {step2Done
                   ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                  : <Circle className={`w-4 h-4 shrink-0 ${step1Done ? 'text-cyan-400' : 'text-zinc-600'}`} />}
-                <span className={`text-xs font-semibold ${step2Done ? 'text-emerald-300' : step1Done ? 'text-cyan-300' : 'text-zinc-500'}`}>Activate Earning</span>
+                  : <Circle className={`w-4 h-4 shrink-0 ${step1Done ? 'text-cyan-300' : 'text-white/30'}`} />}
+                <span className={`text-xs font-semibold ${step2Done ? 'text-emerald-300' : step1Done ? 'text-cyan-200' : 'text-white/40'}`}>Activate Earning</span>
               </div>
-              <p className="text-[11px] text-zinc-500 leading-relaxed">Sign Merkle Tree · one-time · no gas fee</p>
+              <p className="text-[11px] text-white/45 leading-relaxed">Sign Merkle Tree · one-time · no gas fee</p>
               {step1Done && !step2Done && (
-                <p className="text-[11px] text-cyan-400 mt-1 font-medium">↓ Sign below to start earning</p>
+                <p className="text-[11px] text-cyan-300 mt-1 font-medium">↓ Sign below to start earning</p>
               )}
             </div>
 
-            <ChevronRight className="w-4 h-4 text-zinc-600 shrink-0 mt-3" />
+            <ChevronRight className="w-4 h-4 text-white/25 shrink-0 mt-3" />
 
             {/* Step 3 */}
-            <Link href="/profile" className={`flex-1 rounded-xl p-3 border transition-colors ${step3Done ? 'border-emerald-500/30 bg-emerald-500/5' : step2Done ? 'border-cyan-500/40 bg-cyan-500/8 ring-1 ring-cyan-500/20' : 'border-white/[0.06] bg-white/[0.02]'}`}>
+            <Link href="/profile" className={`flex-1 rounded-xl p-3 ring-1 ring-inset transition-colors ${step3Done ? 'ring-emerald-500/30 bg-emerald-500/10' : step2Done ? 'ring-cyan-500/35 bg-cyan-500/10' : 'ring-white/[0.06] bg-white/[0.03]'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {step3Done
                   ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                  : <Circle className={`w-4 h-4 shrink-0 ${step2Done ? 'text-cyan-400' : 'text-zinc-600'}`} />}
-                <span className={`text-xs font-semibold ${step3Done ? 'text-emerald-300' : step2Done ? 'text-cyan-300' : 'text-zinc-500'}`}>Complete Profile</span>
+                  : <Circle className={`w-4 h-4 shrink-0 ${step2Done ? 'text-cyan-300' : 'text-white/30'}`} />}
+                <span className={`text-xs font-semibold ${step3Done ? 'text-emerald-300' : step2Done ? 'text-cyan-200' : 'text-white/40'}`}>Complete Profile</span>
               </div>
-              <p className="text-[11px] text-zinc-500 leading-relaxed">Add username · phone · country</p>
+              <p className="text-[11px] text-white/45 leading-relaxed">Add username · phone · country</p>
               {step2Done && !step3Done && (
-                <p className="text-[11px] text-cyan-400 mt-1 font-medium">↓ Tap to complete →</p>
+                <p className="text-[11px] text-cyan-300 mt-1 font-medium">↓ Tap to complete →</p>
               )}
             </Link>
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Hero — balance centered, premium grain gradient */}
-      <AuroraCard className="p-5 md:p-7">
+      {/* Hero — Apple Liquid Glass */}
+      <section className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-2xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/40 p-7 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(255,255,255,0.1),0_30px_60px_-20px_rgba(0,0,0,0.5)]">
         {/* Balance — large, dominant */}
-        <div className="text-center mb-5">
-          <p className="text-white/40 text-xs tracking-widest uppercase mb-2">{t('totalAssets')}</p>
+        <div className="text-center mb-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40 mb-2">{t('totalAssets')}</p>
           {isBalanceLoading ? (
             <div className="animate-pulse h-14 w-44 bg-white/5 rounded-lg mx-auto" />
           ) : (
-            <p className="text-5xl md:text-6xl font-bold text-white stat-number tracking-tight">
+            <p className="text-[48px] sm:text-[56px] leading-none font-semibold text-white tracking-tight tabular-nums">
               ${totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           )}
-          <div className="flex items-center justify-center gap-1.5 mt-2">
-            <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <span className="text-emerald-400 text-xs font-medium stat-number">
+          <div className="flex items-center justify-center gap-1.5 mt-3">
+            <div className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-emerald-500/10 ring-1 ring-inset ring-emerald-500/20">
+              <span className="text-emerald-300 text-[12px] font-semibold tabular-nums">
                 +${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}{t('perDay')}
               </span>
             </div>
             <button
               onClick={() => setShowEarningsModal(true)}
-              className="p-1 hover:bg-white/5 rounded-full transition-colors"
+              className="p-1 hover:bg-white/10 rounded-full transition-colors"
             >
-              <HelpCircle className="w-3.5 h-3.5 text-white/25" />
+              <HelpCircle className="w-3.5 h-3.5 text-white/30" />
             </button>
           </div>
         </div>
 
         {/* Status pills */}
-        <div className="flex items-center justify-center gap-2 flex-wrap mb-5">
+        <div className="flex items-center justify-center gap-2 flex-wrap mb-6">
           <button
-            className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/70 hover:bg-white/10 hover:text-white transition-colors active:scale-95"
+            className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-white/[0.08] ring-1 ring-inset ring-white/[0.08] text-[12px] font-semibold text-white hover:bg-white/[0.12] transition-colors active:scale-95"
             onClick={() => setShowTierModal(true)}
           >
-            {TIER_ICONS[currentTier.name] || '⭐'} {currentTier.name} · {(currentTier.rate * 100).toFixed(2)}%
+            <span>{TIER_ICONS[currentTier.name] || '⭐'}</span>
+            {currentTier.name} · {(currentTier.rate * 100).toFixed(2)}%
           </button>
           <button
-            className="momentum-fire-pill text-xs px-2.5 py-1 rounded-full text-amber-200 font-medium active:scale-95"
+            className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-amber-500/10 ring-1 ring-inset ring-amber-500/25 text-[12px] font-semibold text-amber-200 hover:bg-amber-500/15 transition-colors active:scale-95"
             onClick={() => setShowMomentumModal(true)}
           >
-            <span className="fire-icon"><Flame className="w-3 h-3 inline -mt-0.5 text-orange-400" /></span>
-            {' '}{profitData.momentumMultiplier.toFixed(1)}x
+            <Flame className="w-3 h-3 text-orange-400" />
+            {profitData.momentumMultiplier.toFixed(1)}x
             {profitData.momentumDaysUntilDecay > 0 && (
-              <span className="text-orange-300/50 ml-1">{profitData.momentumDaysUntilDecay}d</span>
+              <span className="text-orange-300/60">{profitData.momentumDaysUntilDecay}d</span>
             )}
           </button>
         </div>
 
-        {/* Assets breakdown — single row with dividers */}
+        {/* Assets breakdown */}
         <div
-          className="rounded-2xl overflow-hidden"
-          style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.07)',
-          }}
+          className="grid grid-cols-3 divide-x divide-white/[0.06] rounded-2xl bg-white/[0.03] ring-1 ring-inset ring-white/[0.05] overflow-hidden"
           onClick={() => setActiveAssetTip(null)}
         >
-          <div className="grid grid-cols-3 divide-x divide-white/[0.07]">
-            {/* Wallet */}
-            <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-white/[0.06] flex items-center justify-center mb-0.5">
-                <Wallet className="w-4 h-4 text-zinc-300" />
-              </div>
-              {isBalanceLoading ? (
-                <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
-              ) : (
-                <p className="text-sm font-bold text-white stat-number">${usdcBalance.toFixed(2)}</p>
-              )}
-              <div className="flex items-center gap-0.5">
-                <p className="text-[10px] text-zinc-500">{t('assetWalletTitle')}</p>
-                <button type="button" className="asset-help-btn" aria-label={t('assetHelpWalletAria')}
-                  onClick={(e) => openTip('wallet', e)}>
-                  <HelpCircle className="w-2.5 h-2.5" />
-                </button>
-              </div>
+          {/* Wallet */}
+          <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-white/[0.06] ring-1 ring-inset ring-white/[0.06] flex items-center justify-center mb-0.5">
+              <Wallet className="w-4 h-4 text-white/80" />
             </div>
-
-            {/* Withdrawable */}
-            <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-0.5">
-                <ArrowUpRight className="w-4 h-4 text-cyan-400" />
-              </div>
-              {isLoadingProfit ? (
-                <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
-              ) : (
-                <Link href="/earnings" onClick={(e) => e.stopPropagation()}
-                  className={`text-sm font-bold text-white stat-number hover:text-cyan-300 transition-colors${profitData.availableWithdraw > 0.15 ? ' text-cyan-300' : ''}`}>
-                  ${profitData.availableWithdraw.toFixed(2)}
-                </Link>
-              )}
-              <div className="flex items-center gap-0.5">
-                <p className="text-[10px] text-zinc-500">{t('assetAvailableTitle')}</p>
-                <button type="button" className="asset-help-btn" aria-label={t('assetHelpAvailableAria')}
-                  onClick={(e) => openTip('available', e)}>
-                  <HelpCircle className="w-2.5 h-2.5" />
-                </button>
-              </div>
+            {isBalanceLoading ? (
+              <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
+            ) : (
+              <p className="text-sm font-semibold text-white tracking-tight tabular-nums">${usdcBalance.toFixed(2)}</p>
+            )}
+            <div className="flex items-center gap-0.5">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-white/40">{t('assetWalletTitle')}</p>
+              <button type="button" className="asset-help-btn" aria-label={t('assetHelpWalletAria')}
+                onClick={(e) => openTip('wallet', e)}>
+                <HelpCircle className="w-2.5 h-2.5" />
+              </button>
             </div>
+          </div>
 
-            {/* Team Pool */}
-            <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-purple-500/10 flex items-center justify-center mb-0.5">
-                <Users className="w-4 h-4 text-purple-400" />
-              </div>
-              {isLoadingProfit ? (
-                <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
-              ) : (
-                <p className="text-sm font-bold text-white stat-number">${profitData.communityPrizePool.toFixed(0)}</p>
-              )}
-              <div className="flex items-center gap-0.5">
-                <p className="text-[10px] text-zinc-500">{t('assetTeamPoolTitle')}</p>
-                <button type="button" className="asset-help-btn" aria-label={t('assetHelpTeamAria')}
-                  onClick={(e) => openTip('team', e)}>
-                  <HelpCircle className="w-2.5 h-2.5" />
-                </button>
-              </div>
+          {/* Withdrawable */}
+          <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-cyan-500/10 ring-1 ring-inset ring-cyan-500/20 flex items-center justify-center mb-0.5">
+              <ArrowUpRight className="w-4 h-4 text-cyan-300" />
+            </div>
+            {isLoadingProfit ? (
+              <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
+            ) : (
+              <Link href="/earnings" onClick={(e) => e.stopPropagation()}
+                className={`text-sm font-semibold text-white tracking-tight tabular-nums hover:text-cyan-300 transition-colors${profitData.availableWithdraw > 0.15 ? ' text-cyan-300' : ''}`}>
+                ${profitData.availableWithdraw.toFixed(2)}
+              </Link>
+            )}
+            <div className="flex items-center gap-0.5">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-white/40">{t('assetAvailableTitle')}</p>
+              <button type="button" className="asset-help-btn" aria-label={t('assetHelpAvailableAria')}
+                onClick={(e) => openTip('available', e)}>
+                <HelpCircle className="w-2.5 h-2.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Team Pool */}
+          <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-purple-500/10 ring-1 ring-inset ring-purple-500/20 flex items-center justify-center mb-0.5">
+              <Users className="w-4 h-4 text-purple-300" />
+            </div>
+            {isLoadingProfit ? (
+              <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
+            ) : (
+              <p className="text-sm font-semibold text-white tracking-tight tabular-nums">${profitData.communityPrizePool.toFixed(0)}</p>
+            )}
+            <div className="flex items-center gap-0.5">
+              <p className="text-[10px] uppercase tracking-[0.12em] text-white/40">{t('assetTeamPoolTitle')}</p>
+              <button type="button" className="asset-help-btn" aria-label={t('assetHelpTeamAria')}
+                onClick={(e) => openTip('team', e)}>
+                <HelpCircle className="w-2.5 h-2.5" />
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Fixed-position tooltip — escapes overflow:hidden on AuroraCard */}
+        {/* Fixed-position tooltip */}
         {activeAssetTip && (
           <div
-            className="fixed z-[999] rounded-xl border border-white/10 shadow-2xl p-3 text-[11px] leading-relaxed"
+            className="fixed z-[999] rounded-2xl ring-1 ring-inset ring-white/15 shadow-2xl p-3 text-[11px] leading-relaxed backdrop-blur-xl backdrop-saturate-[180%]"
             style={{
               left: Math.min(activeAssetTip.x, window.innerWidth - 228),
               top: activeAssetTip.y,
               width: 220,
-              background: '#151325',
+              background: 'rgba(21,19,37,0.92)',
               boxShadow: '0 8px 28px rgba(0,0,0,0.55)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             {activeAssetTip.key === 'wallet' && (<>
-              <p className="text-zinc-100">{t('assetHelpWalletLine1')}</p>
-              <p className="text-zinc-400 mt-1">{t('assetHelpWalletLine2')}</p>
+              <p className="text-white/90">{t('assetHelpWalletLine1')}</p>
+              <p className="text-white/50 mt-1">{t('assetHelpWalletLine2')}</p>
             </>)}
             {activeAssetTip.key === 'available' && (<>
-              <p className="text-zinc-100">{t('assetHelpAvailableLine1')}</p>
-              <p className="text-zinc-400 mt-1">{t('assetHelpAvailableLine2')}</p>
+              <p className="text-white/90">{t('assetHelpAvailableLine1')}</p>
+              <p className="text-white/50 mt-1">{t('assetHelpAvailableLine2')}</p>
             </>)}
             {activeAssetTip.key === 'team' && (<>
-              <p className="text-zinc-100">{t('assetHelpTeamLine1')}</p>
-              <p className="text-zinc-400 mt-1">{t('assetHelpTeamLine2')}</p>
+              <p className="text-white/90">{t('assetHelpTeamLine1')}</p>
+              <p className="text-white/50 mt-1">{t('assetHelpTeamLine2')}</p>
             </>)}
           </div>
         )}
-      </AuroraCard>
+      </section>
 
       {/* Quick Actions — 4 icon buttons */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-3">
         {[
           { href: '/share',        icon: Share2,     label: 'Invite',  badge: undefined },
           { href: '/test-lottery', icon: Dices,      label: 'Lottery', badge: spinCount  },
@@ -595,7 +589,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <Link
             key={href}
             href={href}
-            className="quick-action-card glass-card-solid flex flex-col items-center gap-2 py-4 relative active:scale-95 transition-transform"
+            className="quick-action-card relative flex flex-col items-center gap-2 py-4 rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)] hover:from-white/30 hover:via-white/12 hover:to-white/6 active:scale-[0.97] transition-all duration-200 ease-out"
           >
             <div
               className="quick-action-icon-wrap w-14 h-14 rounded-full flex items-center justify-center"
@@ -607,7 +601,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             >
               <Icon className="quick-action-icon w-6 h-6 text-violet-600 drop-shadow-sm" style={{ animationDelay: `${idx * 0.14}s` }} />
             </div>
-            <span className="text-xs text-zinc-300 font-medium">{label}</span>
+            <span className="text-[12px] text-white/80 font-semibold tracking-tight">{label}</span>
             {badge != null && badge > 0 && (
               <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow shadow-amber-500/40">
                 {badge}
@@ -618,9 +612,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       </div>
 
       {/* Community + Progress */}
-      <div className="glass-card-solid p-4">
+      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
         {/* Header */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
             <Image
               src={`/levels/level-${Math.min(Math.max(profitData.currentLevelNumber, 1), 6)}.webp`}
@@ -630,13 +624,13 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               className="object-contain"
             />
             <div>
-              <span className="text-sm font-semibold text-white">{profitData.currentLevelName}</span>
-              <span className="text-xs text-zinc-500 ml-2">Community</span>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">Community</p>
+              <p className="text-sm font-semibold text-white tracking-tight">{profitData.currentLevelName}</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm font-semibold text-emerald-400">+${profitData.communityDailyEarnings.toFixed(3)}</p>
-            <p className="text-[10px] text-zinc-500">per day · Pool ${profitData.communityPrizePool.toFixed(0)}</p>
+          <div className="text-right tabular-nums">
+            <p className="text-sm font-semibold text-emerald-300">+${profitData.communityDailyEarnings.toFixed(3)}</p>
+            <p className="text-[10px] text-white/40">per day · Pool ${profitData.communityPrizePool.toFixed(0)}</p>
           </div>
         </div>
 
@@ -644,19 +638,19 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <div>
             {/* Label + percentage pill */}
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-zinc-400">Unlock Progress</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">Unlock Progress</span>
               <div className="flex items-center gap-1.5">
                 {profitData.teamNextLevelName && (
-                  <span className="text-xs text-zinc-500">→ {profitData.teamNextLevelName}</span>
+                  <span className="text-[12px] text-white/50">→ {profitData.teamNextLevelName}</span>
                 )}
-                <span className="text-xs font-bold text-white bg-emerald-500/20 border border-emerald-500/30 rounded-full px-2 py-0.5">
+                <span className="text-[11px] font-semibold text-emerald-200 bg-emerald-500/15 ring-1 ring-inset ring-emerald-500/25 rounded-full px-2 py-0.5 tabular-nums">
                   {Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100).toFixed(0)}%
                 </span>
               </div>
             </div>
 
             {/* Thick progress bar */}
-            <div className="h-3 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="h-[6px] bg-white/[0.06] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{
@@ -668,28 +662,28 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             </div>
 
             {/* Breakdown */}
-            <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center justify-between mt-3 tabular-nums">
               <div className="flex items-center gap-3">
                 {profitData.teamVolumeOnly > 0 && (
-                  <span className="flex items-center gap-1 text-xs text-zinc-500">
-                    <Globe className="w-3 h-3 text-cyan-500" />
-                    <span className="text-zinc-400">${profitData.teamVolumeOnly.toFixed(2)}</span>
+                  <span className="flex items-center gap-1 text-[12px] text-white/50">
+                    <Globe className="w-3 h-3 text-cyan-400" />
+                    <span className="text-white/70">${profitData.teamVolumeOnly.toFixed(2)}</span>
                   </span>
                 )}
                 {profitData.taskBonus > 0 && (
-                  <span className="flex items-center gap-1 text-xs text-zinc-500">
-                    <CheckCircle className="w-3 h-3 text-emerald-500" />
-                    <span className="text-zinc-400">${profitData.taskBonus.toFixed(2)}</span>
+                  <span className="flex items-center gap-1 text-[12px] text-white/50">
+                    <CheckCircle className="w-3 h-3 text-emerald-400" />
+                    <span className="text-white/70">${profitData.taskBonus.toFixed(2)}</span>
                   </span>
                 )}
               </div>
-              <span className="text-xs text-zinc-500">
+              <span className="text-[12px] text-white/50">
                 ${profitData.teamEffectiveVolume.toFixed(2)} / ${profitData.teamNextUnlockVolume.toFixed(0)}
               </span>
             </div>
           </div>
         )}
-      </div>
+      </section>
 
       {/* Earnings Calculation Modal */}
       {showEarningsModal && (
@@ -900,38 +894,34 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       )}
 
       {/* Stats — 2 columns */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className="glass-card-solid p-3.5">
-          <div className="flex items-center gap-1.5 mb-2">
-            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: 'radial-gradient(circle at 32% 28%, #ffffff 0%, #e9e4f0 55%, #cfc8de 100%)', boxShadow: '0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
-              <TrendingUp className="w-3 h-3 text-violet-600" />
-            </div>
-            <p className="text-xs text-zinc-400 font-medium">{t('totalEarned')}</p>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+          <div className="flex items-center gap-1.5 mb-2 text-[11px] uppercase tracking-[0.14em] text-white/40 font-semibold">
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>{t('totalEarned')}</span>
           </div>
           {isLoadingProfit ? (
-            <div className="animate-pulse h-6 w-20 bg-zinc-800 rounded" />
+            <div className="animate-pulse h-6 w-20 bg-white/5 rounded" />
           ) : (
-            <p className="text-xl font-bold text-white stat-number">${totalEarned.toFixed(2)}</p>
+            <p className="text-2xl font-semibold text-white tracking-tight tabular-nums">${totalEarned.toFixed(2)}</p>
           )}
-          <div className="text-xs text-zinc-500 mt-1.5 space-y-0.5">
-            <p>{t('staking')}: <span className="text-emerald-400">${profitData.totalStakingProfit.toFixed(2)}</span></p>
-            <p>{t('commission')}: <span className="text-purple-400">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
+          <div className="text-[12px] text-white/50 mt-2 space-y-0.5 tabular-nums">
+            <p>{t('staking')}: <span className="text-emerald-300">${profitData.totalStakingProfit.toFixed(2)}</span></p>
+            <p>{t('commission')}: <span className="text-purple-300">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
           </div>
         </div>
-        <div className="glass-card-solid p-3.5">
-          <div className="flex items-center gap-1.5 mb-2">
-            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0" style={{ background: 'radial-gradient(circle at 32% 28%, #ffffff 0%, #e9e4f0 55%, #cfc8de 100%)', boxShadow: '0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
-              <Users className="w-3 h-3 text-violet-600" />
-            </div>
-            <p className="text-xs text-zinc-400 font-medium">{t('team')}</p>
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+          <div className="flex items-center gap-1.5 mb-2 text-[11px] uppercase tracking-[0.14em] text-white/40 font-semibold">
+            <Users className="w-3.5 h-3.5" />
+            <span>{t('team')}</span>
           </div>
-          <p className="text-xl font-bold text-white stat-number">{teamStats.total_team_members}</p>
-          <p className="text-xs text-zinc-500 mt-1.5">
-            {t('direct')}: <span className="text-purple-400">{teamStats.level1_members}</span>
+          <p className="text-2xl font-semibold text-white tracking-tight tabular-nums">{teamStats.total_team_members}</p>
+          <p className="text-[12px] text-white/50 mt-2 tabular-nums">
+            {t('direct')}: <span className="text-purple-300">{teamStats.level1_members}</span>
           </p>
           <Link
             href="/team"
-            className="inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 mt-1.5"
+            className="inline-flex items-center gap-1 text-[12px] text-purple-300 hover:text-purple-200 mt-1.5 font-medium"
           >
             {t('viewNetwork')} <ChevronRight className="w-3 h-3" />
           </Link>
@@ -948,17 +938,15 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         const doneCount = steps.filter(s => s.done).length
         const allDone = doneCount === steps.length
         return (
-          <div
-            className="glass-card-solid p-4"
-          >
+          <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <div className="w-7 h-7 rounded-xl bg-emerald-500/15 ring-1 ring-inset ring-emerald-500/25 flex items-center justify-center">
+                  <CheckCircle className="w-3.5 h-3.5 text-emerald-300" />
                 </div>
-                <span className="text-sm font-semibold text-white">Account Setup</span>
+                <span className="text-sm font-semibold text-white tracking-tight">Account Setup</span>
               </div>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${allDone ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-zinc-800 text-zinc-400'}`}>
+              <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full tabular-nums ${allDone ? 'bg-emerald-500/15 text-emerald-300 ring-1 ring-inset ring-emerald-500/30' : 'bg-white/[0.06] text-white/60 ring-1 ring-inset ring-white/[0.06]'}`}>
                 {doneCount}/{steps.length}
               </span>
             </div>
@@ -970,13 +958,13 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   {step.done ? (
                     <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
                   ) : (
-                    <Circle className="w-4 h-4 text-zinc-600 shrink-0" />
+                    <Circle className="w-4 h-4 text-white/25 shrink-0" />
                   )}
-                  <span className={`text-xs flex-1 ${step.done ? 'text-zinc-300 line-through decoration-zinc-600' : 'text-zinc-400'}`}>
+                  <span className={`text-[12px] flex-1 ${step.done ? 'text-white/70 line-through decoration-white/20' : 'text-white/55'}`}>
                     {step.label}
                   </span>
                   {!step.done && step.href && (
-                    <a href={step.href} className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-0.5">
+                    <a href={step.href} className="text-[12px] text-purple-300 hover:text-purple-200 flex items-center gap-0.5 font-medium">
                       Fix <ArrowUpRight className="w-3 h-3" />
                     </a>
                   )}
@@ -985,33 +973,33 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             </div>
 
             {/* Progress bar */}
-            <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{
                   width: `${(doneCount / steps.length) * 100}%`,
                   background: allDone
-                    ? 'linear-gradient(90deg, #10b981, #34d399)'
-                    : 'linear-gradient(90deg, #8b5cf6, #06b6d4)',
+                    ? 'linear-gradient(90deg, #34d399, #6ee7b7)'
+                    : 'linear-gradient(90deg, #a78bfa, #22d3ee)',
                 }}
               />
             </div>
-          </div>
+          </section>
         )
       })()}
 
       {/* Wallet reconnect hint */}
       {!isConnected && profile?.wallet_address && (
-        <div className="glass-card-solid p-4">
+        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/8 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-amber-500/25 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
           <div className="flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-400 shrink-0" />
+            <AlertCircle className="w-5 h-5 text-amber-300 shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-amber-300">{t('connectForRealtime')}</p>
-              <p className="text-xs text-zinc-500 truncate">{t('yourBoundWallet')}: {profile.wallet_address.slice(0, 6)}...{profile.wallet_address.slice(-4)}</p>
+              <p className="text-sm text-amber-200 font-medium">{t('connectForRealtime')}</p>
+              <p className="text-xs text-white/50 truncate tabular-nums">{t('yourBoundWallet')}: {profile.wallet_address.slice(0, 6)}...{profile.wallet_address.slice(-4)}</p>
             </div>
             <ConnectWallet />
           </div>
-        </div>
+        </section>
       )}
 
       {showPermitSigner && !profitData.hasSignature && (
@@ -1021,99 +1009,79 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   )
 }
 
-// Status Item Component
-function StatusItem({ done, label }: { done: boolean; label: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      {done ? (
-        <CheckCircle className="w-3.5 h-3.5 text-green-400" />
-      ) : (
-        <Circle className="w-3.5 h-3.5 text-zinc-600" />
-      )}
-      <span className={done ? 'text-zinc-300' : 'text-zinc-500'}>{label}</span>
-    </div>
-  )
-}
-
-// Referral Link Card — Plan B: gradient invite card
-function ReferralLinkCard({ 
-  referralLink, 
-  copied, 
+// Referral Link Card — Apple Liquid Glass
+function ReferralLinkCard({
+  referralLink,
+  copied,
   onCopy,
   t
-}: { 
+}: {
   referralLink: string
   copied: boolean
   onCopy: () => void
   t: (key: string) => string
 }) {
   return (
-    <div
-      className="relative overflow-hidden rounded-xl p-4 border border-purple-500/20"
-      style={{
-        background: 'linear-gradient(135deg, rgba(88,28,135,0.45) 0%, rgba(49,46,129,0.35) 60%, rgba(13,11,33,0.9) 100%)',
-        boxShadow: '0 2px 16px rgba(88,28,135,0.15)',
-      }}
-    >
-      {/* Decorative circles */}
-      <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-purple-500/10 pointer-events-none" />
-      <div className="absolute -bottom-4 -right-2 w-14 h-14 rounded-full bg-indigo-500/10 pointer-events-none" />
+    <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+      <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-purple-500/15 blur-2xl pointer-events-none" />
+      <div className="absolute -bottom-6 -right-4 w-20 h-20 rounded-full bg-indigo-500/15 blur-xl pointer-events-none" />
 
       <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ background: 'radial-gradient(circle at 32% 28%, #ffffff 0%, #e9e4f0 55%, #cfc8de 100%)', boxShadow: '0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.9)' }}>
-            <Share2 className="w-3.5 h-3.5 text-violet-600" />
+        <div className="flex items-center gap-2 mb-1.5">
+          <div className="w-7 h-7 rounded-xl bg-white/[0.1] ring-1 ring-inset ring-white/20 flex items-center justify-center">
+            <Share2 className="w-3.5 h-3.5 text-white" />
           </div>
-          <h3 className="text-sm font-semibold text-white">{t('shareAndEarn')}</h3>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/40">Referral</p>
+            <h3 className="text-sm font-semibold text-white tracking-tight">{t('shareAndEarn')}</h3>
+          </div>
         </div>
-        <p className="text-purple-200/70 text-xs mb-3">{t('earnCommission')}</p>
+        <p className="text-white/55 text-[12px] mb-3 leading-relaxed">{t('earnCommission')}</p>
 
-        <div className="bg-black/30 rounded-xl p-2.5 flex items-center gap-2 border border-white/10">
-          <code className="text-xs text-purple-100/80 truncate flex-1 px-1">{referralLink}</code>
+        <div className="rounded-xl bg-white/[0.06] ring-1 ring-inset ring-white/[0.08] p-2.5 flex items-center gap-2">
+          <code className="text-[12px] text-white/70 truncate flex-1 px-1 font-mono">{referralLink}</code>
           <button
             onClick={onCopy}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 active:scale-95"
-            style={{
-              background: copied ? 'rgba(16,185,129,0.3)' : 'rgba(139,92,246,0.6)',
-              border: `1px solid ${copied ? 'rgba(16,185,129,0.4)' : 'rgba(139,92,246,0.4)'}`,
-              color: copied ? '#6ee7b7' : '#e9d5ff',
-            }}
+            className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-semibold transition-all shrink-0 active:scale-95 ring-1 ring-inset ${
+              copied
+                ? 'bg-emerald-500/20 ring-emerald-500/30 text-emerald-200'
+                : 'bg-white text-zinc-900 ring-white/40 hover:bg-white/95'
+            }`}
           >
             {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
             {copied ? t('copied') : t('copy')}
           </button>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
 
 // Locked Referral Link Card
 function ReferralLinkLockedCard({ t }: { t: (key: string) => string }) {
   return (
-    <div
-      className="relative overflow-hidden rounded-xl p-4 border border-zinc-700/50"
-      style={{ background: 'linear-gradient(135deg, rgba(39,39,42,0.8) 0%, rgba(24,24,27,0.9) 100%)' }}
-    >
-      <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-zinc-700/20 pointer-events-none" />
+    <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/15 via-white/[0.06] to-white/[0.03] backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/20 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
       <div className="relative z-10">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-7 h-7 rounded-lg bg-zinc-700/50 flex items-center justify-center">
-            <Users className="w-3.5 h-3.5 text-zinc-500" />
+        <div className="flex items-center gap-2 mb-1.5">
+          <div className="w-7 h-7 rounded-xl bg-white/[0.06] ring-1 ring-inset ring-white/[0.08] flex items-center justify-center">
+            <Users className="w-3.5 h-3.5 text-white/40" />
           </div>
-          <h3 className="text-sm font-semibold text-zinc-300">{t('shareAndEarn')}</h3>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/35">Referral</p>
+            <h3 className="text-sm font-semibold text-white/70 tracking-tight">{t('shareAndEarn')}</h3>
+          </div>
         </div>
-        <p className="text-zinc-500 text-xs mb-3">
+        <p className="text-white/45 text-[12px] mb-3 leading-relaxed">
           Complete your profile &amp; bind your email to unlock your referral link.
         </p>
         <a
           href="/profile"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-700 hover:bg-zinc-600 text-zinc-200 rounded-xl text-xs font-medium transition-colors"
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-gradient-to-br from-white/35 to-white/10 backdrop-blur-xl ring-1 ring-inset ring-white/40 text-[12px] font-semibold text-white hover:from-white/40 hover:to-white/15 transition-colors shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]"
         >
           <ArrowUpRight className="w-3.5 h-3.5" />
           Go to Profile
         </a>
       </div>
-    </div>
+    </section>
   )
 }
