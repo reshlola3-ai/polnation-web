@@ -40,13 +40,12 @@ export default async function DashboardLayout({
         {/* Unsupported Wallet Overlay */}
         <UnsupportedWalletOverlay />
 
-        {/* Vivid ambient background for Liquid Glass refraction */}
+        {/* Subtle ambient background */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-[700px] h-[700px] bg-fuchsia-500/60 rounded-full blur-[140px]" />
-          <div className="absolute top-1/4 -left-40 w-[600px] h-[600px] bg-indigo-500/55 rounded-full blur-[130px]" />
-          <div className="absolute -bottom-40 right-1/4 w-[650px] h-[650px] bg-cyan-400/45 rounded-full blur-[140px]" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-pink-500/40 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-1/3 w-[450px] h-[450px] bg-violet-500/50 rounded-full blur-[110px]" />
+          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[140px]" />
+          <div className="absolute top-1/3 -left-40 w-[500px] h-[500px] bg-indigo-600/15 rounded-full blur-[130px]" />
+          <div className="absolute -bottom-40 right-1/4 w-[550px] h-[550px] bg-cyan-600/12 rounded-full blur-[140px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-violet-600/15 rounded-full blur-[110px]" />
         </div>
         
         {/* Desktop Navigation */}
