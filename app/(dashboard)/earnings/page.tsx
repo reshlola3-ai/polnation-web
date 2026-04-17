@@ -20,7 +20,6 @@ import {
   ChevronUp,
   Info
 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
 import { useAccount, useReadContract } from 'wagmi'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { polygon } from 'wagmi/chains'
@@ -278,159 +277,182 @@ export default function EarningsPage() {
     <div className="space-y-8">
       {/* This banner is no longer needed since we use bound wallet address */}
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      {/* ── Header — Apple-style ─────────────────────────────────────────── */}
+      <header className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">{t('title')}</h1>
-          <p className="text-zinc-500">{t('subtitle')}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
+            Polnation · {t('title')}
+          </p>
+          <h1 className="mt-1.5 text-3xl font-semibold text-white tracking-tight">{t('title')}</h1>
+          <p className="mt-1 text-[13px] text-white/50">{t('subtitle')}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={fetchProfits} disabled={isLoading}>
-          <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+        <button
+          onClick={fetchProfits}
+          disabled={isLoading}
+          aria-label={tCommon('refresh')}
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-white/[0.06] ring-1 ring-white/[0.06] text-[13px] font-medium text-white/80 hover:bg-white/[0.1] transition-colors duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
           {tCommon('refresh')}
-        </Button>
-      </div>
+        </button>
+      </header>
 
-      {/* Current Tier & Balance */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-gradient-to-br from-purple-600 to-indigo-700 rounded-2xl p-6 text-white">
-          <div className="flex items-start justify-between mb-6">
+      {/* ── Balance + Next Distribution ──────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        {/* Balance / Tier — hero card */}
+        <section className="lg:col-span-2 rounded-[28px] bg-zinc-900/70 ring-1 ring-white/[0.06] p-7 sm:p-8 shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset,0_30px_60px_-30px_rgba(0,0,0,0.5)]">
+          <div className="flex items-start justify-between gap-4 mb-8">
             <div>
-              <p className="text-purple-200 text-sm mb-1">{t('usdcBalance')}</p>
-              {hasWallet ? (
-                <p className="text-4xl font-bold currency">${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-              ) : (
-                <p className="text-4xl font-bold text-purple-200">--</p>
-              )}
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
+                {t('usdcBalance')}
+              </p>
+              <p className="mt-2 text-[48px] sm:text-[56px] leading-none font-semibold text-white tracking-tight tabular-nums">
+                {hasWallet
+                  ? `$${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : <span className="text-white/30">$—</span>}
+              </p>
             </div>
             {currentTier && hasWallet && (
-              <div className="px-3 py-1 rounded-full bg-white/20 backdrop-blur">
-                <span className="text-sm font-semibold flex items-center gap-1">
-                  <Star className="w-4 h-4" />
-                  {currentTier.name}
-                </span>
-              </div>
+              <span className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-white/[0.08] ring-1 ring-white/[0.08] text-[12px] font-semibold text-white">
+                <Star className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                {currentTier.name}
+              </span>
             )}
           </div>
 
           {hasWallet ? (
             currentTier ? (
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-purple-200">{t('currentRate')}</span>
-                  <span className="text-xl font-bold percentage">{currentTier.rate_percent}% / {formatInterval(config?.interval_seconds || 86400)}</span>
+              <div className="grid grid-cols-2 divide-x divide-white/[0.06] rounded-2xl bg-white/[0.03] ring-1 ring-white/[0.05] overflow-hidden">
+                <div className="p-4">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-white/40 mb-1.5">
+                    {t('currentRate')}
+                  </p>
+                  <p className="text-xl font-semibold text-white tracking-tight tabular-nums">
+                    {currentTier.rate_percent}%
+                    <span className="ml-1 text-[13px] font-normal text-white/40">
+                      / {formatInterval(config?.interval_seconds || 86400)}
+                    </span>
+                  </p>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-purple-200">{t('estimatedDaily')}</span>
-                  <span className="font-semibold currency">
+                <div className="p-4">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-white/40 mb-1.5">
+                    {t('estimatedDaily')}
+                  </p>
+                  <p className="text-xl font-semibold text-emerald-400 tracking-tight tabular-nums">
                     ${((usdcBalance * currentTier.rate_percent / 100) * (86400 / (config?.interval_seconds || 86400))).toFixed(4)}
-                  </span>
+                  </p>
                 </div>
               </div>
             ) : (
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                <p className="text-purple-200 text-sm">{t('depositMore')}</p>
-              </div>
+              <p className="text-[13px] text-white/50">{t('depositMore')}</p>
             )
           ) : (
-            <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-              <p className="text-purple-200 text-sm">Connect wallet to see your tier and rates</p>
-            </div>
+            <p className="text-[13px] text-white/50">Connect wallet to see your tier and rates</p>
           )}
 
           {hasWallet && nextTier && usdcBalance < nextTier.min_usdc && (
-            <div className="mt-4 text-sm text-purple-200">
-              <p>{t('upgradeHint', { amount: (nextTier.min_usdc - usdcBalance).toFixed(2), tier: nextTier.name, rate: nextTier.rate_percent })}</p>
-            </div>
+            <p className="mt-5 text-[13px] text-white/55 leading-relaxed">
+              {t('upgradeHint', { amount: (nextTier.min_usdc - usdcBalance).toFixed(2), tier: nextTier.name, rate: nextTier.rate_percent })}
+            </p>
           )}
-        </div>
+        </section>
 
-        {/* Next Distribution Countdown */}
-        <div className="glass-card-solid p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
-              <Timer className="w-5 h-5 text-blue-400" />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-500">{t('nextDistribution')}</p>
-              {nextDistribution ? (
-                <p className="text-xl font-bold text-white font-mono">{formatCountdown(nextDistribution.seconds_remaining)}</p>
-              ) : (
-                <p className="text-lg font-bold text-purple-400">{t('comingSoon')}</p>
-              )}
-            </div>
+        {/* Next Distribution */}
+        <section className="rounded-[28px] bg-zinc-900/70 ring-1 ring-white/[0.06] p-7 shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset,0_30px_60px_-30px_rgba(0,0,0,0.5)] flex flex-col">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40 flex items-center gap-1.5">
+            <Timer className="w-3 h-3" />
+            {t('nextDistribution')}
+          </p>
+
+          <div className="mt-3">
+            {nextDistribution ? (
+              <p className="text-3xl font-semibold text-white tracking-tight tabular-nums">
+                {formatCountdown(nextDistribution.seconds_remaining)}
+              </p>
+            ) : (
+              <p className="text-2xl font-semibold text-white/70 tracking-tight">{t('comingSoon')}</p>
+            )}
           </div>
+
           {nextDistribution && (
-            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-purple-500 rounded-full transition-all"
+            <div className="mt-5 h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-white/70 rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${Math.max(0, 100 - (nextDistribution.seconds_remaining / (config?.interval_seconds || 86400)) * 100)}%` }}
               />
             </div>
           )}
-          <p className="text-xs text-zinc-400 mt-2">{t('distributionInterval', { interval: formatInterval(config?.interval_seconds || 86400) })}</p>
-        </div>
+
+          <p className="mt-auto pt-4 text-[12px] text-white/40">
+            {t('distributionInterval', { interval: formatInterval(config?.interval_seconds || 86400) })}
+          </p>
+        </section>
       </div>
 
-      {/* Stats Cards */}
+      {/* ── Stats — minimal monochrome cards ──────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="glass-card-solid p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-green-400" />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-500">{t('stakingEarnings')}</p>
-              <p className="text-2xl font-bold text-white currency">${(profits?.total_earned_usdc || 0).toFixed(4)}</p>
-            </div>
+        {/* Staking */}
+        <div className="rounded-2xl bg-zinc-900/70 ring-1 ring-white/[0.06] p-5">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-white/40">
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>{t('stakingEarnings')}</span>
           </div>
+          <p className="mt-2.5 text-2xl font-semibold text-white tracking-tight tabular-nums">
+            ${(profits?.total_earned_usdc || 0).toFixed(4)}
+          </p>
         </div>
 
-        <div className="glass-card-solid p-5">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center">
-              <Users className="w-6 h-6 text-orange-400" />
-            </div>
-            <div>
-              <p className="text-sm text-zinc-500">{t('referralCommission')}</p>
-              <p className="text-2xl font-bold text-orange-400 currency">${(profits?.total_commission_earned || 0).toFixed(4)}</p>
-            </div>
+        {/* Referral */}
+        <div className="rounded-2xl bg-zinc-900/70 ring-1 ring-white/[0.06] p-5">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-white/40">
+            <Users className="w-3.5 h-3.5" />
+            <span>{t('referralCommission')}</span>
           </div>
+          <p className="mt-2.5 text-2xl font-semibold text-white tracking-tight tabular-nums">
+            ${(profits?.total_commission_earned || 0).toFixed(4)}
+          </p>
         </div>
 
-        <div 
-          className="glass-card-solid p-5 cursor-pointer hover:border-purple-500/40 transition-all"
+        {/* Available — expandable */}
+        <button
+          type="button"
           onClick={() => setShowEarningsBreakdown(!showEarningsBreakdown)}
+          aria-expanded={showEarningsBreakdown}
+          className="text-left rounded-2xl bg-zinc-900/70 ring-1 ring-white/[0.06] p-5 hover:bg-zinc-900/90 transition-colors duration-150 ease-out"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-purple-400" />
+            <div>
+              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-white/40">
+                <DollarSign className="w-3.5 h-3.5" />
+                <span>{t('availableWithdraw')}</span>
               </div>
-              <div>
-                <p className="text-sm text-zinc-500">{t('availableWithdraw')}</p>
-                <p className="text-2xl font-bold text-purple-400 currency">${totalAvailable.toFixed(4)}</p>
-              </div>
+              <p className="mt-2.5 text-2xl font-semibold text-white tracking-tight tabular-nums">
+                ${totalAvailable.toFixed(4)}
+              </p>
             </div>
-            {showEarningsBreakdown ? <ChevronUp className="w-5 h-5 text-purple-400" /> : <ChevronDown className="w-5 h-5 text-purple-400" />}
+            {showEarningsBreakdown
+              ? <ChevronUp className="w-4 h-4 text-white/40" />
+              : <ChevronDown className="w-4 h-4 text-white/40" />}
           </div>
-          
+
           {showEarningsBreakdown && (
-            <div className="mt-4 pt-4 border-t border-white/10 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">{t('stakingEarnings')}</span>
-                <span className="font-semibold text-zinc-300 currency">${(profits?.total_earned_usdc || 0).toFixed(4)}</span>
+            <div className="mt-4 pt-4 border-t border-white/[0.06] space-y-2 tabular-nums">
+              <div className="flex justify-between text-[13px]">
+                <span className="text-white/50">{t('stakingEarnings')}</span>
+                <span className="text-white/80">${(profits?.total_earned_usdc || 0).toFixed(4)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">{t('referralCommission')}</span>
-                <span className="font-semibold text-zinc-300 currency">${(profits?.total_commission_earned || 0).toFixed(4)}</span>
+              <div className="flex justify-between text-[13px]">
+                <span className="text-white/50">{t('referralCommission')}</span>
+                <span className="text-white/80">${(profits?.total_commission_earned || 0).toFixed(4)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-zinc-400">{t('history.withdrawal')}</span>
-                <span className="font-semibold text-red-400 currency">-${(profits?.withdrawn_usdc || 0).toFixed(4)}</span>
+              <div className="flex justify-between text-[13px]">
+                <span className="text-white/50">{t('history.withdrawal')}</span>
+                <span className="text-rose-300">−${(profits?.withdrawn_usdc || 0).toFixed(4)}</span>
               </div>
             </div>
           )}
-        </div>
+        </button>
       </div>
 
       {/* ── Withdraw — Apple-style ──────────────────────────────────────── */}
