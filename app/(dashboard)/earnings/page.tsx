@@ -290,7 +290,7 @@ export default function EarningsPage() {
           onClick={fetchProfits}
           disabled={isLoading}
           aria-label={tCommon('refresh')}
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-white/[0.06] backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/[0.1] text-[13px] font-medium text-white/80 hover:bg-white/[0.1] transition-colors duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-gradient-to-br from-white/[0.18] to-white/[0.06] backdrop-blur-xl backdrop-saturate-[200%] ring-1 ring-inset ring-white/[0.2] text-[13px] font-medium text-white/90 hover:from-white/[0.22] hover:to-white/[0.08] transition-colors duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_12px_rgba(0,0,0,0.2)]"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
           {tCommon('refresh')}
@@ -301,7 +301,7 @@ export default function EarningsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {/* Balance / Tier — hero card */}
-        <section className="lg:col-span-2 rounded-[28px] bg-white/[0.04] backdrop-blur-2xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/[0.1] p-7 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_30px_60px_-20px_rgba(0,0,0,0.55)]">
+        <section className="relative overflow-hidden lg:col-span-2 rounded-[28px] bg-gradient-to-br from-white/[0.16] via-white/[0.06] to-white/[0.02] backdrop-blur-2xl backdrop-saturate-[200%] ring-1 ring-inset ring-white/[0.2] p-7 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),inset_0_-1px_0_rgba(0,0,0,0.2),0_30px_60px_-20px_rgba(0,0,0,0.55)]">
           <div className="flex items-start justify-between gap-4 mb-8">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
@@ -359,7 +359,7 @@ export default function EarningsPage() {
         </section>
 
         {/* Next Distribution */}
-        <section className="rounded-[28px] bg-white/[0.04] backdrop-blur-2xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/[0.1] p-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_30px_60px_-20px_rgba(0,0,0,0.55)] flex flex-col">
+        <section className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.16] via-white/[0.06] to-white/[0.02] backdrop-blur-2xl backdrop-saturate-[200%] ring-1 ring-inset ring-white/[0.2] p-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),inset_0_-1px_0_rgba(0,0,0,0.2),0_30px_60px_-20px_rgba(0,0,0,0.55)] flex flex-col">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40 flex items-center gap-1.5">
             <Timer className="w-3 h-3" />
             {t('nextDistribution')}
@@ -393,7 +393,7 @@ export default function EarningsPage() {
       {/* ── Stats — minimal monochrome cards ──────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Staking */}
-        <div className="rounded-2xl bg-white/[0.04] backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/[0.1] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+        <div className="rounded-2xl bg-gradient-to-br from-white/[0.14] via-white/[0.05] to-white/[0.02] backdrop-blur-xl backdrop-saturate-[200%] ring-1 ring-inset ring-white/[0.18] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-1px_0_rgba(0,0,0,0.15),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-white/40">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>{t('stakingEarnings')}</span>
@@ -404,7 +404,7 @@ export default function EarningsPage() {
         </div>
 
         {/* Referral */}
-        <div className="rounded-2xl bg-white/[0.04] backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/[0.1] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+        <div className="rounded-2xl bg-gradient-to-br from-white/[0.14] via-white/[0.05] to-white/[0.02] backdrop-blur-xl backdrop-saturate-[200%] ring-1 ring-inset ring-white/[0.18] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-1px_0_rgba(0,0,0,0.15),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-white/40">
             <Users className="w-3.5 h-3.5" />
             <span>{t('referralCommission')}</span>
@@ -419,7 +419,7 @@ export default function EarningsPage() {
           type="button"
           onClick={() => setShowEarningsBreakdown(!showEarningsBreakdown)}
           aria-expanded={showEarningsBreakdown}
-          className="text-left rounded-2xl bg-white/[0.04] backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/[0.1] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_20px_40px_-20px_rgba(0,0,0,0.4)] hover:bg-white/[0.06] transition-colors duration-150 ease-out"
+          className="text-left rounded-2xl bg-gradient-to-br from-white/[0.14] via-white/[0.05] to-white/[0.02] backdrop-blur-xl backdrop-saturate-[200%] ring-1 ring-inset ring-white/[0.18] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),inset_0_-1px_0_rgba(0,0,0,0.15),0_20px_40px_-20px_rgba(0,0,0,0.4)] hover:bg-white/[0.06] transition-colors duration-150 ease-out"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -456,7 +456,7 @@ export default function EarningsPage() {
       </div>
 
       {/* ── Withdraw — Apple-style ──────────────────────────────────────── */}
-      <section className="rounded-[28px] bg-white/[0.04] backdrop-blur-2xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/[0.1] p-6 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_30px_60px_-20px_rgba(0,0,0,0.55)]">
+      <section className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.16] via-white/[0.06] to-white/[0.02] backdrop-blur-2xl backdrop-saturate-[200%] ring-1 ring-inset ring-white/[0.2] p-6 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),inset_0_-1px_0_rgba(0,0,0,0.2),0_30px_60px_-20px_rgba(0,0,0,0.55)]">
 
         <header className="mb-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">

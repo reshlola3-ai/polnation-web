@@ -42,9 +42,10 @@ export default async function DashboardLayout({
         
         {/* Static Background Effects */}
         <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[100px]" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-[80px]" />
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-purple-500/35 rounded-full blur-[130px]" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-500/25 rounded-full blur-[120px]" />
+          <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] bg-fuchsia-500/20 rounded-full blur-[100px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-indigo-500/20 rounded-full blur-[90px]" />
         </div>
         
         {/* Desktop Navigation */}
