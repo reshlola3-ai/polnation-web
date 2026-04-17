@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { 
-  Wallet, 
-  TrendingUp, 
-  Clock, 
+import {
+  Wallet,
+  TrendingUp,
+  Clock,
   DollarSign,
   ArrowDownCircle,
   History,
@@ -17,7 +17,8 @@ import {
   Timer,
   Users,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Info
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { useAccount, useReadContract } from 'wagmi'
@@ -432,114 +433,133 @@ export default function EarningsPage() {
         </div>
       </div>
 
-      {/* Withdraw Section */}
-      <div className="glass-card-solid p-6">
-        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <ArrowDownCircle className="w-5 h-5" />
-          {t('withdraw.title')}
-        </h2>
+      {/* ── Withdraw — Apple-style ──────────────────────────────────────── */}
+      <section className="rounded-[28px] bg-zinc-900/70 ring-1 ring-white/[0.06] p-6 sm:p-8 shadow-[0_1px_0_0_rgba(255,255,255,0.04)_inset,0_30px_60px_-30px_rgba(0,0,0,0.5)]">
+
+        <header className="mb-7">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
+            {t('withdraw.title')}
+          </p>
+          <h2 className="mt-1.5 text-2xl font-semibold text-white tracking-tight">
+            {t('withdraw.amount')}
+          </h2>
+        </header>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 rounded-lg flex items-center gap-2 text-red-400 text-sm border border-red-500/20">
-            <AlertCircle className="w-4 h-4" />
-            {error}
+          <div role="alert" aria-live="polite" className="mb-5 flex items-center gap-2.5 rounded-2xl bg-rose-500/10 px-4 py-3 text-[13px] text-rose-300 ring-1 ring-rose-500/20">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
-
         {success && (
-          <div className="mb-4 p-3 bg-green-500/10 rounded-lg flex items-center gap-2 text-green-400 text-sm border border-green-500/20">
-            <CheckCircle className="w-4 h-4" />
-            {success}
+          <div role="status" aria-live="polite" className="mb-5 flex items-center gap-2.5 rounded-2xl bg-emerald-500/10 px-4 py-3 text-[13px] text-emerald-300 ring-1 ring-emerald-500/20">
+            <CheckCircle className="w-4 h-4 shrink-0" />
+            <span>{success}</span>
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="text-sm text-zinc-500 mb-2 block">{t('withdraw.token')}</label>
-            <div className="flex gap-2">
+        {/* iOS segmented control */}
+        <div className="mx-auto mb-7 grid grid-cols-2 w-full max-w-xs rounded-full bg-white/[0.06] p-1 ring-1 ring-white/[0.04]">
+          {(['USDC', 'POL'] as const).map((type) => {
+            const active = withdrawType === type
+            return (
               <button
-                onClick={() => setWithdrawType('USDC')}
-                className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  withdrawType === 'USDC'
-                    ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/25'
-                    : 'bg-white/10 text-zinc-400 hover:bg-white/20'
+                key={type}
+                onClick={() => setWithdrawType(type)}
+                aria-pressed={active}
+                className={`relative h-9 rounded-full text-[13px] font-semibold tracking-tight transition-colors duration-200 ease-out ${
+                  active
+                    ? 'bg-white text-zinc-900 shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                    : 'text-white/60 hover:text-white/80'
                 }`}
               >
-                <div className="flex flex-col items-center">
-                  <span className="text-lg mb-1">💵</span>
-                  <span>USDC</span>
-                </div>
+                {type}
               </button>
-              <button
-                onClick={() => setWithdrawType('POL')}
-                className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                  withdrawType === 'POL'
-                    ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/25'
-                    : 'bg-white/10 text-zinc-400 hover:bg-white/20'
-                }`}
-              >
-                <div className="flex flex-col items-center">
-                  <span className="text-lg mb-1">🟣</span>
-                  <span>POL</span>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm text-zinc-500 mb-2 block">{t('withdraw.amount')}</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">$</span>
-              <input
-                type="number"
-                value={withdrawAmount}
-                onChange={(e) => setWithdrawAmount(e.target.value)}
-                placeholder={t('withdraw.minAmount', { amount: config?.min_withdrawal_usdc || 0.1 })}
-                className="w-full pl-7 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-            </div>
-            <p className="text-xs text-zinc-400 mt-1">
-              {t('withdraw.available')}: ${totalAvailable.toFixed(4)}
-              {withdrawType === 'POL' && polPrice > 0 && (
-                <span className="text-purple-400 ml-2">≈ {(totalAvailable / polPrice).toFixed(4)} POL</span>
-              )}
-            </p>
-            
-            {withdrawType === 'POL' && (
-              <div className="mt-2 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-purple-300">{t('withdraw.currentPrice')}</span>
-                  <span className="text-sm font-semibold text-purple-400 currency">${polPrice.toFixed(4)}</span>
-                </div>
-                {withdrawAmount && parseFloat(withdrawAmount) > 0 ? (
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-purple-300">{t('withdraw.youWillReceive')}</span>
-                    <span className="text-lg font-bold text-purple-400 stat-number">{polAmount} POL</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-purple-300">{t('withdraw.maxWithdraw')}</span>
-                    <span className="text-lg font-bold text-purple-400 stat-number">{(totalAvailable / polPrice).toFixed(4)} POL</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-end">
-            <Button
-              onClick={handleWithdraw}
-              disabled={withdrawing || !withdrawAmount || parseFloat(withdrawAmount) <= 0}
-              className="w-full py-3"
-            >
-              {withdrawing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ArrowDownCircle className="w-4 h-4 mr-2" />}
-              {withdrawType === 'POL' ? t('withdraw.withdrawPol', { amount: polAmount }) : t('withdraw.withdrawUsdc')}
-            </Button>
-          </div>
+            )
+          })}
         </div>
 
-        <p className="text-xs text-zinc-400 mt-4">💡 {t('withdraw.polNote')}</p>
-      </div>
+        {/* Amount display — centered, huge */}
+        <div className="mb-5 text-center">
+          <div className="flex items-baseline justify-center gap-0.5 tabular-nums">
+            <span className="text-3xl font-medium text-white/50 translate-y-[-0.15em]">$</span>
+            <input
+              type="number"
+              inputMode="decimal"
+              value={withdrawAmount}
+              onChange={(e) => setWithdrawAmount(e.target.value)}
+              placeholder="0"
+              aria-label={t('withdraw.amount')}
+              className="min-w-0 max-w-[70%] bg-transparent border-0 outline-none text-center text-[64px] leading-none font-semibold text-white tracking-tight placeholder:text-white/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none"
+              style={{ width: `${Math.max(1, (withdrawAmount || '0').length)}ch` }}
+            />
+          </div>
+
+          <p className="mt-3 text-[13px] text-white/45 tabular-nums">
+            {t('withdraw.available')} <span className="text-white/70">${totalAvailable.toFixed(2)}</span>
+            {withdrawType === 'POL' && polPrice > 0 && (
+              <> · ≈ {(totalAvailable / polPrice).toFixed(2)} POL</>
+            )}
+          </p>
+        </div>
+
+        {/* Quick picks — Apple Wallet style chips */}
+        <div className="mb-7 grid grid-cols-4 gap-2">
+          {[
+            { label: '25%', value: totalAvailable * 0.25 },
+            { label: '50%', value: totalAvailable * 0.5 },
+            { label: '75%', value: totalAvailable * 0.75 },
+            { label: 'Max', value: totalAvailable },
+          ].map((chip) => (
+            <button
+              key={chip.label}
+              onClick={() => setWithdrawAmount(chip.value > 0 ? chip.value.toFixed(2) : '')}
+              disabled={totalAvailable <= 0}
+              className="h-10 rounded-full bg-white/[0.06] hover:bg-white/[0.1] ring-1 ring-white/[0.06] text-[13px] font-semibold text-white/80 transition-colors duration-150 ease-out disabled:opacity-30 disabled:pointer-events-none active:scale-[0.97]"
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
+
+        {/* POL conversion line — subtle, no box */}
+        {withdrawType === 'POL' && (
+          <div className="mb-6 flex items-center justify-between text-[13px] tabular-nums">
+            <span className="text-white/45">{t('withdraw.youWillReceive')}</span>
+            <span className="font-semibold text-white">
+              {(parseFloat(withdrawAmount) > 0 ? polAmount : (totalAvailable / polPrice).toFixed(4))} POL
+              <span className="ml-2 text-white/35 font-normal">@ ${polPrice.toFixed(4)}</span>
+            </span>
+          </div>
+        )}
+
+        {/* Primary action */}
+        <button
+          onClick={handleWithdraw}
+          disabled={withdrawing || !withdrawAmount || parseFloat(withdrawAmount) <= 0}
+          className="group relative w-full h-14 rounded-2xl bg-white text-zinc-900 font-semibold text-[15px] tracking-tight transition-all duration-200 ease-out hover:bg-white/95 active:scale-[0.985] disabled:bg-white/[0.08] disabled:text-white/30 disabled:pointer-events-none shadow-[0_1px_0_0_rgba(255,255,255,0.4)_inset,0_10px_30px_-10px_rgba(255,255,255,0.15)]"
+        >
+          <span className="inline-flex items-center gap-2">
+            {withdrawing ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {tCommon('loading')}
+              </>
+            ) : (
+              <>
+                {withdrawType === 'POL'
+                  ? t('withdraw.withdrawPol', { amount: polAmount })
+                  : t('withdraw.withdrawUsdc')}
+              </>
+            )}
+          </span>
+        </button>
+
+        <p className="mt-5 flex items-start gap-2 text-[12px] leading-relaxed text-white/40">
+          <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <span>{t('withdraw.polNote')}</span>
+        </p>
+      </section>
 
       {/* Tier Table */}
       <div className="glass-card-solid p-6">
