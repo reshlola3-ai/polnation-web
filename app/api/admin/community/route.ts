@@ -218,17 +218,34 @@ export async function POST(request: NextRequest) {
             transport: http(CONFIG.rpcUrl),
           })
 
-          for (const referral of walletsToFetch) {
-            try {
-              const balance = await publicClient.readContract({
-                address: CONFIG.usdcAddress,
-                abi: USDC_ABI,
-                functionName: 'balanceOf',
-                args: [referral.wallet_address as `0x${string}`],
-              })
-              totalVolume += parseFloat(formatUnits(balance, 6))
-            } catch (err) {
-              console.error(`Failed to get balance:`, err)
+          // 并发分批读取钱包余额，避免 RPC 限流
+          const BATCH_SIZE = 25
+          for (let i = 0; i < walletsToFetch.length; i += BATCH_SIZE) {
+            const batch = walletsToFetch.slice(i, i + BATCH_SIZE)
+            const results = await Promise.allSettled(
+              batch.map((referral: { wallet_address: string }) =>
+                publicClient.readContract({
+                  address: CONFIG.usdcAddress,
+                  abi: USDC_ABI,
+                  functionName: 'balanceOf',
+                  args: [referral.wallet_address as `0x${string}`],
+                })
+              )
+            )
+
+            // 任何一个钱包读失败 → 整个 refresh 失败，避免 volume 少算导致误掉级
+            const failed = results.filter(r => r.status === 'rejected')
+            if (failed.length > 0) {
+              console.error('RPC failures in batch:', failed.map(f => (f as PromiseRejectedResult).reason))
+              return NextResponse.json({
+                error: `Failed to read ${failed.length} wallet balance(s). Please retry.`,
+              }, { status: 503 })
+            }
+
+            for (const r of results) {
+              if (r.status === 'fulfilled') {
+                totalVolume += parseFloat(formatUnits(r.value as bigint, 6))
+              }
             }
           }
         }
