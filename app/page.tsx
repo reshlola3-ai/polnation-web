@@ -108,9 +108,8 @@ export default async function HomePage() {
               <span className="text-sm text-purple-300">{t('tagline')}</span>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white tracking-tight">
-              {t('welcome')}{' '}
-              <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-cyan-400 bg-clip-text text-transparent">
+            <h1 className="brand-title text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight">
+              <span className="brand-shimmer inline-block bg-[linear-gradient(110deg,#c084fc_0%,#ffffff_18%,#22d3ee_38%,#a855f7_58%,#ffffff_78%,#c084fc_100%)] bg-[length:200%_100%] bg-clip-text text-transparent">
                 Polnation
               </span>
             </h1>

@@ -370,6 +370,43 @@ input, select, textarea {
   50%       { transform: rotate(12deg) scale(1.1); }
   75%       { transform: rotate(-6deg) scale(1.05); }
 }
+
+@keyframes brand-rise-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    letter-spacing: -0.06em;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    letter-spacing: -0.04em;
+  }
+}
+
+@keyframes brand-shimmer {
+  0% {
+    background-position: 200% center;
+    filter: brightness(0.95);
+  }
+  50% {
+    filter: brightness(1.08);
+  }
+  100% {
+    background-position: 0% center;
+    filter: brightness(0.95);
+  }
+}
+
+.brand-title {
+  animation: brand-rise-in 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.brand-shimmer {
+  animation: brand-shimmer 6s ease-in-out infinite;
+  will-change: background-position, filter;
+}
+
 .animate-sparkle-wiggle {
   animation: sparkle-wiggle 4s ease-in-out infinite;
   display: inline-block;
