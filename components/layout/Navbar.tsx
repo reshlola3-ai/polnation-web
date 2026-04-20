@@ -20,6 +20,7 @@ const Wallet = dynamic(() => import('lucide-react').then((m) => m.Wallet), { ssr
 const TrendingUp = dynamic(() => import('lucide-react').then((m) => m.TrendingUp), { ssr: false })
 const ClipboardList = dynamic(() => import('lucide-react').then((m) => m.ClipboardList), { ssr: false })
 const BookOpen = dynamic(() => import('lucide-react').then((m) => m.BookOpen), { ssr: false })
+const GraduationCap = dynamic(() => import('lucide-react').then((m) => m.GraduationCap), { ssr: false })
 
 interface NavbarProps {
   user: User | null
@@ -139,8 +140,8 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               href="/academy"
               className={`
                 hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300
-                ${pathname === '/academy' 
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' 
+                ${pathname === '/academy'
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                   : 'text-zinc-400 hover:text-white hover:bg-white/5'
                 }
               `}
@@ -148,6 +149,17 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               <BookOpen className="w-4 h-4" />
               Academy
             </Link>
+
+            {/* Earning Guide - static HTML in public/ */}
+            <a
+              href="/polnation-earning-guide.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+            >
+              <GraduationCap className="w-4 h-4" />
+              Earning Guide
+            </a>
 
             {user ? (
               <>
@@ -205,8 +217,8 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
-                      ${isActive 
-                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' 
+                      ${isActive
+                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
                         : 'text-zinc-400 hover:text-white hover:bg-white/5'
                       }
                     `}
@@ -216,6 +228,17 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                   </Link>
                 )
               })}
+
+              <a
+                href="/polnation-earning-guide.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+              >
+                <GraduationCap className="w-5 h-5" />
+                Earning Guide
+              </a>
             </div>
           </div>
         )}
