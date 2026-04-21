@@ -4,21 +4,18 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
-  // 压缩优化
   compress: true,
-  
-  // 图片优化
+
   images: {
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
-  
-  // 实验性优化
+
+  // Keep local/dev startup stable without the optional `critters` package.
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false,
   },
-  
-  // 重定向旧路由到新的Team页面
+
   async redirects() {
     return [
       {
@@ -34,9 +31,25 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // 自定义响应头
   async headers() {
     return [
+      {
+        source: '/polygon-clone/:path*',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+        ],
+      },
       {
         source: '/:path*',
         headers: [
