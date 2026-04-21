@@ -1928,7 +1928,27 @@ function createMedia(x, y, deltaX, deltaY) {
 </script>
 
 
-<style></style>
+<style>
+.polnation-spiral-card .trails-card-icon {
+  transform-origin: center;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease;
+}
+
+.polnation-spiral-card:hover .trails-card-icon {
+  transform: scale(1.18) rotate(-8deg);
+  filter: drop-shadow(0 0 20px rgba(184, 151, 255, 0.4));
+}
+
+.polnation-spiral-card .h-trails-card-bg,
+.polnation-spiral-card .h-trail-card {
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.polnation-spiral-card:hover .h-trails-card-bg,
+.polnation-spiral-card:hover .h-trail-card {
+  transform: translateY(-4px);
+}
+</style>
 <script>
 (function () {
   const TEXT_REPLACEMENTS = [
@@ -1961,6 +1981,42 @@ function createMedia(x, y, deltaX, deltaY) {
     ['Polygon Scan', 'Polnation Dashboard'],
     ['Polygon Labs', 'Polnation'],
     ['Polygon', 'Polnation'],
+    ['Products', 'Rewards'],
+    ['Use Cases', 'How It Works'],
+    ['Company', 'Platform'],
+    ['Developers Docs', 'Academy'],
+    ['OMS Solutions', 'Reward Flows'],
+    ['Payments', 'Community Rewards'],
+    ['RWAs', 'Referral Rewards'],
+    ['Stablecoins', 'USDC Rewards'],
+    ['Resources', 'Learn'],
+    ['Dev Community', 'Community'],
+    ['Legal', 'Policies'],
+    ['Blog', 'Academy'],
+    ['Payments Knowledge Base', 'Earning Guide'],
+    ['POL Whitepaper', 'Reward Overview'],
+    ['ZK Research', 'Community Updates'],
+    ['Docs', 'Academy'],
+    ['Events', 'Community Events'],
+    ['Support', 'Support'],
+    ['Forum', 'Community Chat'],
+    ['Governance', 'Reward Rules'],
+    ['Github', 'Updates'],
+    ['Security', 'Account Safety'],
+    ['Faucet', 'Reward Tracker'],
+    ['Careers', 'Partner With Us'],
+    ['Contact', 'Contact Us'],
+    ['Brand Guidelines', 'Brand Assets'],
+    ['Airdrops', 'Daily Rewards'],
+    ['Staking', 'Dashboard'],
+    ['Portal', 'Dashboard'],
+    ['Ecosystem', 'Community'],
+    ['Open Money Stack', 'Reward Engine'],
+    ['Let\'s build', 'Let\'s grow'],
+    ['Get started', 'Get rewarded'],
+    ['Get Started', 'Get Rewarded'],
+    ['Back', 'Menu'],
+    ['Explore', 'Open'],
     ['Products', 'Rewards'],
     ['Use Cases', 'How It Works'],
     ['Company', 'Platform'],
@@ -2061,6 +2117,155 @@ function createMedia(x, y, deltaX, deltaY) {
     });
   }
 
+  function setText(selector, value) {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.textContent = value;
+    }
+    return element;
+  }
+
+  function setHtml(selector, value) {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.innerHTML = value;
+    }
+    return element;
+  }
+
+  function formatCurrencyCompact(value) {
+    if (!Number.isFinite(value)) return '$0';
+    if (value >= 1000000) return '$' + (value / 1000000).toFixed(2) + 'M';
+    if (value >= 1000) return '$' + (value / 1000).toFixed(1) + 'K';
+    return '$' + Math.round(value);
+  }
+
+  function formatCountCompact(value) {
+    if (!Number.isFinite(value)) return '0';
+    if (value >= 1000000) return (value / 1000000).toFixed(2) + 'M';
+    if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
+    return String(Math.round(value));
+  }
+
+  function applyStaticCopy() {
+    setText('.section.is-hero .heading-hide', 'Built for community rewards');
+    setHtml('.section.is-hero .hero-heading-container .hero-heading', 'Built for<br/>community<br/>');
+
+    const heroHeadingParts = document.querySelectorAll('.section.is-hero .wirechain-wrap .hero-heading');
+    if (heroHeadingParts.length) {
+      heroHeadingParts[heroHeadingParts.length - 1].textContent = 'rewards';
+    }
+
+    setText('.section.is-hero .h-hero-para .u-body-large', 'Hold USDC in your own wallet and receive daily reward distributions based on your balance tier.');
+
+    const heroButtons = document.querySelectorAll('.section.is-hero .hero-button-wrap .btn');
+    if (heroButtons[0]) {
+      const label = heroButtons[0].querySelector('div');
+      if (label) label.textContent = 'Earning Guide';
+    }
+    if (heroButtons[1]) {
+      const label = heroButtons[1].querySelector('div');
+      if (label) label.textContent = 'Open Dashboard';
+    }
+
+    setText('.cards-heading-wrap .h-eyebrow-container > div', 'Polnation Stats');
+    setHtml('.cards-heading-wrap .u-h2', 'Serving real wallets<br/>with live onchain activity');
+
+    setText('.h-eyebrow .h-eyebrow-container > div:last-child', 'POLNATION REWARD ENGINE');
+    setHtml('.oms-what-heading-wrap .u-h2', 'One reward engine for<br/>self-custody growth');
+    setText('.oms-what-heading-wrap .u-body-large', 'A single place to track balance tiers, referral momentum, and daily USDC reward distributions for the Polnation community.');
+
+    const omsButton = document.querySelector('.oms-what-heading-wrap .btn.is-black > div');
+    if (omsButton) omsButton.textContent = 'Get Started';
+
+    const omsCards = document.querySelectorAll('.sec.is-blue.is-lottie .oms-lottie-card');
+    if (omsCards[0]) {
+      const title = omsCards[0].querySelector('.oms-lottie-heading h3');
+      const sub = omsCards[0].querySelector('.oms-lottie-para-wrap .u-body-mono-medium');
+      const detailTitle = omsCards[0].querySelector('.lottie-detail-para-wrap .oms-lottie-heading h3');
+      const detailSub = omsCards[0].querySelector('.lottie-detail-para-wrap .u-body-mono-medium');
+      const detailPara = omsCards[0].querySelector('.lottie-detail-para-wrap .u-body-regular');
+      if (title) title.textContent = 'Self-Custody Access';
+      if (sub) sub.textContent = 'KEEP USDC IN YOUR OWN WALLET WHILE STAYING ELIGIBLE FOR DAILY REWARDS';
+      if (detailTitle) detailTitle.textContent = 'Self-Custody Access';
+      if (detailSub) detailSub.textContent = 'KEEP USDC IN YOUR OWN WALLET WHILE STAYING ELIGIBLE FOR DAILY REWARDS';
+      if (detailPara) detailPara.textContent = 'Your USDC stays in your wallet. No lock-up, no custody transfer, and no smart-contract deposit required to participate.';
+    }
+
+    if (omsCards[1]) {
+      const title = omsCards[1].querySelector('.oms-lottie-heading h3');
+      const sub = omsCards[1].querySelector('.oms-lottie-para-wrap .u-body-mono-medium');
+      const detailTitle = omsCards[1].querySelector('.lottie-detail-para-wrap .oms-lottie-heading h3');
+      const detailSub = omsCards[1].querySelector('.lottie-detail-para-wrap .u-body-mono-medium');
+      const detailPara = omsCards[1].querySelector('.lottie-detail-para-wrap .u-body-regular');
+      if (title) title.textContent = 'Referral Momentum';
+      if (sub) sub.textContent = 'GROW YOUR TEAM TO BOOST DAILY COMMUNITY EARNINGS';
+      if (detailTitle) detailTitle.textContent = 'Referral Momentum';
+      if (detailSub) detailSub.textContent = 'GROW YOUR TEAM TO BOOST DAILY COMMUNITY EARNINGS';
+      if (detailPara) detailPara.textContent = 'Invite new wallet holders, grow team volume, and reset your momentum multiplier to strengthen daily reward output.';
+    }
+
+    setHtml('.trail .oms-what-heading-wrap .u-h1', 'Start earning<br/>with Polnation');
+
+    const trailCards = document.querySelectorAll('.trail .h-trail-card');
+    if (trailCards[0]) {
+      const button = trailCards[0].querySelector('.btn > div');
+      if (button) button.textContent = 'VIEW GUIDE';
+    }
+    if (trailCards[1]) {
+      const button = trailCards[1].querySelector('.btn > div');
+      if (button) button.textContent = 'JOIN COMMUNITY';
+    }
+    if (trailCards[2]) {
+      const button = trailCards[2].querySelector('.btn > div');
+      if (button) button.textContent = 'OPEN DASHBOARD';
+      trailCards[2].classList.add('polnation-spiral-card');
+    }
+
+    setText('.trail ~ .h-eyebrow .h-eyebrow-container > div:last-child', "Let's grow rewards");
+  }
+
+  function applyLiveStats(stats) {
+    const communityVolume = formatCurrencyCompact(stats.totalValue || 0);
+    const walletsServed = formatCountCompact(stats.uniqueAddresses || 0);
+    const recentTransfers = Array.isArray(stats.latestTransactions) ? stats.latestTransactions.length : 0;
+
+    setText('.section.is-hero .h-eyebrow-container.is-hero strong', communityVolume + ' COMMUNITY VOLUME');
+    setText('.section.is-hero .h-hero-para .u-body-large', 'Polnation serves ' + walletsServed + ' wallets with self-custody USDC rewards and ' + recentTransfers + ' live onchain transfers visible in the pool right now.');
+    setHtml('.cards-heading-wrap .u-h2', 'Serving ' + walletsServed + ' wallets<br/>with live onchain activity');
+
+    const cardData = [
+      { value: communityVolume, label: 'Community volume' },
+      { value: walletsServed, label: 'Wallets served' },
+      { value: String(recentTransfers), label: 'Recent transfers' },
+      { value: '100%', label: 'Self-custody' },
+      { value: '4', label: 'Balance tiers' },
+      { value: 'Daily', label: 'Reward cycles' },
+      { value: 'Live', label: 'Pool status' },
+    ];
+
+    document.querySelectorAll('.p-glance-front .p-glance-card .p-glance-item').forEach(function (item, index) {
+      const data = cardData[index % cardData.length];
+      const value = item.querySelector('.u-h3');
+      const label = item.querySelector('p');
+      if (value) value.textContent = data.value;
+      if (label) label.innerHTML = data.label.replace(' ', '<br/>');
+    });
+  }
+
+  function fetchAndApplyLiveStats() {
+    fetch('/api/chain-stats')
+      .then(function (response) { return response.json(); })
+      .then(function (stats) { applyLiveStats(stats || {}); })
+      .catch(function () {
+        applyLiveStats({
+          totalValue: 135696,
+          uniqueAddresses: 78,
+          latestTransactions: [],
+        });
+      });
+  }
+
   function updateMetadata() {
     document.title = 'Polnation - Community Dividend Platform | Earn USDC Distributions';
     document.querySelectorAll('meta[name="description"], meta[property="og:title"], meta[property="og:description"], meta[property="twitter:title"], meta[property="twitter:description"], meta[property="og:site_name"]').forEach(function (meta) {
@@ -2084,9 +2289,11 @@ function createMedia(x, y, deltaX, deltaY) {
   }
 
   window.addEventListener('load', function () {
+    applyStaticCopy();
     updateMetadata();
     replaceTextContent(document.body);
     remapLinks();
+    fetchAndApplyLiveStats();
   });
 })();
 </script>
