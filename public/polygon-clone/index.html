@@ -1990,6 +1990,12 @@ function createMedia(x, y, deltaX, deltaY) {
   display: grid;
   gap: 28px;
   width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.polnation-featured-shell > * {
+  position: relative;
 }
 
 .polnation-featured-copy {
@@ -2599,14 +2605,15 @@ function createMedia(x, y, deltaX, deltaY) {
       mobileGrid.remove();
     }
 
-    const cardsToHide = featured.querySelectorAll('.h-feature-card, .purpose-mobile-slider-container, .h-feature-line, .u-bg-grid-wrap');
+    const cardsToHide = featured.querySelectorAll('.h-feature-card, .purpose-mobile-slider-container, .h-feature-line');
     cardsToHide.forEach(function (node) {
-      if (node && node.parentNode === featured) {
-        return;
-      }
       if (node) {
         node.remove();
       }
+    });
+
+    featured.querySelectorAll('.u-bg-grid-wrap').forEach(function (node) {
+      node.remove();
     });
 
     const desktopGrid = featured.querySelector('.h-pur-grid.is-home');
