@@ -34,11 +34,11 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: '/polygon-clone/:path*',
         headers: [
           {
             key: 'X-Frame-Options',
-            value: 'DENY',
+            value: 'SAMEORIGIN',
           },
           {
             key: 'X-Content-Type-Options',
@@ -51,11 +51,11 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/polygon-clone/:path*',
+        source: '/:path*',
         headers: [
           {
             key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
+            value: 'DENY',
           },
           {
             key: 'X-Content-Type-Options',
