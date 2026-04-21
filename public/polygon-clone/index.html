@@ -1954,6 +1954,56 @@ function createMedia(x, y, deltaX, deltaY) {
   transition: opacity 0.35s ease;
 }
 
+.polnation-nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  color: currentColor;
+}
+
+.polnation-nav-brand img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.polnation-nav-brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1;
+}
+
+.polnation-nav-brand-title {
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.polnation-nav-brand-sub {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.polnation-featured-shell {
+  display: grid;
+  gap: 28px;
+}
+
+.polnation-featured-copy {
+  display: grid;
+  gap: 18px;
+  max-width: 760px;
+}
+
+.polnation-featured-copy p {
+  max-width: 720px;
+  margin: 0;
+  color: rgba(15, 18, 28, 0.72);
+}
+
 .polnation-tracker-section {
   position: relative;
   padding: 96px 24px 128px;
@@ -1963,6 +2013,15 @@ function createMedia(x, y, deltaX, deltaY) {
 .polnation-tracker-inner {
   max-width: 1180px;
   margin: 0 auto;
+}
+
+.polnation-tracker-section.is-embedded {
+  padding: 0;
+  background: transparent;
+}
+
+.polnation-tracker-section.is-embedded .polnation-tracker-inner {
+  max-width: none;
 }
 
 .polnation-tracker-shell {
@@ -2053,9 +2112,56 @@ function createMedia(x, y, deltaX, deltaY) {
   color: rgba(220, 226, 255, 0.58);
 }
 
+.polnation-featured-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.polnation-stat-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.polnation-stat-card {
+  min-height: 164px;
+  border: 1px solid rgba(15, 18, 28, 0.22);
+  background: rgba(255, 255, 255, 0.76);
+  padding: 20px 22px;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.polnation-stat-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(15, 18, 28, 0.52);
+}
+
+.polnation-stat-value {
+  font-size: clamp(34px, 4vw, 54px);
+  line-height: 0.94;
+  letter-spacing: -0.05em;
+  color: #090b12;
+}
+
+.polnation-stat-desc {
+  font-size: 16px;
+  line-height: 1.35;
+  color: rgba(15, 18, 28, 0.72);
+}
+
 @media (max-width: 991px) {
   .polnation-tracker-kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .polnation-featured-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -2075,6 +2181,19 @@ function createMedia(x, y, deltaX, deltaY) {
   .polnation-tracker-row {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .polnation-nav-brand-title {
+    font-size: 22px;
+  }
+
+  .polnation-nav-brand-sub {
+    font-size: 9px;
+    letter-spacing: 0.22em;
+  }
+
+  .polnation-stat-cards {
+    grid-template-columns: 1fr;
   }
 }
 </style>
@@ -2343,8 +2462,20 @@ function createMedia(x, y, deltaX, deltaY) {
     return section;
   }
 
-  function renderTracker(stats) {
+  function createEmbeddedTrackerSection() {
+    const existing = document.getElementById('polnation-treasury-tracker-embedded');
+    if (existing) {
+      return existing;
+    }
+
     const section = createTrackerSection();
+    section.id = 'polnation-treasury-tracker-embedded';
+    section.classList.add('is-embedded');
+    return section;
+  }
+
+  function renderTracker(stats) {
+    const section = document.getElementById('polnation-treasury-tracker-embedded') || createTrackerSection();
     if (!section) return;
 
     const kpis = section.querySelector('.polnation-tracker-kpis');
@@ -2391,6 +2522,101 @@ function createMedia(x, y, deltaX, deltaY) {
     }
   }
 
+  function applyNavbarBranding() {
+    const brand = document.querySelector('.nav-brand-logo');
+    if (!brand || brand.dataset.polnationBrand === 'true') {
+      return;
+    }
+
+    brand.dataset.polnationBrand = 'true';
+    brand.setAttribute('href', '/');
+    brand.innerHTML = [
+      '<div class="polnation-nav-brand">',
+      '  <img src="/logo.svg" alt="Polnation logo"/>',
+      '  <div class="polnation-nav-brand-copy">',
+      '    <span class="polnation-nav-brand-title">Polnation</span>',
+      '    <span class="polnation-nav-brand-sub">USDC Rewards</span>',
+      '  </div>',
+      '</div>'
+    ].join('');
+  }
+
+  function applyFeaturedSection() {
+    const featured = document.querySelector('.section.is-featured');
+    if (!featured || featured.dataset.polnationFeatured === 'true') {
+      return;
+    }
+
+    featured.dataset.polnationFeatured = 'true';
+
+    const mobileGrid = featured.querySelector('.h-pur-grid.hide-desktop');
+    if (mobileGrid) {
+      mobileGrid.remove();
+    }
+
+    const cardsToHide = featured.querySelectorAll('.h-feature-card, .purpose-mobile-slider-container, .h-feature-line, .u-bg-grid-wrap');
+    cardsToHide.forEach(function (node) {
+      if (node && node.parentNode === featured) {
+        return;
+      }
+      if (node) {
+        node.remove();
+      }
+    });
+
+    const desktopGrid = featured.querySelector('.h-pur-grid.is-home');
+    if (!desktopGrid) {
+      return;
+    }
+
+    desktopGrid.classList.remove('hide-landscape');
+    desktopGrid.innerHTML = [
+      '<div class="polnation-featured-shell">',
+      '  <div class="polnation-featured-grid">',
+      '    <div class="polnation-featured-copy">',
+      '      <div class="h-eyebrow-container is-relative"><div>BENEFITS</div><img loading="lazy" src="https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696376662455e8a33552a4dc_triangle.svg" alt="" class="oms-eyebrow-icon"/><img loading="lazy" src="https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696376662455e8a33552a4dc_triangle.svg" alt="" class="oms-eyebrow-icon is-rb"/></div>',
+      '      <h2 class="u-h2 th-110">Polnation is purpose-built to <span class="tc-g200">track transparent rewards</span></h2>',
+      '      <p class="u-body-large">Polnation combines live treasury visibility, self-custody participation, and referral growth in one Polygon-native rewards experience. This section should explain Polnation, not Polygon infrastructure or token staking.</p>',
+      '      <div class="polnation-stat-cards">',
+      '        <div class="polnation-stat-card">',
+      '          <div class="polnation-stat-eyebrow">Community Reach</div>',
+      '          <div class="polnation-stat-value" data-polnation-stat="wallets">78+</div>',
+      '          <div class="polnation-stat-desc">Active wallets receiving or tracking Polnation treasury-linked reward activity.</div>',
+      '        </div>',
+      '        <div class="polnation-stat-card">',
+      '          <div class="polnation-stat-eyebrow">Onchain Transfers</div>',
+      '          <div class="polnation-stat-value" data-polnation-stat="transactions">0</div>',
+      '          <div class="polnation-stat-desc">Visible Polygon transactions moving through the treasury and reward flow.</div>',
+      '        </div>',
+      '        <div class="polnation-stat-card">',
+      '          <div class="polnation-stat-eyebrow">Self-Custody</div>',
+      '          <div class="polnation-stat-value">100%</div>',
+      '          <div class="polnation-stat-desc">Users keep USDC in their own wallet while remaining eligible for participation.</div>',
+      '        </div>',
+      '        <div class="polnation-stat-card">',
+      '          <div class="polnation-stat-eyebrow">Daily Rhythm</div>',
+      '          <div class="polnation-stat-value">Daily</div>',
+      '          <div class="polnation-stat-desc">Reward calculations, treasury visibility, and community momentum all update continuously.</div>',
+      '        </div>',
+      '      </div>',
+      '    </div>',
+      '    <div id="polnation-featured-tracker-slot"></div>',
+      '  </div>',
+      '</div>'
+    ].join('');
+
+    const slot = featured.querySelector('#polnation-featured-tracker-slot');
+    const tracker = createEmbeddedTrackerSection();
+    if (slot && tracker) {
+      slot.appendChild(tracker);
+    }
+
+    const coinSection = document.querySelector('.section.is-card-coin');
+    if (coinSection) {
+      coinSection.remove();
+    }
+  }
+
   function applyUseCaseCopy() {
     setText('.h-eyebrow-container.is-stat > div', 'WHAT POLNATION CAN DO FOR YOU');
 
@@ -2432,6 +2658,9 @@ function createMedia(x, y, deltaX, deltaY) {
   }
 
   function applyStaticCopy() {
+    applyNavbarBranding();
+    applyFeaturedSection();
+
     setText('.section.is-hero .heading-hide', 'Built for community rewards');
     setHtml('.section.is-hero .hero-heading-container .hero-heading', 'Built for<br/>community<br/>');
 
@@ -2536,6 +2765,11 @@ function createMedia(x, y, deltaX, deltaY) {
       if (value) value.textContent = data.value;
       if (label) label.innerHTML = data.label.replace(' ', '<br/>');
     });
+
+    const walletsNode = document.querySelector('[data-polnation-stat="wallets"]');
+    const txNode = document.querySelector('[data-polnation-stat="transactions"]');
+    if (walletsNode) walletsNode.textContent = walletsServed;
+    if (txNode) txNode.textContent = String(recentTransfers);
   }
 
   function fetchAndApplyLiveStats() {
