@@ -1928,159 +1928,76 @@ function createMedia(x, y, deltaX, deltaY) {
 </script>
 
 
-<style>
-.polnation-home-nav {
-  position: fixed;
-  top: 10px;
-  left: 50%;
-  z-index: 99999;
-  width: min(96vw, 1570px);
-  transform: translateX(-50%);
-  border: 1px solid rgba(156, 163, 175, 0.14);
-  border-radius: 28px;
-  background: rgba(5, 8, 16, 0.92);
-  box-shadow: 0 18px 80px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(18px);
-}
-.polnation-home-nav__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  min-height: 68px;
-  padding: 10px 28px;
-}
-.polnation-home-nav__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  color: #ffffff;
-  text-decoration: none;
-}
-.polnation-home-nav__brand-mark {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  object-fit: contain;
-}
-.polnation-home-nav__brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
-}
-.polnation-home-nav__brand-name {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-}
-.polnation-home-nav__brand-sub {
-  margin-top: 4px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.42);
-}
-.polnation-home-nav__links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  flex: 1;
-}
-.polnation-home-nav__link {
-  padding: 10px 14px;
-  border-radius: 999px;
-  color: rgba(255, 255, 255, 0.76);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background-color 0.18s ease, color 0.18s ease;
-}
-.polnation-home-nav__link:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
-}
-.polnation-home-nav__cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 126px;
-  padding: 12px 22px;
-  border: 1px solid rgba(34, 211, 238, 0.35);
-  border-radius: 999px;
-  background: rgba(34, 211, 238, 0.1);
-  color: #d9fbff;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-}
-.page_wrap.polnation-home {
-  padding-top: 96px;
-}
-@media (max-width: 991px) {
-  .polnation-home-nav {
-    width: calc(100vw - 20px);
-    top: 10px;
-  }
-  .polnation-home-nav__inner {
-    min-height: 62px;
-    padding: 8px 14px;
-    gap: 12px;
-  }
-  .polnation-home-nav__links {
-    display: none;
-  }
-  .polnation-home-nav__brand-mark {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-  }
-  .polnation-home-nav__brand-name {
-    font-size: 15px;
-  }
-  .polnation-home-nav__brand-sub {
-    font-size: 9px;
-    letter-spacing: 0.24em;
-  }
-  .polnation-home-nav__cta {
-    min-width: 108px;
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-  .page_wrap.polnation-home {
-    padding-top: 84px;
-  }
-}
-</style>
+<style></style>
 <script>
 (function () {
   const TEXT_REPLACEMENTS = [
-    ['Polygon | The Go-To Blockchain for Global Payments', 'Polnation | Non-Custodial USDC Community Rewards'],
-    ['Polygon is the chosen blockchain infrastructure for enterprises and institutions to move assets instantly at scale with low fees, enterprise tooling, and proven reliability.', 'Polnation is a non-custodial community dividend platform on Polygon. Hold USDC in your own wallet and receive promotional reward distributions based on your balance tier.'],
-    ['Polygon is the go-to blockchain for global payments. Build with the Open Money Stack for stablecoin transfers, cross-border settlement, and wallet infrastructure trusted by Stripe, Revolut, and Mastercard.', 'Polnation helps community members hold USDC in self-custody, unlock transparent reward tiers, and participate in promotional distributions powered by Polygon.'],
-    ['Polygon Open Money Stack', 'Polnation Reward Engine'],
-    ['Polygon Chain', 'Polnation Vault'],
-    ['Crosschain Interop', 'Balance Tiers'],
-    ['Wallet Infrastructure', 'Self-Custody Flow'],
+    ['Polygon | The Go-To Blockchain for Global Payments', 'Polnation - Community Dividend Platform | Earn USDC Distributions'],
+    ['Polygon is the chosen blockchain infrastructure for enterprises and institutions to move assets instantly at scale with low fees, enterprise tooling, and proven reliability.', 'Polnation is a community dividend platform on Polygon. Hold USDC in your own wallet and receive daily reward distributions based on your balance tier.'],
+    ['Polygon is the go-to blockchain for global payments. Build with the Open Money Stack for stablecoin transfers, cross-border settlement, and wallet infrastructure trusted by Stripe, Revolut, and Mastercard.', 'Receive daily USDC reward distributions on Polygon based on your balance tier. No token locking required. Join the Polnation community today.'],
+    ['Polygon Labs builds the Open Money Stack, the global blockchain payment infrastructure for stablecoin transfers, cross-border payments, and programmable settlement. Trusted by Stripe, Revolut, Mastercard, JP Morgan, and BlackRock.', 'Polnation powers a self-custody earning experience on Polygon with balance-tier rewards, referral momentum, and validator-backed promotional distributions.'],
+    ['Polygon Open Money Stack', 'Polnation Community Dividend Engine'],
+    ['The enterprise-ready stack for regulated on-ramps, compliant wallets, and blockchain settlement. Get early access', 'Hold USDC in your own wallet, qualify by balance tier, and receive community reward distributions. Get started now.'],
+    ['OMS Solutions', 'Reward Flows'],
+    ['Polygon Chain', 'USDC Balance Tiers'],
+    ['The go-to settlement layer to move money globally', 'Higher wallet balances unlock stronger community reward weight.'],
+    ['Crosschain Interop', 'Referral Momentum'],
+    ['1-click cross-chain transactions', 'Grow your network and increase your daily promotional reward multiplier.'],
+    ['Wallet Infrastructure', 'Self-Custody Access'],
+    ['Seamless enterprise-grade wallets for any use case', 'USDC stays in your own wallet. No lock-up, no deposit transfer, withdraw anytime.'],
+    ['Polygon CDK', 'Academy Guide'],
+    ['Multistack toolkit for building ZK-powered, high-performance chains', 'A beginner-friendly guide from buying USDC to joining Polnation in a few simple steps.'],
+    ['Polygon Agglayer', 'Validator Revenue'],
+    ['Cross-chain settlement layer unifying liquidity and users of any blockchain for interoperability and growth', 'Reward distributions are supported by verifiable validator revenue and a limited promotional reward pool.'],
+    ['Polygon Vaultbridge', 'Daily Distributions'],
+    ['Turns TVL into sustainable, chain-native revenue', 'Receive daily USDC distributions based on your tier, team growth, and community activity.'],
     ['Payments', 'Community Rewards'],
+    ['Choose faster, lower-cost, next-gen rails with Polygon', 'Track your reward distributions, referral growth, and USDC earning progress in one place.'],
+    ['RWAs', 'Referral Rewards'],
+    ['Polygon leads with high-quality onchain assets. Fast settlement, never-turns-off, battle-tested', 'Invite friends, build team volume, and unlock stronger community dividend upside.'],
     ['Stablecoins', 'USDC Rewards'],
     ['About Polygon', 'About Polnation'],
     ['Use Polygon', 'Use Polnation'],
     ['Polygon Scan', 'Polnation Dashboard'],
     ['Polygon Labs', 'Polnation'],
     ['Polygon', 'Polnation'],
-    ['The Go-To Blockchain for Global Payments', 'The Non-Custodial Home For USDC Community Rewards'],
-    ['Get early access', 'Get started with Polnation'],
-    ['Contact Us', 'Get Started'],
-    ['Contact us', 'Get Started'],
+    ['Products', 'Rewards'],
+    ['Use Cases', 'How It Works'],
+    ['Company', 'Platform'],
+    ['Developers Docs', 'Academy'],
+    ['The Go-To Blockchain for Global Payments', 'The Non-Custodial Home for Daily USDC Reward Distributions'],
+    ['Get early access', 'Get Started Now'],
+    ['Contact Us', 'Join Polnation'],
+    ['Contact us', 'Join Polnation'],
     ['Book a Call', 'Get Started'],
     ['Stake Pol', 'Dashboard']
   ];
+
+  function replaceStrings(value) {
+    if (typeof value === 'string') {
+      let nextValue = value;
+      for (const pair of TEXT_REPLACEMENTS) {
+        if (nextValue.includes(pair[0])) {
+          nextValue = nextValue.split(pair[0]).join(pair[1]);
+        }
+      }
+      return nextValue;
+    }
+
+    if (Array.isArray(value)) {
+      return value.map(replaceStrings);
+    }
+
+    if (value && typeof value === 'object') {
+      const nextObject = {};
+      Object.keys(value).forEach(function (key) {
+        nextObject[key] = replaceStrings(value[key]);
+      });
+      return nextObject;
+    }
+
+    return value;
+  }
 
   function replaceTextContent(root) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -2144,61 +2061,30 @@ function createMedia(x, y, deltaX, deltaY) {
     });
   }
 
-  function mountNavbar() {
-    const pageWrap = document.querySelector('.page_wrap');
-    const originalNav = document.querySelector('.nav-wrapper');
-    if (!pageWrap) {
-      return;
-    }
-
-    pageWrap.classList.add('polnation-home');
-    if (originalNav) {
-      originalNav.style.display = 'none';
-    }
-
-    if (document.querySelector('.polnation-home-nav')) {
-      return;
-    }
-
-    const nav = document.createElement('div');
-    nav.className = 'polnation-home-nav';
-    nav.innerHTML = [
-      '<div class="polnation-home-nav__inner">',
-      '<a class="polnation-home-nav__brand" href="/">',
-      '<img class="polnation-home-nav__brand-mark" src="/logo.svg" alt="Polnation" />',
-      '<span class="polnation-home-nav__brand-text">',
-      '<span class="polnation-home-nav__brand-name">Polnation</span>',
-      '<span class="polnation-home-nav__brand-sub">USDC Rewards</span>',
-      '</span>',
-      '</a>',
-      '<div class="polnation-home-nav__links">',
-      '<a class="polnation-home-nav__link" href="/academy">Academy</a>',
-      '<a class="polnation-home-nav__link" href="/polnation-earning-guide.html">Earning Guide</a>',
-      '</div>',
-      '<a class="polnation-home-nav__cta" href="/dashboard">Dashboard</a>',
-      '</div>'
-    ].join('');
-
-    document.body.insertBefore(nav, document.body.firstChild);
-  }
-
   function updateMetadata() {
-    document.title = 'Polnation | Non-Custodial USDC Community Rewards';
+    document.title = 'Polnation - Community Dividend Platform | Earn USDC Distributions';
     document.querySelectorAll('meta[name="description"], meta[property="og:title"], meta[property="og:description"], meta[property="twitter:title"], meta[property="twitter:description"], meta[property="og:site_name"]').forEach(function (meta) {
       const content = meta.getAttribute('content') || '';
-      let nextContent = content;
-      for (const pair of TEXT_REPLACEMENTS) {
-        if (nextContent.includes(pair[0])) {
-          nextContent = nextContent.split(pair[0]).join(pair[1]);
-        }
+      meta.setAttribute('content', replaceStrings(content));
+    });
+
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(function (script) {
+      const raw = script.textContent || '';
+      if (!raw.trim()) {
+        return;
       }
-      meta.setAttribute('content', nextContent);
+
+      try {
+        const parsed = JSON.parse(raw);
+        script.textContent = JSON.stringify(replaceStrings(parsed));
+      } catch (error) {
+        script.textContent = replaceStrings(raw);
+      }
     });
   }
 
   window.addEventListener('load', function () {
     updateMetadata();
-    mountNavbar();
     replaceTextContent(document.body);
     remapLinks();
   });
