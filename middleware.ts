@@ -2,6 +2,10 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname === '/') {
+    return NextResponse.rewrite(new URL('/polygon-clone/index.html', request.url))
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })
