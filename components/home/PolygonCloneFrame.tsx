@@ -61,6 +61,39 @@ function replaceTextContent(root: ParentNode) {
   }
 }
 
+function isTopLevelNavigationHref(href: string) {
+  if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+    return false
+  }
+
+  return (
+    href.startsWith('/') ||
+    href.startsWith('./') ||
+    href.startsWith('../') ||
+    href.startsWith('https://www.polnation.com') ||
+    href.startsWith('https://polnation.com') ||
+    href.startsWith('http://www.polnation.com') ||
+    href.startsWith('http://polnation.com')
+  )
+}
+
+function rewriteNavigationTargets(doc: Document) {
+  doc.querySelectorAll('a[href]').forEach((link) => {
+    const href = link.getAttribute('href') ?? ''
+    if (!isTopLevelNavigationHref(href)) {
+      return
+    }
+
+    link.setAttribute('target', '_top')
+
+    const element = link as HTMLAnchorElement
+    element.addEventListener('click', (event) => {
+      event.preventDefault()
+      window.location.href = element.href
+    })
+  })
+}
+
 function customizeCloneDocument(doc: Document) {
   if (doc.documentElement.dataset.polnationCustomized === 'true') {
     return
@@ -85,6 +118,7 @@ function customizeCloneDocument(doc: Document) {
   doc.head.appendChild(style)
 
   replaceTextContent(doc.body)
+  rewriteNavigationTargets(doc)
 
   const title = doc.querySelector('title')
   if (title) {
