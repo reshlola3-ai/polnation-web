@@ -1964,20 +1964,35 @@ body.nav-scrolled .nav-wrapper {
   }
 }
 
-.polnation-nav-brand .polnation-logo-on-light {
-  display: none !important;
-}
-
 .polnation-nav-brand .polnation-logo-on-dark {
-  display: block !important;
-}
-
-body.nav-scrolled .polnation-nav-brand .polnation-logo-on-dark {
   display: none !important;
 }
 
-body.nav-scrolled .polnation-nav-brand .polnation-logo-on-light {
+.polnation-nav-brand .polnation-logo-on-light {
   display: block !important;
+}
+
+@media (max-width: 991px) {
+  body:not(.nav-scrolled) .polnation-nav-brand .polnation-logo-on-light {
+    display: none !important;
+  }
+  body:not(.nav-scrolled) .polnation-nav-brand .polnation-logo-on-dark {
+    display: block !important;
+  }
+}
+
+/* eyebrow tags: polygon uses margin-bottom: -2.8em to overlap into the
+   following headline as a design effect — collapses badly on mobile
+   when the JS-injected polnation copy reflows */
+@media (max-width: 991px) {
+  .h-eyebrow-container.is-relative,
+  .h-eyebrow-container.is-relative.is-trails {
+    margin-bottom: 16px !important;
+  }
+  .h-eyebrow-container.is-hero {
+    margin-bottom: 16px !important;
+    position: relative !important;
+  }
 }
 
 .polnation-nav-brand-copy {
