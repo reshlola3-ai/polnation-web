@@ -1964,16 +1964,20 @@ body.nav-scrolled .nav-wrapper {
   }
 }
 
-.polnation-logo-on-light {
-  display: none;
+.polnation-nav-brand .polnation-logo-on-light {
+  display: none !important;
 }
 
-body.nav-scrolled .polnation-logo-on-dark {
-  display: none;
+.polnation-nav-brand .polnation-logo-on-dark {
+  display: block !important;
 }
 
-body.nav-scrolled .polnation-logo-on-light {
-  display: block;
+body.nav-scrolled .polnation-nav-brand .polnation-logo-on-dark {
+  display: none !important;
+}
+
+body.nav-scrolled .polnation-nav-brand .polnation-logo-on-light {
+  display: block !important;
 }
 
 .polnation-nav-brand-copy {
