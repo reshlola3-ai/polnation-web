@@ -643,3 +643,20 @@ html {
     outline-offset: 2px;
   }
 }
+
+/* Dashboard grid background — adapted from staking.polygon.technology
+   (.bg-grid-pattern with --grid-size:120px, --grid-opacity:.1). Faint
+   white grid lines on the dark dashboard background, masked to fade at
+   the edges so it doesn't compete with foreground content. */
+.dashboard-grid-pattern {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.07) 1px, transparent 1px);
+  background-size: 120px 120px;
+  filter: blur(0.5px);
+  -webkit-mask-image: radial-gradient(85% 75% at 50% 45%, #000 0%, #0000 85%);
+          mask-image: radial-gradient(85% 75% at 50% 45%, #000 0%, #0000 85%);
+}
+@media (max-width: 768px) {
+  .dashboard-grid-pattern { background-size: 64px 64px; }
+}

@@ -437,8 +437,17 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {/* Hero — Apple Liquid Glass */}
       <section className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-2xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/40 p-7 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(255,255,255,0.1),0_30px_60px_-20px_rgba(0,0,0,0.5)]">
+        {/* Polygon coin + blocks illustration (from staking.polygon.technology) */}
+        <Image
+          src="/images/dashboard-hero.png"
+          alt=""
+          width={431}
+          height={285}
+          priority
+          className="pointer-events-none select-none absolute -top-4 -right-6 sm:-top-6 sm:-right-8 w-[180px] sm:w-[240px] h-auto opacity-85 mix-blend-screen"
+        />
         {/* Balance — large, dominant */}
-        <div className="text-center mb-6">
+        <div className="relative z-10 text-center mb-6">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40 mb-2">{t('totalAssets')}</p>
           {isBalanceLoading ? (
             <div className="animate-pulse h-14 w-44 bg-white/5 rounded-lg mx-auto" />
