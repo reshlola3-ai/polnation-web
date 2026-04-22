@@ -1995,6 +1995,18 @@ body.nav-scrolled .nav-wrapper {
   }
 }
 
+/* polygon's typewriter animation never runs in our context, leaving an empty
+   .heading-span with margin-right:1.2ch that pushes the first letter off the
+   line edge — kill the margin and the empty span entirely */
+.section.is-card-coin .heading-span {
+  margin: 0 !important;
+  display: none !important;
+}
+.section.is-card-coin .h-coin-heading-wrap,
+.section.is-card-coin .home-pur-heading-wrap {
+  overflow: visible !important;
+}
+
 .polnation-nav-brand-copy {
   display: flex;
   flex-direction: column;
