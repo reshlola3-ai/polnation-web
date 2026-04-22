@@ -2733,10 +2733,12 @@ body.nav-scrolled .nav-wrapper {
       slot.appendChild(tracker);
     }
 
-    const coinSection = document.querySelector('.section.is-card-coin');
-    if (coinSection) {
-      coinSection.remove();
-    }
+    // DEBUG: temporarily disabled — this was removing the "Powered by $POL"
+    // hexagon/spiral video section. Re-enable only if we decide to drop it.
+    // const coinSection = document.querySelector('.section.is-card-coin');
+    // if (coinSection) {
+    //   coinSection.remove();
+    // }
   }
 
   function applyUseCaseCopy() {
