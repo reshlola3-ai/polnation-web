@@ -176,48 +176,11 @@ setText('.trail ~ .h-eyebrow .h-eyebrow-container > div:last-child', "Let's grow
 
 // ─── 3. REMAP LINKS ──────────────────────────────────────────────────────────
 $('a[href]').each(function () {
-  const href = ($(this).attr('href') || '').toLowerCase()
   const label = ($(this).text() || '').toLowerCase().replace(/\s+/g, ' ').trim()
-  let mappedHref = null
-
-  if (label.includes('dashboard') || label.includes('stake pol') || href.includes('polygonscan')) {
-    mappedHref = '/dashboard'
-  } else if (label.includes('sign in') || label.includes('login')) {
-    mappedHref = '/login'
-  } else if (label.includes('academy') || label.includes('blog') || label.includes('docs') || label.includes('knowledge base') || label.includes('whitepaper') || href.includes('/blog') || href.includes('/learn/')) {
-    mappedHref = '/academy'
-  } else if (label.includes('earning guide')) {
-    mappedHref = '/polnation-earning-guide.html'
-  } else if (label.includes('privacy') || href.includes('/privacy-policy')) {
-    mappedHref = '/privacy'
-  } else if (label.includes('terms') || href.includes('/terms-of-use') || href.includes('/legal-terms')) {
-    mappedHref = '/terms'
-  } else if (label.includes('contact') || label.includes('support') || label.includes('book a call')) {
-    mappedHref = 'mailto:Support@polnation.com'
-  } else if (
-    label.includes('get rewarded') || label.includes('get started') || label.includes('community rewards') ||
-    label.includes('usdc rewards') || label.includes('vault') || label.includes('balance tiers') ||
-    label.includes('self-custody') || label.includes('portal') || label.includes('daily rewards') ||
-    href.includes('get-early-access') || href.includes('/open-money-stack') || href.includes('/polygon-pos') ||
-    href.includes('/trails') || href.includes('/payments') || href.includes('/stablecoins') ||
-    href.includes('/tokenization') || href.includes('/ecosystem') || href.includes('staking.polygon.technology') ||
-    href.includes('portal.polygon.technology')
-  ) {
-    mappedHref = '/register'
-  } else if (href.includes('x.com/0xpolygon') || href.includes('twitter.com/0xpolygon')) {
-    mappedHref = 'https://twitter.com/polnation'
-  } else if (href.includes('t.me/polygon')) {
-    mappedHref = 'https://t.me/polnation'
-  }
-
-  if (!mappedHref) return
+  const mappedHref = label.includes('earning guide') ? '/polnation-earning-guide.html' : '/dashboard'
 
   $(this).attr('href', mappedHref)
-  if (/^https?:\/\//i.test(mappedHref)) {
-    $(this).attr('target', '_blank').attr('rel', 'noopener noreferrer')
-  } else {
-    $(this).removeAttr('target')
-  }
+  $(this).removeAttr('target').removeAttr('rel')
 })
 
 // ─── 4. REMOVE ANTI-FLICKER + INTELLIMIZE ────────────────────────────────────
