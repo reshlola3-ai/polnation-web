@@ -2153,6 +2153,14 @@ body.nav-scrolled .nav-wrapper {
   border-bottom: 1px solid rgba(160, 176, 255, 0.18);
 }
 
+/* polygon.css gives .h-eyebrow-container.is-relative a margin-bottom:-2.8em
+   so the eyebrow tag overlaps into the headline as a Polygon design effect.
+   That collapses ugly inside our compact tracker card and visibly clips the
+   "Live treasury tracker" heading on desktop — reset it here. */
+.polnation-tracker-head .h-eyebrow-container.is-relative {
+  margin-bottom: 0 !important;
+}
+
 .polnation-tracker-kpis {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
