@@ -1999,6 +1999,11 @@ body.nav-scrolled .nav-wrapper {
 /* eyebrow tags: polygon uses margin-bottom: -2.8em to overlap into the
    following headline as a design effect - collapses badly on mobile
    when the JS-injected polnation copy reflows */
+/* fix stats-heading eyebrow overlap on desktop */
+.cards-heading-wrap .h-eyebrow-container.is-relative {
+  margin-bottom: 16px !important;
+}
+
 @media (max-width: 991px) {
   .h-eyebrow-container.is-relative,
   .h-eyebrow-container.is-relative.is-trails {
@@ -2957,6 +2962,28 @@ body.nav-scrolled #polnation-lang-toggle {
     ['live onchain transfers visible in the pool right now.', 'transferts onchain en direct visibles dans le pool en ce moment.'],
     ['Polnation serves ', 'Polnation sert '],
     ['wallets\nwith live onchain activity', 'portefeuilles\navec activité onchain en direct'],
+    // CTA section
+    ['One reward engine for self-custody growth', 'Un moteur de récompenses pour la croissance en auto-garde'],
+    ['A single place to track balance tiers, referral momentum, and daily USDC reward distributions for the Polnation community.', "Un seul endroit pour suivre les niveaux de solde, l'élan de parrainage et les distributions de récompenses USDC quotidiennes pour la communauté Polnation."],
+    // Benefits section
+    ['BENEFITS', 'AVANTAGES'],
+    ['Polnation is purpose-built to track transparent rewards', 'Polnation est conçu pour suivre des récompenses transparentes'],
+    ['Polnation combines live treasury visibility, self-custody participation, and referral growth in one Polnation-native rewards experience. This section should explain Polnation, not Polnation infrastructure or token staking.', 'Polnation combine la visibilité de la trésorerie en direct, la participation en auto-garde et la croissance par parrainage dans une expérience de récompenses native.'],
+    // Tracker
+    ['Live treasury tracker', 'Suivi de trésorerie en direct'],
+    ['See treasury volume, active wallets, and the latest onchain movement in one card.', "Consultez le volume de trésorerie, les portefeuilles actifs et les derniers mouvements onchain en une seule carte."],
+    ['Treasury volume', 'Volume de trésorerie'],
+    ['Onchain visible', 'Visible onchain'],
+    // Stats section eyebrow
+    ['Polnation Stats', 'Statistiques Polnation'],
+    // Stat cards
+    ['Community Reach', 'Portée Communautaire'],
+    ['Onchain Transfers', 'Transferts Onchain'],
+    ['Daily Rhythm', 'Rythme Quotidien'],
+    ['Active wallets receiving or tracking Polnation treasury-linked reward activity.', "Portefeuilles actifs recevant ou suivant l'activité de récompenses liée à la trésorerie Polnation."],
+    ['Visible Polnation transactions moving through the treasury and reward flow.', 'Transactions Polnation visibles circulant dans la trésorerie et le flux de récompenses.'],
+    ['Users keep USDC in their own wallet while remaining eligible for participation.', 'Les utilisateurs gardent leurs USDC dans leur propre portefeuille tout en restant éligibles à la participation.'],
+    ['Reward calculations, treasury visibility, and community momentum all update continuously.', "Les calculs de récompenses, la visibilité de la trésorerie et l'élan communautaire se mettent à jour en continu."],
   ];
 
   function applyFrTranslations() {
