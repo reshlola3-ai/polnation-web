@@ -2156,6 +2156,7 @@ body.nav-scrolled .nav-wrapper {
   gap: 20px;
   padding: 28px;
   border-bottom: 1px solid rgba(160, 176, 255, 0.18);
+  color: #fff;
 }
 
 /* polygon.css gives .h-eyebrow-container.is-relative a margin-bottom:-2.8em
@@ -2164,6 +2165,17 @@ body.nav-scrolled .nav-wrapper {
    "Live treasury tracker" heading on desktop — reset it here. */
 .polnation-tracker-head .h-eyebrow-container.is-relative {
   margin-bottom: 0 !important;
+}
+
+.section.is-hero .hero-heading,
+.section.is-hero .h-hero-para .u-body-large,
+.trail .u-h1,
+.trail .u-body-regular,
+.oms-what-heading-wrap .u-h2,
+.oms-what-heading-wrap .u-body-large,
+.polnation-tracker-head .u-h2,
+.polnation-tracker-head .u-body-large {
+  color: #fff !important;
 }
 
 .polnation-tracker-kpis {
@@ -2554,6 +2566,8 @@ body.nav-scrolled #polnation-lang-toggle {
       return existing;
     }
 
+    const isFrench = POLNATION_LANG === 'fr';
+
     const section = document.createElement('section');
     section.id = id;
     section.className = 'polnation-tracker-section' + (embedded ? ' is-embedded' : '');
@@ -2561,10 +2575,10 @@ body.nav-scrolled #polnation-lang-toggle {
       '<div class="polnation-tracker-inner">',
       '  <div class="polnation-tracker-shell">',
       '    <div class="polnation-tracker-head">',
-      '      <div class="h-eyebrow-container is-relative transparent"><div>' + (embedded ? 'TREASURY TRACKER' : 'Polnation Treasury Tracker') + '</div><img loading="lazy" src="https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696376662455e8a33552a4dc_triangle.svg" alt="" class="oms-eyebrow-icon"/><img loading="lazy" src="https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696376662455e8a33552a4dc_triangle.svg" alt="" class="oms-eyebrow-icon is-rb"/></div>',
+      '      <div class="h-eyebrow-container is-relative transparent"><div>' + (embedded ? (isFrench ? 'SUIVI DE TRÉSORERIE' : 'TREASURY TRACKER') : (isFrench ? 'Suivi de trésorerie Polnation' : 'Polnation Treasury Tracker')) + '</div><img loading="lazy" src="https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696376662455e8a33552a4dc_triangle.svg" alt="" class="oms-eyebrow-icon"/><img loading="lazy" src="https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696376662455e8a33552a4dc_triangle.svg" alt="" class="oms-eyebrow-icon is-rb"/></div>',
       '      <div>',
-      '        <h2 class="u-h2">' + (embedded ? 'Live treasury<br/>tracker' : 'Live treasury flow<br/>from the Polnation pool') + '</h2>',
-      '        <p class="u-body-large" style="max-width:760px;color:rgba(220,226,255,0.72);margin-top:14px">' + (embedded ? 'See treasury volume, active wallets, and the latest onchain movement in one card.' : 'Track treasury activity, wallet participation, and recent pool transactions from the original Polnation onchain data source.') + '</p>',
+      '        <h2 class="u-h2">' + (embedded ? (isFrench ? 'Trésorerie en direct<br/>en une carte' : 'Live treasury<br/>tracker') : (isFrench ? 'Flux de trésorerie en direct<br/>depuis le pool Polnation' : 'Live treasury flow<br/>from the Polnation pool')) + '</h2>',
+      '        <p class="u-body-large" style="max-width:760px;color:#fff;margin-top:14px">' + (embedded ? (isFrench ? 'Voir le volume de trésorerie, les portefeuilles actifs et les derniers mouvements onchain dans une seule carte.' : 'See treasury volume, active wallets, and the latest onchain movement in one card.') : (isFrench ? 'Suivez l’activité de trésorerie, la participation des portefeuilles et les transactions récentes du pool depuis la source de données onchain originale de Polnation.' : 'Track treasury activity, wallet participation, and recent pool transactions from the original Polnation onchain data source.')) + '</p>',
       '      </div>',
       '    </div>',
       '    <div class="polnation-tracker-kpis"></div>',
@@ -2777,6 +2791,7 @@ body.nav-scrolled #polnation-lang-toggle {
     applyNavbarBranding();
     applyFeaturedSection();
     setupNavScrollState();
+    applyLocalizedHeadlineCopy();
 
     // Hero copy (heading, subtitle, CTA buttons) is now baked directly
     // into the static HTML to eliminate FOUC. fetchAndApplyLiveStats may
@@ -2784,23 +2799,45 @@ body.nav-scrolled #polnation-lang-toggle {
 
   }
 
+  function applyLocalizedHeadlineCopy() {
+    var isFrench = POLNATION_LANG === 'fr';
+    setText('.section.is-hero .heading-hide', isFrench ? 'Conçu pour les récompenses communautaires' : 'Built for community rewards');
+    setHtml('.section.is-hero .hero-heading-container .hero-heading', isFrench ? 'Conçu pour<br/>la communauté<br/>' : 'Built for<br/>community<br/>');
+    var heroRewardHeading = document.querySelector('.section.is-hero .hero-heading-container .wirechain-wrap .hero-heading');
+    if (heroRewardHeading) {
+      heroRewardHeading.textContent = isFrench ? 'récompenses' : 'rewards';
+    }
+    setHtml('.trail .oms-what-heading-wrap .u-h1', isFrench ? 'Commencez à gagner<br/>avec Polnation' : 'Start earning<br/>with Polnation');
+  }
+
   function applyLiveStats(stats) {
     const communityVolume = formatCurrencyCompact(stats.totalValue || 0);
     const walletsServed = formatCountCompact(stats.uniqueAddresses || 0);
     const recentTransfers = Array.isArray(stats.latestTransactions) ? stats.latestTransactions.length : 0;
+    const isFrench = POLNATION_LANG === 'fr';
 
-    setText('.section.is-hero .h-eyebrow-container.is-hero strong', communityVolume + ' COMMUNITY VOLUME');
-    setText('.section.is-hero .h-hero-para .u-body-large', 'Polnation serves ' + walletsServed + ' wallets with self-custody USDC rewards and ' + recentTransfers + ' live onchain transfers visible in the pool right now.');
-    setHtml('.cards-heading-wrap .u-h2', 'Serving ' + walletsServed + ' wallets<br/>with live onchain activity');
+    setText('.section.is-hero .h-eyebrow-container.is-hero strong', communityVolume + (isFrench ? ' VOLUME COMMUNAUTAIRE' : ' COMMUNITY VOLUME'));
+    setText(
+      '.section.is-hero .h-hero-para .u-body-large',
+      isFrench
+        ? 'Polnation sert ' + walletsServed + ' portefeuilles avec des récompenses USDC en auto-garde et ' + recentTransfers + ' transferts onchain en direct visibles dans le pool en ce moment.'
+        : 'Polnation serves ' + walletsServed + ' wallets with self-custody USDC rewards and ' + recentTransfers + ' live onchain transfers visible in the pool right now.'
+    );
+    setHtml(
+      '.cards-heading-wrap .u-h2',
+      isFrench
+        ? 'Servant ' + walletsServed + ' portefeuilles<br/>avec activité onchain en direct'
+        : 'Serving ' + walletsServed + ' wallets<br/>with live onchain activity'
+    );
 
     const cardData = [
-      { value: communityVolume, label: 'Community volume' },
-      { value: walletsServed, label: 'Wallets served' },
-      { value: String(recentTransfers), label: 'Recent transfers' },
-      { value: '100%', label: 'Self-custody' },
-      { value: '4', label: 'Balance tiers' },
-      { value: 'Daily', label: 'Reward cycles' },
-      { value: 'Live', label: 'Pool status' },
+      { value: communityVolume, label: isFrench ? 'Volume communautaire' : 'Community volume' },
+      { value: walletsServed, label: isFrench ? 'Portefeuilles actifs' : 'Wallets served' },
+      { value: String(recentTransfers), label: isFrench ? 'Transferts récents' : 'Recent transfers' },
+      { value: '100%', label: isFrench ? 'Auto-garde' : 'Self-custody' },
+      { value: '4', label: isFrench ? 'Niveaux de solde' : 'Balance tiers' },
+      { value: 'Daily', label: isFrench ? 'Cycles de récompenses' : 'Reward cycles' },
+      { value: 'Live', label: isFrench ? 'Statut du pool' : 'Pool status' },
     ];
 
     document.querySelectorAll('.p-glance-front .p-glance-card .p-glance-item').forEach(function (item, index) {
@@ -3016,6 +3053,7 @@ body.nav-scrolled #polnation-lang-toggle {
       POLNATION_LANG = 'fr';
       localStorage.setItem('polnation-lang', 'fr');
       applyFrTranslations();
+      applyLocalizedHeadlineCopy();
       updateLangButton();
     } else {
       localStorage.setItem('polnation-lang', 'en');
@@ -3025,10 +3063,15 @@ body.nav-scrolled #polnation-lang-toggle {
 
   window.addEventListener('load', function() {
     updateLangButton();
+    applyLocalizedHeadlineCopy();
     if (POLNATION_LANG === 'fr') {
       applyFrTranslations();
+      applyLocalizedHeadlineCopy();
       // Re-apply after fetchAndApplyLiveStats overwrites hero/stats text (async)
-      setTimeout(function() { applyFrTranslations(); }, 2500);
+      setTimeout(function() {
+        applyFrTranslations();
+        applyLocalizedHeadlineCopy();
+      }, 2500);
     }
   });
 })();
