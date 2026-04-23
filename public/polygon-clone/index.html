@@ -2936,6 +2936,27 @@ body.nav-scrolled #polnation-lang-toggle {
     ['Serving real wallets', 'Servant de vrais portefeuilles'],
     ['with live onchain activity', 'avec activité onchain en direct'],
     ['powered by', 'propulsé par'],
+    // Hero heading
+    ['Built for community rewards', 'Conçu pour les récompenses communautaires'],
+    // Featured section cards
+    ['GROW YOUR TEAM TO BOOST DAILY COMMUNITY EARNINGS', 'DÉVELOPPEZ VOTRE ÉQUIPE POUR BOOSTER VOS GAINS COMMUNAUTAIRES QUOTIDIENS'],
+    ['Invite new wallet holders, grow team volume, and reset your momentum multiplier to strengthen daily reward output.', "Invitez de nouveaux détenteurs, augmentez le volume de l'équipe et réinitialisez votre multiplicateur pour renforcer vos récompenses quotidiennes."],
+    ['USDC In/Out Guides', "Guides d'Entrée/Sortie USDC"],
+    ['Simple entry and exit paths for community members moving into USDC', "Des chemins simples d'entrée et de sortie pour les membres de la communauté passant à l'USDC"],
+    ['Help members move into or out of USDC with clearer setup guidance, safer wallet habits, and less confusion around participation.', "Aidez les membres à entrer ou sortir de l'USDC avec des conseils clairs et moins de confusion."],
+    ['Reward Infrastructure', 'Infrastructure de Récompenses'],
+    ['The onchain rails behind transparent treasury movement and daily community distributions', 'Les rails onchain derrière le mouvement transparent de la trésorerie et les distributions communautaires quotidiennes'],
+    ['Track how treasury movement, wallet activity, and reward distribution logic stay visible on Polygon.', 'Suivez comment le mouvement de la trésorerie et la logique de distribution restent visibles sur Polygon.'],
+    ['coming soon', 'bientôt disponible'],
+    ['Reward Automation', 'Automatisation des Récompenses'],
+    ['Coordinate tiers, treasury logic, and payout timing across the Polnation reward engine', 'Coordonnez les niveaux, la logique de trésorerie et le timing des paiements dans le moteur Polnation'],
+    ['Community Onboarding', 'Intégration Communautaire'],
+    ['Prepare wallets, referral structure, and treasury participation flows in one guided Polnation setup layer', 'Préparez les portefeuilles, la structure de parrainage et les flux de participation dans une couche de configuration guidée Polnation'],
+    // Dynamic stats text fragments (set by applyLiveStats async)
+    ['wallets with self-custody USDC rewards and', 'portefeuilles avec des récompenses USDC en auto-garde et'],
+    ['live onchain transfers visible in the pool right now.', 'transferts onchain en direct visibles dans le pool en ce moment.'],
+    ['Polnation serves ', 'Polnation sert '],
+    ['wallets\nwith live onchain activity', 'portefeuilles\navec activité onchain en direct'],
   ];
 
   function applyFrTranslations() {
@@ -2979,6 +3000,8 @@ body.nav-scrolled #polnation-lang-toggle {
     updateLangButton();
     if (POLNATION_LANG === 'fr') {
       applyFrTranslations();
+      // Re-apply after fetchAndApplyLiveStats overwrites hero/stats text (async)
+      setTimeout(function() { applyFrTranslations(); }, 2500);
     }
   });
 })();
