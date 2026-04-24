@@ -36,14 +36,15 @@ export default async function DashboardLayout({
 
   return (
     <Web3Provider>
-      <div className="min-h-screen bg-[#0D0B21] relative">
+      <div className="min-h-screen poly-dashboard-surface relative overflow-x-hidden">
         {/* Unsupported Wallet Overlay */}
         <UnsupportedWalletOverlay />
 
         {/* Grid background — adapted from staking.polygon.technology */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden -z-0">
-          <div className="absolute inset-0 dashboard-grid-pattern" />
-          <div className="absolute inset-x-0 bottom-0 h-[30%] bg-gradient-to-b from-transparent to-[#0D0B21]" />
+          <div className="absolute inset-0 poly-grid-pattern" />
+          <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-white/[0.08] to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-[36%] bg-gradient-to-b from-transparent to-[var(--poly-bg-deep)]" />
         </div>
         
         {/* Desktop Navigation */}
@@ -52,16 +53,16 @@ export default async function DashboardLayout({
         </div>
 
         {/* Mobile Header — logo + language only; navigation is in BottomNav */}
-        <div className="md:hidden sticky top-0 z-20 bg-[#0D0B21] border-b border-white/[0.05]">
+        <div className="md:hidden sticky top-0 z-20 bg-[var(--poly-panel)]/95 backdrop-blur-xl border-b border-[var(--poly-line)]">
           <div className="flex items-center justify-between h-12 px-4">
             <Link href="/dashboard" className="flex items-center gap-2">
-              <Image src="/logo.svg" alt="Polnation" width={26} height={26} className="rounded-lg" />
-              <span className="font-display text-base text-white">Polnation</span>
+              <Image src="/logo.svg" alt="Polnation" width={26} height={26} />
+              <span className="poly-heading text-base">Polnation</span>
             </Link>
             <div className="flex items-center gap-2">
               {walletAddress && (
-                <span className="text-xs font-mono text-zinc-400 bg-white/5 border border-white/10 px-2 py-1 rounded-lg">
-                  {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
+                <span className="poly-mono text-xs text-[var(--poly-ink-muted)] bg-white/[0.04] border border-[var(--poly-line)] px-2 py-1">
+                  {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
                 </span>
               )}
               <LanguageSwitcher currentLocale={locale} />

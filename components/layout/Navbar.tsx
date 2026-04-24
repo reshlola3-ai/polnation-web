@@ -52,7 +52,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
   // Mobile header - simplified version
   if (isMobile) {
     return (
-      <nav className="bg-[#0D0B21]/80 backdrop-blur-xl border-b border-purple-500/20 sticky top-0 z-50">
+      <nav className="bg-[var(--poly-panel)]/95 backdrop-blur-xl border-b border-[var(--poly-line)] sticky top-0 z-50">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -64,7 +64,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                 height={32}
                 className="rounded-lg"
               />
-              <span className="font-display text-lg text-white">Polnation</span>
+              <span className="poly-heading text-lg">Polnation</span>
             </Link>
 
             {/* Right side actions */}
@@ -73,7 +73,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               {user && (
                 <button
                   onClick={handleSignOut}
-                  className="p-2 text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                  className="p-2 text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] hover:bg-white/[0.06] rounded-[4px] transition-all"
                 >
                   <LogOut className="w-5 h-5" />
                 </button>
@@ -87,7 +87,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
 
   // Desktop navigation - full version
   return (
-    <nav className="bg-[#0D0B21]/80 backdrop-blur-xl border-b border-purple-500/20 sticky top-0 z-50">
+    <nav className="bg-[var(--poly-panel)]/95 backdrop-blur-xl border-b border-[var(--poly-line)] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
@@ -98,9 +98,9 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                 alt="Polnation"
                 width={36}
                 height={36}
-                className="rounded-xl glow-purple-sm group-hover:glow-purple transition-all duration-300"
+                className="transition-all duration-300"
               />
-              <span className="font-display text-xl text-white group-hover:glow-text transition-all duration-300">Polnation</span>
+              <span className="poly-heading text-xl transition-colors duration-300 group-hover:text-[var(--poly-accent-cyan)]">Polnation</span>
             </Link>
           </div>
 
@@ -115,10 +115,10 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                     key={link.href}
                     href={link.href}
                     className={`
-                      flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300
-                      ${isActive 
-                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' 
-                        : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                      poly-mono flex items-center gap-2 px-4 py-2 rounded-[4px] text-xs uppercase transition-all duration-300 border
+                      ${isActive
+                        ? 'bg-white/[0.08] text-[var(--poly-ink)] border-[var(--poly-accent-cyan)]'
+                        : 'text-[var(--poly-ink-muted)] border-transparent hover:text-[var(--poly-ink)] hover:bg-white/[0.05] hover:border-[var(--poly-line)]'
                       }
                     `}
                   >
@@ -139,10 +139,10 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
             <Link
               href="/academy"
               className={`
-                hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-300
+                poly-mono hidden sm:flex items-center gap-2 px-3 py-2 rounded-[4px] text-xs uppercase transition-all duration-300 border
                 ${pathname === '/academy'
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-white/[0.08] text-[var(--poly-ink)] border-[var(--poly-accent-cyan)]'
+                  : 'text-[var(--poly-ink-muted)] border-transparent hover:text-[var(--poly-ink)] hover:bg-white/[0.05] hover:border-[var(--poly-line)]'
                 }
               `}
             >
@@ -155,7 +155,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               href="/polnation-earning-guide.html"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+              className="poly-mono hidden sm:flex items-center gap-2 px-3 py-2 rounded-[4px] text-xs uppercase text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] hover:bg-white/[0.05] border border-transparent hover:border-[var(--poly-line)] transition-all duration-300"
             >
               <GraduationCap className="w-4 h-4" />
               Earning Guide
@@ -163,12 +163,12 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
 
             {user ? (
               <>
-                <span className="hidden lg:block text-sm text-zinc-500 truncate max-w-[120px]">
+                <span className="poly-mono hidden lg:block text-xs text-[var(--poly-ink-soft)] truncate max-w-[120px]">
                   {user.email}
                 </span>
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-300"
+                  className="poly-mono flex items-center gap-2 px-3 py-2 text-xs uppercase text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] hover:bg-white/[0.05] rounded-[4px] transition-all duration-300"
                 >
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline">{t('signOut')}</span>
@@ -178,13 +178,13 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-all"
+                  className="poly-mono px-3 py-2 text-xs uppercase text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] transition-all"
                 >
                   {t('signIn')}
                 </Link>
                 <Link
                   href="/register"
-                  className="px-4 py-2 text-sm font-medium text-white btn-gradient rounded-xl transition-all"
+                  className="poly-button"
                 >
                   {t('getStarted')}
                 </Link>
@@ -195,7 +195,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
             {user && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                className="md:hidden p-2 rounded-[4px] text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] hover:bg-white/[0.05] transition-all"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -205,7 +205,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
 
         {/* Mobile Navigation Dropdown */}
         {user && mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-purple-500/20">
+          <div className="md:hidden py-4 border-t border-[var(--poly-line)]">
             <div className="flex flex-col gap-1">
               {navLinks.map((link) => {
                 const Icon = link.icon
@@ -216,10 +216,10 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300
+                      poly-mono flex items-center gap-3 px-4 py-3 rounded-[4px] text-xs uppercase transition-all duration-300 border
                       ${isActive
-                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                        : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                        ? 'bg-white/[0.08] text-[var(--poly-ink)] border-[var(--poly-accent-cyan)]'
+                        : 'text-[var(--poly-ink-muted)] border-transparent hover:text-[var(--poly-ink)] hover:bg-white/[0.05]'
                       }
                     `}
                   >
@@ -234,7 +234,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+                className="poly-mono flex items-center gap-3 px-4 py-3 rounded-[4px] text-xs uppercase text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] hover:bg-white/[0.05] transition-all duration-300"
               >
                 <GraduationCap className="w-5 h-5" />
                 Earning Guide
