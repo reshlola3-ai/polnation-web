@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "PolySans";
+  src: url("/polygon-clone/fonts/PolySans-Neutral.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PolySansMono";
+  src: url("/polygon-clone/fonts/PolySans-NeutralMono.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Kraken Purple Theme */
   --background: #0D0B21;
@@ -39,6 +55,25 @@
   --input-bg: rgba(13, 11, 33, 0.6);
   --input-border: rgba(139, 92, 246, 0.3);
   --input-focus: rgba(139, 92, 246, 0.5);
+
+  /* Polygon-clone dashboard system */
+  --poly-font-sans: "PolySans", var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --poly-font-mono: "PolySansMono", var(--font-mono), "JetBrains Mono", "Fira Code", monospace;
+  --poly-bg: #0619a8;
+  --poly-bg-deep: #050811;
+  --poly-ink: #f7f8ff;
+  --poly-ink-muted: rgba(247, 248, 255, 0.62);
+  --poly-ink-soft: rgba(247, 248, 255, 0.42);
+  --poly-line: rgba(247, 248, 255, 0.22);
+  --poly-line-strong: rgba(247, 248, 255, 0.38);
+  --poly-panel: rgba(5, 8, 17, 0.88);
+  --poly-panel-soft: rgba(255, 255, 255, 0.04);
+  --poly-accent: #8b5cff;
+  --poly-accent-hot: #ff7a45;
+  --poly-accent-cyan: #00bbff;
+  --poly-radius: 0px;
+  --poly-radius-soft: 4px;
+  --poly-shadow: 0 24px 90px rgba(0, 0, 0, 0.34);
 }
 
 @theme inline {
@@ -46,6 +81,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: var(--font-mono), 'JetBrains Mono', 'Fira Code', monospace;
+  --font-poly: var(--poly-font-sans);
+  --font-poly-mono: var(--poly-font-mono);
 }
 
 /* Base Styles - Space Grotesk for everything */
@@ -588,6 +625,90 @@ input, select, textarea {
 
 .withdraw-pulse {
   animation: withdraw-pulse-glow 1.8s ease-in-out infinite;
+}
+
+/* Polygon-clone dashboard primitives. These are intentionally opt-in so the
+   dashboard can migrate one surface at a time. */
+.poly-dashboard-surface {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(0, 187, 255, 0.18), transparent 28%),
+    linear-gradient(180deg, var(--poly-bg) 0%, var(--poly-bg-deep) 100%);
+  color: var(--poly-ink);
+  font-family: var(--poly-font-sans);
+}
+
+.poly-grid-pattern {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.10) 1px, transparent 1px);
+  background-size: 120px 120px;
+  -webkit-mask-image: radial-gradient(90% 80% at 50% 40%, #000 0%, #0000 86%);
+          mask-image: radial-gradient(90% 80% at 50% 40%, #000 0%, #0000 86%);
+}
+
+.poly-panel {
+  background: var(--poly-panel);
+  border: 1px solid var(--poly-line);
+  border-radius: var(--poly-radius);
+  box-shadow: var(--poly-shadow);
+}
+
+.poly-panel-soft {
+  background: var(--poly-panel-soft);
+  border: 1px solid var(--poly-line);
+  border-radius: var(--poly-radius);
+}
+
+.poly-eyebrow {
+  font-family: var(--poly-font-mono);
+  font-size: 0.75rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--poly-ink-muted);
+}
+
+.poly-heading {
+  font-family: var(--poly-font-sans);
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--poly-ink);
+}
+
+.poly-number {
+  font-family: var(--poly-font-sans);
+  font-feature-settings: "tnum" on, "lnum" on;
+  letter-spacing: 0;
+  color: var(--poly-ink);
+}
+
+.poly-mono {
+  font-family: var(--poly-font-mono);
+  letter-spacing: 0;
+}
+
+.poly-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0 1rem;
+  background: var(--poly-panel);
+  border: 1px solid var(--poly-line-strong);
+  border-radius: var(--poly-radius-soft);
+  color: var(--poly-ink);
+  font-family: var(--poly-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+
+.poly-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--poly-accent-cyan);
+  transform: translateY(-1px);
 }
 
 /* Mobile Typography Adjustments */
