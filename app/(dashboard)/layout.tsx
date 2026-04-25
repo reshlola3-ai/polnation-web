@@ -40,11 +40,12 @@ export default async function DashboardLayout({
         {/* Unsupported Wallet Overlay */}
         <UnsupportedWalletOverlay />
 
-        {/* Grid background — adapted from staking.polygon.technology */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden -z-0">
-          <div className="absolute inset-0 poly-grid-pattern" />
-          <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-white/[0.08] to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 h-[36%] bg-gradient-to-b from-transparent to-[var(--poly-bg-deep)]" />
+        {/* Polygon-clone blue field: home-bg, grid, grain, and vignette. */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+          <div className="absolute inset-0 poly-dashboard-blue-bg" />
+          <div className="absolute inset-0 poly-grid-pattern opacity-80" />
+          <div className="absolute -inset-[10%] poly-noise-overlay" />
+          <div className="absolute inset-0 poly-dashboard-vignette" />
         </div>
         
         {/* Desktop Navigation */}

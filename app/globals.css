@@ -631,19 +631,48 @@ input, select, textarea {
    dashboard can migrate one surface at a time. */
 .poly-dashboard-surface {
   background:
-    radial-gradient(circle at 20% 0%, rgba(0, 187, 255, 0.18), transparent 28%),
-    linear-gradient(180deg, var(--poly-bg) 0%, var(--poly-bg-deep) 100%);
+    #141b6b url("/polygon-clone/assets/images/home-bg.svg") center top / cover fixed no-repeat;
   color: var(--poly-ink);
   font-family: var(--poly-font-sans);
 }
 
+.poly-dashboard-blue-bg {
+  background:
+    linear-gradient(180deg, rgba(20, 27, 107, 0.2), rgba(5, 8, 17, 0.68)),
+    url("/polygon-clone/assets/images/home-bg.svg") center top / cover no-repeat;
+}
+
+.poly-dashboard-vignette {
+  background:
+    radial-gradient(circle at 20% 8%, rgba(0, 187, 255, 0.22), transparent 28%),
+    radial-gradient(circle at 82% 16%, rgba(139, 92, 255, 0.18), transparent 24%),
+    linear-gradient(180deg, transparent 0%, rgba(5, 8, 17, 0.18) 52%, rgba(5, 8, 17, 0.72) 100%);
+}
+
 .poly-grid-pattern {
   background-image:
-    linear-gradient(rgb(255 255 255 / 0.10) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.10) 1px, transparent 1px);
+    linear-gradient(rgb(255 255 255 / 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.12) 1px, transparent 1px);
   background-size: 120px 120px;
   -webkit-mask-image: radial-gradient(90% 80% at 50% 40%, #000 0%, #0000 86%);
           mask-image: radial-gradient(90% 80% at 50% 40%, #000 0%, #0000 86%);
+}
+
+.poly-noise-overlay {
+  background-image: url("https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696a602ac6101b45acab2821_grainOverlay.gif");
+  background-position: 0 0;
+  background-size: 120px 120px;
+  mix-blend-mode: color-dodge;
+  opacity: 0.09;
+  animation: poly-noise-drift 8s steps(8) infinite;
+}
+
+@keyframes poly-noise-drift {
+  0% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(-2%, 1%, 0); }
+  50% { transform: translate3d(1%, -2%, 0); }
+  75% { transform: translate3d(2%, 2%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
 }
 
 .poly-panel {
