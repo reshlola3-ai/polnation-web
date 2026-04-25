@@ -348,8 +348,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   // If no wallet connected and no bound wallet
   if (!walletAddress) {
     return (
-      <div className="space-y-3">
-        <section className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-2xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/40 p-7 sm:p-10 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(255,255,255,0.1),0_30px_60px_-20px_rgba(0,0,0,0.5)]">
+      <div className="kraken-shell space-y-3">
+        <section className="kraken-panel p-7 sm:p-10">
           <div className="text-center max-w-md mx-auto">
             <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white/[0.08] ring-1 ring-inset ring-white/[0.12] flex items-center justify-center">
               <Wallet className="w-7 h-7 text-white/80" />
@@ -383,14 +383,14 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   const allDone = step1Done && step2Done && step3Done
   
   return (
-    <div className="space-y-3">
+    <div className="kraken-shell space-y-3">
       {/* Onboarding Banner — hides once all steps complete */}
       {!allDone && (
-        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40 mb-3">Getting Started</p>
+        <section className="kraken-panel p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--kraken-muted)] mb-3">Getting Started</p>
           <div className="flex items-start gap-2">
             {/* Step 1 */}
-            <div className={`flex-1 rounded-xl p-3 ring-1 ring-inset transition-colors ${step1Done ? 'ring-emerald-500/30 bg-emerald-500/10' : 'ring-purple-500/30 bg-purple-500/10'}`}>
+            <div className={`flex-1 kraken-mini-card p-3 transition-colors ${step1Done ? 'border-emerald-500/20' : 'border-purple-500/20'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {step1Done
                   ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -403,7 +403,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <ChevronRight className="w-4 h-4 text-white/25 shrink-0 mt-3" />
 
             {/* Step 2 */}
-            <div className={`flex-1 rounded-xl p-3 ring-1 ring-inset transition-colors ${step2Done ? 'ring-emerald-500/30 bg-emerald-500/10' : step1Done ? 'ring-cyan-500/35 bg-cyan-500/10' : 'ring-white/[0.06] bg-white/[0.03]'}`}>
+            <div className={`flex-1 kraken-mini-card p-3 transition-colors ${step2Done ? 'border-emerald-500/20' : step1Done ? 'border-cyan-500/25' : 'border-white/[0.06]'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {step2Done
                   ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -419,7 +419,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <ChevronRight className="w-4 h-4 text-white/25 shrink-0 mt-3" />
 
             {/* Step 3 */}
-            <Link href="/profile" className={`flex-1 rounded-xl p-3 ring-1 ring-inset transition-colors ${step3Done ? 'ring-emerald-500/30 bg-emerald-500/10' : step2Done ? 'ring-cyan-500/35 bg-cyan-500/10' : 'ring-white/[0.06] bg-white/[0.03]'}`}>
+            <Link href="/profile" className={`flex-1 kraken-mini-card p-3 transition-colors ${step3Done ? 'border-emerald-500/20' : step2Done ? 'border-cyan-500/25' : 'border-white/[0.06]'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {step3Done
                   ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -436,7 +436,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       )}
 
       {/* Hero */}
-      <section className="dashboard-modern-hero p-7 sm:p-8">
+      <section className="kraken-summary p-5 sm:p-6">
         {/* Polygon coin + blocks illustration (from staking.polygon.technology) */}
         <Image
           src="/images/dashboard-hero.png"
@@ -444,21 +444,21 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           width={431}
           height={285}
           priority
-          className="dashboard-hero-art pointer-events-none select-none absolute -top-4 -right-6 sm:-top-6 sm:-right-8 w-[180px] sm:w-[240px] h-auto opacity-85 mix-blend-screen"
+          className="hidden"
         />
         {/* Balance — large, dominant */}
-        <div className="relative z-10 text-center mb-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40 mb-2">{t('totalAssets')}</p>
+        <div className="text-left mb-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--kraken-muted)] mb-2">{t('totalAssets')}</p>
           {isBalanceLoading ? (
             <div className="animate-pulse h-14 w-44 bg-white/5 rounded-lg mx-auto" />
           ) : (
-            <p className="text-[48px] sm:text-[56px] leading-none font-semibold text-white tracking-tight tabular-nums">
+            <p className="text-[44px] sm:text-[52px] leading-none font-semibold text-white tracking-tight tabular-nums">
               ${totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           )}
-          <div className="flex items-center justify-center gap-1.5 mt-3">
-            <div className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-emerald-500/10 ring-1 ring-inset ring-emerald-500/20">
-              <span className="text-emerald-300 text-[12px] font-semibold tabular-nums">
+          <div className="flex items-center gap-2 mt-3">
+            <div className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-[rgba(0,226,138,0.1)] border border-[rgba(0,226,138,0.2)]">
+              <span className="text-[var(--kraken-green)] text-[12px] font-semibold tabular-nums">
                 +${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}{t('perDay')}
               </span>
             </div>
@@ -472,16 +472,16 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
 
         {/* Status pills */}
-        <div className="flex items-center justify-center gap-2 flex-wrap mb-6">
+        <div className="flex items-center gap-2 flex-wrap mb-5">
           <button
-            className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-white/[0.08] ring-1 ring-inset ring-white/[0.08] text-[12px] font-semibold text-white hover:bg-white/[0.12] transition-colors active:scale-95"
+            className="kraken-pill inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold text-white hover:bg-white/[0.08] transition-colors active:scale-95"
             onClick={() => setShowTierModal(true)}
           >
             <span>{TIER_ICONS[currentTier.name] || '⭐'}</span>
             {currentTier.name} · {(currentTier.rate * 100).toFixed(2)}%
           </button>
           <button
-            className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-amber-500/10 ring-1 ring-inset ring-amber-500/25 text-[12px] font-semibold text-amber-200 hover:bg-amber-500/15 transition-colors active:scale-95"
+            className="kraken-pill inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold text-amber-200 hover:bg-amber-500/15 transition-colors active:scale-95"
             onClick={() => setShowMomentumModal(true)}
           >
             <Flame className="w-3 h-3 text-orange-400" />
@@ -493,9 +493,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
 
         {/* Assets breakdown */}
-        <div className="dashboard-modern-breakdown grid grid-cols-3" onClick={() => setActiveAssetTip(null)}>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2" onClick={() => setActiveAssetTip(null)}>
           {/* Wallet */}
-          <div className="dashboard-modern-breakdown-item px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+          <div className="kraken-mini-card px-3 py-4 flex flex-col items-start gap-1 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-white/[0.06] ring-1 ring-inset ring-white/[0.06] flex items-center justify-center mb-0.5">
               <Wallet className="w-4 h-4 text-white/80" />
             </div>
@@ -514,7 +514,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           </div>
 
           {/* Withdrawable */}
-          <div className="dashboard-modern-breakdown-item px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+          <div className="kraken-mini-card px-3 py-4 flex flex-col items-start gap-1 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-cyan-500/10 ring-1 ring-inset ring-cyan-500/20 flex items-center justify-center mb-0.5">
               <ArrowUpRight className="w-4 h-4 text-cyan-300" />
             </div>
@@ -536,7 +536,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           </div>
 
           {/* Team Pool */}
-          <div className="dashboard-modern-breakdown-item px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+          <div className="kraken-mini-card px-3 py-4 flex flex-col items-start gap-1 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-purple-500/10 ring-1 ring-inset ring-purple-500/20 flex items-center justify-center mb-0.5">
               <Users className="w-4 h-4 text-purple-300" />
             </div>
@@ -558,12 +558,11 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         {/* Fixed-position tooltip */}
         {activeAssetTip && (
           <div
-            className="fixed z-[999] rounded-2xl ring-1 ring-inset ring-white/15 shadow-2xl p-3 text-[11px] leading-relaxed backdrop-blur-xl backdrop-saturate-[180%]"
+            className="fixed z-[999] rounded-2xl border border-[var(--kraken-border)] bg-[var(--kraken-panel)] shadow-2xl p-3 text-[11px] leading-relaxed"
             style={{
               left: Math.min(activeAssetTip.x, window.innerWidth - 228),
               top: activeAssetTip.y,
               width: 220,
-              background: 'rgba(21,19,37,0.92)',
               boxShadow: '0 8px 28px rgba(0,0,0,0.55)',
             }}
             onClick={(e) => e.stopPropagation()}
@@ -585,7 +584,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       </section>
 
       {/* Quick Actions — 4 icon buttons */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {[
           { href: '/share',        icon: Share2,     label: 'Invite',  badge: undefined },
           { href: '/test-lottery', icon: Dices,      label: 'Lottery', badge: spinCount  },
@@ -595,19 +594,17 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <Link
             key={href}
             href={href}
-            className="dashboard-action-card quick-action-card flex flex-col items-center gap-2 py-4 active:scale-[0.97] transition-all duration-200 ease-out"
+            className="kraken-action-card quick-action-card flex items-center gap-3 px-3 py-3 active:scale-[0.98] transition-all duration-200 ease-out"
           >
             <div
-              className="quick-action-icon-wrap w-14 h-14 rounded-full flex items-center justify-center"
+              className="quick-action-icon-wrap kraken-icon shrink-0"
               style={{
-                background: 'radial-gradient(circle at 32% 28%, #ffffff 0%, #e9e4f0 55%, #cfc8de 100%)',
-                boxShadow: '0 4px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -2px 6px rgba(0,0,0,0.12)',
                 animationDelay: `${idx * 0.18}s`,
               }}
             >
-              <Icon className="quick-action-icon w-6 h-6 text-violet-600 drop-shadow-sm" style={{ animationDelay: `${idx * 0.14}s` }} />
+              <Icon className="quick-action-icon w-4 h-4 text-white" style={{ animationDelay: `${idx * 0.14}s` }} />
             </div>
-            <span className="text-[12px] text-white/80 font-semibold tracking-tight">{label}</span>
+            <span className="text-[13px] text-white/85 font-semibold tracking-tight">{label}</span>
             {badge != null && badge > 0 && (
               <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow shadow-amber-500/40">
                 {badge}
@@ -618,7 +615,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       </div>
 
       {/* Community + Progress */}
-      <section className="dashboard-modern-community p-5">
+      <section className="kraken-panel p-5">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
@@ -901,7 +898,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {/* Stats — 2 columns */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+        <div className="kraken-panel p-4">
           <div className="flex items-center gap-1.5 mb-2 text-[11px] uppercase tracking-[0.14em] text-white/40 font-semibold">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>{t('totalEarned')}</span>
@@ -916,7 +913,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <p>{t('commission')}: <span className="text-purple-300">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
           </div>
         </div>
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+        <div className="kraken-panel p-4">
           <div className="flex items-center gap-1.5 mb-2 text-[11px] uppercase tracking-[0.14em] text-white/40 font-semibold">
             <Users className="w-3.5 h-3.5" />
             <span>{t('team')}</span>
@@ -944,7 +941,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         const doneCount = steps.filter(s => s.done).length
         const allDone = doneCount === steps.length
         return (
-          <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+          <section className="kraken-panel p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-xl bg-emerald-500/15 ring-1 ring-inset ring-emerald-500/25 flex items-center justify-center">
@@ -996,7 +993,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {/* Wallet reconnect hint */}
       {!isConnected && profile?.wallet_address && (
-        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500/15 via-amber-500/8 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-amber-500/25 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+        <section className="kraken-panel p-5 border-amber-500/25">
           <div className="flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-amber-300 shrink-0" />
             <div className="flex-1 min-w-0">
@@ -1028,7 +1025,7 @@ function ReferralLinkCard({
   t: (key: string) => string
 }) {
   return (
-    <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+    <section className="kraken-panel p-5">
       <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-purple-500/15 blur-2xl pointer-events-none" />
       <div className="absolute -bottom-6 -right-4 w-20 h-20 rounded-full bg-indigo-500/15 blur-xl pointer-events-none" />
 
@@ -1044,14 +1041,14 @@ function ReferralLinkCard({
         </div>
         <p className="text-white/55 text-[12px] mb-3 leading-relaxed">{t('earnCommission')}</p>
 
-        <div className="rounded-xl bg-white/[0.06] ring-1 ring-inset ring-white/[0.08] p-2.5 flex items-center gap-2">
+        <div className="rounded-xl bg-[var(--kraken-panel-2)] border border-[var(--kraken-border)] p-2.5 flex items-center gap-2">
           <code className="text-[12px] text-white/70 truncate flex-1 px-1 font-mono">{referralLink}</code>
           <button
             onClick={onCopy}
             className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-semibold transition-all shrink-0 active:scale-95 ring-1 ring-inset ${
               copied
                 ? 'bg-emerald-500/20 ring-emerald-500/30 text-emerald-200'
-                : 'bg-white text-zinc-900 ring-white/40 hover:bg-white/95'
+                : 'bg-[var(--kraken-purple)] text-white ring-[var(--kraken-purple)] hover:bg-[var(--kraken-purple-soft)]'
             }`}
           >
             {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
@@ -1066,7 +1063,7 @@ function ReferralLinkCard({
 // Locked Referral Link Card
 function ReferralLinkLockedCard({ t }: { t: (key: string) => string }) {
   return (
-    <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/15 via-white/[0.06] to-white/[0.03] backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/20 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+    <section className="kraken-panel p-5">
       <div className="relative z-10">
         <div className="flex items-center gap-2 mb-1.5">
           <div className="w-7 h-7 rounded-xl bg-white/[0.06] ring-1 ring-inset ring-white/[0.08] flex items-center justify-center">
@@ -1082,7 +1079,7 @@ function ReferralLinkLockedCard({ t }: { t: (key: string) => string }) {
         </p>
         <a
           href="/profile"
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-gradient-to-br from-white/35 to-white/10 backdrop-blur-xl ring-1 ring-inset ring-white/40 text-[12px] font-semibold text-white hover:from-white/40 hover:to-white/15 transition-colors shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]"
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-[var(--kraken-purple)] text-[12px] font-semibold text-white hover:bg-[var(--kraken-purple-soft)] transition-colors"
         >
           <ArrowUpRight className="w-3.5 h-3.5" />
           Go to Profile

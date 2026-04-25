@@ -36,17 +36,11 @@ export default async function DashboardLayout({
 
   return (
     <Web3Provider>
-      <div className="min-h-screen poly-dashboard-surface relative overflow-x-hidden">
+      <div className="min-h-screen kraken-dashboard-surface relative overflow-x-hidden">
         {/* Unsupported Wallet Overlay */}
         <UnsupportedWalletOverlay />
 
-        {/* Polygon-clone blue field: home-bg, grid, grain, and vignette. */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-          <div className="absolute inset-0 poly-dashboard-blue-bg" />
-          <div className="absolute inset-0 poly-grid-pattern opacity-80" />
-          <div className="absolute -inset-[10%] poly-noise-overlay" />
-          <div className="absolute inset-0 poly-dashboard-vignette" />
-        </div>
+        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 kraken-dashboard-bg" />
         
         {/* Desktop Navigation */}
         <div className="hidden md:block relative z-20">
@@ -54,7 +48,7 @@ export default async function DashboardLayout({
         </div>
 
         {/* Mobile Header — logo + language only; navigation is in BottomNav */}
-        <div className="md:hidden sticky top-0 z-20 bg-[var(--poly-panel)]/95 backdrop-blur-xl border-b border-[var(--poly-line)]">
+        <div className="md:hidden sticky top-0 z-20 bg-[var(--kraken-panel)] border-b border-[var(--kraken-border)]">
           <div className="flex items-center justify-between h-12 px-4">
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image src="/logo.svg" alt="Polnation" width={26} height={26} />
@@ -62,7 +56,7 @@ export default async function DashboardLayout({
             </Link>
             <div className="flex items-center gap-2">
               {walletAddress && (
-                <span className="poly-mono text-xs text-[var(--poly-ink-muted)] bg-white/[0.04] border border-[var(--poly-line)] px-2 py-1">
+                <span className="poly-mono text-xs text-[var(--kraken-muted)] bg-white/[0.04] border border-[var(--kraken-border)] px-2 py-1">
                   {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
                 </span>
               )}
@@ -72,7 +66,7 @@ export default async function DashboardLayout({
         </div>
         
         {/* Main Content - Add bottom padding for mobile nav */}
-        <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 pb-24 md:pb-6">
+        <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 pb-24 md:pb-8">
           {children}
         </main>
         

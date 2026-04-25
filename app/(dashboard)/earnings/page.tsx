@@ -274,7 +274,7 @@ export default function EarningsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="kraken-shell space-y-4">
       {/* This banner is no longer needed since we use bound wallet address */}
 
       {/* ── Header — Apple-style ─────────────────────────────────────────── */}
@@ -290,7 +290,7 @@ export default function EarningsPage() {
           onClick={fetchProfits}
           disabled={isLoading}
           aria-label={tCommon('refresh')}
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-gradient-to-br from-white/35 to-white/10 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/40 text-[13px] font-semibold text-white hover:from-white/40 hover:to-white/15 transition-colors duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none shadow-[inset_0_1px_0_rgba(255,255,255,0.6),0_4px_12px_rgba(0,0,0,0.2)]"
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-[var(--kraken-panel-2)] border border-[var(--kraken-border)] text-[13px] font-semibold text-white hover:bg-[#2b2338] transition-colors duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
           {tCommon('refresh')}
@@ -301,7 +301,7 @@ export default function EarningsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
         {/* Balance / Tier — hero card */}
-        <section className="relative overflow-hidden lg:col-span-2 rounded-[28px] bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-2xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/40 p-7 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(255,255,255,0.1),0_30px_60px_-20px_rgba(0,0,0,0.5)]">
+        <section className="kraken-summary lg:col-span-2 p-6 sm:p-7">
           <div className="flex items-start justify-between gap-4 mb-8">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
@@ -314,7 +314,7 @@ export default function EarningsPage() {
               </p>
             </div>
             {currentTier && hasWallet && (
-              <span className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full bg-white/[0.08] ring-1 ring-white/[0.08] text-[12px] font-semibold text-white">
+              <span className="kraken-pill inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold text-white">
                 <Star className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
                 {currentTier.name}
               </span>
@@ -323,8 +323,8 @@ export default function EarningsPage() {
 
           {hasWallet ? (
             currentTier ? (
-              <div className="grid grid-cols-2 divide-x divide-white/[0.06] rounded-2xl bg-white/[0.03] ring-1 ring-white/[0.05] overflow-hidden">
-                <div className="p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="kraken-mini-card p-4">
                   <p className="text-[11px] uppercase tracking-[0.14em] text-white/40 mb-1.5">
                     {t('currentRate')}
                   </p>
@@ -335,7 +335,7 @@ export default function EarningsPage() {
                     </span>
                   </p>
                 </div>
-                <div className="p-4">
+                <div className="kraken-mini-card p-4">
                   <p className="text-[11px] uppercase tracking-[0.14em] text-white/40 mb-1.5">
                     {t('estimatedDaily')}
                   </p>
@@ -359,7 +359,7 @@ export default function EarningsPage() {
         </section>
 
         {/* Next Distribution */}
-        <section className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-2xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/40 p-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(255,255,255,0.1),0_30px_60px_-20px_rgba(0,0,0,0.5)] flex flex-col">
+        <section className="kraken-panel p-6 flex flex-col">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40 flex items-center gap-1.5">
             <Timer className="w-3 h-3" />
             {t('nextDistribution')}
@@ -393,7 +393,7 @@ export default function EarningsPage() {
       {/* ── Stats — minimal monochrome cards ──────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Staking */}
-        <div className="rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+        <div className="kraken-panel p-5">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-white/40">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>{t('stakingEarnings')}</span>
@@ -404,7 +404,7 @@ export default function EarningsPage() {
         </div>
 
         {/* Referral */}
-        <div className="rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+        <div className="kraken-panel p-5">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-white/40">
             <Users className="w-3.5 h-3.5" />
             <span>{t('referralCommission')}</span>
@@ -419,7 +419,7 @@ export default function EarningsPage() {
           type="button"
           onClick={() => setShowEarningsBreakdown(!showEarningsBreakdown)}
           aria-expanded={showEarningsBreakdown}
-          className="text-left rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)] hover:bg-white/[0.06] transition-colors duration-150 ease-out"
+          className="kraken-panel text-left p-5 hover:bg-[#211a2d] transition-colors duration-150 ease-out"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -456,7 +456,7 @@ export default function EarningsPage() {
       </div>
 
       {/* ── Withdraw — Apple-style ──────────────────────────────────────── */}
-      <section className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-2xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/40 p-6 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(255,255,255,0.1),0_30px_60px_-20px_rgba(0,0,0,0.5)]">
+      <section className="kraken-panel p-6 sm:p-7">
 
         <header className="mb-7">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
@@ -481,7 +481,7 @@ export default function EarningsPage() {
         )}
 
         {/* iOS segmented control */}
-        <div className="mx-auto mb-7 grid grid-cols-2 w-full max-w-xs rounded-full bg-white/[0.06] p-1 ring-1 ring-white/[0.04]">
+        <div className="mx-auto mb-7 grid grid-cols-2 w-full max-w-xs rounded-full bg-[var(--kraken-panel-2)] p-1 border border-[var(--kraken-border)]">
           {(['USDC', 'POL'] as const).map((type) => {
             const active = withdrawType === type
             return (
@@ -491,7 +491,7 @@ export default function EarningsPage() {
                 aria-pressed={active}
                 className={`relative h-9 rounded-full text-[13px] font-semibold tracking-tight transition-colors duration-200 ease-out ${
                   active
-                    ? 'bg-white text-zinc-900 shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                    ? 'bg-[var(--kraken-purple)] text-white shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
                     : 'text-white/60 hover:text-white/80'
                 }`}
               >
@@ -537,7 +537,7 @@ export default function EarningsPage() {
               key={chip.label}
               onClick={() => setWithdrawAmount(chip.value > 0 ? chip.value.toFixed(2) : '')}
               disabled={totalAvailable <= 0}
-              className="h-10 rounded-full bg-white/[0.06] hover:bg-white/[0.1] ring-1 ring-white/[0.06] text-[13px] font-semibold text-white/80 transition-colors duration-150 ease-out disabled:opacity-30 disabled:pointer-events-none active:scale-[0.97]"
+              className="h-10 rounded-full bg-[var(--kraken-panel-2)] hover:bg-[#2b2338] border border-[var(--kraken-border)] text-[13px] font-semibold text-white/80 transition-colors duration-150 ease-out disabled:opacity-30 disabled:pointer-events-none active:scale-[0.97]"
             >
               {chip.label}
             </button>
@@ -559,7 +559,7 @@ export default function EarningsPage() {
         <button
           onClick={handleWithdraw}
           disabled={withdrawing || !withdrawAmount || parseFloat(withdrawAmount) <= 0}
-          className="group relative w-full h-14 rounded-2xl bg-white text-zinc-900 font-semibold text-[15px] tracking-tight transition-all duration-200 ease-out hover:bg-white/95 active:scale-[0.985] disabled:bg-white/[0.08] disabled:text-white/30 disabled:pointer-events-none shadow-[0_1px_0_0_rgba(255,255,255,0.4)_inset,0_10px_30px_-10px_rgba(255,255,255,0.15)]"
+          className="group relative w-full h-14 rounded-2xl bg-[var(--kraken-purple)] text-white font-semibold text-[15px] tracking-tight transition-all duration-200 ease-out hover:bg-[var(--kraken-purple-soft)] active:scale-[0.985] disabled:bg-white/[0.08] disabled:text-white/30 disabled:pointer-events-none"
         >
           <span className="inline-flex items-center gap-2">
             {withdrawing ? (
@@ -584,7 +584,7 @@ export default function EarningsPage() {
       </section>
 
       {/* Tier Table */}
-      <div className="glass-card-solid p-6">
+      <div className="kraken-panel p-6">
         <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
           <Star className="w-5 h-5" />
           {t('tiers.title')}
@@ -647,7 +647,7 @@ export default function EarningsPage() {
 
       {/* Withdrawal History */}
       {withdrawals.length > 0 && (
-        <div className="glass-card-solid p-6">
+        <div className="kraken-panel p-6">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <ArrowDownCircle className="w-5 h-5" />
             {t('history.withdrawal')}
@@ -703,7 +703,7 @@ export default function EarningsPage() {
       )}
 
       {/* Combined Earnings History */}
-      <div className="glass-card-solid p-6">
+      <div className="kraken-panel p-6">
         <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
           <History className="w-5 h-5" />
           {t('history.earnings')}

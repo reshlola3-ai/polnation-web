@@ -438,7 +438,7 @@ export default function SharePage() {
             <div className="flex flex-wrap items-center gap-2 mb-3">
               {/* Personal staking tier badge */}
               <span
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm shadow-lg"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg"
                 style={{
                   background: `${tierVisual.color}20`,
                   border: `1px solid ${tierVisual.color}40`,
@@ -450,7 +450,7 @@ export default function SharePage() {
               </span>
               {/* Community level badge with trophy icon */}
               <span
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm shadow-lg"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg"
                 style={{
                   background: `${communityVisual.color}20`,
                   border: `1px solid ${communityVisual.color}40`,

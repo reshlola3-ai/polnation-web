@@ -52,7 +52,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
   // Mobile header - simplified version
   if (isMobile) {
     return (
-      <nav className="bg-[var(--poly-panel)]/95 backdrop-blur-xl border-b border-[var(--poly-line)] sticky top-0 z-50">
+      <nav className="bg-[var(--kraken-panel)] border-b border-[var(--kraken-border)] sticky top-0 z-50">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
@@ -64,7 +64,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                 height={32}
                 className="rounded-lg"
               />
-              <span className="poly-heading text-lg">Polnation</span>
+              <span className="text-lg font-semibold tracking-tight text-white">Polnation</span>
             </Link>
 
             {/* Right side actions */}
@@ -73,7 +73,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               {user && (
                 <button
                   onClick={handleSignOut}
-                  className="p-2 text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] hover:bg-white/[0.06] rounded-[4px] transition-all"
+                  className="p-2 text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] rounded-xl transition-all"
                 >
                   <LogOut className="w-5 h-5" />
                 </button>
@@ -87,7 +87,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
 
   // Desktop navigation - full version
   return (
-    <nav className="bg-[var(--poly-panel)]/95 backdrop-blur-xl border-b border-[var(--poly-line)] sticky top-0 z-50">
+    <nav className="bg-[var(--kraken-panel)] border-b border-[var(--kraken-border)] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
@@ -100,7 +100,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                 height={36}
                 className="transition-all duration-300"
               />
-              <span className="poly-heading text-xl transition-colors duration-300 group-hover:text-[var(--poly-accent-cyan)]">Polnation</span>
+              <span className="text-xl font-semibold tracking-tight text-white transition-colors duration-300 group-hover:text-[var(--kraken-green)]">Polnation</span>
             </Link>
           </div>
 
@@ -115,10 +115,10 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                     key={link.href}
                     href={link.href}
                     className={`
-                      poly-mono flex items-center gap-2 px-4 py-2 rounded-[4px] text-xs uppercase transition-all duration-300 border
+                      flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 border
                       ${isActive
-                        ? 'bg-white/[0.08] text-[var(--poly-ink)] border-[var(--poly-accent-cyan)]'
-                        : 'text-[var(--poly-ink-muted)] border-transparent hover:text-[var(--poly-ink)] hover:bg-white/[0.05] hover:border-[var(--poly-line)]'
+                        ? 'bg-[var(--kraken-panel-2)] text-white border-[var(--kraken-purple)]'
+                        : 'text-[var(--kraken-muted)] border-transparent hover:text-white hover:bg-[var(--kraken-panel-2)] hover:border-[var(--kraken-border)]'
                       }
                     `}
                   >
@@ -139,10 +139,10 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
             <Link
               href="/academy"
               className={`
-                poly-mono hidden sm:flex items-center gap-2 px-3 py-2 rounded-[4px] text-xs uppercase transition-all duration-300 border
+                hidden sm:flex items-center gap-2 px-3 py-2 rounded-full text-xs font-semibold transition-all duration-200 border
                 ${pathname === '/academy'
-                  ? 'bg-white/[0.08] text-[var(--poly-ink)] border-[var(--poly-accent-cyan)]'
-                  : 'text-[var(--poly-ink-muted)] border-transparent hover:text-[var(--poly-ink)] hover:bg-white/[0.05] hover:border-[var(--poly-line)]'
+                  ? 'bg-[var(--kraken-panel-2)] text-white border-[var(--kraken-purple)]'
+                  : 'text-[var(--kraken-muted)] border-transparent hover:text-white hover:bg-[var(--kraken-panel-2)] hover:border-[var(--kraken-border)]'
                 }
               `}
             >
@@ -155,7 +155,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               href="/polnation-earning-guide.html"
               target="_blank"
               rel="noopener noreferrer"
-              className="poly-mono hidden sm:flex items-center gap-2 px-3 py-2 rounded-[4px] text-xs uppercase text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] hover:bg-white/[0.05] border border-transparent hover:border-[var(--poly-line)] transition-all duration-300"
+              className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-full text-xs font-semibold text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] border border-transparent hover:border-[var(--kraken-border)] transition-all duration-200"
             >
               <GraduationCap className="w-4 h-4" />
               Earning Guide
@@ -163,12 +163,12 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
 
             {user ? (
               <>
-                <span className="poly-mono hidden lg:block text-xs text-[var(--poly-ink-soft)] truncate max-w-[120px]">
+                <span className="hidden lg:block text-xs text-[var(--kraken-muted)] truncate max-w-[120px]">
                   {user.email}
                 </span>
                 <button
                   onClick={handleSignOut}
-                  className="poly-mono flex items-center gap-2 px-3 py-2 text-xs uppercase text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] hover:bg-white/[0.05] rounded-[4px] transition-all duration-300"
+                  className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] rounded-full transition-all duration-200"
                 >
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline">{t('signOut')}</span>
@@ -178,13 +178,13 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="poly-mono px-3 py-2 text-xs uppercase text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] transition-all"
+                  className="px-3 py-2 text-xs font-semibold text-[var(--kraken-muted)] hover:text-white transition-all"
                 >
                   {t('signIn')}
                 </Link>
                 <Link
                   href="/register"
-                  className="poly-button"
+                  className="inline-flex h-10 items-center rounded-full bg-[var(--kraken-purple)] px-4 text-xs font-semibold text-white transition-colors hover:bg-[var(--kraken-purple-soft)]"
                 >
                   {t('getStarted')}
                 </Link>
@@ -195,7 +195,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
             {user && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-[4px] text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] hover:bg-white/[0.05] transition-all"
+                className="md:hidden p-2 rounded-xl text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-all"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -205,7 +205,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
 
         {/* Mobile Navigation Dropdown */}
         {user && mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-[var(--poly-line)]">
+          <div className="md:hidden py-4 border-t border-[var(--kraken-border)]">
             <div className="flex flex-col gap-1">
               {navLinks.map((link) => {
                 const Icon = link.icon
@@ -216,10 +216,10 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`
-                      poly-mono flex items-center gap-3 px-4 py-3 rounded-[4px] text-xs uppercase transition-all duration-300 border
+                      flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold transition-all duration-200 border
                       ${isActive
-                        ? 'bg-white/[0.08] text-[var(--poly-ink)] border-[var(--poly-accent-cyan)]'
-                        : 'text-[var(--poly-ink-muted)] border-transparent hover:text-[var(--poly-ink)] hover:bg-white/[0.05]'
+                        ? 'bg-[var(--kraken-panel-2)] text-white border-[var(--kraken-purple)]'
+                        : 'text-[var(--kraken-muted)] border-transparent hover:text-white hover:bg-[var(--kraken-panel-2)]'
                       }
                     `}
                   >
@@ -234,7 +234,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setMobileMenuOpen(false)}
-                className="poly-mono flex items-center gap-3 px-4 py-3 rounded-[4px] text-xs uppercase text-[var(--poly-ink-muted)] hover:text-[var(--poly-ink)] hover:bg-white/[0.05] transition-all duration-300"
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-all duration-200"
               >
                 <GraduationCap className="w-5 h-5" />
                 Earning Guide

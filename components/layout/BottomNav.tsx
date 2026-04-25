@@ -18,8 +18,8 @@ export function BottomNav() {
   ]
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--poly-panel)]/95 backdrop-blur-xl border-t border-[var(--poly-line)] pb-safe">
-      <div className="flex justify-around items-center h-16 px-1">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--kraken-panel)] border-t border-[var(--kraken-border)] pb-safe">
+      <div className="flex justify-around items-center h-16 px-1.5">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
@@ -29,16 +29,16 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={`
-                poly-mono flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-[4px] min-w-[56px] relative
-                transition-colors active:scale-95
-                ${isActive ? 'text-[var(--poly-ink)]' : 'text-[var(--poly-ink-soft)]'}
+                flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-2xl min-w-[56px] relative
+                transition-all active:scale-95
+                ${isActive ? 'text-white bg-[var(--kraken-panel-2)]' : 'text-[var(--kraken-muted)]'}
               `}
             >
               {isActive && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-7 h-px bg-[var(--poly-accent-cyan)]" />
+                <div className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-[var(--kraken-purple)]" />
               )}
-              <Icon className={`w-6 h-6 ${isActive ? 'text-[var(--poly-ink)]' : 'text-[var(--poly-ink-soft)]'}`} />
-              <span className={`text-[10px] uppercase ${isActive ? 'text-[var(--poly-ink)]' : 'text-[var(--poly-ink-soft)]'}`}>
+              <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[var(--kraken-muted)]'}`} />
+              <span className={`text-[10px] font-medium ${isActive ? 'text-white' : 'text-[var(--kraken-muted)]'}`}>
                 {item.label}
               </span>
             </Link>

@@ -335,7 +335,7 @@ export default function TeamPage() {
 
 
   return (
-    <div className="space-y-6">
+    <div className="kraken-shell space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -357,9 +357,8 @@ export default function TeamPage() {
       )}
 
       {/* Main Level Card - Compact */}
-      <div className="relative overflow-hidden rounded-2xl">
-        <div className="absolute inset-0 bg-gradient-to-b from-cyan-900/80 via-blue-900/90 to-indigo-950" />
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-cyan-500/20 to-transparent" />
+      <div className="kraken-summary overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_88%_10%,rgba(124,60,255,0.28),transparent_34%)]" />
         
         <div className="relative z-10 p-5">
           {/* Top Right: Badges & Help */}
@@ -374,7 +373,7 @@ export default function TeamPage() {
               >
                 <span className="text-white/70 text-xs font-bold">?</span>
               </button>
-              <div className={`absolute right-0 top-9 w-64 p-3 bg-zinc-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl z-50 transition-all duration-200 ${showHelpTooltip ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+              <div className={`absolute right-0 top-9 w-64 p-3 bg-[var(--kraken-panel)] border border-[var(--kraken-border)] rounded-xl shadow-2xl z-50 transition-all duration-200 ${showHelpTooltip ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
                 <button 
                   onClick={() => setShowHelpTooltip(false)}
                   className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center text-zinc-400 hover:text-white text-xs"
@@ -397,7 +396,7 @@ export default function TeamPage() {
               className="flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95"
               onClick={() => currentLevelInfo && setSelectedLevel(currentLevelInfo)}
             >
-              <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-2xl flex items-center justify-center bg-white/10 backdrop-blur-sm">
+              <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-2xl flex items-center justify-center bg-[var(--kraken-panel-2)] border border-[var(--kraken-border)]">
                 {getLevelIcon(currentLevelInfo?.level || 1, 128)}
               </div>
               <p className="text-xs text-cyan-300/60 uppercase tracking-wider mt-3">{t('currentLevel')}</p>
@@ -407,11 +406,11 @@ export default function TeamPage() {
             
             {/* Right: Stats Grid 2x2 */}
             <div className="flex-1 grid grid-cols-2 gap-2">
-              <div className="bg-white/5 rounded-lg p-3 text-center">
+              <div className="kraken-mini-card p-3 text-center">
                 <p className="text-xs text-cyan-300/60">{t('rewardPool')}</p>
                 <p className="text-xl font-bold text-white">${currentLevelInfo?.reward_pool || 10}</p>
               </div>
-              <div className="bg-white/5 rounded-lg p-3 text-center">
+              <div className="kraken-mini-card p-3 text-center">
                 <p className="text-xs text-cyan-300/60">{t('dailyRate')}</p>
                 {currentLevelInfo ? (
                   <div>
@@ -429,11 +428,11 @@ export default function TeamPage() {
                   <p className="text-xl font-bold text-cyan-400">0.0%</p>
                 )}
               </div>
-              <div className="bg-white/5 rounded-lg p-3 text-center">
+              <div className="kraken-mini-card p-3 text-center">
                 <p className="text-xs text-cyan-300/60">{t('dailyEarnings')}</p>
                 <p className="text-xl font-bold text-green-400">+${dailyEarningAmount.toFixed(2)}</p>
               </div>
-              <div className="bg-white/5 rounded-lg p-3 text-center">
+              <div className="kraken-mini-card p-3 text-center">
                 <p className="text-xs text-cyan-300/60">{t('nextDistribution')}</p>
                 <p className="text-xl font-bold text-amber-400">
                   {countdown.hours > 0 || countdown.minutes > 0 ? `${countdown.hours}h ${countdown.minutes}m` : 'Soon'}
