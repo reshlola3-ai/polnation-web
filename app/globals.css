@@ -740,6 +740,118 @@ input, select, textarea {
   transform: translateY(-1px);
 }
 
+.dashboard-modern-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(210, 222, 255, 0.58);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 96% 0%, rgba(255, 122, 69, 0.46), transparent 22%),
+    radial-gradient(circle at 18% 10%, rgba(0, 187, 255, 0.18), transparent 30%),
+    linear-gradient(135deg, #2f72f5 0%, #2f45d8 52%, #1d269b 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    0 34px 90px rgba(2, 8, 36, 0.42);
+}
+
+.dashboard-modern-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+  background-size: 120px 120px;
+  opacity: 0.42;
+  z-index: 0;
+}
+
+.dashboard-modern-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 42%;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(6, 10, 48, 0.28));
+  z-index: 0;
+}
+
+.dashboard-modern-breakdown {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  border: 1px solid rgba(184, 202, 255, 0.28);
+  border-radius: 22px;
+  background: #2238b8;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.dashboard-modern-breakdown-item {
+  background: #253ec0;
+}
+
+.dashboard-modern-breakdown-item + .dashboard-modern-breakdown-item {
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.dashboard-action-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(170, 194, 255, 0.34);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 50% -20%, rgba(0, 187, 255, 0.22), transparent 42%),
+    linear-gradient(145deg, #101f68 0%, #08123f 100%);
+  box-shadow: 0 18px 46px rgba(2, 8, 36, 0.32);
+}
+
+.dashboard-action-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+  opacity: 0.7;
+  z-index: 0;
+}
+
+.dashboard-action-card:hover {
+  border-color: rgba(0, 187, 255, 0.78);
+  transform: translateY(-2px);
+}
+
+.dashboard-modern-community {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(170, 194, 255, 0.34);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(139, 92, 255, 0.2), transparent 28%),
+    linear-gradient(145deg, #101f68 0%, #071136 100%);
+  box-shadow: 0 22px 54px rgba(2, 8, 36, 0.36);
+}
+
+.dashboard-modern-community::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 96px 96px;
+  z-index: 0;
+}
+
+.dashboard-modern-community > * {
+  position: relative;
+  z-index: 1;
+}
+
 /* Mobile Typography Adjustments */
 @media (max-width: 640px) {
   h1 {

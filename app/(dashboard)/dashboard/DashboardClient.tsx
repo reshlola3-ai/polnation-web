@@ -435,8 +435,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </section>
       )}
 
-      {/* Hero — Apple Liquid Glass */}
-      <section className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/30 via-white/15 to-white/5 backdrop-blur-2xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/40 p-7 sm:p-8 shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-1px_0_rgba(255,255,255,0.1),0_30px_60px_-20px_rgba(0,0,0,0.5)]">
+      {/* Hero */}
+      <section className="dashboard-modern-hero p-7 sm:p-8">
         {/* Polygon coin + blocks illustration (from staking.polygon.technology) */}
         <Image
           src="/images/dashboard-hero.png"
@@ -444,7 +444,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           width={431}
           height={285}
           priority
-          className="pointer-events-none select-none absolute -top-4 -right-6 sm:-top-6 sm:-right-8 w-[180px] sm:w-[240px] h-auto opacity-85 mix-blend-screen"
+          className="dashboard-hero-art pointer-events-none select-none absolute -top-4 -right-6 sm:-top-6 sm:-right-8 w-[180px] sm:w-[240px] h-auto opacity-85 mix-blend-screen"
         />
         {/* Balance — large, dominant */}
         <div className="relative z-10 text-center mb-6">
@@ -493,12 +493,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
 
         {/* Assets breakdown */}
-        <div
-          className="grid grid-cols-3 divide-x divide-white/[0.06] rounded-2xl bg-white/[0.03] ring-1 ring-inset ring-white/[0.05] overflow-hidden"
-          onClick={() => setActiveAssetTip(null)}
-        >
+        <div className="dashboard-modern-breakdown grid grid-cols-3" onClick={() => setActiveAssetTip(null)}>
           {/* Wallet */}
-          <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+          <div className="dashboard-modern-breakdown-item px-3 py-4 flex flex-col items-center gap-1 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-white/[0.06] ring-1 ring-inset ring-white/[0.06] flex items-center justify-center mb-0.5">
               <Wallet className="w-4 h-4 text-white/80" />
             </div>
@@ -517,7 +514,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           </div>
 
           {/* Withdrawable */}
-          <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+          <div className="dashboard-modern-breakdown-item px-3 py-4 flex flex-col items-center gap-1 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-cyan-500/10 ring-1 ring-inset ring-cyan-500/20 flex items-center justify-center mb-0.5">
               <ArrowUpRight className="w-4 h-4 text-cyan-300" />
             </div>
@@ -539,7 +536,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           </div>
 
           {/* Team Pool */}
-          <div className="px-3 py-4 flex flex-col items-center gap-1 min-w-0">
+          <div className="dashboard-modern-breakdown-item px-3 py-4 flex flex-col items-center gap-1 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-purple-500/10 ring-1 ring-inset ring-purple-500/20 flex items-center justify-center mb-0.5">
               <Users className="w-4 h-4 text-purple-300" />
             </div>
@@ -598,7 +595,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <Link
             key={href}
             href={href}
-            className="quick-action-card relative flex flex-col items-center gap-2 py-4 rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)] hover:from-white/30 hover:via-white/12 hover:to-white/6 active:scale-[0.97] transition-all duration-200 ease-out"
+            className="dashboard-action-card quick-action-card flex flex-col items-center gap-2 py-4 active:scale-[0.97] transition-all duration-200 ease-out"
           >
             <div
               className="quick-action-icon-wrap w-14 h-14 rounded-full flex items-center justify-center"
@@ -621,7 +618,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       </div>
 
       {/* Community + Progress */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/25 via-white/10 to-white/5 backdrop-blur-xl backdrop-saturate-[180%] ring-1 ring-inset ring-white/35 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.08),0_20px_40px_-20px_rgba(0,0,0,0.4)]">
+      <section className="dashboard-modern-community p-5">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
