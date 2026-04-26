@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useAccount, useDisconnect } from 'wagmi'
@@ -85,6 +85,9 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true, refe
   const [isNewUser, setIsNewUser] = useState(false)
   const [showMobileHint, setShowMobileHint] = useState(false)
   const [isMobileNonDAppBrowser, setIsMobileNonDAppBrowser] = useState(false)
+  // Track addresses we've already attempted login for, so re-mounting or
+  // address changes don't fire duplicate /api/auth/wallet-login requests.
+  const handledAddressRef = useRef<string | null>(null)
 
   // Check if user is on mobile but not in DApp browser
   useEffect(() => {
@@ -93,19 +96,15 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true, refe
     }
   }, [])
 
-  // Auto-open WalletConnect modal on mount (if not already connected)
+  // When wallet connects, attempt login. We do NOT auto-open the modal on
+  // mount — the user clicks "Continue with Wallet" to start the flow, which
+  // gives them control if they want to bail out or switch wallets.
   useEffect(() => {
-    if (!isConnected) {
-      open()
-    }
+    if (!isConnected || !address) return
+    if (handledAddressRef.current === address) return
+    handledAddressRef.current = address
+    handleWalletLogin(address)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // When wallet connects, attempt login
-  useEffect(() => {
-    if (isConnected && address && !isProcessing) {
-      handleWalletLogin(address)
-    }
   }, [isConnected, address])
 
   const handleWalletLogin = async (walletAddress: string, shouldAutoRegister = autoRegister) => {
