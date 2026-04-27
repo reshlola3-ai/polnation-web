@@ -30,6 +30,39 @@ type EthereumWindow = {
   }
 }
 
+type WalletConnectLikeProvider = {
+  session?: {
+    peer?: { metadata?: { name?: string; url?: string } }
+  }
+}
+
+type WagmiConnectorLike = {
+  id?: string
+  type?: string
+  name?: string
+  getProvider?: () => Promise<unknown> | unknown
+}
+
+// WalletConnect 的 connector.name 永远是 "WalletConnect"，真实钱包身份在
+// provider.session.peer.metadata.name 里（如 "Bitget Wallet"、"Trust Wallet"）。
+export async function getEffectiveWalletName(
+  connector: WagmiConnectorLike | undefined | null
+): Promise<string | undefined> {
+  if (!connector) return undefined
+
+  if (connector.id === 'walletConnect' || connector.type === 'walletConnect') {
+    try {
+      const provider = (await connector.getProvider?.()) as WalletConnectLikeProvider | undefined
+      const peerName = provider?.session?.peer?.metadata?.name
+      if (peerName) return peerName
+    } catch {
+      // fall through to connector.name
+    }
+  }
+
+  return connector.name
+}
+
 export function isSupportedWallet(connectorName: string | undefined): boolean {
   if (!connectorName) return false
   const name = connectorName.toLowerCase()

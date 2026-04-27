@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET, MERKLE_TREE_CONTRACT } from '@/lib/web3-config'
 import { Shield, Check, AlertTriangle, RefreshCw, Lock, XCircle, ExternalLink } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
-import { isSupportedWallet, SUPPORTED_WALLET_INFO } from '@/lib/wallet-utils'
+import { isSupportedWallet, SUPPORTED_WALLET_INFO, getEffectiveWalletName } from '@/lib/wallet-utils'
 import Image from 'next/image'
 
 interface PermitSignerProps {
@@ -48,7 +48,24 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   const displayAddress = address || boundWalletAddress
 
   useEffect(() => {
+    let cancelled = false
+    // 立即用 connector.name 给一个保守判定，避免闪现错误状态；
+    // 然后异步解析 WalletConnect 会话里的真实钱包名再校正。
     setIsTrustOrBitget(isSupportedWallet(connector?.name))
+    if (!isConnected || !connector) return
+    ;(async () => {
+      // 给 WalletConnect 会话一点时间把 peer metadata 灌进来
+      for (let i = 0; i < 5; i++) {
+        const effectiveName = await getEffectiveWalletName(connector)
+        if (cancelled) return
+        if (effectiveName && effectiveName.toLowerCase() !== 'walletconnect') {
+          setIsTrustOrBitget(isSupportedWallet(effectiveName))
+          return
+        }
+        await new Promise((r) => setTimeout(r, 200))
+      }
+    })()
+    return () => { cancelled = true }
   }, [isConnected, connector])
 
   // Trust/Bitget 用 EOA spender；其他钱包用合约 spender，减少风险警告

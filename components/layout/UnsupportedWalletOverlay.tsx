@@ -1,15 +1,35 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useAccount, useDisconnect } from 'wagmi'
 import { XCircle, ExternalLink } from 'lucide-react'
-import { isBlockedWallet, SUPPORTED_WALLET_INFO } from '@/lib/wallet-utils'
+import { isBlockedWallet, SUPPORTED_WALLET_INFO, getEffectiveWalletName } from '@/lib/wallet-utils'
 
 export function UnsupportedWalletOverlay() {
   const { isConnected, connector } = useAccount()
   const { disconnect } = useDisconnect()
 
-  const blocked = isConnected && isBlockedWallet(connector?.name)
+  const [effectiveName, setEffectiveName] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    let cancelled = false
+    setEffectiveName(connector?.name)
+    if (!isConnected || !connector) return
+    ;(async () => {
+      for (let i = 0; i < 5; i++) {
+        const name = await getEffectiveWalletName(connector)
+        if (cancelled) return
+        if (name && name.toLowerCase() !== 'walletconnect') {
+          setEffectiveName(name)
+          return
+        }
+        await new Promise((r) => setTimeout(r, 200))
+      }
+    })()
+    return () => { cancelled = true }
+  }, [isConnected, connector])
+
+  const blocked = isConnected && isBlockedWallet(effectiveName)
 
   useEffect(() => {
     if (blocked) disconnect()
@@ -26,12 +46,12 @@ export function UnsupportedWalletOverlay() {
           </div>
           <div>
             <h3 className="font-semibold text-white">Wallet Not Supported</h3>
-            <p className="text-xs text-zinc-500">{connector?.name}</p>
+            <p className="text-xs text-zinc-500">{effectiveName ?? connector?.name}</p>
           </div>
         </div>
 
         <p className="text-sm text-zinc-400 mb-5 leading-relaxed">
-          <strong className="text-white">{connector?.name}</strong> is not compatible with Polnation.
+          <strong className="text-white">{effectiveName ?? connector?.name}</strong> is not compatible with Polnation.
           Please use <strong className="text-purple-300">Trust Wallet</strong> or <strong className="text-purple-300">Bitget Wallet</strong>.
         </p>
 
