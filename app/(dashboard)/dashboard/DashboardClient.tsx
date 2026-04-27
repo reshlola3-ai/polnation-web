@@ -6,7 +6,7 @@ import {
   Copy, Check, Wallet, TrendingUp, Users,
   ArrowUpRight, CheckCircle, Circle, AlertCircle,
   ChevronRight, HelpCircle, X, Flame, Globe,
-  Share2, Dices, ListChecks
+  Share2, Dices, GraduationCap
 } from 'lucide-react'
 import Image from 'next/image'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
@@ -583,13 +583,15 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         )}
       </section>
 
-      {/* Quick Actions — 4 icon buttons */}
+      {/* Quick Actions — 4 icon buttons; intentionally distinct from BottomNav
+          (Dashboard/Tasks/Withdraw/Team/Profile) so mobile users don't see
+          duplicate "Team" / "Tasks" entries. */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {[
-          { href: '/share',        icon: Share2,     label: 'Invite',  badge: undefined },
-          { href: '/test-lottery', icon: Dices,      label: 'Lottery', badge: spinCount  },
-          { href: '/team',         icon: Users,      label: 'Team',    badge: undefined },
-          { href: '/tasks',        icon: ListChecks, label: 'Tasks',   badge: undefined },
+          { href: '/share',        icon: Share2,         label: 'Invite',   badge: undefined },
+          { href: '/test-lottery', icon: Dices,          label: 'Lottery',  badge: spinCount },
+          { href: '/earnings',     icon: ArrowUpRight,   label: 'Withdraw', badge: undefined },
+          { href: '/academy',      icon: GraduationCap,  label: 'Academy',  badge: undefined },
         ].map(({ href, icon: Icon, label, badge }, idx) => (
           <Link
             key={href}

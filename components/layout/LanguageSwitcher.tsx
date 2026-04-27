@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Globe, Check, ChevronDown } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import { locales, localeNames, localeFlags, type Locale } from '@/i18n/config'
 
 interface LanguageSwitcherProps {
@@ -36,11 +36,10 @@ export function LanguageSwitcher({ currentLocale }: LanguageSwitcherProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+        aria-label={`Language: ${localeNames[currentLocale]}`}
+        className="flex items-center gap-1 px-2 py-2 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-300"
       >
-        <Globe className="w-4 h-4" />
-        <span className="hidden sm:inline">{localeFlags[currentLocale]} {localeNames[currentLocale]}</span>
-        <span className="sm:hidden">{localeFlags[currentLocale]}</span>
+        <span className="text-base leading-none">{localeFlags[currentLocale]}</span>
         <ChevronDown className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
@@ -21,6 +21,7 @@ const TrendingUp = dynamic(() => import('lucide-react').then((m) => m.TrendingUp
 const ClipboardList = dynamic(() => import('lucide-react').then((m) => m.ClipboardList), { ssr: false })
 const BookOpen = dynamic(() => import('lucide-react').then((m) => m.BookOpen), { ssr: false })
 const GraduationCap = dynamic(() => import('lucide-react').then((m) => m.GraduationCap), { ssr: false })
+const ChevronDown = dynamic(() => import('lucide-react').then((m) => m.ChevronDown), { ssr: false })
 
 interface NavbarProps {
   user: User | null
@@ -33,13 +34,30 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const userMenuRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
+
+  // Close the user dropdown when clicking outside.
+  useEffect(() => {
+    if (!userMenuOpen) return
+    const handleClick = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [userMenuOpen])
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push('/')
     router.refresh()
   }
+
+  // Initial for the user-menu avatar (first letter of email, fallback ·)
+  const userInitial = user?.email?.[0]?.toUpperCase() || '·'
 
   const navLinks = [
     { href: '/dashboard', label: t('dashboard'), icon: Wallet },
@@ -132,48 +150,72 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
 
           {/* Right side */}
           <div className="flex items-center gap-2">
-            {/* Language Switcher */}
+            {/* Language Switcher (compact: flag only) */}
             <LanguageSwitcher currentLocale={locale} />
 
-            {/* Academy Link - visible to all */}
-            <Link
-              href="/academy"
-              className={`
-                hidden sm:flex items-center gap-2 px-3 py-2 rounded-full text-xs font-semibold transition-all duration-200 border
-                ${pathname === '/academy'
-                  ? 'bg-[var(--kraken-panel-2)] text-white border-[var(--kraken-purple)]'
-                  : 'text-[var(--kraken-muted)] border-transparent hover:text-white hover:bg-[var(--kraken-panel-2)] hover:border-[var(--kraken-border)]'
-                }
-              `}
-            >
-              <BookOpen className="w-4 h-4" />
-              Academy
-            </Link>
-
-            {/* Earning Guide - static HTML in public/ */}
-            <a
-              href="/polnation-earning-guide.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-full text-xs font-semibold text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] border border-transparent hover:border-[var(--kraken-border)] transition-all duration-200"
-            >
-              <GraduationCap className="w-4 h-4" />
-              Earning Guide
-            </a>
-
             {user ? (
-              <>
-                <span className="hidden lg:block text-xs text-[var(--kraken-muted)] truncate max-w-[120px]">
-                  {user.email}
-                </span>
+              <div className="relative" ref={userMenuRef}>
                 <button
-                  onClick={handleSignOut}
-                  className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] rounded-full transition-all duration-200"
+                  onClick={() => setUserMenuOpen((v) => !v)}
+                  aria-haspopup="menu"
+                  aria-expanded={userMenuOpen}
+                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full text-xs font-semibold text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] border border-transparent hover:border-[var(--kraken-border)] transition-all duration-200"
                 >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">{t('signOut')}</span>
+                  <span className="w-7 h-7 rounded-full bg-[var(--kraken-purple)] text-white flex items-center justify-center text-xs font-bold">
+                    {userInitial}
+                  </span>
+                  <ChevronDown className={`w-3 h-3 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
-              </>
+
+                {userMenuOpen && (
+                  <div
+                    role="menu"
+                    className="absolute right-0 mt-2 w-60 rounded-2xl bg-[var(--kraken-panel)] border border-[var(--kraken-border)] shadow-xl overflow-hidden z-50"
+                  >
+                    {/* Account info */}
+                    <div className="px-4 py-3 border-b border-[var(--kraken-border)]">
+                      <p className="text-[10px] uppercase tracking-wider text-[var(--kraken-muted)]">Signed in as</p>
+                      <p className="text-xs text-white truncate mt-0.5">{user.email}</p>
+                    </div>
+
+                    {/* Learn links */}
+                    <Link
+                      href="/academy"
+                      role="menuitem"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      Academy
+                    </Link>
+                    <a
+                      href="/polnation-earning-guide.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      role="menuitem"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
+                    >
+                      <GraduationCap className="w-4 h-4" />
+                      Earning Guide
+                    </a>
+
+                    <div className="border-t border-[var(--kraken-border)]" />
+
+                    <button
+                      role="menuitem"
+                      onClick={() => {
+                        setUserMenuOpen(false)
+                        handleSignOut()
+                      }}
+                      className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      {t('signOut')}
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Link
