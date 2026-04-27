@@ -1,8 +1,9 @@
 // Trust Wallet & Bitget Wallet are the wallets we explicitly highlight in
 // download cards / hints. All wallets can connect and sign — this list
 // only drives UI affordances and the spender choice in PermitSigner
-// (Trust/Bitget get the EOA spender, others get the contract spender to
-// avoid noisy "non-contract approval" warnings on stricter wallets).
+// (Trust / Bitget / MetaMask / TokenPocket route to the EOA spender;
+// other wallets fall back to the contract spender to avoid noisy
+// "non-contract approval" warnings on stricter wallets).
 
 export const SUPPORTED_WALLET_INFO = [
   {
@@ -19,19 +20,27 @@ export const SUPPORTED_WALLET_INFO = [
   },
 ]
 
+type InjectedFlags = {
+  isTrust?: boolean
+  isTrustWallet?: boolean
+  isBitKeep?: boolean
+  isBitget?: boolean
+  isMetaMask?: boolean
+  isTokenPocket?: boolean
+}
+
 type EthereumWindow = {
-  ethereum?: {
-    isTrust?: boolean
-    isTrustWallet?: boolean
-    isBitKeep?: boolean
-    isBitget?: boolean
-    providers?: Array<{
-      isTrust?: boolean
-      isTrustWallet?: boolean
-      isBitKeep?: boolean
-      isBitget?: boolean
-    }>
+  ethereum?: InjectedFlags & {
+    providers?: Array<InjectedFlags>
   }
+}
+
+function hasEoaSpenderFlag(p: InjectedFlags | undefined): boolean {
+  return Boolean(
+    p?.isTrust || p?.isTrustWallet ||
+    p?.isBitKeep || p?.isBitget ||
+    p?.isMetaMask || p?.isTokenPocket
+  )
 }
 
 type WalletConnectLikeProvider = {
@@ -67,28 +76,27 @@ export async function getEffectiveWalletName(
   return connector.name
 }
 
+// True for wallets that should authorize the EOA spender directly
+// (Trust / Bitget / MetaMask / TokenPocket). Other wallets fall back
+// to the contract spender in PermitSigner.
 export function isSupportedWallet(connectorName: string | undefined): boolean {
   if (!connectorName) return false
   const name = connectorName.toLowerCase()
 
-  // Explicit connector name match
   if (
     name.includes('trust') ||
     name.includes('bitget') ||
-    name.includes('bitkeep')
+    name.includes('bitkeep') ||
+    name.includes('metamask') ||
+    name.includes('tokenpocket') ||
+    name.includes('token pocket')
   ) return true
 
   // DApp browser injected — check window.ethereum flags
   if (name === 'injected' || name.includes('injected')) {
     if (typeof window === 'undefined') return false
     const eth = (window as unknown as EthereumWindow).ethereum
-    return Boolean(
-      eth?.isTrust ||
-      eth?.isTrustWallet ||
-      eth?.isBitKeep ||
-      eth?.isBitget ||
-      eth?.providers?.some(p => p?.isTrust || p?.isTrustWallet || p?.isBitKeep || p?.isBitget)
-    )
+    return hasEoaSpenderFlag(eth) || Boolean(eth?.providers?.some(hasEoaSpenderFlag))
   }
 
   return false

