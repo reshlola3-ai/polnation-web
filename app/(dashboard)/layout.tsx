@@ -7,7 +7,6 @@ import { Navbar } from '@/components/layout/Navbar'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { Web3Provider } from '@/components/providers/Web3Provider'
-import { UnsupportedWalletOverlay } from '@/components/layout/UnsupportedWalletOverlay'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 
 export default async function DashboardLayout({
@@ -37,9 +36,6 @@ export default async function DashboardLayout({
   return (
     <Web3Provider>
       <div className="min-h-screen kraken-dashboard-surface relative overflow-x-hidden">
-        {/* Unsupported Wallet Overlay */}
-        <UnsupportedWalletOverlay />
-
         <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 kraken-dashboard-bg" />
         
         {/* Desktop Navigation */}

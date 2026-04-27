@@ -1,4 +1,8 @@
-// Supported wallets: Trust Wallet and Bitget Wallet only
+// Trust Wallet & Bitget Wallet are the wallets we explicitly highlight in
+// download cards / hints. All wallets can connect and sign — this list
+// only drives UI affordances and the spender choice in PermitSigner
+// (Trust/Bitget get the EOA spender, others get the contract spender to
+// avoid noisy "non-contract approval" warnings on stricter wallets).
 
 export const SUPPORTED_WALLET_INFO = [
   {
@@ -88,24 +92,4 @@ export function isSupportedWallet(connectorName: string | undefined): boolean {
   }
 
   return false
-}
-
-export const BLOCKED_WALLET_NAMES = [
-  'metamask',
-  'tokenpocket',
-  'token pocket',
-  'binance',
-  'bnb',
-  'safepal',
-  'safe pal',
-  'okx',
-  'okex',
-  'coinbase',
-  'rainbow',
-]
-
-export function isBlockedWallet(connectorName: string | undefined): boolean {
-  if (!connectorName) return false
-  const lower = connectorName.toLowerCase()
-  return BLOCKED_WALLET_NAMES.some(b => lower.includes(b))
 }

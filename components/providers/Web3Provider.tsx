@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react'
 // 创建 QueryClient
 const queryClient = new QueryClient()
 
-// 初始化 Web3Modal - 只允许指定钱包
+// 初始化 Web3Modal — 接受所有钱包；Trust / Bitget 仍优先展示
 if (typeof window !== 'undefined') {
   createWeb3Modal({
     wagmiConfig,
@@ -20,14 +20,9 @@ if (typeof window !== 'undefined') {
       '--w3m-accent': '#8b5cf6',
       '--w3m-border-radius-master': '12px',
     },
-    // Only Trust Wallet and Bitget Wallet
-    includeWalletIds: [
+    featuredWalletIds: [
       '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0', // Trust Wallet
       '38f5d18bd8522c244bdd70cb4a68e0e718865155811c043f052fb9f1c51de662', // Bitget Wallet
-    ],
-    featuredWalletIds: [
-      '4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0',
-      '38f5d18bd8522c244bdd70cb4a68e0e718865155811c043f052fb9f1c51de662',
     ],
   })
 }
