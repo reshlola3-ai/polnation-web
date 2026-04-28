@@ -104,140 +104,173 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
   }
 
   // Desktop navigation - full version
+  // Layout: 3 clipped slabs floating over the page background
+  // [ Logo + links (white-ish panel, right-side notch cut) ] ... [ REWARDS HUB (gray, left bevel) ][ JOIN POLNATION (purple, left bevel + right arrow) ]
+  const slabH = 'h-14'
+  // Trapezoid for the left logo+links slab: cut a wedge out of the bottom-right corner
+  const leftSlabClip = { clipPath: 'polygon(0 0, 100% 0, calc(100% - 28px) 100%, 0 100%)' }
+  // Right-side gray slab: bevel on the left edge
+  const grayClip = { clipPath: 'polygon(20px 0, 100% 0, 100% 100%, 0 100%)' }
+  // Right-side purple CTA: bevel on the left + arrow pointing right
+  const purpleClip = { clipPath: 'polygon(20px 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 20px 100%, 0 50%)' }
+
   return (
-    <nav className="bg-[var(--kraken-panel)] border-b border-[var(--kraken-border)] sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-3 group">
+    <nav className="sticky top-0 z-50 bg-transparent">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-2">
+        <div className={`relative flex items-stretch justify-between ${slabH} gap-3`}>
+          {/* Left slab: logo + links, with right-side notch */}
+          <div
+            style={leftSlabClip}
+            className="flex items-stretch bg-[var(--kraken-panel)] border border-[var(--kraken-border)] pl-4 pr-10"
+          >
+            <Link href="/" className="flex items-center gap-3 group pr-4">
               <Image
                 src="/logo.svg"
                 alt="Polnation"
-                width={36}
-                height={36}
+                width={32}
+                height={32}
                 className="transition-all duration-300"
               />
-              <span className="text-xl font-semibold tracking-tight text-white transition-colors duration-300 group-hover:text-[var(--kraken-green)]">Polnation</span>
+              <span className="text-lg font-semibold tracking-tight text-white transition-colors duration-300 group-hover:text-[var(--kraken-green)]">
+                Polnation
+              </span>
             </Link>
+
+            {user && (
+              <div className="hidden md:flex items-center gap-1 pl-2">
+                {navLinks.map((link) => {
+                  const Icon = link.icon
+                  const isActive = pathname === link.href
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`
+                        flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide uppercase transition-all duration-200
+                        ${isActive
+                          ? 'bg-[var(--kraken-panel-2)] text-white'
+                          : 'text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)]'
+                        }
+                      `}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {link.label}
+                      {isActive && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--kraken-purple)]" />
+                      )}
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
-          {/* Desktop Navigation */}
-          {user && (
-            <div className="hidden md:flex items-center gap-1">
-              {navLinks.map((link) => {
-                const Icon = link.icon
-                const isActive = pathname === link.href
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`
-                      flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-200 border
-                      ${isActive
-                        ? 'bg-[var(--kraken-panel-2)] text-white border-[var(--kraken-purple)]'
-                        : 'text-[var(--kraken-muted)] border-transparent hover:text-white hover:bg-[var(--kraken-panel-2)] hover:border-[var(--kraken-border)]'
-                      }
-                    `}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {link.label}
-                  </Link>
-                )
-              })}
+          {/* Right side: language + clipped CTAs */}
+          <div className="flex items-stretch gap-0">
+            {/* Language switcher floats next to the slabs (no clip, plain pill) */}
+            <div className="flex items-center pr-2">
+              <LanguageSwitcher currentLocale={locale} />
             </div>
-          )}
-
-          {/* Right side */}
-          <div className="flex items-center gap-2">
-            {/* Language Switcher (compact: flag only) */}
-            <LanguageSwitcher currentLocale={locale} />
 
             {user ? (
-              <div className="relative" ref={userMenuRef}>
-                <button
-                  onClick={() => setUserMenuOpen((v) => !v)}
-                  aria-haspopup="menu"
-                  aria-expanded={userMenuOpen}
-                  className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full text-xs font-semibold text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] border border-transparent hover:border-[var(--kraken-border)] transition-all duration-200"
-                >
-                  <span className="w-7 h-7 rounded-full bg-[var(--kraken-purple)] text-white flex items-center justify-center text-xs font-bold">
-                    {userInitial}
-                  </span>
-                  <ChevronDown className={`w-3 h-3 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {userMenuOpen && (
-                  <div
-                    role="menu"
-                    className="absolute right-0 mt-2 w-60 rounded-2xl bg-[var(--kraken-panel)] border border-[var(--kraken-border)] shadow-xl overflow-hidden z-50"
+              <>
+                {/* Gray slab: rewards hub / user menu trigger */}
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    onClick={() => setUserMenuOpen((v) => !v)}
+                    aria-haspopup="menu"
+                    aria-expanded={userMenuOpen}
+                    style={grayClip}
+                    className="h-full flex items-center gap-2 pl-7 pr-5 bg-[var(--kraken-panel-2)] text-white text-[11px] font-semibold tracking-widest uppercase hover:bg-[#2a2238] transition-colors"
                   >
-                    {/* Account info */}
-                    <div className="px-4 py-3 border-b border-[var(--kraken-border)]">
-                      <p className="text-[10px] uppercase tracking-wider text-[var(--kraken-muted)]">Signed in as</p>
-                      <p className="text-xs text-white truncate mt-0.5">{user.email}</p>
+                    <span className="w-6 h-6 rounded-full bg-[var(--kraken-purple)] text-white flex items-center justify-center text-[10px] font-bold">
+                      {userInitial}
+                    </span>
+                    Rewards Hub
+                    <ChevronDown className={`w-3 h-3 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {userMenuOpen && (
+                    <div
+                      role="menu"
+                      className="absolute right-0 mt-2 w-60 rounded-2xl bg-[var(--kraken-panel)] border border-[var(--kraken-border)] shadow-xl overflow-hidden z-50"
+                    >
+                      <div className="px-4 py-3 border-b border-[var(--kraken-border)]">
+                        <p className="text-[10px] uppercase tracking-wider text-[var(--kraken-muted)]">Signed in as</p>
+                        <p className="text-xs text-white truncate mt-0.5">{user.email}</p>
+                      </div>
+
+                      <Link
+                        href="/academy"
+                        role="menuitem"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
+                      >
+                        <BookOpen className="w-4 h-4" />
+                        Academy
+                      </Link>
+                      <a
+                        href="/polnation-earning-guide.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        role="menuitem"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
+                      >
+                        <GraduationCap className="w-4 h-4" />
+                        Earning Guide
+                      </a>
+
+                      <div className="border-t border-[var(--kraken-border)]" />
+
+                      <button
+                        role="menuitem"
+                        onClick={() => {
+                          setUserMenuOpen(false)
+                          handleSignOut()
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        {t('signOut')}
+                      </button>
                     </div>
+                  )}
+                </div>
 
-                    {/* Learn links */}
-                    <Link
-                      href="/academy"
-                      role="menuitem"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
-                    >
-                      <BookOpen className="w-4 h-4" />
-                      Academy
-                    </Link>
-                    <a
-                      href="/polnation-earning-guide.html"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      role="menuitem"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
-                    >
-                      <GraduationCap className="w-4 h-4" />
-                      Earning Guide
-                    </a>
-
-                    <div className="border-t border-[var(--kraken-border)]" />
-
-                    <button
-                      role="menuitem"
-                      onClick={() => {
-                        setUserMenuOpen(false)
-                        handleSignOut()
-                      }}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      {t('signOut')}
-                    </button>
-                  </div>
-                )}
-              </div>
+                {/* Purple slab: Join Polnation arrow CTA */}
+                <Link
+                  href="/dashboard"
+                  style={purpleClip}
+                  className="h-full flex items-center pl-7 pr-9 bg-[var(--kraken-purple)] hover:bg-[var(--kraken-purple-soft)] text-white text-[11px] font-bold tracking-widest uppercase transition-colors -ml-2"
+                >
+                  Join Polnation
+                </Link>
+              </>
             ) : (
-              <div className="flex items-center gap-2">
+              <>
                 <Link
                   href="/login"
-                  className="px-3 py-2 text-xs font-semibold text-[var(--kraken-muted)] hover:text-white transition-all"
+                  style={grayClip}
+                  className="h-full flex items-center pl-7 pr-5 bg-[var(--kraken-panel-2)] text-white text-[11px] font-semibold tracking-widest uppercase hover:bg-[#2a2238] transition-colors"
                 >
                   {t('signIn')}
                 </Link>
                 <Link
                   href="/register"
-                  className="inline-flex h-10 items-center rounded-full bg-[var(--kraken-purple)] px-4 text-xs font-semibold text-white transition-colors hover:bg-[var(--kraken-purple-soft)]"
+                  style={purpleClip}
+                  className="h-full flex items-center pl-7 pr-9 bg-[var(--kraken-purple)] hover:bg-[var(--kraken-purple-soft)] text-white text-[11px] font-bold tracking-widest uppercase transition-colors -ml-2"
                 >
-                  {t('getStarted')}
+                  Join Polnation
                 </Link>
-              </div>
+              </>
             )}
 
             {/* Mobile menu button - only for non-dashboard pages */}
             {user && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-xl text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-all"
+                className="md:hidden p-2 ml-2 rounded-xl text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-all"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
