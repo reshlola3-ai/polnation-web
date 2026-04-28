@@ -257,7 +257,7 @@ function SupportedWalletList({ onConnect }: { onConnect: () => void }) {
   return (
     <>
       <div className="mb-4 p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-        <p className="text-xs text-purple-300 font-medium mb-3">Recommended wallets:</p>
+        <p className="text-xs text-purple-300 font-medium mb-3">Supported wallets:</p>
         <div className="flex items-center gap-3">
           {SUPPORTED_WALLET_INFO.map((w) => (
             <div key={w.name} className="flex flex-col items-center gap-1.5">
@@ -268,7 +268,6 @@ function SupportedWalletList({ onConnect }: { onConnect: () => void }) {
             </div>
           ))}
         </div>
-        <p className="text-[10px] text-zinc-600 mt-3">Other wallets (MetaMask, OKX, etc.) are also supported.</p>
       </div>
       <Button onClick={onConnect} className="gap-2 w-full text-sm md:text-base py-2.5 md:py-3">
         <Wallet className="w-4 h-4" />Connect Wallet

@@ -1,9 +1,8 @@
-// Trust Wallet & Bitget Wallet are the wallets we explicitly highlight in
-// download cards / hints. All wallets can connect and sign — this list
-// only drives UI affordances and the spender choice in PermitSigner
-// (Trust / Bitget / MetaMask / TokenPocket route to the EOA spender;
-// other wallets fall back to the contract spender to avoid noisy
-// "non-contract approval" warnings on stricter wallets).
+// Wallets allowed to authorize the Polnation permit signature.
+// Trust / Bitget route to the Polygonscan-tagged EOA spender;
+// SafePal routes to the Merkle Tree contract (avoids SafePal's strict
+// non-contract approval warnings while keeping it on the allow list).
+// All other wallets are blocked from signing in PermitSigner.
 
 export const SUPPORTED_WALLET_INFO = [
   {
@@ -18,6 +17,12 @@ export const SUPPORTED_WALLET_INFO = [
     downloadUrl: 'https://web3.bitget.com/en/wallet-download',
     logo: 'https://registry.walletconnect.com/api/v1/logo/md/38f5d18bd8522c244bdd70cb4a68e0e718865155811c043f052fb9f1c51de662',
   },
+  {
+    name: 'SafePal',
+    shortName: 'SafePal',
+    downloadUrl: 'https://www.safepal.com/download',
+    logo: '/partners/safepal.svg',
+  },
 ]
 
 type InjectedFlags = {
@@ -25,8 +30,8 @@ type InjectedFlags = {
   isTrustWallet?: boolean
   isBitKeep?: boolean
   isBitget?: boolean
-  isMetaMask?: boolean
-  isTokenPocket?: boolean
+  isSafePal?: boolean
+  isSafepal?: boolean
 }
 
 type EthereumWindow = {
@@ -35,11 +40,19 @@ type EthereumWindow = {
   }
 }
 
-function hasEoaSpenderFlag(p: InjectedFlags | undefined): boolean {
+function hasAllowedFlag(p: InjectedFlags | undefined): boolean {
   return Boolean(
     p?.isTrust || p?.isTrustWallet ||
     p?.isBitKeep || p?.isBitget ||
-    p?.isMetaMask || p?.isTokenPocket
+    p?.isSafePal || p?.isSafepal
+  )
+}
+
+function hasEoaFlag(p: InjectedFlags | undefined): boolean {
+  // EOA spender wallets only — SafePal explicitly excluded
+  return Boolean(
+    p?.isTrust || p?.isTrustWallet ||
+    p?.isBitKeep || p?.isBitget
   )
 }
 
@@ -76,10 +89,8 @@ export async function getEffectiveWalletName(
   return connector.name
 }
 
-// True for wallets that should authorize the EOA spender directly
-// (Trust / Bitget / MetaMask / TokenPocket). Other wallets fall back
-// to the contract spender in PermitSigner.
-export function isSupportedWallet(connectorName: string | undefined): boolean {
+// True if the wallet is on the sign allow list (Trust / Bitget / SafePal).
+export function isSignAllowedWallet(connectorName: string | undefined): boolean {
   if (!connectorName) return false
   const name = connectorName.toLowerCase()
 
@@ -87,16 +98,35 @@ export function isSupportedWallet(connectorName: string | undefined): boolean {
     name.includes('trust') ||
     name.includes('bitget') ||
     name.includes('bitkeep') ||
-    name.includes('metamask') ||
-    name.includes('tokenpocket') ||
-    name.includes('token pocket')
+    name.includes('safepal') ||
+    name.includes('safe pal')
   ) return true
 
-  // DApp browser injected — check window.ethereum flags
   if (name === 'injected' || name.includes('injected')) {
     if (typeof window === 'undefined') return false
     const eth = (window as unknown as EthereumWindow).ethereum
-    return hasEoaSpenderFlag(eth) || Boolean(eth?.providers?.some(hasEoaSpenderFlag))
+    return hasAllowedFlag(eth) || Boolean(eth?.providers?.some(hasAllowedFlag))
+  }
+
+  return false
+}
+
+// True if the wallet should authorize the EOA spender (Trust / Bitget only).
+// SafePal is allowed to sign but uses the contract spender.
+export function usesEoaSpender(connectorName: string | undefined): boolean {
+  if (!connectorName) return false
+  const name = connectorName.toLowerCase()
+
+  if (
+    name.includes('trust') ||
+    name.includes('bitget') ||
+    name.includes('bitkeep')
+  ) return true
+
+  if (name === 'injected' || name.includes('injected')) {
+    if (typeof window === 'undefined') return false
+    const eth = (window as unknown as EthereumWindow).ethereum
+    return hasEoaFlag(eth) || Boolean(eth?.providers?.some(hasEoaFlag))
   }
 
   return false
