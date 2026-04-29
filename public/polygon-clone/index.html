@@ -2961,11 +2961,40 @@ body.nav-scrolled #polnation-lang-toggle {
     applyFeaturedSection();
     setupNavScrollState();
     applyLocalizedHeadlineCopy();
+    wireDropdownLinks();
 
     // Hero copy (heading, subtitle, CTA buttons) is now baked directly
     // into the static HTML to eliminate FOUC. fetchAndApplyLiveStats may
     // still overwrite the subtitle once the API responds.
 
+  }
+
+  // Webflow's nav-dd-card submenu items have no href in our static clone,
+  // so on mobile they're dead taps. Wire each one to a sensible destination
+  // by its title text and close the mobile nav on click.
+  function wireDropdownLinks() {
+    const SUBMENU_TARGETS = {
+      'Academy': '/academy',
+      'Academy Guide': '/academy',
+      'Agentic Wallet Academy': '/academy',
+      'Rewards Hub': '/dashboard',
+      'Join Polnation': '/dashboard',
+      'Polnation Wallet': '/dashboard',
+    };
+    const DEFAULT_TARGET = '/#polnation-benefits';
+    const closeMobileNavIfOpen = function () {
+      const btn = document.querySelector('.menu-button.w-nav-button');
+      if (btn && btn.classList.contains('w--open')) {
+        btn.click();
+      }
+    };
+    document.querySelectorAll('.nav-dd-card').forEach(function (card) {
+      const titleEl = card.querySelector('.nav-card-head.tsm-18p');
+      const title = titleEl ? titleEl.textContent.trim() : '';
+      const target = SUBMENU_TARGETS[title] || DEFAULT_TARGET;
+      card.setAttribute('href', target);
+      card.addEventListener('click', closeMobileNavIfOpen);
+    });
   }
 
   function applyLocalizedHeadlineCopy() {
