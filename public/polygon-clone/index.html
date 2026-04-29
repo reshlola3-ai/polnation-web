@@ -2450,6 +2450,21 @@ function createMedia(x, y, deltaX, deltaY) {
   }
 }
 
+@media (max-width: 991px) {
+  .h-pur-grid.is-home.has-polnation-featured {
+    display: none !important;
+  }
+  .section.is-featured .purpose-mobile-slider-container {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .section.is-featured .purpose-mobile-slider-container {
+    display: none !important;
+  }
+}
+
 #polnation-lang-toggle {
   background: transparent;
   border: 1px solid rgba(255,255,255,0.5);
@@ -2863,6 +2878,66 @@ body.nav-scrolled #polnation-lang-toggle {
       featureCard('w-node-b8b05f28-6026-37ae-b971-c44904a969d1-2637f410', 'w-node-b8b05f28-6026-37ae-b971-c44904a969d6-2637f410', 'is-second', 'Tier Upside', '05', '6', 'Six balance tiers from Resident to Chancellor, scaling daily rewards from 0.75% up to 1.80% as USDC holdings grow.', '/polygon-clone/assets/cards/liquidity-light.webp', false),
       featureCard('w-node-a5df4c97-e070-79e8-4261-30b8d7e17ce4-2637f410', 'w-node-a5df4c97-e070-79e8-4261-30b8d7e17ce9-2637f410', '', 'Referral Depth', '06', 'Multi-Level', 'Direct invites and downstream team activity both feed your daily community-reward multiplier - every layer counts.', '/polygon-clone/assets/cards/cost-light.webp', false)
     ].join('');
+
+    // Mobile: polygon's native swiper carousel (matches purpose-slider DOM on polygon.technology)
+    const featureCardBgMobile = '<div class="feature-card-bg no-clip-mobile"><div class="feature-card-bg-embed w-embed"><svg width="100%" height="100%" preserveAspectRatio="fill" viewBox="0 0 253 240" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M31.5195 0.5H248.98C250.913 0.500227 252.48 2.06666 252.48 3.99902L252.5 221.989L252.495 222.174C252.447 223.094 252.036 223.961 251.35 224.583L235.885 238.594C235.241 239.177 234.403 239.5 233.535 239.5H4C2.067 239.5 0.5 237.933 0.5 236V76.5H0.521484V76L0.500977 30.2119C0.50056 29.2536 0.893116 28.3367 1.58691 27.6758L29.1055 1.46582C29.7156 0.88476 30.5137 0.544148 31.3516 0.503906L31.5195 0.5Z" stroke="currentcolor"></path></svg></div></div>';
+    const mobileSlide = function (item) {
+      return [
+        '<div class="purpose-slide swiper-slide">',
+        '<div class="h-feature-card">',
+        '<div class="h-feature-card-icon z-index-2 w-embed"><svg width="100%" height="100%" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.79395 9.29395H0.501052C0.0555997 9.29395 -0.167485 8.75538 0.147498 8.44039L8.44039 0.147499C8.75537 -0.167484 9.29395 0.0555996 9.29395 0.501052V8.79395C9.29395 9.07009 9.07009 9.29395 8.79395 9.29395Z" fill="currentcolor"></path></svg></div>',
+        '<div class="h-feature-card-container">',
+        '  <div class="h-feature-card-grid"><p class="u-mono-medium tc-g200 all-caps tsm-13">' + item.label + '</p></div>',
+        '  <div class="h-feature-card-grid mlm-20">',
+        '    <div class="h-feature-card-number"><div class="u-mono-small tc-g200">' + item.number + '</div></div>',
+        '    <div class="u-text-regular">' + item.body + '</div>',
+        '  </div>',
+        '  <div class="h-feature-card-image"><img src="' + item.image + '" loading="lazy" alt="" class="light-image"><img src="' + item.image + '" loading="lazy" alt="" class="dark-image"></div>',
+        '</div>',
+        featureCardBgMobile,
+        '</div>',
+        '</div>'
+      ].join('');
+    };
+    const mobileBenefits = [
+      { label: 'Community Reach', number: '01', body: '78+ active wallets receiving or tracking Polnation treasury-linked reward activity.', image: '/polygon-clone/assets/cards/distribution-light.webp' },
+      { label: 'Onchain Transfers', number: '02', body: 'Visible Polnation transactions moving through the treasury and reward flow.', image: '/polygon-clone/assets/cards/reliability-dark.webp' },
+      { label: 'Self-Custody', number: '03', body: 'USDC stays in your own wallet while you remain eligible for participation.', image: '/polygon-clone/assets/cards/er-light.webp' },
+      { label: 'Daily Rhythm', number: '04', body: 'Reward calculations, treasury visibility, and community momentum update continuously.', image: '/polygon-clone/assets/cards/speed-light.webp' },
+      { label: 'Tier Upside', number: '05', body: 'Six balance tiers from Resident to Chancellor, scaling daily rewards from 0.75% up to 1.80% as USDC holdings grow.', image: '/polygon-clone/assets/cards/liquidity-light.webp' },
+      { label: 'Referral Depth', number: '06', body: 'Direct invites and downstream team activity feed your daily community-reward multiplier.', image: '/polygon-clone/assets/cards/cost-light.webp' }
+    ];
+    desktopGrid.insertAdjacentHTML('afterend', [
+      '<div class="purpose-mobile-slider-container">',
+      '  <div class="purpose-slider swiper">',
+      '    <div class="purpose-list swiper-wrapper">',
+      mobileBenefits.map(mobileSlide).join(''),
+      '    </div>',
+      '  </div>',
+      '  <div class="purpose-pagination"></div>',
+      '</div>'
+    ].join(''));
+
+    const initBenefitsSwiper = function () {
+      if (typeof window.Swiper === 'undefined') {
+        window.requestAnimationFrame(initBenefitsSwiper);
+        return;
+      }
+      const sliderEl = featured.querySelector('.purpose-slider');
+      const pagEl = featured.querySelector('.purpose-pagination');
+      if (!sliderEl || !pagEl) return;
+      new window.Swiper(sliderEl, {
+        slidesPerView: 'auto',
+        spaceBetween: 24,
+        pagination: {
+          el: pagEl,
+          clickable: true,
+          bulletClass: 'purpose-static-dot',
+          bulletActiveClass: 'purpose-active-dot',
+        },
+      });
+    };
+    initBenefitsSwiper();
 
     const slot = featured.querySelector('#polnation-featured-tracker-slot');
     if (slot) {
