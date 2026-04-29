@@ -2397,6 +2397,59 @@ function createMedia(x, y, deltaX, deltaY) {
   }
 }
 
+.h-pur-grid.is-home.has-polnation-featured {
+  grid-column-gap: var(--site--gutter);
+  grid-row-gap: var(--site--gutter);
+  grid-template-rows: repeat(auto-fill, 15.6vw);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-columns: 1fr;
+  width: calc(100% - 8.334vw);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+  display: grid;
+}
+
+.h-pur-grid.is-home.has-polnation-featured .home-pur-heading-wrap {
+  margin-bottom: 0;
+}
+
+.h-pur-grid.is-home.has-polnation-featured .polnation-feature-stat {
+  display: block;
+  margin-bottom: 0.55em;
+  font-size: clamp(28px, 3.2vw, 48px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--color--interverted-primary);
+}
+
+.h-pur-grid.is-home.has-polnation-featured .polnation-feature-desc {
+  display: block;
+}
+
+.h-pur-grid.is-home.has-polnation-featured .h-feature-card-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+@media (max-width: 991px) {
+  .h-pur-grid.is-home.has-polnation-featured {
+    grid-column-gap: 3.5rem;
+    grid-row-gap: 3.5rem;
+    flex-flow: column;
+    grid-template-rows: auto;
+    grid-template-columns: 1fr;
+    width: calc(100% - 8.334vw);
+    display: flex;
+  }
+
+  .h-pur-grid.is-home.has-polnation-featured .h-feature-card,
+  .h-pur-grid.is-home.has-polnation-featured .h-feature-card.is-second {
+    margin-top: 0;
+  }
+}
+
 #polnation-lang-toggle {
   background: transparent;
   border: 1px solid rgba(255,255,255,0.5);
@@ -2738,11 +2791,6 @@ body.nav-scrolled #polnation-lang-toggle {
     const featured = document.querySelector('.section.is-featured');
     if (!featured) return;
 
-    if (featured.querySelector('.polnation-featured-shell')) {
-      hydrateFeaturedTracker(featured);
-      return;
-    }
-
     featured.dataset.polnationFeatured = 'true';
 
     const mobileGrid = featured.querySelector('.h-pur-grid.hide-desktop');
@@ -2768,61 +2816,45 @@ body.nav-scrolled #polnation-lang-toggle {
 
     desktopGrid.classList.remove('hide-landscape');
     desktopGrid.classList.add('has-polnation-featured');
+    const featureCornerIcon = '<div class="h-feature-card-icon w-embed"><svg width="100%" height="100%" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.79395 9.29395H0.501052C0.0555997 9.29395 -0.167485 8.75538 0.147498 8.44039L8.44039 0.147499C8.75537 -0.167484 9.29395 0.0555996 9.29395 0.501052V8.79395C9.29395 9.07009 9.07009 9.29395 8.79395 9.29395Z" fill="currentcolor"></path></svg></div>';
+    const featureCardBg = '<div class="feature-card-bg"><div class="feature-card-bg-embed w-embed"><svg width="100%" height="100%" preserveAspectRatio="fill" viewBox="0 0 420 248" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M71.5518 0.5H415.98C417.913 0.500234 419.48 2.06666 419.48 3.99902L419.5 208.055C419.5 209.009 419.11 209.923 418.421 210.583L380.893 246.527C380.241 247.151 379.373 247.5 378.471 247.5H4C2.067 247.5 0.5 245.933 0.5 244V76.5H0.522461L0.521484 75.999L0.504883 70.1836C0.502225 69.2394 0.880641 68.3334 1.55469 67.6729L69.1025 1.5C69.7159 0.899191 70.5273 0.545647 71.3809 0.503906L71.5518 0.5Z" stroke="currentcolor"></path></svg></div></div>';
+    const featureCard = function (id, titleId, extraClass, label, number, value, body, image, mlm) {
+      const statKey = number === '01' ? 'wallets' : number === '02' ? 'transactions' : '';
+      return [
+        '<div id="' + id + '" class="h-feature-card' + (extraClass ? ' ' + extraClass : '') + '">',
+        featureCornerIcon,
+        featureCardBg,
+        '<div class="h-feature-card-container">',
+        '  <div class="h-feature-card-grid"><p id="' + titleId + '" class="u-mono-medium tc-g200 all-caps">' + label + '</p></div>',
+        '  <div class="h-feature-card-grid' + (mlm ? ' mlm-20' : '') + '">',
+        '    <div class="h-feature-card-number"><div class="u-mono-small tc-g200">' + number + '</div></div>',
+        '    <div class="u-text-regular polnation-feature-copy"><span class="polnation-feature-stat"' + (statKey ? ' data-polnation-stat="' + statKey + '"' : '') + '>' + value + '</span><span class="polnation-feature-desc">' + body + '</span></div>',
+        '  </div>',
+        '  <div class="h-feature-card-image"><img src="' + image + '" loading="lazy" alt="" class="light-image"><img src="' + image + '" loading="lazy" alt="" class="dark-image"></div>',
+        '</div>',
+        '</div>'
+      ].join('');
+    };
     desktopGrid.innerHTML = [
-      '<div class="polnation-featured-shell">',
-      '  <div class="polnation-featured-grid">',
-      '    <div class="polnation-featured-copy">',
-      '      <div class="h-eyebrow-container is-relative"><div>BENEFITS</div><img loading="lazy" src="https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696376662455e8a33552a4dc_triangle.svg" alt="" class="oms-eyebrow-icon"/><img loading="lazy" src="https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696376662455e8a33552a4dc_triangle.svg" alt="" class="oms-eyebrow-icon is-rb"/></div>',
-      '      <h2 class="u-h2 th-110">Polnation is purpose-built to <span class="tc-g200">track transparent rewards</span></h2>',
-      '      <p class="u-body-large">Polnation combines live treasury visibility, self-custody participation, and referral growth in one Polygon-native rewards experience. This section should explain Polnation, not Polygon infrastructure or token staking.</p>',
-      '      <div class="polnation-stat-cards">',
-      '        <div class="polnation-stat-card">',
-      '          <div class="polnation-stat-icon"><img src="/polygon-clone/assets/cards/distribution-light.webp" alt=""/></div>',
-      '          <div class="polnation-stat-eyebrow"><span class="polnation-stat-number">01</span>Community Reach</div>',
-      '          <div class="polnation-stat-value" data-polnation-stat="wallets">78+</div>',
-      '          <div class="polnation-stat-desc">Active wallets receiving or tracking Polnation treasury-linked reward activity.</div>',
-      '        </div>',
-      '        <div class="polnation-stat-card">',
-      '          <div class="polnation-stat-icon"><img src="/polygon-clone/assets/cards/reliability-dark.webp" alt=""/></div>',
-      '          <div class="polnation-stat-eyebrow"><span class="polnation-stat-number">02</span>Onchain Transfers</div>',
-      '          <div class="polnation-stat-value" data-polnation-stat="transactions">0</div>',
-      '          <div class="polnation-stat-desc">Visible Polnation transactions moving through the treasury and reward flow.</div>',
-      '        </div>',
-      '        <div class="polnation-stat-card">',
-      '          <div class="polnation-stat-icon"><img src="/polygon-clone/assets/cards/er-light.webp" alt=""/></div>',
-      '          <div class="polnation-stat-eyebrow"><span class="polnation-stat-number">03</span>Self-Custody</div>',
-      '          <div class="polnation-stat-value">100%</div>',
-      '          <div class="polnation-stat-desc">Users keep USDC in their own wallet while remaining eligible for participation.</div>',
-      '        </div>',
-      '        <div class="polnation-stat-card">',
-      '          <div class="polnation-stat-icon"><img src="/polygon-clone/assets/cards/speed-light.webp" alt=""/></div>',
-      '          <div class="polnation-stat-eyebrow"><span class="polnation-stat-number">04</span>Daily Rhythm</div>',
-      '          <div class="polnation-stat-value">Daily</div>',
-      '          <div class="polnation-stat-desc">Reward calculations, treasury visibility, and community momentum all update continuously.</div>',
-      '        </div>',
-      '        <div class="polnation-stat-card">',
-      '          <div class="polnation-stat-icon"><img src="/polygon-clone/assets/cards/liquidity-light.webp" alt=""/></div>',
-      '          <div class="polnation-stat-eyebrow"><span class="polnation-stat-number">05</span>Tier Upside</div>',
-      '          <div class="polnation-stat-value">6</div>',
-      '          <div class="polnation-stat-desc">Six balance tiers from Resident to Chancellor, scaling daily rewards from 0.75% up to 1.80% as USDC holdings grow.</div>',
-      '        </div>',
-      '        <div class="polnation-stat-card">',
-      '          <div class="polnation-stat-icon"><img src="/polygon-clone/assets/cards/cost-light.webp" alt=""/></div>',
-      '          <div class="polnation-stat-eyebrow"><span class="polnation-stat-number">06</span>Referral Depth</div>',
-      '          <div class="polnation-stat-value">Multi-Level</div>',
-      '          <div class="polnation-stat-desc">Direct invites and downstream team activity both feed your daily community-reward multiplier — every layer counts.</div>',
-      '        </div>',
-      '      </div>',
-      '    </div>',
-      '    <div id="polnation-featured-tracker-slot"></div>',
-      '  </div>',
-      '</div>'
+      '<div id="w-node-_372b07d9-e01d-ddbb-0008-d7101a586188-2637f410" class="home-pur-heading-wrap">',
+      '  <div class="h-eyebrow-container is-relative"><div>BENEFITS</div><img loading="lazy" src="https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696376662455e8a33552a4dc_triangle.svg" alt="" class="oms-eyebrow-icon"/><img loading="lazy" src="https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696376662455e8a33552a4dc_triangle.svg" alt="" class="oms-eyebrow-icon is-rb"/></div>',
+      '  <h2 class="u-h2 th-110"><span class="text-span-indent">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;Polnation is purpose-built to <span class="tc-g200">track transparent rewards</span></h2>',
+      '  <p class="u-body-large">Polnation combines live treasury visibility, self-custody participation, and referral growth in one Polnation-native rewards experience. This section should explain Polnation, not Polnation infrastructure or token staking.</p>',
+      '</div>',
+      featureCard('w-node-_3b1fb3f8-79c2-4157-4b4e-331bd28b1452-2637f410', 'w-node-b449489a-f1cc-8b76-684b-c6a084a6a628-2637f410', '', 'Community Reach', '01', '78+', 'Active wallets receiving or tracking Polnation treasury-linked reward activity.', '/polygon-clone/assets/cards/distribution-light.webp', true),
+      featureCard('w-node-_68ab3c67-c32a-60f5-5bcc-8a06981509e5-2637f410', 'w-node-_68ab3c67-c32a-60f5-5bcc-8a06981509ea-2637f410', 'is-second', 'Onchain Transfers', '02', '0', 'Visible Polnation transactions moving through the treasury and reward flow.', '/polygon-clone/assets/cards/reliability-dark.webp', false),
+      featureCard('w-node-f84ba97d-15f3-89e5-21ee-73e040aa25c7-2637f410', 'w-node-f84ba97d-15f3-89e5-21ee-73e040aa25cc-2637f410', 'is-second', 'Self-Custody', '03', '100%', 'Users keep USDC in their own wallet while remaining eligible for participation.', '/polygon-clone/assets/cards/er-light.webp', false),
+      featureCard('w-node-a266d7fe-ae75-296c-57a8-c0f50e6842b5-2637f410', 'w-node-a266d7fe-ae75-296c-57a8-c0f50e6842ba-2637f410', 'is-second', 'Daily Rhythm', '04', 'Daily', 'Reward calculations, treasury visibility, and community momentum all update continuously.', '/polygon-clone/assets/cards/speed-light.webp', true),
+      featureCard('w-node-b8b05f28-6026-37ae-b971-c44904a969d1-2637f410', 'w-node-b8b05f28-6026-37ae-b971-c44904a969d6-2637f410', 'is-second', 'Tier Upside', '05', '6', 'Six balance tiers from Resident to Chancellor, scaling daily rewards from 0.75% up to 1.80% as USDC holdings grow.', '/polygon-clone/assets/cards/liquidity-light.webp', false),
+      featureCard('w-node-a5df4c97-e070-79e8-4261-30b8d7e17ce4-2637f410', 'w-node-a5df4c97-e070-79e8-4261-30b8d7e17ce9-2637f410', '', 'Referral Depth', '06', 'Multi-Level', 'Direct invites and downstream team activity both feed your daily community-reward multiplier - every layer counts.', '/polygon-clone/assets/cards/cost-light.webp', false)
     ].join('');
 
     const slot = featured.querySelector('#polnation-featured-tracker-slot');
-    const tracker = createEmbeddedTrackerSection();
-    if (slot && tracker) {
-      slot.appendChild(tracker);
+    if (slot) {
+      const tracker = createEmbeddedTrackerSection();
+      if (tracker) {
+        slot.appendChild(tracker);
+      }
     }
 
     // DEBUG: temporarily disabled - this was removing the "Powered by $POL"
