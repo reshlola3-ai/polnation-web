@@ -1972,7 +1972,7 @@ function createMedia(x, y, deltaX, deltaY) {
   object-fit: contain;
   flex: 0 0 auto;
   display: block;
-  transform: translateY(10px);
+  transform: translateY(8px);
 }
 
 @media (max-width: 991px) {
@@ -2447,6 +2447,77 @@ function createMedia(x, y, deltaX, deltaY) {
   .h-pur-grid.is-home.has-polnation-featured .h-feature-card,
   .h-pur-grid.is-home.has-polnation-featured .h-feature-card.is-second {
     margin-top: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .h-pur-grid.is-home.has-polnation-featured {
+    gap: 28px;
+    width: calc(100% - 32px);
+  }
+
+  .h-pur-grid.is-home.has-polnation-featured .h-feature-card,
+  .h-pur-grid.is-home.has-polnation-featured .h-feature-card.is-second {
+    position: relative !important;
+    width: 100% !important;
+    min-height: 236px !important;
+    height: auto !important;
+  }
+
+  .h-pur-grid.is-home.has-polnation-featured .feature-card-bg,
+  .h-pur-grid.is-home.has-polnation-featured .feature-card-bg-embed {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .h-pur-grid.is-home.has-polnation-featured .h-feature-card-container {
+    position: relative !important;
+    min-height: 236px !important;
+    height: auto !important;
+    padding: 34px 22px 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    gap: 42px !important;
+  }
+
+  .h-pur-grid.is-home.has-polnation-featured .h-feature-card-grid {
+    display: block !important;
+  }
+
+  .h-pur-grid.is-home.has-polnation-featured .h-feature-card-grid:nth-child(2) {
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    align-items: end !important;
+    gap: 14px !important;
+  }
+
+  .h-pur-grid.is-home.has-polnation-featured .h-feature-card-number {
+    align-self: end !important;
+  }
+
+  .h-pur-grid.is-home.has-polnation-featured .polnation-feature-copy {
+    min-width: 0 !important;
+  }
+
+  .h-pur-grid.is-home.has-polnation-featured .polnation-feature-stat {
+    margin-bottom: 8px !important;
+    font-size: 34px !important;
+  }
+
+  .h-pur-grid.is-home.has-polnation-featured .polnation-feature-desc {
+    font-size: 15px !important;
+    line-height: 1.32 !important;
+  }
+
+  .h-pur-grid.is-home.has-polnation-featured .h-feature-card-image {
+    position: absolute !important;
+    top: 44px !important;
+    right: 42px !important;
+    width: 72px !important;
+    height: 72px !important;
   }
 }
 
