@@ -11,6 +11,9 @@ import {
 import Image from 'next/image'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { PermitSigner } from '@/components/wallet/PermitSigner'
+import { NotchedCard } from '@/components/ui/poly/NotchedCard'
+import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
+import { MonoStat } from '@/components/ui/poly/MonoStat'
 import { useAccount, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
@@ -492,67 +495,73 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           </button>
         </div>
 
-        {/* Assets breakdown */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2" onClick={() => setActiveAssetTip(null)}>
+        {/* Assets breakdown — polygon-style notched cards (Phase 2 PoC) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" onClick={() => setActiveAssetTip(null)}>
           {/* Wallet */}
-          <div className="kraken-mini-card px-3 py-4 flex flex-col items-start gap-1 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-white/[0.06] ring-1 ring-inset ring-white/[0.06] flex items-center justify-center mb-0.5">
-              <Wallet className="w-4 h-4 text-white/80" />
+          <NotchedCard pad={16} className="min-w-0">
+            <div className="flex flex-col items-start gap-2">
+              <div className="w-8 h-8 rounded-xl bg-white/[0.06] ring-1 ring-inset ring-white/[0.06] flex items-center justify-center">
+                <Wallet className="w-4 h-4 text-white/80" />
+              </div>
+              {isBalanceLoading ? (
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
+              ) : (
+                <MonoStat prefix="$" value={usdcBalance.toFixed(2)} />
+              )}
+              <div className="flex items-center gap-0.5">
+                <EyebrowTag>{t('assetWalletTitle')}</EyebrowTag>
+                <button type="button" className="asset-help-btn" aria-label={t('assetHelpWalletAria')}
+                  onClick={(e) => openTip('wallet', e)}>
+                  <HelpCircle className="w-2.5 h-2.5" />
+                </button>
+              </div>
             </div>
-            {isBalanceLoading ? (
-              <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
-            ) : (
-              <p className="text-sm font-semibold text-white tracking-tight tabular-nums">${usdcBalance.toFixed(2)}</p>
-            )}
-            <div className="flex items-center gap-0.5">
-              <p className="text-[10px] uppercase tracking-[0.12em] text-white/40">{t('assetWalletTitle')}</p>
-              <button type="button" className="asset-help-btn" aria-label={t('assetHelpWalletAria')}
-                onClick={(e) => openTip('wallet', e)}>
-                <HelpCircle className="w-2.5 h-2.5" />
-              </button>
-            </div>
-          </div>
+          </NotchedCard>
 
           {/* Withdrawable */}
-          <div className="kraken-mini-card px-3 py-4 flex flex-col items-start gap-1 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-cyan-500/10 ring-1 ring-inset ring-cyan-500/20 flex items-center justify-center mb-0.5">
-              <ArrowUpRight className="w-4 h-4 text-cyan-300" />
+          <NotchedCard pad={16} className="min-w-0">
+            <div className="flex flex-col items-start gap-2">
+              <div className="w-8 h-8 rounded-xl bg-cyan-500/10 ring-1 ring-inset ring-cyan-500/20 flex items-center justify-center">
+                <ArrowUpRight className="w-4 h-4 text-cyan-300" />
+              </div>
+              {isLoadingProfit ? (
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
+              ) : (
+                <Link href="/earnings" onClick={(e) => e.stopPropagation()}
+                  className={`hover:text-cyan-300 transition-colors${profitData.availableWithdraw > 0.15 ? ' text-cyan-300' : ''}`}>
+                  <MonoStat prefix="$" value={profitData.availableWithdraw.toFixed(2)} />
+                </Link>
+              )}
+              <div className="flex items-center gap-0.5">
+                <EyebrowTag>{t('assetAvailableTitle')}</EyebrowTag>
+                <button type="button" className="asset-help-btn" aria-label={t('assetHelpAvailableAria')}
+                  onClick={(e) => openTip('available', e)}>
+                  <HelpCircle className="w-2.5 h-2.5" />
+                </button>
+              </div>
             </div>
-            {isLoadingProfit ? (
-              <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
-            ) : (
-              <Link href="/earnings" onClick={(e) => e.stopPropagation()}
-                className={`text-sm font-semibold text-white tracking-tight tabular-nums hover:text-cyan-300 transition-colors${profitData.availableWithdraw > 0.15 ? ' text-cyan-300' : ''}`}>
-                ${profitData.availableWithdraw.toFixed(2)}
-              </Link>
-            )}
-            <div className="flex items-center gap-0.5">
-              <p className="text-[10px] uppercase tracking-[0.12em] text-white/40">{t('assetAvailableTitle')}</p>
-              <button type="button" className="asset-help-btn" aria-label={t('assetHelpAvailableAria')}
-                onClick={(e) => openTip('available', e)}>
-                <HelpCircle className="w-2.5 h-2.5" />
-              </button>
-            </div>
-          </div>
+          </NotchedCard>
 
           {/* Team Pool */}
-          <div className="kraken-mini-card px-3 py-4 flex flex-col items-start gap-1 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-purple-500/10 ring-1 ring-inset ring-purple-500/20 flex items-center justify-center mb-0.5">
-              <Users className="w-4 h-4 text-purple-300" />
+          <NotchedCard pad={16} className="min-w-0">
+            <div className="flex flex-col items-start gap-2">
+              <div className="w-8 h-8 rounded-xl bg-purple-500/10 ring-1 ring-inset ring-purple-500/20 flex items-center justify-center">
+                <Users className="w-4 h-4 text-purple-300" />
+              </div>
+              {isLoadingProfit ? (
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
+              ) : (
+                <MonoStat prefix="$" value={profitData.communityPrizePool.toFixed(0)} />
+              )}
+              <div className="flex items-center gap-0.5">
+                <EyebrowTag>{t('assetTeamPoolTitle')}</EyebrowTag>
+                <button type="button" className="asset-help-btn" aria-label={t('assetHelpTeamAria')}
+                  onClick={(e) => openTip('team', e)}>
+                  <HelpCircle className="w-2.5 h-2.5" />
+                </button>
+              </div>
             </div>
-            {isLoadingProfit ? (
-              <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
-            ) : (
-              <p className="text-sm font-semibold text-white tracking-tight tabular-nums">${profitData.communityPrizePool.toFixed(0)}</p>
-            )}
-            <div className="flex items-center gap-0.5">
-              <p className="text-[10px] uppercase tracking-[0.12em] text-white/40">{t('assetTeamPoolTitle')}</p>
-              <button type="button" className="asset-help-btn" aria-label={t('assetHelpTeamAria')}
-                onClick={(e) => openTip('team', e)}>
-                <HelpCircle className="w-2.5 h-2.5" />
-              </button>
-            </div>
-          </div>
+          </NotchedCard>
         </div>
 
         {/* Fixed-position tooltip */}

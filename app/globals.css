@@ -56,24 +56,28 @@
   --input-border: rgba(139, 92, 246, 0.3);
   --input-focus: rgba(139, 92, 246, 0.5);
 
-  /* Polygon-clone dashboard system */
+  /* Polygon design system — values mirror polygon.technology's --swatch--* tokens */
   --poly-font-sans: "PolySans", var(--font-space-grotesk), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --poly-font-mono: "PolySansMono", var(--font-mono), "JetBrains Mono", "Fira Code", monospace;
-  --poly-bg: #0619a8;
-  --poly-bg-deep: #050811;
-  --poly-ink: #f7f8ff;
-  --poly-ink-muted: rgba(247, 248, 255, 0.62);
-  --poly-ink-soft: rgba(247, 248, 255, 0.42);
-  --poly-line: rgba(247, 248, 255, 0.22);
-  --poly-line-strong: rgba(247, 248, 255, 0.38);
-  --poly-panel: rgba(5, 8, 17, 0.88);
-  --poly-panel-soft: rgba(255, 255, 255, 0.04);
-  --poly-accent: #8b5cff;
-  --poly-accent-hot: #ff7a45;
-  --poly-accent-cyan: #00bbff;
-  --poly-radius: 0px;
-  --poly-radius-soft: 4px;
-  --poly-shadow: 0 24px 90px rgba(0, 0, 0, 0.34);
+  --poly-purple: #670de5;
+  --poly-purple-hover: #721fe5;
+  --poly-purple-subtle: #ddcff2;
+  --poly-purple-subtle-dark: #290958;
+  --poly-primary: #07060d;
+  --poly-inverted-primary: #f2f1f5;
+  --poly-inverted-primary-dark: #07060d;
+  --poly-grey-100: #2d2b36;
+  --poly-grey-200: #888a91;
+  --poly-grey-300: #a2a3a5;
+  --poly-grey-400: #bab9bb;
+  --poly-grey-500: #d7d6d9;
+  --poly-grey-100-dark: #f2f3f7;
+  --poly-grey-200-dark: #a0a1a6;
+  --poly-grey-500-dark: #1f1e20;
+  --poly-stroke: #e1e1e5;
+  --poly-stroke-dark: #1b1b1d;
+  --poly-orange: #ff7421;
+  --poly-bubblegum: #e271d7;
 }
 
 @theme inline {
