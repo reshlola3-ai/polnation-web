@@ -512,7 +512,7 @@ export default function EarningsPage() {
               onChange={(e) => setWithdrawAmount(e.target.value)}
               placeholder="0"
               aria-label={t('withdraw.amount')}
-              className="min-w-0 max-w-[70%] bg-transparent border-0 outline-none text-center text-[64px] leading-none font-semibold text-white tracking-tight placeholder:text-white/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none"
+              className="min-w-0 max-w-[70%] bg-transparent border-0 outline-none text-center text-[64px]! leading-none font-semibold text-white tracking-tight placeholder:text-white/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none"
               style={{ width: `${Math.max(1, (withdrawAmount || '0').length)}ch` }}
             />
           </div>
