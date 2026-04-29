@@ -2450,23 +2450,23 @@ function createMedia(x, y, deltaX, deltaY) {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 991px) {
   .h-pur-grid.is-home.has-polnation-featured {
-    display: none;
+    display: none !important;
   }
 
   .polnation-benefits-mobile {
-    display: block;
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    padding: 0 0 46px;
-    overflow: hidden;
+    display: block !important;
+    position: relative !important;
+    z-index: 2 !important;
+    width: 100% !important;
+    padding: 0 0 46px !important;
+    overflow: hidden !important;
   }
 
   .polnation-benefits-mobile-head {
-    width: calc(100% - 32px);
-    margin: 0 auto 28px;
+    width: calc(100% - 40px) !important;
+    margin: 0 auto 28px !important;
   }
 
   .polnation-benefits-mobile-head .h-eyebrow-container.is-relative {
@@ -2475,23 +2475,23 @@ function createMedia(x, y, deltaX, deltaY) {
   }
 
   .polnation-benefits-mobile-head .u-h2 {
-    max-width: 100%;
-    margin: 0;
-    font-size: clamp(46px, 13vw, 66px);
-    line-height: 0.93;
-    letter-spacing: 0;
+    max-width: 100% !important;
+    margin: 0 !important;
+    font-size: clamp(46px, 10.8vw, 66px) !important;
+    line-height: 0.93 !important;
+    letter-spacing: 0 !important;
   }
 
   .polnation-benefits-mobile-track {
-    display: flex;
-    gap: 24px;
-    width: 100%;
-    padding: 0 0 0 20px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    display: flex !important;
+    gap: 24px !important;
+    width: 100% !important;
+    padding: 0 0 0 20px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   .polnation-benefits-mobile-track::-webkit-scrollbar {
@@ -2499,51 +2499,51 @@ function createMedia(x, y, deltaX, deltaY) {
   }
 
   .polnation-benefits-mobile-card {
-    position: relative;
-    flex: 0 0 calc(100vw - 88px);
-    min-height: 392px;
-    color: var(--color--interverted-primary);
-    scroll-snap-align: start;
+    position: relative !important;
+    flex: 0 0 clamp(310px, calc(100vw - 120px), 410px) !important;
+    min-height: 390px !important;
+    color: var(--color--interverted-primary) !important;
+    scroll-snap-align: start !important;
   }
 
   .polnation-benefits-mobile-card .feature-card-bg,
   .polnation-benefits-mobile-card .feature-card-bg-embed {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
   }
 
   .polnation-benefits-mobile-card .h-feature-card-icon {
-    position: absolute;
-    top: -18px;
-    left: 0;
-    width: 10px;
-    height: 10px;
+    position: absolute !important;
+    top: -18px !important;
+    left: 0 !important;
+    width: 10px !important;
+    height: 10px !important;
   }
 
   .polnation-benefits-mobile-card .h-feature-card-container {
-    position: relative;
-    z-index: 1;
-    min-height: 392px;
-    padding: 38px 44px 38px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    position: relative !important;
+    z-index: 1 !important;
+    min-height: 390px !important;
+    padding: 38px 44px 38px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
   }
 
   .polnation-benefits-mobile-card .u-mono-medium {
-    margin: 0;
-    font-size: 16px;
-    letter-spacing: 0.02em;
+    margin: 0 !important;
+    font-size: 16px !important;
+    letter-spacing: 0.02em !important;
   }
 
   .polnation-benefits-mobile-card .h-feature-card-image {
-    position: absolute;
-    top: 76px;
-    right: 48px;
-    width: 96px;
-    height: 96px;
+    position: absolute !important;
+    top: 76px !important;
+    right: 48px !important;
+    width: 96px !important;
+    height: 96px !important;
   }
 
   .polnation-benefits-mobile-card .h-feature-card-image img {
@@ -2553,10 +2553,10 @@ function createMedia(x, y, deltaX, deltaY) {
   }
 
   .polnation-benefits-mobile-bottom {
-    display: grid;
-    grid-template-columns: 24px minmax(0, 1fr);
-    align-items: start;
-    gap: 20px;
+    display: grid !important;
+    grid-template-columns: 24px minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 20px !important;
   }
 
   .polnation-benefits-mobile-number {
@@ -2600,7 +2600,7 @@ function createMedia(x, y, deltaX, deltaY) {
   .polnation-benefits-mobile-edge {
     position: absolute;
     right: 16px;
-    top: 238px;
+    top: 338px;
     color: var(--color--grey-400);
     font-family: 'Polysans Mono', 'Polysans', monospace;
     font-size: 30px;
@@ -2609,9 +2609,9 @@ function createMedia(x, y, deltaX, deltaY) {
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .polnation-benefits-mobile {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -3134,7 +3134,10 @@ body.nav-scrolled #polnation-lang-toggle {
           }
         });
       });
-      syncDots();
+      window.requestAnimationFrame(function () {
+        mobileTrack.scrollLeft = 0;
+        syncDots();
+      });
     }
 
     const slot = featured.querySelector('#polnation-featured-tracker-slot');
