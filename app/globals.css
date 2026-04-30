@@ -797,16 +797,17 @@ input, select, textarea {
   overflow: hidden;
 }
 
-/* Polygon-style grain overlay — feTurbulence noise + color-dodge blend.
-   On dark hero bg, the noise lifts to bright specks like polygon.technology. */
+/* Polygon-style grain overlay — animated GIF + color-dodge blend.
+   Mirrors polygon.technology .oms-noise (grainOverlay.gif self-hosted). */
 .kraken-summary::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 180px 180px;
-  opacity: 0.22;
+  background-image: url("/images/grain-overlay.gif");
+  background-size: 120px 120px;
+  background-repeat: repeat;
+  opacity: 0.18;
   mix-blend-mode: color-dodge;
 }
 
