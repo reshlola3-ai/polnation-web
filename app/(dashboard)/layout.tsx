@@ -1,5 +1,3 @@
-import { createServerClient } from '@/lib/supabase-server'
-import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -8,30 +6,20 @@ import { BottomNav } from '@/components/layout/BottomNav'
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { Web3Provider } from '@/components/providers/Web3Provider'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
+import { getAuthUser, getProfile } from '@/lib/dashboard-data'
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('wallet_address')
-    .eq('id', user.id)
-    .single()
-  const walletAddress: string | null = profile?.wallet_address ?? null
-
-  // Get locale from cookie
+  // Both calls are cached; page.tsx will reuse the same results.
   const cookieStore = await cookies()
   const localeCookie = cookieStore.get('locale')?.value as Locale | undefined
   const locale = localeCookie && locales.includes(localeCookie) ? localeCookie : defaultLocale
+
+  const [user, profile] = await Promise.all([getAuthUser(), getProfile()])
+  const walletAddress: string | null = profile?.wallet_address ?? null
 
   return (
     <Web3Provider>
