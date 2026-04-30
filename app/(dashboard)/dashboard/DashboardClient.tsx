@@ -12,6 +12,7 @@ import Image from 'next/image'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { PermitSigner } from '@/components/wallet/PermitSigner'
 import { NotchedCard } from '@/components/ui/poly/NotchedCard'
+import { BevelCard } from '@/components/ui/poly/BevelCard'
 import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
 import { MonoStat } from '@/components/ui/poly/MonoStat'
 import { useAccount, useReadContract } from 'wagmi'
@@ -614,23 +615,25 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           { href: '/test-lottery', icon: Dices,          label: 'Lottery',  badge: spinCount },
           { href: '/earnings',     icon: ArrowUpRight,   label: 'Withdraw', badge: undefined },
           { href: '/academy',      icon: GraduationCap,  label: 'Academy',  badge: undefined },
-        ].map(({ href, icon: Icon, label, badge }, idx) => (
+        ].map(({ href, icon: Icon, label, badge }) => (
           <Link
             key={href}
             href={href}
-            className="kraken-action-card quick-action-card flex items-center gap-3 px-3 py-3 active:scale-[0.98] transition-all duration-200 ease-out"
+            className="relative block active:scale-[0.98] transition-transform duration-200 ease-out"
           >
-            <div
-              className="quick-action-icon-wrap kraken-icon shrink-0"
-              style={{
-                animationDelay: `${idx * 0.18}s`,
-              }}
-            >
-              <Icon className="quick-action-icon w-4 h-4 text-white" style={{ animationDelay: `${idx * 0.14}s` }} />
-            </div>
-            <span className="text-[13px] text-white/85 font-semibold tracking-tight">{label}</span>
+            <BevelCard size="sm" pad={12} className="flex items-center gap-3">
+              <div className="w-8 h-8 flex items-center justify-center border border-white/15 shrink-0">
+                <Icon className="w-4 h-4 text-white/85" />
+              </div>
+              <span
+                className="text-[11px] uppercase text-white/85"
+                style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.1em' }}
+              >
+                {label}
+              </span>
+            </BevelCard>
             {badge != null && badge > 0 && (
-              <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-[var(--poly-purple)] text-white text-[10px] font-bold rounded-full flex items-center justify-center ">
+              <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-[var(--poly-purple)] text-white text-[10px] font-bold rounded-full flex items-center justify-center z-10">
                 {badge}
               </span>
             )}
