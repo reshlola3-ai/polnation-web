@@ -556,8 +556,7 @@ export default function EarningsPage() {
         <button
           onClick={handleWithdraw}
           disabled={withdrawing || !withdrawAmount || parseFloat(withdrawAmount) <= 0}
-          className="group relative w-full h-14 bg-[var(--poly-purple)] text-white font-semibold text-[15px] tracking-tight transition-colors duration-200 ease-out hover:bg-[var(--poly-purple-hover)] active:scale-[0.985] disabled:bg-white/[0.08] disabled:text-white/30 disabled:pointer-events-none shadow-cta-purple"
-          style={{ clipPath: 'var(--clip-bevel-lg)', WebkitClipPath: 'var(--clip-bevel-lg)' }}
+          className="group relative w-full h-14 rounded-sm bg-[var(--poly-purple)] text-white font-semibold text-[15px] tracking-tight transition-colors duration-200 ease-out hover:bg-[var(--poly-purple-hover)] active:scale-[0.985] disabled:bg-white/[0.08] disabled:text-white/30 disabled:pointer-events-none shadow-cta-purple"
         >
           <span className="inline-flex items-center gap-2">
             {withdrawing ? (

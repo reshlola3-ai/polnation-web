@@ -1,11 +1,11 @@
 import * as React from 'react'
 
 type Props = React.HTMLAttributes<HTMLDivElement> & {
-  /** Bevel size — sm (10px) for compact tiles, lg (18px) for hero/feature cards. */
+  /** Bevel size — sm for compact tiles, lg for hero/feature panels. */
   size?: 'sm' | 'lg'
   /** Stroke color. Defaults to subtle white at 18%. */
   strokeColor?: string
-  /** Background fill color. Defaults to a subtle white panel. */
+  /** Background fill. Defaults to a subtle white panel. */
   bg?: string
   /** Inner padding (px). Default 18. */
   pad?: number
@@ -13,11 +13,13 @@ type Props = React.HTMLAttributes<HTMLDivElement> & {
 
 /**
  * Staking.polygon.technology-style bevel card. Single chamfered corner
- * (bottom-right only) — distinct from <NotchedCard>'s two-corner marketing
- * variant. Uses clip-path matching staking's --clip-bevel-sm/lg tokens. The
- * stroke is painted by an inner absolute div clipped to the same shape, which
- * (like staking itself) loses 1px at the bevel corner — that "engineered"
- * rough edge is part of the look.
+ * (bottom-right only). Uses an SVG <path> that explicitly draws all five sides
+ * including the diagonal, so the bevel edge always has a visible stroke line —
+ * unlike clip-path which clips the border and leaves the corner open.
+ *
+ * viewBox aspect ratios are tuned to typical use sizes:
+ *   sm (100×60)  — Quick Action tiles, compact chips
+ *   lg (400×200) — Feature panels, Withdraw card
  */
 export function BevelCard({
   size = 'lg',
@@ -29,28 +31,30 @@ export function BevelCard({
   children,
   ...rest
 }: Props) {
-  const clipPath = `var(--clip-bevel-${size})`
+  const { viewBox, d } = size === 'sm'
+    ? { viewBox: '0 0 100 60',  d: 'M0.5,0.5 H99.5 V50 L90,59.5 H0.5 Z' }
+    : { viewBox: '0 0 400 200', d: 'M0.5,0.5 H399.5 V178 L378,199.5 H0.5 Z' }
+
   return (
     <div
       {...rest}
       className={`relative ${className}`}
-      style={{
-        padding: pad,
-        clipPath,
-        WebkitClipPath: clipPath,
-        background: bg,
-        ...style,
-      }}
+      style={{ padding: pad, ...style }}
     >
-      <div
+      <svg
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          clipPath,
-          WebkitClipPath: clipPath,
-          border: `1px solid ${strokeColor}`,
-        }}
-      />
+        className="pointer-events-none absolute inset-0 h-full w-full"
+        viewBox={viewBox}
+        preserveAspectRatio="none"
+        fill="none"
+      >
+        <path
+          d={d}
+          fill={bg}
+          stroke={strokeColor}
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
       <div className="relative">{children}</div>
     </div>
   )
