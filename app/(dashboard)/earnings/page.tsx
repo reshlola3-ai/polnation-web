@@ -27,6 +27,7 @@ import { formatUnits } from 'viem'
 import { useTranslations } from 'next-intl'
 import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
 import { MonoStat } from '@/components/ui/poly/MonoStat'
+import { BevelCard } from '@/components/ui/poly/BevelCard'
 
 interface ProfitTier {
   level: number
@@ -453,13 +454,11 @@ export default function EarningsPage() {
         </button>
       </div>
 
-      {/* ── Withdraw — Apple-style ──────────────────────────────────────── */}
-      <section className="kraken-panel p-6 sm:p-7">
+      {/* ── Withdraw — polygon-style ────────────────────────────────────── */}
+      <BevelCard size="lg" pad={28} bg="rgba(255,255,255,0.02)">
 
         <header className="mb-7">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
-            {t('withdraw.title')}
-          </p>
+          <EyebrowTag>{t('withdraw.title')}</EyebrowTag>
           <h2 className="mt-1.5 text-2xl font-semibold text-white tracking-tight">
             {t('withdraw.amount')}
           </h2>
@@ -553,11 +552,12 @@ export default function EarningsPage() {
           </div>
         )}
 
-        {/* Primary action */}
+        {/* Primary action — polygon CTA: bevel + purple glow */}
         <button
           onClick={handleWithdraw}
           disabled={withdrawing || !withdrawAmount || parseFloat(withdrawAmount) <= 0}
-          className="group relative w-full h-14 rounded-2xl bg-[var(--kraken-purple)] text-white font-semibold text-[15px] tracking-tight transition-all duration-200 ease-out hover:bg-[var(--kraken-purple-soft)] active:scale-[0.985] disabled:bg-white/[0.08] disabled:text-white/30 disabled:pointer-events-none"
+          className="group relative w-full h-14 bg-[var(--poly-purple)] text-white font-semibold text-[15px] tracking-tight transition-colors duration-200 ease-out hover:bg-[var(--poly-purple-hover)] active:scale-[0.985] disabled:bg-white/[0.08] disabled:text-white/30 disabled:pointer-events-none shadow-cta-purple"
+          style={{ clipPath: 'var(--clip-bevel-lg)', WebkitClipPath: 'var(--clip-bevel-lg)' }}
         >
           <span className="inline-flex items-center gap-2">
             {withdrawing ? (
@@ -579,7 +579,7 @@ export default function EarningsPage() {
           <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
           <span>{t('withdraw.polNote')}</span>
         </p>
-      </section>
+      </BevelCard>
 
       {/* Tier Table */}
       <div className="kraken-panel p-6">

@@ -791,8 +791,11 @@ input, select, textarea {
           mask-image: radial-gradient(85% 75% at 50% 45%, #000 0%, #0000 85%);
 }
 
-/* Polygon-purple CTA glow — staking uses this on primary buttons. */
-.shadow-cta-purple { box-shadow: 0 4px 16px rgba(103, 13, 229, 0.4); }
+/* Polygon-purple CTA glow — staking uses this on primary buttons. Uses
+   filter: drop-shadow so it follows clip-path bevels (box-shadow would be
+   clipped to the bevelled shape and disappear). */
+.shadow-cta-purple { filter: drop-shadow(0 4px 16px rgba(103, 13, 229, 0.4)); }
+.shadow-cta-purple:disabled { filter: none; }
 
 .kraken-shell {
   max-width: 860px;
