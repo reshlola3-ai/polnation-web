@@ -10,6 +10,7 @@
 
 ## 日期目录
 
+- [2026-04-30](./dev-log-2026-04-30.md) — polygon-clone 手机端缺陷修复（5 处）+ dashboard 设计系统对齐 polygon（Phase 0 + Phase 2 PoC）
 - [2026-04-23](./dev-log-2026-04-23.md) — polygon-clone 主页 FOUC + 双 logo + 螺旋失踪修复（增量 bake 第一阶段 R1+R2）
 - [2026-04-07](./dev-log-2026-04-07.md) — 邮箱+密码注册重构 + Telegram Bot 验活防刷
 - [2026-03-18](./dev-log-2026-03-18.md)
