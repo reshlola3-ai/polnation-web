@@ -29,16 +29,19 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={`
-                flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-2xl min-w-[56px] relative
+                flex flex-col items-center justify-center gap-1 px-2 py-1.5 min-w-[56px] relative
                 transition-all active:scale-95
-                ${isActive ? 'text-white bg-[var(--kraken-panel-2)]' : 'text-[var(--kraken-muted)]'}
+                ${isActive ? 'text-white bg-white/[0.04]' : 'text-[var(--kraken-muted)]'}
               `}
             >
               {isActive && (
-                <div className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-[var(--kraken-purple)]" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-[var(--kraken-purple)]" />
               )}
               <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[var(--kraken-muted)]'}`} />
-              <span className={`text-[10px] font-medium ${isActive ? 'text-white' : 'text-[var(--kraken-muted)]'}`}>
+              <span
+                className={`text-[10px] uppercase leading-none ${isActive ? 'text-white' : 'text-[var(--kraken-muted)]'}`}
+                style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.12em' }}
+              >
                 {item.label}
               </span>
             </Link>
