@@ -824,7 +824,9 @@ input, select, textarea {
 }
 
 /* Polygon-style grain overlay — animated GIF + color-dodge blend.
-   Mirrors polygon.technology .oms-noise (grainOverlay.gif self-hosted). */
+   Mirrors polygon.technology .oms-noise (grainOverlay.gif self-hosted).
+   Mobile: smaller tile (finer grain) + lower opacity to prevent coarse
+   visible pattern on narrow screens (~3 tiles wide vs ~8 on desktop). */
 .kraken-summary::after {
   content: "";
   position: absolute;
@@ -835,6 +837,12 @@ input, select, textarea {
   background-repeat: repeat;
   opacity: 0.18;
   mix-blend-mode: color-dodge;
+}
+@media (max-width: 768px) {
+  .kraken-summary::after {
+    background-size: 48px 48px;
+    opacity: 0.10;
+  }
 }
 
 .kraken-mini-card {
