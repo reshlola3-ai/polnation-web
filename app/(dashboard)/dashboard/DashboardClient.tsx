@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -20,36 +20,16 @@ import { polygon } from 'wagmi/chains'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
 import { useTranslations } from 'next-intl'
+import dynamic from 'next/dynamic'
+import {
+  TIER_ICONS, COMMISSION_RATES, getTier, getNextTier,
+  type ProfitData, type ReferralData,
+} from './_constants'
 
-// Earning tiers - must match database profit_tiers table
-// rate is daily rate as decimal (0.0075 = 0.75%)
-// Distribution: Once per day (24 hours)
-const TIERS = [
-  { min: 0, max: 9.99, rate: 0, name: 'Visitor' },
-  { min: 10, max: 19.99, rate: 0.0075, name: 'Resident' },      // 0.75% daily (274% APY)
-  { min: 20, max: 99.99, rate: 0.009, name: 'Citizen' },        // 0.90% daily (329% APY)
-  { min: 100, max: 499.99, rate: 0.0105, name: 'Representative' }, // 1.05% daily (383% APY)
-  { min: 500, max: 1999.99, rate: 0.012, name: 'Senator' },     // 1.20% daily (438% APY)
-  { min: 2000, max: 9999.99, rate: 0.015, name: 'Ambassador' }, // 1.50% daily (548% APY)
-  { min: 10000, max: Infinity, rate: 0.018, name: 'Chancellor' }, // 1.80% daily (657% APY)
-]
-
-function getTier(balance: number) {
-  for (let i = TIERS.length - 1; i >= 0; i--) {
-    if (balance >= TIERS[i].min) {
-      return { ...TIERS[i], index: i }
-    }
-  }
-  return { ...TIERS[0], index: 0 }
-}
-
-function getNextTier(balance: number) {
-  const currentIndex = getTier(balance).index
-  if (currentIndex < TIERS.length - 1) {
-    return TIERS[currentIndex + 1]
-  }
-  return null
-}
+// Lazy-loaded modals — keep them out of the initial dashboard bundle.
+const EarningsModal = dynamic(() => import('./modals/EarningsModal'), { ssr: false })
+const TierModal = dynamic(() => import('./modals/TierModal'), { ssr: false })
+const MomentumModal = dynamic(() => import('./modals/MomentumModal'), { ssr: false })
 
 function isWalletEmail(email: string | null | undefined): boolean {
   if (!email) return true
@@ -71,58 +51,8 @@ interface DashboardClientProps {
   }
 }
 
-interface ProfitData {
-  totalStakingProfit: number
-  totalCommissionProfit: number
-  availableWithdraw: number
-  hasSignature: boolean
-  communityPrizePool: number
-  currentLevelName: string
-  communityDailyRate: number
-  communityDailyEarnings: number
-  baseCommunityDailyEarnings: number
-  momentumMultiplier: number
-  momentumDaysUntilDecay: number
-  momentumNextMultiplier: number
-  momentumRecentReferrals: number
-  teamEffectiveVolume: number
-  teamNextUnlockVolume: number
-  teamNextLevelName: string
-  communityTotalEarned: number
-  taskBonus: number
-  teamVolumeOnly: number
-  currentLevelNumber: number
-}
-
-interface ReferralData {
-  level: number
-  usdc_balance: number
-}
-
-// Commission rates by level
-const COMMISSION_RATES: Record<number, number> = {
-  1: 0.10,  // L1: 10%
-  2: 0.05,  // L2: 5%
-  3: 0.04,  // L3: 4%
-  4: 0.03,  // L4: 3%
-  5: 0.02,  // L5: 2%
-  6: 0.01,  // L6: 1%
-}
-
-// Tier icons mapping
-const TIER_ICONS: Record<string, string> = {
-  'Visitor': '👁️',
-  'Resident': '🏠',
-  'Citizen': '🎖️',
-  'Representative': '📋',
-  'Senator': '🏛️',
-  'Ambassador': '🌐',
-  'Chancellor': '👑',
-}
-
 export function DashboardClient({ userId, profile, teamStats }: DashboardClientProps) {
   const t = useTranslations('dashboard')
-  const tTeam = useTranslations('team')
   const { address, isConnected } = useAccount()
   const [copied, setCopied] = useState(false)
   const [showEarningsModal, setShowEarningsModal] = useState(false)
@@ -719,205 +649,30 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         )}
       </section>
 
-      {/* Earnings Calculation Modal */}
+
+      {/* Lazy-loaded modals — kept out of initial bundle */}
       {showEarningsModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowEarningsModal(false)}>
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-md w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                📊 Earnings Calculation
-              </h3>
-              <button onClick={() => setShowEarningsModal(false)} className="p-1.5 hover:bg-zinc-800 rounded-lg">
-                <X className="w-5 h-5 text-zinc-400" />
-              </button>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="bg-zinc-800 rounded-xl p-4 space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Wallet Balance</span>
-                  <span className="text-white font-medium">${usdcBalance.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Current Tier</span>
-                  <span className="text-white font-medium">{TIER_ICONS[currentTier.name]} {currentTier.name}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-zinc-400">Daily Rate</span>
-                  <span className="text-white font-medium">{(currentTier.rate * 100).toFixed(2)}%</span>
-                </div>
-              </div>
-              
-              <div className="border-t border-zinc-700 pt-4 space-y-3">
-                <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
-                  <p className="text-zinc-400 text-xs mb-1">Staking Earnings</p>
-                  <p className="text-green-400 font-mono text-sm">
-                    ${usdcBalance.toFixed(2)} × {(currentTier.rate * 100).toFixed(2)}% = <span className="font-bold">${dailyEarnings.toFixed(4)}</span>/day
-                  </p>
-                </div>
-                
-                <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4">
-                  <p className="text-zinc-400 text-xs mb-1">Est. Team Commission</p>
-                  <p className="text-orange-400 font-bold text-lg">${estDailyCommission.toFixed(4)}/day</p>
-                  <p className="text-zinc-500 text-xs mt-1">Based on your downlines&apos; balances (L1: 10%, L2: 5%...)</p>
-                </div>
-
-                <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
-                  <p className="text-zinc-400 text-xs mb-1">Community Pool Revenue</p>
-                  {profitData.momentumMultiplier > 1.0 ? (
-                    <>
-                      <p className="text-blue-400 font-mono text-sm">
-                        ${profitData.communityPrizePool.toFixed(0)} × {profitData.communityDailyRate.toFixed(1)}% × <span className="text-white/75 font-bold">{profitData.momentumMultiplier.toFixed(1)}x</span> = <span className="font-bold">${profitData.communityDailyEarnings.toFixed(2)}</span>/day
-                      </p>
-                      <div className="flex items-center gap-1.5 mt-1.5">
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-white/[0.06] text-white/65 font-medium">🔥 Momentum {profitData.momentumMultiplier.toFixed(1)}x</span>
-                        {profitData.momentumDaysUntilDecay > 0 && (
-                          <span className="text-xs text-zinc-500">⏱️ {profitData.momentumDaysUntilDecay}d until {profitData.momentumNextMultiplier.toFixed(1)}x</span>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-blue-400 font-mono text-sm">
-                        ${profitData.communityPrizePool.toFixed(0)} × {profitData.communityDailyRate.toFixed(1)}% = <span className="font-bold">${profitData.communityDailyEarnings.toFixed(2)}</span>/day
-                      </p>
-                      <p className="text-zinc-500 text-xs mt-1">Recruit referrals to unlock up to 5x Momentum!</p>
-                    </>
-                  )}
-                  <p className="text-zinc-500 text-xs mt-1">From {profitData.currentLevelName} community pool</p>
-                </div>
-              </div>
-
-              <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-purple-300 font-medium">Est. Daily Total</span>
-                  <span className="text-white font-bold text-xl">${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}/day</span>
-                </div>
-                <p className="text-zinc-500 text-xs mt-1">
-                  Staking: ${dailyEarnings.toFixed(4)} + Commission: ${estDailyCommission.toFixed(4)} + Community: ${profitData.communityDailyEarnings.toFixed(2)}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <EarningsModal
+          onClose={() => setShowEarningsModal(false)}
+          usdcBalance={usdcBalance}
+          currentTierName={currentTier.name}
+          currentTierRate={currentTier.rate}
+          dailyEarnings={dailyEarnings}
+          estDailyCommission={estDailyCommission}
+          profitData={profitData}
+        />
       )}
-
-      {/* Tier Table Modal */}
       {showTierModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowTierModal(false)}>
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-lg w-full max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                🏛️ Personal Tier Levels
-              </h3>
-              <button onClick={() => setShowTierModal(false)} className="p-1.5 hover:bg-zinc-800 rounded-lg">
-                <X className="w-5 h-5 text-zinc-400" />
-              </button>
-            </div>
-            
-            <div className="space-y-2">
-              {TIERS.map((tier, index) => {
-                const isCurrentTier = currentTier.name === tier.name
-                const isPastTier = currentTier.index > index
-                
-                return (
-                  <div 
-                    key={tier.name}
-                    className={`rounded-xl p-4 border transition-all ${
-                      isCurrentTier 
-                        ? 'bg-purple-500/20 border-purple-500/50' 
-                        : isPastTier 
-                          ? 'bg-green-500/10 border-green-500/20' 
-                          : 'bg-zinc-800/50 border-zinc-700/50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">{TIER_ICONS[tier.name] || '⭐'}</span>
-                        <div>
-                          <p className={`font-semibold ${isCurrentTier ? 'text-white' : 'text-white'}`}>
-                            {tier.name}
-                          </p>
-                          <p className="text-xs text-zinc-400">
-                            ${tier.min.toLocaleString()} - ${tier.max === Infinity ? '∞' : '$' + tier.max.toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-white/65">{(tier.rate * 100).toFixed(2)}%</p>
-                        <p className="text-xs text-zinc-500">daily</p>
-                      </div>
-                    </div>
-                    {isCurrentTier && (
-                      <div className="mt-2 pt-2 border-t border-purple-500/30">
-                        <p className="text-xs text-purple-300">✨ You are here</p>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
+        <TierModal
+          onClose={() => setShowTierModal(false)}
+          currentTier={currentTier}
+        />
       )}
-
-      {/* Momentum Modal */}
       {showMomentumModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowMomentumModal(false)}>
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold text-white flex items-center gap-2">
-                🔥 {tTeam('momentumTitle')}
-              </h3>
-              <button onClick={() => setShowMomentumModal(false)} className="p-1.5 hover:bg-zinc-800 rounded-lg">
-                <X className="w-5 h-5 text-zinc-400" />
-              </button>
-            </div>
-
-            {/* Current multiplier */}
-            <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-4 mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-white/60 font-medium">Current Multiplier</span>
-                <span className="text-3xl font-bold text-white/85">{profitData.momentumMultiplier.toFixed(1)}x</span>
-              </div>
-              {profitData.momentumMultiplier > 0.2 ? (
-                <div className="space-y-1.5">
-                  <p className="text-xs text-zinc-400">
-                    {tTeam('momentumActive', { multiplier: profitData.momentumMultiplier.toFixed(1) })}
-                  </p>
-                  {profitData.momentumDaysUntilDecay > 0 && (
-                    <p className="text-xs text-zinc-500">
-                      ⏱️ {tTeam('momentumDecayCountdown', { days: profitData.momentumDaysUntilDecay, next: profitData.momentumNextMultiplier.toFixed(1) })}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <p className="text-xs text-zinc-500">{tTeam('momentumInactive')}</p>
-              )}
-            </div>
-
-            {/* Decay steps */}
-            <div className="bg-zinc-800 rounded-xl p-4">
-              <p className="text-xs text-zinc-400 leading-relaxed mb-3">
-                {tTeam('momentumDecayExplain')}
-              </p>
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                {[
-                  { label: '0–2d: 1.0×', active: profitData.momentumMultiplier >= 1.0 },
-                  { label: '3–5d: 0.8×', active: profitData.momentumMultiplier >= 0.8 && profitData.momentumMultiplier < 1.0 },
-                  { label: '6–8d: 0.6×', active: profitData.momentumMultiplier >= 0.6 && profitData.momentumMultiplier < 0.8 },
-                  { label: '9–11d: 0.4×', active: profitData.momentumMultiplier >= 0.4 && profitData.momentumMultiplier < 0.6 },
-                  { label: '12+d: 0.2×', active: profitData.momentumMultiplier < 0.4 },
-                ].map(({ label, active }) => (
-                  <span key={label} className={`text-xs px-2 py-1 rounded-lg font-medium ${active ? 'bg-white/[0.08] text-white/70 border border-white/[0.12]' : 'bg-white/[0.04] text-white/30'}`}>
-                    {label}
-                  </span>
-                ))}
-              </div>
-              <p className="text-xs text-zinc-600">{tTeam('momentumDecayRate')}</p>
-            </div>
-          </div>
-        </div>
+        <MomentumModal
+          onClose={() => setShowMomentumModal(false)}
+          profitData={profitData}
+        />
       )}
 
       {/* Referral Link */}
