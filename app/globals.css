@@ -745,17 +745,15 @@ input, select, textarea {
 }
 
 .kraken-dashboard-surface {
-  --kraken-bg: #0f0b18;
-  --kraken-panel: #191421;
-  --kraken-panel-2: #221b2f;
-  --kraken-panel-3: #120e1a;
-  --kraken-border: rgba(255, 255, 255, 0.07);
-  --kraken-muted: #8f879d;
+  --kraken-bg: #07060d;
+  --kraken-panel: rgba(255, 255, 255, 0.02);
+  --kraken-border: var(--poly-stroke-dark);
+  --kraken-muted: #a0a1a6;
   --kraken-soft: #b6aeca;
   --kraken-ink: #f8f4ff;
   --kraken-green: #00e28a;
-  --kraken-purple: #7c3cff;
-  --kraken-purple-soft: #9b6cff;
+  --kraken-purple: var(--poly-purple);
+  --kraken-purple-soft: #8d4df0;
   --card-bg: var(--kraken-panel);
   --card-border: var(--kraken-border);
   --radius-card: 18px;
@@ -765,21 +763,7 @@ input, select, textarea {
 }
 
 .kraken-dashboard-bg {
-  background:
-    radial-gradient(circle at 48% -10%, rgba(124, 60, 255, 0.2), transparent 34%),
-    radial-gradient(circle at 92% 8%, rgba(0, 226, 138, 0.08), transparent 22%),
-    linear-gradient(180deg, #120e1c 0%, #0f0b18 42%, #0b0811 100%);
-}
-
-.kraken-dashboard-bg::after {
-  content: "";
-  position: absolute;
-  inset: -12%;
-  opacity: 0.035;
-  background-image:
-    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px),
-    radial-gradient(circle at 70% 62%, rgba(255, 255, 255, 0.14) 0 1px, transparent 1px);
-  background-size: 46px 46px, 64px 64px;
+  background: #07060d;
 }
 
 .kraken-shell {
