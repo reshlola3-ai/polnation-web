@@ -650,52 +650,54 @@ export default function EarningsPage() {
             <ArrowDownCircle className="w-5 h-5" />
             {t('history.withdrawal')}
           </h2>
-          <div className="space-y-4">
-            {withdrawals.map((item) => (
-              <div key={item.id} className="border border-white/10 rounded-xl p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      item.status === 'completed' ? 'bg-green-500/20' :
-                      item.status === 'pending' ? 'bg-white/[0.06]' :
-                      item.status === 'processing' ? 'bg-blue-500/20' : 'bg-red-500/20'
-                    }`}>
-                      {item.status === 'completed' ? <CheckCircle className="w-5 h-5 text-green-400" /> :
-                       item.status === 'processing' ? <Loader2 className="w-5 h-5 text-blue-400 animate-spin" /> :
-                       item.status === 'pending' ? <Clock className="w-5 h-5 text-white/50" /> :
-                       <AlertCircle className="w-5 h-5 text-red-400" />}
+          <div className="space-y-2">
+            {withdrawals.map((item) => {
+              const statusStyles = {
+                completed:  { dot: 'bg-[var(--poly-emerald)]',    pill: 'text-[var(--poly-emerald)] border-[var(--poly-emerald)]/30 bg-[var(--poly-emerald)]/[0.06]',  Icon: CheckCircle },
+                processing: { dot: 'bg-[var(--poly-purple)]',     pill: 'text-[var(--poly-purple)] border-[var(--poly-purple)]/40 bg-[var(--poly-purple)]/[0.08]',  Icon: Loader2 },
+                pending:    { dot: 'bg-white/40',                 pill: 'text-white/60 border-white/15 bg-white/[0.04]',                                              Icon: Clock },
+                failed:     { dot: 'bg-rose-400',                 pill: 'text-rose-300 border-rose-400/30 bg-rose-500/[0.08]',                                        Icon: AlertCircle },
+              }[item.status as 'completed' | 'processing' | 'pending' | 'failed'] ?? { dot: 'bg-white/40', pill: 'text-white/60 border-white/15 bg-white/[0.04]', Icon: Clock }
+              const { Icon } = statusStyles
+              return (
+                <div key={item.id} className="bg-white/[0.04] border border-white/[0.06] p-4">
+                  <div className="flex items-start justify-between mb-3 gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 flex items-center justify-center border border-white/15 shrink-0">
+                        <Icon className={`w-4 h-4 text-white/85 ${item.status === 'processing' ? 'animate-spin' : ''}`} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[15px] font-semibold text-white tabular-nums" style={{ fontFamily: 'var(--poly-font-mono)' }}>
+                          −{item.amount} {item.token_type}
+                          {item.usd_amount && <span className="ml-2 text-[12px] text-white/45">(${item.usd_amount.toFixed(2)})</span>}
+                        </p>
+                        <span
+                          className={`mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] uppercase border ${statusStyles.pill}`}
+                          style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.1em' }}
+                        >
+                          <span className={`w-1.5 h-1.5 ${statusStyles.dot}`} />
+                          {item.status === 'completed' ? t('history.completed') :
+                           item.status === 'pending' ? t('history.pending') :
+                           item.status === 'processing' ? t('history.processing') : t('history.failed')}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-lg font-semibold text-white currency">
-                        -{item.amount} {item.token_type}
-                        {item.usd_amount && <span className="text-sm text-zinc-500 ml-2 currency">(${item.usd_amount.toFixed(2)})</span>}
-                      </p>
-                      <span className={`text-xs px-2 py-0.5 rounded ${
-                        item.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                        item.status === 'pending' ? 'bg-white/[0.06] text-white/55' :
-                        item.status === 'processing' ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400'
-                      }`}>
-                        {item.status === 'completed' ? t('history.completed') :
-                         item.status === 'pending' ? t('history.pending') :
-                         item.status === 'processing' ? t('history.processing') : t('history.failed')}
-                      </span>
-                    </div>
+                    <p className="text-[12px] text-white/45 shrink-0 text-right">{new Date(item.created_at).toLocaleString()}</p>
                   </div>
-                  <p className="text-sm text-zinc-500">{new Date(item.created_at).toLocaleString()}</p>
+                  {item.tx_hash && (
+                    <div className="bg-white/[0.03] p-3 border border-white/[0.05]">
+                      <EyebrowTag className="mb-1">{t('history.txHash')}</EyebrowTag>
+                      <div className="flex items-center justify-between gap-2">
+                        <code className="text-[11px] text-white/70 break-all" style={{ fontFamily: 'var(--poly-font-mono)' }}>{item.tx_hash}</code>
+                        <a href={`https://polygonscan.com/tx/${item.tx_hash}`} target="_blank" rel="noopener noreferrer" className="shrink-0 text-[var(--poly-purple)] hover:text-[var(--poly-purple-hover)]">
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                {item.tx_hash && (
-                  <div className="bg-white/5 rounded-lg p-3">
-                    <p className="text-xs text-zinc-500 mb-1">{t('history.txHash')}</p>
-                    <div className="flex items-center justify-between">
-                      <code className="text-xs text-zinc-300 font-mono break-all">{item.tx_hash}</code>
-                      <a href={`https://polygonscan.com/tx/${item.tx_hash}`} target="_blank" rel="noopener noreferrer" className="ml-2 flex-shrink-0 text-purple-400 hover:text-purple-300">
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}
@@ -739,51 +741,62 @@ export default function EarningsPage() {
                 ...groupedCommissions
               ]
                 .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                .map((item) => (
-                  <div key={item.id} className={`border rounded-xl p-4 ${item.type === 'staking' ? 'border-green-500/20 bg-green-500/5' : 'border-orange-500/20 bg-orange-500/5'}`}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.type === 'staking' ? 'bg-green-500/20' : 'bg-orange-500/20'}`}>
-                          {item.type === 'staking' ? <TrendingUp className="w-5 h-5 text-green-400" /> : <Users className="w-5 h-5 text-orange-400" />}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className={`text-xs px-2 py-0.5 rounded font-medium ${item.type === 'staking' ? 'bg-green-500/20 text-green-400' : 'bg-orange-500/20 text-orange-400'}`}>
-                              {item.type === 'staking' ? `📈 ${t('stakingEarnings')}` : `🎁 ${t('referralCommission')}`}
+                .map((item) => {
+                  const isStaking = item.type === 'staking'
+                  const TypeIcon = isStaking ? TrendingUp : Users
+                  const tone = isStaking
+                    ? { dot: 'bg-[var(--poly-emerald)]',  pill: 'text-[var(--poly-emerald)] border-[var(--poly-emerald)]/30 bg-[var(--poly-emerald)]/[0.06]',  amt: 'text-[var(--poly-emerald)]' }
+                    : { dot: 'bg-[var(--poly-amber)]',    pill: 'text-[var(--poly-amber)] border-[var(--poly-amber)]/30 bg-[var(--poly-amber)]/[0.06]',      amt: 'text-[var(--poly-amber)]' }
+                  return (
+                    <div key={item.id} className="bg-white/[0.04] border border-white/[0.06] p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 flex items-center justify-center border border-white/15 shrink-0">
+                            <TypeIcon className="w-4 h-4 text-white/85" />
+                          </div>
+                          <div className="min-w-0">
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] uppercase border ${tone.pill}`}
+                              style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.1em' }}
+                            >
+                              <span className={`w-1.5 h-1.5 ${tone.dot}`} />
+                              {isStaking ? t('stakingEarnings') : t('referralCommission')}
                             </span>
+                            <p className={`mt-1 text-[15px] font-semibold tabular-nums ${tone.amt}`} style={{ fontFamily: 'var(--poly-font-mono)' }}>
+                              +${item.amount.toFixed(6)} USDC
+                            </p>
                           </div>
-                          <p className={`text-lg font-bold currency ${item.type === 'staking' ? 'text-green-400' : 'text-orange-400'}`}>+${item.amount.toFixed(6)} USDC</p>
                         </div>
+                        <p className="text-[12px] text-white/45 shrink-0 text-right">{new Date(item.created_at).toLocaleString()}</p>
                       </div>
-                      <p className="text-sm text-zinc-500">{new Date(item.created_at).toLocaleString()}</p>
+
+                      {item.type === 'staking' && 'details' in item && (
+                        <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                          <div className="grid grid-cols-3 gap-4">
+                            <div>
+                              <EyebrowTag>{t('history.snapshotBalance')}</EyebrowTag>
+                              <p className="mt-1 text-[13px] text-white/85 tabular-nums" style={{ fontFamily: 'var(--poly-font-mono)' }}>${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)}</p>
+                            </div>
+                            <div>
+                              <EyebrowTag>{t('history.appliedRate')}</EyebrowTag>
+                              <p className="mt-1 text-[13px] text-white/85 tabular-nums" style={{ fontFamily: 'var(--poly-font-mono)' }}>{((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%</p>
+                            </div>
+                            <div>
+                              <EyebrowTag>{t('history.formula')}</EyebrowTag>
+                              <p className="mt-1 text-[13px] text-white/85" style={{ fontFamily: 'var(--poly-font-mono)' }}>${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)} × {((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {item.type === 'commission' && (
+                        <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                          <p className="text-[12px] text-white/50">Total commission earned from your referral network on this day</p>
+                        </div>
+                      )}
                     </div>
-                    
-                    {item.type === 'staking' && 'details' in item && (
-                      <div className="mt-3 pt-3 border-t border-white/10">
-                        <div className="grid grid-cols-3 gap-4 text-sm">
-                          <div>
-                            <p className="text-zinc-500 text-xs">{t('history.snapshotBalance')}</p>
-                            <p className="font-medium text-zinc-300 currency">${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)}</p>
-                          </div>
-                          <div>
-                            <p className="text-zinc-500 text-xs">{t('history.appliedRate')}</p>
-                            <p className="font-medium text-zinc-300 percentage">{((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%</p>
-                          </div>
-                          <div>
-                            <p className="text-zinc-500 text-xs">{t('history.formula')}</p>
-                            <p className="font-medium text-zinc-300 font-mono">${(item.details as { usdc_balance: number }).usdc_balance.toFixed(2)} × {((item.details as { rate_applied: number }).rate_applied * 100).toFixed(2)}%</p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    {item.type === 'commission' && (
-                      <div className="mt-3 pt-3 border-t border-white/10">
-                        <p className="text-zinc-500 text-xs">Total commission earned from your referral network on this day</p>
-                      </div>
-                    )}
-                  </div>
-                ))
+                  )
+                })
             })()}
           </div>
         )}
