@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react'
 import { LotteryWheel } from '@/components/lottery/LotteryWheel'
 import { ArrowLeft, Info } from 'lucide-react'
 import Link from 'next/link'
+import { BevelCard } from '@/components/ui/poly/BevelCard'
+import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
+import { MonoStat } from '@/components/ui/poly/MonoStat'
 
 const translations: Record<string, any> = {
   en: {
@@ -231,142 +234,104 @@ export default function TestLotteryPage() {
 
       {/* Page header */}
       <div className="text-center mb-5">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[var(--poly-purple)] to-white bg-clip-text text-transparent mb-1">
-          🎡 {t.pageTitle}
-        </h1>
-        <p className="text-zinc-400 text-sm">{t.pageDesc}</p>
+        <EyebrowTag>Polnation · Lottery</EyebrowTag>
+        <h1 className="mt-1.5 text-3xl font-semibold text-white tracking-tight">{t.pageTitle}</h1>
+        <p className="mt-1 text-[13px] text-white/50">{t.pageDesc}</p>
       </div>
 
-      {/* ─── How to Earn Spins — shown ABOVE the wheel ─── */}
+      {/* ─── How to Earn Spins ─── */}
       <div className="max-w-lg w-full mb-5">
-        <div className="glass-card-solid rounded-2xl p-5 border border-purple-500/20">
-          <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-            <Info className="w-4 h-4 text-[var(--poly-purple)]" />
+        <BevelCard size="lg" pad={20}>
+          <EyebrowTag className="inline-flex items-center gap-1.5 mb-4">
+            <Info className="w-3 h-3" />
             {t.howToEarn}
-          </h3>
+          </EyebrowTag>
 
-          <div className="space-y-3">
-            {/* Method 1: referral */}
-            <div className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
-              <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-sm">👥</span>
+          <div className="space-y-2">
+            {[
+              { label: 'Invite a Friend',    desc: t.earnMethod1, icon: '👥' },
+              { label: 'Claim Airdrops',     desc: t.earnMethod2, icon: '✈️' },
+              { label: 'Become Influencer',  desc: t.earnMethod3, icon: '⭐' },
+            ].map((m) => (
+              <div key={m.label} className="flex items-start gap-3 p-3 bg-white/[0.04] border border-white/[0.06]">
+                <div className="w-8 h-8 flex items-center justify-center border border-white/15 shrink-0 text-sm">{m.icon}</div>
+                <div className="min-w-0">
+                  <p className="text-white text-sm font-medium">{m.label}</p>
+                  <p className="text-white/45 text-xs mt-0.5">{m.desc}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-white text-sm font-medium">Invite a Friend</p>
-                <p className="text-zinc-400 text-xs mt-0.5">{t.earnMethod1}</p>
-              </div>
-            </div>
-
-            {/* Method 2: self airdrops — with live progress */}
-            <div className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
-              <div className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-sm">✈️</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white text-sm font-medium">Claim Airdrops</p>
-                <p className="text-zinc-400 text-xs mt-0.5">{t.earnMethod2}</p>
-                {spinData && (
-                  <div className="mt-2">
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-zinc-400">
-                        {spinData.progressToNextSpin} / 7 claims toward next spin
-                      </span>
-                      <span className="text-[var(--poly-purple)] font-medium">
-                        {spinData.selfAirdropCount} total
-                      </span>
-                    </div>
-                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[var(--poly-purple)] rounded-full transition-all duration-700"
-                        style={{ width: `${progressPct}%` }}
-                      />
-                    </div>
-                    {spinData.progressToNextSpin > 0 && (
-                      <p className="text-[10px] text-[var(--poly-purple)]/70 mt-1">
-                        {7 - spinData.progressToNextSpin} more claims → unlock 1 spin 🎰
-                      </p>
-                    )}
-                  </div>
+            ))}
+            {/* Live airdrop progress */}
+            {spinData && spinData.progressToNextSpin >= 0 && (
+              <div className="pt-1 px-1">
+                <div className="flex justify-between text-xs mb-1">
+                  <span className="text-white/45">{spinData.progressToNextSpin} / 7 claims</span>
+                  <span style={{ color: 'var(--poly-purple)' }}>{spinData.selfAirdropCount} total</span>
+                </div>
+                <div className="h-1 bg-white/[0.06] overflow-hidden">
+                  <div className="h-full bg-[var(--poly-purple)] transition-all duration-700" style={{ width: `${progressPct}%` }} />
+                </div>
+                {spinData.progressToNextSpin > 0 && (
+                  <p className="text-[10px] text-[var(--poly-purple)]/70 mt-1">
+                    {7 - spinData.progressToNextSpin} more → unlock 1 spin
+                  </p>
                 )}
               </div>
-            </div>
-
-            {/* Method 3: influencer */}
-            <div className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
-              <div className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-sm">⭐</span>
-              </div>
-              <div className="flex-1">
-                <p className="text-white text-sm font-medium">Become Influencer</p>
-                <p className="text-zinc-400 text-xs mt-0.5">{t.earnMethod3}</p>
-                <a
-                  href="https://t.me/polnation"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-lg bg-white/[0.06] border border-white/[0.10] text-white/65 text-xs font-medium hover:bg-white/[0.08] transition-colors"
-                >
-                  Contact Admin →
-                </a>
-              </div>
-            </div>
+            )}
           </div>
 
-          {/* Spin count summary */}
+          {/* Spin count */}
           {spinData && (
-            <div className="mt-4 flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
-              <div className="text-2xl font-bold text-white">
-                {spinData.remainingSpins}
-              </div>
+            <div className="mt-4 flex items-center gap-4 pt-4 border-t border-white/[0.06]">
+              <MonoStat value={String(spinData.remainingSpins)} size="main" />
               <div>
-                <p className="text-sm font-semibold text-white">{t.remainingSpins}</p>
-                <p className="text-xs text-zinc-500">{spinData.usedSpins} used · {spinData.totalSpins} total earned</p>
+                <p className="text-[13px] font-semibold text-white">{t.remainingSpins}</p>
+                <p className="text-[11px] text-white/45">{spinData.usedSpins} used · {spinData.totalSpins} total</p>
               </div>
             </div>
           )}
-        </div>
+        </BevelCard>
       </div>
 
       {/* ─── Lottery Wheel ─── */}
-      <div className="glass-card-solid p-5 md:p-8 rounded-2xl max-w-lg w-full border border-white/10">
+      <BevelCard size="lg" pad={20} className="max-w-lg w-full">
         <LotteryWheel t={t} />
-      </div>
+      </BevelCard>
 
       {/* ─── Reward info ─── */}
       <div className="mt-3 max-w-lg w-full flex gap-2">
-        <div className="flex-1 flex items-center gap-2 p-2.5 bg-green-500/10 rounded-xl border border-green-500/20">
+        <div className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.04] border border-[var(--poly-emerald)]/20">
           <span className="text-base">💰</span>
-          <p className="text-xs text-green-400">{t.rewardUsdc}</p>
+          <p className="text-xs" style={{ color: 'var(--poly-emerald)' }}>{t.rewardUsdc}</p>
         </div>
-        <div className="flex-1 flex items-center gap-2 p-2.5 bg-purple-500/10 rounded-xl border border-purple-500/20">
+        <div className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.04] border border-[var(--poly-purple)]/20">
           <span className="text-base">⭐</span>
-          <p className="text-xs text-purple-400">{t.rewardBonus}</p>
+          <p className="text-xs text-[var(--poly-purple)]">{t.rewardBonus}</p>
         </div>
       </div>
 
-      {/* ─── Prize table (compact) ─── */}
-      <div className="mt-4 max-w-lg w-full">
-        <div className="glass-card-solid rounded-2xl p-5">
-          <h3 className="text-white font-semibold mb-3 text-center text-sm">🎁 Prize Odds</h3>
+      {/* ─── Prize table ─── */}
+      <div className="mt-3 max-w-lg w-full">
+        <BevelCard size="lg" pad={20}>
+          <EyebrowTag className="mb-3 block">Prize Odds</EyebrowTag>
           <div className="grid grid-cols-2 gap-1.5">
             {[
-              { emoji: '💰', label: t.prizes.usdc_05, chance: '15%', color: 'text-green-400' },
-              { emoji: '💰', label: t.prizes.usdc_1, chance: '7%', color: 'text-green-400' },
-              { emoji: '🏆', label: t.prizes.usdc_5, chance: '2.5%', color: 'text-green-400' },
-              { emoji: '👑', label: t.prizes.usdc_10, chance: '0.5%', color: 'text-green-400' },
-              { emoji: '⭐', label: t.prizes.bonus_1, chance: '20%', color: 'text-purple-400' },
-              { emoji: '⭐', label: t.prizes.bonus_2, chance: '10%', color: 'text-purple-400' },
-              { emoji: '⭐', label: t.prizes.bonus_3, chance: '5%', color: 'text-purple-400' },
-              { emoji: '😊', label: t.prizes.thanks, chance: '40%', color: 'text-zinc-500' },
+              { label: t.prizes.usdc_05,  chance: '15%',  tone: 'var(--poly-emerald)' },
+              { label: t.prizes.usdc_1,   chance: '7%',   tone: 'var(--poly-emerald)' },
+              { label: t.prizes.usdc_5,   chance: '2.5%', tone: 'var(--poly-emerald)' },
+              { label: t.prizes.usdc_10,  chance: '0.5%', tone: 'var(--poly-emerald)' },
+              { label: t.prizes.bonus_1,  chance: '20%',  tone: 'var(--poly-purple)' },
+              { label: t.prizes.bonus_2,  chance: '10%',  tone: 'var(--poly-purple)' },
+              { label: t.prizes.bonus_3,  chance: '5%',   tone: 'var(--poly-purple)' },
+              { label: t.prizes.thanks,   chance: '40%',  tone: 'var(--poly-grey-200)' },
             ].map((p, i) => (
-              <div key={i} className="flex items-center justify-between p-2 bg-white/5 rounded-lg">
-                <span className={`text-xs font-medium ${p.color}`}>
-                  {p.emoji} {p.label}
-                </span>
-                <span className="text-[10px] text-zinc-600 ml-1">{p.chance}</span>
+              <div key={i} className="flex items-center justify-between p-2 bg-white/[0.04] border border-white/[0.05]">
+                <span className="text-xs font-medium" style={{ color: p.tone }}>{p.label}</span>
+                <span className="text-[10px] text-white/30 ml-1" style={{ fontFamily: 'var(--poly-font-mono)' }}>{p.chance}</span>
               </div>
             ))}
           </div>
-        </div>
+        </BevelCard>
       </div>
     </div>
   )
