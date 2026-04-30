@@ -78,6 +78,14 @@
   --poly-stroke-dark: #1b1b1d;
   --poly-orange: #ff7421;
   --poly-bubblegum: #e271d7;
+
+  /* Staking.polygon.technology design tokens — single-corner bevel + grid + amber */
+  --clip-bevel-sm: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  --clip-bevel-lg: polygon(0 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+  --poly-amber: #fee211;
+  --poly-emerald: #00cc06;
+  --grid-size: 120px;
+  --grid-opacity: 0.06;
 }
 
 @theme inline {
@@ -771,6 +779,21 @@ input, select, textarea {
   background-position: 0 0, 0 0;
 }
 
+/* Staking-style large grid with radial fade — for hero areas. Distinct from
+   .kraken-dashboard-bg (tight 32px texture behind whole shell). */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(rgb(255 255 255 / var(--grid-opacity)) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / var(--grid-opacity)) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  filter: blur(0.5px);
+  -webkit-mask-image: radial-gradient(85% 75% at 50% 45%, #000 0%, #0000 85%);
+          mask-image: radial-gradient(85% 75% at 50% 45%, #000 0%, #0000 85%);
+}
+
+/* Polygon-purple CTA glow — staking uses this on primary buttons. */
+.shadow-cta-purple { box-shadow: 0 4px 16px rgba(103, 13, 229, 0.4); }
+
 .kraken-shell {
   max-width: 860px;
   margin-inline: auto;
@@ -1033,19 +1056,8 @@ html {
   }
 }
 
-/* Dashboard grid background — adapted from staking.polygon.technology
-   (.bg-grid-pattern with --grid-size:120px, --grid-opacity:.1). Faint
-   white grid lines on the dark dashboard background, masked to fade at
-   the edges so it doesn't compete with foreground content. */
-.dashboard-grid-pattern {
-  background-image:
-    linear-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.07) 1px, transparent 1px);
-  background-size: 120px 120px;
-  filter: blur(0.5px);
-  -webkit-mask-image: radial-gradient(85% 75% at 50% 45%, #000 0%, #0000 85%);
-          mask-image: radial-gradient(85% 75% at 50% 45%, #000 0%, #0000 85%);
-}
+/* Mobile size override for .bg-grid-pattern (defined above next to
+   .kraken-dashboard-bg) — denser grid reads better on small screens. */
 @media (max-width: 768px) {
-  .dashboard-grid-pattern { background-size: 64px 64px; }
+  .bg-grid-pattern { background-size: 64px 64px; }
 }
