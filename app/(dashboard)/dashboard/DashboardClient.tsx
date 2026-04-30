@@ -440,16 +440,28 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {/* Hero */}
       <section className="kraken-summary p-5 sm:p-6">
-        {/* Polygon coin + blocks illustration (from staking.polygon.technology) */}
-        {/* Hero illustration hidden for now — overlaps cards on narrow desktop */}
-        {/* <Image
-          src="/images/dashboard-hero.png"
-          alt=""
-          width={431}
-          height={285}
-          priority
-          className="hidden lg:block absolute bottom-0 right-0 w-[360px] xl:w-[440px] h-auto pointer-events-none select-none"
-        /> */}
+        {/* Polygon chain animation — desktop (higher fidelity) */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden="true"
+          className="hidden lg:block absolute top-3 right-3 w-[160px] h-auto pointer-events-none select-none"
+        >
+          <source src="/videos/about-chain-desktop.webm" type="video/webm" />
+        </video>
+        {/* Polygon chain animation — mobile/tablet (lighter) */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          aria-hidden="true"
+          className="block lg:hidden absolute top-3 right-3 w-[92px] h-auto pointer-events-none select-none opacity-90"
+        >
+          <source src="/videos/about-chain-mobile.webm" type="video/webm" />
+        </video>
         {/* Balance — large, dominant */}
         <div className="relative text-left mb-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--kraken-muted)] mb-2">{t('totalAssets')}</p>
