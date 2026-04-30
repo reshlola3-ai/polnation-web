@@ -763,7 +763,12 @@ input, select, textarea {
 }
 
 .kraken-dashboard-bg {
-  background: #07060d;
+  background-color: #07060d;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 32px 32px, 32px 32px;
+  background-position: 0 0, 0 0;
 }
 
 .kraken-shell {
@@ -785,12 +790,11 @@ input, select, textarea {
 }
 
 .kraken-summary {
+  position: relative;
   border: 1px solid var(--kraken-border);
   border-radius: 22px;
-  background:
-    radial-gradient(circle at 82% 12%, rgba(124, 60, 255, 0.24), transparent 34%),
-    linear-gradient(145deg, #1b1427 0%, #15101f 100%);
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.38);
+  background: transparent;
+  overflow: hidden;
 }
 
 .kraken-mini-card {

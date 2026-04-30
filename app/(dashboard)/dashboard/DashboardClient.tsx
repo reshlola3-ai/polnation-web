@@ -447,10 +447,10 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           width={431}
           height={285}
           priority
-          className="hidden"
+          className="hidden lg:block absolute top-0 right-0 w-[300px] xl:w-[340px] h-auto pointer-events-none select-none"
         />
         {/* Balance — large, dominant */}
-        <div className="text-left mb-5">
+        <div className="relative text-left mb-5 lg:pr-[280px] xl:pr-[320px]">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--kraken-muted)] mb-2">{t('totalAssets')}</p>
           {isBalanceLoading ? (
             <div className="animate-pulse h-14 w-44 bg-white/5 rounded-lg mx-auto" />
@@ -475,7 +475,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
 
         {/* Status pills */}
-        <div className="flex items-center gap-2 flex-wrap mb-5">
+        <div className="relative flex items-center gap-2 flex-wrap mb-5 lg:pr-[280px] xl:pr-[320px]">
           <button
             className="kraken-pill inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold text-white hover:bg-white/[0.08] transition-colors active:scale-95"
             onClick={() => setShowTierModal(true)}
@@ -496,7 +496,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
 
         {/* Assets breakdown — polygon-style notched cards (Phase 2 PoC) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3" onClick={() => setActiveAssetTip(null)}>
+        <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-3" onClick={() => setActiveAssetTip(null)}>
           {/* Wallet */}
           <NotchedCard pad={16} className="min-w-0">
             <div className="flex flex-col items-start gap-2">
