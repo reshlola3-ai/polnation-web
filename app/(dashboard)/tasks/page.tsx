@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import {
@@ -278,8 +278,8 @@ export default function TasksPage() {
 
   const getChapterColor = (group: string) => {
     if (group === 'ch1') return { bg: 'from-purple-600 to-indigo-600', border: 'border-purple-500/40', badge: 'bg-purple-500/20 text-purple-300' }
-    if (group === 'ch2') return { bg: 'from-cyan-600 to-teal-600', border: 'border-cyan-500/40', badge: 'bg-cyan-500/20 text-cyan-300' }
-    if (group === 'ch3') return { bg: 'from-amber-600 to-orange-600', border: 'border-amber-500/40', badge: 'bg-amber-500/20 text-amber-300' }
+    if (group === 'ch2') return { bg: 'from-[var(--poly-purple)] to-[var(--poly-purple-hover)]', border: 'border-[var(--poly-purple)]/40', badge: 'bg-[var(--poly-purple)]/20 text-white/70' }
+    if (group === 'ch3') return { bg: 'from-white/20 to-white/10', border: 'border-white/[0.12]', badge: 'bg-white/[0.08] text-white/70' }
     return { bg: 'from-zinc-600 to-zinc-700', border: 'border-zinc-500/40', badge: 'bg-zinc-500/20 text-zinc-300' }
   }
 
@@ -401,7 +401,7 @@ export default function TasksPage() {
                 </div>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-cyan-300 text-xl font-bold">{progress.current_streak}</p>
+                <p className="text-white/85 text-xl font-bold">{progress.current_streak}</p>
                 <p className="text-purple-200 text-[10px]">{t('checkin.streakDays')}</p>
               </div>
             </div>
@@ -417,14 +417,14 @@ export default function TasksPage() {
                   <div key={day} className="flex flex-col items-center flex-1">
                     <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center mb-1 transition-all ${
                       isBonus
-                        ? (isCompleted ? 'bg-gradient-to-br from-cyan-400 to-cyan-500 shadow-lg scale-110' : 'bg-gradient-to-br from-purple-500 to-indigo-600')
+                        ? (isCompleted ? 'bg-[#00e28a] shadow-lg scale-110' : 'bg-[var(--poly-purple)]')
                         : (isCompleted ? 'bg-gradient-to-br from-purple-500 to-indigo-600' : isToday ? 'bg-white/10 border-2 border-purple-400 border-dashed' : 'bg-white/5')
                     }`}>
-                      {isBonus ? (isCompleted ? <span className="text-sm">🎉</span> : <Gift className="w-4 h-4 text-cyan-300" />)
+                      {isBonus ? (isCompleted ? <span className="text-sm">🎉</span> : <Gift className="w-4 h-4 text-white/50" />)
                         : isCompleted ? <CheckCircle className="w-4 h-4 text-white" />
                         : <span className="text-[10px] text-zinc-500 font-medium">{day}</span>}
                     </div>
-                    <span className={`text-[9px] font-medium ${isCompleted ? 'text-emerald-400' : 'text-zinc-600'}`}>${reward.toFixed(1)}</span>
+                    <span className={`text-[9px] font-medium ${isCompleted ? 'text-[#00e28a]' : 'text-zinc-600'}`}>${reward.toFixed(1)}</span>
                   </div>
                 )
               })}
@@ -528,9 +528,9 @@ export default function TasksPage() {
 
                 {/* Chapter completion banner */}
                 {chapter.is_complete && (
-                  <div className="px-4 py-3 bg-gradient-to-r from-green-900/30 to-emerald-900/30 flex items-center justify-center gap-2">
-                    <Trophy className="w-4 h-4 text-emerald-400" />
-                    <span className="text-emerald-400 text-sm font-medium">{tQ('chapterComplete')} {getChapterBonus(chapter.group)}</span>
+                  <div className="px-4 py-3 bg-white/[0.04] flex items-center justify-center gap-2">
+                    <Trophy className="w-4 h-4 text-[#00e28a]" />
+                    <span className="text-[#00e28a] text-sm font-medium">{tQ('chapterComplete')} {getChapterBonus(chapter.group)}</span>
                   </div>
                 )}
               </div>
@@ -540,19 +540,19 @@ export default function TasksPage() {
       })}
 
       {/* Referral bonus card */}
-      <div className="glass-card-solid p-4 md:p-6 border border-emerald-500/30 bg-gradient-to-r from-emerald-900/10 to-cyan-900/10">
+      <div className="glass-card-solid p-4 md:p-6 border border-[#00e28a]/20 bg-[#00e28a]/[0.04]">
         <h3 className="font-semibold text-white mb-3 flex items-center gap-2 text-sm md:text-base">
-          <Gift className="w-4 h-4 text-emerald-400" />
+          <Gift className="w-4 h-4 text-[#00e28a]" />
           {t('referral.title')}
-          <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] rounded-full">{t('referral.autoTag')}</span>
+          <span className="px-2 py-0.5 bg-[#00e28a]/[0.10] text-[#00e28a]/80 text-[10px] rounded-full">{t('referral.autoTag')}</span>
         </h3>
-        <div className="p-3 md:p-4 bg-white/5 rounded-xl border border-emerald-500/20">
+        <div className="p-3 md:p-4 bg-white/[0.04] rounded-xl border border-[#00e28a]/15">
           <p className="text-xs text-zinc-500 mb-3">{t('referral.description')}</p>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <div className="flex items-center gap-4">
               <div>
                 <p className="text-xs text-zinc-500">{t('referral.available')}</p>
-                <p className="text-lg font-bold text-emerald-400">${referralBonus.pending.toFixed(2)}</p>
+                <p className="text-lg font-bold text-[#00e28a]">${referralBonus.pending.toFixed(2)}</p>
               </div>
               <div>
                 <p className="text-xs text-zinc-500">{t('referral.referrals')}</p>
@@ -564,7 +564,7 @@ export default function TasksPage() {
               </div>
             </div>
             <Button onClick={claimReferralBonus} disabled={referralBonus.pending <= 0 || claimingReferral}
-              isLoading={claimingReferral} className="sm:ml-auto bg-emerald-600 hover:bg-emerald-500">
+              isLoading={claimingReferral} className="sm:ml-auto bg-[var(--poly-purple)] hover:bg-[var(--poly-purple-hover)]">
               <Gift className="w-4 h-4 mr-2" />
               {t('referral.claimAmount', { amount: referralBonus.pending.toFixed(2) })}
             </Button>
@@ -651,13 +651,13 @@ export default function TasksPage() {
               }).filter(([k]) => (bonusBreakdown[k] || 0) > 0).map(([k, label]) => (
                 <div key={k} className="flex justify-between text-zinc-300">
                   <span>{label}</span>
-                  <span className="text-emerald-400">${(bonusBreakdown[k] || 0).toFixed(2)}</span>
+                  <span className="text-[#00e28a]">${(bonusBreakdown[k] || 0).toFixed(2)}</span>
                 </div>
               ))}
               <div className="border-t border-zinc-700 pt-2 mt-3">
                 <div className="flex justify-between items-center">
                   <span className="text-zinc-500 text-xs">Total</span>
-                  <span className="text-lg font-bold text-emerald-400">${progress.total_task_bonus.toFixed(2)}</span>
+                  <span className="text-lg font-bold text-[#00e28a]">${progress.total_task_bonus.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -707,8 +707,8 @@ function TaskRow({
   const isSocialTask = task.task_category === 'social'
   const isReferralTask = task.verification_type === 'referral_check'
 
-  const statusColor = task.is_completed ? 'text-green-400' : task.is_pending ? 'text-amber-400' : !task.is_unlocked ? 'text-zinc-600' : 'text-zinc-400'
-  const rowBg = task.is_completed ? 'bg-green-500/5' : task.is_pending ? 'bg-amber-500/5' : !task.is_unlocked ? 'opacity-50' : ''
+  const statusColor = task.is_completed ? 'text-[#00e28a]' : task.is_pending ? 'text-white/55' : !task.is_unlocked ? 'text-zinc-600' : 'text-zinc-400'
+  const rowBg = task.is_completed ? 'bg-[#00e28a]/[0.04]' : task.is_pending ? 'bg-white/[0.03]' : !task.is_unlocked ? 'opacity-50' : ''
 
   return (
     <div className={`px-4 py-4 ${rowBg}`}>
@@ -718,7 +718,7 @@ function TaskRow({
           {task.is_completed
             ? <CheckCircle className="w-5 h-5 text-green-400" />
             : task.is_pending
-              ? <div className="w-5 h-5 rounded-full border-2 border-amber-400 flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-amber-400" /></div>
+              ? <div className="w-5 h-5 rounded-full border-2 border-white/50 flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-white/50" /></div>
               : !task.is_unlocked
                 ? <Lock className="w-5 h-5 text-zinc-600" />
                 : <Circle className="w-5 h-5 text-zinc-500" />}
@@ -733,8 +733,8 @@ function TaskRow({
                 <div className="w-5 h-5 shrink-0">{getSocialIcon(task.task_key)}</div>
               )}
               {isWalletTask && <Wallet className="w-4 h-4 text-indigo-400 shrink-0" />}
-              {isGroupTask && <Users className="w-4 h-4 text-cyan-400 shrink-0" />}
-              {isReferralTask && <Gift className="w-4 h-4 text-emerald-400 shrink-0" />}
+              {isGroupTask && <Users className="w-4 h-4 text-white/45 shrink-0" />}
+              {isReferralTask && <Gift className="w-4 h-4 text-[#00e28a] shrink-0" />}
               {isShareTask && <Share2 className="w-4 h-4 text-purple-400 shrink-0" />}
               <p className={`font-medium text-sm ${task.is_unlocked ? 'text-white' : 'text-zinc-500'}`}>{getTaskName(task)}</p>
               {/* Wallet tooltip trigger */}
@@ -744,7 +744,7 @@ function TaskRow({
                 </button>
               )}
             </div>
-            <p className={`font-semibold text-sm shrink-0 ${task.is_completed ? 'text-zinc-500 line-through' : 'text-emerald-400'}`}>
+            <p className={`font-semibold text-sm shrink-0 ${task.is_completed ? 'text-zinc-500 line-through' : 'text-[#00e28a]'}`}>
               +${task.reward_usd}
             </p>
           </div>
@@ -767,7 +767,7 @@ function TaskRow({
                 <span className="text-zinc-500">{Math.round((task.referral_progress / task.referral_target) * 100)}%</span>
               </div>
               <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500 rounded-full transition-all"
+                <div className="h-full bg-[#00e28a] rounded-full transition-all"
                   style={{ width: `${Math.min(100, Math.round((task.referral_progress / task.referral_target) * 100))}%` }} />
               </div>
             </div>
@@ -775,7 +775,7 @@ function TaskRow({
 
           {/* Pending status */}
           {task.is_pending && (
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-400">
+            <div className="mt-2 flex items-center gap-1.5 text-xs text-white/55">
               <Loader2 className="w-3 h-3 animate-spin" />
               {tQ('waitingReview')}
             </div>
@@ -869,7 +869,7 @@ function TaskRow({
                 <Button size="sm" onClick={() => onComplete(task.task_key)}
                   disabled={!task.can_complete || submitting === task.task_key}
                   isLoading={submitting === task.task_key}
-                  className={`text-xs py-1.5 ${task.can_complete ? 'bg-emerald-600 hover:bg-emerald-500' : ''}`}>
+                  className={`text-xs py-1.5 ${task.can_complete ? 'bg-[var(--poly-purple)] hover:bg-[var(--poly-purple-hover)]' : ''}`}>
                   {task.can_complete ? tQ('claimReward') : tQ('referralProgress', { current: task.referral_progress, target: task.referral_target })}
                 </Button>
               )}

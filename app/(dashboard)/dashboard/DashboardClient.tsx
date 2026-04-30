@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -393,12 +393,12 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--kraken-muted)] mb-3">Getting Started</p>
           <div className="flex items-start gap-2">
             {/* Step 1 */}
-            <div className={`flex-1 kraken-mini-card p-3 transition-colors ${step1Done ? 'border-emerald-500/20' : 'border-purple-500/20'}`}>
+            <div className={`flex-1 kraken-mini-card p-3 transition-colors ${step1Done ? 'border-[#00e28a]/20' : 'border-purple-500/20'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {step1Done
-                  ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                  ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
                   : <Circle className="w-4 h-4 text-purple-300 shrink-0" />}
-                <span className={`text-xs font-semibold ${step1Done ? 'text-emerald-300' : 'text-purple-200'}`}>Connect Wallet</span>
+                <span className={`text-xs font-semibold ${step1Done ? 'text-[#00e28a]/80' : 'text-purple-200'}`}>Connect Wallet</span>
               </div>
               <p className="text-[11px] text-white/45 leading-relaxed">Link your wallet to your account</p>
             </div>
@@ -406,32 +406,32 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <ChevronRight className="w-4 h-4 text-white/25 shrink-0 mt-3" />
 
             {/* Step 2 */}
-            <div className={`flex-1 kraken-mini-card p-3 transition-colors ${step2Done ? 'border-emerald-500/20' : step1Done ? 'border-cyan-500/25' : 'border-white/[0.06]'}`}>
+            <div className={`flex-1 kraken-mini-card p-3 transition-colors ${step2Done ? 'border-[#00e28a]/20' : step1Done ? 'border-white/[0.10]' : 'border-white/[0.06]'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {step2Done
-                  ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                  : <Circle className={`w-4 h-4 shrink-0 ${step1Done ? 'text-cyan-300' : 'text-white/30'}`} />}
-                <span className={`text-xs font-semibold ${step2Done ? 'text-emerald-300' : step1Done ? 'text-cyan-200' : 'text-white/40'}`}>Activate Earning</span>
+                  ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
+                  : <Circle className={`w-4 h-4 shrink-0 ${step1Done ? 'text-white/65' : 'text-white/30'}`} />}
+                <span className={`text-xs font-semibold ${step2Done ? 'text-[#00e28a]/80' : step1Done ? 'text-white/55' : 'text-white/40'}`}>Activate Earning</span>
               </div>
               <p className="text-[11px] text-white/45 leading-relaxed">Sign Merkle Tree · one-time · no gas fee</p>
               {step1Done && !step2Done && (
-                <p className="text-[11px] text-cyan-300 mt-1 font-medium">↓ Sign below to start earning</p>
+                <p className="text-[11px] text-white/65 mt-1 font-medium">↓ Sign below to start earning</p>
               )}
             </div>
 
             <ChevronRight className="w-4 h-4 text-white/25 shrink-0 mt-3" />
 
             {/* Step 3 */}
-            <Link href="/profile" className={`flex-1 kraken-mini-card p-3 transition-colors ${step3Done ? 'border-emerald-500/20' : step2Done ? 'border-cyan-500/25' : 'border-white/[0.06]'}`}>
+            <Link href="/profile" className={`flex-1 kraken-mini-card p-3 transition-colors ${step3Done ? 'border-[#00e28a]/20' : step2Done ? 'border-white/[0.10]' : 'border-white/[0.06]'}`}>
               <div className="flex items-center gap-2 mb-1">
                 {step3Done
-                  ? <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                  : <Circle className={`w-4 h-4 shrink-0 ${step2Done ? 'text-cyan-300' : 'text-white/30'}`} />}
-                <span className={`text-xs font-semibold ${step3Done ? 'text-emerald-300' : step2Done ? 'text-cyan-200' : 'text-white/40'}`}>Complete Profile</span>
+                  ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
+                  : <Circle className={`w-4 h-4 shrink-0 ${step2Done ? 'text-white/65' : 'text-white/30'}`} />}
+                <span className={`text-xs font-semibold ${step3Done ? 'text-[#00e28a]/80' : step2Done ? 'text-white/55' : 'text-white/40'}`}>Complete Profile</span>
               </div>
               <p className="text-[11px] text-white/45 leading-relaxed">Add username · phone · country</p>
               {step2Done && !step3Done && (
-                <p className="text-[11px] text-cyan-300 mt-1 font-medium">↓ Tap to complete →</p>
+                <p className="text-[11px] text-white/65 mt-1 font-medium">↓ Tap to complete →</p>
               )}
             </Link>
           </div>
@@ -484,7 +484,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             {currentTier.name} · {(currentTier.rate * 100).toFixed(2)}%
           </button>
           <button
-            className="kraken-pill inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold text-amber-200 hover:bg-amber-500/15 transition-colors active:scale-95"
+            className="kraken-pill inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold text-white/60 hover:bg-white/[0.06] transition-colors active:scale-95"
             onClick={() => setShowMomentumModal(true)}
           >
             <Flame className="w-3 h-3 text-orange-400" />
@@ -521,14 +521,14 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           {/* Withdrawable */}
           <NotchedCard pad={16} className="min-w-0">
             <div className="flex flex-col items-start gap-2">
-              <div className="w-8 h-8 rounded-xl bg-cyan-500/10 ring-1 ring-inset ring-cyan-500/20 flex items-center justify-center">
-                <ArrowUpRight className="w-4 h-4 text-cyan-300" />
+              <div className="w-8 h-8 rounded-xl bg-white/[0.04] ring-1 ring-inset ring-white/[0.07] flex items-center justify-center">
+                <ArrowUpRight className="w-4 h-4 text-white/65" />
               </div>
               {isLoadingProfit ? (
                 <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
               ) : (
                 <Link href="/earnings" onClick={(e) => e.stopPropagation()}
-                  className={`hover:text-cyan-300 transition-colors${profitData.availableWithdraw > 0.15 ? ' text-cyan-300' : ''}`}>
+                  className={`hover:text-white/80 transition-colors${profitData.availableWithdraw > 0.15 ? ' text-white/65' : ''}`}>
                   <MonoStat prefix="$" value={profitData.availableWithdraw.toFixed(2)} />
                 </Link>
               )}
@@ -617,7 +617,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             </div>
             <span className="text-[13px] text-white/85 font-semibold tracking-tight">{label}</span>
             {badge != null && badge > 0 && (
-              <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-amber-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow shadow-amber-500/40">
+              <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-[var(--poly-purple)] text-white text-[10px] font-bold rounded-full flex items-center justify-center ">
                 {badge}
               </span>
             )}
@@ -643,7 +643,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             </div>
           </div>
           <div className="text-right tabular-nums">
-            <p className="text-sm font-semibold text-emerald-300">+${profitData.communityDailyEarnings.toFixed(3)}</p>
+            <p className="text-sm font-semibold text-[#00e28a]/80">+${profitData.communityDailyEarnings.toFixed(3)}</p>
             <p className="text-[10px] text-white/40">per day · Pool ${profitData.communityPrizePool.toFixed(0)}</p>
           </div>
         </div>
@@ -657,7 +657,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 {profitData.teamNextLevelName && (
                   <span className="text-[12px] text-white/50">→ {profitData.teamNextLevelName}</span>
                 )}
-                <span className="text-[11px] font-semibold text-emerald-200 bg-emerald-500/15 ring-1 ring-inset ring-emerald-500/25 rounded-full px-2 py-0.5 tabular-nums">
+                <span className="text-[11px] font-semibold text-[#00e28a]/70 bg-[#00e28a]/[0.10] ring-1 ring-inset ring-[#00e28a]/[0.15] rounded-full px-2 py-0.5 tabular-nums">
                   {Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100).toFixed(0)}%
                 </span>
               </div>
@@ -669,8 +669,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 className="h-full rounded-full transition-all duration-700"
                 style={{
                   width: `${Math.min((profitData.teamEffectiveVolume / profitData.teamNextUnlockVolume) * 100, 100)}%`,
-                  background: 'linear-gradient(90deg, #10b981 0%, #06b6d4 100%)',
-                  boxShadow: '0 0 8px rgba(16,185,129,0.4)',
+                  background: '#00e28a',
+                  boxShadow: '0 0 6px rgba(0,226,138,0.3)',
                 }}
               />
             </div>
@@ -680,13 +680,13 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               <div className="flex items-center gap-3">
                 {profitData.teamVolumeOnly > 0 && (
                   <span className="flex items-center gap-1 text-[12px] text-white/50">
-                    <Globe className="w-3 h-3 text-cyan-400" />
+                    <Globe className="w-3 h-3 text-white/45" />
                     <span className="text-white/70">${profitData.teamVolumeOnly.toFixed(2)}</span>
                   </span>
                 )}
                 {profitData.taskBonus > 0 && (
                   <span className="flex items-center gap-1 text-[12px] text-white/50">
-                    <CheckCircle className="w-3 h-3 text-emerald-400" />
+                    <CheckCircle className="w-3 h-3 text-[#00e28a]" />
                     <span className="text-white/70">${profitData.taskBonus.toFixed(2)}</span>
                   </span>
                 )}
@@ -747,10 +747,10 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   {profitData.momentumMultiplier > 1.0 ? (
                     <>
                       <p className="text-blue-400 font-mono text-sm">
-                        ${profitData.communityPrizePool.toFixed(0)} × {profitData.communityDailyRate.toFixed(1)}% × <span className="text-amber-400 font-bold">{profitData.momentumMultiplier.toFixed(1)}x</span> = <span className="font-bold">${profitData.communityDailyEarnings.toFixed(2)}</span>/day
+                        ${profitData.communityPrizePool.toFixed(0)} × {profitData.communityDailyRate.toFixed(1)}% × <span className="text-white/75 font-bold">{profitData.momentumMultiplier.toFixed(1)}x</span> = <span className="font-bold">${profitData.communityDailyEarnings.toFixed(2)}</span>/day
                       </p>
                       <div className="flex items-center gap-1.5 mt-1.5">
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-medium">🔥 Momentum {profitData.momentumMultiplier.toFixed(1)}x</span>
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-white/[0.06] text-white/65 font-medium">🔥 Momentum {profitData.momentumMultiplier.toFixed(1)}x</span>
                         {profitData.momentumDaysUntilDecay > 0 && (
                           <span className="text-xs text-zinc-500">⏱️ {profitData.momentumDaysUntilDecay}d until {profitData.momentumNextMultiplier.toFixed(1)}x</span>
                         )}
@@ -771,7 +771,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4">
                 <div className="flex justify-between items-center">
                   <span className="text-purple-300 font-medium">Est. Daily Total</span>
-                  <span className="text-cyan-300 font-bold text-xl">${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}/day</span>
+                  <span className="text-white font-bold text-xl">${(dailyEarnings + estDailyCommission + profitData.communityDailyEarnings).toFixed(4)}/day</span>
                 </div>
                 <p className="text-zinc-500 text-xs mt-1">
                   Staking: ${dailyEarnings.toFixed(4)} + Commission: ${estDailyCommission.toFixed(4)} + Community: ${profitData.communityDailyEarnings.toFixed(2)}
@@ -815,7 +815,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{TIER_ICONS[tier.name] || '⭐'}</span>
                         <div>
-                          <p className={`font-semibold ${isCurrentTier ? 'bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent' : 'text-white'}`}>
+                          <p className={`font-semibold ${isCurrentTier ? 'text-white' : 'text-white'}`}>
                             {tier.name}
                           </p>
                           <p className="text-xs text-zinc-400">
@@ -824,7 +824,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-cyan-300">{(tier.rate * 100).toFixed(2)}%</p>
+                        <p className="text-lg font-bold text-white/65">{(tier.rate * 100).toFixed(2)}%</p>
                         <p className="text-xs text-zinc-500">daily</p>
                       </div>
                     </div>
@@ -855,10 +855,10 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             </div>
 
             {/* Current multiplier */}
-            <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl p-4 mb-4">
+            <div className="bg-white/[0.04] border border-white/[0.08] rounded-xl p-4 mb-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-amber-300 font-medium">Current Multiplier</span>
-                <span className="text-3xl font-bold text-amber-400">{profitData.momentumMultiplier.toFixed(1)}x</span>
+                <span className="text-sm text-white/60 font-medium">Current Multiplier</span>
+                <span className="text-3xl font-bold text-white/85">{profitData.momentumMultiplier.toFixed(1)}x</span>
               </div>
               {profitData.momentumMultiplier > 0.2 ? (
                 <div className="space-y-1.5">
@@ -889,7 +889,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   { label: '9–11d: 0.4×', active: profitData.momentumMultiplier >= 0.4 && profitData.momentumMultiplier < 0.6 },
                   { label: '12+d: 0.2×', active: profitData.momentumMultiplier < 0.4 },
                 ].map(({ label, active }) => (
-                  <span key={label} className={`text-xs px-2 py-1 rounded-lg font-medium ${active ? 'bg-amber-500/30 text-amber-300 border border-amber-500/40' : 'bg-white/5 text-zinc-500'}`}>
+                  <span key={label} className={`text-xs px-2 py-1 rounded-lg font-medium ${active ? 'bg-white/[0.08] text-white/70 border border-white/[0.12]' : 'bg-white/[0.04] text-white/30'}`}>
                     {label}
                   </span>
                 ))}
@@ -920,7 +920,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <p className="text-2xl font-semibold text-white tracking-tight tabular-nums">${totalEarned.toFixed(2)}</p>
           )}
           <div className="text-[12px] text-white/50 mt-2 space-y-0.5 tabular-nums">
-            <p>{t('staking')}: <span className="text-emerald-300">${profitData.totalStakingProfit.toFixed(2)}</span></p>
+            <p>{t('staking')}: <span className="text-[#00e28a]/80">${profitData.totalStakingProfit.toFixed(2)}</span></p>
             <p>{t('commission')}: <span className="text-purple-300">${profitData.totalCommissionProfit.toFixed(2)}</span></p>
           </div>
         </div>
@@ -955,12 +955,12 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           <section className="kraken-panel p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-emerald-500/15 ring-1 ring-inset ring-emerald-500/25 flex items-center justify-center">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-300" />
+                <div className="w-7 h-7 rounded-xl bg-[#00e28a]/[0.10] ring-1 ring-inset ring-[#00e28a]/[0.15] flex items-center justify-center">
+                  <CheckCircle className="w-3.5 h-3.5 text-[#00e28a]/80" />
                 </div>
                 <span className="text-sm font-semibold text-white tracking-tight">Account Setup</span>
               </div>
-              <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full tabular-nums ${allDone ? 'bg-emerald-500/15 text-emerald-300 ring-1 ring-inset ring-emerald-500/30' : 'bg-white/[0.06] text-white/60 ring-1 ring-inset ring-white/[0.06]'}`}>
+              <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full tabular-nums ${allDone ? 'bg-[#00e28a]/[0.10] text-[#00e28a]/80 ring-1 ring-inset ring-[#00e28a]/[0.15]' : 'bg-white/[0.06] text-white/60 ring-1 ring-inset ring-white/[0.06]'}`}>
                 {doneCount}/{steps.length}
               </span>
             </div>
@@ -970,7 +970,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
               {steps.map((step, i) => (
                 <div key={i} className="flex items-center gap-2.5">
                   {step.done ? (
-                    <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
                   ) : (
                     <Circle className="w-4 h-4 text-white/25 shrink-0" />
                   )}
@@ -992,9 +992,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                 className="h-full rounded-full transition-all duration-700"
                 style={{
                   width: `${(doneCount / steps.length) * 100}%`,
-                  background: allDone
-                    ? 'linear-gradient(90deg, #34d399, #6ee7b7)'
-                    : 'linear-gradient(90deg, #a78bfa, #22d3ee)',
+                  background: allDone ? '#00e28a' : 'var(--poly-purple)',
                 }}
               />
             </div>
@@ -1004,11 +1002,11 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {/* Wallet reconnect hint */}
       {!isConnected && profile?.wallet_address && (
-        <section className="kraken-panel p-5 border-amber-500/25">
+        <section className="kraken-panel p-5 border-white/[0.10]">
           <div className="flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-300 shrink-0" />
+            <AlertCircle className="w-5 h-5 text-white/60 shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-amber-200 font-medium">{t('connectForRealtime')}</p>
+              <p className="text-sm text-white/60 font-medium">{t('connectForRealtime')}</p>
               <p className="text-xs text-white/50 truncate tabular-nums">{t('yourBoundWallet')}: {profile.wallet_address.slice(0, 6)}...{profile.wallet_address.slice(-4)}</p>
             </div>
             <ConnectWallet />
@@ -1052,13 +1050,13 @@ function ReferralLinkCard({
         </div>
         <p className="text-white/55 text-[12px] mb-3 leading-relaxed">{t('earnCommission')}</p>
 
-        <div className="rounded-xl bg-[var(--kraken-panel-2)] border border-[var(--kraken-border)] p-2.5 flex items-center gap-2">
+        <div className="rounded-xl bg-[var(--kraken-panel)] border border-[var(--kraken-border)] p-2.5 flex items-center gap-2">
           <code className="text-[12px] text-white/70 truncate flex-1 px-1 font-mono">{referralLink}</code>
           <button
             onClick={onCopy}
             className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-semibold transition-all shrink-0 active:scale-95 ring-1 ring-inset ${
               copied
-                ? 'bg-emerald-500/20 ring-emerald-500/30 text-emerald-200'
+                ? 'bg-[#00e28a]/[0.12] ring-[#00e28a]/[0.20] text-[#00e28a]/80'
                 : 'bg-[var(--kraken-purple)] text-white ring-[var(--kraken-purple)] hover:bg-[var(--kraken-purple-soft)]'
             }`}
           >

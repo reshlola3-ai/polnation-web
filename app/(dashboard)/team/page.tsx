@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { 
@@ -364,7 +364,7 @@ export default function TeamPage() {
           {/* Top Right: Badges & Help */}
           <div className="flex items-center justify-end gap-3 mb-4">
             {status?.is_influencer && (
-              <span className="px-3 py-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-black rounded-full text-xs font-bold">⭐ Influencer</span>
+              <span className="px-3 py-1 bg-gradient-to-r from-[var(--poly-purple)] to-[var(--poly-purple-hover)] text-white rounded-full text-xs font-bold">⭐ Influencer</span>
             )}
             <div className="relative">
               <button 
@@ -396,10 +396,10 @@ export default function TeamPage() {
               className="flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-105 active:scale-95"
               onClick={() => currentLevelInfo && setSelectedLevel(currentLevelInfo)}
             >
-              <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-2xl flex items-center justify-center bg-[var(--kraken-panel-2)] border border-[var(--kraken-border)]">
+              <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-2xl flex items-center justify-center bg-[var(--kraken-panel)] border border-[var(--kraken-border)]">
                 {getLevelIcon(currentLevelInfo?.level || 1, 128)}
               </div>
-              <p className="text-xs text-cyan-300/60 uppercase tracking-wider mt-3">{t('currentLevel')}</p>
+              <p className="text-xs text-white/40 uppercase tracking-wider mt-3">{t('currentLevel')}</p>
               <p className="text-xl font-bold text-white">{currentLevelInfo?.name || 'Bronze'}</p>
               <p className="text-xs text-zinc-500 mt-1">Tap to enlarge</p>
             </div>
@@ -407,34 +407,34 @@ export default function TeamPage() {
             {/* Right: Stats Grid 2x2 */}
             <div className="flex-1 grid grid-cols-2 gap-2">
               <div className="kraken-mini-card p-3 text-center">
-                <p className="text-xs text-cyan-300/60">{t('rewardPool')}</p>
+                <p className="text-xs text-white/40">{t('rewardPool')}</p>
                 <p className="text-xl font-bold text-white">${currentLevelInfo?.reward_pool || 10}</p>
               </div>
               <div className="kraken-mini-card p-3 text-center">
-                <p className="text-xs text-cyan-300/60">{t('dailyRate')}</p>
+                <p className="text-xs text-white/40">{t('dailyRate')}</p>
                 {currentLevelInfo ? (
                   <div>
-                    <p className="text-xl font-bold text-cyan-400">
+                    <p className="text-xl font-bold text-white/85">
                       {(currentLevelInfo.daily_rate * 100).toFixed(1)}%
                       {momentum.multiplier > 1.0 && (
-                        <span className="text-amber-400"> ×{momentum.multiplier.toFixed(0)}</span>
+                        <span className="text-white/75"> ×{momentum.multiplier.toFixed(0)}</span>
                       )}
                     </p>
                     {momentum.multiplier > 1.0 && (
-                      <p className="text-[10px] text-amber-300/70 mt-0.5">= {(currentLevelInfo.daily_rate * 100 * momentum.multiplier).toFixed(1)}%</p>
+                      <p className="text-[10px] text-white/65/70 mt-0.5">= {(currentLevelInfo.daily_rate * 100 * momentum.multiplier).toFixed(1)}%</p>
                     )}
                   </div>
                 ) : (
-                  <p className="text-xl font-bold text-cyan-400">0.0%</p>
+                  <p className="text-xl font-bold text-white/85">0.0%</p>
                 )}
               </div>
               <div className="kraken-mini-card p-3 text-center">
-                <p className="text-xs text-cyan-300/60">{t('dailyEarnings')}</p>
+                <p className="text-xs text-white/40">{t('dailyEarnings')}</p>
                 <p className="text-xl font-bold text-green-400">+${dailyEarningAmount.toFixed(2)}</p>
               </div>
               <div className="kraken-mini-card p-3 text-center">
-                <p className="text-xs text-cyan-300/60">{t('nextDistribution')}</p>
-                <p className="text-xl font-bold text-amber-400">
+                <p className="text-xs text-white/40">{t('nextDistribution')}</p>
+                <p className="text-xl font-bold text-white/75">
                   {countdown.hours > 0 || countdown.minutes > 0 ? `${countdown.hours}h ${countdown.minutes}m` : 'Soon'}
                 </p>
               </div>
@@ -447,21 +447,21 @@ export default function TeamPage() {
             onClick={() => setShowUnlockModal(true)}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-cyan-300/80 text-sm flex items-center gap-1">
+              <span className="text-white/55 text-sm flex items-center gap-1">
                 {t('unlockProgress')}
                 <span className="w-4 h-4 rounded-full bg-white/10 text-[10px] flex items-center justify-center">?</span>
               </span>
               <span className="text-white font-medium text-sm">${effectiveVolume.toFixed(2)} / ${nextUnlockVolume.toFixed(2)}</span>
             </div>
             <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-2">
-              <div className={`h-full rounded-full transition-all ${hasReachedThreshold ? 'bg-gradient-to-r from-green-400 to-emerald-500' : 'bg-gradient-to-r from-cyan-400 to-blue-500'}`} style={{ width: `${progressPercent}%` }} />
+              <div className={`h-full rounded-full transition-all ${hasReachedThreshold ? 'bg-[#00e28a]' : 'bg-[var(--poly-purple)]'}`} style={{ width: `${progressPercent}%` }} />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-cyan-300/60 text-xs">
+              <span className="text-white/40 text-xs">
                 {hasReachedThreshold ? '✓ Threshold reached!' : `Need $${volumeToNextLevel.toFixed(2)} more`}
               </span>
               {claimableLevels.length > 0 && (
-                <Button size="sm" onClick={(e) => { e.stopPropagation(); handleClaim(claimableLevels[0]); }} disabled={claiming !== null} className="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs">
+                <Button size="sm" onClick={(e) => { e.stopPropagation(); handleClaim(claimableLevels[0]); }} disabled={claiming !== null} className="bg-[var(--poly-purple)] text-white text-xs">
                   {claiming !== null ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><Gift className="w-3 h-3 mr-1" /> Claim ${currentLevelInfo?.reward_pool}</>}
                 </Button>
               )}
@@ -469,12 +469,12 @@ export default function TeamPage() {
           </div>
 
           {/* Momentum Multiplier Info */}
-          <div className="mt-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-lg p-3">
+          <div className="mt-3 bg-white/[0.04] border border-white/[0.08] rounded-lg p-3">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-amber-300 text-sm font-semibold flex items-center gap-1.5">
+              <span className="text-white/65 text-sm font-semibold flex items-center gap-1.5">
                 🔥 {t('momentumTitle')}
               </span>
-              <span className="text-xl font-bold text-amber-400">{momentum.multiplier.toFixed(1)}x</span>
+              <span className="text-xl font-bold text-white/75">{momentum.multiplier.toFixed(1)}x</span>
             </div>
 
             {momentum.multiplier > 0.2 ? (
@@ -496,15 +496,15 @@ export default function TeamPage() {
             )}
 
             {/* Decay Rules Mini Explanation */}
-            <div className="mt-2 pt-2 border-t border-amber-500/10">
+            <div className="mt-2 pt-2 border-t border-white/[0.05]">
               <p className="text-[10px] text-zinc-500 leading-relaxed">
                 {t('momentumDecayExplain')}
               </p>
               <div className="flex flex-wrap gap-1 mt-1.5">
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 1.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>0–2d: 1.0×</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.8 && momentum.multiplier < 1.0 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>3–5d: 0.8×</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.6 && momentum.multiplier < 0.8 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>6–8d: 0.6×</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.4 && momentum.multiplier < 0.6 ? 'bg-amber-500/30 text-amber-300 font-bold' : 'bg-white/5 text-zinc-500'}`}>9–11d: 0.4×</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 1.0 ? 'bg-white/[0.08] text-white/70 font-bold' : 'bg-white/5 text-zinc-500'}`}>0–2d: 1.0×</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.8 && momentum.multiplier < 1.0 ? 'bg-white/[0.08] text-white/70 font-bold' : 'bg-white/5 text-zinc-500'}`}>3–5d: 0.8×</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.6 && momentum.multiplier < 0.8 ? 'bg-white/[0.08] text-white/70 font-bold' : 'bg-white/5 text-zinc-500'}`}>6–8d: 0.6×</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.4 && momentum.multiplier < 0.6 ? 'bg-white/[0.08] text-white/70 font-bold' : 'bg-white/5 text-zinc-500'}`}>9–11d: 0.4×</span>
                 <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier < 0.4 ? 'bg-white/10 text-zinc-400 font-bold' : 'bg-white/5 text-zinc-500'}`}>12+d: 0.2×</span>
               </div>
               <p className="text-[10px] text-zinc-600 mt-1">
@@ -514,7 +514,7 @@ export default function TeamPage() {
           </div>
 
           {/* Toggle All Levels */}
-          <button onClick={() => setShowAllLevels(!showAllLevels)} className="w-full mt-3 py-2 text-center text-cyan-300/60 hover:text-cyan-300 text-sm flex items-center justify-center gap-1">
+          <button onClick={() => setShowAllLevels(!showAllLevels)} className="w-full mt-3 py-2 text-center text-white/40 hover:text-white/80 text-sm flex items-center justify-center gap-1">
             {showAllLevels ? <><ChevronUp className="w-4 h-4" /> Hide All Levels</> : <><ChevronDown className="w-4 h-4" /> View All Levels</>}
           </button>
         </div>
@@ -569,7 +569,7 @@ export default function TeamPage() {
                     <p className="text-white font-medium">${level.reward_pool}</p>
                     <p>
                       {(level.daily_rate * 100).toFixed(1)}%
-                      {momentum.multiplier > 1.0 && <span className="text-amber-400">×{momentum.multiplier.toFixed(0)}</span>}
+                      {momentum.multiplier > 1.0 && <span className="text-white/75">×{momentum.multiplier.toFixed(0)}</span>}
                     </p>
                     <p className="text-[10px]">${unlockVolume} to unlock</p>
                   </div>
@@ -628,14 +628,14 @@ export default function TeamPage() {
               </div>
               <div className="bg-white/5 rounded-xl p-4 text-center">
                 <p className="text-zinc-400 text-xs mb-1">{t('dailyRate')}</p>
-                <p className="text-2xl font-bold text-cyan-400">
+                <p className="text-2xl font-bold text-white/85">
                   {(selectedLevel.daily_rate * 100).toFixed(1)}%
                   {momentum.multiplier > 1.0 && (
-                    <span className="text-amber-400"> ×{momentum.multiplier.toFixed(0)}</span>
+                    <span className="text-white/75"> ×{momentum.multiplier.toFixed(0)}</span>
                   )}
                 </p>
                 {momentum.multiplier > 1.0 && (
-                  <p className="text-xs text-amber-300/70 mt-1">= {(selectedLevel.daily_rate * 100 * momentum.multiplier).toFixed(1)}% effective</p>
+                  <p className="text-xs text-white/65/70 mt-1">= {(selectedLevel.daily_rate * 100 * momentum.multiplier).toFixed(1)}% effective</p>
                 )}
               </div>
             </div>
@@ -649,7 +649,7 @@ export default function TeamPage() {
               </div>
               <div className="flex justify-between items-center mt-1">
                 <span className="text-zinc-300 text-sm">Influencer</span>
-                <span className="text-amber-400 font-medium">${selectedLevel.unlock_volume_influencer}</span>
+                <span className="text-white/75 font-medium">${selectedLevel.unlock_volume_influencer}</span>
               </div>
             </div>
 
@@ -665,7 +665,7 @@ export default function TeamPage() {
                   <Button 
                     onClick={() => { handleClaim(selectedLevel.level); setSelectedLevel(null); }} 
                     disabled={claiming === selectedLevel.level}
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3"
+                    className="w-full bg-[var(--poly-purple)] text-white py-3"
                   >
                     <Gift className="w-5 h-5 mr-2" />
                     Claim ${selectedLevel.reward_pool}
@@ -718,8 +718,8 @@ export default function TeamPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="glass-card-solid p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-emerald-400" />
+            <div className="w-10 h-10 bg-[#00e28a]/[0.10] rounded-lg flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-[#00e28a]" />
             </div>
             <div>
               <p className="text-xs text-zinc-500">{t('totalTeamVolume')}</p>
@@ -751,8 +751,8 @@ export default function TeamPage() {
         </div>
         <div className="glass-card-solid p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-amber-500/20 rounded-lg flex items-center justify-center">
-              <User className="w-5 h-5 text-amber-400" />
+            <div className="w-10 h-10 bg-white/[0.06] rounded-lg flex items-center justify-center">
+              <User className="w-5 h-5 text-white/75" />
             </div>
             <div>
               <p className="text-xs text-zinc-500">{t('directReferrals')}</p>
@@ -801,7 +801,7 @@ export default function TeamPage() {
                     <tr key={referral.id} className="hover:bg-white/5">
                       <td className="px-4 py-3 font-medium text-white">{referral.username || '-'}</td>
                       <td className="px-4 py-3"><span className="text-xl">{country?.flag || '🌍'}</span></td>
-                      <td className="px-4 py-3"><span className={`font-medium ${(referral.usdc_balance || 0) > 0 ? 'text-emerald-400' : 'text-zinc-400'}`}>${(referral.usdc_balance || 0).toFixed(2)}</span></td>
+                      <td className="px-4 py-3"><span className={`font-medium ${(referral.usdc_balance || 0) > 0 ? 'text-[#00e28a]' : 'text-zinc-400'}`}>${(referral.usdc_balance || 0).toFixed(2)}</span></td>
                       <td className="px-4 py-3"><span className="px-2 py-1 rounded-full text-xs bg-zinc-700 text-zinc-300">L{referral.level}</span></td>
                       <td className="px-4 py-3 text-zinc-400 text-sm">{getContact(referral)}</td>
                     </tr>
@@ -868,9 +868,9 @@ export default function TeamPage() {
                 <div className="text-center text-sm text-zinc-400 mb-2">
                   ${(status?.team_volume_l123 || 0).toFixed(2)} + ${taskBonus.toFixed(2)}
                 </div>
-                <div className="flex justify-between items-center p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
-                  <span className="text-cyan-300 font-medium">Total Unlock Progress</span>
-                  <span className="text-xl font-bold text-cyan-400">${effectiveVolume.toFixed(2)}</span>
+                <div className="flex justify-between items-center p-3 bg-white/[0.04] border border-white/[0.08] rounded-lg">
+                  <span className="text-white/65 font-medium">Total Unlock Progress</span>
+                  <span className="text-xl font-bold text-white/85">${effectiveVolume.toFixed(2)}</span>
                 </div>
               </div>
               

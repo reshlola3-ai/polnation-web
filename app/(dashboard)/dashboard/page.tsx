@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase-server'
+﻿import { createServerClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { DashboardClient } from './DashboardClient'
@@ -70,19 +70,19 @@ export default async function DashboardPage() {
     <div className="space-y-4">
       {/* Profile incomplete warning */}
       {profile && !profile.profile_completed && (
-        <div className="glass-card-solid p-3 md:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 border-amber-500/30">
+        <div className="glass-card-solid p-3 md:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 border-white/[0.10]">
           <div className="flex items-center gap-3 flex-1">
-            <div className="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center shrink-0">
-              <AlertCircle className="w-5 h-5 text-amber-400" />
+            <div className="w-10 h-10 bg-white/[0.06] rounded-xl flex items-center justify-center shrink-0">
+              <AlertCircle className="w-5 h-5 text-white/60" />
             </div>
             <div>
-              <p className="text-amber-300 font-medium text-sm">{t('completeProfile')}</p>
-              <p className="text-amber-400/70 text-xs">{t('completeProfileDesc')}</p>
+              <p className="text-white/70 font-medium text-sm">{t('completeProfile')}</p>
+              <p className="text-white/45 text-xs">{t('completeProfileDesc')}</p>
             </div>
           </div>
           <Link 
             href="/profile" 
-            className="w-full sm:w-auto px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-medium hover:bg-amber-400 transition-colors text-center"
+            className="w-full sm:w-auto px-4 py-2 bg-[var(--poly-purple)] text-white rounded-xl text-sm font-medium hover:bg-[var(--poly-purple-hover)] transition-colors text-center"
           >
             {t('completeNow')}
           </Link>

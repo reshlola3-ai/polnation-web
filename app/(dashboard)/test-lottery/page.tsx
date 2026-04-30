@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { LotteryWheel } from '@/components/lottery/LotteryWheel'
@@ -231,7 +231,7 @@ export default function TestLotteryPage() {
 
       {/* Page header */}
       <div className="text-center mb-5">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-amber-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent mb-1">
+        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-[var(--poly-purple)] to-white bg-clip-text text-transparent mb-1">
           🎡 {t.pageTitle}
         </h1>
         <p className="text-zinc-400 text-sm">{t.pageDesc}</p>
@@ -241,7 +241,7 @@ export default function TestLotteryPage() {
       <div className="max-w-lg w-full mb-5">
         <div className="glass-card-solid rounded-2xl p-5 border border-purple-500/20">
           <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-            <Info className="w-4 h-4 text-cyan-400" />
+            <Info className="w-4 h-4 text-[var(--poly-purple)]" />
             {t.howToEarn}
           </h3>
 
@@ -259,7 +259,7 @@ export default function TestLotteryPage() {
 
             {/* Method 2: self airdrops — with live progress */}
             <div className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
-              <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5">
                 <span className="text-sm">✈️</span>
               </div>
               <div className="flex-1 min-w-0">
@@ -271,18 +271,18 @@ export default function TestLotteryPage() {
                       <span className="text-zinc-400">
                         {spinData.progressToNextSpin} / 7 claims toward next spin
                       </span>
-                      <span className="text-cyan-400 font-medium">
+                      <span className="text-[var(--poly-purple)] font-medium">
                         {spinData.selfAirdropCount} total
                       </span>
                     </div>
                     <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full transition-all duration-700"
+                        className="h-full bg-[var(--poly-purple)] rounded-full transition-all duration-700"
                         style={{ width: `${progressPct}%` }}
                       />
                     </div>
                     {spinData.progressToNextSpin > 0 && (
-                      <p className="text-[10px] text-cyan-400/70 mt-1">
+                      <p className="text-[10px] text-[var(--poly-purple)]/70 mt-1">
                         {7 - spinData.progressToNextSpin} more claims → unlock 1 spin 🎰
                       </p>
                     )}
@@ -293,7 +293,7 @@ export default function TestLotteryPage() {
 
             {/* Method 3: influencer */}
             <div className="flex items-start gap-3 p-3 bg-white/5 rounded-xl">
-              <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-8 h-8 rounded-full bg-white/[0.06] flex items-center justify-center shrink-0 mt-0.5">
                 <span className="text-sm">⭐</span>
               </div>
               <div className="flex-1">
@@ -303,7 +303,7 @@ export default function TestLotteryPage() {
                   href="https://t.me/polnation"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-medium hover:bg-amber-500/25 transition-colors"
+                  className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-lg bg-white/[0.06] border border-white/[0.10] text-white/65 text-xs font-medium hover:bg-white/[0.08] transition-colors"
                 >
                   Contact Admin →
                 </a>
@@ -313,7 +313,7 @@ export default function TestLotteryPage() {
 
           {/* Spin count summary */}
           {spinData && (
-            <div className="mt-4 flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20">
+            <div className="mt-4 flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
               <div className="text-2xl font-bold text-white">
                 {spinData.remainingSpins}
               </div>

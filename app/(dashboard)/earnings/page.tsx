@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import {
@@ -290,7 +290,7 @@ export default function EarningsPage() {
           onClick={fetchProfits}
           disabled={isLoading}
           aria-label={tCommon('refresh')}
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-[var(--kraken-panel-2)] border border-[var(--kraken-border)] text-[13px] font-semibold text-white hover:bg-[#2b2338] transition-colors duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none"
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-[var(--kraken-panel)] border border-[var(--kraken-border)] text-[13px] font-semibold text-white hover:bg-white/[0.06] transition-colors duration-150 ease-out disabled:opacity-40 disabled:pointer-events-none"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
           {tCommon('refresh')}
@@ -315,7 +315,7 @@ export default function EarningsPage() {
             </div>
             {currentTier && hasWallet && (
               <span className="kraken-pill inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold text-white">
-                <Star className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+                <Star className="w-3.5 h-3.5 text-white/60 fill-white/60" />
                 {currentTier.name}
               </span>
             )}
@@ -339,7 +339,7 @@ export default function EarningsPage() {
                   <p className="text-[11px] uppercase tracking-[0.14em] text-white/40 mb-1.5">
                     {t('estimatedDaily')}
                   </p>
-                  <p className="text-xl font-semibold text-emerald-400 tracking-tight tabular-nums">
+                  <p className="text-xl font-semibold text-[#00e28a] tracking-tight tabular-nums">
                     ${((usdcBalance * currentTier.rate_percent / 100) * (86400 / (config?.interval_seconds || 86400))).toFixed(4)}
                   </p>
                 </div>
@@ -474,14 +474,14 @@ export default function EarningsPage() {
           </div>
         )}
         {success && (
-          <div role="status" aria-live="polite" className="mb-5 flex items-center gap-2.5 rounded-2xl bg-emerald-500/10 px-4 py-3 text-[13px] text-emerald-300 ring-1 ring-emerald-500/20">
+          <div role="status" aria-live="polite" className="mb-5 flex items-center gap-2.5 rounded-2xl bg-[#00e28a]/[0.08] px-4 py-3 text-[13px] text-[#00e28a]/80 ring-1 ring-[#00e28a]/[0.15]">
             <CheckCircle className="w-4 h-4 shrink-0" />
             <span>{success}</span>
           </div>
         )}
 
         {/* iOS segmented control */}
-        <div className="mx-auto mb-7 grid grid-cols-2 w-full max-w-xs rounded-full bg-[var(--kraken-panel-2)] p-1 border border-[var(--kraken-border)]">
+        <div className="mx-auto mb-7 grid grid-cols-2 w-full max-w-xs rounded-full bg-[var(--kraken-panel)] p-1 border border-[var(--kraken-border)]">
           {(['USDC', 'POL'] as const).map((type) => {
             const active = withdrawType === type
             return (
@@ -537,7 +537,7 @@ export default function EarningsPage() {
               key={chip.label}
               onClick={() => setWithdrawAmount(chip.value > 0 ? chip.value.toFixed(2) : '')}
               disabled={totalAvailable <= 0}
-              className="h-10 rounded-full bg-[var(--kraken-panel-2)] hover:bg-[#2b2338] border border-[var(--kraken-border)] text-[13px] font-semibold text-white/80 transition-colors duration-150 ease-out disabled:opacity-30 disabled:pointer-events-none active:scale-[0.97]"
+              className="h-10 rounded-full bg-[var(--kraken-panel)] hover:bg-white/[0.06] border border-[var(--kraken-border)] text-[13px] font-semibold text-white/80 transition-colors duration-150 ease-out disabled:opacity-30 disabled:pointer-events-none active:scale-[0.97]"
             >
               {chip.label}
             </button>
@@ -659,12 +659,12 @@ export default function EarningsPage() {
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                       item.status === 'completed' ? 'bg-green-500/20' :
-                      item.status === 'pending' ? 'bg-amber-500/20' :
+                      item.status === 'pending' ? 'bg-white/[0.06]' :
                       item.status === 'processing' ? 'bg-blue-500/20' : 'bg-red-500/20'
                     }`}>
                       {item.status === 'completed' ? <CheckCircle className="w-5 h-5 text-green-400" /> :
                        item.status === 'processing' ? <Loader2 className="w-5 h-5 text-blue-400 animate-spin" /> :
-                       item.status === 'pending' ? <Clock className="w-5 h-5 text-amber-400" /> :
+                       item.status === 'pending' ? <Clock className="w-5 h-5 text-white/50" /> :
                        <AlertCircle className="w-5 h-5 text-red-400" />}
                     </div>
                     <div>
@@ -674,7 +674,7 @@ export default function EarningsPage() {
                       </p>
                       <span className={`text-xs px-2 py-0.5 rounded ${
                         item.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                        item.status === 'pending' ? 'bg-amber-500/20 text-amber-400' :
+                        item.status === 'pending' ? 'bg-white/[0.06] text-white/55' :
                         item.status === 'processing' ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400'
                       }`}>
                         {item.status === 'completed' ? t('history.completed') :

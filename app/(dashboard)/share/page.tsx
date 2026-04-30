@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef, useCallback, ChangeEvent } from 'react'
 import { ArrowLeft, Download, Share2, Loader2, X, Plus, Phone, Mail, AlertTriangle } from 'lucide-react'
@@ -498,7 +498,7 @@ export default function SharePage() {
                   <span className="text-[#22c55e] font-extrabold drop-shadow-lg" style={{ fontSize: 'clamp(1.2rem, 5vw, 1.6rem)', lineHeight: 1, textShadow: '0 2px 15px rgba(34,197,94,0.4)' }}>
                     📈 {data?.dailyRate.toFixed(2)}%
                   </span>
-                  <span className="text-emerald-400/70 text-xs font-medium">/day</span>
+                  <span className="text-[#00e28a]/60 text-xs font-medium">/day</span>
                 </div>
               )}
             </div>
