@@ -25,6 +25,8 @@ import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { polygon } from 'wagmi/chains'
 import { formatUnits } from 'viem'
 import { useTranslations } from 'next-intl'
+import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
+import { MonoStat } from '@/components/ui/poly/MonoStat'
 
 interface ProfitTier {
   level: number
@@ -277,12 +279,10 @@ export default function EarningsPage() {
     <div className="kraken-shell space-y-4">
       {/* This banner is no longer needed since we use bound wallet address */}
 
-      {/* ── Header — Apple-style ─────────────────────────────────────────── */}
+      {/* ── Header — polygon-style ───────────────────────────────────────── */}
       <header className="flex items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
-            Polnation · {t('title')}
-          </p>
+          <EyebrowTag>Polnation · {t('title')}</EyebrowTag>
           <h1 className="mt-1.5 text-3xl font-semibold text-white tracking-tight">{t('title')}</h1>
           <p className="mt-1 text-[13px] text-white/50">{t('subtitle')}</p>
         </div>
@@ -304,14 +304,16 @@ export default function EarningsPage() {
         <section className="kraken-summary lg:col-span-2 p-6 sm:p-7">
           <div className="flex items-start justify-between gap-4 mb-8">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
-                {t('usdcBalance')}
-              </p>
-              <p className="mt-2 text-[48px] sm:text-[56px] leading-none font-semibold text-white tracking-tight tabular-nums">
+              <EyebrowTag>{t('usdcBalance')}</EyebrowTag>
+              <div className="mt-2">
                 {hasWallet
-                  ? `$${usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                  : <span className="text-white/30">$—</span>}
-              </p>
+                  ? <MonoStat
+                      size="main"
+                      prefix="$"
+                      value={usdcBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    />
+                  : <span className="text-[44px] sm:text-[52px] leading-none font-semibold text-white/30 tracking-tight tabular-nums" style={{ fontFamily: 'var(--poly-font-mono)' }}>$—</span>}
+              </div>
             </div>
             {currentTier && hasWallet && (
               <span className="kraken-pill inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold text-white">
@@ -325,9 +327,7 @@ export default function EarningsPage() {
             currentTier ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div className="kraken-mini-card p-4">
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-white/40 mb-1.5">
-                    {t('currentRate')}
-                  </p>
+                  <EyebrowTag className="mb-1.5">{t('currentRate')}</EyebrowTag>
                   <p className="text-xl font-semibold text-white tracking-tight tabular-nums">
                     {currentTier.rate_percent}%
                     <span className="ml-1 text-[13px] font-normal text-white/40">
@@ -336,9 +336,7 @@ export default function EarningsPage() {
                   </p>
                 </div>
                 <div className="kraken-mini-card p-4">
-                  <p className="text-[11px] uppercase tracking-[0.14em] text-white/40 mb-1.5">
-                    {t('estimatedDaily')}
-                  </p>
+                  <EyebrowTag className="mb-1.5">{t('estimatedDaily')}</EyebrowTag>
                   <p className="text-xl font-semibold text-[#00e28a] tracking-tight tabular-nums">
                     ${((usdcBalance * currentTier.rate_percent / 100) * (86400 / (config?.interval_seconds || 86400))).toFixed(4)}
                   </p>
@@ -360,10 +358,10 @@ export default function EarningsPage() {
 
         {/* Next Distribution */}
         <section className="kraken-panel p-6 flex flex-col">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40 flex items-center gap-1.5">
+          <EyebrowTag className="inline-flex items-center gap-1.5">
             <Timer className="w-3 h-3" />
             {t('nextDistribution')}
-          </p>
+          </EyebrowTag>
 
           <div className="mt-3">
             {nextDistribution ? (
@@ -394,10 +392,10 @@ export default function EarningsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Staking */}
         <div className="kraken-panel p-5">
-          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-white/40">
+          <EyebrowTag className="inline-flex items-center gap-2">
             <TrendingUp className="w-3.5 h-3.5" />
             <span>{t('stakingEarnings')}</span>
-          </div>
+          </EyebrowTag>
           <p className="mt-2.5 text-2xl font-semibold text-white tracking-tight tabular-nums">
             ${(profits?.total_earned_usdc || 0).toFixed(4)}
           </p>
@@ -405,10 +403,10 @@ export default function EarningsPage() {
 
         {/* Referral */}
         <div className="kraken-panel p-5">
-          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-white/40">
+          <EyebrowTag className="inline-flex items-center gap-2">
             <Users className="w-3.5 h-3.5" />
             <span>{t('referralCommission')}</span>
-          </div>
+          </EyebrowTag>
           <p className="mt-2.5 text-2xl font-semibold text-white tracking-tight tabular-nums">
             ${(profits?.total_commission_earned || 0).toFixed(4)}
           </p>
@@ -423,10 +421,10 @@ export default function EarningsPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-white/40">
+              <EyebrowTag className="inline-flex items-center gap-2">
                 <DollarSign className="w-3.5 h-3.5" />
                 <span>{t('availableWithdraw')}</span>
-              </div>
+              </EyebrowTag>
               <p className="mt-2.5 text-2xl font-semibold text-white tracking-tight tabular-nums">
                 ${totalAvailable.toFixed(4)}
               </p>
