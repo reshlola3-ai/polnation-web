@@ -441,6 +441,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {/* Hero */}
       <section className="kraken-summary p-5 sm:p-6">
+        {/* Staking-style large grid with radial fade — sits under grain + content */}
+        <div className="bg-grid-pattern absolute inset-0 z-0 pointer-events-none" />
         {/* Polygon chain animation — desktop (higher fidelity) */}
         <video
           autoPlay
@@ -448,7 +450,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           loop
           playsInline
           aria-hidden="true"
-          className="hidden lg:block absolute top-3 right-3 w-[160px] h-auto pointer-events-none select-none"
+          className="hidden lg:block absolute top-3 right-3 w-[160px] h-auto pointer-events-none select-none z-10"
         >
           <source src="/videos/about-chain-desktop.webm" type="video/webm" />
         </video>
@@ -459,19 +461,21 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           loop
           playsInline
           aria-hidden="true"
-          className="block lg:hidden absolute top-3 right-3 w-[92px] h-auto pointer-events-none select-none opacity-90"
+          className="block lg:hidden absolute top-3 right-3 w-[92px] h-auto pointer-events-none select-none opacity-90 z-10"
         >
           <source src="/videos/about-chain-mobile.webm" type="video/webm" />
         </video>
         {/* Balance — large, dominant */}
-        <div className="relative text-left mb-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--kraken-muted)] mb-2">{t('totalAssets')}</p>
+        <div className="relative z-10 text-left mb-5">
+          <EyebrowTag className="mb-2">{t('totalAssets')}</EyebrowTag>
           {isBalanceLoading ? (
-            <div className="animate-pulse h-14 w-44 bg-white/5 rounded-lg mx-auto" />
+            <div className="animate-pulse h-14 w-44 bg-white/5 rounded-lg" />
           ) : (
-            <p className="text-[44px] sm:text-[52px] leading-none font-semibold text-white tracking-tight tabular-nums">
-              ${totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+            <MonoStat
+              size="main"
+              prefix="$"
+              value={totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            />
           )}
           <div className="flex items-center gap-2 mt-3">
             <div className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-[rgba(0,226,138,0.1)] border border-[rgba(0,226,138,0.2)]">
@@ -489,7 +493,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
 
         {/* Status pills */}
-        <div className="relative flex items-center gap-2 flex-wrap mb-5">
+        <div className="relative z-10 flex items-center gap-2 flex-wrap mb-5">
           <button
             className="kraken-pill inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold text-white hover:bg-white/[0.08] transition-colors active:scale-95"
             onClick={() => setShowTierModal(true)}
@@ -510,7 +514,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
 
         {/* Assets breakdown — polygon-style notched cards (Phase 2 PoC) */}
-        <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-3" onClick={() => setActiveAssetTip(null)}>
+        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3" onClick={() => setActiveAssetTip(null)}>
           {/* Wallet */}
           <NotchedCard pad={16} className="min-w-0">
             <div className="flex flex-col items-start gap-2">
