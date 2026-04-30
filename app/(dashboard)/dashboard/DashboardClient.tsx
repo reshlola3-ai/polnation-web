@@ -467,7 +467,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </video>
         {/* Balance — large, dominant */}
         <div className="relative z-10 text-left mb-5">
-          <EyebrowTag className="mb-2">{t('totalAssets')}</EyebrowTag>
+          <p className="mb-2 text-[13px] font-medium uppercase tracking-[0.15em]" style={{ color: 'var(--poly-grey-200)', fontFamily: 'var(--poly-font-mono)' }}>{t('totalAssets')}</p>
           {isBalanceLoading ? (
             <div className="animate-pulse h-14 w-44 bg-white/5 rounded-lg" />
           ) : (
