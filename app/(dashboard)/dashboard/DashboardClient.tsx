@@ -6,7 +6,7 @@ import {
   Copy, Check, Wallet, TrendingUp, Users,
   ArrowUpRight, CheckCircle, Circle, AlertCircle,
   ChevronRight, HelpCircle, X, Flame, Globe,
-  Share2, Dices, GraduationCap
+  Share2, Dices, GraduationCap, Link2
 } from 'lucide-react'
 import Image from 'next/image'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
@@ -447,7 +447,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           width={431}
           height={285}
           priority
-          className="hidden lg:block absolute top-0 right-0 w-[300px] xl:w-[340px] h-auto pointer-events-none select-none"
+          className="hidden lg:block absolute bottom-0 right-0 w-[360px] xl:w-[440px] h-auto pointer-events-none select-none"
         />
         {/* Balance — large, dominant */}
         <div className="relative text-left mb-5 lg:pr-[280px] xl:pr-[320px]">
@@ -455,9 +455,16 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           {isBalanceLoading ? (
             <div className="animate-pulse h-14 w-44 bg-white/5 rounded-lg mx-auto" />
           ) : (
-            <p className="text-[44px] sm:text-[52px] leading-none font-semibold text-white tracking-tight tabular-nums">
-              ${totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+            <div className="flex items-end gap-3">
+              <p className="text-[44px] sm:text-[52px] leading-none font-semibold text-white tracking-tight tabular-nums">
+                ${totalAssets.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </p>
+              <Link2
+                className="hidden sm:block w-10 h-10 -rotate-[20deg] text-white/35 mb-1"
+                strokeWidth={1.1}
+                aria-hidden="true"
+              />
+            </div>
           )}
           <div className="flex items-center gap-2 mt-3">
             <div className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-[rgba(0,226,138,0.1)] border border-[rgba(0,226,138,0.2)]">
