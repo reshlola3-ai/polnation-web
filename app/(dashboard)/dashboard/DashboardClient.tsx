@@ -441,16 +441,17 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
       {/* Hero */}
       <section className="kraken-summary p-5 sm:p-6">
         {/* Polygon coin + blocks illustration (from staking.polygon.technology) */}
-        <Image
+        {/* Hero illustration hidden for now — overlaps cards on narrow desktop */}
+        {/* <Image
           src="/images/dashboard-hero.png"
           alt=""
           width={431}
           height={285}
           priority
           className="hidden lg:block absolute bottom-0 right-0 w-[360px] xl:w-[440px] h-auto pointer-events-none select-none"
-        />
+        /> */}
         {/* Balance — large, dominant */}
-        <div className="relative text-left mb-5 lg:pr-[280px] xl:pr-[320px]">
+        <div className="relative text-left mb-5">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--kraken-muted)] mb-2">{t('totalAssets')}</p>
           {isBalanceLoading ? (
             <div className="animate-pulse h-14 w-44 bg-white/5 rounded-lg mx-auto" />
@@ -475,7 +476,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         </div>
 
         {/* Status pills */}
-        <div className="relative flex items-center gap-2 flex-wrap mb-5 lg:pr-[280px] xl:pr-[320px]">
+        <div className="relative flex items-center gap-2 flex-wrap mb-5">
           <button
             className="kraken-pill inline-flex items-center gap-1.5 h-7 px-3 text-[12px] font-semibold text-white hover:bg-white/[0.08] transition-colors active:scale-95"
             onClick={() => setShowTierModal(true)}
