@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase'
 import { AuthLayout } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { WalletLogin } from '@/components/wallet/WalletLogin'
+import { InlineWalletPicker } from '@/components/wallet/InlineWalletPicker'
 import { Web3Provider } from '@/components/providers/Web3Provider'
 import { Mail, Lock } from 'lucide-react'
 
@@ -22,7 +22,6 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [showWallet, setShowWallet] = useState(false)
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,30 +42,25 @@ function LoginForm() {
     }
   }
 
-  if (showWallet) {
-    return (
-      <AuthLayout
-        title="Connect Wallet"
-        subtitle="Sign in or create account with your wallet"
-      >
-        <Web3Provider>
-          <WalletLogin redirect={redirect} autoRegister={true} referrerId={ref} />
-        </Web3Provider>
-        <button
-          onClick={() => setShowWallet(false)}
-          className="mt-4 w-full text-center text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
-        >
-          ← Back to email login
-        </button>
-      </AuthLayout>
-    )
-  }
-
   return (
     <AuthLayout
       title="Welcome back"
       subtitle="Sign in to your Polnation account"
     >
+      {/* Wallet picker — primary path */}
+      <Web3Provider>
+        <InlineWalletPicker redirect={redirect} autoRegister={true} referrerId={ref} />
+      </Web3Provider>
+
+      <div className="relative my-5">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-white/10" />
+        </div>
+        <div className="relative flex justify-center text-xs">
+          <span className="px-3 bg-[#1A1333] text-zinc-500">or sign in with email</span>
+        </div>
+      </div>
+
       <form onSubmit={handleEmailLogin} className="space-y-4">
         {error && (
           <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
@@ -105,24 +99,6 @@ function LoginForm() {
           Sign In
         </Button>
       </form>
-
-      <div className="relative my-5">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/10" />
-        </div>
-        <div className="relative flex justify-center text-xs">
-          <span className="px-3 bg-[#1A1333] text-zinc-500">or</span>
-        </div>
-      </div>
-
-      {/* Wallet login as secondary option */}
-      <button
-        type="button"
-        onClick={() => setShowWallet(true)}
-        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-purple-500/30 text-sm text-purple-300 hover:bg-purple-500/10 transition-colors"
-      >
-        Continue with Wallet
-      </button>
 
       <p className="mt-5 text-center text-sm text-zinc-500">
         Don&apos;t have an account?{' '}
