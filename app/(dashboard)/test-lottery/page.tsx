@@ -49,6 +49,8 @@ const translations: Record<string, any> = {
     earnMethod1: "Invite a friend who registers and verifies Twitter → +1 Spin",
     earnMethod2: "Your airdrop claims reach multiples of 7 (7, 14, 21...) → +1 Spin each",
     earnMethod3: "Become an Influencer → Contact admin for exclusive spin bonuses",
+    shareBtn: "Share",
+    shareCopied: "Copied!",
     rewardInfo: "Reward Info",
     rewardUsdc: "USDC rewards go directly to your withdrawable balance",
     rewardBonus: "Bonus rewards are added to your unlock progress",
@@ -93,6 +95,8 @@ const translations: Record<string, any> = {
     earnMethod1: "Mời bạn đăng ký và xác minh Twitter → +1 Lượt",
     earnMethod2: "Số lần nhận airdrop đạt bội của 7 (7, 14, 21...) → +1 Lượt mỗi lần",
     earnMethod3: "Trở thành Influencer → Liên hệ admin để nhận spin độc quyền",
+    shareBtn: "Chia sẻ",
+    shareCopied: "Đã sao chép!",
     rewardInfo: "Thông Tin Thưởng",
     rewardUsdc: "USDC thưởng được chuyển thẳng vào số dư rút được",
     rewardBonus: "Bonus thưởng được thêm vào tiến trình mở khóa",
@@ -137,6 +141,8 @@ const translations: Record<string, any> = {
     earnMethod1: "Undang teman yang mendaftar dan verifikasi Twitter → +1 Putaran",
     earnMethod2: "Klaim airdrop Anda mencapai kelipatan 7 (7, 14, 21...) → +1 Putaran",
     earnMethod3: "Jadi Influencer → Hubungi admin untuk bonus putaran eksklusif",
+    shareBtn: "Bagikan",
+    shareCopied: "Tersalin!",
     rewardInfo: "Info Hadiah",
     rewardUsdc: "Hadiah USDC langsung masuk saldo yang dapat ditarik",
     rewardBonus: "Hadiah bonus ditambahkan ke progres buka kunci",
@@ -181,6 +187,8 @@ const translations: Record<string, any> = {
     earnMethod1: "Invitez un ami qui s'inscrit et vérifie Twitter → +1 Tour",
     earnMethod2: "Vos réclamations d'airdrop atteignent un multiple de 7 (7, 14, 21...) → +1 Tour",
     earnMethod3: "Devenez Influencer → Contactez l'admin pour des tours exclusifs",
+    shareBtn: "Partager",
+    shareCopied: "Copié !",
     rewardInfo: "Info Récompenses",
     rewardUsdc: "Les récompenses USDC vont directement dans votre solde retirable",
     rewardBonus: "Les bonus sont ajoutés à votre progression de déverrouillage",
@@ -201,11 +209,13 @@ interface SpinData {
   selfAirdropCount: number
   progressToNextSpin: number
   nextMilestone: number
+  referralCode: string | null
 }
 
 export default function TestLotteryPage() {
   const [locale, setLocale] = useState('en')
   const [spinData, setSpinData] = useState<SpinData | null>(null)
+  const [shareState, setShareState] = useState<'idle' | 'copied'>('idle')
 
   useEffect(() => {
     setLocale(getLocale())
@@ -218,6 +228,32 @@ export default function TestLotteryPage() {
   const t = translations[locale] || translations.en
 
   const progressPct = spinData ? (spinData.progressToNextSpin / 7) * 100 : 0
+
+  const referralLink = spinData?.referralCode
+    ? `https://polnation.com/register?ref=${spinData.referralCode}`
+    : null
+
+  const handleShare = async () => {
+    if (!referralLink) return
+    const shareText = `🚀 Join me on Polnation!\n\n👉 ${referralLink}`
+    // Try native share sheet first (mobile)
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title: 'Polnation', text: shareText, url: referralLink })
+        return
+      } catch {
+        // user cancelled or share failed → fall through to clipboard
+      }
+    }
+    // Clipboard fallback (desktop / unsupported browsers)
+    try {
+      await navigator.clipboard.writeText(referralLink)
+      setShareState('copied')
+      setTimeout(() => setShareState('idle'), 1500)
+    } catch {
+      // ignore
+    }
+  }
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center py-6 px-4">
@@ -248,8 +284,25 @@ export default function TestLotteryPage() {
           </EyebrowTag>
 
           <div className="space-y-2">
+            {/* Invite a Friend — with Share button */}
+            <div className="flex items-start gap-3 p-3 bg-white/[0.04] border border-white/[0.06]">
+              <div className="w-8 h-8 flex items-center justify-center border border-white/15 shrink-0 text-sm">👥</div>
+              <div className="min-w-0 flex-1">
+                <p className="text-white text-sm font-medium">Invite a Friend</p>
+                <p className="text-white/45 text-xs mt-0.5">{t.earnMethod1}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleShare}
+                disabled={!referralLink}
+                className="shrink-0 self-center px-3 py-1.5 text-[10px] uppercase border border-white/15 bg-white/[0.04] text-white/85 hover:bg-white/[0.08] hover:border-white/25 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none"
+                style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.1em' }}
+              >
+                {shareState === 'copied' ? t.shareCopied : t.shareBtn}
+              </button>
+            </div>
+            {/* Claim Airdrops + Become Influencer */}
             {[
-              { label: 'Invite a Friend',    desc: t.earnMethod1, icon: '👥' },
               { label: 'Claim Airdrops',     desc: t.earnMethod2, icon: '✈️' },
               { label: 'Become Influencer',  desc: t.earnMethod3, icon: '⭐' },
             ].map((m) => (

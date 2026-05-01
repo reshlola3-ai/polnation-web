@@ -27,6 +27,29 @@ async function getUser() {
   return user
 }
 
+// Defensive referral code generator — mirrors lib/dashboard-data.ts
+// ensureReferralCode. Idempotent; only generates when null.
+async function ensureReferralCode(
+  admin: ReturnType<typeof getSupabaseAdmin>,
+  userId: string,
+  current: string | null,
+): Promise<string | null> {
+  if (current || !admin) return current
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  for (let attempt = 0; attempt < 10; attempt++) {
+    let code = ''
+    for (let i = 0; i < 4; i++) code += chars[Math.floor(Math.random() * chars.length)]
+    const { error } = await admin
+      .from('profiles')
+      .update({ referral_code: code })
+      .eq('id', userId)
+      .is('referral_code', null)
+    if (!error) return code
+    if (error.code !== '23505') break
+  }
+  return null
+}
+
 // GET: Check available spins & get history
 export async function GET() {
   const user = await getUser()
@@ -39,13 +62,24 @@ export async function GET() {
     return NextResponse.json({ error: 'server_error' }, { status: 500 })
   }
 
-  // 获取用户抽奖次数
-  let { data: spinData } = await admin
-    .from('user_lottery_spins')
-    .select('*')
-    .eq('user_id', user.id)
-    .single()
+  // Parallelize all 4 reads — total wait time = slowest single query, not sum.
+  const [spinRes, historyRes, airdropRes, profileRes] = await Promise.all([
+    admin.from('user_lottery_spins').select('*').eq('user_id', user.id).single(),
+    admin
+      .from('lottery_records')
+      .select('id, prize_type, prize_label, prize_amount, reward_credited, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20),
+    admin
+      .from('airdrop_calculations')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('is_credited', true),
+    admin.from('profiles').select('referral_code').eq('id', user.id).single(),
+  ])
 
+  let spinData = spinRes.data
   // 如果没有记录，创建一条
   if (!spinData) {
     const { data: newData } = await admin
@@ -56,29 +90,20 @@ export async function GET() {
     spinData = newData
   }
 
+  // Backfill referral_code if null (one-time per legacy user).
+  const referralCode = await ensureReferralCode(
+    admin,
+    user.id,
+    profileRes.data?.referral_code ?? null,
+  )
+
   const isInfluencer = spinData?.is_influencer || false
   const totalSpins = spinData?.total_spins || 0
   const usedSpins = spinData?.used_spins || 0
   const remainingSpins = totalSpins - usedSpins
-
-  // 所有人都按剩余次数判断（管理员可以手动加次数）
   const canSpin = remainingSpins > 0
 
-  // 获取最近抽奖历史（最近 20 条）
-  const { data: history } = await admin
-    .from('lottery_records')
-    .select('id, prize_type, prize_label, prize_amount, reward_credited, created_at')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(20)
-
-  // 获取自己的空投领取次数（用于显示进度）
-  const { data: selfAirdrops } = await admin
-    .from('airdrop_calculations')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('is_credited', true)
-  const selfAirdropCount = selfAirdrops?.length || 0
+  const selfAirdropCount = airdropRes.data?.length || 0
   const nextMilestone = (Math.floor(selfAirdropCount / 7) + 1) * 7
   const progressToNextSpin = selfAirdropCount % 7
 
@@ -91,6 +116,7 @@ export async function GET() {
     selfAirdropCount,
     progressToNextSpin,
     nextMilestone,
-    history: history || [],
+    history: historyRes.data || [],
+    referralCode,
   })
 }
