@@ -91,7 +91,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
               {user && (
                 <button
                   onClick={handleSignOut}
-                  className="p-2 text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] rounded-xl transition-all"
+                  className="p-2 text-[var(--kraken-muted)] hover:text-white hover:bg-white/[0.06] rounded-xl transition-all"
                 >
                   <LogOut className="w-5 h-5" />
                 </button>
@@ -148,8 +148,8 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                       className={`
                         flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-wide uppercase transition-all duration-200
                         ${isActive
-                          ? 'bg-[var(--kraken-panel-2)] text-white'
-                          : 'text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)]'
+                          ? 'bg-white/[0.08] text-white'
+                          : 'text-[var(--kraken-muted)] hover:text-white hover:bg-white/[0.06]'
                         }
                       `}
                     >
@@ -181,7 +181,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                     aria-haspopup="menu"
                     aria-expanded={userMenuOpen}
                     style={grayClip}
-                    className="h-full flex items-center gap-2 pl-7 pr-5 bg-[var(--kraken-panel-2)] text-white text-[11px] font-semibold tracking-widest uppercase hover:bg-[#2a2238] transition-colors"
+                    className="h-full flex items-center gap-2 pl-7 pr-5 bg-[#1a1822] text-white text-[11px] font-semibold tracking-widest uppercase hover:bg-[#2a2238] transition-colors"
                   >
                     <span className="w-6 h-6 rounded-full bg-[var(--kraken-purple)] text-white flex items-center justify-center text-[10px] font-bold">
                       {userInitial}
@@ -193,7 +193,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                   {userMenuOpen && (
                     <div
                       role="menu"
-                      className="absolute right-0 mt-2 w-60 rounded-2xl bg-[var(--kraken-panel)] border border-[var(--kraken-border)] shadow-xl overflow-hidden z-50"
+                      className="absolute right-0 mt-2 w-60 rounded-2xl bg-[#13121a] border border-[var(--kraken-border)] shadow-xl overflow-hidden z-50"
                     >
                       <div className="px-4 py-3 border-b border-[var(--kraken-border)]">
                         <p className="text-[10px] uppercase tracking-wider text-[var(--kraken-muted)]">Signed in as</p>
@@ -204,7 +204,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                         href="/academy"
                         role="menuitem"
                         onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-white/[0.06] transition-colors"
                       >
                         <BookOpen className="w-4 h-4" />
                         Academy
@@ -215,7 +215,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                         rel="noopener noreferrer"
                         role="menuitem"
                         onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-white/[0.06] transition-colors"
                       >
                         <GraduationCap className="w-4 h-4" />
                         Earning Guide
@@ -229,7 +229,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                           setUserMenuOpen(false)
                           handleSignOut()
                         }}
-                        className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-colors"
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-xs font-medium text-[var(--kraken-muted)] hover:text-white hover:bg-white/[0.06] transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
                         {t('signOut')}
@@ -252,7 +252,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                 <Link
                   href="/login"
                   style={grayClip}
-                  className="h-full flex items-center pl-7 pr-5 bg-[var(--kraken-panel-2)] text-white text-[11px] font-semibold tracking-widest uppercase hover:bg-[#2a2238] transition-colors"
+                  className="h-full flex items-center pl-7 pr-5 bg-[#1a1822] text-white text-[11px] font-semibold tracking-widest uppercase hover:bg-[#2a2238] transition-colors"
                 >
                   {t('signIn')}
                 </Link>
@@ -270,7 +270,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
             {user && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 ml-2 rounded-xl text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-all"
+                className="md:hidden p-2 ml-2 rounded-xl text-[var(--kraken-muted)] hover:text-white hover:bg-white/[0.06] transition-all"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -293,8 +293,8 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold transition-all duration-200 border
                       ${isActive
-                        ? 'bg-[var(--kraken-panel-2)] text-white border-[var(--kraken-purple)]'
-                        : 'text-[var(--kraken-muted)] border-transparent hover:text-white hover:bg-[var(--kraken-panel-2)]'
+                        ? 'bg-white/[0.08] text-white border-[var(--kraken-purple)]'
+                        : 'text-[var(--kraken-muted)] border-transparent hover:text-white hover:bg-white/[0.06]'
                       }
                     `}
                   >
@@ -309,7 +309,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold text-[var(--kraken-muted)] hover:text-white hover:bg-[var(--kraken-panel-2)] transition-all duration-200"
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold text-[var(--kraken-muted)] hover:text-white hover:bg-white/[0.06] transition-all duration-200"
               >
                 <GraduationCap className="w-5 h-5" />
                 Earning Guide
