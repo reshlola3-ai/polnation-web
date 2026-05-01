@@ -131,8 +131,7 @@ export async function POST() {
     }
   }
 
-  // ========== 3. 检查直推下线：已认证 Twitter + 领取 ≥1 次 airdrop → 推荐人 +1 次 ==========
-  // 只取已认证 Twitter 的直推下线
+  // ========== 3. 检查直推下线：已认证 Twitter → 推荐人 +1 次（不再要求 airdrop）==========
   const { data: directReferrals } = await admin
     .from('profiles')
     .select('id')
@@ -141,38 +140,26 @@ export async function POST() {
 
   if (directReferrals && directReferrals.length > 0) {
     for (const referral of directReferrals) {
-      // 检查该下线是否至少领取过 1 次 airdrop
-      const { data: referralAirdrops } = await admin
-        .from('airdrop_calculations')
+      // 检查是否已经为该下线发放过
+      const { data: existingGrant } = await admin
+        .from('lottery_spin_grants')
         .select('id')
-        .eq('user_id', referral.id)
-        .eq('is_credited', true)
-        .limit(1)
+        .eq('user_id', user.id)
+        .eq('grant_reason', 'referral_twitter_verified')
+        .eq('referral_id', referral.id)
+        .single()
 
-      const hasClaimedAirdrop = (referralAirdrops?.length || 0) >= 1
-
-      if (hasClaimedAirdrop) {
-        // 检查是否已经为该下线发放过
-        const { data: existingGrant } = await admin
+      if (!existingGrant) {
+        await admin
           .from('lottery_spin_grants')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('grant_reason', 'referral_twitter_airdrop_1')
-          .eq('referral_id', referral.id)
-          .single()
-
-        if (!existingGrant) {
-          await admin
-            .from('lottery_spin_grants')
-            .insert({
-              user_id: user.id,
-              grant_reason: 'referral_twitter_airdrop_1',
-              referral_id: referral.id,
-              milestone_count: 1,
-              spins_granted: 1,
-            })
-          newSpinsGranted += 1
-        }
+          .insert({
+            user_id: user.id,
+            grant_reason: 'referral_twitter_verified',
+            referral_id: referral.id,
+            milestone_count: 1,
+            spins_granted: 1,
+          })
+        newSpinsGranted += 1
       }
     }
   }
