@@ -1,8 +1,19 @@
 # Lottery TG Migration Plan
 
-**Status**: Draft · Not started
+**Status**: Approved · Ready to start
 **Owner**: TBD
 **Last updated**: 2026-05-01
+
+## Decisions (locked in)
+
+| # | Decision | Choice |
+|---|---|---|
+| 1 | Bot username | `@PolnationBot` |
+| 2 | Mini App URL path | `/lottery-mini` |
+| 3 | TG referral spin grant rule | **Option B** — new `referral_telegram_joined` grant_reason; TG-referred user joining via `start_param` grants 1 spin to referrer (no Twitter requirement, no airdrop requirement) |
+| 4 | Synthetic email domain | `telegram.polnation.com` (never resolved as real DNS) |
+| 5 | SPIN button | **TG MainButton** (native bottom button, haptic feedback, theme-aware) |
+| 6 | MVP scope inside Mini App | **Wheel + spin count + Share button only**. No history, no earnings, no profile. (Web `/test-lottery` retains full feature set.) |
 
 ## Goal
 
@@ -34,7 +45,7 @@ Add a Telegram Mini App surface for the lottery, **as a parallel entry point alo
 ```
 ┌────────────────────────────────┐         ┌────────────────────────────────┐
 │   Existing Web                  │         │   New TG Mini App               │
-│   /test-lottery                 │         │   /tma/lottery                  │
+│   /test-lottery                 │         │   /lottery-mini                  │
 │   (unchanged)                   │         │   (new route)                   │
 └──────────────┬─────────────────┘         └─────────────────┬──────────────┘
                │                                              │
@@ -72,8 +83,8 @@ Add a Telegram Mini App surface for the lottery, **as a parallel entry point alo
 
 ### 1.1 BotFather setup (manual, ~30 min)
 
-- Create bot via `@BotFather` `/newbot`. Suggested names: `@PolnationLotteryBot` or `@PolnationBot`. Save BOT_TOKEN.
-- Run `/newapp`, set Mini App URL to `https://polnation.com/tma/lottery`. Save BOT_USERNAME.
+- Create bot via `@BotFather` `/newbot`. Suggested names: `@PolnationBot` or `@PolnationBot`. Save BOT_TOKEN.
+- Run `/newapp`, set Mini App URL to `https://polnation.com/lottery-mini`. Save BOT_USERNAME.
 - Set `/setdomain` to `polnation.com` (required for Mini App).
 - Configure webhook (one-time API call):
   ```
@@ -91,7 +102,7 @@ Add to Vercel project settings:
 
 ```
 TELEGRAM_BOT_TOKEN=<BOT_TOKEN>
-TELEGRAM_BOT_USERNAME=PolnationLotteryBot
+TELEGRAM_BOT_USERNAME=PolnationBot
 TELEGRAM_WEBHOOK_SECRET=<random-32-char-string>
 ```
 
@@ -301,19 +312,20 @@ async function sendTelegramMessage(chatId: number, payload: any) {
 
 ## Phase 2 — TG Mini App route
 
-### 2.1 New route group
+### 2.1 New route
 
-Create `app/(tma)/` route group — separate layout from `(dashboard)`, no Navbar/BottomNav.
+Place at top level (not inside `(dashboard)` group) so it doesn't inherit Navbar/BottomNav.
 
 ```
 app/
-  (tma)/
+  lottery-mini/
     layout.tsx       ← minimal, injects TG SDK, theme handling
-    lottery/
-      page.tsx       ← lottery wheel + spin count + history
+    page.tsx         ← lottery wheel + spin count
 ```
 
-### 2.2 New file: `app/(tma)/layout.tsx`
+URL: `https://polnation.com/lottery-mini`
+
+### 2.2 New file: `app/lottery-mini/layout.tsx`
 
 ```tsx
 import Script from 'next/script'
@@ -332,7 +344,7 @@ export default function TmaLayout({ children }: { children: React.ReactNode }) {
 
 No Navbar, no BottomNav — TG provides its own header.
 
-### 2.3 New file: `app/(tma)/lottery/page.tsx`
+### 2.3 New file: `app/lottery-mini/page.tsx`
 
 Reuses the existing `LotteryWheel` component plus the spin count UI. On mount:
 1. Read `window.Telegram.WebApp.initData`
@@ -418,9 +430,30 @@ export default function TmaLotteryPage() {
 }
 ```
 
-### 2.4 Mini App-specific UX adjustments
+### 2.4 Mini App-specific UX (locked: TG MainButton)
 
-- Use `tg.MainButton` for the SPIN action instead of in-page button (native TG UX)
+Per decision 5, the SPIN action uses TG's native MainButton — bottom-of-screen native button rendered by Telegram itself. The in-page wheel reacts to the button press but does not render a duplicate "Spin" button.
+
+```tsx
+useEffect(() => {
+  const tg = window.Telegram?.WebApp
+  if (!tg) return
+  const mb = tg.MainButton
+  mb.setText(remainingSpins > 0 ? 'SPIN' : 'NO SPINS LEFT')
+  mb.show()
+  if (remainingSpins > 0) mb.enable()
+  else mb.disable()
+
+  const handler = () => {
+    if (remainingSpins <= 0 || isSpinning) return
+    spin()
+  }
+  mb.onClick(handler)
+  return () => { mb.offClick(handler); mb.hide() }
+}, [remainingSpins, isSpinning])
+```
+
+Other native UX:
 - Use `tg.HapticFeedback.notificationOccurred('success')` on win
 - Use `tg.showPopup()` for win/loss modals
 - Respect `tg.themeParams` colors (or override with polygon palette)
@@ -449,7 +482,7 @@ When TG user wins USDC and clicks "Withdraw":
 
 Sharing a referral link from the Mini App:
 ```
-https://t.me/PolnationLotteryBot/lottery?startapp=ref_{REFERRAL_CODE}
+https://t.me/PolnationBot/lottery?startapp=ref_{REFERRAL_CODE}
 ```
 
 When recipient clicks:
@@ -457,21 +490,60 @@ When recipient clicks:
 - Mini App opens with `start_param=ref_{CODE}` in `initData`
 - Our `/api/auth/telegram` handler resolves `ref_{CODE}` → `referrer_id` → saves on new account creation
 
-### 4.2 Existing spin grant rules
+### 4.2 New spin grant rule for TG referrals
 
-The current `referral_twitter_verified` rule (in `/api/lottery/check-spins`) requires the referred user to complete Twitter verification. **This breaks for TG-only users** who may not have linked Twitter.
+The existing `referral_twitter_verified` rule (in `/api/lottery/check-spins`) **stays unchanged** — it continues to grant spins for web-flow referrals where the referred user completes Twitter verification.
 
-**Decision needed before Phase 4**:
+**For TG-acquired referrals** we add a parallel rule (decision 3 locked above):
 
-| Option | Implication |
-|---|---|
-| A. Keep Twitter requirement | TG-only referred users don't grant spins. Likely kills viral. |
-| B. Add `referral_telegram_joined` rule (new grant_reason) | TG-referred user joining grants 1 spin. Easier than Twitter. |
-| C. Drop Twitter requirement entirely | Any registered referral grants spin. Simplest, but lower bar. |
+```
+grant_reason: 'referral_telegram_joined'
+trigger:      direct referral has telegram_id IS NOT NULL
+                AND was created via /api/auth/telegram (TG flow)
+              → +1 spin to referrer.id
+dedupe key:   (user_id, grant_reason, referral_id) via lottery_spin_grants
+```
 
-**Recommended: B**. Telegram Mini App users often don't have Twitter, but they DO have a Telegram account. Granting on TG join (initData verified) is a verified action.
+**Why a parallel rule rather than dropping Twitter from existing rule:**
+- Web onboarding still benefits from Twitter verification as a quality signal
+- TG referral is its own verified action (HMAC-validated initData == proven TG account)
+- Two rules let us tune them independently later if abuse patterns differ
 
-Implementation: extend `app/api/lottery/check-spins/route.ts` with a new branch checking `profiles.telegram_id IS NOT NULL` for referred users, granting via `grant_reason = 'referral_telegram_joined'`.
+**Implementation outline** — extend [app/api/lottery/check-spins/route.ts](../app/api/lottery/check-spins/route.ts) with a new section after the existing referral rule:
+
+```ts
+// ========== 4. Direct referral with telegram_id (TG flow) → +1 spin ==========
+const { data: tgReferrals } = await admin
+  .from('profiles')
+  .select('id')
+  .eq('referrer_id', user.id)
+  .not('telegram_id', 'is', null)
+
+if (tgReferrals && tgReferrals.length > 0) {
+  for (const referral of tgReferrals) {
+    const { data: existingGrant } = await admin
+      .from('lottery_spin_grants')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('grant_reason', 'referral_telegram_joined')
+      .eq('referral_id', referral.id)
+      .single()
+
+    if (!existingGrant) {
+      await admin.from('lottery_spin_grants').insert({
+        user_id: user.id,
+        grant_reason: 'referral_telegram_joined',
+        referral_id: referral.id,
+        milestone_count: 1,
+        spins_granted: 1,
+      })
+      newSpinsGranted += 1
+    }
+  }
+}
+```
+
+**Edge case**: a single referred user might trigger both rules (joined via TG + later did Twitter verification on web). They'd grant 2 spins to the referrer — that's intentional. Two distinct verified actions = two rewards.
 
 ### 4.3 Share button in TG Mini App
 
@@ -541,25 +613,14 @@ Before flipping the bot live:
 - [ ] BOT_TOKEN, WEBHOOK_SECRET, BOT_USERNAME envs set on Vercel prod
 - [ ] Webhook registered with TG (one-time `setWebhook` call)
 - [ ] `/api/auth/telegram` and `/api/telegram/webhook` routes deployed
-- [ ] `/tma/lottery` route deployed
+- [ ] `/lottery-mini` route deployed
 - [ ] Bot welcome message tested (`/start` returns Open Mini App button)
 - [ ] HMAC verification tested with both valid and forged initData
 - [ ] Manual test pass on iOS + Android TG clients
 - [ ] UptimeRobot monitor set up
 - [ ] Daily `getWebhookInfo` cron set up
 - [ ] One existing internal referral link converted to TG format and tested end-to-end
-- [ ] Decision made on Phase 4.2 (spin grant rule for TG referrals)
-
----
-
-## Open decisions (to resolve before starting)
-
-1. **Bot username**: `@PolnationLotteryBot` vs `@PolnationBot`?
-2. **Mini App URL path**: `/tma/lottery` or `/lottery-mini` or `/m/lottery`?
-3. **Spin grant for TG referrals** (Phase 4.2): A, B, or C?
-4. **Synthetic email domain**: `telegram.polnation.com` — confirm OK to never resolve as real domain?
-5. **MainButton vs in-page Spin button**: which UX for Phase 2?
-6. **Phase 2 history view**: include or skip in MVP?
+- [ ] `referral_telegram_joined` rule tested (referrer correctly receives +1 spin when TG-referred user joins)
 
 ---
 
