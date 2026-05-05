@@ -28,6 +28,7 @@ import { useTranslations } from 'next-intl'
 import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
 import { MonoStat } from '@/components/ui/poly/MonoStat'
 import { BevelCard } from '@/components/ui/poly/BevelCard'
+import { Collapsible } from '@/components/ui/poly/Collapsible'
 
 interface ProfitTier {
   level: number
@@ -298,6 +299,139 @@ export default function EarningsPage() {
         </button>
       </header>
 
+      {/* ── Hero: Withdraw — primary action, immediately visible ─────────── */}
+      <BevelCard size="lg" pad={28} bg="rgba(255,255,255,0.02)">
+
+        <header className="mb-7">
+          <EyebrowTag>{t('withdraw.title')}</EyebrowTag>
+          <h2 className="mt-1.5 text-2xl font-semibold text-white tracking-tight">
+            {t('withdraw.amount')}
+          </h2>
+        </header>
+
+        {error && (
+          <div role="alert" aria-live="polite" className="mb-5 flex items-center gap-2.5 rounded-2xl bg-rose-500/10 px-4 py-3 text-[13px] text-rose-300 ring-1 ring-rose-500/20">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+        {success && (
+          <div role="status" aria-live="polite" className="mb-5 flex items-center gap-2.5 rounded-2xl bg-[#00e28a]/[0.08] px-4 py-3 text-[13px] text-[#00e28a]/80 ring-1 ring-[#00e28a]/[0.15]">
+            <CheckCircle className="w-4 h-4 shrink-0" />
+            <span>{success}</span>
+          </div>
+        )}
+
+        {/* iOS segmented control */}
+        <div className="mx-auto mb-7 grid grid-cols-2 w-full max-w-xs rounded-full bg-[var(--kraken-panel)] p-1 border border-[var(--kraken-border)]">
+          {(['USDC', 'POL'] as const).map((type) => {
+            const active = withdrawType === type
+            return (
+              <button
+                key={type}
+                onClick={() => setWithdrawType(type)}
+                aria-pressed={active}
+                className={`relative h-9 rounded-full text-[13px] font-semibold tracking-tight transition-colors duration-200 ease-out ${
+                  active
+                    ? 'bg-[var(--kraken-purple)] text-white shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
+                    : 'text-white/60 hover:text-white/80'
+                }`}
+              >
+                {type}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Amount display — centered, huge */}
+        <div className="mb-5 text-center">
+          <div className="flex items-baseline justify-center gap-0.5 tabular-nums">
+            <span className="text-3xl font-medium text-white/50 translate-y-[-0.15em]">$</span>
+            <input
+              type="number"
+              inputMode="decimal"
+              value={withdrawAmount}
+              onChange={(e) => setWithdrawAmount(e.target.value)}
+              placeholder="0"
+              aria-label={t('withdraw.amount')}
+              className="min-w-0 max-w-[70%] bg-transparent border-0 outline-none text-center text-[64px]! leading-none font-semibold text-white tracking-tight placeholder:text-white/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none"
+              style={{ width: `${Math.max(1, (withdrawAmount || '0').length)}ch` }}
+            />
+          </div>
+
+          <p className="mt-3 text-[13px] text-white/45 tabular-nums">
+            {t('withdraw.available')} <span className="text-white/70">${totalAvailable.toFixed(2)}</span>
+            {withdrawType === 'POL' && polPrice > 0 && (
+              <> · ≈ {(totalAvailable / polPrice).toFixed(2)} POL</>
+            )}
+          </p>
+        </div>
+
+        {/* Quick picks — Apple Wallet style chips */}
+        <div className="mb-7 grid grid-cols-4 gap-2">
+          {[
+            { label: '25%', value: totalAvailable * 0.25 },
+            { label: '50%', value: totalAvailable * 0.5 },
+            { label: '75%', value: totalAvailable * 0.75 },
+            { label: 'Max', value: totalAvailable },
+          ].map((chip) => (
+            <button
+              key={chip.label}
+              onClick={() => setWithdrawAmount(chip.value > 0 ? chip.value.toFixed(2) : '')}
+              disabled={totalAvailable <= 0}
+              className="h-10 rounded-full bg-[var(--kraken-panel)] hover:bg-white/[0.06] border border-[var(--kraken-border)] text-[13px] font-semibold text-white/80 transition-colors duration-150 ease-out disabled:opacity-30 disabled:pointer-events-none active:scale-[0.97]"
+            >
+              {chip.label}
+            </button>
+          ))}
+        </div>
+
+        {/* POL conversion line — subtle, no box */}
+        {withdrawType === 'POL' && (
+          <div className="mb-6 flex items-center justify-between text-[13px] tabular-nums">
+            <span className="text-white/45">{t('withdraw.youWillReceive')}</span>
+            <span className="font-semibold text-white">
+              {(parseFloat(withdrawAmount) > 0 ? polAmount : (totalAvailable / polPrice).toFixed(4))} POL
+              <span className="ml-2 text-white/35 font-normal">@ ${polPrice.toFixed(4)}</span>
+            </span>
+          </div>
+        )}
+
+        {/* Primary action — polygon CTA: bevel + purple glow */}
+        <button
+          onClick={handleWithdraw}
+          disabled={withdrawing || !withdrawAmount || parseFloat(withdrawAmount) <= 0}
+          className="group relative w-full h-14 rounded-sm bg-[var(--poly-purple)] text-white font-semibold text-[15px] tracking-tight transition-colors duration-200 ease-out hover:bg-[var(--poly-purple-hover)] active:scale-[0.985] disabled:bg-white/[0.08] disabled:text-white/30 disabled:pointer-events-none shadow-cta-purple"
+        >
+          <span className="inline-flex items-center gap-2">
+            {withdrawing ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                {tCommon('loading')}
+              </>
+            ) : (
+              <>
+                {withdrawType === 'POL'
+                  ? t('withdraw.withdrawPol', { amount: polAmount })
+                  : t('withdraw.withdrawUsdc')}
+              </>
+            )}
+          </span>
+        </button>
+
+        <p className="mt-5 flex items-start gap-2 text-[12px] leading-relaxed text-white/40">
+          <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+          <span>{t('withdraw.polNote')}</span>
+        </p>
+      </BevelCard>
+
+      {/* ── Earnings Details (collapsible) ───────────────────────────────── */}
+      <Collapsible
+        title="Earnings Details"
+        icon={<Wallet className="w-3.5 h-3.5" />}
+        preview={hasWallet ? `$${totalAvailable.toFixed(2)}` : '$—'}
+      >
+
       {/* ── Balance + Next Distribution ──────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
@@ -454,132 +588,6 @@ export default function EarningsPage() {
         </button>
       </div>
 
-      {/* ── Withdraw — polygon-style ────────────────────────────────────── */}
-      <BevelCard size="lg" pad={28} bg="rgba(255,255,255,0.02)">
-
-        <header className="mb-7">
-          <EyebrowTag>{t('withdraw.title')}</EyebrowTag>
-          <h2 className="mt-1.5 text-2xl font-semibold text-white tracking-tight">
-            {t('withdraw.amount')}
-          </h2>
-        </header>
-
-        {error && (
-          <div role="alert" aria-live="polite" className="mb-5 flex items-center gap-2.5 rounded-2xl bg-rose-500/10 px-4 py-3 text-[13px] text-rose-300 ring-1 ring-rose-500/20">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-        {success && (
-          <div role="status" aria-live="polite" className="mb-5 flex items-center gap-2.5 rounded-2xl bg-[#00e28a]/[0.08] px-4 py-3 text-[13px] text-[#00e28a]/80 ring-1 ring-[#00e28a]/[0.15]">
-            <CheckCircle className="w-4 h-4 shrink-0" />
-            <span>{success}</span>
-          </div>
-        )}
-
-        {/* iOS segmented control */}
-        <div className="mx-auto mb-7 grid grid-cols-2 w-full max-w-xs rounded-full bg-[var(--kraken-panel)] p-1 border border-[var(--kraken-border)]">
-          {(['USDC', 'POL'] as const).map((type) => {
-            const active = withdrawType === type
-            return (
-              <button
-                key={type}
-                onClick={() => setWithdrawType(type)}
-                aria-pressed={active}
-                className={`relative h-9 rounded-full text-[13px] font-semibold tracking-tight transition-colors duration-200 ease-out ${
-                  active
-                    ? 'bg-[var(--kraken-purple)] text-white shadow-[0_1px_2px_rgba(0,0,0,0.3)]'
-                    : 'text-white/60 hover:text-white/80'
-                }`}
-              >
-                {type}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Amount display — centered, huge */}
-        <div className="mb-5 text-center">
-          <div className="flex items-baseline justify-center gap-0.5 tabular-nums">
-            <span className="text-3xl font-medium text-white/50 translate-y-[-0.15em]">$</span>
-            <input
-              type="number"
-              inputMode="decimal"
-              value={withdrawAmount}
-              onChange={(e) => setWithdrawAmount(e.target.value)}
-              placeholder="0"
-              aria-label={t('withdraw.amount')}
-              className="min-w-0 max-w-[70%] bg-transparent border-0 outline-none text-center text-[64px]! leading-none font-semibold text-white tracking-tight placeholder:text-white/20 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none"
-              style={{ width: `${Math.max(1, (withdrawAmount || '0').length)}ch` }}
-            />
-          </div>
-
-          <p className="mt-3 text-[13px] text-white/45 tabular-nums">
-            {t('withdraw.available')} <span className="text-white/70">${totalAvailable.toFixed(2)}</span>
-            {withdrawType === 'POL' && polPrice > 0 && (
-              <> · ≈ {(totalAvailable / polPrice).toFixed(2)} POL</>
-            )}
-          </p>
-        </div>
-
-        {/* Quick picks — Apple Wallet style chips */}
-        <div className="mb-7 grid grid-cols-4 gap-2">
-          {[
-            { label: '25%', value: totalAvailable * 0.25 },
-            { label: '50%', value: totalAvailable * 0.5 },
-            { label: '75%', value: totalAvailable * 0.75 },
-            { label: 'Max', value: totalAvailable },
-          ].map((chip) => (
-            <button
-              key={chip.label}
-              onClick={() => setWithdrawAmount(chip.value > 0 ? chip.value.toFixed(2) : '')}
-              disabled={totalAvailable <= 0}
-              className="h-10 rounded-full bg-[var(--kraken-panel)] hover:bg-white/[0.06] border border-[var(--kraken-border)] text-[13px] font-semibold text-white/80 transition-colors duration-150 ease-out disabled:opacity-30 disabled:pointer-events-none active:scale-[0.97]"
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
-
-        {/* POL conversion line — subtle, no box */}
-        {withdrawType === 'POL' && (
-          <div className="mb-6 flex items-center justify-between text-[13px] tabular-nums">
-            <span className="text-white/45">{t('withdraw.youWillReceive')}</span>
-            <span className="font-semibold text-white">
-              {(parseFloat(withdrawAmount) > 0 ? polAmount : (totalAvailable / polPrice).toFixed(4))} POL
-              <span className="ml-2 text-white/35 font-normal">@ ${polPrice.toFixed(4)}</span>
-            </span>
-          </div>
-        )}
-
-        {/* Primary action — polygon CTA: bevel + purple glow */}
-        <button
-          onClick={handleWithdraw}
-          disabled={withdrawing || !withdrawAmount || parseFloat(withdrawAmount) <= 0}
-          className="group relative w-full h-14 rounded-sm bg-[var(--poly-purple)] text-white font-semibold text-[15px] tracking-tight transition-colors duration-200 ease-out hover:bg-[var(--poly-purple-hover)] active:scale-[0.985] disabled:bg-white/[0.08] disabled:text-white/30 disabled:pointer-events-none shadow-cta-purple"
-        >
-          <span className="inline-flex items-center gap-2">
-            {withdrawing ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {tCommon('loading')}
-              </>
-            ) : (
-              <>
-                {withdrawType === 'POL'
-                  ? t('withdraw.withdrawPol', { amount: polAmount })
-                  : t('withdraw.withdrawUsdc')}
-              </>
-            )}
-          </span>
-        </button>
-
-        <p className="mt-5 flex items-start gap-2 text-[12px] leading-relaxed text-white/40">
-          <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-          <span>{t('withdraw.polNote')}</span>
-        </p>
-      </BevelCard>
-
       {/* Tier Table */}
       <div className="kraken-panel p-6">
         <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -641,6 +649,14 @@ export default function EarningsPage() {
           </table>
         </div>
       </div>
+      </Collapsible>
+
+      {/* ── Transaction History (collapsible) ────────────────────────────── */}
+      <Collapsible
+        title="Transaction History"
+        icon={<History className="w-3.5 h-3.5" />}
+        preview={`${withdrawals.length + history.length + commissions.length} records`}
+      >
 
       {/* Withdrawal History */}
       {withdrawals.length > 0 && (
@@ -800,6 +816,7 @@ export default function EarningsPage() {
           </div>
         )}
       </div>
+      </Collapsible>
     </div>
   )
 }
