@@ -84,6 +84,7 @@ export function InlineWalletPicker({
   const [status, setStatus] = useState<'idle' | 'connecting' | 'logging_in' | 'success' | 'error'>('idle')
   const [error, setError] = useState('')
   const [activeWalletId, setActiveWalletId] = useState<string | null>(null)
+  const [pendingMobileLink, setPendingMobileLink] = useState<{ wallet: WalletDef; href: string } | null>(null)
   const handledAddressRef = useRef<string | null>(null)
 
   // Auto-login once a wallet connects (mirrors WalletLogin.tsx behavior).
@@ -197,20 +198,26 @@ export function InlineWalletPicker({
         try {
           setStatus('connecting')
           // Subscribe to display_uri BEFORE connect; the WC connector emits the wc: URI
-          // shortly after connect() is invoked. We hijack the URI and open the wallet's
-          // universal link so the wallet handles the connection request natively —
-          // no Web3Modal QR popup is involved (we never call Web3Modal.open()).
+          // shortly after connect() is invoked. CRITICAL: we must NOT replace the polnation
+          // tab's URL — once polnation unloads, its WC websocket closes and the wallet's
+          // approval message has nowhere to land. Instead we open the wallet's universal
+          // link in a new tab AND render a fallback <a> link the user can tap (covers
+          // popup-blocker case on iOS Safari).
           const provider = await wcConnector.getProvider() as { on?: (e: string, fn: (...args: unknown[]) => void) => void; off?: (e: string, fn: (...args: unknown[]) => void) => void; removeListener?: (e: string, fn: (...args: unknown[]) => void) => void }
           const onUri = (...args: unknown[]) => {
             const uri = args[0] as string
             if (typeof uri === 'string' && uri.startsWith('wc:')) {
-              window.location.href = wallet.wcUniversalLink(uri)
+              const href = wallet.wcUniversalLink(uri)
+              setPendingMobileLink({ wallet, href })
+              // Try to auto-open in new tab (preserves polnation tab's WC websocket).
+              // If popup is blocked, the rendered fallback <a> link is the user's path.
+              try {
+                window.open(href, '_blank', 'noopener,noreferrer')
+              } catch { /* popup blocked — UI fallback handles it */ }
             }
           }
           provider.on?.('display_uri', onUri)
-          // Trigger the connect flow — this will fire display_uri.
           connect({ connector: wcConnector })
-          // Best-effort cleanup so the listener doesn't pile up if user retries.
           setTimeout(() => {
             provider.off?.('display_uri', onUri)
             provider.removeListener?.('display_uri', onUri)
@@ -234,6 +241,7 @@ export function InlineWalletPicker({
     setStatus('idle')
     setError('')
     setActiveWalletId(null)
+    setPendingMobileLink(null)
     handledAddressRef.current = null
   }
 
@@ -267,6 +275,42 @@ export function InlineWalletPicker({
           onClick={handleReset}
           className="text-xs text-white/45 hover:text-white/80 underline"
           type="button"
+        >
+          Cancel
+        </button>
+      </div>
+    )
+  }
+
+  // Mobile non-DApp: WC URI ready, wallet should be opening. Show a tap-to-open
+  // anchor as a fallback (Safari may have blocked window.open popup).
+  if (pendingMobileLink && status === 'connecting') {
+    const w = pendingMobileLink.wallet
+    return (
+      <div className="space-y-3">
+        <div className="p-4 bg-white/[0.04] border border-[var(--poly-purple)]/30 flex items-center gap-3">
+          <Loader2 className="w-5 h-5 text-[var(--poly-purple)] animate-spin shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-white text-sm font-medium">Approve in {w.name}</p>
+            <p className="text-white/45 text-xs mt-0.5">Waiting for connection…</p>
+          </div>
+        </div>
+        <a
+          href={pendingMobileLink.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2 w-full p-3 bg-[var(--poly-purple)] hover:bg-[var(--poly-purple-hover)] text-white text-sm font-semibold transition-colors shadow-cta-purple"
+        >
+          Open {w.name}
+        </a>
+        <p className="text-center text-xs text-white/45">
+          If {w.name} didn&apos;t open automatically, tap the button above.
+          <br />Don&apos;t close this tab — connection completes here.
+        </p>
+        <button
+          type="button"
+          onClick={handleReset}
+          className="w-full text-center text-xs text-white/45 hover:text-white/80 underline"
         >
           Cancel
         </button>
