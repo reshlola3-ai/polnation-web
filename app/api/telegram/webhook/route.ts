@@ -58,8 +58,9 @@ export async function POST(request: Request) {
   // 2. Dispatch known commands. Errors are logged and swallowed so we always 200.
   try {
     if (update.message?.text?.startsWith('/start')) {
-      // Fire-and-forget — must not block the 200 response.
-      void handleStart(update.message)
+      // Await the short Bot API call. Vercel may stop background work after
+      // the response returns, so fire-and-forget can silently drop replies.
+      await handleStart(update.message)
     }
     // Future: callback_query, /help, /balance, etc.
   } catch (err) {
@@ -126,11 +127,15 @@ async function sendMessage(
     console.error('TELEGRAM_BOT_TOKEN env var not set')
     return
   }
-  await fetch(`${TG_API}/bot${token}/sendMessage`, {
+  const response = await fetch(`${TG_API}/bot${token}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, ...payload }),
   })
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '')
+    console.error('TG sendMessage API error:', response.status, detail)
+  }
 }
 
 // ── GET probe (for UptimeRobot) ──────────────────────────────────────────────
