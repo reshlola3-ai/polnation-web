@@ -1,0 +1,442 @@
+'use client'
+
+import { useEffect, useRef, useState, useCallback } from 'react'
+import { LuckyWheel } from '@lucky-canvas/react'
+import { createClient } from '@/lib/supabase'
+
+// ── Telegram WebApp typings (minimal — only what we use) ─────────────────────
+
+interface TgMainButton {
+  text: string
+  show: () => void
+  hide: () => void
+  enable: () => void
+  disable: () => void
+  setText: (text: string) => void
+  onClick: (handler: () => void) => void
+  offClick: (handler: () => void) => void
+  setParams: (params: { text?: string; color?: string; text_color?: string; is_active?: boolean; is_visible?: boolean }) => void
+}
+
+interface TgHaptic {
+  notificationOccurred: (type: 'success' | 'error' | 'warning') => void
+  impactOccurred: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void
+}
+
+interface TgWebApp {
+  initData: string
+  ready: () => void
+  expand: () => void
+  close: () => void
+  MainButton: TgMainButton
+  HapticFeedback?: TgHaptic
+  showPopup?: (
+    params: { title?: string; message: string; buttons?: { id?: string; type?: 'default' | 'ok' | 'close' | 'cancel' | 'destructive'; text?: string }[] },
+    callback?: (buttonId: string) => void
+  ) => void
+  openTelegramLink?: (url: string) => void
+  themeParams?: Record<string, string>
+}
+
+declare global {
+  interface Window {
+    Telegram?: { WebApp?: TgWebApp }
+  }
+}
+
+// ── Prize configs (must match server PRIZES table in /api/lottery/spin) ──────
+// Mirrors components/lottery/LotteryWheel.tsx PRIZE_CONFIGS for visual parity.
+
+const PRIZE_CONFIGS = [
+  { type: 'bonus_1', color: '#7c3aed', amount: 1 },
+  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
+  { type: 'usdc_05', color: '#059669', amount: 0.5 },
+  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
+  { type: 'bonus_2', color: '#7c3aed', amount: 2 },
+  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
+  { type: 'usdc_1',  color: '#0891b2', amount: 1 },
+  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
+  { type: 'bonus_3', color: '#7c3aed', amount: 3 },
+  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
+  { type: 'usdc_5',  color: '#d97706', amount: 5 },
+  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
+] as const
+
+const PRIZE_LABELS: Record<string, string> = {
+  bonus_1: '+$1 Bonus',
+  bonus_2: '+$2 Bonus',
+  bonus_3: '+$3 Bonus',
+  usdc_05: '$0.50 USDC',
+  usdc_1: '$1 USDC',
+  usdc_5: '$5 USDC',
+  usdc_10: '$10 USDC',
+  thanks: 'Try Again',
+}
+
+type AuthStatus = 'init' | 'authenticating' | 'ready' | 'error'
+
+export default function LotteryMiniPage() {
+  const supabase = createClient()
+  const wheelRef = useRef<{ play: () => void; stop: (index: number) => void } | null>(null)
+
+  const [authStatus, setAuthStatus] = useState<AuthStatus>('init')
+  const [authError, setAuthError] = useState('')
+  const [referralCode, setReferralCode] = useState<string | null>(null)
+  const [remainingSpins, setRemainingSpins] = useState(0)
+  const [isInfluencer, setIsInfluencer] = useState(false)
+  const [isSpinning, setIsSpinning] = useState(false)
+
+  // ── 1. TG Mini App bootstrap + auth ─────────────────────────────────────────
+
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp
+    if (!tg) {
+      setAuthStatus('error')
+      setAuthError('Open this page from inside Telegram.')
+      return
+    }
+    tg.ready()
+    tg.expand()
+
+    if (!tg.initData) {
+      setAuthStatus('error')
+      setAuthError('No Telegram session data — open via the bot.')
+      return
+    }
+
+    setAuthStatus('authenticating')
+
+    ;(async () => {
+      try {
+        const res = await fetch('/api/auth/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ initData: tg.initData }),
+        })
+        const data = await res.json()
+        if (!res.ok || !data.magicLink) {
+          throw new Error(data?.error || 'auth_failed')
+        }
+
+        // Verify the magic link to install a Supabase session in cookies.
+        const url = new URL(data.magicLink)
+        const token = url.searchParams.get('token')
+        const type = (url.searchParams.get('type') as 'magiclink') || 'magiclink'
+        if (!token) throw new Error('no_token_in_magic_link')
+
+        const { error: verifyErr } = await supabase.auth.verifyOtp({
+          token_hash: token,
+          type,
+        })
+        if (verifyErr) throw new Error(verifyErr.message)
+
+        setAuthStatus('ready')
+      } catch (err) {
+        setAuthStatus('error')
+        setAuthError(err instanceof Error ? err.message : 'Authentication failed')
+      }
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // ── 2. Once auth ready: fetch lottery state + auto-grant spins ──────────────
+
+  const refreshState = useCallback(async () => {
+    try {
+      const res = await fetch('/api/lottery')
+      if (res.ok) {
+        const data = await res.json()
+        setRemainingSpins(data.remainingSpins || 0)
+        setIsInfluencer(!!data.isInfluencer)
+        setReferralCode(data.referralCode || null)
+      }
+    } catch {
+      // silent
+    }
+  }, [])
+
+  useEffect(() => {
+    if (authStatus !== 'ready') return
+    // Initial state fetch + check for new spin grants triggered by referral activity
+    ;(async () => {
+      await refreshState()
+      try {
+        await fetch('/api/lottery/check-spins', { method: 'POST' })
+      } catch {
+        // silent
+      }
+      await refreshState()
+    })()
+  }, [authStatus, refreshState])
+
+  // ── 3. Spin handler ─────────────────────────────────────────────────────────
+
+  const handleSpin = useCallback(async () => {
+    if (isSpinning) return
+    if (remainingSpins <= 0) return
+    setIsSpinning(true)
+
+    try {
+      const res = await fetch('/api/lottery/spin', { method: 'POST' })
+      const data = await res.json()
+
+      if (!res.ok) {
+        setIsSpinning(false)
+        if (data?.error === 'no_spins') {
+          setRemainingSpins(0)
+          window.Telegram?.WebApp?.showPopup?.({
+            title: 'No spins left',
+            message: 'Invite a friend who joins via Telegram to earn another spin.',
+            buttons: [{ type: 'ok' }],
+          })
+        }
+        return
+      }
+
+      const prizeIndex = PRIZE_CONFIGS.findIndex((p) => p.type === data.prize_type)
+      wheelRef.current?.play()
+      setTimeout(() => {
+        wheelRef.current?.stop(prizeIndex >= 0 ? prizeIndex : 1)
+      }, 300)
+
+      // Stash the result for handleEnd to display via TG popup.
+      pendingResultRef.current = {
+        type: data.prize_type as string,
+        amount: Number(data.prize_amount) || 0,
+      }
+    } catch {
+      setIsSpinning(false)
+    }
+  }, [isSpinning, remainingSpins])
+
+  // Result must be passed from handleSpin → handleEnd via a ref because the
+  // wheel's onEnd callback fires asynchronously after stop().
+  const pendingResultRef = useRef<{ type: string; amount: number } | null>(null)
+
+  const handleWheelEnd = useCallback(() => {
+    setIsSpinning(false)
+    setRemainingSpins((prev) => Math.max(0, prev - 1))
+
+    const result = pendingResultRef.current
+    pendingResultRef.current = null
+    const tg = window.Telegram?.WebApp
+
+    if (!result) return
+
+    const isWin = result.type !== 'thanks'
+    const isUsdc = result.type.startsWith('usdc_')
+
+    if (isWin) {
+      tg?.HapticFeedback?.notificationOccurred('success')
+    } else {
+      tg?.HapticFeedback?.notificationOccurred('warning')
+    }
+
+    const label = PRIZE_LABELS[result.type] || result.type
+    const message = isWin
+      ? isUsdc
+        ? `${label}\n\n💰 Added to your withdrawable balance.`
+        : `${label}\n\n⭐ Added to your unlock progress.`
+      : "Better luck next time!"
+
+    tg?.showPopup?.({
+      title: isWin ? '🎉 Congratulations' : 'Try again',
+      message,
+      buttons: [{ type: 'ok' }],
+    })
+
+    refreshState()
+  }, [refreshState])
+
+  // ── 4. TG MainButton wiring ─────────────────────────────────────────────────
+
+  useEffect(() => {
+    const tg = window.Telegram?.WebApp
+    if (!tg || authStatus !== 'ready') return
+
+    const mb = tg.MainButton
+    const canSpin = remainingSpins > 0 || isInfluencer
+    const text = isSpinning
+      ? 'SPINNING…'
+      : canSpin
+      ? `SPIN${isInfluencer ? '' : ` (${remainingSpins} LEFT)`}`
+      : 'NO SPINS LEFT'
+
+    mb.setText(text)
+    mb.show()
+    if (canSpin && !isSpinning) {
+      mb.enable()
+    } else {
+      mb.disable()
+    }
+
+    const handler = () => {
+      if (!canSpin || isSpinning) return
+      handleSpin()
+    }
+    mb.onClick(handler)
+
+    return () => {
+      mb.offClick(handler)
+    }
+  }, [authStatus, remainingSpins, isInfluencer, isSpinning, handleSpin])
+
+  // Hide MainButton on unmount as a safety net (if user navigates away inside the Mini App).
+  useEffect(() => {
+    return () => {
+      window.Telegram?.WebApp?.MainButton?.hide()
+    }
+  }, [])
+
+  // ── 5. Share via TG native share sheet ──────────────────────────────────────
+
+  const handleShare = useCallback(() => {
+    if (!referralCode) return
+    // Bot username and Mini App short name are locked by migration plan decision 1+2.
+    const link = `https://t.me/PolnationBot/lottery?startapp=ref_${referralCode}`
+    const text = '🎰 Spin the Polnation Lottery and win USDC!'
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`
+
+    const tg = window.Telegram?.WebApp
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink(shareUrl)
+    } else {
+      window.open(shareUrl, '_blank', 'noopener,noreferrer')
+    }
+  }, [referralCode])
+
+  // ── 6. Wheel visual config ──────────────────────────────────────────────────
+
+  const prizes = PRIZE_CONFIGS.map((p) => ({
+    fonts: [{
+      text: PRIZE_LABELS[p.type] || p.type,
+      top: '12%',
+      fontSize: '11px',
+      fontColor: '#fff',
+      fontWeight: '600',
+    }],
+    background: p.color,
+  }))
+
+  const blocks = [
+    { padding: '10px', background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' },
+    { padding: '5px', background: '#1e1b4b' },
+  ]
+
+  const buttons = [
+    {
+      radius: '34%',
+      background: 'linear-gradient(135deg, #a855f7, #06b6d4)',
+      pointer: true,
+      fonts: [{ text: '🎯', top: '-12px', fontSize: '22px' }],
+    },
+    {
+      radius: '28%',
+      background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
+      fonts: [{ text: isSpinning ? '...' : 'SPIN', top: '-7px', fontSize: '12px', fontColor: '#fff', fontWeight: '700' }],
+    },
+  ]
+
+  // ── 7. Render ───────────────────────────────────────────────────────────────
+
+  if (authStatus === 'init' || authStatus === 'authenticating') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-3">
+        <div className="w-10 h-10 rounded-full border-2 border-[var(--poly-purple)] border-t-transparent animate-spin" />
+        <p className="text-white/60 text-sm">
+          {authStatus === 'init' ? 'Starting…' : 'Connecting…'}
+        </p>
+      </div>
+    )
+  }
+
+  if (authStatus === 'error') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-3">
+        <p className="text-rose-300 font-semibold">Couldn't open the lottery</p>
+        <p className="text-white/55 text-sm max-w-xs">{authError}</p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="mt-2 px-4 py-2 bg-white/[0.08] border border-white/15 text-white text-sm hover:bg-white/[0.12]"
+        >
+          Try Again
+        </button>
+      </div>
+    )
+  }
+
+  // Auth ready — show wheel
+  return (
+    <div className="min-h-screen flex flex-col items-center px-4 py-6 gap-5">
+      {/* Header strip */}
+      <div className="text-center">
+        <p
+          className="text-[11px] uppercase mb-1"
+          style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.15em', color: 'var(--poly-grey-200)' }}
+        >
+          Polnation · Lottery
+        </p>
+        <h1 className="text-[22px] font-semibold text-white">Spin to Win</h1>
+        <p className="text-white/50 text-[13px] mt-1">
+          {isInfluencer ? '∞ Unlimited spins' : `${remainingSpins} spin${remainingSpins === 1 ? '' : 's'} available`}
+        </p>
+      </div>
+
+      {/* Wheel */}
+      <div className="relative">
+        <div className="absolute inset-0 -m-3 rounded-full bg-gradient-to-r from-purple-500/20 to-cyan-500/20 blur-xl" />
+        <div className="relative">
+          <LuckyWheel
+            ref={wheelRef}
+            width="300px"
+            height="300px"
+            blocks={blocks}
+            prizes={prizes}
+            buttons={buttons}
+            defaultConfig={{
+              speed: 20,
+              accelerationTime: 2500,
+              decelerationTime: 4500,
+            }}
+            onStart={handleSpin}
+            onEnd={handleWheelEnd}
+          />
+        </div>
+      </div>
+
+      {/* Reward info */}
+      <div className="w-full max-w-sm flex gap-2">
+        <div className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.04] border border-[var(--poly-emerald)]/20">
+          <span className="text-base">💰</span>
+          <p className="text-[11px] leading-tight" style={{ color: 'var(--poly-emerald)' }}>
+            USDC → withdrawable
+          </p>
+        </div>
+        <div className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.04] border border-[var(--poly-purple)]/20">
+          <span className="text-base">⭐</span>
+          <p className="text-[11px] leading-tight text-[var(--poly-purple)]">
+            Bonus → unlock progress
+          </p>
+        </div>
+      </div>
+
+      {/* Share — earn extra spins by inviting */}
+      <button
+        type="button"
+        onClick={handleShare}
+        disabled={!referralCode}
+        className="w-full max-w-sm flex items-center justify-center gap-2 p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple disabled:opacity-40 disabled:pointer-events-none"
+      >
+        🔗 Invite a Friend → +1 Spin
+      </button>
+
+      <p className="text-[11px] text-white/40 text-center max-w-xs">
+        Each friend you invite who joins via Telegram earns you 1 spin.
+      </p>
+
+      {/* Bottom spacer so content isn't hidden behind TG MainButton (~64px) */}
+      <div className="h-16" />
+    </div>
+  )
+}
