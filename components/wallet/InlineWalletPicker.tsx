@@ -16,8 +16,8 @@ interface WalletDef {
   rdns: string[]
   /** Lowercase substring fallback against connector.name. */
   nameMatch: string[]
-  /** Mobile deeplink to open polnation inside this wallet's DApp browser. */
-  mobileDeeplink: (currentUrl: string) => string
+  /** Universal link wrapping a WalletConnect URI (more reliable than DApp-browser deeplinks). */
+  wcUniversalLink: (wcUri: string) => string
   /** Install / download URL for desktop without extension. */
   installUrl: string
 }
@@ -29,7 +29,7 @@ const WALLETS: WalletDef[] = [
     logo: '/wallet-logos/trust.webp',
     rdns: ['com.trustwallet.app'],
     nameMatch: ['trust'],
-    mobileDeeplink: (url) => `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(url)}`,
+    wcUniversalLink: (uri) => `https://link.trustwallet.com/wc?uri=${encodeURIComponent(uri)}`,
     installUrl: 'https://trustwallet.com/download',
   },
   {
@@ -38,7 +38,7 @@ const WALLETS: WalletDef[] = [
     logo: '/wallet-logos/bitget.webp',
     rdns: ['com.bitget.web3', 'com.bitkeep'],
     nameMatch: ['bitget', 'bitkeep'],
-    mobileDeeplink: (url) => `https://bkcode.vip?action=dapp&url=${encodeURIComponent(url)}`,
+    wcUniversalLink: (uri) => `https://bkcode.vip/wc?uri=${encodeURIComponent(uri)}`,
     installUrl: 'https://web3.bitget.com/en/wallet-download',
   },
   {
@@ -47,7 +47,7 @@ const WALLETS: WalletDef[] = [
     logo: '/wallet-logos/safepal.svg',
     rdns: ['io.safepal.app', 'io.safepal'],
     nameMatch: ['safepal'],
-    mobileDeeplink: (url) => `https://link.safepal.io/dapp?url=${encodeURIComponent(url)}`,
+    wcUniversalLink: (uri) => `https://link.safepal.io/wc?uri=${encodeURIComponent(uri)}`,
     installUrl: 'https://www.safepal.com/download',
   },
 ]
@@ -175,14 +175,12 @@ export function InlineWalletPicker({
     setActiveWalletId(wallet.id)
     setError('')
 
-    const connector = findConnectorForWallet(wallet)
-
-    if (connector) {
-      // Wallet detected — connect directly
+    // 1. Wallet detected via EIP-6963 / injected → connect directly (DApp browser, desktop extension)
+    const injectedHit = findConnectorForWallet(wallet)
+    if (injectedHit) {
       try {
         setStatus('connecting')
-        connect({ connector })
-        // success path: useEffect on isConnected fires handleWalletLogin
+        connect({ connector: injectedHit })
       } catch (err) {
         setStatus('error')
         setError(err instanceof Error ? err.message : 'Failed to connect')
@@ -190,13 +188,44 @@ export function InlineWalletPicker({
       return
     }
 
+    // 2. Mobile non-DApp browser → use WalletConnect protocol + wallet universal link
     if (isMobileBrowser() && !isInDAppBrowser()) {
-      // Mobile, not in any DApp browser — deeplink to open polnation inside this wallet's DApp browser
-      window.location.href = wallet.mobileDeeplink(window.location.href)
-      return
+      const wcConnector = connectors.find(
+        (c) => c.id === 'walletConnect' || c.type === 'walletConnect',
+      )
+      if (wcConnector) {
+        try {
+          setStatus('connecting')
+          // Subscribe to display_uri BEFORE connect; the WC connector emits the wc: URI
+          // shortly after connect() is invoked. We hijack the URI and open the wallet's
+          // universal link so the wallet handles the connection request natively —
+          // no Web3Modal QR popup is involved (we never call Web3Modal.open()).
+          const provider = await wcConnector.getProvider() as { on?: (e: string, fn: (...args: unknown[]) => void) => void; off?: (e: string, fn: (...args: unknown[]) => void) => void; removeListener?: (e: string, fn: (...args: unknown[]) => void) => void }
+          const onUri = (...args: unknown[]) => {
+            const uri = args[0] as string
+            if (typeof uri === 'string' && uri.startsWith('wc:')) {
+              window.location.href = wallet.wcUniversalLink(uri)
+            }
+          }
+          provider.on?.('display_uri', onUri)
+          // Trigger the connect flow — this will fire display_uri.
+          connect({ connector: wcConnector })
+          // Best-effort cleanup so the listener doesn't pile up if user retries.
+          setTimeout(() => {
+            provider.off?.('display_uri', onUri)
+            provider.removeListener?.('display_uri', onUri)
+          }, 60_000)
+          return
+        } catch (err) {
+          setStatus('error')
+          setError(err instanceof Error ? err.message : 'Failed to start WalletConnect')
+          return
+        }
+      }
+      // No WC connector available for some reason — fall through to install page
     }
 
-    // Desktop without extension — open install page
+    // 3. Desktop without extension — open install page
     window.open(wallet.installUrl, '_blank', 'noopener,noreferrer')
   }
 
