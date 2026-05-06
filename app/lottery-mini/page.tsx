@@ -471,9 +471,9 @@ export default function LotteryMiniPage() {
   }
 
   const exploreLinks = [
-    { label: 'Dashboard', emoji: '📊', path: '/dashboard' },
-    { label: 'Earnings',  emoji: '💰', path: '/earnings' },
-    { label: 'Hardstake', emoji: '🔒', path: '/hardstake' },
+    { label: 'Dashboard',        emoji: '📊', path: '/dashboard' },
+    { label: 'Earnings',         emoji: '💰', path: '/earnings' },
+    { label: 'Agentic Earnings', emoji: '🤖', path: '/agentic-earnings' },
   ]
 
   return (
@@ -682,11 +682,11 @@ export default function LotteryMiniPage() {
                 key={item.path}
                 type="button"
                 onClick={() => openWeb(`https://www.polnation.com${item.path}`)}
-                className="flex flex-col items-center justify-center gap-1.5 py-3 bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-[var(--poly-purple)]/40 active:scale-[0.98] transition-all"
+                className="flex flex-col items-center justify-center gap-1.5 py-3 px-1 min-h-[78px] bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-[var(--poly-purple)]/40 active:scale-[0.98] transition-all"
               >
-                <span className="text-xl">{item.emoji}</span>
-                <span className="text-[10px] text-white/75"
-                  style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.08em' }}>
+                <span className="text-xl leading-none">{item.emoji}</span>
+                <span className="text-[10px] text-white/75 text-center leading-tight"
+                  style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.06em' }}>
                   {item.label.toUpperCase()}
                 </span>
               </button>
