@@ -243,6 +243,16 @@ export default function LotteryMiniPage() {
 
     ;(async () => {
       try {
+        // Fast path: reuse existing Supabase session (returning users skip the
+        // full HMAC round-trip entirely — saves ~2-3s on every re-open).
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          setAuthStatus('ready')
+          return
+        }
+
+        // Slow path: first visit or expired session — verify TG initData,
+        // create/update profile, and install a fresh session via magic link.
         const res = await fetch('/api/auth/telegram', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -253,7 +263,6 @@ export default function LotteryMiniPage() {
           throw new Error(data?.error || 'auth_failed')
         }
 
-        // Verify the magic link to install a Supabase session in cookies.
         const url = new URL(data.magicLink)
         const token = url.searchParams.get('token')
         const type = (url.searchParams.get('type') as 'magiclink') || 'magiclink'
@@ -314,24 +323,33 @@ export default function LotteryMiniPage() {
     }
   }, [])
 
-  // Single grant-evaluation cycle: refresh → check-spins → refresh.
-  // Called on initial auth ready AND whenever the page becomes visible
-  // again (so a user who went to TG to join the group, then came back,
-  // sees their welcome spin granted immediately).
-  const runCheckSpins = useCallback(async () => {
-    await refreshState()
-    try {
-      await fetch('/api/lottery/check-spins', { method: 'POST' })
-    } catch {
-      // silent
+  // Grant-evaluation cycle: show UI immediately after first refreshState,
+  // then run check-spins in the background and silently re-sync.
+  // "visible" re-checks (TG group join flow) still await the full cycle so
+  // the pending spinner resolves correctly.
+  const runCheckSpins = useCallback(async ({ background = false } = {}) => {
+    if (!background) {
+      // Foreground: user returned from group join — await full cycle so the
+      // "Verifying…" spinner resolves promptly.
+      await refreshState()
+      try {
+        await fetch('/api/lottery/check-spins', { method: 'POST' })
+      } catch { /* silent */ }
+      await refreshState()
+      setPendingGroupVerify(false)
+    } else {
+      // Background: initial page load — show UI first, then grant silently.
+      await refreshState()           // UI now visible with current spin count
+      fetch('/api/lottery/check-spins', { method: 'POST' })
+        .then(() => refreshState())  // silent re-sync after grants settle
+        .catch(() => {})
+        .finally(() => setPendingGroupVerify(false))
     }
-    await refreshState()
-    setPendingGroupVerify(false)
   }, [refreshState])
 
   useEffect(() => {
     if (authStatus !== 'ready') return
-    runCheckSpins()
+    runCheckSpins({ background: true })
   }, [authStatus, runCheckSpins])
 
   // Re-check on visibility change — covers "user joined TG group then came back"
@@ -339,7 +357,7 @@ export default function LotteryMiniPage() {
     if (authStatus !== 'ready') return
     const onVisible = () => {
       if (document.visibilityState === 'visible') {
-        runCheckSpins()
+        runCheckSpins()  // foreground: awaits full cycle for pending spinner
       }
     }
     document.addEventListener('visibilitychange', onVisible)

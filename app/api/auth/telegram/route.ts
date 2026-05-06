@@ -194,14 +194,18 @@ async function createTelegramAccount(tgUser: TelegramUser, referrerId: string | 
 
   const userId = authUser.user.id
 
-  // Wait briefly for the profile-creation trigger (same pattern as wallet-login)
-  await new Promise((resolve) => setTimeout(resolve, 500))
-
-  const { data: existingProfile } = await supabaseAdmin
-    .from('profiles')
-    .select('id, referral_code')
-    .eq('id', userId)
-    .single()
+  // Poll for the profile-creation trigger (50ms × up to 6 attempts = max 300ms
+  // vs the old fixed 500ms sleep — bails early once the row appears).
+  let existingProfile: { id: string; referral_code: string | null } | null = null
+  for (let i = 0; i < 6; i++) {
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    const { data } = await supabaseAdmin
+      .from('profiles')
+      .select('id, referral_code')
+      .eq('id', userId)
+      .single()
+    if (data) { existingProfile = data; break }
+  }
 
   const profileFields: Record<string, unknown> = {
     telegram_chat_id: tgUser.id,
