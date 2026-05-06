@@ -559,14 +559,14 @@ export default function LotteryMiniPage() {
   const buttons = [
     {
       radius: '34%',
-      background: 'linear-gradient(135deg, #34d399, #00cc06)',
+      background: '#22c55e',
       pointer: true,
-      fonts: [{ text: '🎯', top: '-12px', fontSize: '22px' }],
+      fonts: [{ text: '▼', top: '-14px', fontSize: '13px', fontColor: '#22c55e', fontWeight: '700' }],
     },
     {
-      radius: '28%',
-      background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-      fonts: [{ text: isSpinning ? '...' : 'SPIN', top: '-7px', fontSize: '12px', fontColor: '#fff', fontWeight: '700' }],
+      radius: '26%',
+      background: '#0d0d14',
+      fonts: [{ text: isSpinning ? '···' : 'SPIN', top: '-7px', fontSize: '11px', fontColor: '#ffffff', fontWeight: '700' }],
     },
   ]
 
