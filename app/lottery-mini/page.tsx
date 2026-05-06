@@ -167,9 +167,15 @@ export default function LotteryMiniPage() {
   // ── Mock live ticker (lazy init; one set per session) ──────────────────────
   const [tickerEvents] = useState(() => generateMockTicker(25))
 
-  // ── Unlock progress + spin history ──────────────────────────────────────────
-  const [progressToNextSpin, setProgressToNextSpin] = useState(0)
-  const [nextMilestone, setNextMilestone] = useState(7)
+  // ── Team pool unlock progress ───────────────────────────────────────────────
+  // Bonus prizes credit `user_task_progress.total_task_bonus`, which combines
+  // with team L1-3 volume into `effectiveVolume` — gating community pool claim.
+  const [teamPoolEffective, setTeamPoolEffective] = useState(0)
+  const [teamPoolTarget, setTeamPoolTarget] = useState(0)
+  const [teamPoolLevel, setTeamPoolLevel] = useState(1)
+  const [teamPoolRewardPool, setTeamPoolRewardPool] = useState(0)
+
+  // ── Spin history ────────────────────────────────────────────────────────────
   const [spinHistory, setSpinHistory] = useState<{
     id: string
     prize_type: string
@@ -245,9 +251,10 @@ export default function LotteryMiniPage() {
 
   const refreshState = useCallback(async () => {
     try {
-      const [lotteryRes, membershipRes] = await Promise.all([
+      const [lotteryRes, membershipRes, communityRes] = await Promise.all([
         fetch('/api/lottery'),
         fetch('/api/telegram/check-membership'),
+        fetch('/api/community/status'),
       ])
       if (lotteryRes.ok) {
         const data = await lotteryRes.json()
@@ -260,8 +267,6 @@ export default function LotteryMiniPage() {
         setReferredBy(data.referredBy || null)
         setInvitedCount(data.invitedCount || 0)
         setWelcomeSpinEarned(!!data.welcomeSpinEarned)
-        setProgressToNextSpin(data.progressToNextSpin ?? 0)
-        setNextMilestone(data.nextMilestone ?? 7)
         setSpinHistory(data.history || [])
       }
       if (membershipRes.ok) {
@@ -269,6 +274,13 @@ export default function LotteryMiniPage() {
         setGroupConfigured(!!m.configured)
         setIsGroupMember(!!m.isMember)
         setGroupInviteLink(m.inviteLink || null)
+      }
+      if (communityRes.ok) {
+        const c = await communityRes.json()
+        setTeamPoolEffective(Number(c.effectiveVolume) || 0)
+        setTeamPoolTarget(Number(c.nextUnlockVolume) || 0)
+        setTeamPoolLevel(c.status?.current_level || c.currentLevelInfo?.level || 1)
+        setTeamPoolRewardPool(Number(c.currentLevelInfo?.reward_pool) || 0)
       }
     } catch {
       // silent
@@ -829,29 +841,41 @@ export default function LotteryMiniPage() {
           )}
         </BevelCard>
 
-        {/* ── Unlock Progress ──────────────────────────────────────────────── */}
+        {/* ── Team Pool Progress ───────────────────────────────────────────── */}
         <BevelCard size="lg" pad={14} className="w-full">
           <div className="flex items-center justify-between mb-2">
-            <EyebrowTag>Unlock Progress</EyebrowTag>
+            <EyebrowTag>Team Pool · Level {teamPoolLevel}</EyebrowTag>
             <span
-              className="text-[11px] text-white/50"
+              className="text-[11px] text-white/55"
               style={{ fontFamily: 'var(--poly-font-mono)' }}
             >
-              {progressToNextSpin} / 7
+              ${teamPoolEffective.toFixed(2)} / ${teamPoolTarget.toFixed(0)}
             </span>
           </div>
           <div className="h-1.5 w-full bg-white/[0.08] rounded-full overflow-hidden">
             <div
               className="h-full rounded-full transition-all duration-700 ease-out"
               style={{
-                width: `${Math.min(100, (progressToNextSpin / 7) * 100)}%`,
+                width: `${teamPoolTarget > 0 ? Math.min(100, (teamPoolEffective / teamPoolTarget) * 100) : 0}%`,
                 background: 'var(--poly-purple)',
               }}
             />
           </div>
-          <p className="text-[11px] text-white/40 mt-2">
-            {`${7 - progressToNextSpin} more airdrop${7 - progressToNextSpin === 1 ? '' : 's'} to unlock next spin — milestone ${nextMilestone}`}
+          <p className="text-[11px] text-white/45 mt-2">
+            {teamPoolTarget > 0 && teamPoolEffective >= teamPoolTarget
+              ? `Level ${teamPoolLevel} pool unlocked — claim on web to start daily yield.`
+              : teamPoolTarget > 0
+                ? `$${(teamPoolTarget - teamPoolEffective).toFixed(2)} more to unlock the $${teamPoolRewardPool} prize pool. Bonus spins + invites fill it.`
+                : `Win Bonus prizes or invite friends to fill the team pool.`}
           </p>
+          <button
+            type="button"
+            onClick={() => openWeb('https://www.polnation.com/team')}
+            className="mt-3 w-full text-center py-2 bg-white/[0.06] border border-white/[0.12] text-white/85 text-[12px] hover:bg-white/[0.10] active:scale-[0.99] transition-all"
+            style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.06em' }}
+          >
+            VIEW TEAM PROGRESS ↗
+          </button>
         </BevelCard>
 
         {/* ── Network row ─────────────────────────────────────────────────── */}
