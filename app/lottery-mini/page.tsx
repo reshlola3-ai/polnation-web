@@ -167,6 +167,9 @@ export default function LotteryMiniPage() {
   // ── Mock live ticker (lazy init; one set per session) ──────────────────────
   const [tickerEvents] = useState(() => generateMockTicker(25))
 
+  // ── Rules modal ─────────────────────────────────────────────────────────────
+  const [showRules, setShowRules] = useState(false)
+
   // ── Team pool unlock progress ───────────────────────────────────────────────
   // Bonus prizes credit `user_task_progress.total_task_bonus`, which combines
   // with team L1-3 volume into `effectiveVolume` — gating community pool claim.
@@ -406,8 +409,9 @@ export default function LotteryMiniPage() {
 
     const mb = tg.MainButton
 
-    // Hide MainButton while user is in the withdraw form to avoid mis-tap on SPIN.
-    if (withdrawFocused) {
+    // Hide MainButton while user is in the withdraw form or reading the rules
+    // modal — avoids mis-tap on SPIN.
+    if (withdrawFocused || showRules) {
       mb.hide()
       return
     }
@@ -436,7 +440,7 @@ export default function LotteryMiniPage() {
     return () => {
       mb.offClick(handler)
     }
-  }, [authStatus, remainingSpins, isInfluencer, isSpinning, handleSpin, withdrawFocused])
+  }, [authStatus, remainingSpins, isInfluencer, isSpinning, handleSpin, withdrawFocused, showRules])
 
   // Hide MainButton on unmount as a safety net (if user navigates away inside the Mini App).
   useEffect(() => {
@@ -535,7 +539,7 @@ export default function LotteryMiniPage() {
     },
     {
       radius: '28%',
-      background: 'linear-gradient(135deg, #7c3aed, #0891b2)',
+      background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
       fonts: [{ text: isSpinning ? '...' : 'SPIN', top: '-7px', fontSize: '12px', fontColor: '#fff', fontWeight: '700' }],
     },
   ]
@@ -671,11 +675,22 @@ export default function LotteryMiniPage() {
       {/* ── Body ─────────────────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col items-center px-4 py-5 gap-5 max-w-md mx-auto w-full">
         {/* Greeting */}
-        <div className="text-center">
+        <div className="text-center w-full">
           <EyebrowTag>
             {displayName ? `Hi ${displayName} 👋` : 'Polnation Lottery'}
           </EyebrowTag>
-          <h1 className="text-[26px] font-semibold text-white mt-1.5 poly-heading">Spin to Win</h1>
+          <div className="relative flex items-center justify-center mt-1.5">
+            <button
+              type="button"
+              onClick={() => setShowRules(true)}
+              aria-label="How it works"
+              className="absolute left-0 w-7 h-7 flex items-center justify-center text-white/70 text-[14px] font-semibold bg-white/[0.06] border border-white/[0.14] hover:bg-white/[0.12] hover:text-white active:scale-[0.95] transition-all"
+              style={{ fontFamily: 'var(--poly-font-mono)' }}
+            >
+              ?
+            </button>
+            <h1 className="text-[26px] font-semibold text-white poly-heading">Spin to Win</h1>
+          </div>
           <p className="text-white/50 text-[13px] mt-0.5">
             {isInfluencer ? '∞ Unlimited spins' : `${remainingSpins} spin${remainingSpins === 1 ? '' : 's'} available`}
           </p>
@@ -992,6 +1007,82 @@ export default function LotteryMiniPage() {
         {/* Bottom spacer so content isn't hidden behind TG MainButton (~64px) */}
         <div className="h-16" />
       </div>
+
+      {/* ── Rules modal (bottom-sheet style) ─────────────────────────────── */}
+      {showRules && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm"
+          onClick={() => setShowRules(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="w-full max-w-md bg-[#0a0810] border-t border-white/[0.1] p-5 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-white text-[18px] font-semibold poly-heading">How it Works</h2>
+              <button
+                type="button"
+                onClick={() => setShowRules(false)}
+                aria-label="Close"
+                className="w-8 h-8 flex items-center justify-center text-white/65 text-xl hover:text-white hover:bg-white/[0.06]"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-5 text-[13px] text-white/75 leading-relaxed">
+              <section>
+                <EyebrowTag>How to earn spins</EyebrowTag>
+                <ul className="mt-2 space-y-1.5 list-disc list-inside marker:text-[var(--poly-purple)]">
+                  <li>Join our official Telegram group → <span className="text-white">+1 free spin</span> (one-time)</li>
+                  <li>Invite a friend who joins via your link → <span className="text-white">+1 spin</span> per friend</li>
+                  <li>Daily airdrop tasks on web — every 7 claims → <span className="text-white">+1 spin</span></li>
+                </ul>
+              </section>
+
+              <section>
+                <EyebrowTag>USDC prizes — instant withdrawable</EyebrowTag>
+                <p className="mt-2">
+                  Winning <span className="text-white">$0.50 / $1 / $5 USDC</span> credits your withdrawable balance immediately.
+                  Connect a wallet and tap <span className="text-white">Withdraw</span> to send USDC straight to your address on Polygon.
+                </p>
+              </section>
+
+              <section>
+                <EyebrowTag>Bonus prizes — Team prize pool</EyebrowTag>
+                <p className="mt-2">
+                  <span className="text-white">+$1 / +$2 / +$3 Bonus</span> wins do <em>not</em> withdraw directly.
+                  They feed your <span className="text-white">team prize pool progress</span>, alongside your team referral volume.
+                </p>
+                <p className="mt-2">
+                  Once your effective progress hits the level threshold, you can claim that level&apos;s prize pool on the web dashboard
+                  — it then pays out <span className="text-white">daily yield</span> until exhausted.
+                </p>
+              </section>
+
+              <section>
+                <EyebrowTag>Try Again</EyebrowTag>
+                <p className="mt-2">
+                  Some slices have no prize. Your spin count is consumed but no reward is credited — better luck next time.
+                </p>
+              </section>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowRules(false)
+                  openWeb('https://www.polnation.com/team')
+                }}
+                className="w-full mt-2 p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple"
+              >
+                View Team Pool Progress ↗
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
