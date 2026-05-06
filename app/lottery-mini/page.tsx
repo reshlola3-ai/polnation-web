@@ -144,6 +144,10 @@ export default function LotteryMiniPage() {
   const [authError, setAuthError] = useState('')
   // Known error types rendered via translation; authError holds unexpected API messages.
   const [authErrorType, setAuthErrorType] = useState<'no_telegram' | 'no_session' | null>(null)
+  // Onboarding prep animation: 0 = not shown (returning user fast path),
+  // 1-3 = current animated step. Only set when we know the user is going down
+  // the slow auth path so returning users skip the animation entirely.
+  const [prepStep, setPrepStep] = useState<0 | 1 | 2 | 3>(0)
   const [referralCode, setReferralCode] = useState<string | null>(null)
   const [remainingSpins, setRemainingSpins] = useState(0)
   const [isInfluencer, setIsInfluencer] = useState(false)
@@ -243,28 +247,41 @@ export default function LotteryMiniPage() {
 
     ;(async () => {
       try {
-        // Fast path: reuse existing Supabase session (returning users skip the
-        // full HMAC round-trip entirely — saves ~2-3s on every re-open).
+        // Fast path: reuse existing Supabase session — returning users skip
+        // both the prep animation AND the full HMAC roundtrip.
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
           setAuthStatus('ready')
           return
         }
 
-        // Slow path: first visit or expired session. Server verifies TG
-        // initData, creates/updates the profile, AND installs the Supabase
-        // session via Set-Cookie on the response — so we don't need a
-        // second client → Supabase verifyOtp roundtrip (saves ~300-800ms
-        // on mobile networks, biggest win for new users).
-        const res = await fetch('/api/auth/telegram', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ initData: tg.initData }),
-        })
-        const data = await res.json()
-        if (!res.ok || !data.success) {
-          throw new Error(data?.error || 'auth_failed')
-        }
+        // Slow path: kick off auth in parallel with the staged onboarding
+        // animation. Total wait = max(animation, actual auth time), so the
+        // wait feels intentional rather than blocked.
+        const authPromise = (async () => {
+          const res = await fetch('/api/auth/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ initData: tg.initData }),
+          })
+          const data = await res.json()
+          if (!res.ok || !data.success) {
+            throw new Error(data?.error || 'auth_failed')
+          }
+        })()
+
+        // Step 1 — verifying Telegram (700ms)
+        setPrepStep(1)
+        await new Promise((r) => setTimeout(r, 700))
+        // Step 2 — creating account (700ms)
+        setPrepStep(2)
+        await new Promise((r) => setTimeout(r, 700))
+        // Step 3 — preparing spins, hold until auth resolves (min 400ms)
+        setPrepStep(3)
+        await Promise.all([
+          authPromise,
+          new Promise((r) => setTimeout(r, 400)),
+        ])
 
         setAuthStatus('ready')
       } catch (err) {
@@ -583,6 +600,91 @@ export default function LotteryMiniPage() {
   // ── 7. Render ───────────────────────────────────────────────────────────────
 
   if (authStatus === 'init' || authStatus === 'authenticating') {
+    // New-user slow path: show the staged onboarding animation.
+    if (prepStep > 0) {
+      const stepIcon = prepStep === 1 ? '🔐' : prepStep === 2 ? '✨' : '🎰'
+      const stepTitle =
+        prepStep === 1 ? t.prepStep1Title :
+        prepStep === 2 ? t.prepStep2Title :
+        t.prepStep3Title
+      const stepSub =
+        prepStep === 1 ? t.prepStep1Sub :
+        prepStep === 2 ? t.prepStep2Sub :
+        t.prepStep3Sub
+
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center relative overflow-hidden">
+          {/* Soft radial glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(circle at 50% 40%, rgba(124,58,237,0.18), transparent 60%)',
+            }}
+          />
+
+          {/* Brand mark */}
+          <div className="relative flex items-center gap-2 mb-12">
+            <Image src="/logo.svg" alt="Polnation" width={28} height={28} priority />
+            <span
+              className="text-white text-[16px] font-semibold tracking-tight poly-heading"
+            >
+              Polnation
+            </span>
+          </div>
+
+          {/* Animated icon — pulsing ring + emoji */}
+          <div className="relative mb-7">
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center text-[32px] shadow-cta-purple"
+              style={{
+                background:
+                  'linear-gradient(135deg, var(--poly-purple), var(--poly-emerald))',
+                animation: 'pulse 2s ease-in-out infinite',
+              }}
+            >
+              <span aria-hidden>{stepIcon}</span>
+            </div>
+            <div
+              className="absolute inset-0 rounded-full border-2 pointer-events-none"
+              style={{
+                borderColor: 'var(--poly-purple)',
+                opacity: 0.4,
+                animation: 'ping 1.6s cubic-bezier(0,0,0.2,1) infinite',
+              }}
+            />
+          </div>
+
+          {/* Step text */}
+          <h2 className="text-white text-[19px] font-semibold poly-heading mb-1.5">
+            {stepTitle}
+          </h2>
+          <p className="text-white/55 text-[13px]">{stepSub}</p>
+
+          {/* Step dots */}
+          <div className="flex items-center gap-2 mt-10">
+            {[1, 2, 3].map((s) => (
+              <span
+                key={s}
+                className="rounded-full transition-all duration-500"
+                style={{
+                  width: s === prepStep ? 22 : 6,
+                  height: 6,
+                  background:
+                    s < prepStep
+                      ? 'var(--poly-emerald)'
+                      : s === prepStep
+                      ? 'var(--poly-purple)'
+                      : 'rgba(255,255,255,0.18)',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    // Returning-user fast path: minimal spinner (auth resolves in <100ms).
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-3">
         <div className="w-10 h-10 rounded-full border-2 border-[var(--poly-purple)] border-t-transparent animate-spin" />

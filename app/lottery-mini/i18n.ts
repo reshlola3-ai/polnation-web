@@ -56,6 +56,13 @@ export interface Translations {
   noSession: string
   cantOpenLottery: string
   tryAgainBtn: string
+  // onboarding prep animation (new-user slow path)
+  prepStep1Title: string
+  prepStep1Sub: string
+  prepStep2Title: string
+  prepStep2Sub: string
+  prepStep3Title: string
+  prepStep3Sub: string
 
   // header
   webLink: string
@@ -155,6 +162,12 @@ const en: Translations = {
   noSession: 'No Telegram session data — open via the bot.',
   cantOpenLottery: "Couldn't open the lottery",
   tryAgainBtn: 'Try Again',
+  prepStep1Title: 'Verifying Telegram',
+  prepStep1Sub: 'Securing your session…',
+  prepStep2Title: 'Creating your account',
+  prepStep2Sub: 'Almost there…',
+  prepStep3Title: 'Preparing your spins',
+  prepStep3Sub: 'Loading prizes…',
 
   webLink: 'WEB ↗',
   language: 'Language',
@@ -242,6 +255,12 @@ const zh: Translations = {
   noSession: '未检测到 Telegram 会话，请通过机器人打开。',
   cantOpenLottery: '无法打开抽奖',
   tryAgainBtn: '重试',
+  prepStep1Title: '正在验证 Telegram',
+  prepStep1Sub: '建立安全连接…',
+  prepStep2Title: '正在创建你的账户',
+  prepStep2Sub: '马上完成…',
+  prepStep3Title: '准备抽奖次数',
+  prepStep3Sub: '加载奖品…',
 
   webLink: '网页 ↗',
   language: '语言',
@@ -329,6 +348,12 @@ const ru: Translations = {
   noSession: 'Данные сессии Telegram отсутствуют — откройте через бота.',
   cantOpenLottery: 'Не удалось открыть лотерею',
   tryAgainBtn: 'Повторить',
+  prepStep1Title: 'Проверка Telegram',
+  prepStep1Sub: 'Защита вашей сессии…',
+  prepStep2Title: 'Создание аккаунта',
+  prepStep2Sub: 'Почти готово…',
+  prepStep3Title: 'Подготовка спинов',
+  prepStep3Sub: 'Загрузка призов…',
 
   webLink: 'ВЕБ ↗',
   language: 'Язык',
@@ -416,6 +441,12 @@ const es: Translations = {
   noSession: 'Sin datos de sesión de Telegram — ábrelo desde el bot.',
   cantOpenLottery: 'No se pudo abrir la lotería',
   tryAgainBtn: 'Intentar de nuevo',
+  prepStep1Title: 'Verificando Telegram',
+  prepStep1Sub: 'Asegurando tu sesión…',
+  prepStep2Title: 'Creando tu cuenta',
+  prepStep2Sub: 'Casi listo…',
+  prepStep3Title: 'Preparando tus giros',
+  prepStep3Sub: 'Cargando premios…',
 
   webLink: 'WEB ↗',
   language: 'Idioma',
@@ -503,6 +534,12 @@ const pt: Translations = {
   noSession: 'Sem dados de sessão do Telegram — abra pelo bot.',
   cantOpenLottery: 'Não foi possível abrir a loteria',
   tryAgainBtn: 'Tentar novamente',
+  prepStep1Title: 'Verificando Telegram',
+  prepStep1Sub: 'Protegendo sua sessão…',
+  prepStep2Title: 'Criando sua conta',
+  prepStep2Sub: 'Quase lá…',
+  prepStep3Title: 'Preparando seus giros',
+  prepStep3Sub: 'Carregando prêmios…',
 
   webLink: 'WEB ↗',
   language: 'Idioma',
@@ -590,6 +627,12 @@ const fr: Translations = {
   noSession: 'Aucune session Telegram — ouvrez via le bot.',
   cantOpenLottery: 'Impossible d\'ouvrir la loterie',
   tryAgainBtn: 'Réessayer',
+  prepStep1Title: 'Vérification de Telegram',
+  prepStep1Sub: 'Sécurisation de votre session…',
+  prepStep2Title: 'Création de votre compte',
+  prepStep2Sub: 'Presque terminé…',
+  prepStep3Title: 'Préparation de vos tours',
+  prepStep3Sub: 'Chargement des prix…',
 
   webLink: 'WEB ↗',
   language: 'Langue',
@@ -677,6 +720,12 @@ const de: Translations = {
   noSession: 'Keine Telegram-Sitzungsdaten — über den Bot öffnen.',
   cantOpenLottery: 'Lotterie konnte nicht geöffnet werden',
   tryAgainBtn: 'Erneut versuchen',
+  prepStep1Title: 'Telegram wird verifiziert',
+  prepStep1Sub: 'Sitzung wird gesichert…',
+  prepStep2Title: 'Konto wird erstellt',
+  prepStep2Sub: 'Fast geschafft…',
+  prepStep3Title: 'Drehungen werden vorbereitet',
+  prepStep3Sub: 'Preise werden geladen…',
 
   webLink: 'WEB ↗',
   language: 'Sprache',
@@ -764,6 +813,12 @@ const ja: Translations = {
   noSession: 'Telegramセッションデータがありません。ボットから開いてください。',
   cantOpenLottery: '抽選を開けませんでした',
   tryAgainBtn: 'もう一度試す',
+  prepStep1Title: 'Telegramを認証中',
+  prepStep1Sub: 'セッションを保護中…',
+  prepStep2Title: 'アカウントを作成中',
+  prepStep2Sub: 'もう少しで完了…',
+  prepStep3Title: 'スピンを準備中',
+  prepStep3Sub: '賞品を読み込み中…',
 
   webLink: 'WEB ↗',
   language: '言語',
@@ -851,6 +906,12 @@ const ko: Translations = {
   noSession: 'Telegram 세션 데이터 없음 — 봇을 통해 열어주세요.',
   cantOpenLottery: '복권을 열 수 없습니다',
   tryAgainBtn: '다시 시도',
+  prepStep1Title: 'Telegram 인증 중',
+  prepStep1Sub: '세션 보호 중…',
+  prepStep2Title: '계정 생성 중',
+  prepStep2Sub: '거의 다 됐어요…',
+  prepStep3Title: '스핀 준비 중',
+  prepStep3Sub: '상품 불러오는 중…',
 
   webLink: '웹 ↗',
   language: '언어',
@@ -938,6 +999,12 @@ const tr: Translations = {
   noSession: 'Telegram oturumu bulunamadı — botu kullanarak açın.',
   cantOpenLottery: 'Çekiliş açılamadı',
   tryAgainBtn: 'Tekrar Dene',
+  prepStep1Title: 'Telegram doğrulanıyor',
+  prepStep1Sub: 'Oturumunuz güvenli hale getiriliyor…',
+  prepStep2Title: 'Hesabınız oluşturuluyor',
+  prepStep2Sub: 'Neredeyse tamamlandı…',
+  prepStep3Title: 'Çekilişleriniz hazırlanıyor',
+  prepStep3Sub: 'Ödüller yükleniyor…',
 
   webLink: 'WEB ↗',
   language: 'Dil',
