@@ -28,8 +28,21 @@ interface TgHaptic {
   impactOccurred: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void
 }
 
+interface TgWebAppUser {
+  id: number
+  first_name: string
+  last_name?: string
+  username?: string
+  photo_url?: string
+  language_code?: string
+}
+
 interface TgWebApp {
   initData: string
+  initDataUnsafe?: {
+    user?: TgWebAppUser
+    start_param?: string
+  }
   ready: () => void
   expand: () => void
   close: () => void
@@ -103,6 +116,8 @@ export default function LotteryMiniPage() {
 
   // ── Network state (referrer + invite count + my TG username) ────────────────
   const [telegramUsername, setTelegramUsername] = useState<string | null>(null)
+  const [tgFirstName, setTgFirstName] = useState<string | null>(null)
+  const [tgPhotoUrl, setTgPhotoUrl] = useState<string | null>(null)
   const [referredBy, setReferredBy] = useState<string | null>(null)
   const [invitedCount, setInvitedCount] = useState(0)
 
@@ -123,6 +138,15 @@ export default function LotteryMiniPage() {
     }
     tg.ready()
     tg.expand()
+
+    // Populate identity from initDataUnsafe immediately — display only,
+    // server-side HMAC of initData is what proves identity for any privileged op.
+    const tgUser = tg.initDataUnsafe?.user
+    if (tgUser) {
+      setTelegramUsername(tgUser.username || null)
+      setTgFirstName(tgUser.first_name || null)
+      setTgPhotoUrl(tgUser.photo_url || null)
+    }
 
     if (!tg.initData) {
       setAuthStatus('error')
@@ -460,7 +484,12 @@ export default function LotteryMiniPage() {
   }
 
   // Auth ready — show wheel
-  const greeting = telegramUsername ? `@${telegramUsername}` : 'Polnation Lottery'
+  // Display name preference: @public_handle → first_name → generic.
+  // first_name is always present in TG initData, so this fallback covers
+  // users who haven't set a public username on Telegram.
+  const displayName = telegramUsername
+    ? `@${telegramUsername}`
+    : tgFirstName || null
   const needsGroupJoin = groupConfigured && !isGroupMember
 
   // Open a polnation.com URL — prefer TG's openLink (stays in TG webview), fall back to window.open.
@@ -480,28 +509,48 @@ export default function LotteryMiniPage() {
     <div className="min-h-screen flex flex-col">
       {/* ── Sticky brand header ──────────────────────────────────────────── */}
       <header className="sticky top-0 z-30 backdrop-blur-md bg-[#07060d]/85 border-b border-white/[0.06]">
-        <div className="flex items-center justify-between max-w-md mx-auto px-4 h-12">
+        <div className="flex items-center justify-between max-w-md mx-auto px-3 h-12">
           <button
             type="button"
             onClick={() => openWeb('https://www.polnation.com')}
-            className="flex items-center gap-2 active:scale-[0.98] transition-transform"
+            className="flex items-center gap-2 active:scale-[0.98] transition-transform shrink-0"
           >
-            <Image src="/logo.svg" alt="Polnation" width={24} height={24} priority />
-            <span className="text-white text-[15px] font-semibold tracking-tight poly-heading">
+            <Image src="/logo.svg" alt="Polnation" width={22} height={22} priority />
+            <span className="text-white text-[14px] font-semibold tracking-tight poly-heading">
               Polnation
             </span>
-            <span className="text-white/40 text-[11px]"
-              style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.1em' }}>
-              · LOTTERY
-            </span>
           </button>
+
+          {/* User pill — avatar (if available) + display name */}
+          {displayName && (
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/[0.05] border border-white/[0.1] min-w-0 max-w-[140px]">
+              {tgPhotoUrl ? (
+                <Image
+                  src={tgPhotoUrl}
+                  alt="avatar"
+                  width={18}
+                  height={18}
+                  className="rounded-full shrink-0"
+                  unoptimized
+                />
+              ) : (
+                <span className="w-[18px] h-[18px] rounded-full bg-[var(--poly-purple)] text-white text-[10px] font-semibold flex items-center justify-center shrink-0">
+                  {(tgFirstName?.[0] || 'P').toUpperCase()}
+                </span>
+              )}
+              <span className="text-white text-[12px] font-medium truncate">
+                {displayName}
+              </span>
+            </div>
+          )}
+
           <button
             type="button"
             onClick={() => openWeb('https://www.polnation.com/dashboard')}
-            className="text-[10px] text-white/65 hover:text-white px-2.5 py-1.5 border border-white/15 hover:border-[var(--poly-purple)]/60 hover:bg-[var(--poly-purple)]/10 transition-colors flex items-center gap-1"
-            style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.08em' }}
+            className="text-[10px] text-white/65 hover:text-white px-2 py-1.5 border border-white/15 hover:border-[var(--poly-purple)]/60 hover:bg-[var(--poly-purple)]/10 transition-colors shrink-0"
+            style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.06em' }}
           >
-            OPEN WEB ↗
+            WEB ↗
           </button>
         </div>
       </header>
@@ -510,7 +559,9 @@ export default function LotteryMiniPage() {
       <div className="flex-1 flex flex-col items-center px-4 py-5 gap-5 max-w-md mx-auto w-full">
         {/* Greeting */}
         <div className="text-center">
-          <EyebrowTag>{greeting}</EyebrowTag>
+          <EyebrowTag>
+            {displayName ? `Hi ${displayName} 👋` : 'Polnation Lottery'}
+          </EyebrowTag>
           <h1 className="text-[26px] font-semibold text-white mt-1.5 poly-heading">Spin to Win</h1>
           <p className="text-white/50 text-[13px] mt-0.5">
             {isInfluencer ? '∞ Unlimited spins' : `${remainingSpins} spin${remainingSpins === 1 ? '' : 's'} available`}
