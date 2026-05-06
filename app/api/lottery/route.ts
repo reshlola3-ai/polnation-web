@@ -63,7 +63,7 @@ export async function GET() {
   }
 
   // Parallelize all 4 reads — total wait time = slowest single query, not sum.
-  const [spinRes, historyRes, airdropRes, profileRes] = await Promise.all([
+  const [spinRes, historyRes, airdropRes, profileRes, profitsRes] = await Promise.all([
     admin.from('user_lottery_spins').select('*').eq('user_id', user.id).single(),
     admin
       .from('lottery_records')
@@ -76,7 +76,8 @@ export async function GET() {
       .select('id')
       .eq('user_id', user.id)
       .eq('is_credited', true),
-    admin.from('profiles').select('referral_code').eq('id', user.id).single(),
+    admin.from('profiles').select('referral_code, wallet_address').eq('id', user.id).single(),
+    admin.from('user_profits').select('available_usdc').eq('user_id', user.id).maybeSingle(),
   ])
 
   let spinData = spinRes.data
@@ -118,5 +119,7 @@ export async function GET() {
     nextMilestone,
     history: historyRes.data || [],
     referralCode,
+    walletAddress: profileRes.data?.wallet_address ?? null,
+    availableUsdc: profitsRes.data?.available_usdc ?? 0,
   })
 }

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { LuckyWheel } from '@lucky-canvas/react'
 import { createClient } from '@/lib/supabase'
+import { TmaWalletBinder } from '@/components/wallet/TmaWalletBinder'
 
 // ── Telegram WebApp typings (minimal — only what we use) ─────────────────────
 
@@ -74,6 +75,7 @@ const PRIZE_LABELS: Record<string, string> = {
 }
 
 type AuthStatus = 'init' | 'authenticating' | 'ready' | 'error'
+type WithdrawStatus = 'idle' | 'pending' | 'success' | 'error'
 
 export default function LotteryMiniPage() {
   const supabase = createClient()
@@ -85,6 +87,14 @@ export default function LotteryMiniPage() {
   const [remainingSpins, setRemainingSpins] = useState(0)
   const [isInfluencer, setIsInfluencer] = useState(false)
   const [isSpinning, setIsSpinning] = useState(false)
+
+  // ── Wallet + withdraw state ──────────────────────────────────────────────────
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
+  const [availableUsdc, setAvailableUsdc] = useState(0)
+  const [showWalletPanel, setShowWalletPanel] = useState(false)
+  const [withdrawAmount, setWithdrawAmount] = useState('')
+  const [withdrawStatus, setWithdrawStatus] = useState<WithdrawStatus>('idle')
+  const [withdrawError, setWithdrawError] = useState('')
 
   // ── 1. TG Mini App bootstrap + auth ─────────────────────────────────────────
 
@@ -149,6 +159,8 @@ export default function LotteryMiniPage() {
         setRemainingSpins(data.remainingSpins || 0)
         setIsInfluencer(!!data.isInfluencer)
         setReferralCode(data.referralCode || null)
+        setWalletAddress(data.walletAddress || null)
+        setAvailableUsdc(data.availableUsdc || 0)
       }
     } catch {
       // silent
@@ -288,7 +300,40 @@ export default function LotteryMiniPage() {
     }
   }, [])
 
-  // ── 5. Share via TG native share sheet ──────────────────────────────────────
+  // ── 5. Withdraw ─────────────────────────────────────────────────────────────
+
+  const handleWithdraw = useCallback(async () => {
+    const amount = parseFloat(withdrawAmount)
+    if (!amount || amount <= 0 || amount > availableUsdc) return
+    setWithdrawStatus('pending')
+    setWithdrawError('')
+    try {
+      const res = await fetch('/api/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tokenType: 'USDC', amount: withdrawAmount }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Withdrawal failed')
+      setWithdrawStatus('success')
+      setWithdrawAmount('')
+      window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success')
+      window.Telegram?.WebApp?.showPopup?.({
+        title: '✅ Withdrawal submitted',
+        message: `$${amount.toFixed(2)} USDC is being processed to your wallet.`,
+        buttons: [{ type: 'ok' }],
+      })
+      setTimeout(() => {
+        setWithdrawStatus('idle')
+        refreshState()
+      }, 3000)
+    } catch (err) {
+      setWithdrawStatus('error')
+      setWithdrawError(err instanceof Error ? err.message : 'Withdrawal failed')
+    }
+  }, [withdrawAmount, availableUsdc, refreshState])
+
+  // ── 6. Share via TG native share sheet ──────────────────────────────────────
 
   const handleShare = useCallback(() => {
     if (!referralCode) return
@@ -434,6 +479,94 @@ export default function LotteryMiniPage() {
       <p className="text-[11px] text-white/40 text-center max-w-xs">
         Each friend you invite who joins via Telegram earns you 1 spin.
       </p>
+
+      {/* ── Withdraw section ──────────────────────────────────────────────── */}
+      <div className="w-full max-w-sm">
+        <div className="p-3 bg-white/[0.03] border border-white/[0.08]">
+          {/* Balance row */}
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] uppercase tracking-widest text-white/40"
+              style={{ fontFamily: 'var(--poly-font-mono)' }}>
+              Balance
+            </p>
+            <p className="text-white font-semibold text-sm"
+              style={{ fontFamily: 'var(--poly-font-mono)' }}>
+              ${availableUsdc.toFixed(2)} USDC
+            </p>
+          </div>
+
+          {/* No wallet — show binder */}
+          {!walletAddress && (
+            <>
+              {showWalletPanel ? (
+                <TmaWalletBinder
+                  onBound={(addr) => {
+                    setWalletAddress(addr)
+                    setShowWalletPanel(false)
+                  }}
+                  onCancel={() => setShowWalletPanel(false)}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setShowWalletPanel(true)}
+                  className="w-full p-2.5 bg-white/[0.06] border border-white/[0.12] text-white text-sm hover:bg-white/[0.10] active:scale-[0.99] transition-all"
+                >
+                  🔗 Connect Wallet to Withdraw
+                </button>
+              )}
+            </>
+          )}
+
+          {/* Has wallet — show withdraw form */}
+          {walletAddress && (
+            <div className="space-y-2">
+              <p className="text-[10px] text-white/35 font-mono break-all">
+                {walletAddress.slice(0, 10)}…{walletAddress.slice(-8)}
+              </p>
+              {withdrawStatus === 'success' ? (
+                <p className="text-center text-sm py-2" style={{ color: 'var(--poly-emerald)' }}>
+                  ✅ Withdrawal submitted
+                </p>
+              ) : (
+                <>
+                  {withdrawError && (
+                    <p className="text-rose-300 text-xs">{withdrawError}</p>
+                  )}
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min="0"
+                      max={availableUsdc}
+                      step="0.01"
+                      placeholder={`Max $${availableUsdc.toFixed(2)}`}
+                      value={withdrawAmount}
+                      onChange={(e) => setWithdrawAmount(e.target.value)}
+                      disabled={withdrawStatus === 'pending' || availableUsdc <= 0}
+                      className="flex-1 px-3 py-2 bg-white/[0.06] border border-white/[0.12] text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[var(--poly-purple)]/60 disabled:opacity-50"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleWithdraw}
+                      disabled={
+                        withdrawStatus === 'pending' ||
+                        availableUsdc <= 0 ||
+                        !withdrawAmount ||
+                        parseFloat(withdrawAmount) <= 0
+                      }
+                      className="px-4 py-2 bg-[var(--poly-emerald)] text-white text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none"
+                      style={{ '--poly-emerald': '#059669' } as React.CSSProperties}
+                    >
+                      {withdrawStatus === 'pending' ? '…' : 'Withdraw'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Bottom spacer so content isn't hidden behind TG MainButton (~64px) */}
       <div className="h-16" />

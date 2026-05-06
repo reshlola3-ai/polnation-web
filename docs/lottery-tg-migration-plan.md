@@ -1,8 +1,9 @@
 # Lottery TG Migration Plan
 
-**Status**: Approved · Ready to start
+**Status**: Approved · In progress
 **Owner**: TBD
-**Last updated**: 2026-05-01
+**Last updated**: 2026-05-06
+**Current status**: Phase 2 live; Phase 3 next
 
 ## Decisions (locked in)
 
@@ -69,8 +70,8 @@ Add a Telegram Mini App surface for the lottery, **as a parallel entry point alo
 
 | Phase | Scope | Estimated effort |
 |---|---|---|
-| **Phase 1** | DB schema, auth backbone, webhook, /start command | 1.5 days |
-| **Phase 2** | TG Mini App route + lottery wheel rendering | 2 days |
+| **Phase 1** | DB schema, auth backbone, webhook, /start command | Done |
+| **Phase 2** | TG Mini App route + lottery wheel rendering | Done |
 | **Phase 3** | Wallet binding inside Mini App + withdraw flow | 1.5 days |
 | **Phase 4** | Referral via `start_param`, spin grant integration | 0.5 day |
 | **Phase 5** | Testing (iOS/Android TG clients), monitoring | 1 day |
@@ -80,6 +81,28 @@ Add a Telegram Mini App surface for the lottery, **as a parallel entry point alo
 ---
 
 ## Phase 1 — Auth backbone
+
+### Phase 1 activation log
+
+Status: live as of 2026-05-06.
+
+- Code shipped: `25e1e8e8` (`feat(tg): Phase 1 — TG Mini App auth backbone`).
+- Follow-up fix shipped: `8b46797c` (`fix(tg): await webhook start reply`).
+- Vercel env vars configured for Production + Preview:
+  - `TELEGRAM_BOT_TOKEN`
+  - `TELEGRAM_BOT_USERNAME=PolnationBot`
+  - `TELEGRAM_WEBHOOK_SECRET`
+  - `TELEGRAM_MINI_APP_SHORT_NAME=lottery`
+- Supabase migration applied: `supabase/migrations/add-telegram-mini-app-fields.sql`.
+- Telegram webhook registered:
+  - URL: `https://www.polnation.com/api/telegram/webhook`
+  - `allowed_updates`: `["message"]`
+- Verified:
+  - `GET https://www.polnation.com/api/telegram/webhook` returns `{ "ok": true, "service": "tg-webhook" }`.
+  - Telegram `getWebhookInfo` points to the production webhook URL with `pending_update_count=0`.
+  - Sending `/start` to `@PolnationBot` returns the welcome message and Open Lottery button.
+
+Note: `/lottery-mini` route is now live as of Phase 2.
 
 ### 1.1 BotFather setup (manual, ~30 min)
 
@@ -311,6 +334,24 @@ async function sendTelegramMessage(chatId: number, payload: any) {
 ---
 
 ## Phase 2 — TG Mini App route
+
+### Phase 2 activation log
+
+Status: live as of 2026-05-06.
+
+- Code shipped: `55eef522` (`feat(tg): Phase 2 — TG Mini App lottery route`).
+- Files created:
+  - `app/lottery-mini/layout.tsx` — minimal layout, no Navbar/BottomNav; injects TG SDK via `<Script strategy="beforeInteractive">`.
+  - `app/lottery-mini/page.tsx` — full Mini App page.
+- Implementation notes:
+  - Uses `@lucky-canvas/react` LuckyWheel directly with a self-contained PRIZE_CONFIGS (mirrors server PRIZES table, 12 segments). Did **not** reuse the web `LotteryWheel` wrapper component — keeps the Mini App layout independent.
+  - Auth state machine: `init → authenticating → ready → error`. On mount: reads `window.Telegram.WebApp.initData`, POSTs to `/api/auth/telegram`, calls `supabase.auth.verifyOtp` with the returned magic link token. Spinner shown during authenticating; error screen on failure.
+  - TG MainButton wired via `useEffect` on `[remainingSpins, isInfluencer, isSpinning]`. Text: `SPINNING…` | `SPIN (N LEFT)` | `SPIN` (influencer, no count) | `NO SPINS LEFT`. Auto-enable/disable matches state.
+  - `pendingResultRef` pattern: handleSpin stashes `{ type, amount }` into a ref; `handleWheelEnd` (fired by `@lucky-canvas` `onEnd` callback) reads it to drive the TG showPopup. This avoids stale-closure issues with async wheel animation timing.
+  - Win popup: `tg.showPopup()` with prize label + flavour text (USDC → "Added to your withdrawable balance"; Bonus → "Added to your unlock progress"). `tg.HapticFeedback.notificationOccurred('success' | 'warning')` on each result.
+  - Share button calls `tg.openTelegramLink` with native share URL `https://t.me/share/url?url=...&text=...`. Falls back to `window.open` if `openTelegramLink` is unavailable.
+  - `isInfluencer` flag from `/api/lottery` response gates "∞ Unlimited spins" display and bypasses the `remainingSpins > 0` guard on spin.
+- Pending real-device testing (Phase 5): iOS + Android TG clients.
 
 ### 2.1 New route
 
