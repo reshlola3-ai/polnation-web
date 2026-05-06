@@ -21,15 +21,17 @@ export async function POST(request: Request) {
 
     const normalizedAddress = walletAddress.toLowerCase()
 
-    // Resolve referrerId: support both short code (e.g. "AB3X") and UUID
+    // Resolve referrerId: support both short code (e.g. "AB3X") and UUID.
+    // Short-code lookup is case-insensitive — legacy referral_codes may contain
+    // lowercase chars (see app/api/referrer/route.ts for the same workaround).
     let resolvedReferrerId: string | null = null
     if (referrerId) {
       const isShortCode = referrerId.length <= 6 && !referrerId.includes('-')
-      const { data: refProfile } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .eq(isShortCode ? 'referral_code' : 'id', isShortCode ? referrerId.toUpperCase() : referrerId)
-        .single()
+      const query = supabaseAdmin.from('profiles').select('id')
+      const { data: refProfile } = await (isShortCode
+        ? query.ilike('referral_code', referrerId)
+        : query.eq('id', referrerId)
+      ).single()
       resolvedReferrerId = refProfile?.id || null
     }
 
