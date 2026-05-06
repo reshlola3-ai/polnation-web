@@ -8,6 +8,7 @@ import { AuthLayout } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { InlineWalletPicker } from '@/components/wallet/InlineWalletPicker'
+import { TelegramLoginButton } from '@/components/auth/TelegramLoginButton'
 import { Web3Provider } from '@/components/providers/Web3Provider'
 import { Mail, Lock } from 'lucide-react'
 
@@ -51,6 +52,16 @@ function LoginForm() {
       <Web3Provider>
         <InlineWalletPicker redirect={redirect} autoRegister={true} referrerId={ref} />
       </Web3Provider>
+
+      {/* Telegram login — for users who joined via the Mini App */}
+      <div className="mt-4">
+        <p className="text-xs text-zinc-500 mb-2 text-center">
+          Joined Polnation in Telegram? Sign in here.
+        </p>
+        <div className="flex justify-center">
+          <TelegramLoginButton redirect={redirect} referralCode={ref} />
+        </div>
+      </div>
 
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center">
