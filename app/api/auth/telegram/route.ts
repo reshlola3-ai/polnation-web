@@ -137,19 +137,26 @@ export async function POST(request: Request) {
     // 1:1 conversations between user and bot they're the same value).
     const { data: existing } = await supabaseAdmin
       .from('profiles')
-      .select('id, email')
+      .select('id, email, referrer_id')
       .eq('telegram_chat_id', tgUser.id)
       .single()
 
     if (existing) {
+      const referrerId = await resolveReferrer(verified.startParam)
+      const profilePatch: Record<string, unknown> = {
+        telegram_username: tgUser.username || null,
+        telegram_photo_url: tgUser.photo_url || null,
+        telegram_verified: true,
+      }
+
+      if (referrerId && !existing.referrer_id && referrerId !== existing.id) {
+        profilePatch.referrer_id = referrerId
+      }
+
       // Returning TG user — refresh denormalized fields and log them in.
       await supabaseAdmin
         .from('profiles')
-        .update({
-          telegram_username: tgUser.username || null,
-          telegram_photo_url: tgUser.photo_url || null,
-          telegram_verified: true,
-        })
+        .update(profilePatch)
         .eq('id', existing.id)
 
       return await installSession(existing.email, existing.id, false)

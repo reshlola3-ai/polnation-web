@@ -133,6 +133,12 @@ const TICKER_WIN_AMOUNTS = [0.5, 0.5, 0.5, 1, 1, 1, 5]
 const TICKER_WITHDRAW_AMOUNTS = [5.5, 12, 18, 25, 32, 47, 88, 120, 156, 250]
 
 type TickerEvent = { type: 'win' | 'withdrawal'; name: string; amount: number }
+type Invitee = {
+  id: string
+  name: string
+  photoUrl: string | null
+  joinedAt: string | null
+}
 
 function generateMockTicker(count: number): TickerEvent[] {
   const out: TickerEvent[] = []
@@ -180,6 +186,7 @@ export default function LotteryMiniPage() {
   const [tgPhotoUrl, setTgPhotoUrl] = useState<string | null>(null)
   const [referredBy, setReferredBy] = useState<string | null>(null)
   const [invitedCount, setInvitedCount] = useState(0)
+  const [invitees, setInvitees] = useState<Invitee[]>([])
 
   // ── TG group membership state ───────────────────────────────────────────────
   const [groupConfigured, setGroupConfigured] = useState(false)
@@ -257,13 +264,17 @@ export default function LotteryMiniPage() {
     }
 
     setAuthStatus('authenticating')
+    const launchStartParam =
+      tg.initDataUnsafe?.start_param ||
+      new URLSearchParams(window.location.search).get('tgWebAppStartParam') ||
+      null
 
     ;(async () => {
       try {
-        // Fast path: reuse existing Supabase session — returning users skip
-        // both the prep animation AND the full HMAC roundtrip.
+        // Fast path: returning users skip the auth roundtrip unless this
+        // launch carries a referral payload that still needs attribution.
         const { data: { session } } = await supabase.auth.getSession()
-        if (session) {
+        if (session && !launchStartParam) {
           setAuthStatus('ready')
           return
         }
@@ -282,12 +293,16 @@ export default function LotteryMiniPage() {
           }
         })()
 
-        setPrepStep(1)
-        const step2Timer = window.setTimeout(() => setPrepStep(2), 450)
-        const step3Timer = window.setTimeout(() => setPrepStep(3), 900)
+        let step2Timer: number | undefined
+        let step3Timer: number | undefined
+        if (!session) {
+          setPrepStep(1)
+          step2Timer = window.setTimeout(() => setPrepStep(2), 450)
+          step3Timer = window.setTimeout(() => setPrepStep(3), 900)
+        }
         await authPromise
-        window.clearTimeout(step2Timer)
-        window.clearTimeout(step3Timer)
+        if (step2Timer) window.clearTimeout(step2Timer)
+        if (step3Timer) window.clearTimeout(step3Timer)
 
         setAuthStatus('ready')
       } catch (err) {
@@ -317,6 +332,7 @@ export default function LotteryMiniPage() {
         setTelegramUsername(data.telegramUsername || null)
         setReferredBy(data.referredBy || null)
         setInvitedCount(data.invitedCount || 0)
+        setInvitees(Array.isArray(data.invitees) ? data.invitees : [])
         setWelcomeSpinEarned(!!data.welcomeSpinEarned)
         setSpinHistory(data.history || [])
       }
@@ -742,6 +758,11 @@ export default function LotteryMiniPage() {
     { label: t.agenticTeam,  emoji: '🤖', path: '/team' },
   ]
 
+  const formatInviteDate = (value: string | null) => {
+    if (!value) return ''
+    return new Date(value).toLocaleDateString(locale, { month: 'short', day: 'numeric' })
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* ── Sticky brand header ──────────────────────────────────────────── */}
@@ -1073,6 +1094,54 @@ export default function LotteryMiniPage() {
             </p>
           </BevelCard>
         </div>
+
+        <BevelCard size="lg" pad={14} className="w-full">
+          <div className="flex items-center justify-between gap-3">
+            <EyebrowTag>{t.youInvited}</EyebrowTag>
+            <span
+              className="text-white/50 text-[11px]"
+              style={{ fontFamily: 'var(--poly-font-mono)' }}
+            >
+              {t.friends(invitedCount)}
+            </span>
+          </div>
+          {invitees.length > 0 ? (
+            <div className="mt-3 divide-y divide-white/[0.06]">
+              {invitees.map((invitee) => (
+                <div key={invitee.id} className="flex items-center gap-3 py-2 first:pt-0 last:pb-0">
+                  <div className="w-8 h-8 shrink-0 bg-white/[0.06] border border-white/[0.08] flex items-center justify-center overflow-hidden">
+                    {invitee.photoUrl ? (
+                      <Image
+                        src={invitee.photoUrl}
+                        alt={invitee.name}
+                        width={32}
+                        height={32}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      <span className="text-white/65 text-xs font-semibold">
+                        {invitee.name.slice(0, 1).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-[13px] font-medium truncate">
+                      {invitee.name.startsWith('@') ? invitee.name : `@${invitee.name}`}
+                    </p>
+                  </div>
+                  <span className="text-white/35 text-[11px] shrink-0">
+                    {formatInviteDate(invitee.joinedAt)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-white/40 text-[12px] mt-3">
+              {t.inviteHint}
+            </p>
+          )}
+        </BevelCard>
 
         {/* Share */}
         <button

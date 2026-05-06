@@ -63,7 +63,7 @@ export async function GET() {
   }
 
   // Parallelize all 4 reads — total wait time = slowest single query, not sum.
-  const [spinRes, historyRes, airdropRes, profileRes, profitsRes, inviteCountRes, welcomeRes] = await Promise.all([
+  const [spinRes, historyRes, airdropRes, profileRes, profitsRes, inviteCountRes, inviteesRes, welcomeRes] = await Promise.all([
     admin.from('user_lottery_spins').select('*').eq('user_id', user.id).single(),
     admin
       .from('lottery_records')
@@ -86,6 +86,12 @@ export async function GET() {
       .from('profiles')
       .select('id', { count: 'exact', head: true })
       .eq('referrer_id', user.id),
+    admin
+      .from('profiles')
+      .select('id, username, telegram_username, telegram_photo_url, created_at')
+      .eq('referrer_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20),
     admin
       .from('lottery_spin_grants')
       .select('id')
@@ -132,6 +138,12 @@ export async function GET() {
   const selfAirdropCount = airdropRes.data?.length || 0
   const nextMilestone = (Math.floor(selfAirdropCount / 7) + 1) * 7
   const progressToNextSpin = selfAirdropCount % 7
+  const invitees = (inviteesRes.data || []).map((invitee) => ({
+    id: invitee.id,
+    name: invitee.telegram_username || invitee.username || 'Friend',
+    photoUrl: invitee.telegram_photo_url || null,
+    joinedAt: invitee.created_at,
+  }))
 
   return NextResponse.json({
     canSpin,
@@ -149,6 +161,7 @@ export async function GET() {
     telegramUsername: profileRes.data?.telegram_username ?? null,
     referredBy,
     invitedCount: inviteCountRes.count ?? 0,
+    invitees,
     welcomeSpinEarned: !!welcomeRes.data,
   })
 }
