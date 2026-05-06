@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import crypto from 'node:crypto'
 
@@ -150,7 +152,7 @@ export async function POST(request: Request) {
         })
         .eq('id', existing.id)
 
-      return await generateMagicLink(existing.email, existing.id, false)
+      return await installSession(existing.email, existing.id, false)
     }
 
     // New TG user — create account.
@@ -248,12 +250,14 @@ async function createTelegramAccount(tgUser: TelegramUser, referrerId: string | 
     }
   }
 
-  return await generateMagicLink(syntheticEmail, userId, true)
+  return await installSession(syntheticEmail, userId, true)
 }
 
-// ── Magic link: same shape as wallet-login response ──────────────────────────
+// ── Install session server-side: generate magic-link OTP, then verify it
+// using the SSR client so the session cookies are written directly to the
+// response. Eliminates the client-side verifyOtp roundtrip entirely.
 
-async function generateMagicLink(
+async function installSession(
   email: string | null,
   userId: string,
   isNewUser: boolean
@@ -263,23 +267,40 @@ async function generateMagicLink(
   const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
     type: 'magiclink',
     email: loginEmail,
-    options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://www.polnation.com'}/lottery-mini`,
-    },
   })
 
-  if (linkError || !linkData?.properties?.action_link) {
+  if (linkError || !linkData?.properties?.hashed_token) {
     console.error('TG magic link error:', linkError)
-    return NextResponse.json(
-      { error: 'login_failed' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'login_failed' }, { status: 500 })
   }
 
-  return NextResponse.json({
-    success: true,
-    isNewUser,
-    magicLink: linkData.properties.action_link,
-    userId,
+  const cookieStore = await cookies()
+  const ssrClient = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+          })
+        },
+      },
+    }
+  )
+
+  const { error: verifyErr } = await ssrClient.auth.verifyOtp({
+    token_hash: linkData.properties.hashed_token,
+    type: 'magiclink',
   })
+
+  if (verifyErr) {
+    console.error('TG verifyOtp error:', verifyErr)
+    return NextResponse.json({ error: 'verify_failed' }, { status: 500 })
+  }
+
+  return NextResponse.json({ success: true, isNewUser, userId })
 }

@@ -251,28 +251,20 @@ export default function LotteryMiniPage() {
           return
         }
 
-        // Slow path: first visit or expired session — verify TG initData,
-        // create/update profile, and install a fresh session via magic link.
+        // Slow path: first visit or expired session. Server verifies TG
+        // initData, creates/updates the profile, AND installs the Supabase
+        // session via Set-Cookie on the response — so we don't need a
+        // second client → Supabase verifyOtp roundtrip (saves ~300-800ms
+        // on mobile networks, biggest win for new users).
         const res = await fetch('/api/auth/telegram', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ initData: tg.initData }),
         })
         const data = await res.json()
-        if (!res.ok || !data.magicLink) {
+        if (!res.ok || !data.success) {
           throw new Error(data?.error || 'auth_failed')
         }
-
-        const url = new URL(data.magicLink)
-        const token = url.searchParams.get('token')
-        const type = (url.searchParams.get('type') as 'magiclink') || 'magiclink'
-        if (!token) throw new Error('no_token_in_magic_link')
-
-        const { error: verifyErr } = await supabase.auth.verifyOtp({
-          token_hash: token,
-          type,
-        })
-        if (verifyErr) throw new Error(verifyErr.message)
 
         setAuthStatus('ready')
       } catch (err) {
