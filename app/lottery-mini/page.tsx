@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { LuckyWheel } from '@lucky-canvas/react'
 import { createClient } from '@/lib/supabase'
-import { TmaWalletBinder } from '@/components/wallet/TmaWalletBinder'
 import { BevelCard } from '@/components/ui/poly/BevelCard'
 import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
 import { MonoStat } from '@/components/ui/poly/MonoStat'
@@ -18,6 +18,19 @@ import {
 } from './i18n'
 
 // ── Telegram WebApp typings (minimal — only what we use) ─────────────────────
+
+const TmaWalletPanel = dynamic(
+  () => import('@/components/wallet/TmaWalletPanel').then((m) => m.TmaWalletPanel),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="p-4 bg-white/[0.04] border border-white/[0.08] flex items-center gap-3">
+        <div className="w-5 h-5 rounded-full border-2 border-[var(--poly-purple)] border-t-transparent animate-spin" />
+        <p className="text-white/55 text-sm">Loading wallet...</p>
+      </div>
+    ),
+  }
+)
 
 interface TgMainButton {
   text: string
@@ -255,9 +268,8 @@ export default function LotteryMiniPage() {
           return
         }
 
-        // Slow path: kick off auth in parallel with the staged onboarding
-        // animation. Total wait = max(animation, actual auth time), so the
-        // wait feels intentional rather than blocked.
+        // Slow path: show onboarding only while auth is genuinely pending.
+        // Never hold the page open for cosmetic timing.
         const authPromise = (async () => {
           const res = await fetch('/api/auth/telegram', {
             method: 'POST',
@@ -270,18 +282,12 @@ export default function LotteryMiniPage() {
           }
         })()
 
-        // Step 1 — verifying Telegram (700ms)
         setPrepStep(1)
-        await new Promise((r) => setTimeout(r, 700))
-        // Step 2 — creating account (700ms)
-        setPrepStep(2)
-        await new Promise((r) => setTimeout(r, 700))
-        // Step 3 — preparing spins, hold until auth resolves (min 400ms)
-        setPrepStep(3)
-        await Promise.all([
-          authPromise,
-          new Promise((r) => setTimeout(r, 400)),
-        ])
+        const step2Timer = window.setTimeout(() => setPrepStep(2), 450)
+        const step3Timer = window.setTimeout(() => setPrepStep(3), 900)
+        await authPromise
+        window.clearTimeout(step2Timer)
+        window.clearTimeout(step3Timer)
 
         setAuthStatus('ready')
       } catch (err) {
@@ -943,7 +949,7 @@ export default function LotteryMiniPage() {
           {/* No wallet — binder */}
           {!walletAddress && (
             showWalletPanel ? (
-              <TmaWalletBinder
+              <TmaWalletPanel
                 onBound={(addr) => {
                   setWalletAddress(addr)
                   setShowWalletPanel(false)
