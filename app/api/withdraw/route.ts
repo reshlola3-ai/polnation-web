@@ -127,15 +127,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Insufficient balance' }, { status: 400 })
     }
 
-    // 获取用户钱包地址
+    // 获取用户钱包地址 + telegram_chat_id（用于 TG 群成员校验）
     const { data: profile } = await supabaseAdmin
       .from('profiles')
-      .select('wallet_address')
+      .select('wallet_address, telegram_chat_id')
       .eq('id', user.id)
       .single()
 
     if (!profile?.wallet_address) {
       return NextResponse.json({ error: 'No wallet connected' }, { status: 400 })
+    }
+
+    // TG 群成员校验：只有当用户是 TG 注册账号 且 配置了所需群 时才强制
+    // 非 TG 用户（web 钱包注册）不受影响
+    const requiredChatId = process.env.TELEGRAM_REQUIRED_CHAT_ID
+    const botToken = process.env.TELEGRAM_BOT_TOKEN
+    if (profile.telegram_chat_id && requiredChatId && botToken) {
+      try {
+        const url = `https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${encodeURIComponent(requiredChatId)}&user_id=${profile.telegram_chat_id}`
+        const res = await fetch(url, { cache: 'no-store' })
+        const data = await res.json()
+        const status = data.ok ? data.result?.status : null
+        const isMember = status === 'creator' || status === 'administrator' || status === 'member' || status === 'restricted'
+        if (!isMember) {
+          return NextResponse.json({ error: 'tg_group_required' }, { status: 403 })
+        }
+      } catch (err) {
+        console.error('TG membership check failed during withdraw:', err)
+        return NextResponse.json({ error: 'tg_group_check_failed' }, { status: 503 })
+      }
     }
 
     // 计算实际发送的代币数量

@@ -164,7 +164,40 @@ export async function POST() {
     }
   }
 
-  // ========== 4. 更新 total_spins ==========
+  // ========== 4. TG 直推：下线绑定了 telegram_chat_id → 推荐人 +1 次 ==========
+  // 与第 3 条并行：一个下线如果先 TG 加入再做 Twitter 验证，会触发两次（两个独立的奖励动作）
+  const { data: tgReferrals } = await admin
+    .from('profiles')
+    .select('id')
+    .eq('referrer_id', user.id)
+    .not('telegram_chat_id', 'is', null)
+
+  if (tgReferrals && tgReferrals.length > 0) {
+    for (const referral of tgReferrals) {
+      const { data: existingGrant } = await admin
+        .from('lottery_spin_grants')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('grant_reason', 'referral_telegram_joined')
+        .eq('referral_id', referral.id)
+        .single()
+
+      if (!existingGrant) {
+        await admin
+          .from('lottery_spin_grants')
+          .insert({
+            user_id: user.id,
+            grant_reason: 'referral_telegram_joined',
+            referral_id: referral.id,
+            milestone_count: 1,
+            spins_granted: 1,
+          })
+        newSpinsGranted += 1
+      }
+    }
+  }
+
+  // ========== 5. 更新 total_spins ==========
   if (newSpinsGranted > 0) {
     await admin
       .from('user_lottery_spins')

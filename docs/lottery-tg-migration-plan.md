@@ -3,7 +3,7 @@
 **Status**: Approved · In progress
 **Owner**: TBD
 **Last updated**: 2026-05-06
-**Current status**: Phase 3 live; Phase 4 next
+**Current status**: Phase 4 live (referral grant + group gate + network UI); Phase 5 testing next
 
 ## Decisions (locked in)
 
@@ -73,7 +73,7 @@ Add a Telegram Mini App surface for the lottery, **as a parallel entry point alo
 | **Phase 1** | DB schema, auth backbone, webhook, /start command | Done |
 | **Phase 2** | TG Mini App route + lottery wheel rendering | Done |
 | **Phase 3** | Wallet binding inside Mini App + withdraw flow | Done |
-| **Phase 4** | Referral via `start_param`, spin grant integration | 0.5 day |
+| **Phase 4** | Referral via `start_param`, spin grant integration | Done |
 | **Phase 5** | Testing (iOS/Android TG clients), monitoring | 1 day |
 | **Phase 6** | Buffer / polish | 0.5 day |
 | **Total** | | **~7 days** |
@@ -535,6 +535,28 @@ When TG user wins USDC and clicks "Withdraw":
 ---
 
 ## Phase 4 — Referral via `start_param`
+
+### Phase 4 activation log
+
+Status: live as of 2026-05-06. Bundled with Phase 3 follow-up review work.
+
+- `referral_telegram_joined` grant rule shipped in `app/api/lottery/check-spins/route.ts` (rule #4). Trigger: any direct referral with `telegram_chat_id IS NOT NULL` → +1 spin to referrer. Dedupe via `lottery_spin_grants(user_id, grant_reason='referral_telegram_joined', referral_id)`.
+- The TG referral path (`?startapp=ref_XXXX` → `/api/auth/telegram` → `referrer_id` set) was already in place from Phase 1. Phase 4 just made it pay out.
+- New mandatory withdraw gate: TG users must be a member of `TELEGRAM_REQUIRED_CHAT_ID` to withdraw.
+  - New endpoint `app/api/telegram/check-membership/route.ts` (GET) calls Bot API `getChatMember`. If env var is unset → returns `configured: false, isMember: true` (no-op gate, dev-friendly).
+  - Same check duplicated in `app/api/withdraw/route.ts` so the gate cannot be bypassed by faking the frontend.
+  - Required env vars (production-only):
+    - `TELEGRAM_REQUIRED_CHAT_ID` — supergroup chat_id (e.g., `-1001234567890`).
+    - `TELEGRAM_GROUP_INVITE_LINK` — public invite URL shown in the UI.
+- `/api/lottery` GET extended again with `telegramUsername`, `referredBy`, `invitedCount` — feeds the new "network" UI block.
+- `app/lottery-mini/page.tsx` reshuffled:
+  - Withdraw block moved to **directly under the wheel** (so users who win USDC see balance immediately).
+  - "Join Telegram Group to Withdraw" button rendered when `groupConfigured && !isGroupMember && walletAddress`.
+  - "Invited by @X · You invited N friends" mini-block added.
+  - Header eyebrow now greets the user with their `@telegram_username` when available.
+  - Bonus reward info card became a link to polnation.com/dashboard (so bonus winners have a path to view progress).
+  - Withdraw error auto-clears on amount edit; minimum-amount hint ("Minimum $0.10 USDC") rendered under the form.
+  - TG MainButton hides while withdraw input is focused (prevents mis-tap on SPIN).
 
 ### 4.1 Bot link format
 

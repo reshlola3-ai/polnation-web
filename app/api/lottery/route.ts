@@ -63,7 +63,7 @@ export async function GET() {
   }
 
   // Parallelize all 4 reads — total wait time = slowest single query, not sum.
-  const [spinRes, historyRes, airdropRes, profileRes, profitsRes] = await Promise.all([
+  const [spinRes, historyRes, airdropRes, profileRes, profitsRes, inviteCountRes] = await Promise.all([
     admin.from('user_lottery_spins').select('*').eq('user_id', user.id).single(),
     admin
       .from('lottery_records')
@@ -76,9 +76,28 @@ export async function GET() {
       .select('id')
       .eq('user_id', user.id)
       .eq('is_credited', true),
-    admin.from('profiles').select('referral_code, wallet_address').eq('id', user.id).single(),
+    admin
+      .from('profiles')
+      .select('referral_code, wallet_address, telegram_username, referrer_id')
+      .eq('id', user.id)
+      .single(),
     admin.from('user_profits').select('available_usdc').eq('user_id', user.id).maybeSingle(),
+    admin
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('referrer_id', user.id),
   ])
+
+  // Resolve referrer display name (TG username preferred, polnation username fallback)
+  let referredBy: string | null = null
+  if (profileRes.data?.referrer_id) {
+    const { data: ref } = await admin
+      .from('profiles')
+      .select('telegram_username, username')
+      .eq('id', profileRes.data.referrer_id)
+      .single()
+    referredBy = ref?.telegram_username || ref?.username || null
+  }
 
   let spinData = spinRes.data
   // 如果没有记录，创建一条
@@ -121,5 +140,8 @@ export async function GET() {
     referralCode,
     walletAddress: profileRes.data?.wallet_address ?? null,
     availableUsdc: profitsRes.data?.available_usdc ?? 0,
+    telegramUsername: profileRes.data?.telegram_username ?? null,
+    referredBy,
+    invitedCount: inviteCountRes.count ?? 0,
   })
 }

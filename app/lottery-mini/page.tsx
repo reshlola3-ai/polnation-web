@@ -96,6 +96,17 @@ export default function LotteryMiniPage() {
   const [withdrawStatus, setWithdrawStatus] = useState<WithdrawStatus>('idle')
   const [withdrawError, setWithdrawError] = useState('')
 
+  // ── Network state (referrer + invite count + my TG username) ────────────────
+  const [telegramUsername, setTelegramUsername] = useState<string | null>(null)
+  const [referredBy, setReferredBy] = useState<string | null>(null)
+  const [invitedCount, setInvitedCount] = useState(0)
+
+  // ── TG group membership state ───────────────────────────────────────────────
+  const [groupConfigured, setGroupConfigured] = useState(false)
+  const [isGroupMember, setIsGroupMember] = useState(false)
+  const [groupInviteLink, setGroupInviteLink] = useState<string | null>(null)
+  const [withdrawFocused, setWithdrawFocused] = useState(false)
+
   // ── 1. TG Mini App bootstrap + auth ─────────────────────────────────────────
 
   useEffect(() => {
@@ -153,14 +164,26 @@ export default function LotteryMiniPage() {
 
   const refreshState = useCallback(async () => {
     try {
-      const res = await fetch('/api/lottery')
-      if (res.ok) {
-        const data = await res.json()
+      const [lotteryRes, membershipRes] = await Promise.all([
+        fetch('/api/lottery'),
+        fetch('/api/telegram/check-membership'),
+      ])
+      if (lotteryRes.ok) {
+        const data = await lotteryRes.json()
         setRemainingSpins(data.remainingSpins || 0)
         setIsInfluencer(!!data.isInfluencer)
         setReferralCode(data.referralCode || null)
         setWalletAddress(data.walletAddress || null)
         setAvailableUsdc(data.availableUsdc || 0)
+        setTelegramUsername(data.telegramUsername || null)
+        setReferredBy(data.referredBy || null)
+        setInvitedCount(data.invitedCount || 0)
+      }
+      if (membershipRes.ok) {
+        const m = await membershipRes.json()
+        setGroupConfigured(!!m.configured)
+        setIsGroupMember(!!m.isMember)
+        setGroupInviteLink(m.inviteLink || null)
       }
     } catch {
       // silent
@@ -267,6 +290,13 @@ export default function LotteryMiniPage() {
     if (!tg || authStatus !== 'ready') return
 
     const mb = tg.MainButton
+
+    // Hide MainButton while user is in the withdraw form to avoid mis-tap on SPIN.
+    if (withdrawFocused) {
+      mb.hide()
+      return
+    }
+
     const canSpin = remainingSpins > 0 || isInfluencer
     const text = isSpinning
       ? 'SPINNING…'
@@ -291,7 +321,7 @@ export default function LotteryMiniPage() {
     return () => {
       mb.offClick(handler)
     }
-  }, [authStatus, remainingSpins, isInfluencer, isSpinning, handleSpin])
+  }, [authStatus, remainingSpins, isInfluencer, isSpinning, handleSpin, withdrawFocused])
 
   // Hide MainButton on unmount as a safety net (if user navigates away inside the Mini App).
   useEffect(() => {
@@ -314,7 +344,14 @@ export default function LotteryMiniPage() {
         body: JSON.stringify({ tokenType: 'USDC', amount: withdrawAmount }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Withdrawal failed')
+      if (!res.ok) {
+        // Special-case the TG group gate so we can render a Join button.
+        if (data?.error === 'tg_group_required') {
+          setIsGroupMember(false)
+          throw new Error('Join the Polnation Telegram group to withdraw.')
+        }
+        throw new Error(data?.error || 'Withdrawal failed')
+      }
       setWithdrawStatus('success')
       setWithdrawAmount('')
       window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success')
@@ -332,6 +369,12 @@ export default function LotteryMiniPage() {
       setWithdrawError(err instanceof Error ? err.message : 'Withdrawal failed')
     }
   }, [withdrawAmount, availableUsdc, refreshState])
+
+  // Auto-clear withdraw error when user edits the amount
+  useEffect(() => {
+    if (withdrawError) setWithdrawError('')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [withdrawAmount])
 
   // ── 6. Share via TG native share sheet ──────────────────────────────────────
 
@@ -412,6 +455,9 @@ export default function LotteryMiniPage() {
   }
 
   // Auth ready — show wheel
+  const greeting = telegramUsername ? `@${telegramUsername}` : 'Polnation · Lottery'
+  const needsGroupJoin = groupConfigured && !isGroupMember
+
   return (
     <div className="min-h-screen flex flex-col items-center px-4 py-6 gap-5">
       {/* Header strip */}
@@ -420,7 +466,7 @@ export default function LotteryMiniPage() {
           className="text-[11px] uppercase mb-1"
           style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.15em', color: 'var(--poly-grey-200)' }}
         >
-          Polnation · Lottery
+          {greeting}
         </p>
         <h1 className="text-[22px] font-semibold text-white">Spin to Win</h1>
         <p className="text-white/50 text-[13px] mt-1">
@@ -450,50 +496,31 @@ export default function LotteryMiniPage() {
         </div>
       </div>
 
-      {/* Reward info */}
-      <div className="w-full max-w-sm flex gap-2">
-        <div className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.04] border border-[var(--poly-emerald)]/20">
-          <span className="text-base">💰</span>
-          <p className="text-[11px] leading-tight" style={{ color: 'var(--poly-emerald)' }}>
-            USDC → withdrawable
-          </p>
-        </div>
-        <div className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.04] border border-[var(--poly-purple)]/20">
-          <span className="text-base">⭐</span>
-          <p className="text-[11px] leading-tight text-[var(--poly-purple)]">
-            Bonus → unlock progress
-          </p>
-        </div>
-      </div>
-
-      {/* Share — earn extra spins by inviting */}
-      <button
-        type="button"
-        onClick={handleShare}
-        disabled={!referralCode}
-        className="w-full max-w-sm flex items-center justify-center gap-2 p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple disabled:opacity-40 disabled:pointer-events-none"
-      >
-        🔗 Invite a Friend → +1 Spin
-      </button>
-
-      <p className="text-[11px] text-white/40 text-center max-w-xs">
-        Each friend you invite who joins via Telegram earns you 1 spin.
-      </p>
-
-      {/* ── Withdraw section ──────────────────────────────────────────────── */}
+      {/* ── Withdraw section (right under wheel — won USDC → see balance immediately) ── */}
       <div className="w-full max-w-sm">
         <div className="p-3 bg-white/[0.03] border border-white/[0.08]">
-          {/* Balance row */}
           <div className="flex items-center justify-between mb-3">
             <p className="text-[11px] uppercase tracking-widest text-white/40"
               style={{ fontFamily: 'var(--poly-font-mono)' }}>
-              Balance
+              Withdrawable
             </p>
             <p className="text-white font-semibold text-sm"
               style={{ fontFamily: 'var(--poly-font-mono)' }}>
               ${availableUsdc.toFixed(2)} USDC
             </p>
           </div>
+
+          {/* Group gate — must join before any withdraw action is possible */}
+          {needsGroupJoin && walletAddress && groupInviteLink && (
+            <a
+              href={groupInviteLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full text-center p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple mb-2"
+            >
+              📢 Join Telegram Group to Withdraw
+            </a>
+          )}
 
           {/* No wallet — show binder */}
           {!walletAddress && (
@@ -518,7 +545,7 @@ export default function LotteryMiniPage() {
             </>
           )}
 
-          {/* Has wallet — show withdraw form */}
+          {/* Has wallet — show withdraw form (gated by group membership) */}
           {walletAddress && (
             <div className="space-y-2">
               <p className="text-[10px] text-white/35 font-mono break-all">
@@ -543,7 +570,9 @@ export default function LotteryMiniPage() {
                       placeholder={`Max $${availableUsdc.toFixed(2)}`}
                       value={withdrawAmount}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
-                      disabled={withdrawStatus === 'pending' || availableUsdc <= 0}
+                      onFocus={() => setWithdrawFocused(true)}
+                      onBlur={() => setWithdrawFocused(false)}
+                      disabled={withdrawStatus === 'pending' || availableUsdc <= 0 || needsGroupJoin}
                       className="flex-1 px-3 py-2 bg-white/[0.06] border border-white/[0.12] text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[var(--poly-purple)]/60 disabled:opacity-50"
                     />
                     <button
@@ -553,20 +582,80 @@ export default function LotteryMiniPage() {
                         withdrawStatus === 'pending' ||
                         availableUsdc <= 0 ||
                         !withdrawAmount ||
-                        parseFloat(withdrawAmount) <= 0
+                        parseFloat(withdrawAmount) <= 0 ||
+                        needsGroupJoin
                       }
-                      className="px-4 py-2 bg-[var(--poly-emerald)] text-white text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none"
-                      style={{ '--poly-emerald': '#059669' } as React.CSSProperties}
+                      className="px-4 py-2 text-white text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none"
+                      style={{ background: 'var(--poly-emerald)' }}
                     >
                       {withdrawStatus === 'pending' ? '…' : 'Withdraw'}
                     </button>
                   </div>
+                  <p className="text-[10px] text-white/35">Minimum $0.10 USDC</p>
                 </>
               )}
             </div>
           )}
         </div>
       </div>
+
+      {/* Reward info */}
+      <div className="w-full max-w-sm flex gap-2">
+        <div className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.04] border border-[var(--poly-emerald)]/20">
+          <span className="text-base">💰</span>
+          <p className="text-[11px] leading-tight" style={{ color: 'var(--poly-emerald)' }}>
+            USDC → withdrawable
+          </p>
+        </div>
+        <a
+          href="https://www.polnation.com/dashboard"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.04] border border-[var(--poly-purple)]/20 hover:bg-white/[0.06] transition-colors"
+        >
+          <span className="text-base">⭐</span>
+          <p className="text-[11px] leading-tight text-[var(--poly-purple)]">
+            Bonus → view on web ↗
+          </p>
+        </a>
+      </div>
+
+      {/* ── Network: invited by + invite count ──────────────────────────────── */}
+      <div className="w-full max-w-sm flex gap-2">
+        <div className="flex-1 p-2.5 bg-white/[0.03] border border-white/[0.08]">
+          <p className="text-[10px] uppercase tracking-widest text-white/35 mb-0.5"
+            style={{ fontFamily: 'var(--poly-font-mono)' }}>
+            Invited by
+          </p>
+          <p className="text-white text-sm font-medium truncate">
+            {referredBy ? `@${referredBy}` : '—'}
+          </p>
+        </div>
+        <div className="flex-1 p-2.5 bg-white/[0.03] border border-white/[0.08]">
+          <p className="text-[10px] uppercase tracking-widest text-white/35 mb-0.5"
+            style={{ fontFamily: 'var(--poly-font-mono)' }}>
+            You invited
+          </p>
+          <p className="text-white text-sm font-medium"
+            style={{ fontFamily: 'var(--poly-font-mono)' }}>
+            {invitedCount} {invitedCount === 1 ? 'friend' : 'friends'}
+          </p>
+        </div>
+      </div>
+
+      {/* Share — earn extra spins by inviting */}
+      <button
+        type="button"
+        onClick={handleShare}
+        disabled={!referralCode}
+        className="w-full max-w-sm flex items-center justify-center gap-2 p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple disabled:opacity-40 disabled:pointer-events-none"
+      >
+        🔗 Invite a Friend → +1 Spin
+      </button>
+
+      <p className="text-[11px] text-white/40 text-center max-w-xs">
+        Each friend you invite who joins via Telegram earns you 1 spin.
+      </p>
 
       {/* Bottom spacer so content isn't hidden behind TG MainButton (~64px) */}
       <div className="h-16" />
