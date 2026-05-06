@@ -99,17 +99,32 @@ function generateReferralCode(): string {
 //   ABCD      (bare 4-char referral code — also accepted as fallback)
 
 async function resolveReferrer(startParam: string | undefined): Promise<string | null> {
-  if (!startParam) return null
+  if (!startParam) {
+    console.log('[tg-auth] resolveReferrer: no startParam')
+    return null
+  }
   let code = startParam.startsWith('ref_') ? startParam.slice(4) : startParam
   code = code.toUpperCase().trim()
-  if (code.length < 3 || code.length > 8) return null
+  if (code.length < 3 || code.length > 8) {
+    console.log('[tg-auth] resolveReferrer: bad code length', { startParam, code })
+    return null
+  }
 
-  const { data: ref } = await supabaseAdmin
+  const { data: ref, error } = await supabaseAdmin
     .from('profiles')
     .select('id')
     .eq('referral_code', code)
     .single()
-  return ref?.id ?? null
+  if (error) {
+    console.log('[tg-auth] resolveReferrer: DB error', { code, error: error.message, code_pg: error.code })
+    return null
+  }
+  if (!ref?.id) {
+    console.log('[tg-auth] resolveReferrer: no profile matches code', { code })
+    return null
+  }
+  console.log('[tg-auth] resolveReferrer: resolved', { code, referrerId: ref.id })
+  return ref.id
 }
 
 // ── POST handler ─────────────────────────────────────────────────────────────
@@ -149,21 +164,36 @@ export async function POST(request: Request) {
         telegram_verified: true,
       }
 
-      if (referrerId && !existing.referrer_id && referrerId !== existing.id) {
+      const willAttribute = !!(referrerId && !existing.referrer_id && referrerId !== existing.id)
+      if (willAttribute) {
         profilePatch.referrer_id = referrerId
       }
+      console.log('[tg-auth] returning user', {
+        userId: existing.id,
+        startParam: verified.startParam ?? null,
+        resolvedReferrerId: referrerId,
+        existingReferrerId: existing.referrer_id,
+        willAttribute,
+      })
 
       // Returning TG user — refresh denormalized fields and log them in.
-      await supabaseAdmin
+      const { error: updateErr } = await supabaseAdmin
         .from('profiles')
         .update(profilePatch)
         .eq('id', existing.id)
+      if (updateErr) {
+        console.error('[tg-auth] returning user update failed:', updateErr.message)
+      }
 
       return await installSession(existing.email, existing.id, false)
     }
 
     // New TG user — create account.
     const referrerId = await resolveReferrer(verified.startParam)
+    console.log('[tg-auth] new user', {
+      startParam: verified.startParam ?? null,
+      resolvedReferrerId: referrerId,
+    })
     return await createTelegramAccount(tgUser, referrerId)
   } catch (error) {
     console.error('Telegram auth error:', error)
@@ -231,15 +261,25 @@ async function createTelegramAccount(tgUser: TelegramUser, referrerId: string | 
     if (!existingProfile.referral_code) {
       profileFields.referral_code = generateReferralCode()
     }
+    console.log('[tg-auth] new-user trigger path', { userId, willSetReferrer: !!referrerId })
     const { error: updateError } = await supabaseAdmin
       .from('profiles')
       .update(profileFields)
       .eq('id', userId)
     if (updateError) {
-      console.error('TG profile update error:', updateError)
+      console.error('[tg-auth] new-user trigger-path update failed:', updateError.message)
+    } else {
+      // Verify what's actually in the row — catches silent overwrites by other triggers.
+      const { data: verify } = await supabaseAdmin
+        .from('profiles')
+        .select('referrer_id')
+        .eq('id', userId)
+        .single()
+      console.log('[tg-auth] new-user trigger-path verify', { userId, referrer_id: verify?.referrer_id ?? null })
     }
   } else {
     // Trigger didn't fire (or was skipped by an exception branch) — insert manually.
+    console.log('[tg-auth] new-user manual-insert path', { userId, willSetReferrer: !!referrerId })
     const { error: insertError } = await supabaseAdmin
       .from('profiles')
       .insert({
@@ -249,7 +289,7 @@ async function createTelegramAccount(tgUser: TelegramUser, referrerId: string | 
         ...profileFields,
       })
     if (insertError) {
-      console.error('TG profile insert error:', insertError)
+      console.error('[tg-auth] new-user manual-insert failed:', insertError.message, insertError.code)
       return NextResponse.json(
         { error: 'create_profile_failed', detail: insertError.message },
         { status: 500 }
