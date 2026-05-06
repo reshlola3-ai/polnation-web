@@ -76,7 +76,8 @@ Add a Telegram Mini App surface for the lottery, **as a parallel entry point alo
 | **Phase 4** | Referral via `start_param`, spin grant integration | Done |
 | **Phase 5** | Conversion optimization (welcome task wave 1 done; daily/social proof TBD) | In progress |
 | **Phase 6** | Buffer / polish | 0.5 day |
-| **Total** | | **~7 days** |
+| **Phase 7** | Web Telegram login (cross-device account access for TG-only users) | ~5.5 hours · **Proposed** |
+| **Total** | | **~7 days + 5.5 h** |
 
 ---
 
@@ -640,6 +641,29 @@ const handleShare = () => {
 
 This opens TG's native share sheet — user picks contact/group, sends in one tap.
 
+### 4.4 Incident: case-sensitive `referral_code` lookup (2026-05-07)
+
+**Symptom**: After the "show mini app invitees" feature shipped (`867c0e19`), users reported the invitees list was empty for everyone — both upper-level couldn't see their downlines, and lower-level couldn't see who invited them.
+
+**Root cause**: Some legacy `referral_code` values in `profiles` contain lowercase characters (e.g. `66a7`), even though current generators (both SQL `generate_referral_code()` and JS `generateReferralCode()`) only emit uppercase. The TG-auth and wallet-login attribution paths were forcing the input to upper-case (`code.toUpperCase()`) before `.eq('referral_code', code)`. PostgreSQL `=` is case-sensitive, so `66a7` ≠ `66A7` → query returned 0 rows (`PGRST116`) → `referrerId = null` → new users got no referrer attribution. The display worked correctly; there was simply nothing in `referrer_id` to show.
+
+**Why it took a while to find**: failures were silent — `resolveReferrer` returned `null` indistinguishably from "no `start_param`" or "self-referral". `app/api/referrer/route.ts` had already worked around the same issue with `.ilike('referral_code', ref)` and a comment explaining it, but TG-auth and wallet-login were never updated to match.
+
+**Diagnosis**: temporary `console.log('[tg-auth] …')` lines on every branch of `resolveReferrer` + the returning/new-user paths. One real test invitation surfaced `resolveReferrer: DB error { code_pg: 'PGRST116' }` with `startParam: 'ref_66a7'` — root cause obvious within seconds of the first log line.
+
+**Fix** (`b9c57dcc`): swap `.eq('referral_code', code)` for `.ilike('referral_code', code)` in:
+- `app/api/auth/telegram/route.ts` `resolveReferrer`
+- `app/api/auth/wallet-login/route.ts` short-code branch
+
+Both paths now match the existing pattern in `app/api/referrer/route.ts`. The `.toUpperCase()` calls were removed since `ilike` makes them redundant.
+
+**Why not also normalize the DB**: backfilling existing lowercase codes to upper-case would invalidate every link a legacy user has already shared. Tolerating mixed case at lookup time is the lower-blast-radius fix.
+
+**Lessons**:
+- When silent-fallback returns `null`, log the *reason* in the unhappy path. We had three "return null" branches in `resolveReferrer` that all looked identical from the outside.
+- A workaround that lives in one route file (`/api/referrer`) is invisible to the next person writing a similar lookup. Either centralize the lookup, or leave a `// MUST use ilike — see incident YYYY-MM-DD` comment at every site.
+- Diagnostic logs added to find a bug should be removed after the bug is fixed (kept the `console.error` for unexpected DB errors only). They cost real money on Vercel and clutter future investigations.
+
 ---
 
 ## Phase 5 — Conversion optimization
@@ -697,7 +721,7 @@ Mechanic: a brand-new TG user lands → sees a "Welcome Task" gradient card abov
 | iOS TG webview WC universal link broken | Medium | Same fallback we built for web (`<a>` tag with target=_blank) |
 | BotFather rule changes | Low | Don't spam users; respect rate limits; only message on user-initiated `/start` |
 | Country-specific TG bans (Russia, occasionally China) | Out of our control | Document limitation; web remains primary for those regions |
-| Account merge user demand | Medium | MVP doesn't support it; add Phase 7 if requested |
+| Account merge user demand | Medium | MVP doesn't support it; add Phase 8 if requested |
 
 ---
 
@@ -720,7 +744,143 @@ Before flipping the bot live:
 
 ---
 
-## Out of scope (Phase 7+ if needed)
+## Phase 7 — Web Telegram login
+
+**Status**: Proposed · not started
+**Last updated**: 2026-05-07
+
+### 7.0 Why
+
+TG Mini App users have no real email or password — their auth row is `tg_<id>@telegram.polnation.com` + a random UUID password they never see. If they later open `polnation.com` on a phone browser to check their dashboard, they cannot sign in to **the same** profile, so referrer relationships, balances, history all appear lost.
+
+If they have a wallet bound, they can wallet-login. If they don't, they're stuck. This phase fixes the stuck case.
+
+### 7.1 Approach
+
+Add a "Continue with Telegram" button on `/login` powered by [Telegram Login Widget](https://core.telegram.org/widgets/login). Button → TG client opens authorization → callback returns `{ id, first_name, username, photo_url, auth_date, hash }` → backend HMAC-verifies → looks up `profiles.telegram_chat_id` → installs session.
+
+Match against `telegram_chat_id` (already populated by Mini App auth) — **no new DB column needed**.
+
+Fallback for users who can't / won't use Widget: prompt them to set email + password from inside the Mini App (binding endpoint already exists at [app/api/auth/bind-email/route.ts](../app/api/auth/bind-email/route.ts)).
+
+### 7.2 Critical gotcha — HMAC algorithm differs from Mini App
+
+Two TG-supplied hash schemes coexist; do **not** mix them up:
+
+| Surface | Secret derivation |
+|---|---|
+| Mini App `initData` | `HMAC-SHA256(key="WebAppData", message=bot_token)` |
+| Login Widget callback | `SHA256(bot_token)` (no "WebAppData" prefix) |
+
+The verify functions must be separate, named clearly. Keep [app/api/auth/telegram/route.ts](../app/api/auth/telegram/route.ts) `verifyTelegramInitData` for Mini App; write a new `verifyTelegramLoginWidget` for the widget.
+
+### 7.3 Prerequisites (one-time manual)
+
+| Step | Action | Owner |
+|---|---|---|
+| 7.3.1 | BotFather `/setdomain` → add `polnation.com` (and any subdomains used for login). Widget will silently fail on un-registered domains. | Bot admin |
+| 7.3.2 | Set `NEXT_PUBLIC_TELEGRAM_BOT_USERNAME` env var on Vercel (widget renders client-side, needs username at build time). | DevOps |
+| 7.3.3 | Confirm `TELEGRAM_BOT_TOKEN` already present (used by mini app, reused here). | DevOps |
+
+### 7.4 Implementation steps
+
+#### Step 1 — Refactor: extract shared TG profile helpers (~1.5 h)
+
+Move three functions out of [app/api/auth/telegram/route.ts](../app/api/auth/telegram/route.ts) into `lib/auth/telegram.ts`:
+
+- `findOrCreateTelegramProfile({ tgUser, referrerId })` — handles both "existing profile match by `telegram_chat_id`" and "first-time create". Returns `{ profileId, email, isNew }`.
+- `installTelegramSession(email, userId, isNewUser)` — generate magic link + verify via SSR client (current `installSession`).
+- `resolveReferrer(startParam)` — already implemented; just relocate.
+
+After refactor, both `/api/auth/telegram` (mini app) and the new `/api/auth/telegram-widget` (web) call the same helpers — eliminates drift risk.
+
+#### Step 2 — New endpoint `POST /api/auth/telegram-widget` (~1.5 h)
+
+```ts
+// Request body shape (from widget callback):
+//   { id, first_name, last_name?, username?, photo_url?, auth_date, hash, ref? }
+
+1. verifyTelegramLoginWidget(body) → reject 401 if bad hash or auth_date > 24h
+2. const referrerId = await resolveReferrer(body.ref ? `ref_${body.ref}` : undefined)
+3. const { profileId, email, isNew } = await findOrCreateTelegramProfile({
+     tgUser: { id: body.id, first_name: body.first_name, username: body.username, photo_url: body.photo_url },
+     referrerId,
+   })
+4. return await installTelegramSession(email, profileId, isNew)
+```
+
+#### Step 3 — Frontend: Telegram login button on `/login` (~1 h)
+
+New component `components/auth/TelegramLoginButton.tsx`:
+- Renders TG's official `<script src="https://telegram.org/js/telegram-widget.js?22">` via `next/script`
+- Sets `data-telegram-login`, `data-onauth="onTelegramAuth(user)"`, `data-request-access="write"`
+- Wires `window.onTelegramAuth = (user) => fetch('/api/auth/telegram-widget', { ... })`
+- On success → `router.push(redirect); router.refresh()`
+
+Insert into [app/(auth)/login/page.tsx](../app/(auth)/login/page.tsx) **between** the wallet picker and the "or sign in with email" divider:
+
+```tsx
+<Web3Provider>
+  <InlineWalletPicker ... />
+</Web3Provider>
+
+<TelegramLoginButton ref={ref} redirect={redirect} />
+
+<div className="relative my-5">{/* existing divider */}</div>
+```
+
+Pass through the `ref` query param so referral attribution still works on first-time TG signups via web.
+
+#### Step 4 — Fallback path: email/password from Mini App (~0.5 h)
+
+Wire a "Set up email/password for web access" entry point in `/lottery-mini`. Calls existing [app/api/auth/bind-email/route.ts](../app/api/auth/bind-email/route.ts) — no new backend.
+
+UI position: under the wallet panel or in a new "Account" section. Copy: *"To sign in on web from another device, set an email and password here."*
+
+This unblocks users who can't use Login Widget (no TG client on the device, region restrictions, strict CSP, etc.).
+
+#### Step 5 — Test matrix
+
+| Scenario | Expected |
+|---|---|
+| Existing Mini App user clicks widget on web | Lands on dashboard, original profile (referrer, balance intact) |
+| Brand-new TG user clicks widget on web (never used Mini App) | New synthetic-email profile created, session installed |
+| Brand-new TG user with `?ref=ABCD` in URL | `referrer_id` correctly attributed |
+| Existing wallet user with same TG id clicks widget | Falls back to TG profile (wallet profile remains separate — see "known limit" below) |
+| Tampered `hash` | 401 |
+| `auth_date` > 24 h | 401 |
+| Mobile Safari, Mobile Chrome, Desktop Chrome, Firefox | TG authorization sheet opens; flow completes |
+| User on network where `telegram.org` is blocked | Widget fails to load → fallback copy directs to email/password setup in Mini App |
+
+### 7.5 Known limits / out of scope for Phase 7
+
+- **No account merge.** If a user has both a wallet-only profile and a Mini App profile, widget login lands on the TG profile. Merging the two is Phase 8 territory — needs UX for "which is canonical?", balance reconciliation, history union.
+- **No reverse direction.** This phase enables "TG profile → web". The other direction ("wallet/web profile → TG Mini App") already works because Mini App auth always finds existing profile by `telegram_chat_id` once set.
+- **Region availability.** Telegram is blocked in some regions. Email/password fallback (Step 4) is the answer there.
+
+### 7.6 Risks
+
+| Risk | Mitigation |
+|---|---|
+| Mixing up Mini App vs Widget HMAC algorithm | Separate functions, separate names; unit test each with a fixture from TG docs before shipping |
+| `setdomain` not configured → silent widget failure | Pre-launch checklist + monitoring on `/api/auth/telegram-widget` 4xx rate |
+| iframe blocked by strict CSP | Add `frame-src https://oauth.telegram.org` to `next.config` CSP if we tighten later |
+| Telegram API changes auth_date format | Already handle as integer seconds; matches Mini App code |
+| Login Widget on mobile fails to wake TG app | Documented limitation; fallback path covers it |
+
+### 7.7 Pre-launch checklist (Phase 7 specific)
+
+- [ ] BotFather `/setdomain` includes production domain
+- [ ] `NEXT_PUBLIC_TELEGRAM_BOT_USERNAME` set on Vercel
+- [ ] `lib/auth/telegram.ts` extracted; `/api/auth/telegram` still passes manual test
+- [ ] `/api/auth/telegram-widget` handles all 8 test-matrix scenarios
+- [ ] HMAC verify tested against TG's own example fixtures
+- [ ] CSP on `/login` allows widget iframe (if CSP is enabled at all)
+- [ ] Login page rendered tested on iOS Safari + Android Chrome + desktop
+
+---
+
+## Out of scope (Phase 8+ if needed)
 
 - Cross-account merge (TG account ↔ web wallet account)
 - Bot push notifications (you won, new spin unlocked, etc.)
