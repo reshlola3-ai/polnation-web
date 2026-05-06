@@ -8,6 +8,14 @@ import { TmaWalletBinder } from '@/components/wallet/TmaWalletBinder'
 import { BevelCard } from '@/components/ui/poly/BevelCard'
 import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
 import { MonoStat } from '@/components/ui/poly/MonoStat'
+import {
+  type Locale,
+  LOCALE_META,
+  LOCALES,
+  TRANSLATIONS,
+  detectLocale,
+  saveLocale,
+} from './i18n'
 
 // ── Telegram WebApp typings (minimal — only what we use) ─────────────────────
 
@@ -170,6 +178,17 @@ export default function LotteryMiniPage() {
   // ── Rules modal ─────────────────────────────────────────────────────────────
   const [showRules, setShowRules] = useState(false)
 
+  // ── i18n ─────────────────────────────────────────────────────────────────
+  const [locale, setLocaleState] = useState<Locale>('en')
+  const [showLangPicker, setShowLangPicker] = useState(false)
+  const t = TRANSLATIONS[locale]
+
+  const switchLocale = useCallback((l: Locale) => {
+    saveLocale(l)
+    setLocaleState(l)
+    setShowLangPicker(false)
+  }, [])
+
   // ── Team pool unlock progress ───────────────────────────────────────────────
   // Bonus prizes credit `user_task_progress.total_task_bonus`, which combines
   // with team L1-3 volume into `effectiveVolume` — gating community pool claim.
@@ -207,6 +226,9 @@ export default function LotteryMiniPage() {
       setTelegramUsername(tgUser.username || null)
       setTgFirstName(tgUser.first_name || null)
       setTgPhotoUrl(tgUser.photo_url || null)
+      setLocaleState(detectLocale(tgUser.language_code))
+    } else {
+      setLocaleState(detectLocale())
     }
 
     if (!tg.initData) {
@@ -338,8 +360,8 @@ export default function LotteryMiniPage() {
         if (data?.error === 'no_spins') {
           setRemainingSpins(0)
           window.Telegram?.WebApp?.showPopup?.({
-            title: 'No spins left',
-            message: 'Invite a friend who joins via Telegram to earn another spin.',
+            title: t.noSpinsTitle,
+            message: t.noSpinsMsg,
             buttons: [{ type: 'ok' }],
           })
         }
@@ -388,12 +410,12 @@ export default function LotteryMiniPage() {
     const label = PRIZE_LABELS[result.type] || result.type
     const message = isWin
       ? isUsdc
-        ? `${label}\n\n💰 Added to your withdrawable balance.`
-        : `${label}\n\n⭐ Added to your unlock progress.`
-      : "Better luck next time!"
+        ? t.usdcAdded(label)
+        : t.bonusAdded(label)
+      : t.betterLuck
 
     tg?.showPopup?.({
-      title: isWin ? '🎉 Congratulations' : 'Try again',
+      title: isWin ? t.congratsTitle : t.tryAgainTitle,
       message,
       buttons: [{ type: 'ok' }],
     })
@@ -417,11 +439,14 @@ export default function LotteryMiniPage() {
     }
 
     const canSpin = remainingSpins > 0 || isInfluencer
+    // For influencers strip the count suffix (all locales use " (" as separator)
     const text = isSpinning
-      ? 'SPINNING…'
-      : canSpin
-      ? `SPIN${isInfluencer ? '' : ` (${remainingSpins} LEFT)`}`
-      : 'NO SPINS LEFT'
+      ? t.spinning
+      : !canSpin
+      ? t.noSpinsLeft
+      : isInfluencer
+      ? t.spinBtn(remainingSpins).split(' (')[0]
+      : t.spinBtn(remainingSpins)
 
     mb.setText(text)
     mb.show()
@@ -475,8 +500,8 @@ export default function LotteryMiniPage() {
       setWithdrawAmount('')
       window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred('success')
       window.Telegram?.WebApp?.showPopup?.({
-        title: '✅ Withdrawal submitted',
-        message: `$${amount.toFixed(2)} USDC is being processed to your wallet.`,
+        title: t.withdrawSuccessTitle,
+        message: t.withdrawSuccessMsg(amount.toFixed(2)),
         buttons: [{ type: 'ok' }],
       })
       setTimeout(() => {
@@ -501,7 +526,7 @@ export default function LotteryMiniPage() {
     if (!referralCode) return
     // Bot username and Mini App short name are locked by migration plan decision 1+2.
     const link = `https://t.me/PolnationBot/lottery?startapp=ref_${referralCode}`
-    const text = '🎰 Spin the Polnation Lottery and win USDC!'
+    const text = t.shareText
     const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`
 
     const tg = window.Telegram?.WebApp
@@ -551,7 +576,7 @@ export default function LotteryMiniPage() {
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-3">
         <div className="w-10 h-10 rounded-full border-2 border-[var(--poly-purple)] border-t-transparent animate-spin" />
         <p className="text-white/60 text-sm">
-          {authStatus === 'init' ? 'Starting…' : 'Connecting…'}
+          {authStatus === 'init' ? t.startingUp : t.connecting}
         </p>
       </div>
     )
@@ -560,14 +585,14 @@ export default function LotteryMiniPage() {
   if (authStatus === 'error') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-3">
-        <p className="text-rose-300 font-semibold">Couldn't open the lottery</p>
+        <p className="text-rose-300 font-semibold">{t.cantOpenLottery}</p>
         <p className="text-white/55 text-sm max-w-xs">{authError}</p>
         <button
           type="button"
           onClick={() => window.location.reload()}
           className="mt-2 px-4 py-2 bg-white/[0.08] border border-white/15 text-white text-sm hover:bg-white/[0.12]"
         >
-          Try Again
+          {t.tryAgainBtn}
         </button>
       </div>
     )
@@ -590,9 +615,9 @@ export default function LotteryMiniPage() {
   }
 
   const exploreLinks = [
-    { label: 'Dashboard',        emoji: '📊', path: '/dashboard' },
-    { label: 'Earnings',         emoji: '💰', path: '/earnings' },
-    { label: 'Agentic Team Earnings', emoji: '🤖', path: '/team' },
+    { label: t.dashboard,    emoji: '📊', path: '/dashboard' },
+    { label: t.earnings,     emoji: '💰', path: '/earnings' },
+    { label: t.agenticTeam,  emoji: '🤖', path: '/team' },
   ]
 
   return (
@@ -634,14 +659,26 @@ export default function LotteryMiniPage() {
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={() => openWeb('https://www.polnation.com/dashboard')}
-            className="text-[10px] text-white/65 hover:text-white px-2 py-1.5 border border-white/15 hover:border-[var(--poly-purple)]/60 hover:bg-[var(--poly-purple)]/10 transition-colors shrink-0"
-            style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.06em' }}
-          >
-            WEB ↗
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Language switcher */}
+            <button
+              type="button"
+              onClick={() => setShowLangPicker(true)}
+              className="text-[11px] text-white/65 hover:text-white px-1.5 py-1.5 border border-white/15 hover:border-[var(--poly-purple)]/60 hover:bg-[var(--poly-purple)]/10 transition-colors"
+              aria-label="Switch language"
+              title={t.language}
+            >
+              {LOCALE_META[locale].flag}
+            </button>
+            <button
+              type="button"
+              onClick={() => openWeb('https://www.polnation.com/dashboard')}
+              className="text-[10px] text-white/65 hover:text-white px-2 py-1.5 border border-white/15 hover:border-[var(--poly-purple)]/60 hover:bg-[var(--poly-purple)]/10 transition-colors"
+              style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.06em' }}
+            >
+              {t.webLink}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -677,22 +714,22 @@ export default function LotteryMiniPage() {
         {/* Greeting */}
         <div className="text-center w-full">
           <EyebrowTag>
-            {displayName ? `Hi ${displayName} 👋` : 'Polnation Lottery'}
+            {displayName ? t.greeting(displayName) : t.lotteryTitle}
           </EyebrowTag>
           <div className="relative flex items-center justify-center mt-1.5">
             <button
               type="button"
               onClick={() => setShowRules(true)}
-              aria-label="How it works"
+              aria-label={t.howItWorks}
               className="absolute left-0 w-7 h-7 flex items-center justify-center text-white/70 text-[14px] font-semibold bg-white/[0.06] border border-white/[0.14] hover:bg-white/[0.12] hover:text-white active:scale-[0.95] transition-all"
               style={{ fontFamily: 'var(--poly-font-mono)' }}
             >
               ?
             </button>
-            <h1 className="text-[26px] font-semibold text-white poly-heading">Spin to Win</h1>
+            <h1 className="text-[26px] font-semibold text-white poly-heading">{t.spinToWin}</h1>
           </div>
           <p className="text-white/50 text-[13px] mt-0.5">
-            {isInfluencer ? '∞ Unlimited spins' : `${remainingSpins} spin${remainingSpins === 1 ? '' : 's'} available`}
+            {isInfluencer ? t.unlimitedSpins : t.spinsAvailable(remainingSpins)}
           </p>
         </div>
 
@@ -707,12 +744,12 @@ export default function LotteryMiniPage() {
           >
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="min-w-0">
-                <EyebrowTag>Welcome Task</EyebrowTag>
+                <EyebrowTag>{t.welcomeTask}</EyebrowTag>
                 <p className="text-white text-[15px] font-semibold mt-1 leading-tight">
-                  Join our Telegram group
+                  {t.joinTelegramGroup}
                 </p>
                 <p className="text-white/55 text-[12px] mt-0.5">
-                  Earn 1 free spin — claimable once.
+                  {t.earnFreeSpin}
                 </p>
               </div>
               <span className="text-2xl shrink-0">🎁</span>
@@ -721,7 +758,7 @@ export default function LotteryMiniPage() {
             {pendingGroupVerify ? (
               <div className="flex items-center gap-2 p-2.5 bg-white/[0.04] border border-white/[0.10]">
                 <div className="w-3.5 h-3.5 rounded-full border-2 border-[var(--poly-purple)] border-t-transparent animate-spin shrink-0" />
-                <p className="text-white/70 text-[12px]">Verifying membership…</p>
+                <p className="text-white/70 text-[12px]">{t.verifyingMembership}</p>
               </div>
             ) : groupInviteLink ? (
               <a
@@ -731,11 +768,11 @@ export default function LotteryMiniPage() {
                 onClick={() => setPendingGroupVerify(true)}
                 className="block w-full text-center p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple"
               >
-                📢 Join Group → +1 Spin
+                {t.joinGroupBtn}
               </a>
             ) : (
               <p className="text-white/50 text-[12px] text-center p-2">
-                Group invite unavailable. Try again later.
+                {t.inviteUnavailable}
               </p>
             )}
           </BevelCard>
@@ -766,7 +803,7 @@ export default function LotteryMiniPage() {
         {/* ── Withdraw — BevelCard ────────────────────────────────────────── */}
         <BevelCard size="lg" pad={14} className="w-full">
           <div className="flex items-center justify-between mb-3">
-            <EyebrowTag>Withdrawable</EyebrowTag>
+            <EyebrowTag>{t.withdrawable}</EyebrowTag>
             <MonoStat value={availableUsdc.toFixed(2)} prefix="$" suffix="USDC" size="tile" />
           </div>
 
@@ -778,7 +815,7 @@ export default function LotteryMiniPage() {
               rel="noopener noreferrer"
               className="block w-full text-center p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple mb-2"
             >
-              📢 Join Telegram Group to Withdraw
+              {t.joinToWithdraw}
             </a>
           )}
 
@@ -798,7 +835,7 @@ export default function LotteryMiniPage() {
                 onClick={() => setShowWalletPanel(true)}
                 className="w-full p-2.5 bg-white/[0.06] border border-white/[0.12] text-white text-sm hover:bg-white/[0.10] active:scale-[0.99] transition-all"
               >
-                🔗 Connect Wallet to Withdraw
+                {t.connectWallet}
               </button>
             )
           )}
@@ -811,7 +848,7 @@ export default function LotteryMiniPage() {
               </p>
               {withdrawStatus === 'success' ? (
                 <p className="text-center text-sm py-2" style={{ color: 'var(--poly-emerald)' }}>
-                  ✅ Withdrawal submitted
+                  {t.withdrawSubmitted}
                 </p>
               ) : (
                 <>
@@ -825,7 +862,7 @@ export default function LotteryMiniPage() {
                       min="0"
                       max={availableUsdc}
                       step="0.01"
-                      placeholder={`Max $${availableUsdc.toFixed(2)}`}
+                      placeholder={t.maxPlaceholder(availableUsdc.toFixed(2))}
                       value={withdrawAmount}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
                       onFocus={() => setWithdrawFocused(true)}
@@ -846,10 +883,10 @@ export default function LotteryMiniPage() {
                       className="px-4 py-2 text-white text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-40 disabled:pointer-events-none"
                       style={{ background: 'var(--poly-emerald)' }}
                     >
-                      {withdrawStatus === 'pending' ? '…' : 'Withdraw'}
+                      {withdrawStatus === 'pending' ? t.withdrawPending : t.withdraw}
                     </button>
                   </div>
-                  <p className="text-[10px] text-white/35">Minimum $0.10 USDC</p>
+                  <p className="text-[10px] text-white/35">{t.minWithdraw}</p>
                 </>
               )}
             </div>
@@ -859,7 +896,7 @@ export default function LotteryMiniPage() {
         {/* ── Team Pool Progress ───────────────────────────────────────────── */}
         <BevelCard size="lg" pad={14} className="w-full">
           <div className="flex items-center justify-between mb-2">
-            <EyebrowTag>Team Pool · Level {teamPoolLevel}</EyebrowTag>
+            <EyebrowTag>{t.teamPool(teamPoolLevel)}</EyebrowTag>
             <span
               className="text-[11px] text-white/55"
               style={{ fontFamily: 'var(--poly-font-mono)' }}
@@ -878,10 +915,10 @@ export default function LotteryMiniPage() {
           </div>
           <p className="text-[11px] text-white/45 mt-2">
             {teamPoolTarget > 0 && teamPoolEffective >= teamPoolTarget
-              ? `Level ${teamPoolLevel} pool unlocked — claim on web to start daily yield.`
+              ? t.teamPoolUnlocked(teamPoolLevel)
               : teamPoolTarget > 0
-                ? `$${(teamPoolTarget - teamPoolEffective).toFixed(2)} more to unlock the $${teamPoolRewardPool} prize pool. Bonus spins + invites fill it.`
-                : `Win Bonus prizes or invite friends to fill the team pool.`}
+                ? t.teamPoolProgress((teamPoolTarget - teamPoolEffective).toFixed(2), teamPoolRewardPool.toString())
+                : t.teamPoolEmpty}
           </p>
           <button
             type="button"
@@ -889,23 +926,23 @@ export default function LotteryMiniPage() {
             className="mt-3 w-full text-center py-2 bg-white/[0.06] border border-white/[0.12] text-white/85 text-[12px] hover:bg-white/[0.10] active:scale-[0.99] transition-all"
             style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.06em' }}
           >
-            VIEW TEAM PROGRESS ↗
+            {t.viewTeamProgress}
           </button>
         </BevelCard>
 
         {/* ── Network row ─────────────────────────────────────────────────── */}
         <div className="w-full grid grid-cols-2 gap-2">
           <BevelCard size="sm" pad={12}>
-            <EyebrowTag>Invited By</EyebrowTag>
+            <EyebrowTag>{t.invitedBy}</EyebrowTag>
             <p className="text-white text-sm font-medium truncate mt-1">
               {referredBy ? `@${referredBy}` : '—'}
             </p>
           </BevelCard>
           <BevelCard size="sm" pad={12}>
-            <EyebrowTag>You Invited</EyebrowTag>
+            <EyebrowTag>{t.youInvited}</EyebrowTag>
             <p className="text-white text-sm font-medium mt-1"
               style={{ fontFamily: 'var(--poly-font-mono)' }}>
-              {invitedCount} {invitedCount === 1 ? 'friend' : 'friends'}
+              {t.friends(invitedCount)}
             </p>
           </BevelCard>
         </div>
@@ -917,17 +954,17 @@ export default function LotteryMiniPage() {
           disabled={!referralCode}
           className="w-full flex items-center justify-center gap-2 p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple disabled:opacity-40 disabled:pointer-events-none"
         >
-          🔗 Invite a Friend → +1 Spin
+          {t.inviteBtn}
         </button>
 
         <p className="text-[11px] text-white/40 text-center">
-          Each friend who joins via Telegram earns you 1 spin.
+          {t.inviteHint}
         </p>
 
         {/* ── Spin History ─────────────────────────────────────────────────── */}
         {spinHistory.length > 0 && (
           <BevelCard size="lg" pad={14} className="w-full">
-            <EyebrowTag>Spin History</EyebrowTag>
+            <EyebrowTag>{t.spinHistory}</EyebrowTag>
             <div className="mt-3 space-y-0 max-h-[220px] overflow-y-auto">
               {spinHistory.map((item, i) => {
                 const isWin = item.prize_type !== 'thanks'
@@ -973,14 +1010,14 @@ export default function LotteryMiniPage() {
         {/* ── Explore Polnation — traffic funnel back to web ──────────────── */}
         <BevelCard size="lg" pad={14} className="w-full">
           <div className="flex items-center justify-between mb-3">
-            <EyebrowTag>Explore Polnation</EyebrowTag>
+            <EyebrowTag>{t.explorePolnation}</EyebrowTag>
             <button
               type="button"
               onClick={() => openWeb('https://www.polnation.com')}
               className="text-[10px] text-white/55 hover:text-white"
               style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.08em' }}
             >
-              ALL ↗
+              {t.exploreAll}
             </button>
           </div>
           <div className="grid grid-cols-3 gap-2">
@@ -1000,13 +1037,64 @@ export default function LotteryMiniPage() {
             ))}
           </div>
           <p className="text-[10px] text-white/35 mt-3 leading-relaxed">
-            Bonus prizes unlock progress on your web account. Daily USDC distributions, hardstake yields, and referral commissions all live on the main site.
+            {t.exploreHint}
           </p>
         </BevelCard>
 
         {/* Bottom spacer so content isn't hidden behind TG MainButton (~64px) */}
         <div className="h-16" />
       </div>
+
+      {/* ── Language picker (bottom-sheet) ───────────────────────────────── */}
+      {showLangPicker && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm"
+          onClick={() => setShowLangPicker(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="w-full max-w-md bg-[#0a0810] border-t border-white/[0.1] p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-white text-[16px] font-semibold poly-heading">{t.language}</h2>
+              <button
+                type="button"
+                onClick={() => setShowLangPicker(false)}
+                aria-label="Close"
+                className="w-8 h-8 flex items-center justify-center text-white/65 text-xl hover:text-white hover:bg-white/[0.06]"
+              >
+                ×
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {LOCALES.map((l) => {
+                const meta = LOCALE_META[l]
+                const active = l === locale
+                return (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => switchLocale(l)}
+                    className={`flex items-center gap-2.5 px-3 py-2.5 border transition-all active:scale-[0.98] ${
+                      active
+                        ? 'bg-[var(--poly-purple)]/20 border-[var(--poly-purple)]/60 text-white'
+                        : 'bg-white/[0.04] border-white/[0.08] text-white/70 hover:bg-white/[0.08] hover:text-white'
+                    }`}
+                  >
+                    <span className="text-xl leading-none">{meta.flag}</span>
+                    <span className="text-[13px] font-medium leading-tight">{meta.label}</span>
+                    {active && (
+                      <span className="ml-auto text-[var(--poly-purple)] text-[11px]">✓</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Rules modal (bottom-sheet style) ─────────────────────────────── */}
       {showRules && (
@@ -1021,7 +1109,7 @@ export default function LotteryMiniPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-white text-[18px] font-semibold poly-heading">How it Works</h2>
+              <h2 className="text-white text-[18px] font-semibold poly-heading">{t.howItWorks}</h2>
               <button
                 type="button"
                 onClick={() => setShowRules(false)}
@@ -1034,39 +1122,28 @@ export default function LotteryMiniPage() {
 
             <div className="space-y-5 text-[13px] text-white/75 leading-relaxed">
               <section>
-                <EyebrowTag>How to earn spins</EyebrowTag>
+                <EyebrowTag>{t.earnSpinsTitle}</EyebrowTag>
                 <ul className="mt-2 space-y-1.5 list-disc list-inside marker:text-[var(--poly-purple)]">
-                  <li>Join our official Telegram group → <span className="text-white">+1 free spin</span> (one-time)</li>
-                  <li>Invite a friend who joins via your link → <span className="text-white">+1 spin</span> per friend</li>
-                  <li>Daily airdrop tasks on web — every 7 claims → <span className="text-white">+1 spin</span></li>
+                  <li>{t.earnSpins1}</li>
+                  <li>{t.earnSpins2}</li>
+                  <li>{t.earnSpins3}</li>
                 </ul>
               </section>
 
               <section>
-                <EyebrowTag>USDC prizes — instant withdrawable</EyebrowTag>
-                <p className="mt-2">
-                  Winning <span className="text-white">$0.50 / $1 / $5 USDC</span> credits your withdrawable balance immediately.
-                  Connect a wallet and tap <span className="text-white">Withdraw</span> to send USDC straight to your address on Polygon.
-                </p>
+                <EyebrowTag>{t.usdcPrizesTitle}</EyebrowTag>
+                <p className="mt-2">{t.usdcPrizesDesc}</p>
               </section>
 
               <section>
-                <EyebrowTag>Bonus prizes — Team prize pool</EyebrowTag>
-                <p className="mt-2">
-                  <span className="text-white">+$1 / +$2 / +$3 Bonus</span> wins do <em>not</em> withdraw directly.
-                  They feed your <span className="text-white">team prize pool progress</span>, alongside your team referral volume.
-                </p>
-                <p className="mt-2">
-                  Once your effective progress hits the level threshold, you can claim that level&apos;s prize pool on the web dashboard
-                  — it then pays out <span className="text-white">daily yield</span> until exhausted.
-                </p>
+                <EyebrowTag>{t.bonusPrizesTitle}</EyebrowTag>
+                <p className="mt-2">{t.bonusPrizesDesc1}</p>
+                <p className="mt-2">{t.bonusPrizesDesc2}</p>
               </section>
 
               <section>
-                <EyebrowTag>Try Again</EyebrowTag>
-                <p className="mt-2">
-                  Some slices have no prize. Your spin count is consumed but no reward is credited — better luck next time.
-                </p>
+                <EyebrowTag>{t.tryAgainSection}</EyebrowTag>
+                <p className="mt-2">{t.tryAgainDesc}</p>
               </section>
 
               <button
@@ -1077,7 +1154,7 @@ export default function LotteryMiniPage() {
                 }}
                 className="w-full mt-2 p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple"
               >
-                View Team Pool Progress ↗
+                {t.viewTeamBtn}
               </button>
             </div>
           </div>
