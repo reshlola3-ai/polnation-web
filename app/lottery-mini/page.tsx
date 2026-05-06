@@ -95,6 +95,39 @@ const PRIZE_LABELS: Record<string, string> = {
 type AuthStatus = 'init' | 'authenticating' | 'ready' | 'error'
 type WithdrawStatus = 'idle' | 'pending' | 'success' | 'error'
 
+// ── Mock live ticker (placeholder until real volume) ─────────────────────────
+// Generated client-side once per session. Names are plausible TG handles
+// across regions; amounts mirror server prize tiers + realistic withdraw sums.
+// Replace with /api/lottery/ticker when production data is dense enough.
+
+const TICKER_NAMES = [
+  'crypto_alex', 'polygon_fan', 'w3_native', 'maya_eth', 'sergio_x',
+  'lina_w', 'defi_bro', 'sol_seeker', 'matic_max', 'eth_lover',
+  'tomo_jp', 'ana_arg', 'kris_nl', 'dimitri_ru', 'priya_in',
+  'leo_br', 'akira_jp', 'noah_de', 'zara_ae', 'mateo_es',
+  'finn_fi', 'aiko_kr', 'ravi_in', 'yuki_jp', 'paolo_it',
+  'nina_pl', 'koji_jp', 'liam_ie', 'cleo_eg', 'iris_gr',
+]
+const TICKER_WIN_AMOUNTS = [0.5, 0.5, 0.5, 1, 1, 1, 5]
+const TICKER_WITHDRAW_AMOUNTS = [5.5, 12, 18, 25, 32, 47, 88, 120, 156, 250]
+
+type TickerEvent = { type: 'win' | 'withdrawal'; name: string; amount: number }
+
+function generateMockTicker(count: number): TickerEvent[] {
+  const out: TickerEvent[] = []
+  for (let i = 0; i < count; i++) {
+    const isWin = Math.random() < 0.72
+    out.push({
+      type: isWin ? 'win' : 'withdrawal',
+      name: TICKER_NAMES[Math.floor(Math.random() * TICKER_NAMES.length)],
+      amount: isWin
+        ? TICKER_WIN_AMOUNTS[Math.floor(Math.random() * TICKER_WIN_AMOUNTS.length)]
+        : TICKER_WITHDRAW_AMOUNTS[Math.floor(Math.random() * TICKER_WITHDRAW_AMOUNTS.length)],
+    })
+  }
+  return out
+}
+
 export default function LotteryMiniPage() {
   const supabase = createClient()
   const wheelRef = useRef<{ play: () => void; stop: (index: number) => void } | null>(null)
@@ -130,6 +163,9 @@ export default function LotteryMiniPage() {
   // ── Welcome bonus state ─────────────────────────────────────────────────────
   const [welcomeSpinEarned, setWelcomeSpinEarned] = useState(false)
   const [pendingGroupVerify, setPendingGroupVerify] = useState(false)
+
+  // ── Mock live ticker (lazy init; one set per session) ──────────────────────
+  const [tickerEvents] = useState(() => generateMockTicker(25))
 
   // ── Unlock progress + spin history ──────────────────────────────────────────
   const [progressToNextSpin, setProgressToNextSpin] = useState(0)
@@ -592,6 +628,33 @@ export default function LotteryMiniPage() {
           </button>
         </div>
       </header>
+
+      {/* ── Live Ticker (mock data — replace with real API at scale) ───── */}
+      {tickerEvents.length > 0 && (
+        <div className="overflow-hidden border-y border-white/[0.06] bg-white/[0.02]">
+          <div
+            className="flex animate-marquee py-2"
+            style={{ width: 'max-content', animationDuration: '60s' }}
+          >
+            {[...tickerEvents, ...tickerEvents].map((e, i) => (
+              <span
+                key={i}
+                className="flex items-center gap-1.5 text-[12px] shrink-0 px-3 whitespace-nowrap"
+              >
+                <span aria-hidden>{e.type === 'win' ? '🎉' : '✅'}</span>
+                <span className="text-white/85 font-medium">@{e.name}</span>
+                <span className="text-white/45">
+                  {e.type === 'win' ? 'won' : 'cashed out'}
+                </span>
+                <span style={{ color: 'var(--poly-emerald)', fontFamily: 'var(--poly-font-mono)' }}>
+                  ${e.amount.toFixed(2)}
+                </span>
+                <span className="text-white/30">USDC</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Body ─────────────────────────────────────────────────────────── */}
       <div className="flex-1 flex flex-col items-center px-4 py-5 gap-5 max-w-md mx-auto w-full">
