@@ -3,7 +3,7 @@
 **Status**: Approved · In progress
 **Owner**: TBD
 **Last updated**: 2026-05-06
-**Current status**: Phase 2 live; Phase 3 next
+**Current status**: Phase 3 live; Phase 4 next
 
 ## Decisions (locked in)
 
@@ -72,7 +72,7 @@ Add a Telegram Mini App surface for the lottery, **as a parallel entry point alo
 |---|---|---|
 | **Phase 1** | DB schema, auth backbone, webhook, /start command | Done |
 | **Phase 2** | TG Mini App route + lottery wheel rendering | Done |
-| **Phase 3** | Wallet binding inside Mini App + withdraw flow | 1.5 days |
+| **Phase 3** | Wallet binding inside Mini App + withdraw flow | Done |
 | **Phase 4** | Referral via `start_param`, spin grant integration | 0.5 day |
 | **Phase 5** | Testing (iOS/Android TG clients), monitoring | 1 day |
 | **Phase 6** | Buffer / polish | 0.5 day |
@@ -505,6 +505,23 @@ These are progressive enhancements — Mini App works without them but feels mor
 ---
 
 ## Phase 3 — Wallet binding inside Mini App
+
+### Phase 3 activation log
+
+Status: live as of 2026-05-06.
+
+- Code shipped: `4a1ef912` (`feat(tg): Phase 3 — wallet binding + withdraw in Mini App`).
+- Files created:
+  - `app/api/profile/bind-wallet/route.ts` — `POST` endpoint: validates EVM address (`/^0x[0-9a-fA-F]{40}$/`), writes to `profiles.wallet_address` for the authenticated session user. No wallet auth flow — user is already logged in via TG session.
+  - `components/wallet/TmaWalletBinder.tsx` — wallet binding component purpose-built for TG Mini App. Same Trust/Bitget/SafePal buttons + WC universal link logic as `InlineWalletPicker`, but post-connect calls `/api/profile/bind-wallet` instead of `/api/auth/wallet-login`. No redirect — fires `onBound(address)` callback so the parent page can proceed.
+- Files modified:
+  - `app/api/lottery/route.ts` — GET response extended with `walletAddress` (from `profiles.wallet_address`) and `availableUsdc` (from `user_profits.available_usdc`). Additive only; existing `/test-lottery` ignores these fields.
+  - `app/lottery-mini/layout.tsx` — added `<Web3Provider>` wrapper. Required for wagmi hooks (`useAccount`, `useConnect`, `useConnectors`) inside `TmaWalletBinder`.
+  - `app/lottery-mini/page.tsx` — added withdraw section below the Share button:
+    - Balance row shows `$X.XX USDC` from state.
+    - No wallet bound → "Connect Wallet to Withdraw" button → expands `TmaWalletBinder` inline.
+    - Wallet bound → shows address prefix + amount input + Withdraw button → `POST /api/withdraw` with `tokenType: 'USDC'`. On success: `showPopup` confirmation + `HapticFeedback('success')` + refreshes state after 3s.
+- Pending real-device testing (Phase 5): WalletConnect flow inside TG webview on iOS/Android.
 
 When TG user wins USDC and clicks "Withdraw":
 1. Check `profiles.wallet_address` — if null, show wallet binding flow
