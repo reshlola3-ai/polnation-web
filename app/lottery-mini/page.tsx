@@ -660,15 +660,20 @@ export default function LotteryMiniPage() {
           )}
 
           <div className="flex items-center gap-1.5 shrink-0">
-            {/* Language switcher */}
+            {/* Language switcher — flag + code so it reads as a button */}
             <button
               type="button"
               onClick={() => setShowLangPicker(true)}
-              className="text-[11px] text-white/65 hover:text-white px-1.5 py-1.5 border border-white/15 hover:border-[var(--poly-purple)]/60 hover:bg-[var(--poly-purple)]/10 transition-colors"
-              aria-label="Switch language"
-              title={t.language}
+              className="flex items-center gap-1 text-white/65 hover:text-white px-2 py-1.5 border border-white/15 hover:border-[var(--poly-purple)]/60 hover:bg-[var(--poly-purple)]/10 transition-colors"
+              aria-label={t.language}
             >
-              {LOCALE_META[locale].flag}
+              <span className="text-[13px] leading-none">{LOCALE_META[locale].flag}</span>
+              <span
+                className="text-[10px]"
+                style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.06em' }}
+              >
+                {locale.toUpperCase()}
+              </span>
             </button>
             <button
               type="button"
@@ -716,17 +721,17 @@ export default function LotteryMiniPage() {
           <EyebrowTag>
             {displayName ? t.greeting(displayName) : t.lotteryTitle}
           </EyebrowTag>
-          <div className="relative flex items-center justify-center mt-1.5">
+          <div className="flex items-center justify-center gap-1.5 mt-1.5">
+            <h1 className="text-[26px] font-semibold text-white poly-heading">{t.spinToWin}</h1>
             <button
               type="button"
               onClick={() => setShowRules(true)}
               aria-label={t.howItWorks}
-              className="absolute left-0 w-7 h-7 flex items-center justify-center text-white/70 text-[14px] font-semibold bg-white/[0.06] border border-white/[0.14] hover:bg-white/[0.12] hover:text-white active:scale-[0.95] transition-all"
+              className="w-[17px] h-[17px] rounded-full border border-white/25 text-white/40 text-[9px] font-semibold flex items-center justify-center hover:border-[var(--poly-purple)]/70 hover:text-[var(--poly-purple)] active:scale-[0.90] transition-all mb-0.5 shrink-0"
               style={{ fontFamily: 'var(--poly-font-mono)' }}
             >
               ?
             </button>
-            <h1 className="text-[26px] font-semibold text-white poly-heading">{t.spinToWin}</h1>
           </div>
           <p className="text-white/50 text-[13px] mt-0.5">
             {isInfluencer ? t.unlimitedSpins : t.spinsAvailable(remainingSpins)}
