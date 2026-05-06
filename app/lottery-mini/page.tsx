@@ -1,9 +1,13 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import Image from 'next/image'
 import { LuckyWheel } from '@lucky-canvas/react'
 import { createClient } from '@/lib/supabase'
 import { TmaWalletBinder } from '@/components/wallet/TmaWalletBinder'
+import { BevelCard } from '@/components/ui/poly/BevelCard'
+import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
+import { MonoStat } from '@/components/ui/poly/MonoStat'
 
 // ── Telegram WebApp typings (minimal — only what we use) ─────────────────────
 
@@ -36,6 +40,7 @@ interface TgWebApp {
     callback?: (buttonId: string) => void
   ) => void
   openTelegramLink?: (url: string) => void
+  openLink?: (url: string, options?: { try_instant_view?: boolean }) => void
   themeParams?: Record<string, string>
 }
 
@@ -455,62 +460,93 @@ export default function LotteryMiniPage() {
   }
 
   // Auth ready — show wheel
-  const greeting = telegramUsername ? `@${telegramUsername}` : 'Polnation · Lottery'
+  const greeting = telegramUsername ? `@${telegramUsername}` : 'Polnation Lottery'
   const needsGroupJoin = groupConfigured && !isGroupMember
 
+  // Open a polnation.com URL — prefer TG's openLink (stays in TG webview), fall back to window.open.
+  const openWeb = (url: string) => {
+    const tg = window.Telegram?.WebApp
+    if (tg?.openLink) tg.openLink(url)
+    else window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
+  const exploreLinks = [
+    { label: 'Dashboard', emoji: '📊', path: '/dashboard' },
+    { label: 'Earnings',  emoji: '💰', path: '/earnings' },
+    { label: 'Hardstake', emoji: '🔒', path: '/hardstake' },
+  ]
+
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 py-6 gap-5">
-      {/* Header strip */}
-      <div className="text-center">
-        <p
-          className="text-[11px] uppercase mb-1"
-          style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.15em', color: 'var(--poly-grey-200)' }}
-        >
-          {greeting}
-        </p>
-        <h1 className="text-[22px] font-semibold text-white">Spin to Win</h1>
-        <p className="text-white/50 text-[13px] mt-1">
-          {isInfluencer ? '∞ Unlimited spins' : `${remainingSpins} spin${remainingSpins === 1 ? '' : 's'} available`}
-        </p>
-      </div>
-
-      {/* Wheel */}
-      <div className="relative">
-        <div className="absolute inset-0 -m-3 rounded-full bg-gradient-to-r from-purple-500/20 to-cyan-500/20 blur-xl" />
-        <div className="relative">
-          <LuckyWheel
-            ref={wheelRef}
-            width="300px"
-            height="300px"
-            blocks={blocks}
-            prizes={prizes}
-            buttons={buttons}
-            defaultConfig={{
-              speed: 20,
-              accelerationTime: 2500,
-              decelerationTime: 4500,
-            }}
-            onStart={handleSpin}
-            onEnd={handleWheelEnd}
-          />
+    <div className="min-h-screen flex flex-col">
+      {/* ── Sticky brand header ──────────────────────────────────────────── */}
+      <header className="sticky top-0 z-30 backdrop-blur-md bg-[#07060d]/85 border-b border-white/[0.06]">
+        <div className="flex items-center justify-between max-w-md mx-auto px-4 h-12">
+          <button
+            type="button"
+            onClick={() => openWeb('https://www.polnation.com')}
+            className="flex items-center gap-2 active:scale-[0.98] transition-transform"
+          >
+            <Image src="/logo.svg" alt="Polnation" width={24} height={24} priority />
+            <span className="text-white text-[15px] font-semibold tracking-tight poly-heading">
+              Polnation
+            </span>
+            <span className="text-white/40 text-[11px]"
+              style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.1em' }}>
+              · LOTTERY
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => openWeb('https://www.polnation.com/dashboard')}
+            className="text-[10px] text-white/65 hover:text-white px-2.5 py-1.5 border border-white/15 hover:border-[var(--poly-purple)]/60 hover:bg-[var(--poly-purple)]/10 transition-colors flex items-center gap-1"
+            style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.08em' }}
+          >
+            OPEN WEB ↗
+          </button>
         </div>
-      </div>
+      </header>
 
-      {/* ── Withdraw section (right under wheel — won USDC → see balance immediately) ── */}
-      <div className="w-full max-w-sm">
-        <div className="p-3 bg-white/[0.03] border border-white/[0.08]">
+      {/* ── Body ─────────────────────────────────────────────────────────── */}
+      <div className="flex-1 flex flex-col items-center px-4 py-5 gap-5 max-w-md mx-auto w-full">
+        {/* Greeting */}
+        <div className="text-center">
+          <EyebrowTag>{greeting}</EyebrowTag>
+          <h1 className="text-[26px] font-semibold text-white mt-1.5 poly-heading">Spin to Win</h1>
+          <p className="text-white/50 text-[13px] mt-0.5">
+            {isInfluencer ? '∞ Unlimited spins' : `${remainingSpins} spin${remainingSpins === 1 ? '' : 's'} available`}
+          </p>
+        </div>
+
+        {/* Wheel */}
+        <div className="relative">
+          <div className="absolute inset-0 -m-3 rounded-full bg-gradient-to-r from-purple-500/20 to-cyan-500/20 blur-xl" />
+          <div className="relative">
+            <LuckyWheel
+              ref={wheelRef}
+              width="300px"
+              height="300px"
+              blocks={blocks}
+              prizes={prizes}
+              buttons={buttons}
+              defaultConfig={{
+                speed: 20,
+                accelerationTime: 2500,
+                decelerationTime: 4500,
+              }}
+              onStart={handleSpin}
+              onEnd={handleWheelEnd}
+            />
+          </div>
+        </div>
+
+        {/* ── Withdraw — BevelCard ────────────────────────────────────────── */}
+        <BevelCard size="lg" pad={14} className="w-full">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[11px] uppercase tracking-widest text-white/40"
-              style={{ fontFamily: 'var(--poly-font-mono)' }}>
-              Withdrawable
-            </p>
-            <p className="text-white font-semibold text-sm"
-              style={{ fontFamily: 'var(--poly-font-mono)' }}>
-              ${availableUsdc.toFixed(2)} USDC
-            </p>
+            <EyebrowTag>Withdrawable</EyebrowTag>
+            <MonoStat value={availableUsdc.toFixed(2)} prefix="$" suffix="USDC" size="tile" />
           </div>
 
-          {/* Group gate — must join before any withdraw action is possible */}
+          {/* Group gate */}
           {needsGroupJoin && walletAddress && groupInviteLink && (
             <a
               href={groupInviteLink}
@@ -522,30 +558,28 @@ export default function LotteryMiniPage() {
             </a>
           )}
 
-          {/* No wallet — show binder */}
+          {/* No wallet — binder */}
           {!walletAddress && (
-            <>
-              {showWalletPanel ? (
-                <TmaWalletBinder
-                  onBound={(addr) => {
-                    setWalletAddress(addr)
-                    setShowWalletPanel(false)
-                  }}
-                  onCancel={() => setShowWalletPanel(false)}
-                />
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setShowWalletPanel(true)}
-                  className="w-full p-2.5 bg-white/[0.06] border border-white/[0.12] text-white text-sm hover:bg-white/[0.10] active:scale-[0.99] transition-all"
-                >
-                  🔗 Connect Wallet to Withdraw
-                </button>
-              )}
-            </>
+            showWalletPanel ? (
+              <TmaWalletBinder
+                onBound={(addr) => {
+                  setWalletAddress(addr)
+                  setShowWalletPanel(false)
+                }}
+                onCancel={() => setShowWalletPanel(false)}
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowWalletPanel(true)}
+                className="w-full p-2.5 bg-white/[0.06] border border-white/[0.12] text-white text-sm hover:bg-white/[0.10] active:scale-[0.99] transition-all"
+              >
+                🔗 Connect Wallet to Withdraw
+              </button>
+            )
           )}
 
-          {/* Has wallet — show withdraw form (gated by group membership) */}
+          {/* Has wallet — withdraw form */}
           {walletAddress && (
             <div className="space-y-2">
               <p className="text-[10px] text-white/35 font-mono break-all">
@@ -596,69 +630,76 @@ export default function LotteryMiniPage() {
               )}
             </div>
           )}
-        </div>
-      </div>
+        </BevelCard>
 
-      {/* Reward info */}
-      <div className="w-full max-w-sm flex gap-2">
-        <div className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.04] border border-[var(--poly-emerald)]/20">
-          <span className="text-base">💰</span>
-          <p className="text-[11px] leading-tight" style={{ color: 'var(--poly-emerald)' }}>
-            USDC → withdrawable
-          </p>
+        {/* ── Network row ─────────────────────────────────────────────────── */}
+        <div className="w-full grid grid-cols-2 gap-2">
+          <BevelCard size="sm" pad={12}>
+            <EyebrowTag>Invited By</EyebrowTag>
+            <p className="text-white text-sm font-medium truncate mt-1">
+              {referredBy ? `@${referredBy}` : '—'}
+            </p>
+          </BevelCard>
+          <BevelCard size="sm" pad={12}>
+            <EyebrowTag>You Invited</EyebrowTag>
+            <p className="text-white text-sm font-medium mt-1"
+              style={{ fontFamily: 'var(--poly-font-mono)' }}>
+              {invitedCount} {invitedCount === 1 ? 'friend' : 'friends'}
+            </p>
+          </BevelCard>
         </div>
-        <a
-          href="https://www.polnation.com/dashboard"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 flex items-center gap-2 p-2.5 bg-white/[0.04] border border-[var(--poly-purple)]/20 hover:bg-white/[0.06] transition-colors"
+
+        {/* Share */}
+        <button
+          type="button"
+          onClick={handleShare}
+          disabled={!referralCode}
+          className="w-full flex items-center justify-center gap-2 p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple disabled:opacity-40 disabled:pointer-events-none"
         >
-          <span className="text-base">⭐</span>
-          <p className="text-[11px] leading-tight text-[var(--poly-purple)]">
-            Bonus → view on web ↗
+          🔗 Invite a Friend → +1 Spin
+        </button>
+
+        <p className="text-[11px] text-white/40 text-center">
+          Each friend who joins via Telegram earns you 1 spin.
+        </p>
+
+        {/* ── Explore Polnation — traffic funnel back to web ──────────────── */}
+        <BevelCard size="lg" pad={14} className="w-full">
+          <div className="flex items-center justify-between mb-3">
+            <EyebrowTag>Explore Polnation</EyebrowTag>
+            <button
+              type="button"
+              onClick={() => openWeb('https://www.polnation.com')}
+              className="text-[10px] text-white/55 hover:text-white"
+              style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.08em' }}
+            >
+              ALL ↗
+            </button>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {exploreLinks.map((item) => (
+              <button
+                key={item.path}
+                type="button"
+                onClick={() => openWeb(`https://www.polnation.com${item.path}`)}
+                className="flex flex-col items-center justify-center gap-1.5 py-3 bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] hover:border-[var(--poly-purple)]/40 active:scale-[0.98] transition-all"
+              >
+                <span className="text-xl">{item.emoji}</span>
+                <span className="text-[10px] text-white/75"
+                  style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.08em' }}>
+                  {item.label.toUpperCase()}
+                </span>
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-white/35 mt-3 leading-relaxed">
+            Bonus prizes unlock progress on your web account. Daily USDC distributions, hardstake yields, and referral commissions all live on the main site.
           </p>
-        </a>
+        </BevelCard>
+
+        {/* Bottom spacer so content isn't hidden behind TG MainButton (~64px) */}
+        <div className="h-16" />
       </div>
-
-      {/* ── Network: invited by + invite count ──────────────────────────────── */}
-      <div className="w-full max-w-sm flex gap-2">
-        <div className="flex-1 p-2.5 bg-white/[0.03] border border-white/[0.08]">
-          <p className="text-[10px] uppercase tracking-widest text-white/35 mb-0.5"
-            style={{ fontFamily: 'var(--poly-font-mono)' }}>
-            Invited by
-          </p>
-          <p className="text-white text-sm font-medium truncate">
-            {referredBy ? `@${referredBy}` : '—'}
-          </p>
-        </div>
-        <div className="flex-1 p-2.5 bg-white/[0.03] border border-white/[0.08]">
-          <p className="text-[10px] uppercase tracking-widest text-white/35 mb-0.5"
-            style={{ fontFamily: 'var(--poly-font-mono)' }}>
-            You invited
-          </p>
-          <p className="text-white text-sm font-medium"
-            style={{ fontFamily: 'var(--poly-font-mono)' }}>
-            {invitedCount} {invitedCount === 1 ? 'friend' : 'friends'}
-          </p>
-        </div>
-      </div>
-
-      {/* Share — earn extra spins by inviting */}
-      <button
-        type="button"
-        onClick={handleShare}
-        disabled={!referralCode}
-        className="w-full max-w-sm flex items-center justify-center gap-2 p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple disabled:opacity-40 disabled:pointer-events-none"
-      >
-        🔗 Invite a Friend → +1 Spin
-      </button>
-
-      <p className="text-[11px] text-white/40 text-center max-w-xs">
-        Each friend you invite who joins via Telegram earns you 1 spin.
-      </p>
-
-      {/* Bottom spacer so content isn't hidden behind TG MainButton (~64px) */}
-      <div className="h-16" />
     </div>
   )
 }
