@@ -481,7 +481,7 @@ export default function LotteryMiniPage() {
   const buttons = [
     {
       radius: '34%',
-      background: 'linear-gradient(135deg, #a855f7, #06b6d4)',
+      background: 'linear-gradient(135deg, #34d399, #00cc06)',
       pointer: true,
       fonts: [{ text: '🎯', top: '-12px', fontSize: '22px' }],
     },
@@ -787,9 +787,7 @@ export default function LotteryMiniPage() {
             />
           </div>
           <p className="text-[11px] text-white/40 mt-2">
-            {progressToNextSpin < 7
-              ? `${7 - progressToNextSpin} more airdrop${7 - progressToNextSpin === 1 ? '' : 's'} to unlock next spin — milestone ${nextMilestone}`
-              : 'Milestone reached! Spin granted.'}
+            {`${7 - progressToNextSpin} more airdrop${7 - progressToNextSpin === 1 ? '' : 's'} to unlock next spin — milestone ${nextMilestone}`}
           </p>
         </BevelCard>
 
