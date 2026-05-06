@@ -142,6 +142,8 @@ export default function LotteryMiniPage() {
 
   const [authStatus, setAuthStatus] = useState<AuthStatus>('init')
   const [authError, setAuthError] = useState('')
+  // Known error types rendered via translation; authError holds unexpected API messages.
+  const [authErrorType, setAuthErrorType] = useState<'no_telegram' | 'no_session' | null>(null)
   const [referralCode, setReferralCode] = useState<string | null>(null)
   const [remainingSpins, setRemainingSpins] = useState(0)
   const [isInfluencer, setIsInfluencer] = useState(false)
@@ -213,7 +215,7 @@ export default function LotteryMiniPage() {
     const tg = window.Telegram?.WebApp
     if (!tg) {
       setAuthStatus('error')
-      setAuthError('Open this page from inside Telegram.')
+      setAuthErrorType('no_telegram')
       return
     }
     tg.ready()
@@ -233,7 +235,7 @@ export default function LotteryMiniPage() {
 
     if (!tg.initData) {
       setAuthStatus('error')
-      setAuthError('No Telegram session data — open via the bot.')
+      setAuthErrorType('no_session')
       return
     }
 
@@ -439,13 +441,12 @@ export default function LotteryMiniPage() {
     }
 
     const canSpin = remainingSpins > 0 || isInfluencer
-    // For influencers strip the count suffix (all locales use " (" as separator)
     const text = isSpinning
       ? t.spinning
       : !canSpin
       ? t.noSpinsLeft
       : isInfluencer
-      ? t.spinBtn(remainingSpins).split(' (')[0]
+      ? t.spinBtnUnlimited
       : t.spinBtn(remainingSpins)
 
     mb.setText(text)
@@ -492,7 +493,7 @@ export default function LotteryMiniPage() {
         // Special-case the TG group gate so we can render a Join button.
         if (data?.error === 'tg_group_required') {
           setIsGroupMember(false)
-          throw new Error('Join the Polnation Telegram group to withdraw.')
+          throw new Error(t.tgGroupRequired)
         }
         throw new Error(data?.error || 'Withdrawal failed')
       }
@@ -512,7 +513,7 @@ export default function LotteryMiniPage() {
       setWithdrawStatus('error')
       setWithdrawError(err instanceof Error ? err.message : 'Withdrawal failed')
     }
-  }, [withdrawAmount, availableUsdc, refreshState])
+  }, [withdrawAmount, availableUsdc, refreshState, t])
 
   // Auto-clear withdraw error when user edits the amount
   useEffect(() => {
@@ -583,10 +584,13 @@ export default function LotteryMiniPage() {
   }
 
   if (authStatus === 'error') {
+    const authErrorMsg = authErrorType === 'no_telegram' ? t.openInTelegram
+      : authErrorType === 'no_session' ? t.noSession
+      : authError
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-3">
         <p className="text-rose-300 font-semibold">{t.cantOpenLottery}</p>
-        <p className="text-white/55 text-sm max-w-xs">{authError}</p>
+        <p className="text-white/55 text-sm max-w-xs">{authErrorMsg}</p>
         <button
           type="button"
           onClick={() => window.location.reload()}

@@ -6,7 +6,6 @@ export type Locale = 'en' | 'zh' | 'ru' | 'es' | 'pt' | 'fr' | 'de' | 'ja' | 'ko
 export interface LocaleMeta {
   label: string
   flag: string
-  dir?: 'rtl'
 }
 
 export const LOCALE_META: Record<Locale, LocaleMeta> = {
@@ -115,6 +114,7 @@ export interface Translations {
   // main button
   spinning: string
   spinBtn: (n: number) => string
+  spinBtnUnlimited: string
   noSpinsLeft: string
 
   // TG popups
@@ -127,6 +127,7 @@ export interface Translations {
   bonusAdded: (label: string) => string
   withdrawSuccessTitle: string
   withdrawSuccessMsg: (amount: string) => string
+  tgGroupRequired: string
 
   // rules modal
   howItWorks: string
@@ -203,6 +204,7 @@ const en: Translations = {
 
   spinning: 'SPINNING…',
   spinBtn: (n) => `SPIN (${n} LEFT)`,
+  spinBtnUnlimited: 'SPIN ∞',
   noSpinsLeft: 'NO SPINS LEFT',
 
   noSpinsTitle: 'No spins left',
@@ -214,6 +216,7 @@ const en: Translations = {
   bonusAdded: (label) => `${label}\n\n⭐ Added to your unlock progress.`,
   withdrawSuccessTitle: '✅ Withdrawal submitted',
   withdrawSuccessMsg: (amount) => `$${amount} USDC is being processed to your wallet.`,
+  tgGroupRequired: 'Join the Polnation Telegram group to withdraw.',
 
   howItWorks: 'How it Works',
   earnSpinsTitle: 'How to earn spins',
@@ -288,6 +291,7 @@ const zh: Translations = {
 
   spinning: '旋转中…',
   spinBtn: (n) => `抽奖 (剩余 ${n} 次)`,
+  spinBtnUnlimited: '抽奖 ∞',
   noSpinsLeft: '暂无抽奖次数',
 
   noSpinsTitle: '没有抽奖次数了',
@@ -299,6 +303,7 @@ const zh: Translations = {
   bonusAdded: (label) => `${label}\n\n⭐ 已添加到解锁进度。`,
   withdrawSuccessTitle: '✅ 提现申请已提交',
   withdrawSuccessMsg: (amount) => `$${amount} USDC 正在处理到你的钱包。`,
+  tgGroupRequired: '请先加入 Polnation Telegram 群组再提现。',
 
   howItWorks: '活动规则',
   earnSpinsTitle: '如何获得抽奖次数',
@@ -373,6 +378,7 @@ const ru: Translations = {
 
   spinning: 'ВРАЩЕНИЕ…',
   spinBtn: (n) => `КРУТИТЬ (${n} ОСТ.)`,
+  spinBtnUnlimited: 'КРУТИТЬ ∞',
   noSpinsLeft: 'НЕТ СПИНОВ',
 
   noSpinsTitle: 'Спины закончились',
@@ -384,6 +390,7 @@ const ru: Translations = {
   bonusAdded: (label) => `${label}\n\n⭐ Добавлено к прогрессу разблокировки.`,
   withdrawSuccessTitle: '✅ Заявка на вывод отправлена',
   withdrawSuccessMsg: (amount) => `$${amount} USDC обрабатывается и будет отправлено на ваш кошелёк.`,
+  tgGroupRequired: 'Вступите в группу Telegram Polnation для вывода средств.',
 
   howItWorks: 'Как это работает',
   earnSpinsTitle: 'Как получить спины',
@@ -458,6 +465,7 @@ const es: Translations = {
 
   spinning: 'GIRANDO…',
   spinBtn: (n) => `GIRAR (${n} REST.)`,
+  spinBtnUnlimited: 'GIRAR ∞',
   noSpinsLeft: 'SIN GIROS',
 
   noSpinsTitle: 'Sin giros disponibles',
@@ -469,6 +477,7 @@ const es: Translations = {
   bonusAdded: (label) => `${label}\n\n⭐ Añadido a tu progreso de desbloqueo.`,
   withdrawSuccessTitle: '✅ Retiro enviado',
   withdrawSuccessMsg: (amount) => `$${amount} USDC está siendo procesado a tu billetera.`,
+  tgGroupRequired: 'Únete al grupo de Telegram de Polnation para retirar.',
 
   howItWorks: 'Cómo funciona',
   earnSpinsTitle: 'Cómo ganar giros',
@@ -543,6 +552,7 @@ const pt: Translations = {
 
   spinning: 'GIRANDO…',
   spinBtn: (n) => `GIRAR (${n} REST.)`,
+  spinBtnUnlimited: 'GIRAR ∞',
   noSpinsLeft: 'SEM GIROS',
 
   noSpinsTitle: 'Sem giros disponíveis',
@@ -554,6 +564,7 @@ const pt: Translations = {
   bonusAdded: (label) => `${label}\n\n⭐ Adicionado ao seu progresso de desbloqueio.`,
   withdrawSuccessTitle: '✅ Saque enviado',
   withdrawSuccessMsg: (amount) => `$${amount} USDC está sendo processado para sua carteira.`,
+  tgGroupRequired: 'Entre no grupo Telegram da Polnation para sacar.',
 
   howItWorks: 'Como funciona',
   earnSpinsTitle: 'Como ganhar giros',
@@ -628,6 +639,7 @@ const fr: Translations = {
 
   spinning: 'EN COURS…',
   spinBtn: (n) => `TOURNER (${n} REST.)`,
+  spinBtnUnlimited: 'TOURNER ∞',
   noSpinsLeft: 'PLUS DE TOURS',
 
   noSpinsTitle: 'Plus de tours disponibles',
@@ -639,6 +651,7 @@ const fr: Translations = {
   bonusAdded: (label) => `${label}\n\n⭐ Ajouté à votre progression.`,
   withdrawSuccessTitle: '✅ Retrait soumis',
   withdrawSuccessMsg: (amount) => `$${amount} USDC est en cours de traitement vers votre portefeuille.`,
+  tgGroupRequired: 'Rejoignez le groupe Telegram Polnation pour retirer.',
 
   howItWorks: 'Comment ça marche',
   earnSpinsTitle: 'Comment gagner des tours',
@@ -713,6 +726,7 @@ const de: Translations = {
 
   spinning: 'DREHT…',
   spinBtn: (n) => `DREHEN (${n} ÜBRIG)`,
+  spinBtnUnlimited: 'DREHEN ∞',
   noSpinsLeft: 'KEINE DREHUNGEN',
 
   noSpinsTitle: 'Keine Drehungen mehr',
@@ -724,6 +738,7 @@ const de: Translations = {
   bonusAdded: (label) => `${label}\n\n⭐ Zu deinem Entsperrungsfortschritt hinzugefügt.`,
   withdrawSuccessTitle: '✅ Auszahlung eingereicht',
   withdrawSuccessMsg: (amount) => `$${amount} USDC wird an dein Wallet verarbeitet.`,
+  tgGroupRequired: 'Tritt der Polnation Telegram-Gruppe bei, um auszuzahlen.',
 
   howItWorks: 'So funktioniert es',
   earnSpinsTitle: 'Wie man Drehungen verdient',
@@ -798,6 +813,7 @@ const ja: Translations = {
 
   spinning: 'スピン中…',
   spinBtn: (n) => `スピン (残り${n}回)`,
+  spinBtnUnlimited: 'スピン ∞',
   noSpinsLeft: 'スピン残なし',
 
   noSpinsTitle: 'スピンがありません',
@@ -809,6 +825,7 @@ const ja: Translations = {
   bonusAdded: (label) => `${label}\n\n⭐ 解放進捗に追加されました。`,
   withdrawSuccessTitle: '✅ 引き出しリクエスト送信済み',
   withdrawSuccessMsg: (amount) => `$${amount} USDCをウォレットに処理中です。`,
+  tgGroupRequired: '出金するには Polnation Telegram グループに参加してください。',
 
   howItWorks: 'ルール説明',
   earnSpinsTitle: 'スピンの獲得方法',
@@ -883,6 +900,7 @@ const ko: Translations = {
 
   spinning: '돌리는 중…',
   spinBtn: (n) => `스핀 (${n}회 남음)`,
+  spinBtnUnlimited: '스핀 ∞',
   noSpinsLeft: '스핀 없음',
 
   noSpinsTitle: '스핀이 없습니다',
@@ -894,6 +912,7 @@ const ko: Translations = {
   bonusAdded: (label) => `${label}\n\n⭐ 해제 진행에 추가되었습니다.`,
   withdrawSuccessTitle: '✅ 출금 신청 완료',
   withdrawSuccessMsg: (amount) => `$${amount} USDC가 지갑으로 처리되고 있습니다.`,
+  tgGroupRequired: '출금하려면 Polnation Telegram 그룹에 참가해주세요.',
 
   howItWorks: '이용 방법',
   earnSpinsTitle: '스핀 획득 방법',
@@ -968,6 +987,7 @@ const tr: Translations = {
 
   spinning: 'ÇEVİRİLİYOR…',
   spinBtn: (n) => `ÇEVİR (${n} KALDI)`,
+  spinBtnUnlimited: 'ÇEVİR ∞',
   noSpinsLeft: 'HAK KALMADI',
 
   noSpinsTitle: 'Hak kalmadı',
@@ -979,6 +999,7 @@ const tr: Translations = {
   bonusAdded: (label) => `${label}\n\n⭐ Kilidi açma ilerlemenize eklendi.`,
   withdrawSuccessTitle: '✅ Çekim talebi gönderildi',
   withdrawSuccessMsg: (amount) => `$${amount} USDC cüzdanına işleniyor.`,
+  tgGroupRequired: 'Çekim yapmak için Polnation Telegram grubuna katıl.',
 
   howItWorks: 'Nasıl Çalışır',
   earnSpinsTitle: 'Hak kazanma yolları',
