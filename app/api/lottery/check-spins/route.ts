@@ -197,7 +197,55 @@ export async function POST() {
     }
   }
 
-  // ========== 5. 更新 total_spins ==========
+  // ========== 5. Welcome bonus: 加入 TG 群组 → +1 spin（一次性） ==========
+  // 与第 4 条不同：第 4 条是"我邀请的人加群" → 推荐人 +1
+  // 第 5 条是"我自己加群" → 自己 +1（首次永久解锁，离开再加入不重复）
+  const requiredChatId = process.env.TELEGRAM_REQUIRED_CHAT_ID
+  const botToken = process.env.TELEGRAM_BOT_TOKEN
+
+  if (requiredChatId && botToken) {
+    const { data: existingWelcome } = await admin
+      .from('lottery_spin_grants')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('grant_reason', 'welcome_join_telegram')
+      .maybeSingle()
+
+    if (!existingWelcome) {
+      const { data: profile } = await admin
+        .from('profiles')
+        .select('telegram_chat_id')
+        .eq('id', user.id)
+        .single()
+
+      if (profile?.telegram_chat_id) {
+        try {
+          const url = `https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${encodeURIComponent(requiredChatId)}&user_id=${profile.telegram_chat_id}`
+          const res = await fetch(url, { cache: 'no-store' })
+          const data = await res.json()
+          const status = data.ok ? data.result?.status : null
+          const isMember = status === 'creator' || status === 'administrator' || status === 'member' || status === 'restricted'
+
+          if (isMember) {
+            await admin
+              .from('lottery_spin_grants')
+              .insert({
+                user_id: user.id,
+                grant_reason: 'welcome_join_telegram',
+                milestone_count: 1,
+                spins_granted: 1,
+              })
+            newSpinsGranted += 1
+          }
+        } catch (err) {
+          console.error('welcome bonus group check failed:', err)
+          // silent — user retries on next page load
+        }
+      }
+    }
+  }
+
+  // ========== 6. 更新 total_spins ==========
   if (newSpinsGranted > 0) {
     await admin
       .from('user_lottery_spins')

@@ -3,7 +3,7 @@
 **Status**: Approved · In progress
 **Owner**: TBD
 **Last updated**: 2026-05-06
-**Current status**: Phase 4 live (referral grant + group gate + network UI); Phase 5 testing next
+**Current status**: Phase 5 conversion-optimization wave 1 live (welcome task: join TG group → +1 spin, one-time)
 
 ## Decisions (locked in)
 
@@ -74,7 +74,7 @@ Add a Telegram Mini App surface for the lottery, **as a parallel entry point alo
 | **Phase 2** | TG Mini App route + lottery wheel rendering | Done |
 | **Phase 3** | Wallet binding inside Mini App + withdraw flow | Done |
 | **Phase 4** | Referral via `start_param`, spin grant integration | Done |
-| **Phase 5** | Testing (iOS/Android TG clients), monitoring | 1 day |
+| **Phase 5** | Conversion optimization (welcome task wave 1 done; daily/social proof TBD) | In progress |
 | **Phase 6** | Buffer / polish | 0.5 day |
 | **Total** | | **~7 days** |
 
@@ -642,7 +642,23 @@ This opens TG's native share sheet — user picks contact/group, sends in one ta
 
 ---
 
-## Phase 5 — Testing & monitoring
+## Phase 5 — Conversion optimization
+
+### Phase 5 wave 1 activation log — welcome task
+
+Status: live as of 2026-05-06. Goal: kill the "0 spins → bounce" dead page on first visit.
+
+Mechanic: a brand-new TG user lands → sees a "Welcome Task" gradient card above the wheel: "Join our Telegram group → +1 free spin (one-time)". Tap → opens `TELEGRAM_GROUP_INVITE_LINK` in TG. User joins → returns to Mini App → visibility-change handler re-runs `/api/lottery/check-spins` → backend calls Bot API `getChatMember` → if member, inserts a `welcome_join_telegram` grant row → spin granted. Leaving and re-joining the group does **not** re-grant; dedupe is on `(user_id, grant_reason='welcome_join_telegram')`.
+
+- Code: `<commit-pending>`.
+- Files modified:
+  - `app/api/lottery/check-spins/route.ts` — new rule #5 `welcome_join_telegram`. Short-circuits if grant already exists (no Bot API call), so cost is bounded.
+  - `app/api/lottery/route.ts` — GET response adds `welcomeSpinEarned: boolean`.
+  - `app/lottery-mini/page.tsx` — welcome card UI between greeting and wheel; `pendingGroupVerify` spinner state while user is away in the TG group; visibility-change listener re-runs check-spins on return; `runCheckSpins` extracted into a callable so both the auth-ready effect and the visibility effect share one path.
+- Cost discipline: server-side prize EV is ~$0.32 USDC/spin at current weights (40% thanks, 24.5% USDC, 35% bonus). User has indicated $0.02/spin as the target — tune `PRIZES.weight` in `app/api/lottery/spin/route.ts` if first-day data shows we're over budget.
+- Wave 2 candidates (not yet shipped): daily-login spin (24h cooldown), live wins ticker (social proof), in-popup "Withdraw now" CTA after USDC win.
+
+## Phase 5 — Testing & monitoring (was)
 
 ### 5.1 Manual test matrix
 

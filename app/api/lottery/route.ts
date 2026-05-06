@@ -63,7 +63,7 @@ export async function GET() {
   }
 
   // Parallelize all 4 reads — total wait time = slowest single query, not sum.
-  const [spinRes, historyRes, airdropRes, profileRes, profitsRes, inviteCountRes] = await Promise.all([
+  const [spinRes, historyRes, airdropRes, profileRes, profitsRes, inviteCountRes, welcomeRes] = await Promise.all([
     admin.from('user_lottery_spins').select('*').eq('user_id', user.id).single(),
     admin
       .from('lottery_records')
@@ -86,6 +86,12 @@ export async function GET() {
       .from('profiles')
       .select('id', { count: 'exact', head: true })
       .eq('referrer_id', user.id),
+    admin
+      .from('lottery_spin_grants')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('grant_reason', 'welcome_join_telegram')
+      .maybeSingle(),
   ])
 
   // Resolve referrer display name (TG username preferred, polnation username fallback)
@@ -143,5 +149,6 @@ export async function GET() {
     telegramUsername: profileRes.data?.telegram_username ?? null,
     referredBy,
     invitedCount: inviteCountRes.count ?? 0,
+    welcomeSpinEarned: !!welcomeRes.data,
   })
 }

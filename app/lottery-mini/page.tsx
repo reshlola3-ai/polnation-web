@@ -127,6 +127,10 @@ export default function LotteryMiniPage() {
   const [groupInviteLink, setGroupInviteLink] = useState<string | null>(null)
   const [withdrawFocused, setWithdrawFocused] = useState(false)
 
+  // ── Welcome bonus state ─────────────────────────────────────────────────────
+  const [welcomeSpinEarned, setWelcomeSpinEarned] = useState(false)
+  const [pendingGroupVerify, setPendingGroupVerify] = useState(false)
+
   // ── 1. TG Mini App bootstrap + auth ─────────────────────────────────────────
 
   useEffect(() => {
@@ -207,6 +211,7 @@ export default function LotteryMiniPage() {
         setTelegramUsername(data.telegramUsername || null)
         setReferredBy(data.referredBy || null)
         setInvitedCount(data.invitedCount || 0)
+        setWelcomeSpinEarned(!!data.welcomeSpinEarned)
       }
       if (membershipRes.ok) {
         const m = await membershipRes.json()
@@ -219,19 +224,37 @@ export default function LotteryMiniPage() {
     }
   }, [])
 
+  // Single grant-evaluation cycle: refresh → check-spins → refresh.
+  // Called on initial auth ready AND whenever the page becomes visible
+  // again (so a user who went to TG to join the group, then came back,
+  // sees their welcome spin granted immediately).
+  const runCheckSpins = useCallback(async () => {
+    await refreshState()
+    try {
+      await fetch('/api/lottery/check-spins', { method: 'POST' })
+    } catch {
+      // silent
+    }
+    await refreshState()
+    setPendingGroupVerify(false)
+  }, [refreshState])
+
   useEffect(() => {
     if (authStatus !== 'ready') return
-    // Initial state fetch + check for new spin grants triggered by referral activity
-    ;(async () => {
-      await refreshState()
-      try {
-        await fetch('/api/lottery/check-spins', { method: 'POST' })
-      } catch {
-        // silent
+    runCheckSpins()
+  }, [authStatus, runCheckSpins])
+
+  // Re-check on visibility change — covers "user joined TG group then came back"
+  useEffect(() => {
+    if (authStatus !== 'ready') return
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        runCheckSpins()
       }
-      await refreshState()
-    })()
-  }, [authStatus, refreshState])
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [authStatus, runCheckSpins])
 
   // ── 3. Spin handler ─────────────────────────────────────────────────────────
 
@@ -567,6 +590,51 @@ export default function LotteryMiniPage() {
             {isInfluencer ? '∞ Unlimited spins' : `${remainingSpins} spin${remainingSpins === 1 ? '' : 's'} available`}
           </p>
         </div>
+
+        {/* ── Welcome task: join TG group → +1 free spin (one-time, never repeats) ── */}
+        {groupConfigured && !welcomeSpinEarned && (
+          <BevelCard
+            size="lg"
+            pad={14}
+            className="w-full"
+            bg="linear-gradient(135deg, rgba(124,58,237,0.18), rgba(6,182,212,0.08))"
+            strokeColor="rgba(168,85,247,0.45)"
+          >
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="min-w-0">
+                <EyebrowTag>Welcome Task</EyebrowTag>
+                <p className="text-white text-[15px] font-semibold mt-1 leading-tight">
+                  Join our Telegram group
+                </p>
+                <p className="text-white/55 text-[12px] mt-0.5">
+                  Earn 1 free spin — claimable once.
+                </p>
+              </div>
+              <span className="text-2xl shrink-0">🎁</span>
+            </div>
+
+            {pendingGroupVerify ? (
+              <div className="flex items-center gap-2 p-2.5 bg-white/[0.04] border border-white/[0.10]">
+                <div className="w-3.5 h-3.5 rounded-full border-2 border-[var(--poly-purple)] border-t-transparent animate-spin shrink-0" />
+                <p className="text-white/70 text-[12px]">Verifying membership…</p>
+              </div>
+            ) : groupInviteLink ? (
+              <a
+                href={groupInviteLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setPendingGroupVerify(true)}
+                className="block w-full text-center p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple"
+              >
+                📢 Join Group → +1 Spin
+              </a>
+            ) : (
+              <p className="text-white/50 text-[12px] text-center p-2">
+                Group invite unavailable. Try again later.
+              </p>
+            )}
+          </BevelCard>
+        )}
 
         {/* Wheel */}
         <div className="relative">
