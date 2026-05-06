@@ -131,6 +131,18 @@ export default function LotteryMiniPage() {
   const [welcomeSpinEarned, setWelcomeSpinEarned] = useState(false)
   const [pendingGroupVerify, setPendingGroupVerify] = useState(false)
 
+  // ── Unlock progress + spin history ──────────────────────────────────────────
+  const [progressToNextSpin, setProgressToNextSpin] = useState(0)
+  const [nextMilestone, setNextMilestone] = useState(7)
+  const [spinHistory, setSpinHistory] = useState<{
+    id: string
+    prize_type: string
+    prize_label: string | null
+    prize_amount: number | null
+    reward_credited: boolean
+    created_at: string
+  }[]>([])
+
   // ── 1. TG Mini App bootstrap + auth ─────────────────────────────────────────
 
   useEffect(() => {
@@ -212,6 +224,9 @@ export default function LotteryMiniPage() {
         setReferredBy(data.referredBy || null)
         setInvitedCount(data.invitedCount || 0)
         setWelcomeSpinEarned(!!data.welcomeSpinEarned)
+        setProgressToNextSpin(data.progressToNextSpin ?? 0)
+        setNextMilestone(data.nextMilestone ?? 7)
+        setSpinHistory(data.history || [])
       }
       if (membershipRes.ok) {
         const m = await membershipRes.json()
@@ -525,7 +540,7 @@ export default function LotteryMiniPage() {
   const exploreLinks = [
     { label: 'Dashboard',        emoji: '📊', path: '/dashboard' },
     { label: 'Earnings',         emoji: '💰', path: '/earnings' },
-    { label: 'Agentic Earnings', emoji: '🤖', path: '/agentic-earnings' },
+    { label: 'Agentic Team Earnings', emoji: '🤖', path: '/team' },
   ]
 
   return (
@@ -751,6 +766,33 @@ export default function LotteryMiniPage() {
           )}
         </BevelCard>
 
+        {/* ── Unlock Progress ──────────────────────────────────────────────── */}
+        <BevelCard size="lg" pad={14} className="w-full">
+          <div className="flex items-center justify-between mb-2">
+            <EyebrowTag>Unlock Progress</EyebrowTag>
+            <span
+              className="text-[11px] text-white/50"
+              style={{ fontFamily: 'var(--poly-font-mono)' }}
+            >
+              {progressToNextSpin} / 7
+            </span>
+          </div>
+          <div className="h-1.5 w-full bg-white/[0.08] rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out"
+              style={{
+                width: `${Math.min(100, (progressToNextSpin / 7) * 100)}%`,
+                background: 'var(--poly-purple)',
+              }}
+            />
+          </div>
+          <p className="text-[11px] text-white/40 mt-2">
+            {progressToNextSpin < 7
+              ? `${7 - progressToNextSpin} more airdrop${7 - progressToNextSpin === 1 ? '' : 's'} to unlock next spin — milestone ${nextMilestone}`
+              : 'Milestone reached! Spin granted.'}
+          </p>
+        </BevelCard>
+
         {/* ── Network row ─────────────────────────────────────────────────── */}
         <div className="w-full grid grid-cols-2 gap-2">
           <BevelCard size="sm" pad={12}>
@@ -781,6 +823,52 @@ export default function LotteryMiniPage() {
         <p className="text-[11px] text-white/40 text-center">
           Each friend who joins via Telegram earns you 1 spin.
         </p>
+
+        {/* ── Spin History ─────────────────────────────────────────────────── */}
+        {spinHistory.length > 0 && (
+          <BevelCard size="lg" pad={14} className="w-full">
+            <EyebrowTag>Spin History</EyebrowTag>
+            <div className="mt-3 space-y-0 max-h-[220px] overflow-y-auto">
+              {spinHistory.map((item, i) => {
+                const isWin = item.prize_type !== 'thanks'
+                const isUsdc = item.prize_type?.startsWith('usdc_')
+                const label = item.prize_label || PRIZE_LABELS[item.prize_type] || item.prize_type
+                const date = new Date(item.created_at).toLocaleDateString('en', {
+                  month: 'short', day: 'numeric',
+                })
+                return (
+                  <div
+                    key={item.id}
+                    className={`flex items-center justify-between py-2 ${i < spinHistory.length - 1 ? 'border-b border-white/[0.05]' : ''}`}
+                  >
+                    <div className="min-w-0">
+                      <p className={`text-[13px] font-medium leading-tight ${isWin ? 'text-white' : 'text-white/35'}`}>
+                        {label}
+                      </p>
+                      <p className="text-[11px] text-white/30 mt-0.5">{date}</p>
+                    </div>
+                    {isUsdc && item.prize_amount != null && (
+                      <span
+                        className="text-[13px] font-mono shrink-0 ml-3"
+                        style={{ color: 'var(--poly-emerald)', fontFamily: 'var(--poly-font-mono)' }}
+                      >
+                        +${item.prize_amount.toFixed(2)}
+                      </span>
+                    )}
+                    {!isUsdc && isWin && (
+                      <span
+                        className="text-[12px] shrink-0 ml-3"
+                        style={{ color: 'var(--poly-purple)', fontFamily: 'var(--poly-font-mono)' }}
+                      >
+                        BONUS
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </BevelCard>
+        )}
 
         {/* ── Explore Polnation — traffic funnel back to web ──────────────── */}
         <BevelCard size="lg" pad={14} className="w-full">
