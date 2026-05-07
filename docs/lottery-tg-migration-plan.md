@@ -778,9 +778,19 @@ The verify functions must be separate, named clearly. Keep [app/api/auth/telegra
 
 | Step | Action | Owner |
 |---|---|---|
-| 7.3.1 | BotFather `/setdomain` → add `polnation.com` (and any subdomains used for login). Widget will silently fail on un-registered domains. | Bot admin |
-| 7.3.2 | Set `NEXT_PUBLIC_TELEGRAM_BOT_USERNAME` env var on Vercel (widget renders client-side, needs username at build time). | DevOps |
-| 7.3.3 | Confirm `TELEGRAM_BOT_TOKEN` already present (used by mini app, reused here). | DevOps |
+| 7.3.1 | BotFather `/setdomain` → select `@PolnationBot` → enter **`www.polnation.com`** (the canonical production host — see warning below). | Bot admin |
+| 7.3.2 | Set `NEXT_PUBLIC_TELEGRAM_BOT_USERNAME=PolnationBot` env var on Vercel (widget renders client-side, needs username at build time). | DevOps |
+| 7.3.3 | Confirm `TELEGRAM_BOT_TOKEN` already present (used by Mini App, reused here). | DevOps |
+| 7.3.4 | Verify Vercel `Settings → Domains` redirects apex `polnation.com` to `www.polnation.com`, so all traffic ends up on the canonical host. | DevOps |
+
+⚠️ **`/setdomain` requires exact origin match — `polnation.com` and `www.polnation.com` are different bots-domain values to Telegram.** The earlier 2026-04 attempt (see dev-log-2026-04-07.md §8) failed because setdomain was set to `polnation.com` while users actually loaded the page on `www.polnation.com`, producing the "Bot domain invalid" error. The full troubleshooting tree (changing Referrer-Policy, swapping next/script for manual injection, recreating the bot twice) was misdiagnosis — the fix was a single character: add `www.`. No wildcards, no apex auto-coverage. If you ever serve `/login` on a different host (e.g. a regional subdomain), call `/setdomain` again for that exact host.
+
+**Quick verification** — in browser console on `/login`:
+
+```js
+console.log(window.location.origin)
+// must equal `https://${value entered in BotFather /setdomain}`
+```
 
 ### 7.4 Implementation steps
 
@@ -863,7 +873,7 @@ This unblocks users who can't use Login Widget (no TG client on the device, regi
 | Risk | Mitigation |
 |---|---|
 | Mixing up Mini App vs Widget HMAC algorithm | Separate functions, separate names; unit test each with a fixture from TG docs before shipping |
-| `setdomain` not configured → silent widget failure | Pre-launch checklist + monitoring on `/api/auth/telegram-widget` 4xx rate |
+| `setdomain` mismatch (apex vs www, or wrong subdomain) → "Bot domain invalid" | See 7.3.1 — must be exact host match. Live incident on 2026-05-07 confirmed root cause. |
 | iframe blocked by strict CSP | Add `frame-src https://oauth.telegram.org` to `next.config` CSP if we tighten later |
 | Telegram API changes auth_date format | Already handle as integer seconds; matches Mini App code |
 | Login Widget on mobile fails to wake TG app | Documented limitation; fallback path covers it |
