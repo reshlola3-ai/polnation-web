@@ -742,7 +742,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         const step1 = isTgOnly
           ? {
               done: !isPlaceholderEmail(profile?.email),
-              label: 'Set up web login',
+              label: t('webLoginSetup'),
               href: '/profile' as string | null,
             }
           : {
