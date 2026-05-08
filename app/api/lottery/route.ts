@@ -51,6 +51,50 @@ async function ensureReferralCode(
   return null
 }
 
+function cleanDisplayPart(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function isGeneratedTelegramPlaceholder(value: string | null | undefined): boolean {
+  return !!value && /^tg_\d{3,}$/i.test(value)
+}
+
+async function resolveReferrerLabel(
+  admin: NonNullable<ReturnType<typeof getSupabaseAdmin>>,
+  referrerId: string,
+): Promise<string> {
+  const { data: ref } = await admin
+    .from('profiles')
+    .select('telegram_username, username')
+    .eq('id', referrerId)
+    .single()
+
+  const telegramUsername = cleanDisplayPart(ref?.telegram_username)
+  if (telegramUsername) return `@${telegramUsername}`
+
+  // For Telegram-only users without a public @username, the normal profile
+  // username is generated as tg_123456. Use auth metadata's first/last name
+  // instead, which comes from Telegram initData and is safer to show.
+  const { data: authUser } = await admin.auth.admin.getUserById(referrerId)
+  const metadata = authUser.user?.user_metadata || {}
+  const firstName = cleanDisplayPart(metadata.first_name)
+  const lastName = cleanDisplayPart(metadata.last_name)
+  const displayName = [firstName, lastName].filter(Boolean).join(' ').trim()
+  if (displayName) return displayName
+
+  const metadataUsername =
+    cleanDisplayPart(metadata.telegram_username) ||
+    cleanDisplayPart(metadata.username)
+  if (metadataUsername) return `@${metadataUsername}`
+
+  const profileUsername = cleanDisplayPart(ref?.username)
+  if (profileUsername && !isGeneratedTelegramPlaceholder(profileUsername)) {
+    return profileUsername
+  }
+
+  return 'Telegram user'
+}
+
 // GET: Check available spins & get history
 export async function GET() {
   const user = await getUser()
@@ -101,15 +145,10 @@ export async function GET() {
       .maybeSingle(),
   ])
 
-  // Resolve referrer display name (TG username preferred, polnation username fallback)
+  // Resolve referrer display name. Never expose generated tg_123456 usernames.
   let referredBy: string | null = null
   if (profileRes.data?.referrer_id) {
-    const { data: ref } = await admin
-      .from('profiles')
-      .select('telegram_username, username')
-      .eq('id', profileRes.data.referrer_id)
-      .single()
-    referredBy = ref?.telegram_username || ref?.username || null
+    referredBy = await resolveReferrerLabel(admin, profileRes.data.referrer_id)
   }
 
   let spinData = spinRes.data

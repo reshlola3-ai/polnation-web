@@ -115,7 +115,10 @@ async function createTelegramProfile(
     email_confirm: true,
     user_metadata: {
       telegram_id: tgUser.id,
+      telegram_username: tgUser.username || null,
+      telegram_photo_url: tgUser.photo_url || null,
       first_name: tgUser.first_name,
+      last_name: tgUser.last_name || null,
       auth_type: 'telegram',
       referrer_id: referrerId,
     },
