@@ -204,6 +204,15 @@ export default function LotteryMiniPage() {
   // ── Rules modal ─────────────────────────────────────────────────────────────
   const [showRules, setShowRules] = useState(false)
 
+  // ── Web login binding (email + password for cross-device access) ────────────
+  const [hasRealEmail, setHasRealEmail] = useState(false)
+  const [showWebLoginPanel, setShowWebLoginPanel] = useState(false)
+  const [webLoginEmail, setWebLoginEmail] = useState('')
+  const [webLoginPassword, setWebLoginPassword] = useState('')
+  const [webLoginStatus, setWebLoginStatus] = useState<'idle' | 'submitting' | 'success'>('idle')
+  const [webLoginError, setWebLoginError] = useState('')
+  const [webLoginFocused, setWebLoginFocused] = useState(false)
+
   // ── i18n ─────────────────────────────────────────────────────────────────
   const [locale, setLocaleState] = useState<Locale>('en')
   const [showLangPicker, setShowLangPicker] = useState(false)
@@ -335,6 +344,7 @@ export default function LotteryMiniPage() {
         setInvitees(Array.isArray(data.invitees) ? data.invitees : [])
         setWelcomeSpinEarned(!!data.welcomeSpinEarned)
         setSpinHistory(data.history || [])
+        setHasRealEmail(!!data.hasRealEmail)
       }
       if (membershipRes.ok) {
         const m = await membershipRes.json()
@@ -482,9 +492,9 @@ export default function LotteryMiniPage() {
 
     const mb = tg.MainButton
 
-    // Hide MainButton while user is in the withdraw form or reading the rules
-    // modal — avoids mis-tap on SPIN.
-    if (withdrawFocused || showRules) {
+    // Hide MainButton while user is in the withdraw form, reading the rules
+    // modal, or filling out the web-login form — avoids mis-tap on SPIN.
+    if (withdrawFocused || showRules || showWebLoginPanel || webLoginFocused) {
       mb.hide()
       return
     }
@@ -515,7 +525,7 @@ export default function LotteryMiniPage() {
     return () => {
       mb.offClick(handler)
     }
-  }, [authStatus, remainingSpins, isInfluencer, isSpinning, handleSpin, withdrawFocused, showRules])
+  }, [authStatus, remainingSpins, isInfluencer, isSpinning, handleSpin, withdrawFocused, showRules, showWebLoginPanel, webLoginFocused])
 
   // Hide MainButton on unmount as a safety net (if user navigates away inside the Mini App).
   useEffect(() => {
@@ -586,6 +596,41 @@ export default function LotteryMiniPage() {
       window.open(shareUrl, '_blank', 'noopener,noreferrer')
     }
   }, [referralCode])
+
+  // ── Web login binding handler ───────────────────────────────────────────────
+  const handleWebLoginSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
+    setWebLoginError('')
+    if (!webLoginEmail.trim()) return
+    if (webLoginPassword.length < 6) {
+      setWebLoginError('Password must be at least 6 characters')
+      return
+    }
+    setWebLoginStatus('submitting')
+    try {
+      const res = await fetch('/api/auth/bind-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: webLoginEmail.trim(),
+          password: webLoginPassword,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setWebLoginError(data.error || 'Failed to set up web login')
+        setWebLoginStatus('idle')
+        return
+      }
+      setWebLoginStatus('success')
+      setWebLoginPassword('') // don't keep plaintext in React state
+      // Refresh to flip hasRealEmail; the card will hide on next render.
+      void refreshState()
+    } catch {
+      setWebLoginError('Network error — please try again')
+      setWebLoginStatus('idle')
+    }
+  }, [webLoginEmail, webLoginPassword, refreshState])
 
   // ── 6. Wheel visual config ──────────────────────────────────────────────────
 
@@ -1157,6 +1202,29 @@ export default function LotteryMiniPage() {
           {t.inviteHint}
         </p>
 
+        {/* ── Web Access — let TG users bind email+password for cross-device login ── */}
+        {!hasRealEmail && (
+          <BevelCard size="lg" pad={14} className="w-full">
+            <EyebrowTag>WEB ACCESS</EyebrowTag>
+            <p className="text-white/75 text-[12px] mt-1.5 leading-relaxed">
+              Sign in on polnation.com from any browser using email + password.
+              Your Telegram login keeps working.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setShowWebLoginPanel(true)
+                setWebLoginError('')
+                setWebLoginStatus('idle')
+              }}
+              className="mt-3 w-full p-2.5 bg-white/[0.06] border border-white/[0.10] text-white/85 text-[12px] hover:bg-white/[0.10] active:scale-[0.99] transition-all"
+              style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.08em' }}
+            >
+              SET UP WEB LOGIN →
+            </button>
+          </BevelCard>
+        )}
+
         {/* ── Spin History ─────────────────────────────────────────────────── */}
         {spinHistory.length > 0 && (
           <BevelCard size="lg" pad={14} className="w-full">
@@ -1353,6 +1421,108 @@ export default function LotteryMiniPage() {
                 {t.viewTeamBtn}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Web login binding modal */}
+      {showWebLoginPanel && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm"
+          onClick={() => {
+            if (webLoginStatus !== 'submitting') setShowWebLoginPanel(false)
+          }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="w-full max-w-md bg-[#0a0810] border-t border-white/[0.1] p-5 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-white text-[18px] font-semibold poly-heading">Set up web login</h2>
+              <button
+                type="button"
+                onClick={() => setShowWebLoginPanel(false)}
+                disabled={webLoginStatus === 'submitting'}
+                aria-label="Close"
+                className="w-8 h-8 flex items-center justify-center text-white/65 text-xl hover:text-white hover:bg-white/[0.06] disabled:opacity-40"
+              >
+                ×
+              </button>
+            </div>
+
+            {webLoginStatus === 'success' ? (
+              <div className="space-y-4">
+                <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-400 text-[13px]">
+                  Web login is ready. Sign in at polnation.com with {webLoginEmail}.
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowWebLoginPanel(false)}
+                  className="w-full p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleWebLoginSubmit} className="space-y-3">
+                <p className="text-white/70 text-[13px] leading-relaxed">
+                  Bind an email and password so you can sign in on polnation.com
+                  from any browser. Your Telegram login continues to work — this
+                  is just an additional way in.
+                </p>
+
+                {webLoginError && (
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-[12px]">
+                    {webLoginError}
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-white/55 text-[11px] uppercase tracking-wider mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    value={webLoginEmail}
+                    onChange={(e) => setWebLoginEmail(e.target.value)}
+                    onFocus={() => setWebLoginFocused(true)}
+                    onBlur={() => setWebLoginFocused(false)}
+                    required
+                    className="w-full px-3 py-2.5 bg-white/[0.04] border border-white/[0.10] text-white text-[14px] placeholder:text-white/30 focus:border-[var(--poly-purple)] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white/55 text-[11px] uppercase tracking-wider mb-1">
+                    Password (6+ chars)
+                  </label>
+                  <input
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="••••••••"
+                    value={webLoginPassword}
+                    onChange={(e) => setWebLoginPassword(e.target.value)}
+                    onFocus={() => setWebLoginFocused(true)}
+                    onBlur={() => setWebLoginFocused(false)}
+                    minLength={6}
+                    required
+                    className="w-full px-3 py-2.5 bg-white/[0.04] border border-white/[0.10] text-white text-[14px] placeholder:text-white/30 focus:border-[var(--poly-purple)] focus:outline-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={webLoginStatus === 'submitting' || !webLoginEmail.trim() || webLoginPassword.length < 6}
+                  className="w-full p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple disabled:opacity-40 disabled:pointer-events-none"
+                >
+                  {webLoginStatus === 'submitting' ? 'Saving…' : 'Save'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}

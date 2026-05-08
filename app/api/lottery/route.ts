@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
+import { isPlaceholderEmail } from '@/lib/auth/placeholder-email'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -78,7 +79,7 @@ export async function GET() {
       .eq('is_credited', true),
     admin
       .from('profiles')
-      .select('referral_code, wallet_address, telegram_username, referrer_id')
+      .select('referral_code, wallet_address, telegram_username, referrer_id, email')
       .eq('id', user.id)
       .single(),
     admin.from('user_profits').select('available_usdc').eq('user_id', user.id).maybeSingle(),
@@ -159,6 +160,9 @@ export async function GET() {
     walletAddress: profileRes.data?.wallet_address ?? null,
     availableUsdc: profitsRes.data?.available_usdc ?? 0,
     telegramUsername: profileRes.data?.telegram_username ?? null,
+    // Boolean flag rather than the email itself — gates the "Set up web login"
+    // card in the Mini App without exposing the address to the client.
+    hasRealEmail: !isPlaceholderEmail(profileRes.data?.email),
     referredBy,
     invitedCount: inviteCountRes.count ?? 0,
     invitees,
