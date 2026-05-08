@@ -603,7 +603,7 @@ export default function LotteryMiniPage() {
     setWebLoginError('')
     if (!webLoginEmail.trim()) return
     if (webLoginPassword.length < 6) {
-      setWebLoginError('Password must be at least 6 characters')
+      setWebLoginError(t.webLoginPasswordTooShort)
       return
     }
     setWebLoginStatus('submitting')
@@ -618,7 +618,9 @@ export default function LotteryMiniPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setWebLoginError(data.error || 'Failed to set up web login')
+        // Backend errors come back in English (status codes / DB messages); keep
+        // them as-is for ops debuggability, fall back to the localized generic.
+        setWebLoginError(data.error || t.webLoginGenericError)
         setWebLoginStatus('idle')
         return
       }
@@ -627,10 +629,10 @@ export default function LotteryMiniPage() {
       // Refresh to flip hasRealEmail; the card will hide on next render.
       void refreshState()
     } catch {
-      setWebLoginError('Network error — please try again')
+      setWebLoginError(t.webLoginNetworkError)
       setWebLoginStatus('idle')
     }
-  }, [webLoginEmail, webLoginPassword, refreshState])
+  }, [webLoginEmail, webLoginPassword, refreshState, t])
 
   // ── 6. Wheel visual config ──────────────────────────────────────────────────
 
@@ -1205,10 +1207,9 @@ export default function LotteryMiniPage() {
         {/* ── Web Access — let TG users bind email+password for cross-device login ── */}
         {!hasRealEmail && (
           <BevelCard size="lg" pad={14} className="w-full">
-            <EyebrowTag>WEB ACCESS</EyebrowTag>
+            <EyebrowTag>{t.webAccessTitle}</EyebrowTag>
             <p className="text-white/75 text-[12px] mt-1.5 leading-relaxed">
-              Sign in on polnation.com from any browser using email + password.
-              Your Telegram login keeps working.
+              {t.webAccessDesc}
             </p>
             <button
               type="button"
@@ -1220,7 +1221,7 @@ export default function LotteryMiniPage() {
               className="mt-3 w-full p-2.5 bg-white/[0.06] border border-white/[0.10] text-white/85 text-[12px] hover:bg-white/[0.10] active:scale-[0.99] transition-all"
               style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.08em' }}
             >
-              SET UP WEB LOGIN →
+              {t.webAccessBtn}
             </button>
           </BevelCard>
         )}
@@ -1440,7 +1441,7 @@ export default function LotteryMiniPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-white text-[18px] font-semibold poly-heading">Set up web login</h2>
+              <h2 className="text-white text-[18px] font-semibold poly-heading">{t.webLoginTitle}</h2>
               <button
                 type="button"
                 onClick={() => setShowWebLoginPanel(false)}
@@ -1455,22 +1456,20 @@ export default function LotteryMiniPage() {
             {webLoginStatus === 'success' ? (
               <div className="space-y-4">
                 <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-400 text-[13px]">
-                  Web login is ready. Sign in at polnation.com with {webLoginEmail}.
+                  {t.webLoginSuccess(webLoginEmail)}
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowWebLoginPanel(false)}
                   className="w-full p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple"
                 >
-                  Done
+                  {t.webLoginDoneBtn}
                 </button>
               </div>
             ) : (
               <form onSubmit={handleWebLoginSubmit} className="space-y-3">
                 <p className="text-white/70 text-[13px] leading-relaxed">
-                  Bind an email and password so you can sign in on polnation.com
-                  from any browser. Your Telegram login continues to work — this
-                  is just an additional way in.
+                  {t.webLoginIntro}
                 </p>
 
                 {webLoginError && (
@@ -1481,7 +1480,7 @@ export default function LotteryMiniPage() {
 
                 <div>
                   <label className="block text-white/55 text-[11px] uppercase tracking-wider mb-1">
-                    Email
+                    {t.webLoginEmailLabel}
                   </label>
                   <input
                     type="email"
@@ -1498,7 +1497,7 @@ export default function LotteryMiniPage() {
 
                 <div>
                   <label className="block text-white/55 text-[11px] uppercase tracking-wider mb-1">
-                    Password (6+ chars)
+                    {t.webLoginPasswordLabel}
                   </label>
                   <input
                     type="password"
@@ -1519,7 +1518,7 @@ export default function LotteryMiniPage() {
                   disabled={webLoginStatus === 'submitting' || !webLoginEmail.trim() || webLoginPassword.length < 6}
                   className="w-full p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple disabled:opacity-40 disabled:pointer-events-none"
                 >
-                  {webLoginStatus === 'submitting' ? 'Saving…' : 'Save'}
+                  {webLoginStatus === 'submitting' ? t.webLoginSavingBtn : t.webLoginSaveBtn}
                 </button>
               </form>
             )}

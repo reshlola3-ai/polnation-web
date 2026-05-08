@@ -155,6 +155,7 @@
     "status": "Status",
     "signatureDone": "Signature Done",
     "profileComplete": "Profile Complete",
+    "webLoginSetup": "Set up web login",
     "connectForRealtime": "Connect wallet for real-time balance",
     "yourBoundWallet": "Your bound wallet",
     "shareAndEarn": "Share & Earn",

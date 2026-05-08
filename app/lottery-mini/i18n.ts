@@ -153,6 +153,22 @@ export interface Translations {
 
   // share
   shareText: string
+
+  // web login binding (Phase 7 step 4)
+  webAccessTitle: string
+  webAccessDesc: string
+  webAccessBtn: string
+  webLoginTitle: string
+  webLoginIntro: string
+  webLoginEmailLabel: string
+  webLoginPasswordLabel: string
+  webLoginSaveBtn: string
+  webLoginSavingBtn: string
+  webLoginDoneBtn: string
+  webLoginSuccess: (email: string) => string
+  webLoginPasswordTooShort: string
+  webLoginGenericError: string
+  webLoginNetworkError: string
 }
 
 const en: Translations = {
@@ -246,6 +262,21 @@ const en: Translations = {
   viewTeamBtn: 'View Team Pool Progress ↗',
 
   shareText: '🎰 Spin the Polnation Lottery and win USDC!',
+
+  webAccessTitle: 'WEB ACCESS',
+  webAccessDesc: 'Sign in on polnation.com from any browser using email + password. Your Telegram login keeps working.',
+  webAccessBtn: 'SET UP WEB LOGIN →',
+  webLoginTitle: 'Set up web login',
+  webLoginIntro: 'Bind an email and password so you can sign in on polnation.com from any browser. Your Telegram login continues to work — this is just an additional way in.',
+  webLoginEmailLabel: 'Email',
+  webLoginPasswordLabel: 'Password (6+ chars)',
+  webLoginSaveBtn: 'Save',
+  webLoginSavingBtn: 'Saving…',
+  webLoginDoneBtn: 'Done',
+  webLoginSuccess: (email) => `Web login is ready. Sign in at polnation.com with ${email}.`,
+  webLoginPasswordTooShort: 'Password must be at least 6 characters',
+  webLoginGenericError: 'Failed to set up web login',
+  webLoginNetworkError: 'Network error — please try again',
 }
 
 const zh: Translations = {
@@ -339,6 +370,21 @@ const zh: Translations = {
   viewTeamBtn: '查看团队奖池进度 ↗',
 
   shareText: '🎰 来 Polnation 转盘抽奖，赢取 USDC！',
+
+  webAccessTitle: '网页登录',
+  webAccessDesc: '在任何浏览器使用邮箱+密码登录 polnation.com。你的 Telegram 登录继续有效。',
+  webAccessBtn: '设置网页登录 →',
+  webLoginTitle: '设置网页登录',
+  webLoginIntro: '绑定邮箱和密码后，可以在任何浏览器登录 polnation.com。你的 Telegram 登录继续有效——这只是多一种登录方式。',
+  webLoginEmailLabel: '邮箱',
+  webLoginPasswordLabel: '密码（至少 6 位）',
+  webLoginSaveBtn: '保存',
+  webLoginSavingBtn: '保存中…',
+  webLoginDoneBtn: '完成',
+  webLoginSuccess: (email) => `网页登录已就绪。使用 ${email} 在 polnation.com 登录。`,
+  webLoginPasswordTooShort: '密码至少需要 6 位',
+  webLoginGenericError: '设置网页登录失败',
+  webLoginNetworkError: '网络错误——请重试',
 }
 
 const ru: Translations = {
@@ -432,6 +478,21 @@ const ru: Translations = {
   viewTeamBtn: 'Прогресс командного пула ↗',
 
   shareText: '🎰 Крути лотерею Polnation и выигрывай USDC!',
+
+  webAccessTitle: 'ВХОД ЧЕРЕЗ ВЕБ',
+  webAccessDesc: 'Войдите на polnation.com из любого браузера через email и пароль. Вход через Telegram продолжит работать.',
+  webAccessBtn: 'НАСТРОИТЬ ВЕБ-ВХОД →',
+  webLoginTitle: 'Настроить веб-вход',
+  webLoginIntro: 'Привяжите email и пароль, чтобы входить на polnation.com из любого браузера. Вход через Telegram продолжит работать — это просто дополнительный способ.',
+  webLoginEmailLabel: 'Email',
+  webLoginPasswordLabel: 'Пароль (от 6 символов)',
+  webLoginSaveBtn: 'Сохранить',
+  webLoginSavingBtn: 'Сохранение…',
+  webLoginDoneBtn: 'Готово',
+  webLoginSuccess: (email) => `Веб-вход готов. Войдите на polnation.com с ${email}.`,
+  webLoginPasswordTooShort: 'Пароль должен быть не менее 6 символов',
+  webLoginGenericError: 'Не удалось настроить веб-вход',
+  webLoginNetworkError: 'Ошибка сети — попробуйте снова',
 }
 
 const es: Translations = {
@@ -525,6 +586,21 @@ const es: Translations = {
   viewTeamBtn: 'Ver progreso del pool del equipo ↗',
 
   shareText: '🎰 ¡Gira la lotería Polnation y gana USDC!',
+
+  webAccessTitle: 'ACCESO WEB',
+  webAccessDesc: 'Inicia sesión en polnation.com desde cualquier navegador con email y contraseña. Tu inicio con Telegram sigue funcionando.',
+  webAccessBtn: 'CONFIGURAR ACCESO WEB →',
+  webLoginTitle: 'Configurar acceso web',
+  webLoginIntro: 'Vincula un email y contraseña para iniciar sesión en polnation.com desde cualquier navegador. Tu inicio con Telegram sigue funcionando — esto es solo una forma adicional de entrar.',
+  webLoginEmailLabel: 'Email',
+  webLoginPasswordLabel: 'Contraseña (6+ caracteres)',
+  webLoginSaveBtn: 'Guardar',
+  webLoginSavingBtn: 'Guardando…',
+  webLoginDoneBtn: 'Listo',
+  webLoginSuccess: (email) => `Acceso web listo. Inicia sesión en polnation.com con ${email}.`,
+  webLoginPasswordTooShort: 'La contraseña debe tener al menos 6 caracteres',
+  webLoginGenericError: 'No se pudo configurar el acceso web',
+  webLoginNetworkError: 'Error de red — inténtalo de nuevo',
 }
 
 const pt: Translations = {
@@ -618,6 +694,21 @@ const pt: Translations = {
   viewTeamBtn: 'Ver progresso do pool da equipe ↗',
 
   shareText: '🎰 Gire a loteria Polnation e ganhe USDC!',
+
+  webAccessTitle: 'ACESSO WEB',
+  webAccessDesc: 'Faça login em polnation.com de qualquer navegador com email e senha. Seu login pelo Telegram continua funcionando.',
+  webAccessBtn: 'CONFIGURAR LOGIN WEB →',
+  webLoginTitle: 'Configurar login web',
+  webLoginIntro: 'Vincule um email e senha para fazer login em polnation.com de qualquer navegador. Seu login pelo Telegram continua funcionando — isto é apenas uma forma adicional de entrar.',
+  webLoginEmailLabel: 'Email',
+  webLoginPasswordLabel: 'Senha (6+ caracteres)',
+  webLoginSaveBtn: 'Salvar',
+  webLoginSavingBtn: 'Salvando…',
+  webLoginDoneBtn: 'Concluído',
+  webLoginSuccess: (email) => `Login web pronto. Entre em polnation.com com ${email}.`,
+  webLoginPasswordTooShort: 'A senha deve ter pelo menos 6 caracteres',
+  webLoginGenericError: 'Falha ao configurar login web',
+  webLoginNetworkError: 'Erro de rede — tente novamente',
 }
 
 const fr: Translations = {
@@ -711,6 +802,21 @@ const fr: Translations = {
   viewTeamBtn: 'Voir la progression du pool ↗',
 
   shareText: '🎰 Faites tourner la loterie Polnation et gagnez des USDC !',
+
+  webAccessTitle: 'ACCÈS WEB',
+  webAccessDesc: "Connectez-vous sur polnation.com depuis n'importe quel navigateur avec email et mot de passe. Votre connexion Telegram continue de fonctionner.",
+  webAccessBtn: "CONFIGURER L'ACCÈS WEB →",
+  webLoginTitle: "Configurer l'accès web",
+  webLoginIntro: "Associez un email et un mot de passe pour vous connecter sur polnation.com depuis n'importe quel navigateur. Votre connexion Telegram continue de fonctionner — c'est juste un moyen supplémentaire d'entrer.",
+  webLoginEmailLabel: 'Email',
+  webLoginPasswordLabel: 'Mot de passe (6+ caractères)',
+  webLoginSaveBtn: 'Enregistrer',
+  webLoginSavingBtn: 'Enregistrement…',
+  webLoginDoneBtn: 'Terminé',
+  webLoginSuccess: (email) => `Accès web prêt. Connectez-vous sur polnation.com avec ${email}.`,
+  webLoginPasswordTooShort: 'Le mot de passe doit faire au moins 6 caractères',
+  webLoginGenericError: "Impossible de configurer l'accès web",
+  webLoginNetworkError: 'Erreur réseau — veuillez réessayer',
 }
 
 const de: Translations = {
@@ -804,6 +910,21 @@ const de: Translations = {
   viewTeamBtn: 'Team-Pool-Fortschritt ansehen ↗',
 
   shareText: '🎰 Drehe die Polnation Lotterie und gewinne USDC!',
+
+  webAccessTitle: 'WEB-ZUGANG',
+  webAccessDesc: 'Melde dich von jedem Browser auf polnation.com mit E-Mail + Passwort an. Dein Telegram-Login funktioniert weiterhin.',
+  webAccessBtn: 'WEB-LOGIN EINRICHTEN →',
+  webLoginTitle: 'Web-Login einrichten',
+  webLoginIntro: 'Verknüpfe eine E-Mail und ein Passwort, damit du dich von jedem Browser auf polnation.com anmelden kannst. Dein Telegram-Login funktioniert weiterhin — dies ist nur ein zusätzlicher Weg.',
+  webLoginEmailLabel: 'E-Mail',
+  webLoginPasswordLabel: 'Passwort (mindestens 6 Zeichen)',
+  webLoginSaveBtn: 'Speichern',
+  webLoginSavingBtn: 'Speichere…',
+  webLoginDoneBtn: 'Fertig',
+  webLoginSuccess: (email) => `Web-Login bereit. Melde dich auf polnation.com mit ${email} an.`,
+  webLoginPasswordTooShort: 'Passwort muss mindestens 6 Zeichen haben',
+  webLoginGenericError: 'Web-Login konnte nicht eingerichtet werden',
+  webLoginNetworkError: 'Netzwerkfehler — bitte erneut versuchen',
 }
 
 const ja: Translations = {
@@ -897,6 +1018,21 @@ const ja: Translations = {
   viewTeamBtn: 'チームプール進捗を確認 ↗',
 
   shareText: '🎰 Polnation抽選をスピンしてUSDCを当てよう！',
+
+  webAccessTitle: 'ウェブアクセス',
+  webAccessDesc: 'メールとパスワードを使って、どのブラウザからでも polnation.com にサインインできます。Telegram ログインも引き続き有効です。',
+  webAccessBtn: 'ウェブログインを設定 →',
+  webLoginTitle: 'ウェブログインを設定',
+  webLoginIntro: 'メールとパスワードを設定すると、どのブラウザからでも polnation.com にサインインできます。Telegram ログインも引き続き有効です——これは追加のサインイン方法です。',
+  webLoginEmailLabel: 'メール',
+  webLoginPasswordLabel: 'パスワード（6文字以上）',
+  webLoginSaveBtn: '保存',
+  webLoginSavingBtn: '保存中…',
+  webLoginDoneBtn: '完了',
+  webLoginSuccess: (email) => `ウェブログインの準備が完了しました。${email} で polnation.com にサインインしてください。`,
+  webLoginPasswordTooShort: 'パスワードは6文字以上必要です',
+  webLoginGenericError: 'ウェブログインの設定に失敗しました',
+  webLoginNetworkError: 'ネットワークエラー——もう一度お試しください',
 }
 
 const ko: Translations = {
@@ -990,6 +1126,21 @@ const ko: Translations = {
   viewTeamBtn: '팀 풀 진행 상황 보기 ↗',
 
   shareText: '🎰 Polnation 복권을 돌려 USDC를 당첨하세요!',
+
+  webAccessTitle: '웹 액세스',
+  webAccessDesc: '이메일 + 비밀번호로 어떤 브라우저에서든 polnation.com에 로그인하세요. 텔레그램 로그인도 계속 작동합니다.',
+  webAccessBtn: '웹 로그인 설정 →',
+  webLoginTitle: '웹 로그인 설정',
+  webLoginIntro: '이메일과 비밀번호를 연결하면 어떤 브라우저에서든 polnation.com에 로그인할 수 있습니다. 텔레그램 로그인도 계속 작동합니다 — 이는 추가 로그인 방법입니다.',
+  webLoginEmailLabel: '이메일',
+  webLoginPasswordLabel: '비밀번호 (6자 이상)',
+  webLoginSaveBtn: '저장',
+  webLoginSavingBtn: '저장 중…',
+  webLoginDoneBtn: '완료',
+  webLoginSuccess: (email) => `웹 로그인이 준비되었습니다. ${email}로 polnation.com에 로그인하세요.`,
+  webLoginPasswordTooShort: '비밀번호는 6자 이상이어야 합니다',
+  webLoginGenericError: '웹 로그인 설정 실패',
+  webLoginNetworkError: '네트워크 오류 — 다시 시도하세요',
 }
 
 const tr: Translations = {
@@ -1083,6 +1234,21 @@ const tr: Translations = {
   viewTeamBtn: 'Takım Havuzu İlerlemesini Gör ↗',
 
   shareText: '🎰 Polnation çekilişini çevir ve USDC kazan!',
+
+  webAccessTitle: 'WEB ERİŞİMİ',
+  webAccessDesc: "E-posta + şifre ile herhangi bir tarayıcıdan polnation.com'a giriş yapın. Telegram girişiniz çalışmaya devam eder.",
+  webAccessBtn: 'WEB GİRİŞİ KUR →',
+  webLoginTitle: 'Web girişi kur',
+  webLoginIntro: "E-posta ve şifre bağlayın, böylece herhangi bir tarayıcıdan polnation.com'a giriş yapabilirsiniz. Telegram girişiniz çalışmaya devam eder — bu sadece ek bir giriş yolu.",
+  webLoginEmailLabel: 'E-posta',
+  webLoginPasswordLabel: 'Şifre (6+ karakter)',
+  webLoginSaveBtn: 'Kaydet',
+  webLoginSavingBtn: 'Kaydediliyor…',
+  webLoginDoneBtn: 'Tamam',
+  webLoginSuccess: (email) => `Web girişi hazır. ${email} ile polnation.com'a giriş yapın.`,
+  webLoginPasswordTooShort: 'Şifre en az 6 karakter olmalıdır',
+  webLoginGenericError: 'Web girişi kurulamadı',
+  webLoginNetworkError: 'Ağ hatası — lütfen tekrar deneyin',
 }
 
 export const TRANSLATIONS: Record<Locale, Translations> = { en, zh, ru, es, pt, fr, de, ja, ko, tr }
