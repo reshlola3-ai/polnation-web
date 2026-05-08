@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { LuckyWheel } from '@lucky-canvas/react'
-import { createClient } from '@/lib/supabase'
 import { BevelCard } from '@/components/ui/poly/BevelCard'
 import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
 import { MonoStat } from '@/components/ui/poly/MonoStat'
@@ -31,6 +29,36 @@ const TmaWalletPanel = dynamic(
     ),
   }
 )
+
+function WheelFallback() {
+  return (
+    <div className="relative w-[300px] h-[300px] rounded-full overflow-hidden border-[10px] border-[#1e1b4b] shadow-cta-purple bg-[#0d0d14]">
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'conic-gradient(#7c3aed 0 30deg,#1e1b4b 30deg 60deg,#059669 60deg 90deg,#1e1b4b 90deg 120deg,#7c3aed 120deg 150deg,#1e1b4b 150deg 180deg,#0891b2 180deg 210deg,#1e1b4b 210deg 240deg,#7c3aed 240deg 270deg,#1e1b4b 270deg 300deg,#d97706 300deg 330deg,#1e1b4b 330deg 360deg)',
+        }}
+      />
+      <div className="absolute inset-[37%] rounded-full bg-[#0d0d14] border border-white/10 flex items-center justify-center">
+        <span
+          className="text-white text-[11px] font-semibold"
+          style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.08em' }}
+        >
+          SPIN
+        </span>
+      </div>
+      <div className="absolute left-1/2 top-[17px] -translate-x-1/2 text-[#22c55e] text-[16px] leading-none">
+        ▼
+      </div>
+    </div>
+  )
+}
+
+const LotteryWheelClient = dynamic(() => import('./LotteryWheelClient'), {
+  ssr: false,
+  loading: () => <WheelFallback />,
+})
 
 interface TgMainButton {
   text: string
@@ -212,9 +240,6 @@ function writeLotteryCache(tgUserId: number | string | undefined, data: CachedLo
 }
 
 export default function LotteryMiniPage() {
-  const supabase = createClient()
-  const wheelRef = useRef<{ play: () => void; stop: (index: number) => void } | null>(null)
-
   const [authStatus, setAuthStatus] = useState<AuthStatus>('init')
   // Gate for "session cookie is actually valid". Decoupled from authStatus
   // because cache hits flip authStatus → 'ready' optimistically before the
@@ -232,6 +257,9 @@ export default function LotteryMiniPage() {
   const [remainingSpins, setRemainingSpins] = useState(0)
   const [isInfluencer, setIsInfluencer] = useState(false)
   const [isSpinning, setIsSpinning] = useState(false)
+  const wheelCommandNonceRef = useRef(0)
+  const [wheelSpinNonce, setWheelSpinNonce] = useState(0)
+  const [wheelStopCommand, setWheelStopCommand] = useState<{ nonce: number; index: number } | null>(null)
 
   // ── Wallet + withdraw state ──────────────────────────────────────────────────
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
@@ -367,22 +395,11 @@ export default function LotteryMiniPage() {
       setAuthStatus('authenticating')
     }
 
-    const launchStartParam =
-      tg.initDataUnsafe?.start_param ||
-      new URLSearchParams(window.location.search).get('tgWebAppStartParam') ||
-      null
-
     ;(async () => {
       try {
-        // Fast path: returning users skip the auth roundtrip unless this
-        // launch carries a referral payload that still needs attribution.
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session && !launchStartParam) {
-          if (!hasCacheHit) setAuthStatus('ready')
-          setSessionEstablished(true)
-          return
-        }
-
+        // Authenticate via the server route. Avoid importing Supabase's browser
+        // client in the Mini App's first JS chunk just for getSession().
+        // Cache-hit users already see the UI while this settles in the background.
         // Slow path: show onboarding only while auth is genuinely pending.
         // Skip the cosmetic stage timers when we have cache — the user is
         // already looking at the wheel, not at a spinner.
@@ -400,7 +417,7 @@ export default function LotteryMiniPage() {
 
         let step2Timer: number | undefined
         let step3Timer: number | undefined
-        if (!session && !hasCacheHit) {
+        if (!hasCacheHit) {
           setPrepStep(1)
           step2Timer = window.setTimeout(() => setPrepStep(2), 450)
           step3Timer = window.setTimeout(() => setPrepStep(3), 900)
@@ -420,7 +437,6 @@ export default function LotteryMiniPage() {
         // working (stale) view rather than seeing an error screen.
       }
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // ── 2. Once auth ready: fetch lottery state + auto-grant spins ──────────────
@@ -564,9 +580,14 @@ export default function LotteryMiniPage() {
       }
 
       const prizeIndex = PRIZE_CONFIGS.findIndex((p) => p.type === data.prize_type)
-      wheelRef.current?.play()
-      setTimeout(() => {
-        wheelRef.current?.stop(prizeIndex >= 0 ? prizeIndex : 1)
+      const commandNonce = wheelCommandNonceRef.current + 1
+      wheelCommandNonceRef.current = commandNonce
+      setWheelSpinNonce(commandNonce)
+      window.setTimeout(() => {
+        setWheelStopCommand({
+          nonce: commandNonce,
+          index: prizeIndex >= 0 ? prizeIndex : 1,
+        })
       }, 300)
 
       // Stash the result for handleEnd to display via TG popup.
@@ -1114,18 +1135,14 @@ export default function LotteryMiniPage() {
         <div className="relative">
           <div className="absolute inset-0 -m-3 rounded-full bg-gradient-to-r from-purple-500/20 to-cyan-500/20 blur-xl" />
           <div className="relative">
-            <LuckyWheel
-              ref={wheelRef}
+            <LotteryWheelClient
               width="300px"
               height="300px"
               blocks={blocks}
               prizes={prizes}
               buttons={buttons}
-              defaultConfig={{
-                speed: 20,
-                accelerationTime: 2500,
-                decelerationTime: 4500,
-              }}
+              spinNonce={wheelSpinNonce}
+              stopCommand={wheelStopCommand}
               onStart={handleSpin}
               onEnd={handleWheelEnd}
             />
