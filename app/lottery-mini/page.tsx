@@ -187,7 +187,7 @@ function generateMockTicker(count: number): TickerEvent[] {
 // re-launches inside the same mini-app session render instantly off cache
 // while a background refresh fetches fresh data. The 30-second TTL bounds
 // staleness; data only ever lives for the duration of one Telegram session.
-const LOTTERY_CACHE_PREFIX = 'lotteryMini_v2_'
+const LOTTERY_CACHE_PREFIX = 'lotteryMini_v3_'
 const LOTTERY_CACHE_TTL_MS = 30 * 1000
 
 interface CachedLottery {
@@ -1324,13 +1324,13 @@ export default function LotteryMiniPage() {
                       />
                     ) : (
                       <span className="text-white/65 text-xs font-semibold">
-                        {invitee.name.slice(0, 1).toUpperCase()}
+                        {invitee.name.replace(/^@/, '').slice(0, 1).toUpperCase()}
                       </span>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-[13px] font-medium truncate">
-                      {invitee.name.startsWith('@') ? invitee.name : `@${invitee.name}`}
+                      {invitee.name}
                     </p>
                   </div>
                   <span className="text-white/35 text-[11px] shrink-0">

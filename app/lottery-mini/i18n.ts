@@ -261,7 +261,7 @@ const en: Translations = {
   tryAgainDesc: 'Some slices have no prize. Your spin count is consumed but no reward is credited — better luck next time.',
   viewTeamBtn: 'View Team Pool Progress ↗',
 
-  shareText: '🎰 Spin the Polnation Lottery and win USDC!',
+  shareText: 'Free spins for Real USDC rewards. No complicated setup.\n\nJoin Polnation through my link and start earning. Invite and Earn.',
 
   webAccessTitle: 'WEB ACCESS',
   webAccessDesc: 'Sign in on polnation.com from any browser using email + password. Your Telegram login keeps working.',
@@ -369,7 +369,7 @@ const zh: Translations = {
   tryAgainDesc: '部分扇形无奖励，消耗抽奖次数但不发放奖励，祝下次好运。',
   viewTeamBtn: '查看团队奖池进度 ↗',
 
-  shareText: '🎰 来 Polnation 转盘抽奖，赢取 USDC！',
+  shareText: '免费抽奖，赢取真实 USDC 奖励。无需复杂设置。\n\n通过我的链接加入 Polnation，开始赚取奖励。邀请好友也能赚。',
 
   webAccessTitle: '网页登录',
   webAccessDesc: '在任何浏览器使用邮箱+密码登录 polnation.com。你的 Telegram 登录继续有效。',
@@ -477,7 +477,7 @@ const ru: Translations = {
   tryAgainDesc: 'Некоторые секторы не имеют приза. Спин расходуется, но награда не начисляется — удачи в следующий раз.',
   viewTeamBtn: 'Прогресс командного пула ↗',
 
-  shareText: '🎰 Крути лотерею Polnation и выигрывай USDC!',
+  shareText: 'Бесплатные вращения за реальные награды в USDC. Никакой сложной настройки.\n\nПрисоединяйтесь к Polnation по моей ссылке и начинайте зарабатывать. Приглашайте и зарабатывайте.',
 
   webAccessTitle: 'ВХОД ЧЕРЕЗ ВЕБ',
   webAccessDesc: 'Войдите на polnation.com из любого браузера через email и пароль. Вход через Telegram продолжит работать.',
@@ -585,7 +585,7 @@ const es: Translations = {
   tryAgainDesc: 'Algunos sectores no tienen premio. El giro se consume sin recompensa — ¡mejor suerte la próxima!',
   viewTeamBtn: 'Ver progreso del pool del equipo ↗',
 
-  shareText: '🎰 ¡Gira la lotería Polnation y gana USDC!',
+  shareText: 'Giros gratis por recompensas reales en USDC. Sin configuración complicada.\n\nÚnete a Polnation con mi enlace y empieza a ganar. Invita y gana.',
 
   webAccessTitle: 'ACCESO WEB',
   webAccessDesc: 'Inicia sesión en polnation.com desde cualquier navegador con email y contraseña. Tu inicio con Telegram sigue funcionando.',
@@ -693,7 +693,7 @@ const pt: Translations = {
   tryAgainDesc: 'Alguns setores não têm prêmio. O giro é consumido sem recompensa — boa sorte na próxima!',
   viewTeamBtn: 'Ver progresso do pool da equipe ↗',
 
-  shareText: '🎰 Gire a loteria Polnation e ganhe USDC!',
+  shareText: 'Giros grátis por recompensas reais em USDC. Sem configuração complicada.\n\nEntre na Polnation pelo meu link e comece a ganhar. Convide e ganhe.',
 
   webAccessTitle: 'ACESSO WEB',
   webAccessDesc: 'Faça login em polnation.com de qualquer navegador com email e senha. Seu login pelo Telegram continua funcionando.',
@@ -801,7 +801,7 @@ const fr: Translations = {
   tryAgainDesc: 'Certains secteurs n\'ont pas de prix. Le tour est consommé sans récompense — bonne chance la prochaine fois.',
   viewTeamBtn: 'Voir la progression du pool ↗',
 
-  shareText: '🎰 Faites tourner la loterie Polnation et gagnez des USDC !',
+  shareText: 'Des tours gratuits pour de vraies récompenses en USDC. Pas de configuration compliquée.\n\nRejoins Polnation avec mon lien et commence à gagner. Invite et gagne.',
 
   webAccessTitle: 'ACCÈS WEB',
   webAccessDesc: "Connectez-vous sur polnation.com depuis n'importe quel navigateur avec email et mot de passe. Votre connexion Telegram continue de fonctionner.",
@@ -909,7 +909,7 @@ const de: Translations = {
   tryAgainDesc: 'Einige Felder haben keinen Preis. Die Drehung wird verbraucht, aber keine Belohnung gutgeschrieben — beim nächsten Mal mehr Glück.',
   viewTeamBtn: 'Team-Pool-Fortschritt ansehen ↗',
 
-  shareText: '🎰 Drehe die Polnation Lotterie und gewinne USDC!',
+  shareText: 'Kostenlose Drehungen für echte USDC-Belohnungen. Keine komplizierte Einrichtung.\n\nTritt Polnation über meinen Link bei und fang an zu verdienen. Einladen und verdienen.',
 
   webAccessTitle: 'WEB-ZUGANG',
   webAccessDesc: 'Melde dich von jedem Browser auf polnation.com mit E-Mail + Passwort an. Dein Telegram-Login funktioniert weiterhin.',
@@ -1017,7 +1017,7 @@ const ja: Translations = {
   tryAgainDesc: '一部のスロットに賞品はありません。スピンは消費されますが報酬は付与されません。',
   viewTeamBtn: 'チームプール進捗を確認 ↗',
 
-  shareText: '🎰 Polnation抽選をスピンしてUSDCを当てよう！',
+  shareText: '無料スピンでリアルなUSDC報酬を狙えます。複雑な設定は不要です。\n\n私のリンクからPolnationに参加して、報酬獲得を始めましょう。招待して稼ぐ。',
 
   webAccessTitle: 'ウェブアクセス',
   webAccessDesc: 'メールとパスワードを使って、どのブラウザからでも polnation.com にサインインできます。Telegram ログインも引き続き有効です。',
@@ -1125,7 +1125,7 @@ const ko: Translations = {
   tryAgainDesc: '일부 섹터에는 상품이 없습니다. 스핀은 소비되지만 보상은 지급되지 않습니다.',
   viewTeamBtn: '팀 풀 진행 상황 보기 ↗',
 
-  shareText: '🎰 Polnation 복권을 돌려 USDC를 당첨하세요!',
+  shareText: '무료 스핀으로 실제 USDC 보상을 노려보세요. 복잡한 설정은 없습니다.\n\n제 링크로 Polnation에 참여하고 보상을 시작하세요. 초대하고 적립하세요.',
 
   webAccessTitle: '웹 액세스',
   webAccessDesc: '이메일 + 비밀번호로 어떤 브라우저에서든 polnation.com에 로그인하세요. 텔레그램 로그인도 계속 작동합니다.',
@@ -1233,7 +1233,7 @@ const tr: Translations = {
   tryAgainDesc: 'Bazı dilimlerde ödül yoktur. Hak tüketilir ancak ödül verilmez — bir sonraki sefere!',
   viewTeamBtn: 'Takım Havuzu İlerlemesini Gör ↗',
 
-  shareText: '🎰 Polnation çekilişini çevir ve USDC kazan!',
+  shareText: 'Gerçek USDC ödülleri için ücretsiz haklar. Karmaşık kurulum yok.\n\nBağlantımla Polnation\'a katıl ve kazanmaya başla. Davet et ve kazan.',
 
   webAccessTitle: 'WEB ERİŞİMİ',
   webAccessDesc: "E-posta + şifre ile herhangi bir tarayıcıdan polnation.com'a giriş yapın. Telegram girişiniz çalışmaya devam eder.",

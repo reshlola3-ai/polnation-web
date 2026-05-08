@@ -59,24 +59,27 @@ function isGeneratedTelegramPlaceholder(value: string | null | undefined): boole
   return !!value && /^tg_\d{3,}$/i.test(value)
 }
 
-async function resolveReferrerLabel(
-  admin: NonNullable<ReturnType<typeof getSupabaseAdmin>>,
-  referrerId: string,
-): Promise<string> {
-  const { data: ref } = await admin
-    .from('profiles')
-    .select('telegram_username, username')
-    .eq('id', referrerId)
-    .single()
+type DisplayProfileRow = {
+  id: string
+  username: string | null
+  telegram_username: string | null
+}
 
-  const telegramUsername = cleanDisplayPart(ref?.telegram_username)
+async function resolveProfileLabel(
+  admin: NonNullable<ReturnType<typeof getSupabaseAdmin>>,
+  profile: DisplayProfileRow | null,
+  fallback = 'Telegram user',
+): Promise<string> {
+  if (!profile) return fallback
+
+  const telegramUsername = cleanDisplayPart(profile.telegram_username)
   if (telegramUsername) return `@${telegramUsername}`
 
   // For Telegram-only users without a public @username, the normal profile
   // username is generated as tg_123456. Use auth metadata's first/last name
   // instead, which comes from Telegram initData and is safer to show.
-  const { data: authUser } = await admin.auth.admin.getUserById(referrerId)
-  const metadata = authUser.user?.user_metadata || {}
+  const { data: authUser } = await admin.auth.admin.getUserById(profile.id)
+  const metadata = authUser?.user?.user_metadata || {}
   const firstName = cleanDisplayPart(metadata.first_name)
   const lastName = cleanDisplayPart(metadata.last_name)
   const displayName = [firstName, lastName].filter(Boolean).join(' ').trim()
@@ -87,12 +90,25 @@ async function resolveReferrerLabel(
     cleanDisplayPart(metadata.username)
   if (metadataUsername) return `@${metadataUsername}`
 
-  const profileUsername = cleanDisplayPart(ref?.username)
+  const profileUsername = cleanDisplayPart(profile.username)
   if (profileUsername && !isGeneratedTelegramPlaceholder(profileUsername)) {
     return profileUsername
   }
 
-  return 'Telegram user'
+  return fallback
+}
+
+async function resolveReferrerLabel(
+  admin: NonNullable<ReturnType<typeof getSupabaseAdmin>>,
+  referrerId: string,
+): Promise<string> {
+  const { data: ref } = await admin
+    .from('profiles')
+    .select('id, telegram_username, username')
+    .eq('id', referrerId)
+    .single()
+
+  return resolveProfileLabel(admin, ref, 'Telegram user')
 }
 
 // GET: Check available spins & get history
@@ -178,12 +194,14 @@ export async function GET() {
   const selfAirdropCount = airdropRes.data?.length || 0
   const nextMilestone = (Math.floor(selfAirdropCount / 7) + 1) * 7
   const progressToNextSpin = selfAirdropCount % 7
-  const invitees = (inviteesRes.data || []).map((invitee) => ({
-    id: invitee.id,
-    name: invitee.telegram_username || invitee.username || 'Friend',
-    photoUrl: invitee.telegram_photo_url || null,
-    joinedAt: invitee.created_at,
-  }))
+  const invitees = await Promise.all(
+    (inviteesRes.data || []).map(async (invitee) => ({
+      id: invitee.id,
+      name: await resolveProfileLabel(admin, invitee, 'Telegram user'),
+      photoUrl: invitee.telegram_photo_url || null,
+      joinedAt: invitee.created_at,
+    })),
+  )
 
   return NextResponse.json({
     canSpin,

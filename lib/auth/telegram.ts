@@ -41,6 +41,44 @@ const supabaseAdmin = createClient(
 // case-insensitive — legacy referral_codes may contain lowercase chars
 // (see app/api/referrer/route.ts for the same workaround).
 
+function telegramAuthMetadata(tgUser: TelegramUser): Record<string, unknown> {
+  return {
+    telegram_id: tgUser.id,
+    telegram_username: tgUser.username || null,
+    telegram_photo_url: tgUser.photo_url || null,
+    photo_url: tgUser.photo_url || null,
+    first_name: tgUser.first_name,
+    last_name: tgUser.last_name || null,
+    auth_type: 'telegram',
+  }
+}
+
+async function updateTelegramAuthMetadata(userId: string, tgUser: TelegramUser) {
+  try {
+    const { data: authUser, error: lookupError } = await supabaseAdmin.auth.admin
+      .getUserById(userId)
+    if (lookupError) {
+      console.error('[tg-auth] auth metadata lookup failed:', lookupError.message)
+      return
+    }
+
+    const existingMetadata = authUser?.user?.user_metadata || {}
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+      user_metadata: {
+        ...existingMetadata,
+        ...telegramAuthMetadata(tgUser),
+      },
+    })
+
+    if (updateError) {
+      console.error('[tg-auth] auth metadata update failed:', updateError.message)
+    }
+  } catch (error) {
+    console.error('[tg-auth] auth metadata update crashed:', error)
+  }
+}
+
+// Referral code lookup.
 export async function resolveReferrer(
   startParam: string | undefined,
 ): Promise<string | null> {
@@ -87,10 +125,13 @@ export async function findOrCreateTelegramProfile(opts: {
       profilePatch.referrer_id = referrerId
     }
 
-    const { error: updateErr } = await supabaseAdmin
-      .from('profiles')
-      .update(profilePatch)
-      .eq('id', existing.id)
+    const [{ error: updateErr }] = await Promise.all([
+      supabaseAdmin
+        .from('profiles')
+        .update(profilePatch)
+        .eq('id', existing.id),
+      updateTelegramAuthMetadata(existing.id, tgUser),
+    ])
     if (updateErr) {
       console.error('[tg-auth] returning user update failed:', updateErr.message)
     }
@@ -114,12 +155,7 @@ async function createTelegramProfile(
     password: randomPassword,
     email_confirm: true,
     user_metadata: {
-      telegram_id: tgUser.id,
-      telegram_username: tgUser.username || null,
-      telegram_photo_url: tgUser.photo_url || null,
-      first_name: tgUser.first_name,
-      last_name: tgUser.last_name || null,
-      auth_type: 'telegram',
+      ...telegramAuthMetadata(tgUser),
       referrer_id: referrerId,
     },
   })
