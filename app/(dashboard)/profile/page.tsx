@@ -8,14 +8,10 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { countries } from '@/lib/countries'
 import { Profile } from '@/lib/types'
-import { User, Phone, Send, Wallet, Check, ExternalLink, CheckCircle, Mail, AlertCircle } from 'lucide-react'
+import { User, Phone, Send, Wallet, Check, ExternalLink, CheckCircle, Mail, Lock, AlertCircle } from 'lucide-react'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useAccount } from 'wagmi'
-
-function isWalletEmail(email: string | null | undefined) {
-  if (!email) return true
-  return email.endsWith('@wallet.polnation.com')
-}
+import { isPlaceholderEmail, getPlaceholderType } from '@/lib/auth/placeholder-email'
 
 function RequiredLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -44,9 +40,10 @@ export default function ProfilePage() {
   const [countryCode, setCountryCode] = useState('CN')
   const [telegramUsername, setTelegramUsername] = useState('')
 
-  // Email binding for wallet users
+  // Email + password binding for users on a placeholder email (wallet or TG).
   const [newEmail, setNewEmail] = useState('')
-  const [emailSent, setEmailSent] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [emailBound, setEmailBound] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [emailError, setEmailError] = useState('')
 
@@ -209,14 +206,26 @@ export default function ProfilePage() {
     e.preventDefault()
     setEmailError('')
     if (!newEmail.trim()) return
+    if (newPassword.length < 6) {
+      setEmailError('Password must be at least 6 characters')
+      return
+    }
     setIsSendingEmail(true)
     try {
-      const { error } = await supabase.auth.updateUser({ email: newEmail.trim() })
-      if (error) {
-        setEmailError(error.message)
-      } else {
-        setEmailSent(true)
+      const res = await fetch('/api/auth/bind-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newEmail.trim(), password: newPassword }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setEmailError(data.error || 'Failed to bind email')
+        return
       }
+      setEmailBound(true)
+      setNewPassword('') // don't keep plaintext password in React state
+      // Reload profile so the bound email reflects in the form and the card hides.
+      await loadProfile()
     } catch {
       setEmailError('An unexpected error occurred')
     } finally {
@@ -242,7 +251,9 @@ export default function ProfilePage() {
     )
   }
 
-  const walletUser = isWalletEmail(profile?.email)
+  const placeholderType = getPlaceholderType(profile?.email)
+  const needsEmailBinding = isPlaceholderEmail(profile?.email)
+  const isTelegramUser = placeholderType === 'telegram'
 
   return (
     <div className="max-w-2xl mx-auto space-y-4">
@@ -287,11 +298,19 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* Email — show real email or wallet placeholder */}
+          {/* Email — show real email or a hint for placeholder accounts */}
           <div>
             <label className="block text-sm font-medium text-zinc-400 mb-2">Email</label>
             <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-zinc-400 text-sm">
-              {walletUser ? <span className="text-zinc-600 italic">No email — wallet account</span> : profile?.email}
+              {needsEmailBinding ? (
+                <span className="text-zinc-600 italic">
+                  {isTelegramUser
+                    ? 'No email — Telegram account'
+                    : 'No email — wallet account'}
+                </span>
+              ) : (
+                profile?.email
+              )}
             </div>
           </div>
 
@@ -425,23 +444,31 @@ export default function ProfilePage() {
         </form>
       </div>
 
-      {/* #7 — Email binding for wallet-registered users */}
-      {walletUser && (
+      {/* Email + password binding — for users on a placeholder email
+          (wallet-registered or Telegram-registered). Lets them sign in on
+          web from any browser. */}
+      {needsEmailBinding && (
         <div className="glass-card-solid p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-9 h-9 rounded-xl bg-blue-500/15 flex items-center justify-center">
               <Mail className="w-4 h-4 text-blue-400" />
             </div>
             <div>
-              <h3 className="font-semibold text-white text-sm">Bind Email Address</h3>
-              <p className="text-xs text-zinc-500">Add an email for account recovery</p>
+              <h3 className="font-semibold text-white text-sm">
+                {isTelegramUser ? 'Set up web login' : 'Bind Email Address'}
+              </h3>
+              <p className="text-xs text-zinc-500">
+                {isTelegramUser
+                  ? 'Sign in on polnation.com from any browser. Your Telegram login keeps working.'
+                  : 'Add an email and password for account recovery.'}
+              </p>
             </div>
           </div>
 
-          {emailSent ? (
+          {emailBound ? (
             <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm flex items-center gap-2">
               <Check className="w-4 h-4 shrink-0" />
-              Confirmation sent to {newEmail}. Check your inbox and click the link to verify.
+              Web login ready. Sign in at polnation.com with {newEmail}.
             </div>
           ) : (
             <form onSubmit={handleBindEmail} className="space-y-3">
@@ -456,10 +483,21 @@ export default function ProfilePage() {
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 leftIcon={<Mail className="w-4 h-4" />}
+                autoComplete="email"
+                required
+              />
+              <Input
+                type="password"
+                placeholder="Password (6+ characters)"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                leftIcon={<Lock className="w-4 h-4" />}
+                autoComplete="new-password"
+                minLength={6}
                 required
               />
               <Button type="submit" className="w-full" isLoading={isSendingEmail}>
-                Send Verification Email
+                Save
               </Button>
             </form>
           )}

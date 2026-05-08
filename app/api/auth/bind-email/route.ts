@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
+import { isPlaceholderEmail } from '@/lib/auth/placeholder-email'
 
 // Get admin client
 function getSupabaseAdmin() {
@@ -29,22 +30,17 @@ async function getUser() {
   return user
 }
 
-// Check if email is a wallet placeholder
-function isWalletEmail(email: string | null | undefined): boolean {
-  if (!email) return true
-  return email.endsWith('@wallet.polnation.com')
-}
-
 export async function POST(request: NextRequest) {
   const user = await getUser()
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Only allow wallet users to bind email
-  if (!isWalletEmail(user.email)) {
-    return NextResponse.json({ 
-      error: 'Your email is already verified',
+  // Only allow placeholder-email users (wallet or Telegram) to bind a real email.
+  // Users who already have a real email should change it via profile settings.
+  if (!isPlaceholderEmail(user.email)) {
+    return NextResponse.json({
+      error: 'Your email is already set. Update it from your profile instead.',
       code: 'ALREADY_VERIFIED'
     }, { status: 400 })
   }
@@ -59,8 +55,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 })
   }
 
-  // Don't allow binding to another wallet placeholder
-  if (email.endsWith('@wallet.polnation.com')) {
+  // Don't allow binding to a placeholder domain we issue ourselves.
+  if (isPlaceholderEmail(email)) {
     return NextResponse.json({ error: 'Please use a real email address' }, { status: 400 })
   }
 
