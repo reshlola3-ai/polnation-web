@@ -58,12 +58,12 @@ export default function LotteryMiniLayout({
 }) {
   return (
     <>
-      {/* Telegram client injects window.Telegram.WebApp before our scripts run,
-          so this external file is a fallback for non-mini-app testing. Loaded
-          lazily so it never blocks first paint or hydration. */}
+      {/* Required by Telegram Mini Apps: this script creates window.Telegram.WebApp
+          from the launch params. Keep it beforeInteractive so page.tsx never
+          boots into the "not in Telegram" error path before the bridge exists. */}
       <Script
         src="https://telegram.org/js/telegram-web-app.js"
-        strategy="lazyOnload"
+        strategy="beforeInteractive"
       />
       <div className="min-h-screen bg-[#07060d] text-white relative">
         <BootSkeleton />

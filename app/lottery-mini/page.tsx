@@ -539,6 +539,7 @@ export default function LotteryMiniPage() {
   // ── 3. Spin handler ─────────────────────────────────────────────────────────
 
   const handleSpin = useCallback(async () => {
+    if (!sessionEstablished) return
     if (isSpinning) return
     if (remainingSpins <= 0) return
     setIsSpinning(true)
@@ -574,7 +575,7 @@ export default function LotteryMiniPage() {
     } catch {
       setIsSpinning(false)
     }
-  }, [isSpinning, remainingSpins])
+  }, [sessionEstablished, isSpinning, remainingSpins, t])
 
   // Result must be passed from handleSpin → handleEnd via a ref because the
   // wheel's onEnd callback fires asynchronously after stop().
@@ -613,7 +614,7 @@ export default function LotteryMiniPage() {
     })
 
     refreshState()
-  }, [refreshState])
+  }, [refreshState, t])
 
   // ── 4. TG MainButton wiring ─────────────────────────────────────────────────
 
@@ -630,8 +631,10 @@ export default function LotteryMiniPage() {
       return
     }
 
-    const canSpin = remainingSpins > 0 || isInfluencer
-    const text = isSpinning
+    const canSpin = sessionEstablished && (remainingSpins > 0 || isInfluencer)
+    const text = !sessionEstablished
+      ? t.connecting
+      : isSpinning
       ? t.spinning
       : !canSpin
       ? t.noSpinsLeft
@@ -656,7 +659,7 @@ export default function LotteryMiniPage() {
     return () => {
       mb.offClick(handler)
     }
-  }, [authStatus, remainingSpins, isInfluencer, isSpinning, handleSpin, withdrawFocused, showRules, showWebLoginPanel, webLoginFocused])
+  }, [authStatus, sessionEstablished, remainingSpins, isInfluencer, isSpinning, handleSpin, withdrawFocused, showRules, showWebLoginPanel, webLoginFocused, t])
 
   // Hide MainButton on unmount as a safety net (if user navigates away inside the Mini App).
   useEffect(() => {
@@ -668,6 +671,7 @@ export default function LotteryMiniPage() {
   // ── 5. Withdraw ─────────────────────────────────────────────────────────────
 
   const handleWithdraw = useCallback(async () => {
+    if (!sessionEstablished) return
     const amount = parseFloat(withdrawAmount)
     if (!amount || amount <= 0 || amount > availableUsdc) return
     setWithdrawStatus('pending')
@@ -703,7 +707,7 @@ export default function LotteryMiniPage() {
       setWithdrawStatus('error')
       setWithdrawError(err instanceof Error ? err.message : 'Withdrawal failed')
     }
-  }, [withdrawAmount, availableUsdc, refreshState, t])
+  }, [sessionEstablished, withdrawAmount, availableUsdc, refreshState, t])
 
   // Auto-clear withdraw error when user edits the amount
   useEffect(() => {
@@ -726,7 +730,7 @@ export default function LotteryMiniPage() {
     } else {
       window.open(shareUrl, '_blank', 'noopener,noreferrer')
     }
-  }, [referralCode])
+  }, [referralCode, t])
 
   // ── Web login binding handler ───────────────────────────────────────────────
   const handleWebLoginSubmit = useCallback(async (e: React.FormEvent) => {
@@ -1159,7 +1163,8 @@ export default function LotteryMiniPage() {
               <button
                 type="button"
                 onClick={() => setShowWalletPanel(true)}
-                className="w-full p-2.5 bg-white/[0.06] border border-white/[0.12] text-white text-sm hover:bg-white/[0.10] active:scale-[0.99] transition-all"
+                disabled={!sessionEstablished}
+                className="w-full p-2.5 bg-white/[0.06] border border-white/[0.12] text-white text-sm hover:bg-white/[0.10] active:scale-[0.99] transition-all disabled:opacity-40 disabled:pointer-events-none"
               >
                 {t.connectWallet}
               </button>
@@ -1193,7 +1198,7 @@ export default function LotteryMiniPage() {
                       onChange={(e) => setWithdrawAmount(e.target.value)}
                       onFocus={() => setWithdrawFocused(true)}
                       onBlur={() => setWithdrawFocused(false)}
-                      disabled={withdrawStatus === 'pending' || availableUsdc <= 0 || needsGroupJoin}
+                      disabled={withdrawStatus === 'pending' || availableUsdc <= 0 || needsGroupJoin || !sessionEstablished}
                       className="flex-1 px-3 py-2 bg-white/[0.06] border border-white/[0.12] text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-[var(--poly-purple)]/60 disabled:opacity-50"
                     />
                     <button
@@ -1202,6 +1207,7 @@ export default function LotteryMiniPage() {
                       disabled={
                         withdrawStatus === 'pending' ||
                         availableUsdc <= 0 ||
+                        !sessionEstablished ||
                         !withdrawAmount ||
                         parseFloat(withdrawAmount) <= 0 ||
                         needsGroupJoin
@@ -1349,7 +1355,8 @@ export default function LotteryMiniPage() {
                 setWebLoginError('')
                 setWebLoginStatus('idle')
               }}
-              className="mt-3 w-full p-2.5 bg-white/[0.06] border border-white/[0.10] text-white/85 text-[12px] hover:bg-white/[0.10] active:scale-[0.99] transition-all"
+              disabled={!sessionEstablished}
+              className="mt-3 w-full p-2.5 bg-white/[0.06] border border-white/[0.10] text-white/85 text-[12px] hover:bg-white/[0.10] active:scale-[0.99] transition-all disabled:opacity-40 disabled:pointer-events-none"
               style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.08em' }}
             >
               {t.webAccessBtn}
