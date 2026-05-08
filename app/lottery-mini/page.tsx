@@ -216,6 +216,11 @@ export default function LotteryMiniPage() {
   const wheelRef = useRef<{ play: () => void; stop: (index: number) => void } | null>(null)
 
   const [authStatus, setAuthStatus] = useState<AuthStatus>('init')
+  // Gate for "session cookie is actually valid". Decoupled from authStatus
+  // because cache hits flip authStatus → 'ready' optimistically before the
+  // session is verified, and runCheckSpins / lottery fetches must wait for
+  // the real session to avoid silent 401s.
+  const [sessionEstablished, setSessionEstablished] = useState(false)
   const [authError, setAuthError] = useState('')
   // Known error types rendered via translation; authError holds unexpected API messages.
   const [authErrorType, setAuthErrorType] = useState<'no_telegram' | 'no_session' | null>(null)
@@ -313,6 +318,7 @@ export default function LotteryMiniPage() {
     // Populate identity from initDataUnsafe immediately — display only,
     // server-side HMAC of initData is what proves identity for any privileged op.
     const tgUser = tg.initDataUnsafe?.user
+    let hasCacheHit = false
     if (tgUser) {
       setTelegramUsername(tgUser.username || null)
       setTgFirstName(tgUser.first_name || null)
@@ -320,11 +326,13 @@ export default function LotteryMiniPage() {
       setLocaleState(detectLocale(tgUser.language_code))
       tgUserIdRef.current = tgUser.id
 
-      // Hydrate from sessionStorage cache so the wheel + spin count appear
-      // before the network round-trip completes. Stale by up to 30 s; the
-      // refreshState() call in step 2 below overwrites with fresh data.
+      // Hydrate from sessionStorage so the wheel renders synchronously off
+      // last-known data instead of behind a spinner. The auth flow still
+      // runs in the background — once it completes, refreshState() overwrites
+      // these values with fresh ones (and the cache).
       const cached = readLotteryCache(tgUser.id)
       if (cached) {
+        hasCacheHit = true
         setRemainingSpins(cached.remainingSpins)
         setIsInfluencer(cached.isInfluencer)
         setReferralCode(cached.referralCode)
@@ -348,7 +356,15 @@ export default function LotteryMiniPage() {
       return
     }
 
-    setAuthStatus('authenticating')
+    // Cache hit → optimistically render the main UI immediately. The auth
+    // flow below still runs; if the session is actually invalid, refreshState
+    // will silently fail but the user already sees usable (stale) data.
+    if (hasCacheHit) {
+      setAuthStatus('ready')
+    } else {
+      setAuthStatus('authenticating')
+    }
+
     const launchStartParam =
       tg.initDataUnsafe?.start_param ||
       new URLSearchParams(window.location.search).get('tgWebAppStartParam') ||
@@ -360,12 +376,14 @@ export default function LotteryMiniPage() {
         // launch carries a referral payload that still needs attribution.
         const { data: { session } } = await supabase.auth.getSession()
         if (session && !launchStartParam) {
-          setAuthStatus('ready')
+          if (!hasCacheHit) setAuthStatus('ready')
+          setSessionEstablished(true)
           return
         }
 
         // Slow path: show onboarding only while auth is genuinely pending.
-        // Never hold the page open for cosmetic timing.
+        // Skip the cosmetic stage timers when we have cache — the user is
+        // already looking at the wheel, not at a spinner.
         const authPromise = (async () => {
           const res = await fetch('/api/auth/telegram', {
             method: 'POST',
@@ -380,7 +398,7 @@ export default function LotteryMiniPage() {
 
         let step2Timer: number | undefined
         let step3Timer: number | undefined
-        if (!session) {
+        if (!session && !hasCacheHit) {
           setPrepStep(1)
           step2Timer = window.setTimeout(() => setPrepStep(2), 450)
           step3Timer = window.setTimeout(() => setPrepStep(3), 900)
@@ -389,10 +407,15 @@ export default function LotteryMiniPage() {
         if (step2Timer) window.clearTimeout(step2Timer)
         if (step3Timer) window.clearTimeout(step3Timer)
 
-        setAuthStatus('ready')
+        if (!hasCacheHit) setAuthStatus('ready')
+        setSessionEstablished(true)
       } catch (err) {
-        setAuthStatus('error')
-        setAuthError(err instanceof Error ? err.message : 'Authentication failed')
+        if (!hasCacheHit) {
+          setAuthStatus('error')
+          setAuthError(err instanceof Error ? err.message : 'Authentication failed')
+        }
+        // If we already showed UI from cache, swallow — the user keeps a
+        // working (stale) view rather than seeing an error screen.
       }
     })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -494,13 +517,16 @@ export default function LotteryMiniPage() {
   }, [refreshState])
 
   useEffect(() => {
-    if (authStatus !== 'ready') return
+    // Wait for both: ready (UI rendered) AND session (cookie verified). For
+    // cache-hit users authStatus flips ready before sessionEstablished, so
+    // gating on both avoids 401-flooding from a too-early refresh.
+    if (authStatus !== 'ready' || !sessionEstablished) return
     runCheckSpins({ background: true })
-  }, [authStatus, runCheckSpins])
+  }, [authStatus, sessionEstablished, runCheckSpins])
 
   // Re-check on visibility change — covers "user joined TG group then came back"
   useEffect(() => {
-    if (authStatus !== 'ready') return
+    if (authStatus !== 'ready' || !sessionEstablished) return
     const onVisible = () => {
       if (document.visibilityState === 'visible') {
         runCheckSpins()  // foreground: awaits full cycle for pending spinner
@@ -508,7 +534,7 @@ export default function LotteryMiniPage() {
     }
     document.addEventListener('visibilitychange', onVisible)
     return () => document.removeEventListener('visibilitychange', onVisible)
-  }, [authStatus, runCheckSpins])
+  }, [authStatus, sessionEstablished, runCheckSpins])
 
   // ── 3. Spin handler ─────────────────────────────────────────────────────────
 
