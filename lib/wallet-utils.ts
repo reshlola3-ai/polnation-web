@@ -4,24 +4,26 @@
 // non-contract approval warnings while keeping it on the allow list).
 // All other wallets are blocked from signing in PermitSigner.
 
+// Logos are local — WalletConnect's registry.walletconnect.com CDN that we
+// previously hot-linked has been retired and now 404s.
 export const SUPPORTED_WALLET_INFO = [
   {
     name: 'Trust Wallet',
     shortName: 'Trust',
     downloadUrl: 'https://trustwallet.com/download',
-    logo: 'https://registry.walletconnect.com/api/v1/logo/md/4622a2b2d6af1c9844944291e5e7351a6aa24cd7b23099efac1b2fd875da31a0',
+    logo: '/wallet-logos/trust.webp',
   },
   {
     name: 'Bitget Wallet',
     shortName: 'Bitget',
     downloadUrl: 'https://web3.bitget.com/en/wallet-download',
-    logo: 'https://registry.walletconnect.com/api/v1/logo/md/38f5d18bd8522c244bdd70cb4a68e0e718865155811c043f052fb9f1c51de662',
+    logo: '/wallet-logos/bitget.webp',
   },
   {
     name: 'SafePal',
     shortName: 'SafePal',
     downloadUrl: 'https://www.safepal.com/download',
-    logo: '/partners/safepal.svg',
+    logo: '/wallet-logos/safepal.svg',
   },
 ]
 
