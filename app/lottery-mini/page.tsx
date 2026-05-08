@@ -155,6 +155,62 @@ function generateMockTicker(count: number): TickerEvent[] {
   return out
 }
 
+// sessionStorage cache for /api/lottery payload — keyed on the TG user id so
+// re-launches inside the same mini-app session render instantly off cache
+// while a background refresh fetches fresh data. The 30-second TTL bounds
+// staleness; data only ever lives for the duration of one Telegram session.
+const LOTTERY_CACHE_PREFIX = 'lotteryMini_v1_'
+const LOTTERY_CACHE_TTL_MS = 30 * 1000
+
+interface CachedLottery {
+  remainingSpins: number
+  isInfluencer: boolean
+  referralCode: string | null
+  walletAddress: string | null
+  availableUsdc: number
+  telegramUsername: string | null
+  referredBy: string | null
+  invitedCount: number
+  invitees: Invitee[]
+  welcomeSpinEarned: boolean
+  spinHistory: SpinHistoryEntry[]
+  hasRealEmail: boolean
+}
+
+interface SpinHistoryEntry {
+  id: string
+  prize_type: string
+  prize_label: string | null
+  prize_amount: number | null
+  reward_credited: boolean
+  created_at: string
+}
+
+function readLotteryCache(tgUserId: number | string | undefined): CachedLottery | null {
+  if (!tgUserId || typeof window === 'undefined') return null
+  try {
+    const raw = sessionStorage.getItem(LOTTERY_CACHE_PREFIX + tgUserId)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as { data: CachedLottery; timestamp: number }
+    if (Date.now() - parsed.timestamp > LOTTERY_CACHE_TTL_MS) return null
+    return parsed.data
+  } catch {
+    return null
+  }
+}
+
+function writeLotteryCache(tgUserId: number | string | undefined, data: CachedLottery) {
+  if (!tgUserId || typeof window === 'undefined') return
+  try {
+    sessionStorage.setItem(
+      LOTTERY_CACHE_PREFIX + tgUserId,
+      JSON.stringify({ data, timestamp: Date.now() }),
+    )
+  } catch {
+    // sessionStorage quota exceeded — non-fatal
+  }
+}
+
 export default function LotteryMiniPage() {
   const supabase = createClient()
   const wheelRef = useRef<{ play: () => void; stop: (index: number) => void } | null>(null)
@@ -262,6 +318,26 @@ export default function LotteryMiniPage() {
       setTgFirstName(tgUser.first_name || null)
       setTgPhotoUrl(tgUser.photo_url || null)
       setLocaleState(detectLocale(tgUser.language_code))
+      tgUserIdRef.current = tgUser.id
+
+      // Hydrate from sessionStorage cache so the wheel + spin count appear
+      // before the network round-trip completes. Stale by up to 30 s; the
+      // refreshState() call in step 2 below overwrites with fresh data.
+      const cached = readLotteryCache(tgUser.id)
+      if (cached) {
+        setRemainingSpins(cached.remainingSpins)
+        setIsInfluencer(cached.isInfluencer)
+        setReferralCode(cached.referralCode)
+        setWalletAddress(cached.walletAddress)
+        setAvailableUsdc(cached.availableUsdc)
+        setTelegramUsername(cached.telegramUsername || tgUser.username || null)
+        setReferredBy(cached.referredBy)
+        setInvitedCount(cached.invitedCount)
+        setInvitees(cached.invitees)
+        setWelcomeSpinEarned(cached.welcomeSpinEarned)
+        setSpinHistory(cached.spinHistory)
+        setHasRealEmail(cached.hasRealEmail)
+      }
     } else {
       setLocaleState(detectLocale())
     }
@@ -323,42 +399,71 @@ export default function LotteryMiniPage() {
   }, [])
 
   // ── 2. Once auth ready: fetch lottery state + auto-grant spins ──────────────
+  //
+  // Critical-path = /api/lottery (drives the wheel + spin count + balance).
+  // /api/telegram/check-membership and /api/community/status are decorative
+  // (group-join button, team progress bar) and notoriously slow — the former
+  // crosses the network to api.telegram.org, the latter does Polygon multicall
+  // RPC for L1-3 referral wallets. They're fire-and-forget so the UI doesn't
+  // block on them.
+
+  const tgUserIdRef = useRef<number | string | undefined>(undefined)
 
   const refreshState = useCallback(async () => {
-    try {
-      const [lotteryRes, membershipRes, communityRes] = await Promise.all([
-        fetch('/api/lottery'),
-        fetch('/api/telegram/check-membership'),
-        fetch('/api/community/status'),
-      ])
-      if (lotteryRes.ok) {
-        const data = await lotteryRes.json()
-        setRemainingSpins(data.remainingSpins || 0)
-        setIsInfluencer(!!data.isInfluencer)
-        setReferralCode(data.referralCode || null)
-        setWalletAddress(data.walletAddress || null)
-        setAvailableUsdc(data.availableUsdc || 0)
-        setTelegramUsername(data.telegramUsername || null)
-        setReferredBy(data.referredBy || null)
-        setInvitedCount(data.invitedCount || 0)
-        setInvitees(Array.isArray(data.invitees) ? data.invitees : [])
-        setWelcomeSpinEarned(!!data.welcomeSpinEarned)
-        setSpinHistory(data.history || [])
-        setHasRealEmail(!!data.hasRealEmail)
-      }
-      if (membershipRes.ok) {
-        const m = await membershipRes.json()
+    // Fire decorative fetches without awaiting.
+    fetch('/api/telegram/check-membership')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((m) => {
+        if (!m) return
         setGroupConfigured(!!m.configured)
         setIsGroupMember(!!m.isMember)
         setGroupInviteLink(m.inviteLink || null)
-      }
-      if (communityRes.ok) {
-        const c = await communityRes.json()
+      })
+      .catch(() => { /* silent */ })
+
+    fetch('/api/community/status')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((c) => {
+        if (!c) return
         setTeamPoolEffective(Number(c.effectiveVolume) || 0)
         setTeamPoolTarget(Number(c.nextUnlockVolume) || 0)
         setTeamPoolLevel(c.status?.current_level || c.currentLevelInfo?.level || 1)
         setTeamPoolRewardPool(Number(c.currentLevelInfo?.reward_pool) || 0)
+      })
+      .catch(() => { /* silent */ })
+
+    // Critical path — wait for lottery only.
+    try {
+      const lotteryRes = await fetch('/api/lottery')
+      if (!lotteryRes.ok) return
+      const data = await lotteryRes.json()
+      const lottery: CachedLottery = {
+        remainingSpins: data.remainingSpins || 0,
+        isInfluencer: !!data.isInfluencer,
+        referralCode: data.referralCode || null,
+        walletAddress: data.walletAddress || null,
+        availableUsdc: data.availableUsdc || 0,
+        telegramUsername: data.telegramUsername || null,
+        referredBy: data.referredBy || null,
+        invitedCount: data.invitedCount || 0,
+        invitees: Array.isArray(data.invitees) ? data.invitees : [],
+        welcomeSpinEarned: !!data.welcomeSpinEarned,
+        spinHistory: Array.isArray(data.history) ? data.history : [],
+        hasRealEmail: !!data.hasRealEmail,
       }
+      setRemainingSpins(lottery.remainingSpins)
+      setIsInfluencer(lottery.isInfluencer)
+      setReferralCode(lottery.referralCode)
+      setWalletAddress(lottery.walletAddress)
+      setAvailableUsdc(lottery.availableUsdc)
+      setTelegramUsername(lottery.telegramUsername)
+      setReferredBy(lottery.referredBy)
+      setInvitedCount(lottery.invitedCount)
+      setInvitees(lottery.invitees)
+      setWelcomeSpinEarned(lottery.welcomeSpinEarned)
+      setSpinHistory(lottery.spinHistory)
+      setHasRealEmail(lottery.hasRealEmail)
+      writeLotteryCache(tgUserIdRef.current, lottery)
     } catch {
       // silent
     }
