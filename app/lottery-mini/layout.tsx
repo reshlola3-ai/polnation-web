@@ -8,12 +8,12 @@ export const metadata = {
 // Server-rendered boot skeleton. Visible the moment the HTML arrives, so
 // users in slow networks or with cold JS bundles still see a logo + spinner
 // instead of a blank screen. Plain inline styles (no Tailwind) so it paints
-// even before the CSS bundle finishes loading. Once the client React tree
-// hydrates and the page component renders its own loading UI, this skeleton
-// is naturally overlaid by the same-position children.
+// even before the CSS bundle finishes loading. page.tsx removes this node
+// once the client tree hydrates.
 function BootSkeleton() {
   return (
     <div
+      id="lottery-mini-boot"
       aria-hidden
       style={{
         position: 'fixed',
@@ -24,6 +24,7 @@ function BootSkeleton() {
         justifyContent: 'center',
         gap: 16,
         background: '#07060d',
+        pointerEvents: 'none',
         zIndex: 0,
       }}
     >
@@ -67,7 +68,9 @@ export default function LotteryMiniLayout({
       />
       <div className="min-h-screen bg-[#07060d] text-white relative">
         <BootSkeleton />
-        <div style={{ position: 'relative', zIndex: 1 }}>{children}</div>
+        <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', background: '#07060d' }}>
+          {children}
+        </div>
       </div>
     </>
   )

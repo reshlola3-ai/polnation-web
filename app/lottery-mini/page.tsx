@@ -306,6 +306,8 @@ export default function LotteryMiniPage() {
   // ── 1. TG Mini App bootstrap + auth ─────────────────────────────────────────
 
   useEffect(() => {
+    document.getElementById('lottery-mini-boot')?.remove()
+
     const tg = window.Telegram?.WebApp
     if (!tg) {
       setAuthStatus('error')
