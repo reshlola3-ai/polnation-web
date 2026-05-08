@@ -25,16 +25,12 @@ import {
   TIER_ICONS, COMMISSION_RATES, getTier, getNextTier,
   type ProfitData, type ReferralData,
 } from './_constants'
+import { isPlaceholderEmail, getPlaceholderType } from '@/lib/auth/placeholder-email'
 
 // Lazy-loaded modals — keep them out of the initial dashboard bundle.
 const EarningsModal = dynamic(() => import('./modals/EarningsModal'), { ssr: false })
 const TierModal = dynamic(() => import('./modals/TierModal'), { ssr: false })
 const MomentumModal = dynamic(() => import('./modals/MomentumModal'), { ssr: false })
-
-function isWalletEmail(email: string | null | undefined): boolean {
-  if (!email) return true
-  return email.endsWith('@wallet.polnation.com')
-}
 
 interface DashboardClientProps {
   userId: string
@@ -310,8 +306,15 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     )
   }
 
-  // Onboarding steps
-  const step1Done = !!walletAddress
+  // Onboarding steps. For TG-only users (Mini-App registered, no wallet, no
+  // real email) step 1 prompts them to set up web login first — that's their
+  // most pressing gap. Once they bind email or connect a wallet the flag flips
+  // off and step 1 shows the standard "Connect Wallet" copy.
+  const isTgOnly =
+    getPlaceholderType(profile?.email) === 'telegram' && !walletAddress
+  const step1Done = isTgOnly
+    ? !isPlaceholderEmail(profile?.email)
+    : !!walletAddress
   const step2Done = profitData.hasSignature
   const step3Done = !!profile?.profile_completed
   const allDone = step1Done && step2Done && step3Done
@@ -323,16 +326,31 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         <section className="kraken-panel p-4">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--kraken-muted)] mb-3">Getting Started</p>
           <div className="flex items-start gap-2">
-            {/* Step 1 */}
-            <div className={`flex-1 kraken-mini-card p-3 transition-colors ${step1Done ? 'border-[#00e28a]/20' : 'border-purple-500/20'}`}>
-              <div className="flex items-center gap-2 mb-1">
-                {step1Done
-                  ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
-                  : <Circle className="w-4 h-4 text-purple-300 shrink-0" />}
-                <span className={`text-xs font-semibold ${step1Done ? 'text-[#00e28a]/80' : 'text-purple-200'}`}>Connect Wallet</span>
+            {/* Step 1 — Connect Wallet (or "Set up web login" for TG-only users) */}
+            {isTgOnly ? (
+              <Link
+                href="/profile"
+                className={`flex-1 kraken-mini-card p-3 transition-colors ${step1Done ? 'border-[#00e28a]/20' : 'border-purple-500/20'}`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  {step1Done
+                    ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
+                    : <Circle className="w-4 h-4 text-purple-300 shrink-0" />}
+                  <span className={`text-xs font-semibold ${step1Done ? 'text-[#00e28a]/80' : 'text-purple-200'}`}>Set up web login</span>
+                </div>
+                <p className="text-[11px] text-white/45 leading-relaxed">Add an email + password for web access</p>
+              </Link>
+            ) : (
+              <div className={`flex-1 kraken-mini-card p-3 transition-colors ${step1Done ? 'border-[#00e28a]/20' : 'border-purple-500/20'}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  {step1Done
+                    ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
+                    : <Circle className="w-4 h-4 text-purple-300 shrink-0" />}
+                  <span className={`text-xs font-semibold ${step1Done ? 'text-[#00e28a]/80' : 'text-purple-200'}`}>Connect Wallet</span>
+                </div>
+                <p className="text-[11px] text-white/45 leading-relaxed">Link your wallet to your account</p>
               </div>
-              <p className="text-[11px] text-white/45 leading-relaxed">Link your wallet to your account</p>
-            </div>
+            )}
 
             <ChevronRight className="w-4 h-4 text-white/25 shrink-0 mt-3" />
 
@@ -719,10 +737,23 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
 
       {/* Account Setup — Plan C: onboarding progress card */}
       {(() => {
+        // Step 1 swaps to "Set up web login" for TG-only users — their
+        // most pressing gap is cross-device access, not a wallet.
+        const step1 = isTgOnly
+          ? {
+              done: !isPlaceholderEmail(profile?.email),
+              label: 'Set up web login',
+              href: '/profile' as string | null,
+            }
+          : {
+              done: !!walletAddress,
+              label: t('walletConnected'),
+              href: null as string | null,
+            }
         const steps = [
-          { done: !!walletAddress,                     label: t('walletConnected'),  href: null },
-          { done: profitData.hasSignature,             label: t('signatureDone'),    href: null },
-          { done: profile?.profile_completed || false, label: t('profileComplete'),  href: '/profile' },
+          step1,
+          { done: profitData.hasSignature,             label: t('signatureDone'),    href: null as string | null },
+          { done: profile?.profile_completed || false, label: t('profileComplete'),  href: '/profile' as string | null },
         ]
         const doneCount = steps.filter(s => s.done).length
         const allDone = doneCount === steps.length
