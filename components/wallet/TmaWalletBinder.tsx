@@ -91,12 +91,18 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
         body: JSON.stringify({ address: addr }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'save_failed')
+      if (!res.ok) {
+        if (res.status === 409 || data.error === 'wallet_taken') {
+          throw new Error('wallet_taken')
+        }
+        throw new Error(data.error || 'save_failed')
+      }
       setStatus('success')
       setTimeout(() => onBound(addr), 800)
     } catch (err) {
+      handledRef.current = null
       setStatus('error')
-      setError(err instanceof Error ? err.message : 'Failed to save wallet')
+      setError(err instanceof Error ? err.message : 'save_failed')
     }
   }
 
@@ -209,7 +215,22 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
       {error && (
         <div className="p-3 bg-rose-500/[0.08] border border-rose-500/30 flex items-start gap-2">
           <AlertCircle className="w-4 h-4 text-rose-300 shrink-0 mt-0.5" />
-          <p className="text-rose-300 text-sm">{error}</p>
+          <div className="flex-1">
+            <p className="text-rose-300 text-sm">
+              {error === 'wallet_taken'
+                ? 'This wallet is already bound to another account. Please connect a different wallet.'
+                : 'Failed to save wallet. Please try again.'}
+            </p>
+            {error === 'wallet_taken' && (
+              <button
+                type="button"
+                onClick={handleReset}
+                className="mt-2 text-xs text-rose-300 underline underline-offset-2 hover:text-rose-200"
+              >
+                Try a different wallet
+              </button>
+            )}
+          </div>
         </div>
       )}
       <p className="text-white/50 text-[11px] mb-2">

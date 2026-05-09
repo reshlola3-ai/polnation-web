@@ -38,6 +38,9 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     console.error('bind-wallet error:', error)
+    if (error.code === '23505') {
+      return NextResponse.json({ error: 'wallet_taken' }, { status: 409 })
+    }
     return NextResponse.json({ error: 'update_failed' }, { status: 500 })
   }
 
