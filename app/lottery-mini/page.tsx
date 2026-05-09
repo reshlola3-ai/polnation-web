@@ -1207,6 +1207,7 @@ export default function LotteryMiniPage() {
           {!walletAddress && (
             showWalletPanel ? (
               <TmaWalletPanel
+                t={t}
                 onBound={(addr) => {
                   setWalletAddress(addr)
                   setShowWalletPanel(false)

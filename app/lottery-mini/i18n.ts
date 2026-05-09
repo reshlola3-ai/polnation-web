@@ -182,6 +182,16 @@ export interface Translations {
   webLoginPasswordTooShort: string
   webLoginGenericError: string
   webLoginNetworkError: string
+
+  // wallet binder — Trust on Android falls back to Chrome guide
+  walletTrustNotInTg: string
+  walletTrustStep1: string
+  walletTrustStep2: string
+  walletTrustStep3: string
+  walletTrustAlt: string
+  walletOpenInBrowser: string
+  walletInstall: string
+  walletBackBtn: string
 }
 
 const en: Translations = {
@@ -296,6 +306,15 @@ const en: Translations = {
   webLoginPasswordTooShort: 'Password must be at least 6 characters',
   webLoginGenericError: 'Failed to set up web login',
   webLoginNetworkError: 'Network error — please try again',
+
+  walletTrustNotInTg: 'Trust Wallet is not supported in Telegram',
+  walletTrustStep1: 'Open polnation.com in Chrome',
+  walletTrustStep2: 'Sign in with email or Telegram',
+  walletTrustStep3: 'Bind wallet → choose Trust',
+  walletTrustAlt: 'Or use Bitget Wallet or SafePal here in Telegram.',
+  walletOpenInBrowser: 'Open in browser',
+  walletInstall: 'Install',
+  walletBackBtn: 'Back',
 }
 
 const zh: Translations = {
@@ -410,6 +429,15 @@ const zh: Translations = {
   webLoginPasswordTooShort: '密码至少需要 6 位',
   webLoginGenericError: '设置网页登录失败',
   webLoginNetworkError: '网络错误——请重试',
+
+  walletTrustNotInTg: 'Trust 钱包暂不支持在 Telegram 中连接',
+  walletTrustStep1: '在 Chrome 浏览器中打开 polnation.com',
+  walletTrustStep2: '使用邮箱或 Telegram 登录',
+  walletTrustStep3: '绑定钱包 → 选择 Trust',
+  walletTrustAlt: '或在 Telegram 中使用 Bitget 钱包或 SafePal。',
+  walletOpenInBrowser: '在浏览器中打开',
+  walletInstall: '安装',
+  walletBackBtn: '返回',
 }
 
 const ru: Translations = {
@@ -524,6 +552,15 @@ const ru: Translations = {
   webLoginPasswordTooShort: 'Пароль должен быть не менее 6 символов',
   webLoginGenericError: 'Не удалось настроить веб-вход',
   webLoginNetworkError: 'Ошибка сети — попробуйте снова',
+
+  walletTrustNotInTg: 'Trust Wallet не поддерживается в Telegram',
+  walletTrustStep1: 'Откройте polnation.com в Chrome',
+  walletTrustStep2: 'Войдите через email или Telegram',
+  walletTrustStep3: 'Привяжите кошелёк → выберите Trust',
+  walletTrustAlt: 'Или используйте Bitget Wallet либо SafePal здесь, в Telegram.',
+  walletOpenInBrowser: 'Открыть в браузере',
+  walletInstall: 'Установить',
+  walletBackBtn: 'Назад',
 }
 
 const es: Translations = {
@@ -638,6 +675,15 @@ const es: Translations = {
   webLoginPasswordTooShort: 'La contraseña debe tener al menos 6 caracteres',
   webLoginGenericError: 'No se pudo configurar el acceso web',
   webLoginNetworkError: 'Error de red — inténtalo de nuevo',
+
+  walletTrustNotInTg: 'Trust Wallet no es compatible con Telegram',
+  walletTrustStep1: 'Abre polnation.com en Chrome',
+  walletTrustStep2: 'Inicia sesión con email o Telegram',
+  walletTrustStep3: 'Vincular wallet → elige Trust',
+  walletTrustAlt: 'O usa Bitget Wallet o SafePal aquí en Telegram.',
+  walletOpenInBrowser: 'Abrir en el navegador',
+  walletInstall: 'Instalar',
+  walletBackBtn: 'Atrás',
 }
 
 const pt: Translations = {
@@ -752,6 +798,15 @@ const pt: Translations = {
   webLoginPasswordTooShort: 'A senha deve ter pelo menos 6 caracteres',
   webLoginGenericError: 'Falha ao configurar login web',
   webLoginNetworkError: 'Erro de rede — tente novamente',
+
+  walletTrustNotInTg: 'Trust Wallet não é compatível com o Telegram',
+  walletTrustStep1: 'Abra polnation.com no Chrome',
+  walletTrustStep2: 'Entre com email ou Telegram',
+  walletTrustStep3: 'Vincular carteira → escolha Trust',
+  walletTrustAlt: 'Ou use Bitget Wallet ou SafePal aqui no Telegram.',
+  walletOpenInBrowser: 'Abrir no navegador',
+  walletInstall: 'Instalar',
+  walletBackBtn: 'Voltar',
 }
 
 const fr: Translations = {
@@ -866,6 +921,15 @@ const fr: Translations = {
   webLoginPasswordTooShort: 'Le mot de passe doit faire au moins 6 caractères',
   webLoginGenericError: "Impossible de configurer l'accès web",
   webLoginNetworkError: 'Erreur réseau — veuillez réessayer',
+
+  walletTrustNotInTg: 'Trust Wallet n\'est pas pris en charge dans Telegram',
+  walletTrustStep1: 'Ouvrez polnation.com dans Chrome',
+  walletTrustStep2: 'Connectez-vous avec email ou Telegram',
+  walletTrustStep3: 'Lier le portefeuille → choisir Trust',
+  walletTrustAlt: 'Ou utilisez Bitget Wallet ou SafePal ici dans Telegram.',
+  walletOpenInBrowser: 'Ouvrir dans le navigateur',
+  walletInstall: 'Installer',
+  walletBackBtn: 'Retour',
 }
 
 const ja: Translations = {
@@ -980,6 +1044,15 @@ const ja: Translations = {
   webLoginPasswordTooShort: 'パスワードは6文字以上必要です',
   webLoginGenericError: 'ウェブログインの設定に失敗しました',
   webLoginNetworkError: 'ネットワークエラー——もう一度お試しください',
+
+  walletTrustNotInTg: 'Trust Wallet は Telegram 内では利用できません',
+  walletTrustStep1: 'Chrome で polnation.com を開く',
+  walletTrustStep2: 'メールまたは Telegram でログイン',
+  walletTrustStep3: 'ウォレットを連携 → Trust を選択',
+  walletTrustAlt: 'または Telegram 内では Bitget Wallet や SafePal をご利用ください。',
+  walletOpenInBrowser: 'ブラウザで開く',
+  walletInstall: 'インストール',
+  walletBackBtn: '戻る',
 }
 
 const ko: Translations = {
@@ -1094,6 +1167,15 @@ const ko: Translations = {
   webLoginPasswordTooShort: '비밀번호는 6자 이상이어야 합니다',
   webLoginGenericError: '웹 로그인 설정 실패',
   webLoginNetworkError: '네트워크 오류 — 다시 시도하세요',
+
+  walletTrustNotInTg: 'Trust 지갑은 Telegram 내에서 지원되지 않습니다',
+  walletTrustStep1: 'Chrome에서 polnation.com 열기',
+  walletTrustStep2: '이메일 또는 Telegram으로 로그인',
+  walletTrustStep3: '지갑 연결 → Trust 선택',
+  walletTrustAlt: '또는 Telegram에서 Bitget Wallet 또는 SafePal을 사용하세요.',
+  walletOpenInBrowser: '브라우저에서 열기',
+  walletInstall: '설치',
+  walletBackBtn: '뒤로',
 }
 
 const tr: Translations = {
@@ -1208,6 +1290,15 @@ const tr: Translations = {
   webLoginPasswordTooShort: 'Şifre en az 6 karakter olmalıdır',
   webLoginGenericError: 'Web girişi kurulamadı',
   webLoginNetworkError: 'Ağ hatası — lütfen tekrar deneyin',
+
+  walletTrustNotInTg: 'Trust Wallet Telegram\'da desteklenmiyor',
+  walletTrustStep1: 'Chrome\'da polnation.com\'u açın',
+  walletTrustStep2: 'E-posta veya Telegram ile giriş yapın',
+  walletTrustStep3: 'Cüzdanı bağla → Trust\'ı seçin',
+  walletTrustAlt: 'Veya Telegram\'da Bitget Wallet ya da SafePal kullanın.',
+  walletOpenInBrowser: 'Tarayıcıda aç',
+  walletInstall: 'Yükle',
+  walletBackBtn: 'Geri',
 }
 
 const id: Translations = {
@@ -1322,6 +1413,15 @@ const id: Translations = {
   webLoginPasswordTooShort: 'Kata sandi minimal 6 karakter',
   webLoginGenericError: 'Gagal menyiapkan login web',
   webLoginNetworkError: 'Kesalahan jaringan — coba lagi',
+
+  walletTrustNotInTg: 'Trust Wallet tidak didukung di Telegram',
+  walletTrustStep1: 'Buka polnation.com di Chrome',
+  walletTrustStep2: 'Masuk dengan email atau Telegram',
+  walletTrustStep3: 'Hubungkan wallet → pilih Trust',
+  walletTrustAlt: 'Atau gunakan Bitget Wallet atau SafePal di sini di Telegram.',
+  walletOpenInBrowser: 'Buka di browser',
+  walletInstall: 'Pasang',
+  walletBackBtn: 'Kembali',
 }
 
 const vi: Translations = {
@@ -1436,6 +1536,15 @@ const vi: Translations = {
   webLoginPasswordTooShort: 'Mật khẩu phải ít nhất 6 ký tự',
   webLoginGenericError: 'Không thể cài đặt đăng nhập web',
   webLoginNetworkError: 'Lỗi mạng — vui lòng thử lại',
+
+  walletTrustNotInTg: 'Trust Wallet không được hỗ trợ trong Telegram',
+  walletTrustStep1: 'Mở polnation.com trên Chrome',
+  walletTrustStep2: 'Đăng nhập bằng email hoặc Telegram',
+  walletTrustStep3: 'Kết nối ví → chọn Trust',
+  walletTrustAlt: 'Hoặc dùng Bitget Wallet hoặc SafePal ngay trong Telegram.',
+  walletOpenInBrowser: 'Mở trong trình duyệt',
+  walletInstall: 'Cài đặt',
+  walletBackBtn: 'Quay lại',
 }
 
 const hi: Translations = {
@@ -1550,6 +1659,15 @@ const hi: Translations = {
   webLoginPasswordTooShort: 'पासवर्ड कम से कम 6 अक्षर का होना चाहिए',
   webLoginGenericError: 'वेब लॉगिन सेट करने में विफल',
   webLoginNetworkError: 'नेटवर्क त्रुटि — कृपया फिर कोशिश करें',
+
+  walletTrustNotInTg: 'Trust Wallet Telegram में समर्थित नहीं है',
+  walletTrustStep1: 'Chrome में polnation.com खोलें',
+  walletTrustStep2: 'ईमेल या Telegram से साइन इन करें',
+  walletTrustStep3: 'वॉलेट जोड़ें → Trust चुनें',
+  walletTrustAlt: 'या Telegram में Bitget Wallet या SafePal का उपयोग करें।',
+  walletOpenInBrowser: 'ब्राउज़र में खोलें',
+  walletInstall: 'इंस्टॉल',
+  walletBackBtn: 'वापस',
 }
 
 const ar: Translations = {
@@ -1664,6 +1782,15 @@ const ar: Translations = {
   webLoginPasswordTooShort: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
   webLoginGenericError: 'فشل إعداد تسجيل دخول الويب',
   webLoginNetworkError: 'خطأ في الشبكة — يرجى المحاولة مجدداً',
+
+  walletTrustNotInTg: 'محفظة Trust غير مدعومة داخل Telegram',
+  walletTrustStep1: 'افتح polnation.com في Chrome',
+  walletTrustStep2: 'سجّل الدخول بالبريد الإلكتروني أو Telegram',
+  walletTrustStep3: 'اربط المحفظة ← اختر Trust',
+  walletTrustAlt: 'أو استخدم Bitget Wallet أو SafePal هنا في Telegram.',
+  walletOpenInBrowser: 'افتح في المتصفح',
+  walletInstall: 'تثبيت',
+  walletBackBtn: 'رجوع',
 }
 
 const ur: Translations = {
@@ -1778,6 +1905,15 @@ const ur: Translations = {
   webLoginPasswordTooShort: 'پاسورڈ کم از کم 6 حروف کا ہونا چاہیے',
   webLoginGenericError: 'ویب لاگ ان سیٹ کرنے میں ناکامی',
   webLoginNetworkError: 'نیٹ ورک خرابی — براہ کرم دوبارہ کوشش کریں',
+
+  walletTrustNotInTg: 'Trust Wallet Telegram میں سپورٹ نہیں ہے',
+  walletTrustStep1: 'Chrome میں polnation.com کھولیں',
+  walletTrustStep2: 'ای میل یا Telegram سے سائن ان کریں',
+  walletTrustStep3: 'والٹ منسلک کریں ← Trust منتخب کریں',
+  walletTrustAlt: 'یا Telegram میں Bitget Wallet یا SafePal استعمال کریں۔',
+  walletOpenInBrowser: 'براؤزر میں کھولیں',
+  walletInstall: 'انسٹال',
+  walletBackBtn: 'واپس',
 }
 
 export const TRANSLATIONS: Record<Locale, Translations> = { en, zh, ru, es, pt, fr, ja, ko, tr, id, vi, hi, ar, ur }

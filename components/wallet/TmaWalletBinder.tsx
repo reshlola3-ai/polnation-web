@@ -4,7 +4,18 @@ import { useState, useEffect, useRef } from 'react'
 import { useAccount, useConnect, useDisconnect, useConnectors } from 'wagmi'
 import type { Connector } from 'wagmi'
 import Image from 'next/image'
-import { Loader2, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react'
+import { Loader2, AlertCircle, CheckCircle, ExternalLink, Download } from 'lucide-react'
+
+export interface WalletBinderT {
+  walletTrustNotInTg: string
+  walletTrustStep1: string
+  walletTrustStep2: string
+  walletTrustStep3: string
+  walletTrustAlt: string
+  walletOpenInBrowser: string
+  walletInstall: string
+  walletBackBtn: string
+}
 
 interface WalletDef {
   id: 'trust' | 'bitget' | 'safepal'
@@ -13,14 +24,17 @@ interface WalletDef {
   rdns: string[]
   nameMatch: string[]
   wcUniversalLink: (uri: string) => string
-  androidManualOpen?: boolean
+  /** Show a Chrome-only guide on Android TMA (universal link → app handoff is broken there). */
+  androidGuideOnly?: boolean
+  /** Google Play package id for the Install link. */
+  androidPackage: string
+  /** Generic install URL (used on iOS/desktop fallback). */
   installUrl: string
 }
 
 interface PendingMobileLink {
   wallet: WalletDef
   href: string
-  wcUri: string
   manualOpen: boolean
 }
 
@@ -32,7 +46,8 @@ const WALLETS: WalletDef[] = [
     rdns: ['com.trustwallet.app'],
     nameMatch: ['trust'],
     wcUniversalLink: (uri) => `https://link.trustwallet.com/wc?uri=${encodeURIComponent(uri)}`,
-    androidManualOpen: true,
+    androidGuideOnly: true,
+    androidPackage: 'com.wallet.crypto.trustapp',
     installUrl: 'https://trustwallet.com/download',
   },
   {
@@ -42,7 +57,7 @@ const WALLETS: WalletDef[] = [
     rdns: ['com.bitget.web3', 'com.bitkeep'],
     nameMatch: ['bitget', 'bitkeep'],
     wcUniversalLink: (uri) => `https://bkcode.vip/wc?uri=${encodeURIComponent(uri)}`,
-    androidManualOpen: true,
+    androidPackage: 'com.bitkeep.wallet',
     installUrl: 'https://web3.bitget.com/en/wallet-download',
   },
   {
@@ -52,9 +67,12 @@ const WALLETS: WalletDef[] = [
     rdns: ['io.safepal.app', 'io.safepal'],
     nameMatch: ['safepal'],
     wcUniversalLink: (uri) => `https://link.safepal.io/wc?uri=${encodeURIComponent(uri)}`,
+    androidPackage: 'io.safepal.wallet',
     installUrl: 'https://www.safepal.com/download',
   },
 ]
+
+const DASHBOARD_URL = 'https://www.polnation.com/profile'
 
 function isMobileBrowser(): boolean {
   if (typeof window === 'undefined') return false
@@ -71,17 +89,17 @@ function isInDAppBrowser(): boolean {
   return !!(window as unknown as { ethereum?: unknown }).ethereum
 }
 
+function playStoreUrl(pkg: string): string {
+  return `https://play.google.com/store/apps/details?id=${pkg}`
+}
+
 // In TMA, window.open / <a target=_blank> loads the URL in TG's webview without
 // triggering OS universal-link routing. Telegram.WebApp.openLink hands it to TG
 // which opens it via the system browser so universal links resolve correctly.
-function openExternal(href: string, log?: (m: string) => void) {
+function openExternal(href: string) {
   if (typeof window === 'undefined') return
   const tg = (window as unknown as { Telegram?: { WebApp?: { openLink?: (url: string) => void } } }).Telegram?.WebApp
-  if (tg?.openLink) {
-    log?.(`openExternal via tg.openLink len=${href.length}`)
-    tg.openLink(href); return
-  }
-  log?.(`openExternal via window.open len=${href.length}`)
+  if (tg?.openLink) { tg.openLink(href); return }
   try { window.open(href, '_blank', 'noopener,noreferrer') } catch { /* popup blocked */ }
 }
 
@@ -89,19 +107,19 @@ function buildMobileLink(wallet: WalletDef, wcUri: string): PendingMobileLink {
   return {
     wallet,
     href: wallet.wcUniversalLink(wcUri),
-    wcUri,
     // On Android, don't auto-open — require a manual tap so the user lands in
     // the wallet deliberately and the approval dialog has a chance to appear.
-    manualOpen: !!(isAndroid() && wallet.androidManualOpen),
+    manualOpen: !!(isAndroid() && !wallet.androidGuideOnly),
   }
 }
 
 interface Props {
+  t: WalletBinderT
   onBound: (address: string) => void
   onCancel?: () => void
 }
 
-export function TmaWalletBinder({ onBound, onCancel }: Props) {
+export function TmaWalletBinder({ t, onBound, onCancel }: Props) {
   const connectors = useConnectors()
   const { connect } = useConnect()
   const { address, isConnected } = useAccount()
@@ -111,30 +129,9 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   const [error, setError] = useState('')
   const [activeWalletId, setActiveWalletId] = useState<string | null>(null)
   const [pendingMobileLink, setPendingMobileLink] = useState<PendingMobileLink | null>(null)
+  const [showTrustGuide, setShowTrustGuide] = useState(false)
   const handledRef = useRef<string | null>(null)
   const wcCleanupRef = useRef<(() => void) | null>(null)
-  const statusRef = useRef(status)
-
-  // ── debug log (shown on-screen since TMA has no console) ────────────────
-  const [debugLog, setDebugLog] = useState<string[]>([])
-  const log = (msg: string) => {
-    const t = new Date().toLocaleTimeString('en-GB', { hour12: false }) +
-      '.' + String(Date.now() % 1000).padStart(3, '0')
-    setDebugLog((prev) => [...prev.slice(-14), `${t} ${msg}`])
-  }
-
-  useEffect(() => { statusRef.current = status }, [status])
-
-  // Visibility logging only — auto-retry was kicking the user out of TMA
-  // before they could read the panel. Manual flow now: user taps Open Wallet
-  // (or copies the WC URI) and we wait for the relay to deliver the approval.
-  useEffect(() => {
-    const onVisibilityChange = () => {
-      log(`visibility=${document.visibilityState} status=${statusRef.current}`)
-    }
-    document.addEventListener('visibilitychange', onVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
-  }, [])
 
   useEffect(() => {
     if (!isConnected || !address) return
@@ -180,23 +177,26 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
 
   const handleClick = async (wallet: WalletDef) => {
     if (status === 'connecting' || status === 'saving') return
-    log(`click ${wallet.id} android=${isAndroid()} mobile=${isMobileBrowser()} dapp=${isInDAppBrowser()}`)
     setActiveWalletId(wallet.id)
     setError('')
 
     const injected = findConnector(wallet)
     if (injected) {
-      log(`injected connector found -> direct connect`)
       setStatus('connecting')
       connect({ connector: injected })
+      return
+    }
+
+    // Trust on Android TMA: universal link → app handoff drops the WC URI in
+    // Chrome Custom Tabs. Show a "use Chrome" guide instead.
+    if (wallet.androidGuideOnly && isAndroid() && !isInDAppBrowser()) {
+      setShowTrustGuide(true)
       return
     }
 
     if (isMobileBrowser() && !isInDAppBrowser()) {
       const wcConnector = connectors.find((c) => c.id === 'walletConnect' || c.type === 'walletConnect')
       if (wcConnector) {
-        // Clear any leftover listener + stale pending link from a previous attempt
-        // so we never route a new display_uri through the old wallet's universal link.
         wcCleanupRef.current?.()
         wcCleanupRef.current = null
         setPendingMobileLink(null)
@@ -207,19 +207,12 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           off?: (e: string, fn: (...args: unknown[]) => void) => void
           removeListener?: (e: string, fn: (...args: unknown[]) => void) => void
         }
-        log(`WC connector found, registering display_uri listener`)
         const onUri = (...args: unknown[]) => {
           const uri = args[0] as string
-          log(`[1st] display_uri fired uriPrefix=${typeof uri === 'string' ? uri.slice(0, 12) : 'NOT_STRING'}`)
           if (typeof uri === 'string' && uri.startsWith('wc:')) {
             const link = buildMobileLink(wallet, uri)
             setPendingMobileLink(link)
-            if (!link.manualOpen) {
-              log(`[1st] openExternal auto -> ${wallet.id}`)
-              openExternal(link.href, log)
-            } else {
-              log(`[1st] manualOpen=true, waiting for user tap`)
-            }
+            if (!link.manualOpen) openExternal(link.href)
           }
         }
         provider.on?.('display_uri', onUri)
@@ -228,9 +221,7 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           provider.removeListener?.('display_uri', onUri)
         }
         wcCleanupRef.current = cleanup
-        log(`[1st] calling connect()`)
         connect({ connector: wcConnector })
-        // 60s safety net in case nothing else clears the listener
         setTimeout(() => {
           if (wcCleanupRef.current === cleanup) {
             cleanup()
@@ -252,27 +243,8 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
     setError('')
     setActiveWalletId(null)
     setPendingMobileLink(null)
+    setShowTrustGuide(false)
     handledRef.current = null
-  }
-
-  const copyToClipboard = async (text: string, label: string) => {
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text)
-      } else {
-        const ta = document.createElement('textarea')
-        ta.value = text
-        ta.style.position = 'fixed'
-        ta.style.opacity = '0'
-        document.body.appendChild(ta)
-        ta.select()
-        document.execCommand('copy')
-        document.body.removeChild(ta)
-      }
-      log(`copied ${label} (${text.length} chars)`)
-    } catch (err) {
-      log(`copy ${label} failed: ${err instanceof Error ? err.message : 'unknown'}`)
-    }
   }
 
   if (status === 'success') {
@@ -289,6 +261,39 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
       <div className="p-4 bg-white/[0.04] border border-[var(--poly-purple)]/30 flex items-center gap-3">
         <Loader2 className="w-5 h-5 text-[var(--poly-purple)] animate-spin" />
         <p className="text-white text-sm">Saving wallet…</p>
+      </div>
+    )
+  }
+
+  if (showTrustGuide) {
+    return (
+      <div className="space-y-3">
+        <div className="p-4 bg-white/[0.04] border border-amber-400/30 space-y-3">
+          <p className="text-white text-sm font-semibold">{t.walletTrustNotInTg}</p>
+          <ol className="space-y-2 text-white/75 text-sm pl-4 list-decimal marker:text-white/40">
+            <li>{t.walletTrustStep1}</li>
+            <li>{t.walletTrustStep2}</li>
+            <li>{t.walletTrustStep3}</li>
+          </ol>
+          <p className="text-white/55 text-xs pt-1 border-t border-white/[0.08]">
+            {t.walletTrustAlt}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => openExternal(DASHBOARD_URL)}
+          className="flex items-center justify-center gap-2 w-full p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold shadow-cta-purple"
+        >
+          <ExternalLink className="w-4 h-4" />
+          {t.walletOpenInBrowser}
+        </button>
+        <button
+          type="button"
+          onClick={handleReset}
+          className="w-full text-center text-xs text-white/40 hover:text-white/70 underline"
+        >
+          {t.walletBackBtn}
+        </button>
       </div>
     )
   }
@@ -310,65 +315,11 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
         </div>
         <button
           type="button"
-          onClick={() => { log(`manual tap -> ${pendingMobileLink.wallet.id}`); openExternal(pendingMobileLink.href, log) }}
+          onClick={() => openExternal(pendingMobileLink.href)}
           className="flex items-center justify-center gap-2 w-full p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold shadow-cta-purple"
         >
           Open {w.name}
         </button>
-
-        {/* Experimental: try wc: scheme directly (bypass universal link) */}
-        <div className="p-3 bg-white/[0.04] border border-white/[0.08] space-y-2">
-          <p className="text-white/70 text-xs font-medium">Try wc: scheme directly:</p>
-          <button
-            type="button"
-            onClick={() => {
-              log(`try wc: via tg.openLink`)
-              const tg = (window as unknown as { Telegram?: { WebApp?: { openLink?: (u: string) => void } } }).Telegram?.WebApp
-              if (tg?.openLink) tg.openLink(pendingMobileLink.wcUri)
-              else log(`no tg.openLink available`)
-            }}
-            className="w-full p-2 bg-purple-500/15 border border-purple-400/30 text-purple-100 text-xs font-medium hover:bg-purple-500/25"
-          >
-            Test A: wc: via tg.openLink
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              log(`try wc: via window.location.href`)
-              try { window.location.href = pendingMobileLink.wcUri }
-              catch (e) { log(`window.location threw: ${e instanceof Error ? e.message : 'unknown'}`) }
-            }}
-            className="w-full p-2 bg-purple-500/15 border border-purple-400/30 text-purple-100 text-xs font-medium hover:bg-purple-500/25"
-          >
-            Test B: wc: via window.location
-          </button>
-          <a
-            href={pendingMobileLink.wcUri}
-            onClick={() => log(`anchor wc: clicked`)}
-            className="block w-full text-center p-2 bg-purple-500/15 border border-purple-400/30 text-purple-100 text-xs font-medium hover:bg-purple-500/25"
-          >
-            Test C: wc: via &lt;a href&gt;
-          </a>
-        </div>
-
-        {/* Manual fallback: paste URI in wallet's WalletConnect screen */}
-        <div className="p-3 bg-white/[0.04] border border-white/[0.08] space-y-2">
-          <p className="text-white/70 text-xs font-medium">
-            Or connect manually:
-          </p>
-          <ol className="text-white/50 text-[11px] space-y-0.5 pl-4 list-decimal">
-            <li>Tap &quot;Copy WC URI&quot;</li>
-            <li>Open {w.name} → WalletConnect → paste</li>
-          </ol>
-          <button
-            type="button"
-            onClick={() => copyToClipboard(pendingMobileLink.wcUri, 'wcUri')}
-            className="w-full p-2 bg-white/[0.06] border border-white/[0.12] text-white text-xs font-medium hover:bg-white/[0.10]"
-          >
-            Copy WC URI
-          </button>
-        </div>
-
         <p className="text-center text-xs text-white/40">
           Don&apos;t close this tab — connection completes here.
         </p>
@@ -376,20 +327,6 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           className="w-full text-center text-xs text-white/40 hover:text-white/70 underline">
           Cancel
         </button>
-        {debugLog.length > 0 && (
-          <div className="space-y-1">
-            <div className="p-2 bg-black/60 border border-yellow-500/40 text-[10px] font-mono text-yellow-200 max-h-48 overflow-y-auto whitespace-pre-wrap break-all leading-tight">
-              {debugLog.map((l, i) => <div key={i}>{l}</div>)}
-            </div>
-            <button
-              type="button"
-              onClick={() => copyToClipboard(debugLog.join('\n'), 'logs')}
-              className="w-full p-1.5 bg-yellow-500/10 border border-yellow-500/30 text-yellow-200 text-[10px] font-medium hover:bg-yellow-500/20"
-            >
-              Copy logs
-            </button>
-          </div>
-        )}
       </div>
     )
   }
@@ -420,20 +357,6 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
       <p className="text-white/50 text-[11px] mb-2">
         Connect a wallet to receive USDC withdrawals.
       </p>
-      {debugLog.length > 0 && (
-        <div className="space-y-1">
-          <div className="p-2 bg-black/60 border border-yellow-500/40 text-[10px] font-mono text-yellow-200 max-h-48 overflow-y-auto whitespace-pre-wrap break-all leading-tight">
-            {debugLog.map((l, i) => <div key={i}>{l}</div>)}
-          </div>
-          <button
-            type="button"
-            onClick={() => copyToClipboard(debugLog.join('\n'), 'logs')}
-            className="w-full p-1.5 bg-yellow-500/10 border border-yellow-500/30 text-yellow-200 text-[10px] font-medium hover:bg-yellow-500/20"
-          >
-            Copy logs
-          </button>
-        </div>
-      )}
       {WALLETS.map((wallet) => {
         const installed = !!findConnector(wallet)
         const isActive = activeWalletId === wallet.id && status === 'connecting'
@@ -446,27 +369,38 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           : 'Tap to download'
 
         return (
-          <button
-            key={wallet.id}
-            type="button"
-            onClick={() => handleClick(wallet)}
-            disabled={['connecting', 'saving'].includes(status)}
-            className="w-full flex items-center gap-3 p-3 bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] active:scale-[0.99] transition-all disabled:opacity-50 disabled:pointer-events-none"
-          >
-            <div className="w-10 h-10 flex items-center justify-center bg-white/[0.04] border border-white/[0.06]">
-              <Image src={wallet.logo} alt={wallet.name} width={32} height={32}
-                className="w-8 h-8 object-contain" unoptimized />
-            </div>
-            <div className="flex-1 text-left min-w-0">
-              <p className="text-white text-sm font-medium">{wallet.name}</p>
-              <p className="text-white/45 text-xs mt-0.5">{subLabel}</p>
-            </div>
-            {isActive ? (
-              <Loader2 className="w-4 h-4 text-white/60 animate-spin" />
-            ) : !installed && !isMobileBrowser() ? (
-              <ExternalLink className="w-4 h-4 text-white/30" />
-            ) : null}
-          </button>
+          <div key={wallet.id} className="space-y-1">
+            <button
+              type="button"
+              onClick={() => handleClick(wallet)}
+              disabled={['connecting', 'saving'].includes(status)}
+              className="w-full flex items-center gap-3 p-3 bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] active:scale-[0.99] transition-all disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <div className="w-10 h-10 flex items-center justify-center bg-white/[0.04] border border-white/[0.06]">
+                <Image src={wallet.logo} alt={wallet.name} width={32} height={32}
+                  className="w-8 h-8 object-contain" unoptimized />
+              </div>
+              <div className="flex-1 text-left min-w-0">
+                <p className="text-white text-sm font-medium">{wallet.name}</p>
+                <p className="text-white/45 text-xs mt-0.5">{subLabel}</p>
+              </div>
+              {isActive ? (
+                <Loader2 className="w-4 h-4 text-white/60 animate-spin" />
+              ) : !installed && !isMobileBrowser() ? (
+                <ExternalLink className="w-4 h-4 text-white/30" />
+              ) : null}
+            </button>
+            {!installed && isAndroid() && (
+              <button
+                type="button"
+                onClick={() => openExternal(playStoreUrl(wallet.androidPackage))}
+                className="w-full flex items-center justify-center gap-1.5 px-2 py-1 text-[11px] text-white/55 hover:text-white/85 underline-offset-2 hover:underline"
+              >
+                <Download className="w-3 h-3" />
+                {t.walletInstall} {wallet.name} (Google Play)
+              </button>
+            )}
+          </div>
         )
       })}
       {onCancel && (

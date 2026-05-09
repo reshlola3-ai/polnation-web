@@ -1,9 +1,10 @@
 'use client'
 
 import { TmaWeb3Provider } from '@/components/providers/TmaWeb3Provider'
-import { TmaWalletBinder } from '@/components/wallet/TmaWalletBinder'
+import { TmaWalletBinder, type WalletBinderT } from '@/components/wallet/TmaWalletBinder'
 
 interface Props {
+  t: WalletBinderT
   onBound: (address: string) => void
   onCancel?: () => void
 }
