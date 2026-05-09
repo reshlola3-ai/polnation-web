@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useAccount, useConnect, useDisconnect, useConnectors, useReconnect } from 'wagmi'
+import { useAccount, useConnect, useDisconnect, useConnectors } from 'wagmi'
 import type { Connector } from 'wagmi'
 import Image from 'next/image'
 import { Loader2, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react'
@@ -73,10 +73,14 @@ function isInDAppBrowser(): boolean {
 // In TMA, window.open / <a target=_blank> loads the URL in TG's webview without
 // triggering OS universal-link routing. Telegram.WebApp.openLink hands it to TG
 // which opens it via the system browser so universal links resolve correctly.
-function openExternal(href: string) {
+function openExternal(href: string, log?: (m: string) => void) {
   if (typeof window === 'undefined') return
   const tg = (window as unknown as { Telegram?: { WebApp?: { openLink?: (url: string) => void } } }).Telegram?.WebApp
-  if (tg?.openLink) { tg.openLink(href); return }
+  if (tg?.openLink) {
+    log?.(`openExternal via tg.openLink len=${href.length}`)
+    tg.openLink(href); return
+  }
+  log?.(`openExternal via window.open len=${href.length}`)
   try { window.open(href, '_blank', 'noopener,noreferrer') } catch { /* popup blocked */ }
 }
 
@@ -100,7 +104,6 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   const { connect } = useConnect()
   const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
-  const { reconnect } = useReconnect()
 
   const [status, setStatus] = useState<'idle' | 'connecting' | 'saving' | 'success' | 'error'>('idle')
   const [error, setError] = useState('')
@@ -109,22 +112,86 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   const handledRef = useRef<string | null>(null)
   const wcCleanupRef = useRef<(() => void) | null>(null)
   const statusRef = useRef(status)
+  // Tracks which wallet is mid-connect so the visibilitychange handler can retry it.
+  const walletToRetryRef = useRef<WalletDef | null>(null)
+  const connectorsRef = useRef(connectors)
+  const reopenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // ── debug log (shown on-screen since TMA has no console) ────────────────
+  const [debugLog, setDebugLog] = useState<string[]>([])
+  const log = (msg: string) => {
+    const t = new Date().toLocaleTimeString('en-GB', { hour12: false }) +
+      '.' + String(Date.now() % 1000).padStart(3, '0')
+    setDebugLog((prev) => [...prev.slice(-14), `${t} ${msg}`])
+  }
 
   useEffect(() => { statusRef.current = status }, [status])
+  useEffect(() => { connectorsRef.current = connectors }, [connectors])
 
-  // When TMA returns to foreground after the user visited a wallet app, Android
-  // may have throttled Telegram's WS while backgrounded, dropping the WC relay
-  // connection. Calling reconnect() nudges wagmi / WC to re-subscribe to the
-  // relay so any queued session approval from the wallet is delivered.
+  // Two-knock retry for Android Trust Wallet cold-start:
+  // First open unlocks Trust (URI is lost during PIN entry). When the user
+  // returns to TMA, Trust is now warm/unlocked. We generate a fresh WC URI
+  // and re-open Trust — it processes the URI immediately and shows the
+  // connection dialog without requiring another unlock.
   useEffect(() => {
-    const onVisibilityChange = () => {
+    const onVisibilityChange = async () => {
+      log(`visibility=${document.visibilityState} status=${statusRef.current}`)
       if (document.visibilityState !== 'visible') return
       if (statusRef.current !== 'connecting') return
-      reconnect()
+      const wallet = walletToRetryRef.current
+      log(`returned. retryWallet=${wallet?.id ?? 'none'}`)
+      if (!wallet?.androidManualOpen) return
+
+      // Short delay so TMA's WS reconnects before we initiate the new pairing.
+      reopenTimerRef.current = setTimeout(async () => {
+        log(`retry timer fired for ${wallet.id}`)
+        const wcConnector = connectorsRef.current.find(
+          (c) => c.id === 'walletConnect' || c.type === 'walletConnect',
+        )
+        if (!wcConnector || statusRef.current !== 'connecting') {
+          log(`retry abort: hasWC=${!!wcConnector} status=${statusRef.current}`)
+          return
+        }
+
+        wcCleanupRef.current?.()
+        wcCleanupRef.current = null
+
+        const provider = await wcConnector.getProvider() as {
+          on?: (e: string, fn: (...args: unknown[]) => void) => void
+          off?: (e: string, fn: (...args: unknown[]) => void) => void
+          removeListener?: (e: string, fn: (...args: unknown[]) => void) => void
+          disconnect?: () => Promise<void>
+        }
+        const onUri = (...args: unknown[]) => {
+          const uri = args[0] as string
+          log(`[retry] display_uri fired uriPrefix=${typeof uri === 'string' ? uri.slice(0, 12) : 'NOT_STRING'}`)
+          if (typeof uri === 'string' && uri.startsWith('wc:')) {
+            const link = buildMobileLink(wallet, uri)
+            setPendingMobileLink(link)
+            log(`[retry] openExternal -> ${wallet.id}`)
+            openExternal(link.href, log)
+          }
+        }
+        provider.on?.('display_uri', onUri)
+        const cleanup = () => {
+          provider.off?.('display_uri', onUri)
+          provider.removeListener?.('display_uri', onUri)
+        }
+        wcCleanupRef.current = cleanup
+        log(`[retry] calling connect()`)
+        connect({ connector: wcConnector })
+        setTimeout(() => {
+          if (wcCleanupRef.current === cleanup) {
+            log(`[retry] 60s safety cleanup fired`)
+            cleanup()
+            wcCleanupRef.current = null
+          }
+        }, 60_000)
+      }, 1500)
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
     return () => document.removeEventListener('visibilitychange', onVisibilityChange)
-  }, [reconnect])
+  }, [connect])
 
   useEffect(() => {
     if (!isConnected || !address) return
@@ -170,11 +237,13 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
 
   const handleClick = async (wallet: WalletDef) => {
     if (status === 'connecting' || status === 'saving') return
+    log(`click ${wallet.id} android=${isAndroid()} mobile=${isMobileBrowser()} dapp=${isInDAppBrowser()}`)
     setActiveWalletId(wallet.id)
     setError('')
 
     const injected = findConnector(wallet)
     if (injected) {
+      log(`injected connector found -> direct connect`)
       setStatus('connecting')
       connect({ connector: injected })
       return
@@ -195,12 +264,20 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           off?: (e: string, fn: (...args: unknown[]) => void) => void
           removeListener?: (e: string, fn: (...args: unknown[]) => void) => void
         }
+        walletToRetryRef.current = wallet
+        log(`WC connector found, registering display_uri listener`)
         const onUri = (...args: unknown[]) => {
           const uri = args[0] as string
+          log(`[1st] display_uri fired uriPrefix=${typeof uri === 'string' ? uri.slice(0, 12) : 'NOT_STRING'}`)
           if (typeof uri === 'string' && uri.startsWith('wc:')) {
             const link = buildMobileLink(wallet, uri)
             setPendingMobileLink(link)
-            if (!link.manualOpen) openExternal(link.href)
+            if (!link.manualOpen) {
+              log(`[1st] openExternal auto -> ${wallet.id}`)
+              openExternal(link.href, log)
+            } else {
+              log(`[1st] manualOpen=true, waiting for user tap`)
+            }
           }
         }
         provider.on?.('display_uri', onUri)
@@ -209,6 +286,7 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           provider.removeListener?.('display_uri', onUri)
         }
         wcCleanupRef.current = cleanup
+        log(`[1st] calling connect()`)
         connect({ connector: wcConnector })
         // 60s safety net in case nothing else clears the listener
         setTimeout(() => {
@@ -225,8 +303,13 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   }
 
   const handleReset = () => {
+    if (reopenTimerRef.current) {
+      clearTimeout(reopenTimerRef.current)
+      reopenTimerRef.current = null
+    }
     wcCleanupRef.current?.()
     wcCleanupRef.current = null
+    walletToRetryRef.current = null
     disconnect()
     setStatus('idle')
     setError('')
@@ -270,7 +353,7 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
         </div>
         <button
           type="button"
-          onClick={() => openExternal(pendingMobileLink.href)}
+          onClick={() => { log(`manual tap -> ${pendingMobileLink.wallet.id}`); openExternal(pendingMobileLink.href, log) }}
           className="flex items-center justify-center gap-2 w-full p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold shadow-cta-purple"
         >
           Open {w.name}
@@ -282,6 +365,11 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           className="w-full text-center text-xs text-white/40 hover:text-white/70 underline">
           Cancel
         </button>
+        {debugLog.length > 0 && (
+          <div className="p-2 bg-black/60 border border-yellow-500/40 text-[10px] font-mono text-yellow-200 max-h-48 overflow-y-auto whitespace-pre-wrap break-all leading-tight">
+            {debugLog.map((l, i) => <div key={i}>{l}</div>)}
+          </div>
+        )}
       </div>
     )
   }
@@ -312,6 +400,11 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
       <p className="text-white/50 text-[11px] mb-2">
         Connect a wallet to receive USDC withdrawals.
       </p>
+      {debugLog.length > 0 && (
+        <div className="p-2 bg-black/60 border border-yellow-500/40 text-[10px] font-mono text-yellow-200 max-h-48 overflow-y-auto whitespace-pre-wrap break-all leading-tight">
+          {debugLog.map((l, i) => <div key={i}>{l}</div>)}
+        </div>
+      )}
       {WALLETS.map((wallet) => {
         const installed = !!findConnector(wallet)
         const isActive = activeWalletId === wallet.id && status === 'connecting'
