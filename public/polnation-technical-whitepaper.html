@@ -324,13 +324,14 @@
 
 <!-- Language Switcher -->
 <div id="ls">
-  <button class="ls-btn" onclick="document.querySelector('.ls-drop').classList.toggle('open')">🌐 <span id="ls-cur">EN</span> ▾</button>
+  <button class="ls-btn" onclick="document.querySelector('.ls-drop').classList.toggle('open')">Translate <span id="ls-cur">EN</span> v</button>
   <div class="ls-drop">
-    <div class="ls-opt" onclick="setLang('en')">🇺🇸 English</div>
-    <div class="ls-opt" onclick="setLang('vi')">🇻🇳 Tiếng Việt</div>
-    <div class="ls-opt" onclick="setLang('id')">🇮🇩 Indonesia</div>
-    <div class="ls-opt" onclick="setLang('fr')">🇫🇷 Français</div>
-    <div class="ls-opt" onclick="setLang('es')">🇪🇸 Español</div>
+    <div class="ls-opt" onclick="openOriginal()">English</div>
+    <div class="ls-opt" onclick="openTranslator('zh-CN')">Chinese</div>
+    <div class="ls-opt" onclick="openTranslator('vi')">Vietnamese</div>
+    <div class="ls-opt" onclick="openTranslator('id')">Indonesian</div>
+    <div class="ls-opt" onclick="openTranslator('fr')">French</div>
+    <div class="ls-opt" onclick="openTranslator('es')">Spanish</div>
   </div>
 </div>
 
@@ -947,220 +948,42 @@ key event         = PermitExecuted(owner, recipient, amount, operationId)</div>
 </div>
 <script>
 /* ============================================================
-   Polnation Technical Whitepaper — i18n Translation Engine
-   Languages: EN | VI | ID | FR | ES
+   Polnation Technical Whitepaper Translation Launcher
+   The document stays as canonical English HTML. Language options
+   open a full-page Google Translate view so body copy, tables,
+   headings, and footer are translated together instead of relying
+   on a brittle partial text replacement map.
    ============================================================ */
-const T = {
-  vi: {
-    /* Cover */
-    'Technical Whitepaper': 'Sách Trắng Kỹ Thuật',
-    'Agentic AI Earning Architecture,': 'Kiến Trúc Bảo Mật, Phân Phối Merkle Tree,',
-    'Verified MerkleTree Contract & On-Chain Auditability': 'Mô Hình Không Uỷ Quyền & Cơ Chế Doanh Thu',
-    'v1.0 — March 2025': 'v1.0 — Tháng 3 năm 2025',
-    'Polygon PoS • USDC • Non-Custodial • Verifiable Agentic Earning': 'Polygon PoS • USDC • Không Giám Sát • Phân Phối Không Tin Tưởng',
-    '📄 Save as PDF (Ctrl+P)': '📄 Lưu dạng PDF (Ctrl+P)',
-    /* TOC */
-    '📑 Table of Contents': '📑 Mục Lục',
-    /* h2 headings */
-    '1. Abstract': '1. Tóm Tắt',
-    '2. System Architecture': '2. Kiến Trúc Hệ Thống',
-    '3. Non-Custodial & Scoped Authorization Model': '3. Mô Hình Không Giám Sát & Không Uỷ Quyền',
-    '4. How to Verify: Authorization & Approval Audit Guide': '4. Cách Xác Minh: Hướng Dẫn Kiểm Tra Uỷ Quyền',
-    '5. Verified MerkleTree Contract on PolygonScan': '5. Phân Phối Merkle Tree — Phân Tích Chuyên Sâu',
-    '6. How to Verify the Contract On-Chain': '6. Cách Xác Minh Yêu Cầu Merkle Trên Chuỗi',
-    '7. Agentic Earning Architecture': '7. Kiến Trúc Doanh Thu — Phân Tích Kỹ Thuật',
-    '8. Compliance & Risk Framework': '8. Khung Tuân Thủ & Quản Lý Rủi Ro',
-    '9. Smart Contract Reference': '9. Tài Liệu Hợp Đồng Thông Minh',
-    '10. Glossary': '10. Bảng Thuật Ngữ',
-    /* h3 headings */
-    'Key Design Principles': 'Nguyên Tắc Thiết Kế Cốt Lõi',
-    '3.1 What Are Token Approvals?': '3.1 Token Approval Là Gì?',
-    '3.2 Polnation\'s Scoped Authorization Guarantee': '3.2 Đảm Bảo Không Uỷ Quyền của Polnation',
-    '4.1 Step-by-Step: PolygonScan Verification': '4.1 Từng Bước: Xác Minh trên PolygonScan',
-    '4.2 Step-by-Step: Revoke.cash Verification': '4.2 Từng Bước: Xác Minh qua Revoke.cash',
-    '4.3 Advanced: Direct Smart Contract Call': '4.3 Nâng Cao: Gọi Trực Tiếp Hợp Đồng Thông Minh',
-    '5.1 Why Verification Matters for Agentic Earning': '5.1 Merkle Tree Là Gì?',
-    '5.2 Contract Role in the Earning Flow': '5.2 Tính Chất Toán Học',
-    '5.3 Verification Limits': '5.3 Tính Chất Bảo Mật',
-    '5.4 Verified ABI Surface': '5.4 Giả Mã: Hợp Đồng Phân Phối Merkle',
-    '5.5 Agentic Earning Lifecycle': '5.5 Vòng Đời Phân Phối',
-    '6.1 PolygonScan Verification Steps': '6.1 Xác Minh Cập Nhật Merkle Root',
-    '6.2 Event Verification': '6.2 Xác Minh Giao Dịch Yêu Cầu',
-    '7.1 Hard Staking — Validator Economics': '7.1 Hard Staking — Kinh Tế Validator',
-    '7.2 Ecosystem Incentives — Protocol-Level Rewards': '7.2 Ưu Đãi Hệ Sinh Thái — Thưởng Cấp Giao Thức',
-    '7.3 What It Does Not Prove': '7.3 Quảng Cáo & Đối Tác',
-    '8.1 Regulatory Positioning': '8.1 Định Vị Pháp Lý',
-    '8.2 Risk Disclosures': '8.2 Công Bố Rủi Ro',
-    '8.3 User Protections': '8.3 Bảo Vệ Người Dùng',
-    'External Verification Tools': 'Công Cụ Xác Minh Bên Ngoài',
-    /* Footer */
-    'This document is for informational purposes only and does not constitute financial advice.': 'Tài liệu này chỉ dành cho mục đích thông tin và không cấu thành tư vấn tài chính.',
-    '© 2025 Polnation. All rights reserved.': '© 2025 Polnation. Bảo lưu mọi quyền.',
-  },
-  id: {
-    'Technical Whitepaper': 'Whitepaper Teknis',
-    'Agentic AI Earning Architecture,': 'Arsitektur Keamanan, Distribusi Merkle Tree,',
-    'Verified MerkleTree Contract & On-Chain Auditability': 'Model Zero-Approval & Mekanisme Pendapatan',
-    'v1.0 — March 2025': 'v1.0 — Maret 2025',
-    'Polygon PoS • USDC • Non-Custodial • Verifiable Agentic Earning': 'Polygon PoS • USDC • Non-Kustodial • Distribusi Tanpa Kepercayaan',
-    '📄 Save as PDF (Ctrl+P)': '📄 Simpan sebagai PDF (Ctrl+P)',
-    '📑 Table of Contents': '📑 Daftar Isi',
-    '1. Abstract': '1. Abstrak',
-    '2. System Architecture': '2. Arsitektur Sistem',
-    '3. Non-Custodial & Scoped Authorization Model': '3. Model Non-Kustodial & Zero-Approval',
-    '4. How to Verify: Authorization & Approval Audit Guide': '4. Cara Memverifikasi: Panduan Audit Token Approval',
-    '5. Verified MerkleTree Contract on PolygonScan': '5. Distribusi Merkle Tree — Penjelasan Mendalam',
-    '6. How to Verify the Contract On-Chain': '6. Cara Memverifikasi Klaim Merkle Anda Di Blockchain',
-    '7. Agentic Earning Architecture': '7. Arsitektur Pendapatan — Analisis Teknis',
-    '8. Compliance & Risk Framework': '8. Kerangka Kepatuhan & Risiko',
-    '9. Smart Contract Reference': '9. Referensi Smart Contract',
-    '10. Glossary': '10. Glosarium',
-    'Key Design Principles': 'Prinsip Desain Utama',
-    '3.1 What Are Token Approvals?': '3.1 Apa Itu Token Approval?',
-    '3.2 Polnation\'s Scoped Authorization Guarantee': '3.2 Jaminan Zero-Approval Polnation',
-    '4.1 Step-by-Step: PolygonScan Verification': '4.1 Langkah demi Langkah: Verifikasi PolygonScan',
-    '4.2 Step-by-Step: Revoke.cash Verification': '4.2 Langkah demi Langkah: Verifikasi Revoke.cash',
-    '4.3 Advanced: Direct Smart Contract Call': '4.3 Lanjutan: Panggilan Smart Contract Langsung',
-    '5.1 Why Verification Matters for Agentic Earning': '5.1 Apa Itu Merkle Tree?',
-    '5.2 Contract Role in the Earning Flow': '5.2 Sifat Matematis',
-    '5.3 Verification Limits': '5.3 Sifat Keamanan',
-    '5.4 Verified ABI Surface': '5.4 Pseudocode: Kontrak Distributor Merkle',
-    '5.5 Agentic Earning Lifecycle': '5.5 Siklus Hidup Distribusi',
-    '6.1 PolygonScan Verification Steps': '6.1 Verifikasi Pembaruan Merkle Root',
-    '6.2 Event Verification': '6.2 Verifikasi Transaksi Klaim Anda',
-    '7.1 Hard Staking — Validator Economics': '7.1 Hard Staking — Ekonomi Validator',
-    '7.2 Ecosystem Incentives — Protocol-Level Rewards': '7.2 Insentif Ekosistem — Hadiah Tingkat Protokol',
-    '7.3 What It Does Not Prove': '7.3 Iklan & Kemitraan',
-    '8.1 Regulatory Positioning': '8.1 Posisi Regulasi',
-    '8.2 Risk Disclosures': '8.2 Pengungkapan Risiko',
-    '8.3 User Protections': '8.3 Perlindungan Pengguna',
-    'External Verification Tools': 'Alat Verifikasi Eksternal',
-    'This document is for informational purposes only and does not constitute financial advice.': 'Dokumen ini hanya untuk tujuan informasi dan bukan merupakan saran keuangan.',
-    '© 2025 Polnation. All rights reserved.': '© 2025 Polnation. Semua hak dilindungi.',
-  },
-  fr: {
-    'Technical Whitepaper': 'Livre Blanc Technique',
-    'Agentic AI Earning Architecture,': 'Architecture de Sécurité, Distribution Merkle Tree,',
-    'Verified MerkleTree Contract & On-Chain Auditability': 'Modèle Zéro-Approbation & Mécanismes de Revenus',
-    'v1.0 — March 2025': 'v1.0 — Mars 2025',
-    'Polygon PoS • USDC • Non-Custodial • Verifiable Agentic Earning': 'Polygon PoS • USDC • Non-Dépositaire • Distribution Sans Confiance',
-    '📄 Save as PDF (Ctrl+P)': '📄 Enregistrer en PDF (Ctrl+P)',
-    '📑 Table of Contents': '📑 Table des Matières',
-    '1. Abstract': '1. Résumé',
-    '2. System Architecture': '2. Architecture du Système',
-    '3. Non-Custodial & Scoped Authorization Model': '3. Modèle Non-Dépositaire & Zéro Approbation',
-    '4. How to Verify: Authorization & Approval Audit Guide': '4. Comment Vérifier: Guide d\'Audit des Approbations',
-    '5. Verified MerkleTree Contract on PolygonScan': '5. Distribution Merkle Tree — Analyse Approfondie',
-    '6. How to Verify the Contract On-Chain': '6. Comment Vérifier Votre Réclamation Merkle On-Chain',
-    '7. Agentic Earning Architecture': '7. Architecture des Revenus — Analyse Technique',
-    '8. Compliance & Risk Framework': '8. Cadre de Conformité & Gestion des Risques',
-    '9. Smart Contract Reference': '9. Référence des Contrats Intelligents',
-    '10. Glossary': '10. Glossaire',
-    'Key Design Principles': 'Principes de Conception Clés',
-    '3.1 What Are Token Approvals?': '3.1 Que Sont les Approbations de Tokens?',
-    '3.2 Polnation\'s Scoped Authorization Guarantee': '3.2 La Garantie Zéro-Approbation de Polnation',
-    '4.1 Step-by-Step: PolygonScan Verification': '4.1 Étape par Étape: Vérification PolygonScan',
-    '4.2 Step-by-Step: Revoke.cash Verification': '4.2 Étape par Étape: Vérification Revoke.cash',
-    '4.3 Advanced: Direct Smart Contract Call': '4.3 Avancé: Appel Direct au Contrat Intelligent',
-    '5.1 Why Verification Matters for Agentic Earning': '5.1 Qu\'est-ce qu\'un Merkle Tree?',
-    '5.2 Contract Role in the Earning Flow': '5.2 Propriétés Mathématiques',
-    '5.3 Verification Limits': '5.3 Propriétés de Sécurité',
-    '5.4 Verified ABI Surface': '5.4 Pseudocode: Contrat Distributeur Merkle',
-    '5.5 Agentic Earning Lifecycle': '5.5 Cycle de Vie de la Distribution',
-    '6.1 PolygonScan Verification Steps': '6.1 Vérifier la Mise à Jour de la Racine Merkle',
-    '6.2 Event Verification': '6.2 Vérifier Votre Transaction de Réclamation',
-    '7.1 Hard Staking — Validator Economics': '7.1 Hard Staking — Économie des Validateurs',
-    '7.2 Ecosystem Incentives — Protocol-Level Rewards': '7.2 Incitations de l\'Écosystème — Récompenses au Niveau du Protocole',
-    '7.3 What It Does Not Prove': '7.3 Publicité & Partenariats',
-    '8.1 Regulatory Positioning': '8.1 Positionnement Réglementaire',
-    '8.2 Risk Disclosures': '8.2 Divulgations des Risques',
-    '8.3 User Protections': '8.3 Protections des Utilisateurs',
-    'External Verification Tools': 'Outils de Vérification Externes',
-    'This document is for informational purposes only and does not constitute financial advice.': 'Ce document est à titre informatif uniquement et ne constitue pas un conseil financier.',
-    '© 2025 Polnation. All rights reserved.': '© 2025 Polnation. Tous droits réservés.',
-  },
-  es: {
-    'Technical Whitepaper': 'Libro Blanco Técnico',
-    'Agentic AI Earning Architecture,': 'Arquitectura de Seguridad, Distribución Merkle Tree,',
-    'Verified MerkleTree Contract & On-Chain Auditability': 'Modelo de Cero Aprobación & Mecánicas de Ingresos',
-    'v1.0 — March 2025': 'v1.0 — Marzo 2025',
-    'Polygon PoS • USDC • Non-Custodial • Verifiable Agentic Earning': 'Polygon PoS • USDC • No Custodial • Distribución Sin Confianza',
-    '📄 Save as PDF (Ctrl+P)': '📄 Guardar como PDF (Ctrl+P)',
-    '📑 Table of Contents': '📑 Tabla de Contenidos',
-    '1. Abstract': '1. Resumen',
-    '2. System Architecture': '2. Arquitectura del Sistema',
-    '3. Non-Custodial & Scoped Authorization Model': '3. Modelo No Custodial y Cero Aprobación',
-    '4. How to Verify: Authorization & Approval Audit Guide': '4. Cómo Verificar: Guía de Auditoría de Aprobaciones',
-    '5. Verified MerkleTree Contract on PolygonScan': '5. Distribución Merkle Tree — Análisis Profundo',
-    '6. How to Verify the Contract On-Chain': '6. Cómo Verificar Tu Reclamación Merkle On-Chain',
-    '7. Agentic Earning Architecture': '7. Arquitectura de Ingresos — Desglose Técnico',
-    '8. Compliance & Risk Framework': '8. Marco de Cumplimiento y Gestión de Riesgos',
-    '9. Smart Contract Reference': '9. Referencia de Contratos Inteligentes',
-    '10. Glossary': '10. Glosario',
-    'Key Design Principles': 'Principios de Diseño Clave',
-    '3.1 What Are Token Approvals?': '3.1 ¿Qué Son las Aprobaciones de Tokens?',
-    '3.2 Polnation\'s Scoped Authorization Guarantee': '3.2 La Garantía de Cero Aprobación de Polnation',
-    '4.1 Step-by-Step: PolygonScan Verification': '4.1 Paso a Paso: Verificación en PolygonScan',
-    '4.2 Step-by-Step: Revoke.cash Verification': '4.2 Paso a Paso: Verificación en Revoke.cash',
-    '4.3 Advanced: Direct Smart Contract Call': '4.3 Avanzado: Llamada Directa al Contrato Inteligente',
-    '5.1 Why Verification Matters for Agentic Earning': '5.1 ¿Qué es un Merkle Tree?',
-    '5.2 Contract Role in the Earning Flow': '5.2 Propiedades Matemáticas',
-    '5.3 Verification Limits': '5.3 Propiedades de Seguridad',
-    '5.4 Verified ABI Surface': '5.4 Pseudocódigo: Contrato Distribuidor Merkle',
-    '5.5 Agentic Earning Lifecycle': '5.5 Ciclo de Vida de la Distribución',
-    '6.1 PolygonScan Verification Steps': '6.1 Verificar la Actualización de la Raíz Merkle',
-    '6.2 Event Verification': '6.2 Verificar Tu Transacción de Reclamación',
-    '7.1 Hard Staking — Validator Economics': '7.1 Hard Staking — Economía de Validadores',
-    '7.2 Ecosystem Incentives — Protocol-Level Rewards': '7.2 Incentivos del Ecosistema — Recompensas a Nivel de Protocolo',
-    '7.3 What It Does Not Prove': '7.3 Publicidad y Asociaciones',
-    '8.1 Regulatory Positioning': '8.1 Posicionamiento Regulatorio',
-    '8.2 Risk Disclosures': '8.2 Divulgaciones de Riesgo',
-    '8.3 User Protections': '8.3 Protecciones del Usuario',
-    'External Verification Tools': 'Herramientas de Verificación Externas',
-    'This document is for informational purposes only and does not constitute financial advice.': 'Este documento es solo para fines informativos y no constituye asesoramiento financiero.',
-    '© 2025 Polnation. All rights reserved.': '© 2025 Polnation. Todos los derechos reservados.',
-  }
+const ORIGINAL_URL = 'https://www.polnation.com/polnation-technical-whitepaper.html';
+
+function canonicalWhitepaperUrl() {
+  const current = window.location.href.split('#')[0];
+  const host = window.location.hostname;
+  if (!host || host === 'localhost' || host === '127.0.0.1') return ORIGINAL_URL;
+  if (host === 'www.polnation.com' || host === 'polnation.com') return current;
+  return ORIGINAL_URL;
 }
 
-function applyTranslations(lang) {
-  const map = T[lang]
-  if (!map) return
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-    acceptNode(n) {
-      const p = n.parentElement
-      if (!p) return NodeFilter.FILTER_REJECT
-      if (['SCRIPT','STYLE','CODE','PRE'].includes(p.tagName)) return NodeFilter.FILTER_REJECT
-      if (p.closest('svg')) return NodeFilter.FILTER_REJECT
-      return NodeFilter.FILTER_ACCEPT
-    }
-  })
-  const nodes = []
-  while (walker.nextNode()) nodes.push(walker.currentNode)
-  nodes.forEach(n => {
-    const trimmed = n.textContent.trim()
-    if (trimmed && map[trimmed] !== undefined) n.textContent = n.textContent.replace(trimmed, map[trimmed])
-  })
-  document.documentElement.lang = lang
+function openTranslator(lang) {
+  const sourceUrl = canonicalWhitepaperUrl();
+  const translatedUrl = 'https://translate.google.com/translate?sl=en&tl=' + encodeURIComponent(lang) + '&u=' + encodeURIComponent(sourceUrl);
+  window.location.href = translatedUrl;
 }
 
-function setLang(lang) {
-  localStorage.setItem('pn-twp-lang', lang)
-  location.reload()
+function openOriginal() {
+  window.location.href = canonicalWhitepaperUrl();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const saved = localStorage.getItem('pn-twp-lang') || 'en'
-  const cur = document.getElementById('ls-cur')
-  if (cur) cur.textContent = saved.toUpperCase()
-  document.querySelectorAll('.ls-opt').forEach(o => {
-    o.classList.toggle('sel', o.getAttribute('onclick') === `setLang('${saved}')`)
-  })
-  if (saved !== 'en') applyTranslations(saved)
+  document.documentElement.lang = 'en';
+  document.documentElement.setAttribute('translate', 'yes');
+  document.body.setAttribute('translate', 'yes');
   document.addEventListener('click', e => {
-    if (!document.getElementById('ls')?.contains(e.target))
-      document.querySelector('.ls-drop')?.classList.remove('open')
-  })
-})
+    if (!document.getElementById('ls')?.contains(e.target)) {
+      document.querySelector('.ls-drop')?.classList.remove('open');
+    }
+  });
+});
 </script>
 
 </body>
