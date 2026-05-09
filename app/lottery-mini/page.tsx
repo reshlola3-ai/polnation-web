@@ -150,12 +150,12 @@ type WithdrawStatus = 'idle' | 'pending' | 'success' | 'error'
 // Replace with /api/lottery/ticker when production data is dense enough.
 
 const TICKER_NAMES = [
-  'crypto_alex', 'polygon_fan', 'w3_native', 'maya_eth', 'sergio_x',
-  'lina_w', 'defi_bro', 'sol_seeker', 'matic_max', 'eth_lover',
-  'tomo_jp', 'ana_arg', 'kris_nl', 'dimitri_ru', 'priya_in',
-  'leo_br', 'akira_jp', 'noah_de', 'zara_ae', 'mateo_es',
-  'finn_fi', 'aiko_kr', 'ravi_in', 'yuki_jp', 'paolo_it',
-  'nina_pl', 'koji_jp', 'liam_ie', 'cleo_eg', 'iris_gr',
+  'ivan_k', 'not_a_bot', 'xiao_li99', 'dragonfly88', 'sarah_m',
+  'el_lobo_x', 'raj88', 'yuki2024', 'bigbull99', 'mika_t',
+  'just_lurking', 'goldfish23', 'alexeyv', 'moon_x7', 'kwame_g',
+  'vibes_only', 'night_owl_x', 'nadia_sm', 'user84729', 'poker_face',
+  'nico_d', 'wang_fang', 'lucky7', 'speedy_k', 'the_wolf23',
+  'im_jose', 'sofi_rx', 'dark_horse', 'tunde_a', 'fastlane99',
 ]
 const TICKER_WIN_AMOUNTS = [0.5, 0.5, 0.5, 1, 1, 1, 5]
 const TICKER_WITHDRAW_AMOUNTS = [5.5, 12, 18, 25, 32, 47, 88, 120, 156, 250]
@@ -203,6 +203,7 @@ interface CachedLottery {
   welcomeSpinEarned: boolean
   spinHistory: SpinHistoryEntry[]
   hasRealEmail: boolean
+  email: string | null
 }
 
 interface SpinHistoryEntry {
@@ -295,6 +296,7 @@ export default function LotteryMiniPage() {
 
   // ── Web login binding (email + password for cross-device access) ────────────
   const [hasRealEmail, setHasRealEmail] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
   const [showWebLoginPanel, setShowWebLoginPanel] = useState(false)
   const [webLoginEmail, setWebLoginEmail] = useState('')
   const [webLoginPassword, setWebLoginPassword] = useState('')
@@ -375,6 +377,7 @@ export default function LotteryMiniPage() {
         setWelcomeSpinEarned(cached.welcomeSpinEarned)
         setSpinHistory(cached.spinHistory)
         setHasRealEmail(cached.hasRealEmail)
+        setUserEmail(cached.email ?? null)
       }
     } else {
       setLocaleState(detectLocale())
@@ -491,6 +494,7 @@ export default function LotteryMiniPage() {
         welcomeSpinEarned: !!data.welcomeSpinEarned,
         spinHistory: Array.isArray(data.history) ? data.history : [],
         hasRealEmail: !!data.hasRealEmail,
+        email: data.email ?? null,
       }
       setRemainingSpins(lottery.remainingSpins)
       setIsInfluencer(lottery.isInfluencer)
@@ -504,6 +508,7 @@ export default function LotteryMiniPage() {
       setWelcomeSpinEarned(lottery.welcomeSpinEarned)
       setSpinHistory(lottery.spinHistory)
       setHasRealEmail(lottery.hasRealEmail)
+      setUserEmail(lottery.email)
       writeLotteryCache(tgUserIdRef.current, lottery)
     } catch {
       // silent
@@ -784,7 +789,8 @@ export default function LotteryMiniPage() {
       }
       setWebLoginStatus('success')
       setWebLoginPassword('') // don't keep plaintext in React state
-      // Refresh to flip hasRealEmail; the card will hide on next render.
+      setHasRealEmail(true)
+      setUserEmail(webLoginEmail.trim())
       void refreshState()
     } catch {
       setWebLoginError(t.webLoginNetworkError)
@@ -1069,6 +1075,14 @@ export default function LotteryMiniPage() {
           <EyebrowTag>
             {displayName ? t.greeting(displayName) : t.lotteryTitle}
           </EyebrowTag>
+          {userEmail && (
+            <p
+              className="text-white/35 text-[11px] mt-0.5"
+              style={{ fontFamily: 'var(--poly-font-mono)' }}
+            >
+              {userEmail}
+            </p>
+          )}
           <div className="flex items-center justify-center gap-1.5 mt-1.5">
             <h1 className="text-[26px] font-semibold text-white poly-heading">{t.spinToWin}</h1>
             <button

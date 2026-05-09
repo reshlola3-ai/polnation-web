@@ -217,9 +217,8 @@ export async function GET() {
     walletAddress: profileRes.data?.wallet_address ?? null,
     availableUsdc: profitsRes.data?.available_usdc ?? 0,
     telegramUsername: profileRes.data?.telegram_username ?? null,
-    // Boolean flag rather than the email itself — gates the "Set up web login"
-    // card in the Mini App without exposing the address to the client.
     hasRealEmail: !isPlaceholderEmail(profileRes.data?.email),
+    email: !isPlaceholderEmail(profileRes.data?.email) ? (profileRes.data?.email ?? null) : null,
     referredBy,
     invitedCount: inviteCountRes.count ?? 0,
     invitees,
