@@ -1,0 +1,829 @@
+{
+  "common": {
+    "loading": "جارٍ التحميل...",
+    "refresh": "تحديث",
+    "submit": "إرسال",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "close": "إغلاق",
+    "confirm": "تأكيد",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "search": "بحث",
+    "filter": "تصفية",
+    "all": "الكل",
+    "none": "لا شيء",
+    "yes": "نعم",
+    "no": "لا",
+    "or": "أو",
+    "and": "و",
+    "error": "خطأ",
+    "success": "نجاح",
+    "warning": "تحذير",
+    "info": "معلومات",
+    "copyLink": "نسخ الرابط",
+    "copied": "تم النسخ!",
+    "viewAll": "عرض الكل",
+    "learnMore": "اعرف المزيد"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "tasks": "المهام",
+    "earnings": "سحب",
+    "team": "الفريق",
+    "profile": "الملف الشخصي",
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "getStarted": "ابدأ الآن"
+  },
+  "home": {
+    "welcome": "مرحباً بك في",
+    "tagline": "الكسب الذكي بالذكاء الاصطناعي على Polygon",
+    "subtitle": "نموذجنا الكمي الخاص بـ Merkle Tree وبوتات المراجحة الذكية تعمل 24/7 لتوليد عائد حقيقي — يُوزَّع يومياً على محفظتك وفقاً لمستوى رصيدك.",
+    "promoNote": "يُولَّد العائد باستراتيجيات المراجحة الكمية لـ Polnation ويُوزَّع على السلسلة عبر إثباتات Merkle Tree. احتفظ بـ USDC في محفظتك — بدون تأمين، اسحب في أي وقت.",
+    "goToDashboard": "انتقل إلى لوحة التحكم",
+    "features": {
+      "safe": {
+        "title": "خزينة ذكية بدون حضانة",
+        "description": "يبقى USDC في محفظتك. يقرأ نظامنا الذكي الأرصدة ويوجه العائد — بدون موافقات، بدون حضانة، بدون مخاطر. اسحب في أي وقت."
+      },
+      "stable": {
+        "title": "نموذج كمي Merkle Tree",
+        "description": "يحسب النموذج المالي الكمي الخاص ويتحقق من كل توزيع عبر إثباتات Merkle Tree — الآلية ذاتها التي تستخدمها إسقاطات Uniswap و Arbitrum."
+      },
+      "easy": {
+        "title": "كسب آلي بالكامل",
+        "description": "بوتات المراجحة الذكية تعمل 24/7. اتصل مرة واحدة ودع النظام يكسب نيابةً عنك. رسوم الغاز أقل من $0.01."
+      },
+      "verified": {
+        "title": "شفاف على السلسلة",
+        "description": "كل توزيع مسجل على Polygon وقابل للتحقق على السلسلة. عائد حقيقي، إثبات حقيقي — شفافية 100%."
+      }
+    },
+    "stats": {
+      "totalVolume": "إجمالي الحجم",
+      "activeUsers": "المستخدمون النشطون",
+      "avgApy": "المعدل الترويجي (تقديري)",
+      "nonCustodial": "بدون حضانة"
+    },
+    "academy": {
+      "title": "ابدأ الكسب في 4 خطوات",
+      "subtitle": "من الصفر إلى الدخل السلبي — دليل المبتدئين",
+      "watchVideo": "شاهد الفيديو التعليمي",
+      "viewFullGuide": "عرض الدليل الكامل",
+      "step": "خطوة",
+      "steps": {
+        "wallet": {
+          "title": "تنزيل محفظة",
+          "description": "احصل على Trust Wallet أو Bitget Wallet لتخزين عملاتك المشفرة بأمان",
+          "details": ["التنزيل من المتجر الرسمي", "إنشاء محفظة جديدة", "نسخ احتياطي لعبارة الاسترداد", "لا تشارك مفاتيحك الخاصة أبداً"]
+        },
+        "deposit": {
+          "title": "الحصول على USDC",
+          "description": "تحويل أو تبديل USDC إلى محفظتك على شبكة Polygon",
+          "details": ["شراء من بورصة", "تحويل إلى المحفظة", "استخدام شبكة Polygon", "حد أدنى $10 USDC"]
+        },
+        "sign": {
+          "title": "التوقيع على الفهرس",
+          "description": "توقيع مجاني لمرة واحدة لتفعيل إمكانية الكسب",
+          "details": ["توصيل المحفظة", "انقر على ابدأ الكسب", "وقّع الرسالة", "بدون رسوم غاز"]
+        },
+        "earn": {
+          "title": "اكسب يومياً",
+          "description": "استقبل توزيعات المكافآت اليومية بناءً على مستواك",
+          "details": ["توزيعات محسوبة تلقائياً", "اسحب في أي وقت", "رصيد أعلى = وزن أعلى", "قد تتغير المعدلات الترويجية"]
+        }
+      }
+    }
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "resetPassword": "إعادة تعيين كلمة المرور",
+    "newPassword": "كلمة مرور جديدة",
+    "sendResetLink": "إرسال رابط الإعادة",
+    "backToLogin": "العودة لتسجيل الدخول",
+    "noAccount": "ليس لديك حساب؟",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "createAccount": "إنشاء حساب",
+    "verifyEmail": "تحقق من بريدك الإلكتروني",
+    "checkEmail": "يرجى التحقق من بريدك الإلكتروني للتحقق من حسابك.",
+    "referralCode": "رمز الإحالة (اختياري)"
+  },
+  "dashboard": {
+    "welcomeBack": "مرحباً بعودتك، {name}! 👋",
+    "overview": "إليك نظرة عامة على حساب Polnation الخاص بك.",
+    "completeProfile": "أكمل ملفك الشخصي",
+    "completeProfileDesc": "أضف تفاصيلك لفتح جميع الميزات",
+    "completeNow": "أكمل الآن",
+    "referredBy": "تمت إحالته من",
+    "totalTeam": "إجمالي الفريق",
+    "directReferrals": "الإحالات المباشرة",
+    "walletStatus": "حالة المحفظة",
+    "connectWallet": "توصيل المحفظة",
+    "walletConnected": "المحفظة متصلة",
+    "copyReferralLink": "نسخ رابط الإحالة",
+    "shareReferral": "شارك رابط الإحالة لتنمية فريقك",
+    "connectToStart": "وصّل محفظتك لبدء الكسب",
+    "connectToStartDesc": "احتفظ بـ USDC في محفظتك واكسب حتى {rate} يومياً ({apy} APY). بدون تأمين، اسحب في أي وقت، بدون حضانة تماماً.",
+    "supportedWallets": "المدعوم: Trust Wallet, SafePal, Bitget, TokenPocket",
+    "totalAssets": "إجمالي الأصول",
+    "estDailyEarnings": "الأرباح اليومية المقدرة",
+    "perDay": "/يوم",
+    "walletBalance": "رصيد المحفظة",
+    "usdcOnPolygon": "USDC على Polygon",
+    "communityPrizePool": "مجمع جوائز المجتمع",
+    "level": "المستوى {name}",
+    "tierProgress": "{name} • {rate}% يومياً",
+    "toNextTier": "${amount} إلى {name}",
+    "depositToStart": "💡 أودع على الأقل $10 USDC لبدء الكسب",
+    "totalEarned": "إجمالي الأرباح",
+    "staking": "التخزين",
+    "commission": "العمولة",
+    "available": "متاح",
+    "withdraw": "سحب",
+    "team": "الفريق",
+    "direct": "مباشر",
+    "viewNetwork": "عرض الشبكة",
+    "status": "الحالة",
+    "signatureDone": "تم التوقيع",
+    "profileComplete": "الملف الشخصي مكتمل",
+    "webLoginSetup": "إعداد تسجيل الدخول عبر الويب",
+    "connectForRealtime": "وصّل المحفظة للرصيد الفوري",
+    "yourBoundWallet": "محفظتك المرتبطة",
+    "shareAndEarn": "شارك واكسب",
+    "earnCommission": "اكسب حتى 10% عمولة من مكافآت فريقك",
+    "assetWalletTitle": "المحفظة",
+    "assetAvailableTitle": "قابل للسحب",
+    "assetTeamPoolTitle": "مجمع الفريق",
+    "assetHelpWalletAria": "شرح رصيد المحفظة",
+    "assetHelpAvailableAria": "شرح الرصيد المتاح",
+    "assetHelpTeamAria": "شرح مجمع الفريق",
+    "assetHelpWalletLine1": "USDC الموجود حالياً في محفظتك المتصلة.",
+    "assetHelpWalletLine2": "رصيد المحفظة على السلسلة، ليس في حضانة المنصة.",
+    "assetHelpAvailableLine1": "المبلغ الذي يمكنك سحبه الآن.",
+    "assetHelpAvailableLine2": "يشمل الأرباح الموزعة القابلة للمطالبة بالفعل.",
+    "assetHelpTeamLine1": "تخصيص مجمع الفريق الحالي بناءً على المستوى.",
+    "assetHelpTeamLine2": "يُستخدم لحساب الأرباح، ليس نقداً مباشراً في المحفظة.",
+    "copied": "تم النسخ!",
+    "copy": "نسخ"
+  },
+  "tasks": {
+    "title": "المهام",
+    "subtitle": "أكمل المهام لزيادة تقدم فتح القفل",
+    "totalBonus": "إجمالي مكافأة المهام",
+    "addedToProgress": "أضيف إلى تقدم فتح القفل",
+    "dayStreak": "يوم متتالي",
+    "totalCheckins": "إجمالي تسجيلات الحضور",
+    "checkin": {
+      "title": "تسجيل الحضور اليومي",
+      "subtitle": "مكافأة التتابع لمدة 7 أيام متاحة",
+      "streakDays": "أيام متتالية",
+      "bonus": "مكافأة",
+      "day": "اليوم {n}",
+      "checkInNow": "سجّل الحضور الآن",
+      "checkedIn": "تم تسجيل الحضور اليوم",
+      "totalCheckins": "إجمالي تسجيلات الحضور",
+      "earned": "مكتسب",
+      "streakBonus": "{n} أيام أخرى للحصول على مكافأة التتابع $1!"
+    },
+    "social": {
+      "title": "مهام وسائل التواصل الاجتماعي",
+      "visit": "زيارة",
+      "verify": "تحقق",
+      "done": "تم"
+    },
+    "promotion": {
+      "title": "مهام الترويج",
+      "dailyTag": "يومي",
+      "placeholder": "الصق رابط منشورك هنا...",
+      "perSubmission": "لكل إرسال",
+      "completed": "اكتمل {n} مرة",
+      "generatePost": "توليد منشور",
+      "shareAndEarn": "شارك واكسب",
+      "copyText": "نسخ النص",
+      "shareToX": "شارك على X",
+      "copiedSuccess": "تم النسخ إلى الحافظة!",
+      "postTemplate": "🚀 Polnation - خزينة عملات مستقرة DeFi حقيقية\n\n💰 اكسب 0.9% يومياً على USDC\n✅ قابل للتحقق 100% على السلسلة\n✅ بدون تأمين، اسحب في أي وقت\n\n👉 ابدأ: {referralLink}\n💬 https://t.me/polnation\n\n#DeFi #USDC #Polygon"
+    },
+    "video": {
+      "title": "مهام الفيديو",
+      "placeholder": "الصق رابط الفيديو (YouTube, TikTok, إلخ)...",
+      "afterApproval": "بعد الموافقة",
+      "submitted": "تم الإرسال {n} مرة (مراجعة يدوية مطلوبة)",
+      "approved": "موافق عليه: {n}",
+      "pending": "معلق: {n}",
+      "pendingReview": "قيد المراجعة:",
+      "pendingStatus": "معلق"
+    },
+    "community": {
+      "title": "مهام المجتمع",
+      "oneTime": "مرة واحدة",
+      "placeholder": "الصق رابط مجموعتك المجتمعية...",
+      "taskCompleted": "تمت المهمة"
+    },
+    "referral": {
+      "title": "مكافأة الإحالة",
+      "autoTag": "تلقائي",
+      "inviteAndEarn": "ادعُ واكسب",
+      "description": "اكسب $1 لكل إحالة تسجل بالبريد الإلكتروني وتربط محفظة",
+      "available": "متاح",
+      "referrals": "الإحالات",
+      "claimed": "مُطالب به",
+      "claimAmount": "طالب بـ ${amount}"
+    },
+    "bonusModal": {
+      "title": "إجمالي مكافأة المهام",
+      "checkin": "📅 تسجيل الحضور",
+      "social": "🔗 المهام الاجتماعية",
+      "profileSetup": "👤 إعداد الملف الشخصي",
+      "promotion": "📢 الترويج",
+      "videoReview": "🎬 مراجعة الفيديو",
+      "community": "👥 المجتمع",
+      "referralBonus": "🎁 مكافأة الإحالة"
+    },
+    "onboarding": {
+      "title": "مكافأة البداية",
+      "newUser": "مستخدم جديد",
+      "completed": "مكتمل",
+      "goToProfile": "انتقل للملف الشخصي",
+      "claimReward": "طالب بالمكافأة"
+    },
+    "emailRequired": "البريد الإلكتروني مطلوب",
+    "emailRequiredDesc": "يرجى ربط بريدك الإلكتروني وتعيين كلمة مرور للوصول إلى المهام وكسب المكافآت",
+    "yourEmail": "عنوان بريدك الإلكتروني",
+    "setPassword": "تعيين كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "passwordHint": "6 أحرف على الأقل",
+    "passwordTooShort": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    "passwordMismatch": "كلمتا المرور غير متطابقتين",
+    "bindEmail": "ربط البريد الإلكتروني وتعيين كلمة المرور",
+    "emailBoundSuccess": "إعداد الحساب مكتمل!",
+    "refreshingPage": "جارٍ تحديث الصفحة...",
+    "whyEmailRequired": "لماذا البريد الإلكتروني مطلوب؟",
+    "reason1": "منع الإساءة وضمان توزيع المكافآت بشكل عادل",
+    "reason2": "حماية حسابك بخيارات استرداد الحساب",
+    "reason3": "استقبال التحديثات والإشعارات المهمة",
+    "otherFeatures": "يمكنك الوصول إلى الميزات الأخرى:",
+    "support": "الدعم",
+    "linkDashboard": "لوحة التحكم",
+    "linkEarnings": "الأرباح",
+    "linkCommunity": "المجتمع",
+    "quest": {
+      "ch1Title": "الفصل 1: البداية",
+      "ch2Title": "الفصل 2: بناء مجموعتك",
+      "ch3Title": "الفصل 3: التجنيد الفيروسي",
+      "chapterProgress": "{done}/{total} مكتمل",
+      "chapterBonus": "مكافأة الفصل",
+      "chapterComplete": "اكتمل الفصل!",
+      "chapterLocked": "أكمل الفصل {n} للفتح",
+      "stepDone": "مكتمل",
+      "stepPending": "قيد المراجعة",
+      "stepLocked": "مقفل",
+      "claimReward": "طالب بالمكافأة",
+      "goToProfile": "انتقل للملف الشخصي",
+      "visit": "زيارة",
+      "verify": "تحقق",
+      "notifyAdmin": "إخطار المشرف",
+      "waitingReview": "في انتظار مراجعة المشرف",
+      "contactAdminTelegram": "تواصل مع المشرف على Telegram",
+      "contactAdminDesc": "أرسل لقطة شاشة مجموعتك للمشرف عبر Telegram للتحقق.",
+      "referralProgress": "{current}/{target} أصدقاء مدعوون",
+      "walletTooltipTitle": "لماذا التوقيع؟",
+      "walletTooltipBody": "يخدم هذا التوقيع غرضين:\n\n① التحقق من ملكية المحفظة — يثبت أن هذا العنوان ملكك. بدون نقل أصول، بدون رسوم غاز.\n\n② تفعيل الكسب الذكي — يُسجَّل محفظتك في محرك التوزيع الكمي لـ Polnation، الذي يحسب ويوجه العائد اليومي للعناوين المتحقق منها.\n\nيستخدم Uniswap و Arbitrum و Optimism نفس آلية الإثبات على السلسلة للتوزيعات.\n\nهذا ليس موافقة على رمز مميز (approve). لا يمكنه الوصول إلى أصولك.",
+      "walletConnectBtn": "تفعيل عميل الكسب",
+      "walletConnected": "المحفظة مفعّلة",
+      "shareModalTitle": "نسخ ومشاركة",
+      "shareModalLinkLabel": "رابط الإحالة الخاص بك",
+      "shareModalAdCopy": "المحتوى الترويجي",
+      "shareModalAdText": "انضم إلى Polnation واحصل على $100 مجاناً — قابل للسحب إلى محفظتك!\n\n✅ مجاني تماماً، لا إيداع مطلوب\n✅ المكافآت قابلة للسحب 100% إلى محفظتك\n✅ بدون فترة تأمين، بدون رسوم سحب\n✅ مدقق 100%، كيان مسجل، مكتب فعلي\n\n👇 انضم الآن:\n{referralLink}",
+      "copyLink": "نسخ الرابط",
+      "copyAll": "نسخ الكل",
+      "copied": "تم النسخ!",
+      "shareToX": "شارك على X",
+      "ch1Bonus": "+1 لفة",
+      "ch2Bonus": "+2 لفات",
+      "ch3Bonus": "+3 لفات + شارة VIP"
+    },
+    "taskDb": {
+      "profile_setup": {
+        "name": "إكمال إعداد الملف الشخصي",
+        "description": "اضبط اسم المستخدم والبلد لكسب المكافأة"
+      },
+      "social_twitter": {
+        "name": "متابعة على Twitter",
+        "description": "تابع حسابنا الرسمي على Twitter"
+      },
+      "social_telegram": {
+        "name": "الانضمام إلى Telegram",
+        "description": "انضم إلى مجتمع Telegram الخاص بنا"
+      },
+      "social_whatsapp": {
+        "name": "الانضمام إلى WhatsApp",
+        "description": "انضم إلى مجتمع WhatsApp الخاص بنا"
+      },
+      "social_facebook": {
+        "name": "متابعة Facebook",
+        "description": "تابع صفحتنا الرسمية على Facebook"
+      },
+      "wallet_connect": {
+        "name": "تفعيل الكسب الذكي والتحقق من المحفظة",
+        "description": "وصّل محفظتك ووقّع لتفعيل محرك الكسب الذكي والتحقق من ملكية المحفظة."
+      },
+      "copy_referral_link": {
+        "name": "نسخ ومشاركة رابط الإحالة",
+        "description": "انسخ رابط إحالتك والمحتوى الترويجي لمشاركته مع الأصدقاء."
+      },
+      "community_group_5": {
+        "name": "بناء مجموعة (5+ أعضاء)",
+        "description": "أنشئ مجموعة Telegram أو WhatsApp بـ 5+ أعضاء وأخطر المشرف للتحقق."
+      },
+      "community_group_20": {
+        "name": "تنمية مجموعتك (20+ عضو)",
+        "description": "نمّ مجموعة مجتمعك إلى 20+ عضو وأخطر المشرف للتحقق."
+      },
+      "promotion_post": {
+        "name": "مشاركة منشور ترويجي",
+        "description": "شارك عن Polnation في مجموعتك وأرسل رابط المنشور."
+      },
+      "invite_1_friend": {
+        "name": "دعوة صديق واحد",
+        "description": "ادعُ بنجاح صديقاً واحداً يسجل ويربط محفظته."
+      },
+      "invite_3_friends": {
+        "name": "دعوة 3 أصدقاء",
+        "description": "ادعُ بنجاح 3 أصدقاء يسجلون ويربطون محافظهم."
+      },
+      "invite_10_friends": {
+        "name": "دعوة 10 أصدقاء",
+        "description": "ادعُ بنجاح 10 أصدقاء يسجلون ويربطون محافظهم."
+      },
+      "invite_30_friends": {
+        "name": "دعوة 30 صديقاً",
+        "description": "ادعُ بنجاح 30 صديقاً يسجلون ويربطون محافظهم."
+      },
+      "daily_checkin": {
+        "name": "تسجيل الحضور اليومي",
+        "description": "سجّل الحضور يومياً. تتابع 7 أيام = مكافأة $1!"
+      },
+      "video_review": {
+        "name": "مراجعة بالفيديو",
+        "description": "أنشئ وشارك مراجعة فيديو عن Polnation. المكافأة: $5-20 بناءً على الجودة."
+      },
+      "community_devotion": {
+        "name": "تفاني المجتمع",
+        "description": "أنشئ مجتمعاً يضم أكثر من 40 عضواً وأرسل رابط مجموعتك للتحقق."
+      }
+    }
+  },
+  "earnings": {
+    "title": "الأرباح",
+    "subtitle": "تتبع توزيعات أرباح مجتمعك",
+    "usdcBalance": "رصيد USDC لديك",
+    "currentRate": "المعدل الحالي",
+    "estimatedDaily": "اليومي المقدر",
+    "depositMore": "أودع على الأقل $10 USDC لبدء الكسب",
+    "upgradeHint": "أودع ${amount} أخرى للترقية إلى {tier} ({rate}%)",
+    "nextDistribution": "التوزيع القادم",
+    "comingSoon": "قريباً",
+    "distributionInterval": "توزيع المكافآت كل {interval}",
+    "stakingEarnings": "توزيعات الأرباح",
+    "referralCommission": "عمولة الإحالة",
+    "availableWithdraw": "متاح للسحب",
+    "withdraw": {
+      "title": "سحب الأرباح",
+      "token": "رمز السحب",
+      "amount": "المبلغ (USD)",
+      "minAmount": "الحد الأدنى {amount}",
+      "available": "متاح",
+      "currentPrice": "سعر POL الحالي",
+      "youWillReceive": "ستستقبل",
+      "maxWithdraw": "الحد الأقصى للسحب",
+      "withdrawUsdc": "سحب USDC",
+      "withdrawPol": "سحب {amount} POL",
+      "polNote": "عند سحب POL، سيحول النظام تلقائياً ما يعادله بالدولار إلى POL"
+    },
+    "tiers": {
+      "title": "مستويات الكسب",
+      "tier": "المستوى",
+      "range": "نطاق USDC",
+      "rate": "المعدل",
+      "dailyRate": "المعدل اليومي"
+    },
+    "history": {
+      "withdrawal": "سجل السحوبات",
+      "earnings": "سجل الأرباح",
+      "noRecords": "لا توجد سجلات أرباح بعد",
+      "txHash": "هاش المعاملة",
+      "completed": "مكتمل",
+      "pending": "معلق",
+      "processing": "قيد المعالجة",
+      "failed": "فشل",
+      "snapshotBalance": "رصيد اللقطة",
+      "appliedRate": "المعدل المطبق",
+      "formula": "الصيغة",
+      "sourceUser": "المستخدم المصدر",
+      "downlineEarnings": "أرباح السلسلة",
+      "commissionRate": "معدل العمولة"
+    }
+  },
+  "community": {
+    "title": "حساب المجتمع",
+    "subtitle": "نظام مكافآت حوافز الفريق",
+    "currentLevel": "المستوى الحالي",
+    "notUnlocked": "غير مفتوح",
+    "dailyEarnings": "الأرباح اليومية",
+    "influencer": "مؤثر",
+    "specialLevel": "مستوى خاص",
+    "normalUser": "عضو",
+    "unlockProgress": "تقدم الفتح",
+    "teamVolume": "حجم الفريق",
+    "taskRewards": "مكافآت المهام",
+    "needMore": "تحتاج ${amount} أخرى لفتح {level}",
+    "progressTo": "التقدم نحو",
+    "maxLevel": "🎉 تهانينا! لقد وصلت إلى أعلى مستوى",
+    "effectiveProgress": "تقدم الفتح الفعلي",
+    "l123Volume": "حجم الفريق L1-L3",
+    "taskBonusProgress": "تقدم مكافأة المهام",
+    "totalCommunityEarned": "إجمالي ما اكتسبه المجتمع",
+    "allLevels": "جميع المستويات",
+    "current": "حالي",
+    "claimed": "مُطالب به",
+    "canClaim": "يمكنك المطالبة!",
+    "rewardPool": "مجمع الجوائز",
+    "dailyRate": "المعدل اليومي",
+    "unlockCondition": "حد الفتح",
+    "claimReward": "طالب",
+    "claimAndUpgrade": "طالب",
+    "claiming": "جارٍ المطالبة...",
+    "dailyEarningsHistory": "سجل الأرباح اليومية",
+    "noEarnings": "لا توجد سجلات أرباح بعد",
+    "rulesTitle": "قواعد حساب المجتمع",
+    "rulePool": "مجمع الجوائز",
+    "rulePoolDesc": "طالب به عند بلوغ حد الفتح",
+    "ruleDailyRate": "المعدل اليومي",
+    "ruleDailyRateDesc": "أرباحك اليومية = المجمع × المعدل",
+    "ruleUnlock": "كيفية الفتح",
+    "ruleUnlockDesc": "بلوغ حد الحجم → المطالبة بالجائزة → الترقية للمستوى التالي",
+    "ruleInfluencer": "مزايا المؤثر",
+    "ruleInfluencerDesc": "متطلبات فتح أقل بـ 50% للمؤثرين المتحقق منهم",
+    "accountLocked": "حساب المجتمع مقفل",
+    "bindEmailToUnlock": "اربط بريدك الإلكتروني لفتح حساب مجتمعك وبدء كسب المكافآت.",
+    "goBindEmail": "اربط البريد الإلكتروني",
+    "unlockPreview": "بعد ربط البريد الإلكتروني، ستبدأ من:",
+    "readyToClaim": "جاهز للمطالبة بالمكافأة!",
+    "thresholdReached": "تم بلوغ الحد! طالب بمكافأتك"
+  },
+  "team": {
+    "title": "الفريق",
+    "subtitle": "ابنِ فريقك واكسب المكافآت",
+    "currentLevel": "المستوى الحالي",
+    "rewardPool": "مجمع الجوائز",
+    "dailyRate": "المعدل اليومي",
+    "dailyEarnings": "الأرباح اليومية",
+    "unlockProgress": "تقدم الفتح",
+    "showAllLevels": "عرض جميع المستويات",
+    "hideLevels": "إخفاء المستويات",
+    "nextDistribution": "التوزيع القادم",
+    "expectedEarnings": "الأرباح المتوقعة",
+    "yourReferralLink": "رابط إحالتك",
+    "totalTeamVolume": "حجم الفريق",
+    "l1Volume": "حجم L1",
+    "totalTeam": "إجمالي الفريق",
+    "directReferrals": "الإحالات المباشرة",
+    "totalCommunityEarned": "إجمالي الأرباح",
+    "teamMembers": "أعضاء الفريق",
+    "noReferrals": "لا أعضاء في الفريق بعد. شارك رابطك لتنمية فريقك!",
+    "accountLocked": "حساب الفريق مقفل",
+    "bindEmailToUnlock": "اربط بريدك الإلكتروني لفتح حساب فريقك وبدء بناء شبكتك.",
+    "goBindEmail": "اربط البريد الإلكتروني",
+    "rulesTitle": "قواعد المستويات",
+    "rulePool": "مجمع الجوائز",
+    "rulePoolDesc": "طالب به عند بلوغ حد الفتح",
+    "ruleUnlock": "كيفية الفتح",
+    "ruleUnlockDesc": "بلوغ الحد → المطالبة بالجائزة → الصعود للمستوى",
+    "momentumTitle": "مضاعف الزخم",
+    "momentumActive": "أرباحك اليومية معززة بـ {multiplier}x!",
+    "momentumDecayCountdown": "تنخفض إلى {next}x في {days} يوم",
+    "momentumInactive": "المضاعف عند الحد الأدنى (0.2×). قم بإحالة جديدة لإعادة الضبط إلى 1.0×!",
+    "momentumDecayExplain": "يبدأ المضاعف من 1.0× وينخفض −0.2× كل 3 أيام بدون إحالات جديدة (الحد الأدنى 0.2×).",
+    "momentumDecayRate": "↓ −0.2× كل 3 أيام بدون نشاط · إحالة جديدة = إعادة ضبط إلى 1.0×"
+  },
+  "referral": {
+    "title": "شبكة الإحالة",
+    "subtitle": "عرض وإدارة فريقك",
+    "copyReferralLink": "نسخ رابط الإحالة",
+    "totalTeamVolume": "إجمالي حجم الفريق",
+    "level1Volume": "حجم المستوى 1",
+    "totalTeam": "إجمالي الفريق",
+    "directReferrals": "الإحالات المباشرة",
+    "filters": "تصفيات",
+    "allLevels": "جميع المستويات",
+    "level": "المستوى {n}",
+    "hasUsdc": "لديه USDC",
+    "noUsdc": "بدون USDC",
+    "refreshBalances": "تحديث الأرصدة",
+    "table": {
+      "user": "المستخدم",
+      "level": "المستوى",
+      "country": "البلد",
+      "contact": "التواصل",
+      "wallet": "المحفظة",
+      "usdcBalance": "رصيد USDC",
+      "joined": "تاريخ الانضمام"
+    },
+    "noReferrals": "لا إحالات بعد",
+    "inviteFriends": "ادعُ أصدقاء لبدء بناء فريقك!",
+    "pagination": {
+      "showing": "عرض {from}-{to} من {total}",
+      "previous": "السابق",
+      "next": "التالي"
+    }
+  },
+  "profile": {
+    "title": "إعدادات الملف الشخصي",
+    "subtitle": "إدارة معلومات حسابك",
+    "personalInfo": "المعلومات الشخصية",
+    "username": "اسم المستخدم",
+    "country": "البلد",
+    "selectCountry": "اختر البلد",
+    "contact": "معلومات التواصل",
+    "telegramUsername": "اسم مستخدم Telegram",
+    "phoneNumber": "رقم الهاتف",
+    "phoneCountryCode": "رمز البلد",
+    "saveChanges": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ..."
+  },
+  "wallet": {
+    "connect": "توصيل المحفظة",
+    "connected": "متصل",
+    "disconnect": "قطع الاتصال",
+    "boundWallet": "المحفظة المرتبطة",
+    "notBound": "غير مرتبطة",
+    "boundToYou": "مرتبطة بحسابك",
+    "boundToOther": "هذه المحفظة مرتبطة بحساب آخر",
+    "available": "متاحة للربط",
+    "sign": "وقّع للتفويض",
+    "signDesc": "وقّع مرة واحدة لتفعيل التوزيعات المبنية على الرصيد والأهلية للإسقاطات الجوية",
+    "authorized": "مفوَّض",
+    "signing": "جارٍ التوقيع...",
+    "unsupportedWallet": {
+      "title": "يرجى استخدام Bitget أو Trust Wallet",
+      "description": "محفظتك غير مدعومة. يرجى التبديل إلى محفظة مدعومة للمتابعة.",
+      "disconnect": "قطع اتصال المحفظة",
+      "goToDashboard": "انتقل للوحة التحكم",
+      "signWarning": "يرجى استخدام Bitget أو Trust Wallet للتوقيع",
+      "buttonDisabled": "المحفظة غير مدعومة"
+    }
+  },
+  "footer": {
+    "privacy": "سياسة الخصوصية",
+    "terms": "شروط الخدمة",
+    "rights": "© 2026 Polnation. جميع الحقوق محفوظة."
+  },
+  "errors": {
+    "networkError": "خطأ في الشبكة",
+    "invalidAmount": "يرجى إدخال مبلغ صحيح",
+    "minAmount": "الحد الأدنى للمبلغ هو ${amount}",
+    "insufficientBalance": "رصيد غير كافٍ",
+    "withdrawFailed": "فشل السحب",
+    "claimFailed": "فشلت المطالبة",
+    "taskFailed": "فشل إكمال المهمة"
+  },
+  "academy": {
+    "title": "كيف تبدأ الكسب",
+    "subtitle": "دليل شامل للمبتدئين — من الصفر إلى الدخل السلبي في 4 خطوات بسيطة",
+    "backToHome": "العودة للرئيسية",
+    "videoTutorial": "فيديو تعليمي",
+    "videoComingSoon": "الفيديو التعليمي قادم قريباً",
+    "videoComingSoonDesc": "نحن نُعدّ دليلاً مرئياً شاملاً لك",
+    "step": "خطوة",
+    "bonus": "مكافأة",
+    "readyToStart": "هل أنت مستعد لبدء الكسب؟",
+    "readyToStartDesc": "انضم إلى آلاف المستخدمين الذين يكسبون بالفعل دخلاً سلبياً مع Polnation",
+    "getStartedNow": "ابدأ الآن",
+    "watchVideo": "شاهد الفيديو التعليمي",
+    "viewFullGuide": "عرض الدليل الكامل",
+    "tableOfContents": "جدول المحتويات",
+    "introduction": "مقدمة",
+    "introText": "مرحباً بك في أكاديمية Polnation! سيرشدك هذا الدليل الشامل خلال كل ما تحتاج معرفته لبدء كسب الدخل السلبي بعملة USDC المستقرة. سواء كنت جديداً في عالم التشفير أو مستخدماً متمرساً، سنرشدك خطوة بخطوة.",
+    "steps": {
+      "wallet": {
+        "title": "تنزيل محفظة",
+        "description": "احصل على Trust Wallet أو Bitget Wallet لحفظ عملاتك المشفرة بأمان",
+        "details": [
+          "التنزيل من متجر التطبيقات الرسمي",
+          "إنشاء محفظة جديدة أو استيراد موجودة",
+          "النسخ الاحتياطي الآمن لعبارة الاسترداد",
+          "لا تشارك مفاتيحك الخاصة أبداً"
+        ],
+        "intro": "أولاً، تحتاج إلى محفظة مشفرة آمنة. نوصي بـ Trust Wallet أو Bitget Wallet لأنهما متوافقتان تماماً مع Polnation.",
+        "recommended": "موصى به",
+        "alternative": "بديل",
+        "download": "تنزيل",
+        "setupTitle": "كيفية إعداد محفظتك",
+        "setupSteps": [
+          "نزّل التطبيق من App Store أو Google Play الرسمي",
+          "افتح التطبيق واضغط 'إنشاء محفظة جديدة'",
+          "اكتب عبارة الاسترداد المكونة من 12 كلمة على ورق (لا تأخذ لقطة شاشة!)",
+          "أكّد عبارة الاسترداد بالترتيب الصحيح",
+          "اضبط رمز PIN قوياً أو فعّل القفل البيومتري"
+        ],
+        "warning": "⚠️ مهم: لا تشارك عبارة الاسترداد مع أي أحد. لن يطلب Polnation أبداً مفاتيحك الخاصة أو عبارة الاسترداد."
+      },
+      "deposit": {
+        "title": "الحصول على USDC على Polygon",
+        "description": "حوّل أو بادل USDC إلى محفظتك على شبكة Polygon",
+        "details": [
+          "شراء USDC من أي بورصة",
+          "تحويله إلى عنوان محفظتك",
+          "تأكد من استخدام شبكة Polygon",
+          "حد أدنى $10 USDC لبدء الكسب"
+        ],
+        "intro": "تحتاج إلى USDC (عملة مستقرة مربوطة بالدولار) على شبكة Polygon لبدء الكسب. إليك أسهل الطرق:",
+        "methodExchange": "من بورصة عملات مشفرة",
+        "exchangeSteps": [
+          "اشترِ USDC على Binance أو Coinbase أو أي بورصة رئيسية",
+          "انتقل إلى السحب واختر USDC",
+          "اختر شبكة Polygon (وليس Ethereum!)",
+          "الصق عنوان محفظتك وأكّد"
+        ],
+        "methodSwap": "تبادل داخل محفظتك",
+        "swapSteps": [
+          "إذا كانت لديك عملات مشفرة أخرى (ETH, MATIC, إلخ)",
+          "استخدم ميزة التبادل المدمجة في محفظتك",
+          "بادل إلى USDC على شبكة Polygon",
+          "تكتمل المعاملة في ثوانٍ"
+        ],
+        "networkNote": "استخدم دائماً شبكة Polygon!",
+        "networkNoteDesc": "إرسال USDC على شبكة خاطئة (مثل Ethereum) سيؤدي إلى فقدان الأموال. تحقق مرة أخرى قبل التأكيد.",
+        "contractTitle": "عقد USDC على Polygon",
+        "contractLabel": "العقد",
+        "networkLabel": "الشبكة",
+        "decimalsLabel": "الكسور العشرية",
+        "viewOnExplorer": "عرض على PolygonScan",
+        "contractNote": "⚠️ هذا USDC أصلي (وليس USDC.e المجسّر). تأكد من استخدام هذا العقد عند إضافة الرمز المميز لمحفظتك."
+      },
+      "sign": {
+        "title": "التوقيع للانضمام للفهرس",
+        "description": "توقيع لمرة واحدة لتفعيل إمكانية الكسب",
+        "details": [
+          "توصيل المحفظة بـ Polnation",
+          "انقر على زر 'ابدأ الكسب'",
+          "وقّع الرسالة في محفظتك",
+          "لا رسوم غاز للتوقيع"
+        ],
+        "intro": "بمجرد جهوز USDC لديك، تفضل بزيارة Polnation ووقّع للانضمام إلى فهرسنا. هذا توقيع لمرة واحدة بدون رسوم غاز يُفعّل حسابك.",
+        "signSteps": [
+          "افتح polnation.com في متصفح DApp بمحفظتك",
+          "انقر على 'ابدأ الكسب' في لوحة التحكم",
+          "وافق على طلب التوقيع في محفظتك"
+        ],
+        "whatIsTitle": "ما هو توقيع الفهرس؟",
+        "whatIsPoints": [
+          "إنه توقيع بدون رسوم غاز (بدون رسوم معاملات)",
+          "يسمح لنظامنا بتتبع رصيد USDC الخاص بك",
+          "يُتيح احتساب المكافآت اليومي التلقائي",
+          "تبقى أموالك في محفظتك — لا نملك أي صلاحية وصول"
+        ]
+      },
+      "earn": {
+        "title": "ابدأ الكسب اليومي",
+        "description": "استرخِ وشاهد USDC ينمو كل يوم",
+        "details": [
+          "تُحسب الأرباح تلقائياً",
+          "اسحب في أي وقت، بدون تأمين",
+          "رصيد أعلى = معدل يومي أعلى",
+          "ضاعف أرباحك لمزيد من النمو"
+        ],
+        "intro": "تهانينا! بعد التوقيع، أصبحت محفظتك جزءاً من نظام الكسب لدينا. تُحسب مكافآتك يومياً بناءً على رصيد USDC لديك.",
+        "features": [
+          { "title": "مكافآت يومية", "desc": "اكسب 0.9% - 1.8% يومياً على رصيد USDC لديك" },
+          { "title": "بدون تأمين", "desc": "اسحب USDC في أي وقت، بدون عقوبات" },
+          { "title": "احتساب تلقائي", "desc": "يحتسب النظام مكافآتك تلقائياً" },
+          { "title": "نمو مركّب", "desc": "أعد استثمار المكافآت لتسريع الأرباح" }
+        ],
+        "tiersTitle": "مستويات معدل الكسب"
+      },
+      "team": {
+        "title": "بناء فريقك",
+        "description": "ادعُ أصدقاء واكسب عمولة من مكافآتهم",
+        "intro": "عظّم أرباحك ببناء فريق! شارك رابط إحالتك واكسب عمولة من مكافآت فريقك.",
+        "benefits": [
+          "اكسب حتى 10% عمولة من إحالاتك المباشرة",
+          "ابنِ هيكل فريق حتى 3 مستويات",
+          "افتح جوائز مجتمعية مع نمو فريقك",
+          "مكافآت خاصة لأفضل المؤدين"
+        ]
+      },
+      "tasks": {
+        "title": "المهام والمكافآت",
+        "intro": "أكمل المهام لكسب مكافآت إضافية وتسريع تقدمك نحو فتح مستويات أعلى.",
+        "typesTitle": "المهام المتاحة",
+        "taskCol": "المهمة",
+        "rewardCol": "المكافأة",
+        "frequencyCol": "التكرار",
+        "daily": "يومي",
+        "oneTime": "مرة واحدة",
+        "repeatable": "متكرر",
+        "automatic": "تلقائي",
+        "perPerson": "شخص",
+        "whereGoTitle": "أين تذهب المكافآت؟",
+        "flowStep1": "أكمل المهمة",
+        "flowStep2": "أضيف لتقدم الفتح",
+        "flowStep3": "بلوغ حد المستوى",
+        "flowStep4": "طالب بمجمع الجوائز",
+        "flowNote": "تساهم مكافآت المهام في تقدم الفتح، مما يساعدك على الوصول للمستوى التالي بشكل أسرع!",
+        "note": "مكافآت المهام غير قابلة للسحب مباشرة. تُضاف إلى تقدم الفتح الذي يساعدك على المطالبة بمجمعات جوائز أكبر!"
+      },
+      "levels": {
+        "title": "مستويات الفريق ومجمعات الجوائز",
+        "intro": "نمّ فريقك وافتح مجمعات جوائز أعلى مع أرباح سلبية يومية!",
+        "tableTitle": "نظرة عامة على المستويات",
+        "levelCol": "المستوى",
+        "prizeCol": "مجمع الجوائز",
+        "rateCol": "المعدل اليومي",
+        "dailyCol": "الأرباح اليومية",
+        "unlockCol": "الفتح عند",
+        "howUnlockTitle": "كيفية فتح المستويات",
+        "formula": "معادلة تقدم الفتح",
+        "teamVolume": "USDC الفريق",
+        "taskBonus": "مكافأة المهام",
+        "unlockProgress": "تقدم الفتح",
+        "step1": "USDC الفريق = إجمالي USDC في محافظ أعضاء فريقك L1, L2, L3",
+        "step2": "مكافأة المهام = جميع المكافآت المكتسبة من إكمال المهام",
+        "step3": "عندما يبلغ تقدم الفتح ≥ حد المستوى → انقر على \"طالب\" للحصول على مجمع الجوائز",
+        "claimRulesTitle": "قواعد المطالبة",
+        "rule1": "يمكن المطالبة بكل مجمع جوائز مرة واحدة فقط",
+        "rule2": "بعد المطالبة، تترقى تلقائياً للمستوى التالي",
+        "rule3": "الأرباح اليومية = مجمع الجوائز × المعدل اليومي (محسوبة كل 24 ساعة)",
+        "rule4": "تُضاف الأرباح اليومية إلى رصيدك القابل للسحب",
+        "influencerTitle": "مزايا المؤثر",
+        "influencerDesc": "يتمتع المؤثرون بحدود فتح أقل بنسبة 50%!",
+        "applyInfluencer": "تقدم لوضع المؤثر",
+        "contactTelegram": "تواصل معنا على Telegram:"
+      },
+      "momentum": {
+        "title": "مضاعف الزخم",
+        "intro": "أرباحك اليومية في مجتمعك مضروبة في الزخم — تبدأ من 1.0× وتتراجع تدريجياً إذا توقفت عن التجنيد.",
+        "whatIsTitle": "ما هو الزخم؟",
+        "whatIsDesc": "الزخم هو مضاعف يُطبَّق على أرباح مجمع المجتمع اليومية. يبدأ من 1.0× ويتراجع −0.2× كل 3 أيام بدون إحالات جديدة، حتى حد أدنى 0.2×. إحالة جديدة تعيده فوراً إلى 1.0×.",
+        "formulaTitle": "معادلة الأرباح",
+        "formula": "الأرباح اليومية = مجمع الجوائز × المعدل اليومي × الزخم",
+        "baseEarning": "الأرباح الأساسية",
+        "multiplier": "المضاعف",
+        "finalEarning": "الأرباح النهائية",
+        "tiersTitle": "مستويات المضاعف",
+        "recentRefs": "الإحالات المُخزَّنة",
+        "multiplierCol": "المضاعف",
+        "decayTitle": "قواعد التراجع",
+        "decayDesc": "إذا توقفت عن التجنيد، سيتراجع مضاعفك تدريجياً:",
+        "decayRule1": "الحفاظ على المضاعف الحالي",
+        "decayRule2": "انخفاض −0.2× (مثل 1.0× → 0.8×)",
+        "decayRule3": "بلوغ الحد الأدنى 0.2× (كل 3 أيام −0.2×)",
+        "recoveryTitle": "إعادة ضبط فورية",
+        "recoveryDesc": "قم بإحالة جديدة مُخزَّنة في أي وقت لإعادة ضبط مضاعفك فوراً إلى 1.0×. لا عقوبة — يمكنك دائماً استعادة زخمك!",
+        "exampleTitle": "مثال",
+        "exampleDesc": "مروّج ذهبي (أساس $5.50/يوم):",
+        "tipTitle": "نصيحة احترافية",
+        "tipDesc": "قم بإحالة جديدة مُخزَّنة على الأقل كل 12 يوماً للحفاظ على زخمك فوق 0.2×. النشاط المستمر يحافظ على مضاعف أعلى وأرباح أفضل!"
+      }
+    }
+  },
+  "lottery": {
+    "title": "اللفة اليومية",
+    "subtitle": "أكمل تسجيل حضورك اليومي لفتح لفة مجانية!",
+    "spin": "الف",
+    "spinning": "جارٍ اللف...",
+    "congratulations": "مبروك!",
+    "youWon": "لقد فزت",
+    "tryAgain": "حظ أوفر غداً!",
+    "noSpins": "لا لفات متبقية",
+    "noSpinsDesc": "لقد استخدمت لفتك اليومية. عد غداً!",
+    "loginRequired": "يرجى تسجيل الدخول للف العجلة.",
+    "history": "الفوز الأخير",
+    "noHistory": "لا سجل لفات بعد",
+    "prizes": {
+      "usdc_05": "‏$0.50 USDC",
+      "usdc_1": "‏$1 USDC",
+      "usdc_5": "‏$5 USDC",
+      "bonus_1": "‏+$1 مكافأة",
+      "bonus_2": "‏+$2 مكافأة",
+      "thanks": "حاول مجدداً",
+      "bonus_3": "‏+$3 مكافأة",
+      "usdc_10": "‏$10 USDC"
+    },
+    "todaySpins": "لفات اليوم",
+    "available": "متاح",
+    "used": "مستخدم",
+    "close": "إغلاق",
+    "spinNow": "الف الآن!"
+  }
+}

@@ -13,6 +13,7 @@ import {
   TRANSLATIONS,
   detectLocale,
   saveLocale,
+  RTL_LOCALES,
 } from './i18n'
 
 // ── Telegram WebApp typings (minimal — only what we use) ─────────────────────
@@ -844,7 +845,6 @@ export default function LotteryMiniPage() {
   if (authStatus === 'init' || authStatus === 'authenticating') {
     // New-user slow path: show the staged onboarding animation.
     if (prepStep > 0) {
-      const stepIcon = prepStep === 1 ? '🔐' : prepStep === 2 ? '✨' : '🎰'
       const stepTitle =
         prepStep === 1 ? t.prepStep1Title :
         prepStep === 2 ? t.prepStep2Title :
@@ -875,25 +875,17 @@ export default function LotteryMiniPage() {
             </span>
           </div>
 
-          {/* Animated icon — pulsing ring + emoji */}
-          <div className="relative mb-7">
-            <div
-              className="w-20 h-20 rounded-full flex items-center justify-center text-[32px] shadow-cta-purple"
-              style={{
-                background:
-                  'linear-gradient(135deg, var(--poly-purple), var(--poly-emerald))',
-                animation: 'pulse 2s ease-in-out infinite',
-              }}
-            >
-              <span aria-hidden>{stepIcon}</span>
-            </div>
-            <div
-              className="absolute inset-0 rounded-full border-2 pointer-events-none"
-              style={{
-                borderColor: 'var(--poly-purple)',
-                opacity: 0.4,
-                animation: 'ping 1.6s cubic-bezier(0,0,0.2,1) infinite',
-              }}
+          {/* Loading animation — looping video */}
+          <div className="relative mb-7 w-32 h-32">
+            <video
+              src="/videos/loading_small.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="w-full h-full rounded-full object-cover"
+              aria-hidden
             />
           </div>
 
@@ -984,7 +976,7 @@ export default function LotteryMiniPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" dir={RTL_LOCALES.has(locale) ? 'rtl' : 'ltr'}>
       {/* ── Sticky brand header ──────────────────────────────────────────── */}
       <header className="sticky top-0 z-30 backdrop-blur-md bg-[#07060d]/85 border-b border-white/[0.06]">
         <div className="flex items-center justify-between max-w-md mx-auto px-3 h-12">

@@ -4,6 +4,8 @@ import { cookies } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
+
+const RTL_LOCALES = new Set(['ar', 'ur'])
 import "./globals.css";
 
 // Space Grotesk - 主要字体，用于标题和正文
@@ -126,7 +128,7 @@ export default async function RootLayout({
   const messages = await getMessages()
 
   return (
-    <html lang={locale}>
+    <html lang={locale} dir={RTL_LOCALES.has(locale) ? 'rtl' : 'ltr'}>
       <body
         className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}
       >
