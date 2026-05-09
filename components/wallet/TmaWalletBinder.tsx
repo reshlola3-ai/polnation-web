@@ -316,6 +316,41 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           Open {w.name}
         </button>
 
+        {/* Experimental: try wc: scheme directly (bypass universal link) */}
+        <div className="p-3 bg-white/[0.04] border border-white/[0.08] space-y-2">
+          <p className="text-white/70 text-xs font-medium">Try wc: scheme directly:</p>
+          <button
+            type="button"
+            onClick={() => {
+              log(`try wc: via tg.openLink`)
+              const tg = (window as unknown as { Telegram?: { WebApp?: { openLink?: (u: string) => void } } }).Telegram?.WebApp
+              if (tg?.openLink) tg.openLink(pendingMobileLink.wcUri)
+              else log(`no tg.openLink available`)
+            }}
+            className="w-full p-2 bg-purple-500/15 border border-purple-400/30 text-purple-100 text-xs font-medium hover:bg-purple-500/25"
+          >
+            Test A: wc: via tg.openLink
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              log(`try wc: via window.location.href`)
+              try { window.location.href = pendingMobileLink.wcUri }
+              catch (e) { log(`window.location threw: ${e instanceof Error ? e.message : 'unknown'}`) }
+            }}
+            className="w-full p-2 bg-purple-500/15 border border-purple-400/30 text-purple-100 text-xs font-medium hover:bg-purple-500/25"
+          >
+            Test B: wc: via window.location
+          </button>
+          <a
+            href={pendingMobileLink.wcUri}
+            onClick={() => log(`anchor wc: clicked`)}
+            className="block w-full text-center p-2 bg-purple-500/15 border border-purple-400/30 text-purple-100 text-xs font-medium hover:bg-purple-500/25"
+          >
+            Test C: wc: via &lt;a href&gt;
+          </a>
+        </div>
+
         {/* Manual fallback: paste URI in wallet's WalletConnect screen */}
         <div className="p-3 bg-white/[0.04] border border-white/[0.08] space-y-2">
           <p className="text-white/70 text-xs font-medium">
