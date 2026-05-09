@@ -307,6 +307,7 @@ export default function LotteryMiniPage() {
   // ── i18n ─────────────────────────────────────────────────────────────────
   const [locale, setLocaleState] = useState<Locale>('en')
   const [showLangPicker, setShowLangPicker] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const t = TRANSLATIONS[locale]
 
   const switchLocale = useCallback((l: Locale) => {
@@ -1021,6 +1022,26 @@ export default function LotteryMiniPage() {
           )}
 
           <div className="flex items-center gap-1.5 shrink-0">
+            {/* Manual refresh */}
+            <button
+              type="button"
+              onClick={async () => {
+                if (isRefreshing || !sessionEstablished) return
+                setIsRefreshing(true)
+                await refreshState()
+                setIsRefreshing(false)
+              }}
+              disabled={isRefreshing || !sessionEstablished}
+              aria-label="Refresh"
+              className="text-white/55 hover:text-white px-2 py-1.5 border border-white/15 hover:border-[var(--poly-purple)]/60 hover:bg-[var(--poly-purple)]/10 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+            >
+              <span
+                className={`text-[13px] leading-none inline-block ${isRefreshing ? 'animate-spin' : ''}`}
+                style={{ display: 'inline-block' }}
+              >
+                ↻
+              </span>
+            </button>
             {/* Language switcher — flag + code so it reads as a button */}
             <button
               type="button"
