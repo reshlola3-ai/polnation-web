@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { useAccount, useConnect, useDisconnect, useConnectors } from 'wagmi'
+import { useState, useEffect, useRef } from 'react'
+import { useAccount, useConnect, useDisconnect, useConnectors, useReconnect } from 'wagmi'
 import type { Connector } from 'wagmi'
 import Image from 'next/image'
 import { Loader2, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react'
@@ -20,14 +20,7 @@ interface WalletDef {
 interface PendingMobileLink {
   wallet: WalletDef
   href: string
-  fallbackHref?: string
   manualOpen: boolean
-}
-
-interface DebugEntry {
-  time: string
-  message: string
-  data?: string
 }
 
 const WALLETS: WalletDef[] = [
@@ -77,75 +70,23 @@ function isInDAppBrowser(): boolean {
   return !!(window as unknown as { ethereum?: unknown }).ethereum
 }
 
-// In TMA, window.open / <a target=_blank> often loads the URL in TG's webview
-// without triggering OS universal-link routing — wallet apps either don't open
-// or open without the wc URI. Telegram.WebApp.openLink hands the URL to TG,
+// In TMA, window.open / <a target=_blank> loads the URL in TG's webview without
+// triggering OS universal-link routing. Telegram.WebApp.openLink hands it to TG
 // which opens it via the system browser so universal links resolve correctly.
 function openExternal(href: string) {
   if (typeof window === 'undefined') return
   const tg = (window as unknown as { Telegram?: { WebApp?: { openLink?: (url: string) => void } } }).Telegram?.WebApp
-  if (tg?.openLink) {
-    tg.openLink(href)
-    return
-  }
+  if (tg?.openLink) { tg.openLink(href); return }
   try { window.open(href, '_blank', 'noopener,noreferrer') } catch { /* popup blocked */ }
 }
 
 function buildMobileLink(wallet: WalletDef, wcUri: string): PendingMobileLink {
-  const universalHref = wallet.wcUniversalLink(wcUri)
-  if (isAndroid() && wallet.androidManualOpen) {
-    const bridgeHref =
-      wallet.id === 'trust' && typeof window !== 'undefined'
-        ? `${window.location.origin}/wallet-open?wallet=trust&uri=${encodeURIComponent(wcUri)}`
-        : universalHref
-
-    return {
-      wallet,
-      href: bridgeHref,
-      fallbackHref: bridgeHref === universalHref ? undefined : universalHref,
-      manualOpen: true,
-    }
-  }
-
   return {
     wallet,
-    href: universalHref,
-    manualOpen: false,
-  }
-}
-
-function maskAddress(addr: string | null | undefined) {
-  if (!addr) return null
-  return `${addr.slice(0, 6)}...${addr.slice(-4)}`
-}
-
-function connectorDebugInfo(connector: Connector) {
-  return {
-    id: connector.id,
-    name: connector.name,
-    type: connector.type,
-    rdns: (connector as unknown as { rdns?: string }).rdns ?? null,
-  }
-}
-
-function redactDebugText(value: string) {
-  let text = value
-  try {
-    text = decodeURIComponent(text)
-  } catch {
-    // Keep the original if the browser gives us a partially encoded string.
-  }
-  return text
-    .replace(/symKey=([^&\s"']+)/gi, 'symKey=<redacted>')
-    .replace(/(wc:[^@]{8})[^@]*(@\d)/gi, '$1...$2')
-}
-
-function stringifyDebugData(data: unknown) {
-  if (typeof data === 'string') return redactDebugText(data)
-  try {
-    return redactDebugText(JSON.stringify(data, null, 2))
-  } catch {
-    return '[unserializable]'
+    href: wallet.wcUniversalLink(wcUri),
+    // On Android, don't auto-open — require a manual tap so the user lands in
+    // the wallet deliberately and the approval dialog has a chance to appear.
+    manualOpen: !!(isAndroid() && wallet.androidManualOpen),
   }
 }
 
@@ -159,65 +100,36 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   const { connect } = useConnect()
   const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
+  const { reconnect } = useReconnect()
 
   const [status, setStatus] = useState<'idle' | 'connecting' | 'saving' | 'success' | 'error'>('idle')
   const [error, setError] = useState('')
   const [activeWalletId, setActiveWalletId] = useState<string | null>(null)
   const [pendingMobileLink, setPendingMobileLink] = useState<PendingMobileLink | null>(null)
-  const [debugEntries, setDebugEntries] = useState<DebugEntry[]>([])
   const handledRef = useRef<string | null>(null)
   const wcCleanupRef = useRef<(() => void) | null>(null)
-  const connectorsDebugSignatureRef = useRef('')
+  const statusRef = useRef(status)
 
-  const addDebug = useCallback((message: string, data?: unknown) => {
-    const entry: DebugEntry = {
-      time: new Date().toLocaleTimeString('en-GB', { hour12: false }),
-      message,
-      data: data === undefined ? undefined : stringifyDebugData(data),
-    }
-    setDebugEntries((prev) => [...prev.slice(-29), entry])
-  }, [])
+  useEffect(() => { statusRef.current = status }, [status])
 
-  useEffect(() => {
-    addDebug('binder mounted', {
-      mobile: isMobileBrowser(),
-      android: isAndroid(),
-      dappBrowser: isInDAppBrowser(),
-      userAgent: typeof navigator === 'undefined' ? null : navigator.userAgent,
-    })
-  }, [addDebug])
-
-  useEffect(() => {
-    const connectorInfo = connectors.map(connectorDebugInfo)
-    const signature = stringifyDebugData(connectorInfo)
-    if (connectorsDebugSignatureRef.current === signature) return
-    connectorsDebugSignatureRef.current = signature
-    addDebug('connectors updated', connectorInfo)
-  }, [addDebug, connectors])
-
+  // When TMA returns to foreground after the user visited a wallet app, Android
+  // may have throttled Telegram's WS while backgrounded, dropping the WC relay
+  // connection. Calling reconnect() nudges wagmi / WC to re-subscribe to the
+  // relay so any queued session approval from the wallet is delivered.
   useEffect(() => {
     const onVisibilityChange = () => {
-      addDebug('visibility changed', { visibilityState: document.visibilityState })
+      if (document.visibilityState !== 'visible') return
+      if (statusRef.current !== 'connecting') return
+      reconnect()
     }
-    const onFocus = () => addDebug('window focused')
-    const onPageShow = () => addDebug('pageshow')
-
     document.addEventListener('visibilitychange', onVisibilityChange)
-    window.addEventListener('focus', onFocus)
-    window.addEventListener('pageshow', onPageShow)
-
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibilityChange)
-      window.removeEventListener('focus', onFocus)
-      window.removeEventListener('pageshow', onPageShow)
-    }
-  }, [addDebug])
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+  }, [reconnect])
 
   useEffect(() => {
     if (!isConnected || !address) return
     if (handledRef.current === address) return
     handledRef.current = address
-    addDebug('wagmi account connected', { address: maskAddress(address) })
     saveWallet(address)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, address])
@@ -225,7 +137,6 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   const saveWallet = async (addr: string) => {
     setStatus('saving')
     setError('')
-    addDebug('saving wallet', { address: maskAddress(addr) })
     try {
       const res = await fetch('/api/profile/bind-wallet', {
         method: 'POST',
@@ -233,11 +144,6 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
         body: JSON.stringify({ address: addr }),
       })
       const data = await res.json()
-      addDebug('bind-wallet response', {
-        ok: res.ok,
-        status: res.status,
-        error: data?.error ?? null,
-      })
       if (!res.ok) {
         if (res.status === 409 || data.error === 'wallet_taken') {
           throw new Error('wallet_taken')
@@ -245,15 +151,11 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
         throw new Error(data.error || 'save_failed')
       }
       setStatus('success')
-      addDebug('wallet saved', { address: maskAddress(addr) })
       setTimeout(() => onBound(addr), 800)
     } catch (err) {
       handledRef.current = null
       setStatus('error')
       setError(err instanceof Error ? err.message : 'save_failed')
-      addDebug('wallet save failed', {
-        error: err instanceof Error ? err.message : 'save_failed',
-      })
     }
   }
 
@@ -270,17 +172,10 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
     if (status === 'connecting' || status === 'saving') return
     setActiveWalletId(wallet.id)
     setError('')
-    addDebug('wallet clicked', {
-      wallet: wallet.id,
-      mobile: isMobileBrowser(),
-      android: isAndroid(),
-      dappBrowser: isInDAppBrowser(),
-    })
 
     const injected = findConnector(wallet)
     if (injected) {
       setStatus('connecting')
-      addDebug('using injected connector', connectorDebugInfo(injected))
       connect({ connector: injected })
       return
     }
@@ -288,7 +183,6 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
     if (isMobileBrowser() && !isInDAppBrowser()) {
       const wcConnector = connectors.find((c) => c.id === 'walletConnect' || c.type === 'walletConnect')
       if (wcConnector) {
-        addDebug('using WalletConnect connector', connectorDebugInfo(wcConnector))
         // Clear any leftover listener + stale pending link from a previous attempt
         // so we never route a new display_uri through the old wallet's universal link.
         wcCleanupRef.current?.()
@@ -301,22 +195,12 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           off?: (e: string, fn: (...args: unknown[]) => void) => void
           removeListener?: (e: string, fn: (...args: unknown[]) => void) => void
         }
-        addDebug('WalletConnect provider ready')
         const onUri = (...args: unknown[]) => {
           const uri = args[0] as string
           if (typeof uri === 'string' && uri.startsWith('wc:')) {
             const link = buildMobileLink(wallet, uri)
             setPendingMobileLink(link)
-            addDebug('display_uri received', {
-              wallet: wallet.id,
-              linkMode: link.manualOpen ? 'android-manual-universal' : 'universal-auto',
-              href: link.href,
-              fallbackHref: link.fallbackHref ?? null,
-            })
-            if (!link.manualOpen) {
-              addDebug('auto opening wallet link', { href: link.href })
-              openExternal(link.href)
-            }
+            if (!link.manualOpen) openExternal(link.href)
           }
         }
         provider.on?.('display_uri', onUri)
@@ -326,26 +210,21 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
         }
         wcCleanupRef.current = cleanup
         connect({ connector: wcConnector })
-        addDebug('connect invoked', { connector: connectorDebugInfo(wcConnector) })
-        // 60s safety net in case nothing else clears it
+        // 60s safety net in case nothing else clears the listener
         setTimeout(() => {
           if (wcCleanupRef.current === cleanup) {
             cleanup()
             wcCleanupRef.current = null
-            addDebug('WalletConnect display_uri listener cleaned up')
           }
         }, 60_000)
         return
       }
-      addDebug('WalletConnect connector missing')
     }
 
-    addDebug('opening install url', { href: wallet.installUrl })
     openExternal(wallet.installUrl)
   }
 
   const handleReset = () => {
-    addDebug('reset tapped')
     wcCleanupRef.current?.()
     wcCleanupRef.current = null
     disconnect()
@@ -356,81 +235,21 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
     handledRef.current = null
   }
 
-  const renderDebugPanel = () => {
-    const snapshot = {
-      state: {
-        status,
-        activeWalletId,
-        pendingWallet: pendingMobileLink?.wallet.id ?? null,
-        pendingManualOpen: pendingMobileLink?.manualOpen ?? null,
-        pendingHref: pendingMobileLink?.href ? redactDebugText(pendingMobileLink.href) : null,
-        fallbackHref: pendingMobileLink?.fallbackHref ? redactDebugText(pendingMobileLink.fallbackHref) : null,
-      },
-      platform: {
-        mobile: isMobileBrowser(),
-        android: isAndroid(),
-        dappBrowser: isInDAppBrowser(),
-        userAgent: typeof navigator === 'undefined' ? null : navigator.userAgent,
-      },
-      wagmi: {
-        isConnected,
-        address: maskAddress(address),
-        connectors: connectors.map(connectorDebugInfo),
-      },
-    }
-
-    return (
-      <details
-        open={status !== 'idle' || !!pendingMobileLink || !!error}
-        className="mt-3 border border-amber-400/25 bg-amber-400/[0.06] p-3 text-left"
-      >
-        <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-wider text-amber-200">
-          Wallet debug
-        </summary>
-        <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap break-all text-[10px] leading-relaxed text-amber-100/80">
-          {stringifyDebugData(snapshot)}
-        </pre>
-        <div className="mt-2 max-h-44 overflow-auto space-y-1 border-t border-amber-400/15 pt-2">
-          {debugEntries.length === 0 ? (
-            <p className="text-[10px] text-amber-100/50">No events yet.</p>
-          ) : (
-            debugEntries.map((entry, index) => (
-              <div key={`${entry.time}-${index}`} className="text-[10px] leading-relaxed text-amber-100/75">
-                <span className="text-amber-200/90">{entry.time}</span>
-                <span className="mx-1 text-amber-100/35">|</span>
-                <span>{entry.message}</span>
-                {entry.data && (
-                  <pre className="mt-0.5 whitespace-pre-wrap break-all text-amber-100/55">{entry.data}</pre>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-      </details>
-    )
-  }
-
   if (status === 'success') {
     return (
-      <>
-        <div className="p-4 bg-white/[0.04] border border-[var(--poly-emerald)]/30 flex items-center gap-3">
-          <CheckCircle className="w-5 h-5" style={{ color: 'var(--poly-emerald)' }} />
-          <p className="text-white text-sm font-medium">Wallet connected</p>
-        </div>
-        {renderDebugPanel()}
-      </>
+      <div className="p-4 bg-white/[0.04] border border-[var(--poly-emerald)]/30 flex items-center gap-3">
+        <CheckCircle className="w-5 h-5" style={{ color: 'var(--poly-emerald)' }} />
+        <p className="text-white text-sm font-medium">Wallet connected</p>
+      </div>
     )
   }
 
   if (status === 'saving' || (isConnected && status !== 'error')) {
     return (
-      <>
-        <div className="p-4 bg-white/[0.04] border border-[var(--poly-purple)]/30 flex items-center gap-3">
-          <Loader2 className="w-5 h-5 text-[var(--poly-purple)] animate-spin" />
-          <p className="text-white text-sm">Saving wallet…</p>
-        </div>
-        {renderDebugPanel()}
-      </>
+      <div className="p-4 bg-white/[0.04] border border-[var(--poly-purple)]/30 flex items-center gap-3">
+        <Loader2 className="w-5 h-5 text-[var(--poly-purple)] animate-spin" />
+        <p className="text-white text-sm">Saving wallet…</p>
+      </div>
     )
   }
 
@@ -445,41 +264,17 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
               {pendingMobileLink.manualOpen ? `Open ${w.name}` : `Approve in ${w.name}`}
             </p>
             <p className="text-white/45 text-xs">
-              {pendingMobileLink.manualOpen ? 'Tap the button below to continue' : 'Waiting for connection...'}
+              {pendingMobileLink.manualOpen ? 'Tap the button below to open' : 'Waiting for connection…'}
             </p>
           </div>
         </div>
         <button
           type="button"
-          onClick={() => {
-            addDebug('open wallet button tapped', {
-              href: pendingMobileLink.href,
-              openMethod: 'telegram.openLink',
-            })
-            openExternal(pendingMobileLink.href)
-          }}
+          onClick={() => openExternal(pendingMobileLink.href)}
           className="flex items-center justify-center gap-2 w-full p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold shadow-cta-purple"
         >
           Open {w.name}
         </button>
-        {pendingMobileLink.manualOpen && (
-          <div className="p-3 bg-amber-400/[0.08] border border-amber-400/20 text-amber-100/80 text-xs leading-relaxed">
-            If {w.name} only unlocked and no approval appeared, return to Telegram and tap
-            <span className="font-semibold text-amber-100"> Open {w.name}</span> again.
-          </div>
-        )}
-        {pendingMobileLink.fallbackHref && (
-          <button
-            type="button"
-            onClick={() => {
-              addDebug('fallback web link tapped', { href: pendingMobileLink.fallbackHref })
-              openExternal(pendingMobileLink.fallbackHref!)
-            }}
-            className="w-full text-center text-xs text-white/45 hover:text-white/75 underline"
-          >
-            Try web link
-          </button>
-        )}
         <p className="text-center text-xs text-white/40">
           Don&apos;t close this tab — connection completes here.
         </p>
@@ -487,7 +282,6 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           className="w-full text-center text-xs text-white/40 hover:text-white/70 underline">
           Cancel
         </button>
-        {renderDebugPanel()}
       </div>
     )
   }
@@ -559,7 +353,6 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           Cancel
         </button>
       )}
-      {renderDebugPanel()}
     </div>
   )
 }
