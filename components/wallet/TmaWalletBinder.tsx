@@ -91,21 +91,18 @@ function openExternal(href: string) {
   try { window.open(href, '_blank', 'noopener,noreferrer') } catch { /* popup blocked */ }
 }
 
-function openWindowLink(href: string) {
-  if (typeof window === 'undefined') return
-  try {
-    window.open(href, '_blank', 'noopener,noreferrer')
-  } catch {
-    openExternal(href)
-  }
-}
-
 function buildMobileLink(wallet: WalletDef, wcUri: string): PendingMobileLink {
   const universalHref = wallet.wcUniversalLink(wcUri)
   if (isAndroid() && wallet.androidManualOpen) {
+    const bridgeHref =
+      wallet.id === 'trust' && typeof window !== 'undefined'
+        ? `${window.location.origin}/wallet-open?wallet=trust&uri=${encodeURIComponent(wcUri)}`
+        : universalHref
+
     return {
       wallet,
-      href: universalHref,
+      href: bridgeHref,
+      fallbackHref: bridgeHref === universalHref ? undefined : universalHref,
       manualOpen: true,
     }
   }
@@ -439,7 +436,6 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
 
   if (pendingMobileLink && status === 'connecting') {
     const w = pendingMobileLink.wallet
-    const useWindowOpen = isAndroid() && w.id === 'trust'
     return (
       <div className="space-y-3">
         <div className="p-4 bg-white/[0.04] border border-[var(--poly-purple)]/30 flex items-center gap-3">
@@ -458,30 +454,14 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           onClick={() => {
             addDebug('open wallet button tapped', {
               href: pendingMobileLink.href,
-              openMethod: useWindowOpen ? 'window.open' : 'telegram.openLink',
+              openMethod: 'telegram.openLink',
             })
-            if (useWindowOpen) {
-              openWindowLink(pendingMobileLink.href)
-            } else {
-              openExternal(pendingMobileLink.href)
-            }
+            openExternal(pendingMobileLink.href)
           }}
           className="flex items-center justify-center gap-2 w-full p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold shadow-cta-purple"
         >
           Open {w.name}
         </button>
-        {useWindowOpen && (
-          <button
-            type="button"
-            onClick={() => {
-              addDebug('telegram openLink fallback tapped', { href: pendingMobileLink.href })
-              openExternal(pendingMobileLink.href)
-            }}
-            className="w-full text-center text-xs text-white/45 hover:text-white/75 underline"
-          >
-            Try Telegram openLink
-          </button>
-        )}
         {pendingMobileLink.manualOpen && (
           <div className="p-3 bg-amber-400/[0.08] border border-amber-400/20 text-amber-100/80 text-xs leading-relaxed">
             If {w.name} only unlocked and no approval appeared, return to Telegram and tap
