@@ -22,6 +22,28 @@ interface WalletDef {
   installUrl: string
 }
 
+function isMobileBrowser(): boolean {
+  if (typeof window === 'undefined') return false
+  return /iphone|ipad|ipod|android/i.test(navigator.userAgent)
+}
+
+function isAndroid(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /android/i.test(navigator.userAgent)
+}
+
+function isInDAppBrowser(): boolean {
+  if (typeof window === 'undefined') return false
+  // Has injected ethereum provider = inside a wallet's DApp browser
+  return !!(window as unknown as { ethereum?: unknown }).ethereum
+}
+
+// On Android the OS-level universal-link routing (App Links + Digital Asset
+// Links) is unreliable for many wallet vendors — the link just opens the
+// wallet's website page in the browser instead of waking the app. Custom
+// schemes (trust://, bitkeep://, safepal://) hit the OS intent resolver
+// directly and reliably wake an installed wallet. iOS keeps universal links
+// (more robust there + can route to App Store when the app is not installed).
 const WALLETS: WalletDef[] = [
   {
     id: 'trust',
@@ -29,7 +51,9 @@ const WALLETS: WalletDef[] = [
     logo: '/wallet-logos/trust.webp',
     rdns: ['com.trustwallet.app'],
     nameMatch: ['trust'],
-    wcUniversalLink: (uri) => `https://link.trustwallet.com/wc?uri=${encodeURIComponent(uri)}`,
+    wcUniversalLink: (uri) => isAndroid()
+      ? `trust://wc?uri=${encodeURIComponent(uri)}`
+      : `https://link.trustwallet.com/wc?uri=${encodeURIComponent(uri)}`,
     installUrl: 'https://trustwallet.com/download',
   },
   {
@@ -38,7 +62,9 @@ const WALLETS: WalletDef[] = [
     logo: '/wallet-logos/bitget.webp',
     rdns: ['com.bitget.web3', 'com.bitkeep'],
     nameMatch: ['bitget', 'bitkeep'],
-    wcUniversalLink: (uri) => `https://bkcode.vip/wc?uri=${encodeURIComponent(uri)}`,
+    wcUniversalLink: (uri) => isAndroid()
+      ? `bitkeep://wc?uri=${encodeURIComponent(uri)}`
+      : `https://bkcode.vip/wc?uri=${encodeURIComponent(uri)}`,
     installUrl: 'https://web3.bitget.com/en/wallet-download',
   },
   {
@@ -47,21 +73,12 @@ const WALLETS: WalletDef[] = [
     logo: '/wallet-logos/safepal.svg',
     rdns: ['io.safepal.app', 'io.safepal'],
     nameMatch: ['safepal'],
-    wcUniversalLink: (uri) => `https://link.safepal.io/wc?uri=${encodeURIComponent(uri)}`,
+    wcUniversalLink: (uri) => isAndroid()
+      ? `safepal://wc?uri=${encodeURIComponent(uri)}`
+      : `https://link.safepal.io/wc?uri=${encodeURIComponent(uri)}`,
     installUrl: 'https://www.safepal.com/download',
   },
 ]
-
-function isMobileBrowser(): boolean {
-  if (typeof window === 'undefined') return false
-  return /iphone|ipad|ipod|android/i.test(navigator.userAgent)
-}
-
-function isInDAppBrowser(): boolean {
-  if (typeof window === 'undefined') return false
-  // Has injected ethereum provider = inside a wallet's DApp browser
-  return !!(window as unknown as { ethereum?: unknown }).ethereum
-}
 
 interface Props {
   redirect?: string
