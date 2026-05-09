@@ -13,7 +13,7 @@ interface WalletDef {
   rdns: string[]
   nameMatch: string[]
   wcUniversalLink: (uri: string) => string
-  androidWcLink?: (uri: string) => string
+  androidManualOpen?: boolean
   installUrl: string
 }
 
@@ -38,7 +38,7 @@ const WALLETS: WalletDef[] = [
     rdns: ['com.trustwallet.app'],
     nameMatch: ['trust'],
     wcUniversalLink: (uri) => `https://link.trustwallet.com/wc?uri=${encodeURIComponent(uri)}`,
-    androidWcLink: (uri) => `trust://wc?uri=${encodeURIComponent(uri)}`,
+    androidManualOpen: true,
     installUrl: 'https://trustwallet.com/download',
   },
   {
@@ -48,7 +48,7 @@ const WALLETS: WalletDef[] = [
     rdns: ['com.bitget.web3', 'com.bitkeep'],
     nameMatch: ['bitget', 'bitkeep'],
     wcUniversalLink: (uri) => `https://bkcode.vip/wc?uri=${encodeURIComponent(uri)}`,
-    androidWcLink: (uri) => `bitkeep://wc?uri=${encodeURIComponent(uri)}`,
+    androidManualOpen: true,
     installUrl: 'https://web3.bitget.com/en/wallet-download',
   },
   {
@@ -83,10 +83,6 @@ function isInDAppBrowser(): boolean {
 // which opens it via the system browser so universal links resolve correctly.
 function openExternal(href: string) {
   if (typeof window === 'undefined') return
-  if (!/^https?:\/\//i.test(href)) {
-    window.location.href = href
-    return
-  }
   const tg = (window as unknown as { Telegram?: { WebApp?: { openLink?: (url: string) => void } } }).Telegram?.WebApp
   if (tg?.openLink) {
     tg.openLink(href)
@@ -97,11 +93,10 @@ function openExternal(href: string) {
 
 function buildMobileLink(wallet: WalletDef, wcUri: string): PendingMobileLink {
   const universalHref = wallet.wcUniversalLink(wcUri)
-  if (isAndroid() && wallet.androidWcLink) {
+  if (isAndroid() && wallet.androidManualOpen) {
     return {
       wallet,
-      href: wallet.androidWcLink(wcUri),
-      fallbackHref: universalHref,
+      href: universalHref,
       manualOpen: true,
     }
   }
