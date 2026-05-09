@@ -190,6 +190,24 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   }, [addDebug, connectors])
 
   useEffect(() => {
+    const onVisibilityChange = () => {
+      addDebug('visibility changed', { visibilityState: document.visibilityState })
+    }
+    const onFocus = () => addDebug('window focused')
+    const onPageShow = () => addDebug('pageshow')
+
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    window.addEventListener('focus', onFocus)
+    window.addEventListener('pageshow', onPageShow)
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      window.removeEventListener('focus', onFocus)
+      window.removeEventListener('pageshow', onPageShow)
+    }
+  }, [addDebug])
+
+  useEffect(() => {
     if (!isConnected || !address) return
     if (handledRef.current === address) return
     handledRef.current = address
@@ -356,7 +374,10 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
     }
 
     return (
-      <details className="mt-3 border border-amber-400/25 bg-amber-400/[0.06] p-3 text-left">
+      <details
+        open={status !== 'idle' || !!pendingMobileLink || !!error}
+        className="mt-3 border border-amber-400/25 bg-amber-400/[0.06] p-3 text-left"
+      >
         <summary className="cursor-pointer text-[11px] font-semibold uppercase tracking-wider text-amber-200">
           Wallet debug
         </summary>
@@ -432,6 +453,12 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
         >
           Open {w.name}
         </button>
+        {pendingMobileLink.manualOpen && (
+          <div className="p-3 bg-amber-400/[0.08] border border-amber-400/20 text-amber-100/80 text-xs leading-relaxed">
+            If {w.name} only unlocked and no approval appeared, return to Telegram and tap
+            <span className="font-semibold text-amber-100"> Open {w.name}</span> again.
+          </div>
+        )}
         {pendingMobileLink.fallbackHref && (
           <button
             type="button"
