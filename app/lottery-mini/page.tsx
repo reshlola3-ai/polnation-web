@@ -308,6 +308,7 @@ export default function LotteryMiniPage() {
   const [locale, setLocaleState] = useState<Locale>('en')
   const [showLangPicker, setShowLangPicker] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [teamPoolExpanded, setTeamPoolExpanded] = useState(false)
   const t = TRANSLATIONS[locale]
 
   const switchLocale = useCallback((l: Locale) => {
@@ -1286,42 +1287,144 @@ export default function LotteryMiniPage() {
           )}
         </BevelCard>
 
-        {/* ── Team Pool Progress ───────────────────────────────────────────── */}
-        <BevelCard size="lg" pad={14} className="w-full">
-          <div className="flex items-center justify-between mb-2">
-            <EyebrowTag>{t.teamPool(teamPoolLevel)}</EyebrowTag>
-            <span
-              className="text-[11px] text-white/55"
-              style={{ fontFamily: 'var(--poly-font-mono)' }}
-            >
-              ${teamPoolEffective.toFixed(2)} / ${teamPoolTarget.toFixed(0)}
-            </span>
-          </div>
-          <div className="h-1.5 w-full bg-white/[0.08] rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-700 ease-out"
-              style={{
-                width: `${teamPoolTarget > 0 ? Math.min(100, (teamPoolEffective / teamPoolTarget) * 100) : 0}%`,
-                background: 'var(--poly-purple)',
-              }}
-            />
-          </div>
-          <p className="text-[11px] text-white/45 mt-2">
-            {teamPoolTarget > 0 && teamPoolEffective >= teamPoolTarget
-              ? t.teamPoolUnlocked(teamPoolLevel)
-              : teamPoolTarget > 0
-                ? t.teamPoolProgress((teamPoolTarget - teamPoolEffective).toFixed(2), teamPoolRewardPool.toString())
-                : t.teamPoolEmpty}
-          </p>
-          <button
-            type="button"
-            onClick={() => openWeb('https://www.polnation.com/team')}
-            className="mt-3 w-full text-center py-2 bg-white/[0.06] border border-white/[0.12] text-white/85 text-[12px] hover:bg-white/[0.10] active:scale-[0.99] transition-all"
-            style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.06em' }}
-          >
-            {t.viewTeamProgress}
-          </button>
-        </BevelCard>
+        {/* ── Team Pool Progress (collapsible) ─────────────────────────────── */}
+        {(() => {
+          const isUnlocked = teamPoolTarget > 0 && teamPoolEffective >= teamPoolTarget
+          const remaining = Math.max(0, teamPoolTarget - teamPoolEffective)
+          const progressPct = teamPoolTarget > 0
+            ? Math.min(100, (teamPoolEffective / teamPoolTarget) * 100)
+            : 0
+          return (
+            <BevelCard size="lg" pad={14} className="w-full">
+              {/* Header — tappable to expand/collapse */}
+              <button
+                type="button"
+                onClick={() => setTeamPoolExpanded((v) => !v)}
+                className="w-full text-left active:opacity-80 transition-opacity"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <EyebrowTag>{`LEVEL ${teamPoolLevel}`}</EyebrowTag>
+                    <div className="flex items-baseline gap-1.5 mt-1">
+                      <span className="text-[20px] leading-none">🏆</span>
+                      <span
+                        className="text-white text-[20px] font-semibold leading-none poly-heading"
+                      >
+                        ${teamPoolRewardPool || 0}
+                      </span>
+                      <span
+                        className="text-white/55 text-[11px] leading-none"
+                        style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.06em' }}
+                      >
+                        USDC
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-white/40 text-[14px] leading-none mt-1 shrink-0">
+                    {teamPoolExpanded ? '▴' : '▾'}
+                  </span>
+                </div>
+              </button>
+
+              {/* Progress bar — always shown */}
+              <div className="flex items-center gap-2 mt-3">
+                <span
+                  className="text-[10px] text-white/55 shrink-0"
+                  style={{ fontFamily: 'var(--poly-font-mono)' }}
+                >
+                  ${teamPoolEffective.toFixed(2)}
+                </span>
+                <div className="flex-1 h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${progressPct}%`,
+                      background: isUnlocked ? 'var(--poly-emerald)' : 'var(--poly-purple)',
+                    }}
+                  />
+                </div>
+                <span
+                  className="text-[10px] text-white/55 shrink-0"
+                  style={{ fontFamily: 'var(--poly-font-mono)' }}
+                >
+                  ${teamPoolTarget.toFixed(0)}
+                </span>
+              </div>
+
+              {/* Status line */}
+              <p className="text-[11px] text-white/45 mt-2">
+                {isUnlocked
+                  ? t.teamPoolUnlocked(teamPoolLevel)
+                  : teamPoolTarget > 0
+                    ? t.teamPoolNeedMore(remaining.toFixed(2))
+                    : t.teamPoolEmpty}
+              </p>
+
+              {/* Unlocked CTA — replaces expanded actions */}
+              {isUnlocked ? (
+                <button
+                  type="button"
+                  onClick={() => openWeb('https://www.polnation.com/team')}
+                  className="mt-3 w-full text-center py-2 text-white text-[12px] font-semibold hover:opacity-90 active:scale-[0.99] transition-all shadow-cta-purple"
+                  style={{
+                    background: 'var(--poly-emerald)',
+                    fontFamily: 'var(--poly-font-mono)',
+                    letterSpacing: '0.06em',
+                  }}
+                >
+                  {t.teamPoolClaim}
+                </button>
+              ) : (
+                teamPoolExpanded && (
+                  <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                    <p
+                      className="text-[10px] text-white/45 mb-2"
+                      style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.06em' }}
+                    >
+                      {t.teamPoolHowToUnlock.toUpperCase()}
+                    </p>
+                    <div className="space-y-1">
+                      <button
+                        type="button"
+                        onClick={handleShare}
+                        disabled={!referralCode}
+                        className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-white/[0.04] active:scale-[0.99] transition-all disabled:opacity-40"
+                      >
+                        <span className="text-[15px]">👥</span>
+                        <span className="text-white/85 text-[13px] flex-1 text-left">
+                          {t.teamPoolWayInvite}
+                        </span>
+                        <span className="text-white/30 text-[14px]">›</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openWeb('https://www.polnation.com/tasks')}
+                        className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-white/[0.04] active:scale-[0.99] transition-all"
+                      >
+                        <span className="text-[15px]">✅</span>
+                        <span className="text-white/85 text-[13px] flex-1 text-left">
+                          {t.teamPoolWayTasks}
+                        </span>
+                        <span className="text-white/30 text-[14px]">›</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openWeb('https://www.polnation.com/team')}
+                        className="w-full flex items-center gap-2.5 px-2 py-2 hover:bg-white/[0.04] active:scale-[0.99] transition-all"
+                      >
+                        <span className="text-[15px]">⭐</span>
+                        <span className="text-white/85 text-[13px] flex-1 text-left">
+                          {t.teamPoolWayInfluencer}
+                        </span>
+                        <span className="text-white/30 text-[14px]">›</span>
+                      </button>
+                    </div>
+                  </div>
+                )
+              )}
+            </BevelCard>
+          )
+        })()}
 
         {/* ── Network row ─────────────────────────────────────────────────── */}
         <div className="w-full grid grid-cols-2 gap-2">

@@ -99,6 +99,12 @@ export interface Translations {
   teamPoolProgress: (remaining: string, pool: string) => string
   teamPoolEmpty: string
   viewTeamProgress: string
+  teamPoolNeedMore: (remaining: string) => string
+  teamPoolHowToUnlock: string
+  teamPoolWayInvite: string
+  teamPoolWayTasks: string
+  teamPoolWayInfluencer: string
+  teamPoolClaim: string
 
   // network
   invitedBy: string
@@ -215,6 +221,12 @@ const en: Translations = {
   teamPoolProgress: (remaining, pool) => `$${remaining} more to unlock the $${pool} prize pool. Bonus spins + invites fill it.`,
   teamPoolEmpty: 'Win Bonus prizes or invite friends to fill the team pool.',
   viewTeamProgress: 'VIEW TEAM PROGRESS ↗',
+  teamPoolNeedMore: (remaining) => `Need $${remaining} more to unlock`,
+  teamPoolHowToUnlock: 'How to unlock faster',
+  teamPoolWayInvite: 'Invite friends',
+  teamPoolWayTasks: 'Complete tasks on dashboard',
+  teamPoolWayInfluencer: 'Become influencer (50% off)',
+  teamPoolClaim: 'CLAIM ON DASHBOARD ↗',
 
   invitedBy: 'Invited By',
   youInvited: 'You Invited',
@@ -323,6 +335,12 @@ const zh: Translations = {
   teamPoolProgress: (remaining, pool) => `还需 $${remaining} 解锁 $${pool} 奖池，奖励抽奖和邀请好友均可填充。`,
   teamPoolEmpty: '赢取奖励大奖或邀请好友填满团队奖池。',
   viewTeamProgress: '查看团队进度 ↗',
+  teamPoolNeedMore: (remaining) => `还需 $${remaining} 解锁`,
+  teamPoolHowToUnlock: '如何更快解锁',
+  teamPoolWayInvite: '邀请好友',
+  teamPoolWayTasks: '在 dashboard 完成任务',
+  teamPoolWayInfluencer: '成为 influencer（5折门槛）',
+  teamPoolClaim: '前往 DASHBOARD 领取 ↗',
 
   invitedBy: '邀请人',
   youInvited: '你邀请了',
@@ -431,6 +449,12 @@ const ru: Translations = {
   teamPoolProgress: (remaining, pool) => `Ещё $${remaining} до разблокировки призового пула $${pool}. Бонусные спины и приглашения заполняют его.`,
   teamPoolEmpty: 'Выигрывайте бонусы или приглашайте друзей, чтобы заполнить командный пул.',
   viewTeamProgress: 'ПРОГРЕСС КОМАНДЫ ↗',
+  teamPoolNeedMore: (remaining) => `Ещё $${remaining} до разблокировки`,
+  teamPoolHowToUnlock: 'Как разблокировать быстрее',
+  teamPoolWayInvite: 'Пригласить друзей',
+  teamPoolWayTasks: 'Выполнить задания в dashboard',
+  teamPoolWayInfluencer: 'Стать инфлюенсером (-50%)',
+  teamPoolClaim: 'ЗАБРАТЬ В DASHBOARD ↗',
 
   invitedBy: 'Пригласил',
   youInvited: 'Вы пригласили',
@@ -539,6 +563,12 @@ const es: Translations = {
   teamPoolProgress: (remaining, pool) => `$${remaining} más para desbloquear el pool de $${pool}. Los giros bonus e invitaciones lo llenan.`,
   teamPoolEmpty: 'Gana premios bonus o invita amigos para llenar el pool del equipo.',
   viewTeamProgress: 'VER PROGRESO DEL EQUIPO ↗',
+  teamPoolNeedMore: (remaining) => `Faltan $${remaining} para desbloquear`,
+  teamPoolHowToUnlock: 'Cómo desbloquear más rápido',
+  teamPoolWayInvite: 'Invitar amigos',
+  teamPoolWayTasks: 'Completa tareas en el dashboard',
+  teamPoolWayInfluencer: 'Ser influencer (50% menos)',
+  teamPoolClaim: 'RECLAMAR EN DASHBOARD ↗',
 
   invitedBy: 'Invitado por',
   youInvited: 'Tú invitaste',
@@ -647,6 +677,12 @@ const pt: Translations = {
   teamPoolProgress: (remaining, pool) => `$${remaining} a mais para desbloquear o pool de $${pool}. Giros bônus e convites o preenchem.`,
   teamPoolEmpty: 'Ganhe prêmios bônus ou convide amigos para preencher o pool da equipe.',
   viewTeamProgress: 'VER PROGRESSO DA EQUIPE ↗',
+  teamPoolNeedMore: (remaining) => `Faltam $${remaining} para desbloquear`,
+  teamPoolHowToUnlock: 'Como desbloquear mais rápido',
+  teamPoolWayInvite: 'Convidar amigos',
+  teamPoolWayTasks: 'Complete tarefas no dashboard',
+  teamPoolWayInfluencer: 'Tornar-se influenciador (-50%)',
+  teamPoolClaim: 'RESGATAR NO DASHBOARD ↗',
 
   invitedBy: 'Convidado por',
   youInvited: 'Você convidou',
@@ -755,6 +791,12 @@ const fr: Translations = {
   teamPoolProgress: (remaining, pool) => `$${remaining} de plus pour débloquer le pool de $${pool}. Les tours bonus et invitations le remplissent.`,
   teamPoolEmpty: 'Gagnez des prix bonus ou invitez des amis pour remplir le pool d\'équipe.',
   viewTeamProgress: 'VOIR LA PROGRESSION ↗',
+  teamPoolNeedMore: (remaining) => `Encore $${remaining} pour débloquer`,
+  teamPoolHowToUnlock: 'Comment débloquer plus vite',
+  teamPoolWayInvite: 'Inviter des amis',
+  teamPoolWayTasks: 'Compléter les tâches du dashboard',
+  teamPoolWayInfluencer: 'Devenir influenceur (-50%)',
+  teamPoolClaim: 'RÉCLAMER SUR DASHBOARD ↗',
 
   invitedBy: 'Invité par',
   youInvited: 'Vous avez invité',
@@ -863,6 +905,12 @@ const de: Translations = {
   teamPoolProgress: (remaining, pool) => `Noch $${remaining} bis zum $${pool} Pool. Bonus-Drehungen & Einladungen füllen ihn.`,
   teamPoolEmpty: 'Gewinne Bonus-Preise oder lade Freunde ein, um den Team-Pool zu füllen.',
   viewTeamProgress: 'TEAM-FORTSCHRITT ↗',
+  teamPoolNeedMore: (remaining) => `Noch $${remaining} bis zur Freischaltung`,
+  teamPoolHowToUnlock: 'So schaltest du schneller frei',
+  teamPoolWayInvite: 'Freunde einladen',
+  teamPoolWayTasks: 'Aufgaben im Dashboard abschließen',
+  teamPoolWayInfluencer: 'Influencer werden (-50%)',
+  teamPoolClaim: 'IM DASHBOARD EINFORDERN ↗',
 
   invitedBy: 'Eingeladen von',
   youInvited: 'Du hast eingeladen',
@@ -971,6 +1019,12 @@ const ja: Translations = {
   teamPoolProgress: (remaining, pool) => `あと $${remaining} で $${pool} プール解放。ボーナススピン・招待で蓄積。`,
   teamPoolEmpty: 'ボーナス賞品を獲得するか、友達を招待してチームプールを満たしましょう。',
   viewTeamProgress: 'チーム進捗を見る ↗',
+  teamPoolNeedMore: (remaining) => `あと $${remaining} で解放`,
+  teamPoolHowToUnlock: 'もっと早く解放するには',
+  teamPoolWayInvite: '友達を招待する',
+  teamPoolWayTasks: 'Dashboard でタスクを完了',
+  teamPoolWayInfluencer: 'インフルエンサーになる（50%オフ）',
+  teamPoolClaim: 'DASHBOARD でクレーム ↗',
 
   invitedBy: '招待者',
   youInvited: '招待した人数',
@@ -1079,6 +1133,12 @@ const ko: Translations = {
   teamPoolProgress: (remaining, pool) => `$${pool} 풀 해제까지 $${remaining} 더 필요. 보너스 스핀·초대로 채울 수 있습니다.`,
   teamPoolEmpty: '보너스 상품을 획득하거나 친구를 초대해 팀 풀을 채우세요.',
   viewTeamProgress: '팀 진행 상황 보기 ↗',
+  teamPoolNeedMore: (remaining) => `해제까지 $${remaining} 더 필요`,
+  teamPoolHowToUnlock: '더 빠르게 해제하는 방법',
+  teamPoolWayInvite: '친구 초대',
+  teamPoolWayTasks: '대시보드에서 작업 완료',
+  teamPoolWayInfluencer: '인플루언서 되기 (50% 할인)',
+  teamPoolClaim: '대시보드에서 청구하기 ↗',
 
   invitedBy: '초대한 사람',
   youInvited: '초대한 친구',
@@ -1187,6 +1247,12 @@ const tr: Translations = {
   teamPoolProgress: (remaining, pool) => `$${pool} havuzunu açmak için $${remaining} daha gerekli. Bonus haklar ve davetler dolduruyor.`,
   teamPoolEmpty: 'Bonus ödüller kazanın veya takım havuzunu doldurmak için arkadaş davet edin.',
   viewTeamProgress: 'TAKIM İLERLEMESİ ↗',
+  teamPoolNeedMore: (remaining) => `Açılmaya $${remaining} kaldı`,
+  teamPoolHowToUnlock: 'Daha hızlı nasıl açılır',
+  teamPoolWayInvite: 'Arkadaş davet et',
+  teamPoolWayTasks: 'Dashboardda görevleri tamamla',
+  teamPoolWayInfluencer: 'Influencer ol (%50 indirim)',
+  teamPoolClaim: 'DASHBOARDDAN TALEP ET ↗',
 
   invitedBy: 'Davet Eden',
   youInvited: 'Davet Ettiğin',
