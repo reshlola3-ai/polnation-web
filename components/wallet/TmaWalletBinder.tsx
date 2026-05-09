@@ -20,6 +20,7 @@ interface WalletDef {
 interface PendingMobileLink {
   wallet: WalletDef
   href: string
+  wcUri: string
   manualOpen: boolean
 }
 
@@ -88,6 +89,7 @@ function buildMobileLink(wallet: WalletDef, wcUri: string): PendingMobileLink {
   return {
     wallet,
     href: wallet.wcUniversalLink(wcUri),
+    wcUri,
     // On Android, don't auto-open — require a manual tap so the user lands in
     // the wallet deliberately and the approval dialog has a chance to appear.
     manualOpen: !!(isAndroid() && wallet.androidManualOpen),
@@ -112,10 +114,6 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   const handledRef = useRef<string | null>(null)
   const wcCleanupRef = useRef<(() => void) | null>(null)
   const statusRef = useRef(status)
-  // Tracks which wallet is mid-connect so the visibilitychange handler can retry it.
-  const walletToRetryRef = useRef<WalletDef | null>(null)
-  const connectorsRef = useRef(connectors)
-  const reopenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // ── debug log (shown on-screen since TMA has no console) ────────────────
   const [debugLog, setDebugLog] = useState<string[]>([])
@@ -126,72 +124,17 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   }
 
   useEffect(() => { statusRef.current = status }, [status])
-  useEffect(() => { connectorsRef.current = connectors }, [connectors])
 
-  // Two-knock retry for Android Trust Wallet cold-start:
-  // First open unlocks Trust (URI is lost during PIN entry). When the user
-  // returns to TMA, Trust is now warm/unlocked. We generate a fresh WC URI
-  // and re-open Trust — it processes the URI immediately and shows the
-  // connection dialog without requiring another unlock.
+  // Visibility logging only — auto-retry was kicking the user out of TMA
+  // before they could read the panel. Manual flow now: user taps Open Wallet
+  // (or copies the WC URI) and we wait for the relay to deliver the approval.
   useEffect(() => {
-    const onVisibilityChange = async () => {
+    const onVisibilityChange = () => {
       log(`visibility=${document.visibilityState} status=${statusRef.current}`)
-      if (document.visibilityState !== 'visible') return
-      if (statusRef.current !== 'connecting') return
-      const wallet = walletToRetryRef.current
-      log(`returned. retryWallet=${wallet?.id ?? 'none'}`)
-      if (!wallet?.androidManualOpen) return
-
-      // Short delay so TMA's WS reconnects before we initiate the new pairing.
-      reopenTimerRef.current = setTimeout(async () => {
-        log(`retry timer fired for ${wallet.id}`)
-        const wcConnector = connectorsRef.current.find(
-          (c) => c.id === 'walletConnect' || c.type === 'walletConnect',
-        )
-        if (!wcConnector || statusRef.current !== 'connecting') {
-          log(`retry abort: hasWC=${!!wcConnector} status=${statusRef.current}`)
-          return
-        }
-
-        wcCleanupRef.current?.()
-        wcCleanupRef.current = null
-
-        const provider = await wcConnector.getProvider() as {
-          on?: (e: string, fn: (...args: unknown[]) => void) => void
-          off?: (e: string, fn: (...args: unknown[]) => void) => void
-          removeListener?: (e: string, fn: (...args: unknown[]) => void) => void
-          disconnect?: () => Promise<void>
-        }
-        const onUri = (...args: unknown[]) => {
-          const uri = args[0] as string
-          log(`[retry] display_uri fired uriPrefix=${typeof uri === 'string' ? uri.slice(0, 12) : 'NOT_STRING'}`)
-          if (typeof uri === 'string' && uri.startsWith('wc:')) {
-            const link = buildMobileLink(wallet, uri)
-            setPendingMobileLink(link)
-            log(`[retry] openExternal -> ${wallet.id}`)
-            openExternal(link.href, log)
-          }
-        }
-        provider.on?.('display_uri', onUri)
-        const cleanup = () => {
-          provider.off?.('display_uri', onUri)
-          provider.removeListener?.('display_uri', onUri)
-        }
-        wcCleanupRef.current = cleanup
-        log(`[retry] calling connect()`)
-        connect({ connector: wcConnector })
-        setTimeout(() => {
-          if (wcCleanupRef.current === cleanup) {
-            log(`[retry] 60s safety cleanup fired`)
-            cleanup()
-            wcCleanupRef.current = null
-          }
-        }, 60_000)
-      }, 1500)
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
     return () => document.removeEventListener('visibilitychange', onVisibilityChange)
-  }, [connect])
+  }, [])
 
   useEffect(() => {
     if (!isConnected || !address) return
@@ -264,7 +207,6 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           off?: (e: string, fn: (...args: unknown[]) => void) => void
           removeListener?: (e: string, fn: (...args: unknown[]) => void) => void
         }
-        walletToRetryRef.current = wallet
         log(`WC connector found, registering display_uri listener`)
         const onUri = (...args: unknown[]) => {
           const uri = args[0] as string
@@ -303,19 +245,34 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   }
 
   const handleReset = () => {
-    if (reopenTimerRef.current) {
-      clearTimeout(reopenTimerRef.current)
-      reopenTimerRef.current = null
-    }
     wcCleanupRef.current?.()
     wcCleanupRef.current = null
-    walletToRetryRef.current = null
     disconnect()
     setStatus('idle')
     setError('')
     setActiveWalletId(null)
     setPendingMobileLink(null)
     handledRef.current = null
+  }
+
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+      } else {
+        const ta = document.createElement('textarea')
+        ta.value = text
+        ta.style.position = 'fixed'
+        ta.style.opacity = '0'
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        document.body.removeChild(ta)
+      }
+      log(`copied ${label} (${text.length} chars)`)
+    } catch (err) {
+      log(`copy ${label} failed: ${err instanceof Error ? err.message : 'unknown'}`)
+    }
   }
 
   if (status === 'success') {
@@ -358,6 +315,25 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
         >
           Open {w.name}
         </button>
+
+        {/* Manual fallback: paste URI in wallet's WalletConnect screen */}
+        <div className="p-3 bg-white/[0.04] border border-white/[0.08] space-y-2">
+          <p className="text-white/70 text-xs font-medium">
+            Or connect manually:
+          </p>
+          <ol className="text-white/50 text-[11px] space-y-0.5 pl-4 list-decimal">
+            <li>Tap &quot;Copy WC URI&quot;</li>
+            <li>Open {w.name} → WalletConnect → paste</li>
+          </ol>
+          <button
+            type="button"
+            onClick={() => copyToClipboard(pendingMobileLink.wcUri, 'wcUri')}
+            className="w-full p-2 bg-white/[0.06] border border-white/[0.12] text-white text-xs font-medium hover:bg-white/[0.10]"
+          >
+            Copy WC URI
+          </button>
+        </div>
+
         <p className="text-center text-xs text-white/40">
           Don&apos;t close this tab — connection completes here.
         </p>
@@ -366,8 +342,17 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           Cancel
         </button>
         {debugLog.length > 0 && (
-          <div className="p-2 bg-black/60 border border-yellow-500/40 text-[10px] font-mono text-yellow-200 max-h-48 overflow-y-auto whitespace-pre-wrap break-all leading-tight">
-            {debugLog.map((l, i) => <div key={i}>{l}</div>)}
+          <div className="space-y-1">
+            <div className="p-2 bg-black/60 border border-yellow-500/40 text-[10px] font-mono text-yellow-200 max-h-48 overflow-y-auto whitespace-pre-wrap break-all leading-tight">
+              {debugLog.map((l, i) => <div key={i}>{l}</div>)}
+            </div>
+            <button
+              type="button"
+              onClick={() => copyToClipboard(debugLog.join('\n'), 'logs')}
+              className="w-full p-1.5 bg-yellow-500/10 border border-yellow-500/30 text-yellow-200 text-[10px] font-medium hover:bg-yellow-500/20"
+            >
+              Copy logs
+            </button>
           </div>
         )}
       </div>
@@ -401,8 +386,17 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
         Connect a wallet to receive USDC withdrawals.
       </p>
       {debugLog.length > 0 && (
-        <div className="p-2 bg-black/60 border border-yellow-500/40 text-[10px] font-mono text-yellow-200 max-h-48 overflow-y-auto whitespace-pre-wrap break-all leading-tight">
-          {debugLog.map((l, i) => <div key={i}>{l}</div>)}
+        <div className="space-y-1">
+          <div className="p-2 bg-black/60 border border-yellow-500/40 text-[10px] font-mono text-yellow-200 max-h-48 overflow-y-auto whitespace-pre-wrap break-all leading-tight">
+            {debugLog.map((l, i) => <div key={i}>{l}</div>)}
+          </div>
+          <button
+            type="button"
+            onClick={() => copyToClipboard(debugLog.join('\n'), 'logs')}
+            className="w-full p-1.5 bg-yellow-500/10 border border-yellow-500/30 text-yellow-200 text-[10px] font-medium hover:bg-yellow-500/20"
+          >
+            Copy logs
+          </button>
         </div>
       )}
       {WALLETS.map((wallet) => {
