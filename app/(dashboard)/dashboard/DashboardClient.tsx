@@ -362,7 +362,7 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   : <Circle className={`w-4 h-4 shrink-0 ${step1Done ? 'text-white/65' : 'text-white/30'}`} />}
                 <span className={`text-xs font-semibold ${step2Done ? 'text-[#00e28a]/80' : step1Done ? 'text-white/55' : 'text-white/40'}`}>Activate Earning</span>
               </div>
-              <p className="text-[11px] text-white/45 leading-relaxed">Sign Merkle Tree · one-time · no gas fee</p>
+              <p className="text-[11px] text-white/45 leading-relaxed">Activate Earning Agent · one-time · no gas fee</p>
               {step1Done && !step2Done && (
                 <p className="text-[11px] text-white/65 mt-1 font-medium">↓ Sign below to start earning</p>
               )}

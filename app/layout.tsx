@@ -29,23 +29,24 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   // 基础 SEO
   title: {
-    default: "Polnation - Community Dividend Platform | Earn USDC Distributions",
+    default: "Polnation - AI Driven Agentic Earning",
     template: "%s | Polnation",
   },
-  description: "Polnation is a community dividend platform on Polygon. Receive daily USDC reward distributions based on your balance tier without locking your tokens. Join our global community and grow your portfolio with referral commissions.",
+  description: "Polnation is an AI-driven agentic earning platform on Polygon. Our proprietary Merkle Tree quantitative financial model and intelligent arbitrage bots generate real on-chain yield distributed daily to USDC holders.",
   keywords: [
     "Polnation",
-    "community dividend",
+    "agentic earning",
+    "AI driven earning",
+    "Merkle Tree finance",
+    "quantitative model",
+    "arbitrage bot",
     "USDC rewards",
-    "USDC distributions",
     "Polygon",
     "cryptocurrency",
     "passive income",
-    "crypto earnings",
-    "referral program",
     "DeFi",
     "Web3",
-    "crypto community",
+    "on-chain yield",
   ],
   authors: [{ name: "Polnation Team" }],
   creator: "Polnation",
@@ -69,8 +70,8 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "Polnation",
-    title: "Polnation - Community Dividend Platform | Earn USDC Distributions",
-    description: "Receive daily USDC reward distributions on Polygon based on your balance tier. No token locking required. Join the Polnation community today!",
+    title: "Polnation - AI Driven Agentic Earning",
+    description: "Proprietary Merkle Tree quant model and intelligent arbitrage bots generating real on-chain yield. Hold USDC and earn daily — no lock-up required.",
     images: [
       {
         url: `${siteUrl}/og-image.png`,
@@ -84,8 +85,8 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: "summary_large_image",
-    title: "Polnation - Community Dividend Platform",
-    description: "Receive daily USDC reward distributions on Polygon based on your balance tier. No token locking required.",
+    title: "Polnation - AI Driven Agentic Earning",
+    description: "Proprietary Merkle Tree quant model and intelligent arbitrage bots generating real on-chain yield. Hold USDC and earn daily — no lock-up required.",
     images: [`${siteUrl}/og-image.png`],
     creator: "@polnation",
   },

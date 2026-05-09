@@ -19,7 +19,7 @@ const jsonLd = {
   name: 'Polnation',
   alternateName: ['Polnation Staking', 'Polnation Crypto'],
   url: 'https://www.polnation.com',
-  description: 'Polnation is a non-custodial community dividend platform on Polygon. Hold USDC in your own wallet and receive promotional reward distributions based on your balance tier.',
+  description: 'Polnation is an AI-driven agentic earning platform on Polygon. Our proprietary Merkle Tree quantitative model and intelligent arbitrage bots generate real on-chain yield distributed daily to USDC holders.',
   potentialAction: {
     '@type': 'SearchAction',
     target: 'https://www.polnation.com/search?q={search_term_string}',
@@ -194,9 +194,9 @@ export default async function HomePage() {
       <section className="relative z-10 py-16 md:py-24 [content-visibility:auto] [contain-intrinsic-size:1px_700px]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8 md:mb-12">
-            Premium Polygon Validator
+            Proprietary Merkle Tree Earning Engine
             <span className="block text-lg sm:text-xl md:text-2xl font-normal text-zinc-400 mt-2">
-              Verifiable protocol revenue that supports community distributions
+              Quant-driven arbitrage strategies generating real yield, distributed on-chain
             </span>
           </h2>
           
@@ -273,9 +273,9 @@ export default async function HomePage() {
       <section className="relative z-10 py-16 md:py-24 [content-visibility:auto] [contain-intrinsic-size:1px_700px]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8 md:mb-12">
-            Verified And Transparent On-Chain Vault
+            Agentic Vault — Fully On-Chain & Verifiable
             <span className="block text-lg sm:text-xl md:text-2xl font-normal text-zinc-400 mt-2">
-              Balance-based tiers, promotional rates, and on-chain transparency
+              Merkle Tree distribution, balance-tier rewards, 100% transparent on Polygon
             </span>
           </h2>
           
