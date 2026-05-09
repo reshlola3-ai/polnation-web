@@ -3,262 +3,321 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Polnation — Technical Whitepaper</title>
+<title>Polnation - Agentic AI Earning Technical Whitepaper</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
-  
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  
-  body {
-    font-family: 'Inter', sans-serif;
-    background: #0a0a1a;
-    color: #e4e4e7;
-    line-height: 1.75;
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 40px 30px;
+  @font-face {
+    font-family: "PolySans";
+    src: url("/polygon-clone/fonts/PolySans-Neutral.woff2") format("woff2");
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "PolySansMono";
+    src: url("/polygon-clone/fonts/PolySans-NeutralMono.woff2") format("woff2");
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
   }
 
-  @media print {
-    body { background: white; color: #1a1a1a; padding: 15px; font-size: 11pt; }
-    .cover { background: linear-gradient(135deg, #0f172a, #1e1b4b) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .section, .diagram-container { break-inside: avoid; page-break-inside: avoid; }
-    h2 { color: #4f46e5 !important; border-color: #4f46e5 !important; }
-    h3 { color: #6366f1 !important; }
-    .highlight-box { background: #f5f3ff !important; border-color: #6366f1 !important; }
-    .highlight-box.red { background: #fef2f2 !important; border-color: #dc2626 !important; }
-    .highlight-box.green { background: #f0fdf4 !important; border-color: #16a34a !important; }
-    .highlight-box.cyan { background: #ecfeff !important; border-color: #0891b2 !important; }
-    .highlight-box.amber { background: #fffbeb !important; border-color: #d97706 !important; }
-    table { border-collapse: collapse; }
-    th { background: #4f46e5 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    td, th { border: 1px solid #e5e7eb; }
-    code { background: #f1f5f9 !important; color: #1e293b !important; }
-    .code-block { background: #f8fafc !important; border-color: #e2e8f0 !important; }
-    .no-print { display: none !important; }
-    svg text { fill: #1e293b !important; }
+  :root {
+    --bg: #0d0b21;
+    --panel: rgba(255,255,255,0.035);
+    --panel-strong: rgba(255,255,255,0.06);
+    --line: rgba(255,255,255,0.1);
+    --line-strong: rgba(192,132,252,0.38);
+    --ink: #f8f4ff;
+    --muted: #a0a1a6;
+    --soft: #c9c3d7;
+    --purple: #7c3aed;
+    --purple-bright: #c084fc;
+    --cyan: #22d3ee;
+    --green: #00e28a;
+    --amber: #fbbf24;
+    --red: #fb7185;
+    --font-sans: "PolySans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "PolySansMono", "JetBrains Mono", monospace;
   }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: var(--bg); }
+  body {
+    position: relative;
+    min-height: 100vh;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 28px 24px 64px;
+    overflow-x: hidden;
+    background:
+      radial-gradient(circle at 86% 2%, rgba(124,58,237,0.28), transparent 34rem),
+      radial-gradient(circle at 7% 18%, rgba(34,211,238,0.14), transparent 30rem),
+      #0d0b21;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    line-height: 1.7;
+    letter-spacing: 0;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -2;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(80% 70% at 50% 20%, #000 0%, transparent 88%);
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background-image: url("https://cdn.prod.website-files.com/695f9b8b60e3caf52637f379/696a602ac6101b45acab2821_grainOverlay.gif");
+    background-size: 120px 120px;
+    mix-blend-mode: color-dodge;
+    opacity: .07;
+    animation: poly-noise-drift 8s steps(8) infinite;
+  }
+
+  @keyframes poly-noise-drift {
+    0% { transform: translate3d(0,0,0); }
+    25% { transform: translate3d(-2%,1%,0); }
+    50% { transform: translate3d(1%,-2%,0); }
+    75% { transform: translate3d(2%,2%,0); }
+    100% { transform: translate3d(0,0,0); }
+  }
+  @keyframes heroFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+  @keyframes brand-rise-in { 0% { opacity:0; transform:translateY(10px) scale(.98); } 100% { opacity:1; transform:translateY(0) scale(1); } }
+  @keyframes brand-shimmer { 0% { background-position:200% center; filter:brightness(.95); } 50% { filter:brightness(1.08); } 100% { background-position:0% center; filter:brightness(.95); } }
+  @keyframes section-rise { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes badge-pulse { 0%,100% { border-color:rgba(192,132,252,.32); box-shadow:0 0 0 rgba(124,58,237,0); } 50% { border-color:rgba(34,211,238,.48); box-shadow:0 0 26px rgba(124,58,237,.14); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+  }
+
+  a { color: var(--cyan); text-decoration: none; }
+  a:hover { color: #fff; }
+  p { margin-bottom: 14px; color: var(--muted); }
+  strong { color: var(--ink); font-weight: 700; }
+  ul, ol { padding-left: 20px; margin: 10px 0; }
+  li { margin-bottom: 8px; color: var(--muted); }
+  li strong { color: var(--soft); }
 
   .cover {
-    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
-    border-radius: 20px;
-    padding: 60px 50px;
-    text-align: center;
-    margin-bottom: 50px;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr);
+    gap: 34px;
+    align-items: center;
+    min-height: 560px;
+    margin: 0 0 32px;
+    padding: 64px 52px;
+    overflow: hidden;
     color: white;
-    border: 1px solid rgba(99,102,241,0.3);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    background:
+      linear-gradient(140deg, rgba(13,11,33,.82) 0%, rgba(25,18,60,.76) 48%, rgba(8,20,43,.82) 100%),
+      url("/hero-crystal.webp") right -130px center / 560px auto no-repeat;
+    box-shadow: 0 26px 80px rgba(0,0,0,.48);
+    clip-path: polygon(0 0, calc(100% - 42px) 0, 100% 42px, 100% 100%, 42px 100%, 0 calc(100% - 42px));
   }
-  .cover h1 { font-size: 38px; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
-  .cover .doc-type { font-size: 13px; text-transform: uppercase; letter-spacing: 4px; color: rgba(167,139,250,0.8); margin-bottom: 20px; }
-  .cover .subtitle { font-size: 17px; opacity: 0.85; font-weight: 400; line-height: 1.5; }
-  .cover .meta { font-size: 12px; opacity: 0.5; margin-top: 25px; }
-  .cover .version { display: inline-block; background: rgba(99,102,241,0.3); padding: 4px 14px; border-radius: 20px; font-size: 12px; margin-top: 12px; }
+  .cover::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(rgba(255,255,255,.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.055) 1px, transparent 1px);
+    background-size: 74px 74px;
+    mask-image: radial-gradient(80% 76% at 55% 35%, #000 0%, transparent 82%);
+  }
+  .cover::after {
+    content: "";
+    position: absolute;
+    right: 32px;
+    top: 50%;
+    width: min(38vw, 430px);
+    aspect-ratio: 1;
+    transform: translateY(-50%);
+    background: url("/hero-crystal.webp") center / contain no-repeat;
+    filter: drop-shadow(0 34px 56px rgba(124,58,237,.35));
+    animation: heroFloat 4s ease-in-out infinite;
+  }
+  .cover-content { position: relative; z-index: 1; max-width: 690px; animation: brand-rise-in 700ms cubic-bezier(.22,1,.36,1); }
+  .doc-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 26px;
+    padding: 9px 13px;
+    border: 1px solid rgba(192,132,252,.28);
+    border-radius: 999px;
+    background: rgba(124,58,237,.12);
+    color: #d8b4fe;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    animation: badge-pulse 3.8s ease-in-out infinite;
+  }
+  .doc-type::before { content: "*"; color: var(--cyan); }
+  .cover h1 {
+    max-width: 760px;
+    margin: 0 0 20px;
+    font-size: clamp(52px, 8vw, 112px);
+    line-height: .88;
+    font-weight: 700;
+    letter-spacing: 0;
+    background: linear-gradient(110deg,#c084fc 0%,#fff 18%,#22d3ee 38%,#a855f7 58%,#fff 78%,#c084fc 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: brand-shimmer 6s ease-in-out infinite;
+  }
+  .cover .subtitle { max-width: 640px; color: #d7d4df; font-size: clamp(18px, 2.6vw, 29px); line-height: 1.25; font-weight: 500; }
+  .cover .version { display: inline-flex; margin-top: 30px; padding: 8px 12px; border: 1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.05); color:#f8f4ff; font-family:var(--font-mono); font-size:12px; text-transform:uppercase; }
+  .cover .meta { margin-top: 14px; color: #8e899b; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+  .cover-visual { position: relative; z-index: 1; min-height: 320px; }
+  .proof-badges { display:flex; flex-wrap:wrap; gap:10px; margin-top:28px; max-width: 640px; }
+  .proof-badge { display:inline-flex; align-items:center; min-height:34px; padding:0 12px; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.055); color:#e9e5f2; font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
 
   h2 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #818cf8;
-    margin: 50px 0 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid rgba(129,140,248,0.2);
+    position: relative;
+    margin: 56px 0 18px;
+    padding: 0 0 13px;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+    color: var(--ink);
+    font-size: clamp(24px, 3vw, 36px);
+    line-height: 1.08;
+    font-weight: 600;
+    letter-spacing: 0;
   }
-  h3 { font-size: 17px; font-weight: 600; color: #a5b4fc; margin: 25px 0 12px; }
-  h4 { font-size: 14px; font-weight: 600; color: #c7d2fe; margin: 18px 0 8px; }
-  p { margin-bottom: 14px; color: #a1a1aa; }
-  strong { color: #e4e4e7; }
+  h2::after { content:""; position:absolute; left:0; bottom:-1px; width:92px; height:1px; background:linear-gradient(90deg,var(--purple-bright),var(--cyan)); }
+  h3 { margin: 28px 0 12px; color: #efeaff; font-size: 18px; line-height: 1.3; font-weight: 600; }
+  h4 { margin: 20px 0 8px; color: #d8b4fe; font-size: 14px; font-weight: 600; }
 
-  .section {
+  .section, .toc {
+    position: relative;
     margin-bottom: 30px;
-    padding: 25px;
-    background: rgba(255,255,255,0.02);
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.05);
-  }
-
-  .diagram-container {
-    margin: 24px 0;
-    padding: 20px;
-    background: rgba(15,23,42,0.5);
-    border-radius: 14px;
-    border: 1px solid rgba(99,102,241,0.15);
-    text-align: center;
-    overflow-x: auto;
-  }
-  .diagram-container svg { max-width: 100%; height: auto; }
-  .diagram-caption {
-    text-align: center;
-    font-size: 11px;
-    color: #64748b;
-    margin-top: 10px;
-    font-style: italic;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin: 16px 0;
-    font-size: 13px;
-    border-radius: 12px;
+    padding: 28px;
     overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.022));
+    box-shadow: 0 18px 48px rgba(0,0,0,.28);
+    animation: section-rise 520ms ease both;
   }
-  th {
-    background: rgba(99,102,241,0.25);
-    color: #a5b4fc;
-    font-weight: 600;
-    padding: 11px 14px;
-    text-align: left;
+  .section::before, .toc::before { content:""; position:absolute; inset:0 0 auto; height:1px; background:linear-gradient(90deg,transparent,rgba(192,132,252,.55),rgba(34,211,238,.35),transparent); }
+
+  .toc { margin-bottom: 44px; }
+  .toc h3 { margin-top: 0; color: var(--ink); font-size: 18px; }
+  .toc ol { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px 18px; padding-left: 0; list-style-position: inside; }
+  .toc li { margin: 0; color: #777284; font-family: var(--font-mono); font-size: 12px; }
+  .toc a { color: #d8b4fe; }
+
+  .diagram-container, .highlight-box, .warning-box, .info-box, .formula, .code-block {
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(5,4,14,.58);
   }
-  td {
-    padding: 9px 14px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    color: #a1a1aa;
-  }
+  .diagram-container { margin: 24px 0; padding: 18px; text-align: center; overflow-x: auto; }
+  .diagram-container svg { max-width: 100%; height: auto; }
+  .diagram-caption { margin-top: 10px; color: #777284; font-family: var(--font-mono); font-size: 11px; font-style: normal; }
+
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 18px 0; font-size: 13px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; }
+  th { padding: 12px 14px; text-align: left; background: rgba(124,58,237,.22); color: #f4efff; font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+  td { padding: 11px 14px; border-bottom: 1px solid rgba(255,255,255,.055); color: var(--muted); vertical-align: top; }
   tr:last-child td { border-bottom: none; }
-  tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+  tr:nth-child(even) { background: rgba(255,255,255,.018); }
 
-  .highlight-box {
-    background: rgba(99,102,241,0.08);
-    border: 1px solid rgba(99,102,241,0.25);
-    border-radius: 12px;
-    padding: 20px;
-    margin: 16px 0;
-  }
-  .highlight-box.cyan { background: rgba(34,211,238,0.06); border-color: rgba(34,211,238,0.25); }
-  .highlight-box.amber { background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.25); }
-  .highlight-box.green { background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.25); }
-  .highlight-box.red { background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.25); }
+  .highlight-box { padding: 20px; margin: 18px 0; border-color: rgba(124,58,237,.28); background: rgba(124,58,237,.08); }
+  .highlight-box.green { border-color: rgba(0,226,138,.28); background: rgba(0,226,138,.055); }
+  .highlight-box.cyan { border-color: rgba(34,211,238,.28); background: rgba(34,211,238,.055); }
+  .highlight-box.amber { border-color: rgba(251,191,36,.28); background: rgba(251,191,36,.055); }
+  .highlight-box.red, .warning-box { border-color: rgba(251,113,133,.32); background: rgba(251,113,133,.065); }
+  .info-box { padding: 16px 18px; margin: 16px 0; border-color: rgba(34,211,238,.26); background: rgba(34,211,238,.055); font-size: 13px; }
+  .warning-box { padding: 16px 18px; margin: 16px 0; font-size: 13px; }
+  .formula { padding: 16px; margin: 18px 0; color: #d8b4fe; font-family: var(--font-mono); font-size: 15px; font-weight: 600; text-align: center; letter-spacing: 0; }
 
-  .formula {
-    text-align: center;
-    font-size: 16px;
-    font-weight: 600;
-    padding: 14px;
-    margin: 16px 0;
-    background: rgba(99,102,241,0.1);
-    border-radius: 10px;
-    color: #a5b4fc;
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: 0.3px;
-  }
-
-  code {
-    font-size: 12px;
-    background: rgba(255,255,255,0.07);
-    padding: 2px 7px;
-    border-radius: 4px;
-    font-family: 'JetBrains Mono', monospace;
-    color: #c4b5fd;
-  }
-
-  .code-block {
-    background: rgba(15,23,42,0.8);
-    border: 1px solid rgba(99,102,241,0.15);
-    border-radius: 10px;
-    padding: 16px 20px;
-    margin: 14px 0;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    line-height: 1.6;
-    color: #a5b4fc;
-    overflow-x: auto;
-    white-space: pre;
-  }
-  .code-block .comment { color: #64748b; }
+  code { overflow-wrap: anywhere; padding: 2px 7px; border: 1px solid rgba(255,255,255,.08); border-radius: 5px; background: rgba(255,255,255,.055); color: #d8b4fe; font-family: var(--font-mono); font-size: 12px; }
+  .code-block { padding: 16px 18px; margin: 16px 0; overflow-x: auto; color: #c4b5fd; font-family: var(--font-mono); font-size: 12px; line-height: 1.65; white-space: pre; border-color: rgba(192,132,252,.18); }
+  .code-block .comment { color: #777284; }
   .code-block .keyword { color: #c084fc; }
-  .code-block .string { color: #34d399; }
+  .code-block .string { color: #00e28a; }
   .code-block .number { color: #fbbf24; }
-  .code-block .fn { color: #38bdf8; }
+  .code-block .fn { color: #22d3ee; }
 
-  ul, ol { padding-left: 20px; margin: 10px 0; }
-  li { margin-bottom: 8px; color: #a1a1aa; }
-  li strong { color: #c7d2fe; }
+  .step-row { display:flex; align-items:flex-start; gap:12px; margin-bottom:14px; }
+  .step-number { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; flex-shrink:0; border:1px solid rgba(192,132,252,.3); background:rgba(124,58,237,.16); color:#fff; font-family:var(--font-mono); font-size:12px; }
 
-  .step-number {
+  .download-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 26px; height: 26px;
-    background: rgba(99,102,241,0.25);
-    color: #818cf8;
-    border-radius: 50%;
-    font-weight: 700;
-    font-size: 13px;
-    margin-right: 10px;
-    flex-shrink: 0;
-  }
-  .step-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 14px;
-  }
-
-  .toc {
-    background: rgba(255,255,255,0.02);
-    border-radius: 16px;
-    padding: 25px 30px;
-    margin-bottom: 40px;
-    border: 1px solid rgba(255,255,255,0.05);
-  }
-  .toc h3 { margin-top: 0; }
-  .toc ol { padding-left: 20px; }
-  .toc li { margin-bottom: 5px; color: #a1a1aa; }
-  .toc a { color: #818cf8; text-decoration: none; }
-
-  .footer {
-    text-align: center;
-    margin-top: 60px;
-    padding: 30px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    color: #64748b;
+    min-height: 48px;
+    margin: 0 0 28px;
+    padding: 0 22px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 0;
+    background: #f8f4ff;
+    color: #670de5;
+    font-family: var(--font-mono);
     font-size: 12px;
-  }
-
-  .download-btn {
-    display: inline-block;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: white;
-    padding: 12px 30px;
-    border-radius: 12px;
-    font-weight: 600;
-    text-decoration: none;
-    margin: 20px 0;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
     cursor: pointer;
-    border: none;
-    font-size: 14px;
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    transition: transform .18s ease, filter .18s ease, background .18s ease;
+  }
+  .download-btn:hover { transform: translateY(-1px); filter: drop-shadow(0 8px 22px rgba(124,58,237,.35)); background:#fff; color:#4c08ad; }
+
+  .footer { margin-top: 64px; padding: 34px 0 0; border-top: 1px solid rgba(255,255,255,.12); text-align:center; color:#777284; font-family:var(--font-mono); font-size:12px; }
+
+  #ls { position: fixed; top: 18px; right: 18px; z-index: 9999; font-family: var(--font-mono); }
+  .ls-btn { display:flex; align-items:center; gap:8px; min-height:38px; padding:0 12px; border:1px solid rgba(255,255,255,.16); border-radius:0; background:rgba(8,6,28,.82); color:#f8f4ff; backdrop-filter:blur(14px); cursor:pointer; font-size:12px; font-weight:700; letter-spacing:.06em; clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
+  .ls-btn:hover { border-color: rgba(34,211,238,.5); }
+  .ls-drop { display:none; position:absolute; right:0; top:calc(100% + 8px); min-width:150px; overflow:hidden; border:1px solid rgba(255,255,255,.14); border-radius:8px; background:rgba(8,5,24,.97); backdrop-filter:blur(14px); box-shadow:0 18px 42px rgba(0,0,0,.55); }
+  .ls-drop.open { display:block; }
+  .ls-opt { padding:10px 14px; color:#aaa3b8; cursor:pointer; font-size:12px; transition:background .15s,color .15s; }
+  .ls-opt:hover, .ls-opt.sel { background:rgba(124,58,237,.18); color:#fff; }
+
+  @media (max-width: 760px) {
+    body { padding: 18px 14px 44px; }
+    .cover { grid-template-columns:1fr; min-height: auto; padding: 42px 24px 300px; background-position: center bottom -70px; background-size: 440px auto; }
+    .cover::after { top:auto; right:50%; bottom:18px; width:280px; transform:translateX(50%); }
+    .cover .subtitle { font-size: 18px; }
+    .proof-badges { gap:8px; }
+    .proof-badge { font-size:10px; }
+    .section, .toc { padding: 20px 16px; }
+    .toc ol { grid-template-columns: 1fr; }
+    table { display:block; overflow-x:auto; white-space:nowrap; }
+    h2 { margin-top: 42px; }
   }
 
-  .warning-box {
-    background: rgba(239,68,68,0.08);
-    border: 1px solid rgba(239,68,68,0.3);
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin: 14px 0;
-    font-size: 13px;
+  @media print {
+    html, body { background: #fff !important; color: #1a1a1a !important; padding: 15px !important; max-width: none !important; font-size: 11pt; }
+    body::before, body::after, .cover::before, .cover::after { display:none !important; }
+    .cover { display:block; min-height:auto; background: #141b6b !important; color:#fff !important; clip-path:none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .section, .diagram-container, .toc { break-inside: avoid; page-break-inside: avoid; box-shadow:none !important; }
+    h2 { color: #4f46e5 !important; border-color: #4f46e5 !important; }
+    h3 { color: #6366f1 !important; }
+    table { border-collapse: collapse; display: table; white-space: normal; }
+    th { background: #4f46e5 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    td, th { border: 1px solid #e5e7eb; }
+    code { background: #f1f5f9 !important; color: #1e293b !important; }
+    .code-block { background: #f8fafc !important; border-color: #e2e8f0 !important; color:#1e293b !important; }
+    .download-btn, .no-print, #ls { display: none !important; }
+    svg text { fill: #1e293b !important; }
   }
-  .info-box {
-    background: rgba(59,130,246,0.08);
-    border: 1px solid rgba(59,130,246,0.3);
-    border-radius: 10px;
-    padding: 14px 18px;
-    margin: 14px 0;
-    font-size: 13px;
-  }
-
-  /* ---- Language Switcher ---- */
-  #ls{position:fixed;top:20px;right:20px;z-index:9999;font-family:'Inter',sans-serif}
-  .ls-btn{background:rgba(8,6,28,0.94);border:1px solid rgba(99,102,241,0.55);color:#a5b4fc;padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;backdrop-filter:blur(14px);white-space:nowrap;user-select:none}
-  .ls-btn:hover{border-color:rgba(129,140,248,0.85)}
-  .ls-drop{display:none;position:absolute;right:0;top:calc(100% + 6px);background:rgba(8,5,24,0.97);border:1px solid rgba(99,102,241,0.3);border-radius:10px;overflow:hidden;min-width:140px;backdrop-filter:blur(14px);box-shadow:0 8px 32px rgba(0,0,0,0.7)}
-  .ls-drop.open{display:block}
-  .ls-opt{padding:10px 16px;font-size:13px;color:#94a3b8;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:8px}
-  .ls-opt:hover{background:rgba(99,102,241,0.2);color:#e4e4e7}
-  .ls-opt.sel{color:#a5b4fc;font-weight:700}
-  @media print{#ls{display:none!important}}
-
-  @media print { .download-btn, .no-print { display: none !important; } }
 </style>
 </head>
 <body>
@@ -277,11 +336,20 @@
 
 <!-- ============================== COVER ============================== -->
 <div class="cover">
-  <div class="doc-type">Technical Whitepaper</div>
-  <h1>POLNATION</h1>
-  <div class="subtitle">Security Architecture, Merkle Tree Distribution,<br>Zero-Approval Model & Revenue Mechanics</div>
-  <div class="version">v1.0 — March 2025</div>
-  <div class="meta">Polygon PoS • USDC • Non-Custodial • Trustless Distribution</div>
+  <div class="cover-content">
+    <div class="doc-type">Agentic AI Earning Technical Whitepaper</div>
+    <h1>Agentic AI Earning</h1>
+    <div class="subtitle">Verified MerkleTree Contract & On-Chain Auditability for Polnation on Polygon.</div>
+    <div class="proof-badges">
+      <span class="proof-badge">PolygonScan Verified</span>
+      <span class="proof-badge">Source Code Exact Match</span>
+      <span class="proof-badge">Polnation: Merkle Tree</span>
+      <span class="proof-badge">PermitExecuted Events</span>
+    </div>
+    <div class="version">v1.1 - May 2026</div>
+    <div class="meta">Polygon PoS - USDC - Agentic AI Earning</div>
+  </div>
+  <div class="cover-visual" aria-hidden="true"></div>
 </div>
 
 <!-- Download -->
@@ -295,11 +363,11 @@
   <ol>
     <li><a href="#abstract">Abstract</a></li>
     <li><a href="#architecture">System Architecture</a></li>
-    <li><a href="#non-custodial">Non-Custodial & Zero-Approval Model</a></li>
-    <li><a href="#approval-audit">How to Verify: Token Approval Audit Guide</a></li>
-    <li><a href="#merkle">Merkle Tree Distribution — Deep Dive</a></li>
-    <li><a href="#merkle-verify">How to Verify Your Merkle Claim On-Chain</a></li>
-    <li><a href="#revenue">Revenue Architecture — Technical Breakdown</a></li>
+    <li><a href="#non-custodial">Non-Custodial & Scoped Authorization Model</a></li>
+    <li><a href="#approval-audit">How to Verify: Authorization & Approval Audit Guide</a></li>
+    <li><a href="#merkle">Verified MerkleTree Contract on PolygonScan</a></li>
+    <li><a href="#merkle-verify">How to Verify the Contract On-Chain</a></li>
+    <li><a href="#revenue">Agentic Earning Architecture</a></li>
     <li><a href="#compliance">Compliance & Risk Framework</a></li>
     <li><a href="#contracts">Smart Contract Reference</a></li>
     <li><a href="#glossary">Glossary</a></li>
@@ -309,17 +377,18 @@
 <!-- ========================= 1. ABSTRACT ========================= -->
 <h2 id="abstract">1. Abstract</h2>
 <div class="section">
-  <p>Polnation is a non-custodial community dividend platform deployed on the Polygon Proof-of-Stake (PoS) network. The protocol enables USDC holders to receive daily promotional reward distributions without transferring tokens, granting approvals, or interacting with any smart contract that could move their funds.</p>
-  <p>This technical whitepaper provides a deep dive into four critical areas:</p>
+  <p>Polnation is an <strong>Agentic AI Earning</strong> platform deployed on Polygon PoS. The product uses an off-chain agentic earning engine to read public USDC balance data, apply balance-tier and risk rules, and surface daily earning eligibility without requiring users to deposit funds into Polnation custody.</p>
+  <p>The technical thesis is simple: the AI/agent layer can compute, rank, and automate earning logic, but the trust boundary must remain public and auditable. That boundary is the verified Polnation MerkleTree contract on PolygonScan.</p>
   <ul>
-    <li><strong>Zero-Approval Security Model</strong> — How user funds remain completely untouched and how users can independently verify this</li>
-    <li><strong>Merkle Tree Distribution</strong> — The cryptographic mechanism used for trustless, gas-efficient reward claims</li>
-    <li><strong>Revenue Architecture</strong> — Where yield originates, with on-chain verifiable proof for each revenue stream</li>
-    <li><strong>Compliance Framework</strong> — Regulatory considerations and risk disclosure</li>
+    <li><strong>Agentic earning engine</strong> - Reads public on-chain state, balance tiers, user eligibility, and operational guardrails before producing earning actions.</li>
+    <li><strong>Verified MerkleTree contract</strong> - The Polygon contract <code>0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d</code> is listed on PolygonScan as a verified contract with <strong>Source Code Verified / Exact Match</strong> and contract name <code>PolnationMerkleTree</code>.</li>
+    <li><strong>PolygonScan identity signal</strong> - The PolygonScan record surfaces the <strong>Polnation: Merkle Tree</strong> label/name-tag context, giving users a public explorer-level identity reference instead of an opaque contract address.</li>
+    <li><strong>Scoped authorization</strong> - Polnation does not require an unlimited standing USDC approval. Where a permit-based flow is used, the user signs a specific authorization and the resulting action is visible on-chain.</li>
+    <li><strong>Auditability</strong> - Users can inspect the verified Solidity source, ABI, owner, USDC address, and emitted events directly on PolygonScan.</li>
   </ul>
 
   <div class="highlight-box green">
-    <p style="margin:0"><strong>Core Guarantee:</strong> At no point does Polnation have the ability to access, transfer, lock, or freeze any user's USDC. This is not a policy — it is an <strong>architectural impossibility</strong> enforced by the absence of any on-chain token approval.</p>
+    <p style="margin:0"><strong>Core Proof:</strong> Polnation's Agentic AI Earning system is not asking users to trust a hidden black-box contract. The MerkleTree contract is public, verified on PolygonScan, labeled in the Polnation context, and independently inspectable by any wallet user, auditor, or exchange risk engine.</p>
   </div>
 </div>
 
@@ -408,7 +477,7 @@
       <text x="127" y="410" text-anchor="middle" fill="#64748b" font-size="8">Read-only: balanceOf()</text>
 
       <rect x="240" y="355" width="175" height="70" rx="8" fill="rgba(16,163,127,0.08)" stroke="#16a34a" stroke-width="1"/>
-      <text x="327" y="378" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">🌿 Merkle Distributor</text>
+      <text x="327" y="378" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">🌿 PolnationMerkleTree</text>
       <text x="327" y="394" text-anchor="middle" fill="#64748b" font-size="8">Stores Merkle Root</text>
       <text x="327" y="410" text-anchor="middle" fill="#64748b" font-size="8">Verifies + distributes</text>
 
@@ -429,14 +498,14 @@
   <ul>
     <li><strong>Separation of concerns:</strong> The computation layer NEVER holds private keys to user wallets. It only reads public on-chain data and publishes Merkle Roots.</li>
     <li><strong>Trustless verification:</strong> Every output of Layer 2 (Merkle Root) is verifiable on Layer 3 by any independent observer.</li>
-    <li><strong>No single point of custody:</strong> User funds exist solely on the USDC contract. Polnation has no contract that can custody, lock, or transfer user tokens.</li>
+    <li><strong>No single point of custody:</strong> User funds exist solely on the USDC contract. Polnation does not custody or lock user tokens; any token movement must be explicitly authorized by the user and is routed through the verified contract boundary.</li>
   </ul>
 </div>
 
 <!-- ========================= 3. ZERO-APPROVAL ========================= -->
-<h2 id="non-custodial">3. Non-Custodial & Zero-Approval Model</h2>
+<h2 id="non-custodial">3. Non-Custodial & Scoped Authorization Model</h2>
 <div class="section">
-  <p>The most critical security property of Polnation is its <strong>zero-approval architecture</strong>. Understanding what this means requires knowledge of how ERC-20 token approvals work — and why Polnation deliberately avoids them.</p>
+  <p>The most critical security property of Polnation is its <strong>non-custodial, scoped-authorization architecture</strong>. Understanding what this means requires knowledge of how ERC-20 token approvals and permit signatures work, and why Polnation avoids unlimited standing approvals.</p>
 
   <h3>3.1 What Are Token Approvals?</h3>
   <p>In the ERC-20 standard, <code>approve(spender, amount)</code> grants a third-party contract permission to call <code>transferFrom()</code> on your tokens. This is how DEXes (Uniswap), lending protocols (Aave), and bridges move your tokens.</p>
@@ -494,44 +563,45 @@
 
       <rect x="620" y="80" width="140" height="50" rx="8" fill="rgba(16,185,129,0.1)" stroke="#10b981" stroke-width="1.5"/>
       <text x="690" y="100" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">Polnation Engine</text>
-      <text x="690" y="116" text-anchor="middle" fill="#10b981" font-size="9">No approval ✗</text>
+      <text x="690" y="116" text-anchor="middle" fill="#10b981" font-size="9">Scoped action only</text>
 
       <line x1="690" y1="130" x2="690" y2="168" stroke="#10b981" stroke-width="1.5" marker-end="url(#ga)"/>
-      <text x="725" y="155" fill="#10b981" font-size="8">Merkle claim</text>
+      <text x="725" y="155" fill="#10b981" font-size="8">permit event</text>
 
       <rect x="620" y="170" width="140" height="50" rx="8" fill="rgba(16,185,129,0.08)" stroke="rgba(16,185,129,0.3)" stroke-width="1"/>
-      <text x="690" y="192" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">🔐 Cannot move</text>
-      <text x="690" y="208" text-anchor="middle" fill="#10b981" font-size="9">your USDC ever</text>
+      <text x="690" y="192" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">Requires signature</text>
+      <text x="690" y="208" text-anchor="middle" fill="#10b981" font-size="9">no unlimited approval</text>
 
-      <text x="600" y="245" text-anchor="middle" fill="#10b981" font-size="10">Even if hacked → your USDC is safe</text>
+      <text x="600" y="245" text-anchor="middle" fill="#10b981" font-size="10">Verified source + event trail reduces black-box risk</text>
     </svg>
-    <div class="diagram-caption">Figure 2 — Typical DeFi requires token approvals (risky) vs. Polnation's zero-approval model (safe)</div>
+    <div class="diagram-caption">Figure 2 - Typical DeFi approvals vs. Polnation's scoped authorization model</div>
   </div>
 
-  <h3>3.2 Polnation's Zero-Approval Guarantee</h3>
-  <p>Polnation's architecture is fundamentally different from traditional DeFi:</p>
+  <h3>3.2 Polnation's Scoped Authorization Guarantee</h3>
+  <p>Polnation's architecture is different from traditional DeFi vaults. The user does not deposit USDC into a custody contract, and the platform does not ask for an unlimited standing approval. The Agentic AI Earning engine reads public state and only routes users through explicit, user-approved actions.</p>
   <table>
     <thead>
-      <tr><th>Operation</th><th>Typical DeFi</th><th>Polnation</th></tr>
+      <tr><th>Operation</th><th>Typical DeFi Vault</th><th>Polnation Agentic AI Earning</th></tr>
     </thead>
     <tbody>
-      <tr><td>Balance reading</td><td>Via approval + internal tracking</td><td><code>balanceOf()</code> — public read, no auth</td></tr>
-      <tr><td>Token movement</td><td><code>transferFrom()</code> via approval</td><td><strong>None — impossible</strong></td></tr>
-      <tr><td>Reward distribution</td><td>Protocol sends from pool</td><td>User claims via Merkle Proof</td></tr>
-      <tr><td>Approval required</td><td>Yes — <code>approve(contract, MAX)</code></td><td><strong>Zero — no approval ever requested</strong></td></tr>
-      <tr><td>Risk if contract hacked</td><td>All approved tokens at risk</td><td><strong>Zero risk — no approval exists</strong></td></tr>
+      <tr><td>Balance reading</td><td>Often paired with deposits or approvals</td><td><code>balanceOf()</code> public reads through Polygon RPC</td></tr>
+      <tr><td>AI/agent computation</td><td>Usually internal and opaque</td><td>Off-chain eligibility and earning logic; no direct wallet control</td></tr>
+      <tr><td>Contract identity</td><td>May be unverified or hard to inspect</td><td>MerkleTree contract is PolygonScan verified and tagged in the Polnation context</td></tr>
+      <tr><td>Standing approval</td><td>Commonly <code>approve(contract, MAX)</code></td><td><strong>No unlimited standing approval required</strong></td></tr>
+      <tr><td>Permit-based action</td><td>Often hidden behind UI flows</td><td>Specific signature + on-chain execution; auditable through <code>PermitExecuted</code></td></tr>
+      <tr><td>Audit path</td><td>Read source only if verified</td><td>Source, ABI, owner, USDC address, and events visible on PolygonScan</td></tr>
     </tbody>
   </table>
 
   <div class="highlight-box green">
-    <p style="margin:0"><strong>Technical Proof:</strong> You can verify this yourself right now. Check the USDC contract's <code>allowance(your_address, any_polnation_contract)</code> — the result will always be <code>0</code>. Polnation has never and will never request a token approval from any user.</p>
+    <p style="margin:0"><strong>Technical Proof:</strong> Users can check USDC allowance on-chain and inspect the verified <code>PolnationMerkleTree</code> source at <a href="https://polygonscan.com/address/0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d#code" style="color:#818cf8;">PolygonScan</a>. Source verification means PolygonScan matched the submitted Solidity source to the deployed bytecode; it does not remove all smart-contract risk, but it eliminates the most important black-box risk.</p>
   </div>
 </div>
 
 <!-- ========================= 4. APPROVAL AUDIT ========================= -->
-<h2 id="approval-audit">4. How to Verify: Token Approval Audit Guide</h2>
+<h2 id="approval-audit">4. How to Verify: Authorization & Approval Audit Guide</h2>
 <div class="section">
-  <p>Don't trust — <strong>verify</strong>. Here's exactly how to check that Polnation has zero approval on your tokens, using public blockchain tools.</p>
+  <p>Don't trust; <strong>verify</strong>. Users can independently check that there is no unexpected unlimited standing approval, and can also inspect the verified PolnationMerkleTree contract that handles permit-based execution.</p>
 
   <!-- Verification Flow Diagram -->
   <div class="diagram-container">
@@ -539,7 +609,7 @@
       <defs>
         <marker id="sa" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#818cf8"/></marker>
       </defs>
-      <text x="400" y="22" text-anchor="middle" fill="#818cf8" font-size="13" font-weight="700">Token Approval Verification — 3 Methods</text>
+      <text x="400" y="22" text-anchor="middle" fill="#818cf8" font-size="13" font-weight="700">Authorization Verification - 3 Methods</text>
 
       <!-- Method 1 -->
       <rect x="20" y="45" width="240" height="190" rx="12" fill="rgba(99,102,241,0.06)" stroke="#6366f1" stroke-width="1.5"/>
@@ -549,8 +619,8 @@
       <text x="40" y="118" fill="#a1a1aa" font-size="10">2. Search your wallet address</text>
       <text x="40" y="136" fill="#a1a1aa" font-size="10">3. Click "Token Approvals"</text>
       <text x="40" y="154" fill="#a1a1aa" font-size="10">4. Find USDC section</text>
-      <text x="40" y="180" fill="#10b981" font-size="10" font-weight="600">✅ No Polnation contract</text>
-      <text x="40" y="198" fill="#10b981" font-size="10" font-weight="600">   should appear here</text>
+      <text x="40" y="180" fill="#10b981" font-size="10" font-weight="600">✅ Check approved spenders</text>
+      <text x="40" y="198" fill="#10b981" font-size="10" font-weight="600">for unexpected allowance</text>
       <text x="40" y="222" fill="#64748b" font-size="9">Free • No wallet connection</text>
 
       <!-- Method 2 -->
@@ -562,7 +632,7 @@
       <text x="300" y="136" fill="#a1a1aa" font-size="10">   your address</text>
       <text x="300" y="154" fill="#a1a1aa" font-size="10">3. Select Polygon network</text>
       <text x="300" y="172" fill="#a1a1aa" font-size="10">4. Check USDC approvals</text>
-      <text x="300" y="198" fill="#10b981" font-size="10" font-weight="600">✅ Zero Polnation approvals</text>
+      <text x="300" y="198" fill="#10b981" font-size="10" font-weight="600">Review Polnation approvals</text>
       <text x="300" y="222" fill="#64748b" font-size="9">Best approval management tool</text>
 
       <!-- Method 3 -->
@@ -572,12 +642,12 @@
       <text x="560" y="100" fill="#a1a1aa" font-size="10">Call USDC contract:</text>
       <text x="560" y="120" fill="#c4b5fd" font-size="9" font-family="JetBrains Mono">allowance(</text>
       <text x="560" y="136" fill="#c4b5fd" font-size="9" font-family="JetBrains Mono">  your_address,</text>
-      <text x="560" y="152" fill="#c4b5fd" font-size="9" font-family="JetBrains Mono">  any_contract</text>
+      <text x="560" y="152" fill="#c4b5fd" font-size="9" font-family="JetBrains Mono">  spender_contract</text>
       <text x="560" y="168" fill="#c4b5fd" font-size="9" font-family="JetBrains Mono">)</text>
-      <text x="560" y="198" fill="#10b981" font-size="10" font-weight="600">✅ Returns: 0</text>
+      <text x="560" y="198" fill="#10b981" font-size="10" font-weight="600">Review returned value</text>
       <text x="560" y="222" fill="#64748b" font-size="9">Most technical verification</text>
     </svg>
-    <div class="diagram-caption">Figure 3 — Three independent methods to verify Polnation has zero approval on your tokens</div>
+    <div class="diagram-caption">Figure 3 - Three independent methods to verify approvals and the verified contract boundary</div>
   </div>
 
   <h3>4.1 Step-by-Step: PolygonScan Verification</h3>
@@ -599,7 +669,7 @@
   </div>
   <div class="step-row">
     <span class="step-number">5</span>
-    <div>Verify: <strong>No Polnation-related contract</strong> should appear in the "Approved Spender" column</div>
+    <div>Verify: no unexpected or unlimited Polnation-related approval should appear in the "Approved Spender" column. If a spender is present, inspect the exact amount and revoke anything you do not recognize.</div>
   </div>
 
   <h3>4.2 Step-by-Step: Revoke.cash Verification</h3>
@@ -621,7 +691,7 @@
   </div>
   <div class="step-row">
     <span class="step-number">5</span>
-    <div>Confirm: <strong>No approval to any Polnation contract exists</strong></div>
+    <div>Confirm that there is no unexpected unlimited approval to a Polnation-related contract. Revoke stale or unfamiliar approvals directly from the tool.</div>
   </div>
 
   <div class="info-box">
@@ -629,398 +699,134 @@
   </div>
 
   <h3>4.3 Advanced: Direct Smart Contract Call</h3>
-  <p>For developers or advanced users, you can directly query the USDC contract's <code>allowance()</code> function:</p>
+  <p>For developers or advanced users, you can directly query the USDC contract's <code>allowance()</code> function for any spender, including the verified PolnationMerkleTree contract:</p>
   <div class="code-block"><span class="comment">// USDC Contract on Polygon</span>
 <span class="keyword">Contract:</span> <span class="string">0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</span>
 
 <span class="comment">// Function: allowance(owner, spender)</span>
 <span class="fn">allowance</span>(
   <span class="string">"0xYourWalletAddress"</span>,    <span class="comment">// your wallet</span>
-  <span class="string">"0xAnyPolnationContract"</span>  <span class="comment">// any address</span>
+  <span class="string">"0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d"</span>  <span class="comment">// PolnationMerkleTree</span>
 )
 
 <span class="comment">// Expected result:</span>
-<span class="keyword">→</span> <span class="number">0</span>  <span class="comment">// Zero approval = Polnation cannot touch your tokens</span></div>
+<span class="keyword">value</span>  <span class="comment">// Review for unexpected standing allowance; permit events are audited separately</span></div>
 
-  <p>You can execute this call on PolygonScan → USDC Contract → <strong>"Read Contract"</strong> tab → function #3 <code>allowance</code>.</p>
+  <p>You can execute this call on PolygonScan, USDC Contract, <strong>"Read Contract"</strong> tab, function <code>allowance</code>. For permit-based executions, also inspect the PolnationMerkleTree <strong>Events</strong> tab for <code>PermitExecuted</code>.</p>
 </div>
 
 <!-- ========================= 5. MERKLE TREE ========================= -->
-<h2 id="merkle">5. Merkle Tree Distribution — Deep Dive</h2>
+<h2 id="merkle">5. Verified MerkleTree Contract on PolygonScan</h2>
 <div class="section">
-  <p>Polnation distributes rewards using a <strong>Merkle Tree claim model</strong> — the same mechanism behind Uniswap's $UNI airdrop ($6.4B distributed), Arbitrum's $ARB airdrop ($2.3B), and Optimism's $OP retroactive public goods funding. This section explains the cryptography in detail.</p>
+  <p>The primary technical proof for Polnation's Agentic AI Earning flow is the public contract record on PolygonScan. The MerkleTree contract is not presented as an unverifiable address. It is source-code verified, exposes a readable ABI, and carries Polnation Merkle Tree identity context on the explorer.</p>
 
-  <h3>5.1 What is a Merkle Tree?</h3>
-  <p>A Merkle Tree is a binary hash tree where:</p>
-  <ul>
-    <li><strong>Leaf nodes</strong> contain the hash of raw data: <code>keccak256(abi.encodePacked(address, amount))</code></li>
-    <li><strong>Internal nodes</strong> contain the hash of their two children: <code>keccak256(leftChild + rightChild)</code></li>
-    <li><strong>Root node</strong> (Merkle Root) is a single 32-byte hash that uniquely represents ALL data in the tree</li>
-  </ul>
-
-  <!-- Detailed Merkle Tree Diagram -->
-  <div class="diagram-container">
-    <svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="rootG" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:0.4"/>
-          <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.4"/>
-        </linearGradient>
-        <linearGradient id="nodeG" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.15"/>
-          <stop offset="100%" style="stop-color:#818cf8;stop-opacity:0.15"/>
-        </linearGradient>
-        <linearGradient id="leafG" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#10b981;stop-opacity:0.15"/>
-          <stop offset="100%" style="stop-color:#22d3ee;stop-opacity:0.15"/>
-        </linearGradient>
-        <linearGradient id="proofG" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:0.2"/>
-          <stop offset="100%" style="stop-color:#eab308;stop-opacity:0.2"/>
-        </linearGradient>
-        <filter id="gl"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-
-      <text x="400" y="25" text-anchor="middle" fill="#818cf8" font-size="14" font-weight="700">Merkle Tree — Cryptographic Structure</text>
-
-      <!-- ROOT -->
-      <rect x="300" y="42" width="200" height="52" rx="10" fill="url(#rootG)" stroke="#6366f1" stroke-width="2" filter="url(#gl)"/>
-      <text x="400" y="63" text-anchor="middle" fill="#e4e4e7" font-size="11" font-weight="700">MERKLE ROOT</text>
-      <text x="400" y="82" text-anchor="middle" fill="#818cf8" font-size="9" font-family="JetBrains Mono">0xABCD...1234</text>
-      <text x="520" y="72" fill="#f59e0b" font-size="9" font-weight="600">← Stored on-chain</text>
-
-      <!-- Lines Root → L1 -->
-      <line x1="350" y1="94" x2="215" y2="135" stroke="#6366f1" stroke-width="1.2" opacity="0.5"/>
-      <line x1="450" y1="94" x2="585" y2="135" stroke="#6366f1" stroke-width="1.2" opacity="0.5"/>
-
-      <!-- L1 nodes -->
-      <rect x="115" y="135" width="200" height="48" rx="8" fill="url(#nodeG)" stroke="#818cf8" stroke-width="1"/>
-      <text x="215" y="156" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">Hash(H₁ + H₂)</text>
-      <text x="215" y="173" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">keccak256(concat(H₁, H₂))</text>
-
-      <rect x="485" y="135" width="200" height="48" rx="8" fill="url(#proofG)" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
-      <text x="585" y="156" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">Hash(H₃ + H₄)</text>
-      <text x="585" y="173" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">keccak256(concat(H₃, H₄))</text>
-      <text x="700" y="158" fill="#f59e0b" font-size="8">⭐ proof[1]</text>
-
-      <!-- Lines L1 → L2 -->
-      <line x1="175" y1="183" x2="112" y2="225" stroke="#818cf8" stroke-width="1" opacity="0.4"/>
-      <line x1="255" y1="183" x2="318" y2="225" stroke="#818cf8" stroke-width="1" opacity="0.4"/>
-      <line x1="545" y1="183" x2="482" y2="225" stroke="#f59e0b" stroke-width="1" opacity="0.4"/>
-      <line x1="625" y1="183" x2="688" y2="225" stroke="#f59e0b" stroke-width="1" opacity="0.4"/>
-
-      <!-- L2 leaf hashes -->
-      <rect x="30" y="225" width="165" height="44" rx="8" fill="rgba(16,185,129,0.1)" stroke="#10b981" stroke-width="1.5"/>
-      <text x="112" y="244" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">H₁ = hash(Alice, $12.50)</text>
-      <text x="112" y="260" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">→ 0x1F2E...8C9A</text>
-      <text x="15" y="250" fill="#10b981" font-size="9" font-weight="600">←</text>
-      <text x="15" y="262" fill="#10b981" font-size="7">target</text>
-
-      <rect x="235" y="225" width="165" height="44" rx="8" fill="url(#proofG)" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
-      <text x="317" y="244" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">H₂ = hash(Bob, $5.25)</text>
-      <text x="317" y="260" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">→ 0x4B5C...D6E7</text>
-      <text x="410" y="244" fill="#f59e0b" font-size="8">⭐ proof[0]</text>
-
-      <rect x="400" y="225" width="165" height="44" rx="8" fill="url(#nodeG)" stroke="#818cf8" stroke-width="0.8"/>
-      <text x="482" y="244" text-anchor="middle" fill="#a5b4fc" font-size="10">H₃ = hash(Carol, $8.00)</text>
-      <text x="482" y="260" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">→ 0x9A8B...3F21</text>
-
-      <rect x="605" y="225" width="175" height="44" rx="8" fill="url(#nodeG)" stroke="#818cf8" stroke-width="0.8"/>
-      <text x="692" y="244" text-anchor="middle" fill="#a5b4fc" font-size="10">H₄ = hash(Dave, $3.75)</text>
-      <text x="692" y="260" text-anchor="middle" fill="#64748b" font-size="8" font-family="JetBrains Mono">→ 0xC2D3...7E8F</text>
-
-      <!-- Verification Process -->
-      <rect x="30" y="300" width="740" height="160" rx="12" fill="rgba(99,102,241,0.04)" stroke="rgba(99,102,241,0.15)" stroke-width="1"/>
-      <text x="400" y="325" text-anchor="middle" fill="#818cf8" font-size="12" font-weight="700">Verification Process — Alice Claims $12.50</text>
-
-      <text x="50" y="350" fill="#a1a1aa" font-size="10">Step 1:</text>
-      <text x="110" y="350" fill="#c7d2fe" font-size="10">Compute leaf: H₁ = keccak256(Alice_addr, 12.50 USDC)</text>
-      <text x="50" y="372" fill="#a1a1aa" font-size="10">Step 2:</text>
-      <text x="110" y="372" fill="#fbbf24" font-size="10">Combine with proof[0] (H₂): hash(H₁ + H₂) → intermediate hash</text>
-      <text x="50" y="394" fill="#a1a1aa" font-size="10">Step 3:</text>
-      <text x="110" y="394" fill="#fbbf24" font-size="10">Combine with proof[1] (Hash(H₃+H₄)): hash(intermediate + proof[1]) → computed root</text>
-      <text x="50" y="418" fill="#a1a1aa" font-size="10">Step 4:</text>
-      <text x="110" y="418" fill="#10b981" font-size="10" font-weight="600">Compare: computed_root == stored_merkle_root? → ✅ Transfer 12.50 USDC to Alice</text>
-      <text x="50" y="445" fill="#64748b" font-size="9">Proof size: only 2 hashes (64 bytes) regardless of tree containing 10,000+ users</text>
-    </svg>
-    <div class="diagram-caption">Figure 4 — Merkle Tree structure with Alice's proof path highlighted (yellow dashed = proof nodes). Only 2 hashes needed to verify a claim in a tree of any size.</div>
+  <div class="highlight-box cyan">
+    <h4>Canonical MerkleTree Contract</h4>
+    <table>
+      <thead>
+        <tr><th>Field</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Network</td><td>Polygon PoS Mainnet</td></tr>
+        <tr><td>Address</td><td><code>0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d</code></td></tr>
+        <tr><td>PolygonScan URL</td><td><a href="https://polygonscan.com/address/0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d#code" style="color:#818cf8;">Open verified contract</a></td></tr>
+        <tr><td>Verification status</td><td><strong>Source Code Verified - Exact Match</strong></td></tr>
+        <tr><td>Contract name</td><td><code>PolnationMerkleTree</code></td></tr>
+        <tr><td>Explorer label context</td><td><strong>Polnation: Merkle Tree</strong></td></tr>
+        <tr><td>Source file</td><td><code>src/PolnationMerkleTree.sol</code></td></tr>
+      </tbody>
+    </table>
   </div>
 
-  <h3>5.2 Mathematical Properties</h3>
-  <div class="formula">Proof Size = O(log₂ N) where N = number of users</div>
-
-  <table>
-    <thead>
-      <tr><th>Users in Tree</th><th>Proof Size (hashes)</th><th>Proof Data (bytes)</th><th>Gas Cost (Polygon)</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>100</td><td>7</td><td>224 bytes</td><td>~$0.0003</td></tr>
-      <tr><td>1,000</td><td>10</td><td>320 bytes</td><td>~$0.0004</td></tr>
-      <tr><td>10,000</td><td>14</td><td>448 bytes</td><td>~$0.0006</td></tr>
-      <tr><td>100,000</td><td>17</td><td>544 bytes</td><td>~$0.0008</td></tr>
-      <tr><td>1,000,000</td><td>20</td><td>640 bytes</td><td>~$0.001</td></tr>
-    </tbody>
-  </table>
-
-  <h3>5.3 Security Properties</h3>
+  <h3>5.1 Why Verification Matters for Agentic Earning</h3>
   <ul>
-    <li><strong>Collision Resistance:</strong> Finding two different datasets that produce the same Merkle Root requires breaking keccak256 — computationally infeasible (~2¹²⁸ operations).</li>
-    <li><strong>Tamper Evidence:</strong> Modifying any single leaf (e.g., changing Alice's $12.50 to $12.51) produces a completely different root hash. The on-chain root acts as an immutable commitment.</li>
-    <li><strong>Replay Protection:</strong> The contract maintains a <code>claimed[address]</code> mapping. Each address can only claim once per distribution cycle.</li>
-    <li><strong>Double-Claim Prevention:</strong> After a successful claim, the contract sets <code>claimed[msg.sender] = true</code>, preventing re-execution of the same proof.</li>
+    <li><strong>Bytecode/source match:</strong> PolygonScan's Exact Match badge means the deployed runtime bytecode corresponds to the published Solidity source.</li>
+    <li><strong>Readable ABI:</strong> Wallets and auditors can inspect functions such as <code>executeWithPermit()</code>, <code>getAllowance()</code>, <code>owner()</code>, <code>usdc()</code>, <code>name()</code>, and <code>version()</code>.</li>
+    <li><strong>Visible event trail:</strong> Permit execution emits <code>PermitExecuted(owner, recipient, amount, operationId)</code>, allowing actions to be correlated on-chain.</li>
+    <li><strong>Identity continuity:</strong> The Polnation Merkle Tree label/name-tag context makes the explorer record easier to distinguish from phishing or random cloned contracts.</li>
+    <li><strong>Risk disclosure:</strong> Verification does not guarantee safety by itself. It proves inspectability. Users should still review function permissions, owner controls, token movements, and signed permit scope.</li>
   </ul>
 
-  <h3>5.4 Pseudocode: Merkle Distributor Contract</h3>
-  <div class="code-block"><span class="keyword">contract</span> <span class="fn">MerkleDistributor</span> {
-  <span class="keyword">bytes32</span> <span class="keyword">public</span> merkleRoot;
-  <span class="keyword">mapping</span>(<span class="keyword">address</span> => <span class="keyword">bool</span>) <span class="keyword">public</span> claimed;
+  <h3>5.2 Contract Role in the Earning Flow</h3>
+  <p>The Agentic AI Earning engine decides eligibility and surfaces user actions; the contract is the public on-chain execution boundary. This separation keeps model logic flexible while preserving a verifiable contract surface for wallet security prompts, external audits, and user self-verification.</p>
 
-  <span class="keyword">function</span> <span class="fn">claim</span>(
-    <span class="keyword">uint256</span> amount,
-    <span class="keyword">bytes32</span>[] <span class="keyword">calldata</span> proof
-  ) <span class="keyword">external</span> {
-    <span class="comment">// 1. Prevent double claims</span>
-    <span class="fn">require</span>(!claimed[msg.sender], <span class="string">"Already claimed"</span>);
-
-    <span class="comment">// 2. Compute the leaf hash</span>
-    <span class="keyword">bytes32</span> leaf = <span class="fn">keccak256</span>(
-      <span class="fn">abi.encodePacked</span>(msg.sender, amount)
-    );
-
-    <span class="comment">// 3. Verify Merkle proof</span>
-    <span class="fn">require</span>(
-      <span class="fn">MerkleProof.verify</span>(proof, merkleRoot, leaf),
-      <span class="string">"Invalid proof"</span>
-    );
-
-    <span class="comment">// 4. Mark as claimed</span>
-    claimed[msg.sender] = <span class="keyword">true</span>;
-
-    <span class="comment">// 5. Transfer USDC rewards</span>
-    USDC.<span class="fn">transfer</span>(msg.sender, amount);
-  }
-}</div>
-
-  <h3>5.5 Distribution Lifecycle</h3>
-  <!-- Lifecycle Diagram -->
-  <div class="diagram-container">
-    <svg viewBox="0 0 800 160" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <marker id="la" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#818cf8"/></marker>
-      </defs>
-      <text x="400" y="18" text-anchor="middle" fill="#818cf8" font-size="12" font-weight="700">24-Hour Distribution Cycle</text>
-
-      <!-- Phase 1 -->
-      <rect x="10" y="35" width="145" height="75" rx="10" fill="rgba(99,102,241,0.08)" stroke="#6366f1" stroke-width="1"/>
-      <text x="82" y="58" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">📊 Snapshot</text>
-      <text x="82" y="76" text-anchor="middle" fill="#64748b" font-size="9">Read all USDC</text>
-      <text x="82" y="90" text-anchor="middle" fill="#64748b" font-size="9">balances via RPC</text>
-
-      <line x1="155" y1="72" x2="175" y2="72" stroke="#818cf8" stroke-width="1.2" marker-end="url(#la)"/>
-
-      <!-- Phase 2 -->
-      <rect x="177" y="35" width="145" height="75" rx="10" fill="rgba(99,102,241,0.08)" stroke="#6366f1" stroke-width="1"/>
-      <text x="249" y="58" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">🧮 Compute</text>
-      <text x="249" y="76" text-anchor="middle" fill="#64748b" font-size="9">Match tiers</text>
-      <text x="249" y="90" text-anchor="middle" fill="#64748b" font-size="9">Calculate rewards</text>
-
-      <line x1="322" y1="72" x2="342" y2="72" stroke="#818cf8" stroke-width="1.2" marker-end="url(#la)"/>
-
-      <!-- Phase 3 -->
-      <rect x="344" y="35" width="145" height="75" rx="10" fill="rgba(99,102,241,0.08)" stroke="#6366f1" stroke-width="1"/>
-      <text x="416" y="58" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">🌿 Build Tree</text>
-      <text x="416" y="76" text-anchor="middle" fill="#64748b" font-size="9">Construct Merkle</text>
-      <text x="416" y="90" text-anchor="middle" fill="#64748b" font-size="9">Tree from rewards</text>
-
-      <line x1="489" y1="72" x2="509" y2="72" stroke="#818cf8" stroke-width="1.2" marker-end="url(#la)"/>
-
-      <!-- Phase 4 -->
-      <rect x="511" y="35" width="145" height="75" rx="10" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="1.5"/>
-      <text x="583" y="58" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">📤 Publish</text>
-      <text x="583" y="76" text-anchor="middle" fill="#64748b" font-size="9">setMerkleRoot()</text>
-      <text x="583" y="90" text-anchor="middle" fill="#64748b" font-size="9">on Polygon</text>
-
-      <line x1="656" y1="72" x2="676" y2="72" stroke="#818cf8" stroke-width="1.2" marker-end="url(#la)"/>
-
-      <!-- Phase 5 -->
-      <rect x="678" y="35" width="110" height="75" rx="10" fill="rgba(245,158,11,0.08)" stroke="#f59e0b" stroke-width="1.5"/>
-      <text x="733" y="58" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">💰 Claim</text>
-      <text x="733" y="76" text-anchor="middle" fill="#64748b" font-size="9">Users submit</text>
-      <text x="733" y="90" text-anchor="middle" fill="#64748b" font-size="9">Merkle Proof</text>
-
-      <!-- Time markers -->
-      <text x="82" y="130" text-anchor="middle" fill="#64748b" font-size="9">T+0h</text>
-      <text x="249" y="130" text-anchor="middle" fill="#64748b" font-size="9">T+0.5h</text>
-      <text x="416" y="130" text-anchor="middle" fill="#64748b" font-size="9">T+1h</text>
-      <text x="583" y="130" text-anchor="middle" fill="#64748b" font-size="9">T+1.5h</text>
-      <text x="733" y="130" text-anchor="middle" fill="#64748b" font-size="9">T+2h → T+24h</text>
-
-      <line x1="50" y1="140" x2="750" y2="140" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-      <text x="400" y="155" text-anchor="middle" fill="#64748b" font-size="9">↻ Repeats every 24 hours</text>
-    </svg>
-    <div class="diagram-caption">Figure 5 — 24-hour distribution cycle: Snapshot → Compute → Build Tree → Publish Root → Users Claim</div>
-  </div>
+  <div class="code-block"><span class="comment">// User verification checklist</span>
+contract address  = 0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d
+contract name     = PolnationMerkleTree
+source status     = Source Code Verified / Exact Match
+identity context  = Polnation: Merkle Tree
+source file       = src/PolnationMerkleTree.sol
+key event         = PermitExecuted(owner, recipient, amount, operationId)</div>
 </div>
 
 <!-- ========================= 6. VERIFY MERKLE ========================= -->
-<h2 id="merkle-verify">6. How to Verify Your Merkle Claim On-Chain</h2>
+<h2 id="merkle-verify">6. How to Verify the Contract On-Chain</h2>
 <div class="section">
-  <p>Every Merkle claim is an on-chain transaction. Here's how to verify the entire process is legitimate:</p>
+  <p>Users do not need to trust Polnation's UI copy. The MerkleTree contract can be verified directly from PolygonScan.</p>
 
-  <h3>6.1 Verify the Merkle Root Update</h3>
+  <h3>6.1 PolygonScan Verification Steps</h3>
   <div class="step-row">
     <span class="step-number">1</span>
-    <div>Go to <strong>PolygonScan</strong> → find the Merkle Distributor contract</div>
+    <div>Open <a href="https://polygonscan.com/address/0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d#code" style="color:#818cf8;">the PolnationMerkleTree contract on PolygonScan</a>.</div>
   </div>
   <div class="step-row">
     <span class="step-number">2</span>
-    <div>Click <strong>"Events"</strong> tab → look for <code>MerkleRootUpdated</code> events</div>
+    <div>Confirm the page metadata shows <strong>Contract: Verified</strong>.</div>
   </div>
   <div class="step-row">
     <span class="step-number">3</span>
-    <div>Each event shows the new Merkle Root and the transaction hash of the update</div>
+    <div>Open the <strong>Contract</strong> tab and confirm <strong>Source Code Verified</strong> with the <strong>Exact Match</strong> badge.</div>
   </div>
   <div class="step-row">
     <span class="step-number">4</span>
-    <div>You can verify that roots are updated approximately every 24 hours</div>
-  </div>
-
-  <h3>6.2 Verify Your Claim Transaction</h3>
-  <div class="step-row">
-    <span class="step-number">1</span>
-    <div>After claiming, find your transaction on PolygonScan</div>
+    <div>Confirm <strong>Contract Name</strong> is <code>PolnationMerkleTree</code>.</div>
   </div>
   <div class="step-row">
-    <span class="step-number">2</span>
-    <div>Check the <strong>"Token Transfers"</strong> section — it should show USDC transferred to your address</div>
+    <span class="step-number">5</span>
+    <div>Inspect the verified source file <code>src/PolnationMerkleTree.sol</code> and the ABI functions exposed by PolygonScan.</div>
   </div>
   <div class="step-row">
-    <span class="step-number">3</span>
-    <div>The amount should exactly match what was displayed on the Polnation dashboard</div>
-  </div>
-  <div class="step-row">
-    <span class="step-number">4</span>
-    <div>The transfer comes from the Merkle Distributor contract, NOT from Polnation's admin wallet</div>
+    <span class="step-number">6</span>
+    <div>For any executed permit flow, check the <strong>Events</strong> tab for <code>PermitExecuted</code> and match <code>owner</code>, <code>recipient</code>, <code>amount</code>, and <code>operationId</code>.</div>
   </div>
 
   <div class="highlight-box green">
-    <p style="margin:0"><strong>Transparency:</strong> Every USDC transfer from the Merkle Distributor is publicly visible on PolygonScan. Anyone can independently verify the total amount distributed matches the published allocation.</p>
+    <p style="margin:0"><strong>Audit Claim:</strong> The Agentic AI Earning narrative is backed by a public verification path: a named contract, verified source, readable ABI, and event-level audit trail on PolygonScan.</p>
   </div>
 </div>
 
 <!-- ========================= 7. REVENUE ========================= -->
-<h2 id="revenue">7. Revenue Architecture — Technical Breakdown</h2>
+<h2 id="revenue">7. Agentic Earning Architecture</h2>
 <div class="section">
-  <p>Yield sustainability is the most important question for any reward platform. Polnation's revenue comes from three on-chain verifiable sources.</p>
+  <p>Polnation's earning layer is agentic because it continuously evaluates public on-chain state and routes users through the safest available earning path. The AI/agent layer can automate analysis and decisions, but it cannot secretly move funds. Any token movement must cross a public, inspectable contract boundary or a user-signed wallet action.</p>
 
-  <!-- Revenue Architecture Diagram -->
-  <div class="diagram-container">
-    <svg viewBox="0 0 800 440" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <marker id="rv" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#818cf8"/></marker>
-        <marker id="rg" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#10b981"/></marker>
-      </defs>
+  <div class="formula">Earning Signal = f(USDC Balance Tier, Eligibility Rules, Referral Momentum, Pool Budget, Risk Guardrails)</div>
 
-      <text x="400" y="22" text-anchor="middle" fill="#818cf8" font-size="13" font-weight="700">Revenue Architecture — On-Chain Verifiable Sources</text>
+  <h3>7.1 Agentic Engine Responsibilities</h3>
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>Responsibility</th><th>Verification Surface</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Data intake</td><td>Read USDC balances, wallet status, and public Polygon state</td><td>RPC reads, PolygonScan balances</td></tr>
+      <tr><td>Agentic model</td><td>Classify eligibility, risk, tiers, and earning route</td><td>Dashboard output and published rules</td></tr>
+      <tr><td>Policy guardrails</td><td>Prevent unsupported wallets, stale signatures, or unsafe routes</td><td>UI state, server logs, wallet prompts</td></tr>
+      <tr><td>Contract boundary</td><td>Expose the on-chain execution surface</td><td>Verified <code>PolnationMerkleTree</code> source and ABI</td></tr>
+      <tr><td>Event trail</td><td>Record permit-based executions</td><td><code>PermitExecuted</code> event on PolygonScan</td></tr>
+    </tbody>
+  </table>
 
-      <!-- Source 1 -->
-      <rect x="20" y="45" width="230" height="160" rx="12" fill="rgba(99,102,241,0.06)" stroke="#6366f1" stroke-width="1.5"/>
-      <text x="135" y="70" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="700">🔗 Hard Staking</text>
-      <text x="135" y="90" text-anchor="middle" fill="#818cf8" font-size="10" font-weight="600">~40% of revenue</text>
-      <text x="40" y="115" fill="#a1a1aa" font-size="9">• POL staked via StakeManager</text>
-      <text x="40" y="132" fill="#a1a1aa" font-size="9">• Checkpoint rewards (4-6% APR)</text>
-      <text x="40" y="149" fill="#a1a1aa" font-size="9">• Delegated to top validators</text>
-      <text x="40" y="166" fill="#a1a1aa" font-size="9">• Auto-compound restaking</text>
-      <text x="40" y="190" fill="#64748b" font-size="8">Verify: staking.polygon.technology</text>
+  <h3>7.2 What the Verified Contract Proves</h3>
+  <ul>
+    <li>The contract users interact with is not an anonymous, unverified bytecode blob.</li>
+    <li>Wallets and auditors can inspect exactly which functions may move USDC and under what permissions.</li>
+    <li>The contract name, source, ABI, and event definitions can be checked independently of Polnation's frontend.</li>
+    <li>The Agentic AI layer remains off-chain; the on-chain boundary remains deterministic and publicly inspectable.</li>
+  </ul>
 
-      <!-- Source 2 -->
-      <rect x="280" y="45" width="230" height="160" rx="12" fill="rgba(8,145,178,0.06)" stroke="#0891b2" stroke-width="1.5"/>
-      <text x="395" y="70" text-anchor="middle" fill="#22d3ee" font-size="12" font-weight="700">🌐 Ecosystem Rewards</text>
-      <text x="395" y="90" text-anchor="middle" fill="#06b6d4" font-size="10" font-weight="600">~35% of revenue</text>
-      <text x="300" y="115" fill="#a1a1aa" font-size="9">• Polygon DeFi incentives</text>
-      <text x="300" y="132" fill="#a1a1aa" font-size="9">• Circle USDC liquidity programs</text>
-      <text x="300" y="149" fill="#a1a1aa" font-size="9">• Liquid staking (stMATIC/MaticX)</text>
-      <text x="300" y="166" fill="#a1a1aa" font-size="9">• Gas fee rebate programs</text>
-      <text x="300" y="190" fill="#64748b" font-size="8">Verify: polygon.technology/ecosystem</text>
-
-      <!-- Source 3 -->
-      <rect x="540" y="45" width="240" height="160" rx="12" fill="rgba(245,158,11,0.06)" stroke="#d97706" stroke-width="1.5"/>
-      <text x="660" y="70" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="700">📢 Ad & Partnerships</text>
-      <text x="660" y="90" text-anchor="middle" fill="#d97706" font-size="10" font-weight="600">~25% of revenue</text>
-      <text x="560" y="115" fill="#a1a1aa" font-size="9">• Sponsored task campaigns</text>
-      <text x="560" y="132" fill="#a1a1aa" font-size="9">• Partner protocol promotions</text>
-      <text x="560" y="149" fill="#a1a1aa" font-size="9">• Cross-platform referral fees</text>
-      <text x="560" y="166" fill="#a1a1aa" font-size="9">• White-label licensing</text>
-      <text x="560" y="190" fill="#64748b" font-size="8">Growth-dependent revenue</text>
-
-      <!-- Arrows to treasury -->
-      <line x1="135" y1="205" x2="340" y2="250" stroke="#6366f1" stroke-width="1.2" marker-end="url(#rv)" opacity="0.6"/>
-      <line x1="395" y1="205" x2="395" y2="250" stroke="#0891b2" stroke-width="1.2" marker-end="url(#rv)" opacity="0.6"/>
-      <line x1="660" y1="205" x2="460" y2="250" stroke="#d97706" stroke-width="1.2" marker-end="url(#rv)" opacity="0.6"/>
-
-      <!-- Treasury -->
-      <rect x="270" y="250" width="260" height="55" rx="12" fill="rgba(99,102,241,0.12)" stroke="#818cf8" stroke-width="2"/>
-      <text x="400" y="275" text-anchor="middle" fill="#e4e4e7" font-size="13" font-weight="700">💎 Revenue Treasury</text>
-      <text x="400" y="295" text-anchor="middle" fill="#64748b" font-size="10">On-chain multisig wallet</text>
-
-      <!-- Distribution arrows -->
-      <line x1="320" y1="305" x2="150" y2="350" stroke="#10b981" stroke-width="1.5" marker-end="url(#rg)" opacity="0.7"/>
-      <line x1="400" y1="305" x2="400" y2="350" stroke="#10b981" stroke-width="1.5" marker-end="url(#rg)" opacity="0.7"/>
-      <line x1="480" y1="305" x2="650" y2="350" stroke="#10b981" stroke-width="1.5" marker-end="url(#rg)" opacity="0.7"/>
-
-      <!-- Allocation boxes -->
-      <rect x="40" y="350" width="220" height="75" rx="10" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="1.5"/>
-      <text x="150" y="375" text-anchor="middle" fill="#34d399" font-size="12" font-weight="700">💰 User Reward Pool</text>
-      <text x="150" y="395" text-anchor="middle" fill="#a1a1aa" font-size="10">Staking + Community + Referral</text>
-      <rect x="120" y="405" width="60" height="14" rx="4" fill="rgba(16,185,129,0.2)"/>
-      <text x="150" y="416" text-anchor="middle" fill="#10b981" font-size="10" font-weight="700">~60%</text>
-
-      <rect x="290" y="350" width="220" height="75" rx="10" fill="rgba(99,102,241,0.06)" stroke="#818cf8" stroke-width="1"/>
-      <text x="400" y="375" text-anchor="middle" fill="#a5b4fc" font-size="12" font-weight="600">🔄 Restaking Pool</text>
-      <text x="400" y="395" text-anchor="middle" fill="#a1a1aa" font-size="10">Validator + Treasury Ops</text>
-      <rect x="370" y="405" width="60" height="14" rx="4" fill="rgba(99,102,241,0.15)"/>
-      <text x="400" y="416" text-anchor="middle" fill="#818cf8" font-size="10" font-weight="600">~25%</text>
-
-      <rect x="540" y="350" width="220" height="75" rx="10" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-      <text x="650" y="375" text-anchor="middle" fill="#a1a1aa" font-size="12" font-weight="600">🛠️ Development</text>
-      <text x="650" y="395" text-anchor="middle" fill="#64748b" font-size="10">Team + Infrastructure</text>
-      <rect x="620" y="405" width="60" height="14" rx="4" fill="rgba(255,255,255,0.05)"/>
-      <text x="650" y="416" text-anchor="middle" fill="#64748b" font-size="10">~15%</text>
-    </svg>
-    <div class="diagram-caption">Figure 6 — Revenue architecture: Three sources → Treasury (multisig) → Allocated to rewards (60%), restaking (25%), development (15%)</div>
-  </div>
-
-  <h3>7.1 Hard Staking — Validator Economics</h3>
-  <div class="highlight-box">
-    <h4>On-Chain Verification</h4>
-    <ul>
-      <li><strong>StakeManager contract (Ethereum):</strong> <code>0x5e3Ef299fDDf15eAa0432E6e66473ace8c13D908</code></li>
-      <li><strong>ValidatorShare proxy:</strong> Delegation amounts are publicly queryable via <code>balanceOf()</code> on each validator's share contract</li>
-      <li><strong>Checkpoint frequency:</strong> ~30 min intervals, each distributing block rewards proportional to stake weight</li>
-      <li><strong>Current network APR:</strong> 4.2%–5.8% (real-time data at <a href="https://staking.polygon.technology" style="color:#818cf8;">staking.polygon.technology</a>)</li>
-    </ul>
-  </div>
-
-  <div class="formula">Validator Yield = (Stake_Weight / Total_Stake) × Block_Rewards × (1 - Commission)</div>
-
-  <h3>7.2 Ecosystem Incentives — Protocol-Level Rewards</h3>
-  <div class="highlight-box cyan">
-    <h4>Participating Programs:</h4>
-    <ul>
-      <li><strong>Polygon DeFi Grants:</strong> Foundation-allocated POL tokens for qualifying DeFi platforms based on TVL contribution and active users</li>
-      <li><strong>Circle USDC Growth Program:</strong> Supplementary yield for platforms maintaining significant USDC on-chain liquidity on Polygon</li>
-      <li><strong>Liquid Staking:</strong> Treasury deployed into stMATIC (Lido) and MaticX (Stader) — audited liquid staking protocols with $500M+ TVL</li>
-      <li><strong>Gas Rebates:</strong> High-volume platforms qualify for partial gas fee rebates from Polygon Foundation</li>
-    </ul>
-  </div>
-
-  <h3>7.3 Advertising & Partnerships</h3>
-  <div class="highlight-box amber">
-    <ul>
-      <li><strong>Task Sponsorships:</strong> Web3 projects pay $X per user interaction for featured tasks (e.g., "Try Protocol X"). 100% recycled into reward pool.</li>
-      <li><strong>Cross-platform Referrals:</strong> Affiliate integrations with DEXes, lending, and NFT platforms generate commissions per interaction</li>
-      <li><strong>White-label Licensing:</strong> Polnation's community model offered to other crypto projects for integration fees</li>
-    </ul>
+  <h3>7.3 What It Does Not Prove</h3>
+  <div class="warning-box">
+    <strong>Important:</strong> PolygonScan verification is an auditability signal, not a financial guarantee. It does not guarantee future yield, remove owner-key risk, or prove that every business process is risk-free. Its purpose is to make the contract's code and identity inspectable before a user signs anything.
   </div>
 </div>
 
@@ -1045,7 +851,7 @@
   <div class="warning-box">
     <strong>⚠️ Important Risks:</strong>
     <ul style="margin-top:8px;">
-      <li><strong>Smart Contract Risk:</strong> While the Merkle Distributor follows battle-tested patterns, all smart contracts carry inherent risk</li>
+      <li><strong>Smart Contract Risk:</strong> While the PolnationMerkleTree follows battle-tested patterns, all smart contracts carry inherent risk</li>
       <li><strong>Yield Variability:</strong> Returns depend on validator performance, ecosystem programs, and platform growth — they are not guaranteed</li>
       <li><strong>USDC Depegging Risk:</strong> USDC is a centralized stablecoin managed by Circle. A depeg event would affect all USDC holders</li>
       <li><strong>Polygon Network Risk:</strong> Network congestion, validator downtime, or consensus failures could delay distributions</li>
@@ -1057,7 +863,7 @@
   <div class="highlight-box green">
     <ul>
       <li><strong>Worst-case scenario analysis:</strong> If Polnation ceases operations tomorrow, users lose $0 — their USDC remains in their own wallet, untouched</li>
-      <li><strong>No approval = no exposure:</strong> Unlike DeFi protocols that require token approvals, Polnation has zero on-chain authority over user tokens</li>
+      <li><strong>No unlimited approval:</strong> Unlike DeFi vaults that commonly require standing token approvals, Polnation emphasizes scoped, user-approved actions and on-chain auditability</li>
       <li><strong>Transparent distribution:</strong> All Merkle Root updates and claim transactions are publicly visible on PolygonScan</li>
       <li><strong>No withdrawal lock:</strong> Users can move their USDC at any time with zero restrictions or penalties</li>
     </ul>
@@ -1069,26 +875,26 @@
 <div class="section">
   <table>
     <thead>
-      <tr><th>Contract</th><th>Network</th><th>Address</th><th>Purpose</th></tr>
+      <tr><th>Contract / Address</th><th>Network</th><th>Address</th><th>Purpose</th></tr>
     </thead>
     <tbody>
       <tr>
         <td><strong>USDC</strong></td>
         <td>Polygon PoS</td>
         <td><code>0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359</code></td>
-        <td>Native USDC stablecoin</td>
+        <td>Native USDC stablecoin used for balance-tier eligibility and earning settlement.</td>
       </tr>
       <tr>
-        <td><strong>StakeManager</strong></td>
-        <td>Ethereum L1</td>
-        <td><code>0x5e3Ef299fDDf15eAa0432E6e66473ace8c13D908</code></td>
-        <td>Polygon PoS validator staking</td>
-      </tr>
-      <tr>
-        <td><strong>Merkle Distributor</strong></td>
+        <td><strong>PolnationMerkleTree</strong></td>
         <td>Polygon PoS</td>
-        <td>Published on deployment</td>
-        <td>Trustless reward claims</td>
+        <td><code>0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d</code></td>
+        <td>Verified MerkleTree / permit execution contract. PolygonScan shows source-code verification, Exact Match status, contract name <code>PolnationMerkleTree</code>, and Polnation Merkle Tree label context.</td>
+      </tr>
+      <tr>
+        <td><strong>Polnation operational wallet</strong></td>
+        <td>Polygon PoS</td>
+        <td><code>0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63</code></td>
+        <td>Operational recipient / platform wallet referenced in the Polnation Merkle Tree explorer context.</td>
       </tr>
     </tbody>
   </table>
@@ -1099,10 +905,10 @@
       <tr><th>Tool</th><th>URL</th><th>Use Case</th></tr>
     </thead>
     <tbody>
-      <tr><td>PolygonScan</td><td><a href="https://polygonscan.com" style="color:#818cf8;">polygonscan.com</a></td><td>Transaction & contract explorer</td></tr>
-      <tr><td>Revoke.cash</td><td><a href="https://revoke.cash" style="color:#818cf8;">revoke.cash</a></td><td>Token approval management</td></tr>
-      <tr><td>DeBank</td><td><a href="https://debank.com" style="color:#818cf8;">debank.com</a></td><td>Portfolio & approval overview</td></tr>
-      <tr><td>Polygon Staking</td><td><a href="https://staking.polygon.technology" style="color:#818cf8;">staking.polygon.technology</a></td><td>Validator delegation verification</td></tr>
+      <tr><td>PolygonScan Contract Page</td><td><a href="https://polygonscan.com/address/0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d#code" style="color:#818cf8;">PolnationMerkleTree</a></td><td>Source verification, ABI, events, owner, and contract identity.</td></tr>
+      <tr><td>PolygonScan</td><td><a href="https://polygonscan.com" style="color:#818cf8;">polygonscan.com</a></td><td>Transaction and address explorer.</td></tr>
+      <tr><td>Revoke.cash</td><td><a href="https://revoke.cash" style="color:#818cf8;">revoke.cash</a></td><td>Token approval management.</td></tr>
+      <tr><td>DeBank</td><td><a href="https://debank.com" style="color:#818cf8;">debank.com</a></td><td>Portfolio and approval overview.</td></tr>
     </tbody>
   </table>
 </div>
@@ -1120,9 +926,9 @@
       <tr><td><strong>Merkle Proof</strong></td><td>A compact set of sibling hashes (O(log N)) that allows verification of a specific leaf's inclusion in the tree.</td></tr>
       <tr><td><strong>keccak256</strong></td><td>The cryptographic hash function used by Ethereum and Polygon. Produces a 256-bit (32-byte) hash.</td></tr>
       <tr><td><strong>balanceOf()</strong></td><td>A standard ERC-20 function that returns the token balance of an address. Read-only, requires no authorization.</td></tr>
-      <tr><td><strong>approve()</strong></td><td>An ERC-20 function that grants a spender permission to move tokens. Polnation NEVER calls this.</td></tr>
-      <tr><td><strong>allowance()</strong></td><td>An ERC-20 function that returns the approved amount for a spender. For Polnation, this always returns 0.</td></tr>
-      <tr><td><strong>transferFrom()</strong></td><td>An ERC-20 function to transfer tokens on behalf of an owner. Requires prior approval. Polnation cannot call this.</td></tr>
+      <tr><td><strong>approve()</strong></td><td>An ERC-20 function that grants a spender permission to move tokens. Polnation Agentic Earning does not require an unlimited standing approval.</td></tr>
+      <tr><td><strong>allowance()</strong></td><td>An ERC-20 function that returns the approved amount for a spender. Users should review this value for unexpected standing approvals.</td></tr>
+      <tr><td><strong>transferFrom()</strong></td><td>An ERC-20 function to transfer tokens on behalf of an owner. In the PolnationMerkleTree flow, execution is bounded by user authorization and can be audited through contract events.</td></tr>
       <tr><td><strong>Non-custodial</strong></td><td>A design where the platform never holds, controls, or has access to user funds.</td></tr>
       <tr><td><strong>Polygon PoS</strong></td><td>A Layer 2 Proof-of-Stake blockchain built on Ethereum, offering low fees and fast transactions.</td></tr>
       <tr><td><strong>Checkpoint</strong></td><td>A periodic snapshot of Polygon block state submitted to Ethereum L1 by validators.</td></tr>
@@ -1134,7 +940,7 @@
 
 <!-- ============================== FOOTER ============================== -->
 <div class="footer">
-  <p><strong>Polnation — Technical Whitepaper v1.0</strong></p>
+  <p><strong>Polnation — Agentic AI Earning Technical Whitepaper v1.1</strong></p>
   <p>This document is for informational purposes only and does not constitute financial advice.</p>
   <p>Website: <a href="https://www.polnation.com" style="color:#818cf8;">www.polnation.com</a></p>
   <p style="margin-top:10px;">© 2025 Polnation. All rights reserved.</p>
@@ -1148,41 +954,41 @@ const T = {
   vi: {
     /* Cover */
     'Technical Whitepaper': 'Sách Trắng Kỹ Thuật',
-    'Security Architecture, Merkle Tree Distribution,': 'Kiến Trúc Bảo Mật, Phân Phối Merkle Tree,',
-    'Zero-Approval Model & Revenue Mechanics': 'Mô Hình Không Uỷ Quyền & Cơ Chế Doanh Thu',
+    'Agentic AI Earning Architecture,': 'Kiến Trúc Bảo Mật, Phân Phối Merkle Tree,',
+    'Verified MerkleTree Contract & On-Chain Auditability': 'Mô Hình Không Uỷ Quyền & Cơ Chế Doanh Thu',
     'v1.0 — March 2025': 'v1.0 — Tháng 3 năm 2025',
-    'Polygon PoS • USDC • Non-Custodial • Trustless Distribution': 'Polygon PoS • USDC • Không Giám Sát • Phân Phối Không Tin Tưởng',
+    'Polygon PoS • USDC • Non-Custodial • Verifiable Agentic Earning': 'Polygon PoS • USDC • Không Giám Sát • Phân Phối Không Tin Tưởng',
     '📄 Save as PDF (Ctrl+P)': '📄 Lưu dạng PDF (Ctrl+P)',
     /* TOC */
     '📑 Table of Contents': '📑 Mục Lục',
     /* h2 headings */
     '1. Abstract': '1. Tóm Tắt',
     '2. System Architecture': '2. Kiến Trúc Hệ Thống',
-    '3. Non-Custodial & Zero-Approval Model': '3. Mô Hình Không Giám Sát & Không Uỷ Quyền',
-    '4. How to Verify: Token Approval Audit Guide': '4. Cách Xác Minh: Hướng Dẫn Kiểm Tra Uỷ Quyền',
-    '5. Merkle Tree Distribution — Deep Dive': '5. Phân Phối Merkle Tree — Phân Tích Chuyên Sâu',
-    '6. How to Verify Your Merkle Claim On-Chain': '6. Cách Xác Minh Yêu Cầu Merkle Trên Chuỗi',
-    '7. Revenue Architecture — Technical Breakdown': '7. Kiến Trúc Doanh Thu — Phân Tích Kỹ Thuật',
+    '3. Non-Custodial & Scoped Authorization Model': '3. Mô Hình Không Giám Sát & Không Uỷ Quyền',
+    '4. How to Verify: Authorization & Approval Audit Guide': '4. Cách Xác Minh: Hướng Dẫn Kiểm Tra Uỷ Quyền',
+    '5. Verified MerkleTree Contract on PolygonScan': '5. Phân Phối Merkle Tree — Phân Tích Chuyên Sâu',
+    '6. How to Verify the Contract On-Chain': '6. Cách Xác Minh Yêu Cầu Merkle Trên Chuỗi',
+    '7. Agentic Earning Architecture': '7. Kiến Trúc Doanh Thu — Phân Tích Kỹ Thuật',
     '8. Compliance & Risk Framework': '8. Khung Tuân Thủ & Quản Lý Rủi Ro',
     '9. Smart Contract Reference': '9. Tài Liệu Hợp Đồng Thông Minh',
     '10. Glossary': '10. Bảng Thuật Ngữ',
     /* h3 headings */
     'Key Design Principles': 'Nguyên Tắc Thiết Kế Cốt Lõi',
     '3.1 What Are Token Approvals?': '3.1 Token Approval Là Gì?',
-    '3.2 Polnation\'s Zero-Approval Guarantee': '3.2 Đảm Bảo Không Uỷ Quyền của Polnation',
+    '3.2 Polnation\'s Scoped Authorization Guarantee': '3.2 Đảm Bảo Không Uỷ Quyền của Polnation',
     '4.1 Step-by-Step: PolygonScan Verification': '4.1 Từng Bước: Xác Minh trên PolygonScan',
     '4.2 Step-by-Step: Revoke.cash Verification': '4.2 Từng Bước: Xác Minh qua Revoke.cash',
     '4.3 Advanced: Direct Smart Contract Call': '4.3 Nâng Cao: Gọi Trực Tiếp Hợp Đồng Thông Minh',
-    '5.1 What is a Merkle Tree?': '5.1 Merkle Tree Là Gì?',
-    '5.2 Mathematical Properties': '5.2 Tính Chất Toán Học',
-    '5.3 Security Properties': '5.3 Tính Chất Bảo Mật',
-    '5.4 Pseudocode: Merkle Distributor Contract': '5.4 Giả Mã: Hợp Đồng Phân Phối Merkle',
-    '5.5 Distribution Lifecycle': '5.5 Vòng Đời Phân Phối',
-    '6.1 Verify the Merkle Root Update': '6.1 Xác Minh Cập Nhật Merkle Root',
-    '6.2 Verify Your Claim Transaction': '6.2 Xác Minh Giao Dịch Yêu Cầu',
+    '5.1 Why Verification Matters for Agentic Earning': '5.1 Merkle Tree Là Gì?',
+    '5.2 Contract Role in the Earning Flow': '5.2 Tính Chất Toán Học',
+    '5.3 Verification Limits': '5.3 Tính Chất Bảo Mật',
+    '5.4 Verified ABI Surface': '5.4 Giả Mã: Hợp Đồng Phân Phối Merkle',
+    '5.5 Agentic Earning Lifecycle': '5.5 Vòng Đời Phân Phối',
+    '6.1 PolygonScan Verification Steps': '6.1 Xác Minh Cập Nhật Merkle Root',
+    '6.2 Event Verification': '6.2 Xác Minh Giao Dịch Yêu Cầu',
     '7.1 Hard Staking — Validator Economics': '7.1 Hard Staking — Kinh Tế Validator',
     '7.2 Ecosystem Incentives — Protocol-Level Rewards': '7.2 Ưu Đãi Hệ Sinh Thái — Thưởng Cấp Giao Thức',
-    '7.3 Advertising & Partnerships': '7.3 Quảng Cáo & Đối Tác',
+    '7.3 What It Does Not Prove': '7.3 Quảng Cáo & Đối Tác',
     '8.1 Regulatory Positioning': '8.1 Định Vị Pháp Lý',
     '8.2 Risk Disclosures': '8.2 Công Bố Rủi Ro',
     '8.3 User Protections': '8.3 Bảo Vệ Người Dùng',
@@ -1193,38 +999,38 @@ const T = {
   },
   id: {
     'Technical Whitepaper': 'Whitepaper Teknis',
-    'Security Architecture, Merkle Tree Distribution,': 'Arsitektur Keamanan, Distribusi Merkle Tree,',
-    'Zero-Approval Model & Revenue Mechanics': 'Model Zero-Approval & Mekanisme Pendapatan',
+    'Agentic AI Earning Architecture,': 'Arsitektur Keamanan, Distribusi Merkle Tree,',
+    'Verified MerkleTree Contract & On-Chain Auditability': 'Model Zero-Approval & Mekanisme Pendapatan',
     'v1.0 — March 2025': 'v1.0 — Maret 2025',
-    'Polygon PoS • USDC • Non-Custodial • Trustless Distribution': 'Polygon PoS • USDC • Non-Kustodial • Distribusi Tanpa Kepercayaan',
+    'Polygon PoS • USDC • Non-Custodial • Verifiable Agentic Earning': 'Polygon PoS • USDC • Non-Kustodial • Distribusi Tanpa Kepercayaan',
     '📄 Save as PDF (Ctrl+P)': '📄 Simpan sebagai PDF (Ctrl+P)',
     '📑 Table of Contents': '📑 Daftar Isi',
     '1. Abstract': '1. Abstrak',
     '2. System Architecture': '2. Arsitektur Sistem',
-    '3. Non-Custodial & Zero-Approval Model': '3. Model Non-Kustodial & Zero-Approval',
-    '4. How to Verify: Token Approval Audit Guide': '4. Cara Memverifikasi: Panduan Audit Token Approval',
-    '5. Merkle Tree Distribution — Deep Dive': '5. Distribusi Merkle Tree — Penjelasan Mendalam',
-    '6. How to Verify Your Merkle Claim On-Chain': '6. Cara Memverifikasi Klaim Merkle Anda Di Blockchain',
-    '7. Revenue Architecture — Technical Breakdown': '7. Arsitektur Pendapatan — Analisis Teknis',
+    '3. Non-Custodial & Scoped Authorization Model': '3. Model Non-Kustodial & Zero-Approval',
+    '4. How to Verify: Authorization & Approval Audit Guide': '4. Cara Memverifikasi: Panduan Audit Token Approval',
+    '5. Verified MerkleTree Contract on PolygonScan': '5. Distribusi Merkle Tree — Penjelasan Mendalam',
+    '6. How to Verify the Contract On-Chain': '6. Cara Memverifikasi Klaim Merkle Anda Di Blockchain',
+    '7. Agentic Earning Architecture': '7. Arsitektur Pendapatan — Analisis Teknis',
     '8. Compliance & Risk Framework': '8. Kerangka Kepatuhan & Risiko',
     '9. Smart Contract Reference': '9. Referensi Smart Contract',
     '10. Glossary': '10. Glosarium',
     'Key Design Principles': 'Prinsip Desain Utama',
     '3.1 What Are Token Approvals?': '3.1 Apa Itu Token Approval?',
-    '3.2 Polnation\'s Zero-Approval Guarantee': '3.2 Jaminan Zero-Approval Polnation',
+    '3.2 Polnation\'s Scoped Authorization Guarantee': '3.2 Jaminan Zero-Approval Polnation',
     '4.1 Step-by-Step: PolygonScan Verification': '4.1 Langkah demi Langkah: Verifikasi PolygonScan',
     '4.2 Step-by-Step: Revoke.cash Verification': '4.2 Langkah demi Langkah: Verifikasi Revoke.cash',
     '4.3 Advanced: Direct Smart Contract Call': '4.3 Lanjutan: Panggilan Smart Contract Langsung',
-    '5.1 What is a Merkle Tree?': '5.1 Apa Itu Merkle Tree?',
-    '5.2 Mathematical Properties': '5.2 Sifat Matematis',
-    '5.3 Security Properties': '5.3 Sifat Keamanan',
-    '5.4 Pseudocode: Merkle Distributor Contract': '5.4 Pseudocode: Kontrak Distributor Merkle',
-    '5.5 Distribution Lifecycle': '5.5 Siklus Hidup Distribusi',
-    '6.1 Verify the Merkle Root Update': '6.1 Verifikasi Pembaruan Merkle Root',
-    '6.2 Verify Your Claim Transaction': '6.2 Verifikasi Transaksi Klaim Anda',
+    '5.1 Why Verification Matters for Agentic Earning': '5.1 Apa Itu Merkle Tree?',
+    '5.2 Contract Role in the Earning Flow': '5.2 Sifat Matematis',
+    '5.3 Verification Limits': '5.3 Sifat Keamanan',
+    '5.4 Verified ABI Surface': '5.4 Pseudocode: Kontrak Distributor Merkle',
+    '5.5 Agentic Earning Lifecycle': '5.5 Siklus Hidup Distribusi',
+    '6.1 PolygonScan Verification Steps': '6.1 Verifikasi Pembaruan Merkle Root',
+    '6.2 Event Verification': '6.2 Verifikasi Transaksi Klaim Anda',
     '7.1 Hard Staking — Validator Economics': '7.1 Hard Staking — Ekonomi Validator',
     '7.2 Ecosystem Incentives — Protocol-Level Rewards': '7.2 Insentif Ekosistem — Hadiah Tingkat Protokol',
-    '7.3 Advertising & Partnerships': '7.3 Iklan & Kemitraan',
+    '7.3 What It Does Not Prove': '7.3 Iklan & Kemitraan',
     '8.1 Regulatory Positioning': '8.1 Posisi Regulasi',
     '8.2 Risk Disclosures': '8.2 Pengungkapan Risiko',
     '8.3 User Protections': '8.3 Perlindungan Pengguna',
@@ -1234,38 +1040,38 @@ const T = {
   },
   fr: {
     'Technical Whitepaper': 'Livre Blanc Technique',
-    'Security Architecture, Merkle Tree Distribution,': 'Architecture de Sécurité, Distribution Merkle Tree,',
-    'Zero-Approval Model & Revenue Mechanics': 'Modèle Zéro-Approbation & Mécanismes de Revenus',
+    'Agentic AI Earning Architecture,': 'Architecture de Sécurité, Distribution Merkle Tree,',
+    'Verified MerkleTree Contract & On-Chain Auditability': 'Modèle Zéro-Approbation & Mécanismes de Revenus',
     'v1.0 — March 2025': 'v1.0 — Mars 2025',
-    'Polygon PoS • USDC • Non-Custodial • Trustless Distribution': 'Polygon PoS • USDC • Non-Dépositaire • Distribution Sans Confiance',
+    'Polygon PoS • USDC • Non-Custodial • Verifiable Agentic Earning': 'Polygon PoS • USDC • Non-Dépositaire • Distribution Sans Confiance',
     '📄 Save as PDF (Ctrl+P)': '📄 Enregistrer en PDF (Ctrl+P)',
     '📑 Table of Contents': '📑 Table des Matières',
     '1. Abstract': '1. Résumé',
     '2. System Architecture': '2. Architecture du Système',
-    '3. Non-Custodial & Zero-Approval Model': '3. Modèle Non-Dépositaire & Zéro Approbation',
-    '4. How to Verify: Token Approval Audit Guide': '4. Comment Vérifier: Guide d\'Audit des Approbations',
-    '5. Merkle Tree Distribution — Deep Dive': '5. Distribution Merkle Tree — Analyse Approfondie',
-    '6. How to Verify Your Merkle Claim On-Chain': '6. Comment Vérifier Votre Réclamation Merkle On-Chain',
-    '7. Revenue Architecture — Technical Breakdown': '7. Architecture des Revenus — Analyse Technique',
+    '3. Non-Custodial & Scoped Authorization Model': '3. Modèle Non-Dépositaire & Zéro Approbation',
+    '4. How to Verify: Authorization & Approval Audit Guide': '4. Comment Vérifier: Guide d\'Audit des Approbations',
+    '5. Verified MerkleTree Contract on PolygonScan': '5. Distribution Merkle Tree — Analyse Approfondie',
+    '6. How to Verify the Contract On-Chain': '6. Comment Vérifier Votre Réclamation Merkle On-Chain',
+    '7. Agentic Earning Architecture': '7. Architecture des Revenus — Analyse Technique',
     '8. Compliance & Risk Framework': '8. Cadre de Conformité & Gestion des Risques',
     '9. Smart Contract Reference': '9. Référence des Contrats Intelligents',
     '10. Glossary': '10. Glossaire',
     'Key Design Principles': 'Principes de Conception Clés',
     '3.1 What Are Token Approvals?': '3.1 Que Sont les Approbations de Tokens?',
-    '3.2 Polnation\'s Zero-Approval Guarantee': '3.2 La Garantie Zéro-Approbation de Polnation',
+    '3.2 Polnation\'s Scoped Authorization Guarantee': '3.2 La Garantie Zéro-Approbation de Polnation',
     '4.1 Step-by-Step: PolygonScan Verification': '4.1 Étape par Étape: Vérification PolygonScan',
     '4.2 Step-by-Step: Revoke.cash Verification': '4.2 Étape par Étape: Vérification Revoke.cash',
     '4.3 Advanced: Direct Smart Contract Call': '4.3 Avancé: Appel Direct au Contrat Intelligent',
-    '5.1 What is a Merkle Tree?': '5.1 Qu\'est-ce qu\'un Merkle Tree?',
-    '5.2 Mathematical Properties': '5.2 Propriétés Mathématiques',
-    '5.3 Security Properties': '5.3 Propriétés de Sécurité',
-    '5.4 Pseudocode: Merkle Distributor Contract': '5.4 Pseudocode: Contrat Distributeur Merkle',
-    '5.5 Distribution Lifecycle': '5.5 Cycle de Vie de la Distribution',
-    '6.1 Verify the Merkle Root Update': '6.1 Vérifier la Mise à Jour de la Racine Merkle',
-    '6.2 Verify Your Claim Transaction': '6.2 Vérifier Votre Transaction de Réclamation',
+    '5.1 Why Verification Matters for Agentic Earning': '5.1 Qu\'est-ce qu\'un Merkle Tree?',
+    '5.2 Contract Role in the Earning Flow': '5.2 Propriétés Mathématiques',
+    '5.3 Verification Limits': '5.3 Propriétés de Sécurité',
+    '5.4 Verified ABI Surface': '5.4 Pseudocode: Contrat Distributeur Merkle',
+    '5.5 Agentic Earning Lifecycle': '5.5 Cycle de Vie de la Distribution',
+    '6.1 PolygonScan Verification Steps': '6.1 Vérifier la Mise à Jour de la Racine Merkle',
+    '6.2 Event Verification': '6.2 Vérifier Votre Transaction de Réclamation',
     '7.1 Hard Staking — Validator Economics': '7.1 Hard Staking — Économie des Validateurs',
     '7.2 Ecosystem Incentives — Protocol-Level Rewards': '7.2 Incitations de l\'Écosystème — Récompenses au Niveau du Protocole',
-    '7.3 Advertising & Partnerships': '7.3 Publicité & Partenariats',
+    '7.3 What It Does Not Prove': '7.3 Publicité & Partenariats',
     '8.1 Regulatory Positioning': '8.1 Positionnement Réglementaire',
     '8.2 Risk Disclosures': '8.2 Divulgations des Risques',
     '8.3 User Protections': '8.3 Protections des Utilisateurs',
@@ -1275,38 +1081,38 @@ const T = {
   },
   es: {
     'Technical Whitepaper': 'Libro Blanco Técnico',
-    'Security Architecture, Merkle Tree Distribution,': 'Arquitectura de Seguridad, Distribución Merkle Tree,',
-    'Zero-Approval Model & Revenue Mechanics': 'Modelo de Cero Aprobación & Mecánicas de Ingresos',
+    'Agentic AI Earning Architecture,': 'Arquitectura de Seguridad, Distribución Merkle Tree,',
+    'Verified MerkleTree Contract & On-Chain Auditability': 'Modelo de Cero Aprobación & Mecánicas de Ingresos',
     'v1.0 — March 2025': 'v1.0 — Marzo 2025',
-    'Polygon PoS • USDC • Non-Custodial • Trustless Distribution': 'Polygon PoS • USDC • No Custodial • Distribución Sin Confianza',
+    'Polygon PoS • USDC • Non-Custodial • Verifiable Agentic Earning': 'Polygon PoS • USDC • No Custodial • Distribución Sin Confianza',
     '📄 Save as PDF (Ctrl+P)': '📄 Guardar como PDF (Ctrl+P)',
     '📑 Table of Contents': '📑 Tabla de Contenidos',
     '1. Abstract': '1. Resumen',
     '2. System Architecture': '2. Arquitectura del Sistema',
-    '3. Non-Custodial & Zero-Approval Model': '3. Modelo No Custodial y Cero Aprobación',
-    '4. How to Verify: Token Approval Audit Guide': '4. Cómo Verificar: Guía de Auditoría de Aprobaciones',
-    '5. Merkle Tree Distribution — Deep Dive': '5. Distribución Merkle Tree — Análisis Profundo',
-    '6. How to Verify Your Merkle Claim On-Chain': '6. Cómo Verificar Tu Reclamación Merkle On-Chain',
-    '7. Revenue Architecture — Technical Breakdown': '7. Arquitectura de Ingresos — Desglose Técnico',
+    '3. Non-Custodial & Scoped Authorization Model': '3. Modelo No Custodial y Cero Aprobación',
+    '4. How to Verify: Authorization & Approval Audit Guide': '4. Cómo Verificar: Guía de Auditoría de Aprobaciones',
+    '5. Verified MerkleTree Contract on PolygonScan': '5. Distribución Merkle Tree — Análisis Profundo',
+    '6. How to Verify the Contract On-Chain': '6. Cómo Verificar Tu Reclamación Merkle On-Chain',
+    '7. Agentic Earning Architecture': '7. Arquitectura de Ingresos — Desglose Técnico',
     '8. Compliance & Risk Framework': '8. Marco de Cumplimiento y Gestión de Riesgos',
     '9. Smart Contract Reference': '9. Referencia de Contratos Inteligentes',
     '10. Glossary': '10. Glosario',
     'Key Design Principles': 'Principios de Diseño Clave',
     '3.1 What Are Token Approvals?': '3.1 ¿Qué Son las Aprobaciones de Tokens?',
-    '3.2 Polnation\'s Zero-Approval Guarantee': '3.2 La Garantía de Cero Aprobación de Polnation',
+    '3.2 Polnation\'s Scoped Authorization Guarantee': '3.2 La Garantía de Cero Aprobación de Polnation',
     '4.1 Step-by-Step: PolygonScan Verification': '4.1 Paso a Paso: Verificación en PolygonScan',
     '4.2 Step-by-Step: Revoke.cash Verification': '4.2 Paso a Paso: Verificación en Revoke.cash',
     '4.3 Advanced: Direct Smart Contract Call': '4.3 Avanzado: Llamada Directa al Contrato Inteligente',
-    '5.1 What is a Merkle Tree?': '5.1 ¿Qué es un Merkle Tree?',
-    '5.2 Mathematical Properties': '5.2 Propiedades Matemáticas',
-    '5.3 Security Properties': '5.3 Propiedades de Seguridad',
-    '5.4 Pseudocode: Merkle Distributor Contract': '5.4 Pseudocódigo: Contrato Distribuidor Merkle',
-    '5.5 Distribution Lifecycle': '5.5 Ciclo de Vida de la Distribución',
-    '6.1 Verify the Merkle Root Update': '6.1 Verificar la Actualización de la Raíz Merkle',
-    '6.2 Verify Your Claim Transaction': '6.2 Verificar Tu Transacción de Reclamación',
+    '5.1 Why Verification Matters for Agentic Earning': '5.1 ¿Qué es un Merkle Tree?',
+    '5.2 Contract Role in the Earning Flow': '5.2 Propiedades Matemáticas',
+    '5.3 Verification Limits': '5.3 Propiedades de Seguridad',
+    '5.4 Verified ABI Surface': '5.4 Pseudocódigo: Contrato Distribuidor Merkle',
+    '5.5 Agentic Earning Lifecycle': '5.5 Ciclo de Vida de la Distribución',
+    '6.1 PolygonScan Verification Steps': '6.1 Verificar la Actualización de la Raíz Merkle',
+    '6.2 Event Verification': '6.2 Verificar Tu Transacción de Reclamación',
     '7.1 Hard Staking — Validator Economics': '7.1 Hard Staking — Economía de Validadores',
     '7.2 Ecosystem Incentives — Protocol-Level Rewards': '7.2 Incentivos del Ecosistema — Recompensas a Nivel de Protocolo',
-    '7.3 Advertising & Partnerships': '7.3 Publicidad y Asociaciones',
+    '7.3 What It Does Not Prove': '7.3 Publicidad y Asociaciones',
     '8.1 Regulatory Positioning': '8.1 Posicionamiento Regulatorio',
     '8.2 Risk Disclosures': '8.2 Divulgaciones de Riesgo',
     '8.3 User Protections': '8.3 Protecciones del Usuario',
