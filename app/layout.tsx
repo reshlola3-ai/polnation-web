@@ -31,13 +31,14 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   // 基础 SEO
   title: {
-    default: "Polnation - AI Driven Agentic Earning",
+    default: "Polnation - Agentic AI Earning",
     template: "%s | Polnation",
   },
-  description: "Polnation is an AI-driven agentic earning platform on Polygon. Our proprietary Merkle Tree quantitative financial model and intelligent arbitrage bots generate real on-chain yield distributed daily to USDC holders.",
+  description: "Polnation is an Agentic AI Earning platform on Polygon. Our proprietary Merkle Tree quantitative financial model and intelligent arbitrage bots generate real on-chain yield distributed daily to USDC holders.",
   keywords: [
     "Polnation",
     "agentic earning",
+    "Agentic AI Earning",
     "AI driven earning",
     "Merkle Tree finance",
     "quantitative model",
@@ -72,14 +73,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: siteUrl,
     siteName: "Polnation",
-    title: "Polnation - AI Driven Agentic Earning",
+    title: "Polnation - Agentic AI Earning",
     description: "Proprietary Merkle Tree quant model and intelligent arbitrage bots generating real on-chain yield. Hold USDC and earn daily — no lock-up required.",
     images: [
       {
         url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: "Polnation - Community Dividend Platform",
+        alt: "Polnation - Agentic AI Earning",
       },
     ],
   },
@@ -87,7 +88,7 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: "summary_large_image",
-    title: "Polnation - AI Driven Agentic Earning",
+    title: "Polnation - Agentic AI Earning",
     description: "Proprietary Merkle Tree quant model and intelligent arbitrage bots generating real on-chain yield. Hold USDC and earn daily — no lock-up required.",
     images: [`${siteUrl}/og-image.png`],
     creator: "@polnation",

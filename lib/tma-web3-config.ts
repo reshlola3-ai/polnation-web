@@ -6,7 +6,7 @@ const projectId = 'ea97927d76764f8d29ee2f8787bc5d7c'
 
 const metadata = {
   name: 'Polnation',
-  description: 'Community Dividend Platform on Polygon',
+  description: 'Agentic AI Earning on Polygon',
   url: 'https://www.polnation.com',
   icons: ['https://www.polnation.com/favicon.ico'],
 }

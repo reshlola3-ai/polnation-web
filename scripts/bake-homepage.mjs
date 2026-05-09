@@ -21,6 +21,17 @@ const $ = load(html, { decodeEntities: false })
 
 // ─── 1. TEXT_REPLACEMENTS (text-node level) ──────────────────────────────────
 const TEXT_REPLACEMENTS = [
+  ['Polnation Community Dividend Engine', 'Polnation Agentic AI Earning Engine'],
+  ['Community Dividend Platform', 'Agentic AI Earning'],
+  ['community dividend platform', 'Agentic AI earning platform'],
+  ['Community Dividend', 'Agentic AI Earning'],
+  ['community dividend', 'Agentic AI earning'],
+  ['Community Rewards', 'Agentic AI Earning'],
+  ['community rewards', 'Agentic AI Earning'],
+  ['community reward distributions', 'Agentic AI earning distributions'],
+  ['community reward system', 'Agentic AI earning system'],
+  ['community reward weight', 'Agentic AI earning weight'],
+  ['community reward', 'Agentic AI earning'],
   ['Open Money Stack', 'Reward Engine'],
   ['The Go-To Blockchain for Global Payments', 'The Non-Custodial Home for Daily USDC Reward Distributions'],
   ['Get early access', 'Get Started Now'],
@@ -73,20 +84,27 @@ function setHtml(sel, value) {
   if (el.length) el.html(value)
 }
 
-// Hero heading
-setText('.section.is-hero .heading-hide', 'Built for community rewards')
-setHtml('.section.is-hero .hero-heading-container .hero-heading', 'Built for<br/>community<br/>')
+const homepageTitle = 'Polnation - Agentic AI Earning | Earn USDC Distributions'
+const homepageDescription = 'Polnation is an Agentic AI Earning platform on Polygon. Hold USDC in your own wallet and earn daily through AI-driven yield routing based on your balance tier.'
 
-// Last wirechain hero-heading = "rewards"
+$('title').first().text(homepageTitle)
+$('meta[name="description"], meta[property="og:description"], meta[property="twitter:description"]').attr('content', homepageDescription)
+$('meta[property="og:title"], meta[property="twitter:title"]').attr('content', homepageTitle)
+
+// Hero heading
+setText('.section.is-hero .heading-hide', 'Agentic AI Earning')
+setHtml('.section.is-hero .hero-heading-container .hero-heading', 'Agentic<br/>AI<br/>')
+
+// Last wirechain hero-heading = "Earning"
 const wirechainHeadings = $('.section.is-hero .wirechain-wrap .hero-heading')
 if (wirechainHeadings.length) {
-  wirechainHeadings.last().text('rewards')
+  wirechainHeadings.last().text('Earning')
 }
 
 // Hero para
 setText(
   '.section.is-hero .h-hero-para .u-body-large',
-  'Hold USDC in your own wallet and receive daily reward distributions based on your balance tier.'
+  'Hold USDC in your own wallet and earn daily through Polnation Agentic AI Earning based on your balance tier.'
 )
 
 // Hero buttons
@@ -109,7 +127,7 @@ setText('.h-eyebrow .h-eyebrow-container > div:last-child', 'POLNATION REWARD EN
 setHtml('.oms-what-heading-wrap .u-h2', 'One reward engine for<br/>self-custody growth')
 setText(
   '.oms-what-heading-wrap .u-body-large',
-  'A single place to track balance tiers, referral momentum, and daily USDC reward distributions for the Polnation community.'
+  'A single place to track balance tiers, referral momentum, and daily USDC earnings powered by Polnation Agentic AI.'
 )
 const omsBtn = $('.oms-what-heading-wrap .btn.is-black > div').first()
 if (omsBtn.length) omsBtn.text('Get Started')
@@ -127,9 +145,9 @@ if (omsCards.length > 0) {
 if (omsCards.length > 1) {
   const c = omsCards.eq(1)
   c.find('.oms-lottie-heading h3').text('Referral Momentum')
-  c.find('.oms-lottie-para-wrap .u-body-mono-medium').text('GROW YOUR TEAM TO BOOST DAILY COMMUNITY EARNINGS')
+  c.find('.oms-lottie-para-wrap .u-body-mono-medium').text('GROW YOUR TEAM TO BOOST AGENTIC AI EARNING')
   c.find('.lottie-detail-para-wrap .oms-lottie-heading h3').text('Referral Momentum')
-  c.find('.lottie-detail-para-wrap .u-body-mono-medium').text('GROW YOUR TEAM TO BOOST DAILY COMMUNITY EARNINGS')
+  c.find('.lottie-detail-para-wrap .u-body-mono-medium').text('GROW YOUR TEAM TO BOOST AGENTIC AI EARNING')
   c.find('.lottie-detail-para-wrap .u-body-regular').text('Invite new wallet holders, grow team volume, and reset your momentum multiplier to strengthen daily reward output.')
 }
 
@@ -140,8 +158,8 @@ ucEyebrows.each(function () {
 })
 
 const ucCardCopy = [
-  { title: 'USDC Rewards', eyebrow: 'USDC REWARDS', body: 'Hold eligible USDC in your own wallet and receive daily community reward distributions without moving assets into custody.' },
-  { title: 'Balance Tiers', eyebrow: 'BALANCE TIERS', body: 'Higher balances unlock stronger participation weight, larger daily distributions, and more visibility in the community reward system.' },
+  { title: 'Agentic AI Earning', eyebrow: 'AGENTIC AI EARNING', body: 'Hold eligible USDC in your own wallet and earn daily through Polnation Agentic AI without moving assets into custody.' },
+  { title: 'Balance Tiers', eyebrow: 'BALANCE TIERS', body: 'Higher balances unlock stronger participation weight, larger daily distributions, and more visibility in the Agentic AI earning system.' },
   { title: 'Referral Growth', eyebrow: 'REFERRAL GROWTH', body: 'Invite new members, increase team momentum, and strengthen your daily earning profile through transparent community expansion.' },
   { title: 'Treasury Visibility', eyebrow: 'TREASURY VISIBILITY', body: 'Follow treasury activity, verify recent transfers, and see how onchain pool movement supports Polnation reward distribution.' },
 ]

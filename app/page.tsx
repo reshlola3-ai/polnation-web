@@ -19,7 +19,7 @@ const jsonLd = {
   name: 'Polnation',
   alternateName: ['Polnation Staking', 'Polnation Crypto'],
   url: 'https://www.polnation.com',
-  description: 'Polnation is an AI-driven agentic earning platform on Polygon. Our proprietary Merkle Tree quantitative model and intelligent arbitrage bots generate real on-chain yield distributed daily to USDC holders.',
+  description: 'Polnation is an Agentic AI Earning platform on Polygon. Our proprietary Merkle Tree quantitative model and intelligent arbitrage bots generate real on-chain yield distributed daily to USDC holders.',
   potentialAction: {
     '@type': 'SearchAction',
     target: 'https://www.polnation.com/search?q={search_term_string}',
@@ -45,7 +45,7 @@ const organizationJsonLd = {
   name: 'Polnation',
   url: 'https://www.polnation.com',
   logo: 'https://www.polnation.com/logo.svg',
-  description: 'Non-custodial community dividend platform on Polygon blockchain',
+  description: 'Non-custodial Agentic AI Earning platform on Polygon blockchain',
   foundingDate: '2024',
   sameAs: [
     'https://twitter.com/polnation',

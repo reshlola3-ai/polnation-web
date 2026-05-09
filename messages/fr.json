@@ -41,7 +41,7 @@
   },
   "home": {
     "welcome": "Bienvenue sur",
-    "tagline": "Community Dividend sur Polygon",
+    "tagline": "Agentic AI Earning sur Polygon",
     "subtitle": "Conservez des USDC dans votre portefeuille et recevez des distributions basées sur votre palier de solde.",
     "promoNote": "Taux promotionnels. Financé par un pool promotionnel limité de 100 000 USDC. Une fois le pool promo entièrement distribué, les taux seront réduits à des niveaux durables.",
     "goToDashboard": "Aller au tableau de bord",
@@ -385,7 +385,7 @@
   },
   "earnings": {
     "title": "Revenus",
-    "subtitle": "Suivez vos distributions Community Dividend",
+    "subtitle": "Suivez vos distributions Agentic AI Earning",
     "usdcBalance": "Votre solde USDC",
     "currentRate": "Taux actuel",
     "estimatedDaily": "Estimation quotidienne",

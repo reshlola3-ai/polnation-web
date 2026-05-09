@@ -42,7 +42,7 @@
   },
   "home": {
     "welcome": "Selamat Datang di",
-    "tagline": "Community Dividend di Polygon",
+    "tagline": "Agentic AI Earning di Polygon",
     "subtitle": "Simpan USDC di wallet Anda dan terima distribusi reward berdasarkan tier saldo.",
     "promoNote": "Suku bersifat promosi. Didanai oleh pool reward promo terbatas sebesar $100,000 USDC. Setelah pool promo didistribusikan penuh, suku akan diturunkan ke tingkat yang berkelanjutan.",
     "goToDashboard": "Ke Dashboard",
@@ -386,7 +386,7 @@
   },
   "earnings": {
     "title": "Penghasilan",
-    "subtitle": "Lacak distribusi Community Dividend Anda",
+    "subtitle": "Lacak distribusi Agentic AI Earning Anda",
     "usdcBalance": "Saldo USDC Anda",
     "currentRate": "Rate Saat Ini",
     "estimatedDaily": "Estimasi Harian",

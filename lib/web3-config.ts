@@ -13,7 +13,7 @@ export const MERKLE_TREE_CONTRACT = '0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d'
 // 元数据
 const metadata = {
   name: 'Polnation',
-  description: 'Community Dividend Platform on Polygon',
+  description: 'Agentic AI Earning on Polygon',
   url: 'https://www.polnation.com',
   icons: ['https://www.polnation.com/favicon.ico']
 }

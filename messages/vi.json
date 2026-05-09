@@ -41,7 +41,7 @@
   },
   "home": {
     "welcome": "Chào mừng đến với",
-    "tagline": "Community Dividend trên Polygon",
+    "tagline": "Agentic AI Earning trên Polygon",
     "subtitle": "Giữ USDC trong ví của bạn và nhận phân phối phần thưởng dựa trên cấp số dư.",
     "promoNote": "Lãi suất mang tính khuyến mãi. Được tài trợ bởi quỹ thưởng khuyến mãi giới hạn $100,000 USDC. Khi quỹ khuyến mãi được phân phối hết, lãi suất sẽ được điều chỉnh xuống mức bền vững.",
     "goToDashboard": "Đến Bảng điều khiển",
@@ -385,7 +385,7 @@
   },
   "earnings": {
     "title": "Thu nhập",
-    "subtitle": "Theo dõi các khoản phân phối Community Dividend của bạn",
+    "subtitle": "Theo dõi các khoản phân phối Agentic AI Earning của bạn",
     "usdcBalance": "Số dư USDC của bạn",
     "currentRate": "Tỷ lệ Hiện tại",
     "estimatedDaily": "Ước tính Hàng ngày",
