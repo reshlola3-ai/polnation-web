@@ -86,6 +86,7 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   const [activeWalletId, setActiveWalletId] = useState<string | null>(null)
   const [pendingMobileLink, setPendingMobileLink] = useState<{ wallet: WalletDef; href: string } | null>(null)
   const handledRef = useRef<string | null>(null)
+  const wcCleanupRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     if (!isConnected || !address) return
@@ -144,10 +145,17 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
     if (isMobileBrowser() && !isInDAppBrowser()) {
       const wcConnector = connectors.find((c) => c.id === 'walletConnect' || c.type === 'walletConnect')
       if (wcConnector) {
+        // Clear any leftover listener + stale pending link from a previous attempt
+        // so we never route a new display_uri through the old wallet's universal link.
+        wcCleanupRef.current?.()
+        wcCleanupRef.current = null
+        setPendingMobileLink(null)
+
         setStatus('connecting')
         const provider = await wcConnector.getProvider() as {
           on?: (e: string, fn: (...args: unknown[]) => void) => void
           off?: (e: string, fn: (...args: unknown[]) => void) => void
+          removeListener?: (e: string, fn: (...args: unknown[]) => void) => void
         }
         const onUri = (...args: unknown[]) => {
           const uri = args[0] as string
@@ -158,8 +166,19 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           }
         }
         provider.on?.('display_uri', onUri)
+        const cleanup = () => {
+          provider.off?.('display_uri', onUri)
+          provider.removeListener?.('display_uri', onUri)
+        }
+        wcCleanupRef.current = cleanup
         connect({ connector: wcConnector })
-        setTimeout(() => provider.off?.('display_uri', onUri), 60_000)
+        // 60s safety net in case nothing else clears it
+        setTimeout(() => {
+          if (wcCleanupRef.current === cleanup) {
+            cleanup()
+            wcCleanupRef.current = null
+          }
+        }, 60_000)
         return
       }
     }
@@ -168,6 +187,8 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
   }
 
   const handleReset = () => {
+    wcCleanupRef.current?.()
+    wcCleanupRef.current = null
     disconnect()
     setStatus('idle')
     setError('')
