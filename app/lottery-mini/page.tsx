@@ -787,11 +787,18 @@ export default function LotteryMiniPage() {
         setWebLoginStatus('idle')
         return
       }
+      const boundEmail = webLoginEmail.trim()
       setWebLoginStatus('success')
       setWebLoginPassword('') // don't keep plaintext in React state
       setHasRealEmail(true)
-      setUserEmail(webLoginEmail.trim())
+      setUserEmail(boundEmail)
+      // Bust the sessionStorage cache so a re-open doesn't flash stale data
+      if (tgUserIdRef.current) {
+        sessionStorage.removeItem(LOTTERY_CACHE_PREFIX + tgUserIdRef.current)
+      }
       void refreshState()
+      // Auto-close modal after 1.5s so user sees updated greeting immediately
+      window.setTimeout(() => setShowWebLoginPanel(false), 1500)
     } catch {
       setWebLoginError(t.webLoginNetworkError)
       setWebLoginStatus('idle')
