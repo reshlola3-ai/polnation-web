@@ -56,6 +56,20 @@ function isInDAppBrowser(): boolean {
   return !!(window as unknown as { ethereum?: unknown }).ethereum
 }
 
+// In TMA, window.open / <a target=_blank> often loads the URL in TG's webview
+// without triggering OS universal-link routing — wallet apps either don't open
+// or open without the wc URI. Telegram.WebApp.openLink hands the URL to TG,
+// which opens it via the system browser so universal links resolve correctly.
+function openExternal(href: string) {
+  if (typeof window === 'undefined') return
+  const tg = (window as unknown as { Telegram?: { WebApp?: { openLink?: (url: string) => void } } }).Telegram?.WebApp
+  if (tg?.openLink) {
+    tg.openLink(href)
+    return
+  }
+  try { window.open(href, '_blank', 'noopener,noreferrer') } catch { /* popup blocked */ }
+}
+
 interface Props {
   onBound: (address: string) => void
   onCancel?: () => void
@@ -140,7 +154,7 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
           if (typeof uri === 'string' && uri.startsWith('wc:')) {
             const href = wallet.wcUniversalLink(uri)
             setPendingMobileLink({ wallet, href })
-            try { window.open(href, '_blank', 'noopener,noreferrer') } catch { /* popup blocked */ }
+            openExternal(href)
           }
         }
         provider.on?.('display_uri', onUri)
@@ -150,7 +164,7 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
       }
     }
 
-    window.open(wallet.installUrl, '_blank', 'noopener,noreferrer')
+    openExternal(wallet.installUrl)
   }
 
   const handleReset = () => {
@@ -191,14 +205,13 @@ export function TmaWalletBinder({ onBound, onCancel }: Props) {
             <p className="text-white/45 text-xs">Waiting for connection…</p>
           </div>
         </div>
-        <a
-          href={pendingMobileLink.href}
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          type="button"
+          onClick={() => openExternal(pendingMobileLink.href)}
           className="flex items-center justify-center gap-2 w-full p-3 bg-[var(--poly-purple)] text-white text-sm font-semibold shadow-cta-purple"
         >
           Open {w.name}
-        </a>
+        </button>
         <p className="text-center text-xs text-white/40">
           Don&apos;t close this tab — connection completes here.
         </p>
