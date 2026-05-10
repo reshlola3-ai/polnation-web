@@ -944,7 +944,7 @@
         "p1": "The Polnation system consists of three independent layers that interact through well-defined interfaces.",
         "principlesTitle": "核心设计原则",
         "principles": [
-          "Separation of concerns: the computation layer never holds private keys to user wallets. It only reads public on-chain data and publishes verifiable outputs.",
+          "???????????????????????????????????????",
           "Trustless verification: contract identity, source code, ABI, and events can be checked by any independent observer.",
           "No single point of custody: user funds remain on the USDC contract and any token movement must be explicitly authorized by the user through a verified contract boundary."
         ]
@@ -970,7 +970,7 @@
           "Open revoke.cash and select Polygon.",
           "Enter your wallet address or connect your wallet.",
           "Search for USDC approvals.",
-          "Revoke stale or unfamiliar approvals directly from the tool."
+          "??????????????????"
         ]
       },
       "contract": {
@@ -1018,7 +1018,7 @@
           "Returns depend on operational performance, ecosystem conditions, and platform growth; they are not guaranteed.",
           "USDC is a centralized stablecoin managed by Circle; depeg or issuer risk affects all USDC holders.",
           "Polygon network congestion or validator issues may delay actions.",
-          "Regulatory changes may affect platform operations in some jurisdictions."
+          "????????????????????"
         ],
         "protectionsTitle": "用户保护",
         "protections": [
@@ -1039,212 +1039,261 @@
     "tables": {
       "layers": {
         "headers": [
-          "Layer",
-          "Role",
-          "Verification Surface"
+          "?",
+          "??",
+          "????"
         ],
         "rows": [
           [
-            "User layer",
-            "Wallet, web app, dashboard, and RPC reads",
-            "User wallet and public Polygon data"
+            "???",
+            "???Web App?Dashboard ? RPC ??",
+            "????? Polygon ????"
           ],
           [
-            "Computation layer",
-            "Balance scanner, eligibility rules, and agentic earning engine",
-            "Published UI state and operational rules"
+            "???",
+            "?????????? agentic earning engine",
+            "?? UI ???????"
           ],
           [
-            "Blockchain layer",
-            "USDC contract, PolnationMerkleTree, events, and PolygonScan",
-            "Verified source, ABI, owner, token address, and event logs"
+            "????",
+            "USDC ???PolnationMerkleTree???? PolygonScan",
+            "??????ABI?owner??????????"
           ]
         ]
       },
       "auth": {
         "headers": [
-          "Operation",
-          "Typical DeFi Vault",
+          "??",
+          "?? DeFi Vault",
           "Polnation Agentic AI Earning"
         ],
         "rows": [
           [
-            "Balance reading",
-            "Often paired with deposits or approvals",
-            "Public balanceOf reads through Polygon RPC"
+            "????",
+            "?????? approval ??",
+            "?? Polygon RPC ???? balanceOf"
           ],
           [
-            "AI/agent computation",
-            "Usually internal and opaque",
-            "Off-chain eligibility and earning logic; no direct wallet control"
+            "AI/agent ??",
+            "????????",
+            "?????????????????"
           ],
           [
-            "Contract identity",
-            "May be unverified or hard to inspect",
-            "MerkleTree contract is PolygonScan verified and tagged in the Polnation context"
+            "????",
+            "??????????",
+            "MerkleTree ???? PolygonScan ?????? Polnation ????"
           ],
           [
             "Standing approval",
-            "Commonly approve(contract, MAX)",
-            "No unlimited standing approval required"
+            "?? approve(contract, MAX)",
+            "????? standing approval"
           ],
           [
             "Permit-based action",
-            "Often hidden behind UI flows",
-            "Specific signature plus on-chain execution; auditable through PermitExecuted"
+            "????? UI ???",
+            "????????????? PermitExecuted ??"
           ],
           [
-            "Audit path",
-            "Read source only if verified",
-            "Source, ABI, owner, USDC address, and events visible on PolygonScan"
+            "????",
+            "???????????",
+            "???ABI?owner?USDC ??????? PolygonScan ??"
           ]
         ]
       },
       "proof": {
         "headers": [
-          "Field",
-          "Value"
+          "??",
+          "?"
         ],
         "rows": [
           [
-            "Network",
+            "??",
             "Polygon PoS Mainnet"
           ],
           [
-            "Address",
+            "??",
             "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d"
           ],
           [
             "PolygonScan URL",
-            "Open verified contract"
+            "???????"
           ],
           [
-            "Verification status",
+            "????",
             "Source Code Verified - Exact Match"
           ],
           [
-            "Contract name",
+            "????",
             "PolnationMerkleTree"
           ],
           [
-            "Explorer label context",
+            "???????",
             "Polnation: Merkle Tree"
           ],
           [
-            "Source file",
+            "????",
             "src/PolnationMerkleTree.sol"
           ]
         ]
       },
       "engine": {
         "headers": [
-          "Layer",
-          "Responsibility",
-          "Verification Surface"
+          "?",
+          "??",
+          "????"
         ],
         "rows": [
           [
-            "Data intake",
-            "Read USDC balances, wallet status, and public Polygon state",
-            "RPC reads and PolygonScan balances"
+            "????",
+            "?? USDC ???????? Polygon ????",
+            "RPC ??? PolygonScan ??"
           ],
           [
             "Agentic model",
-            "Classify eligibility, risk, tiers, and earning route",
-            "Dashboard output and published rules"
+            "???????????????",
+            "Dashboard ???????"
           ],
           [
             "Policy guardrails",
-            "Prevent unsupported wallets, stale signatures, or unsafe routes",
-            "UI state, server logs, and wallet prompts"
+            "???????????????????",
+            "UI ?????????????"
           ],
           [
-            "Contract boundary",
-            "Expose the on-chain execution surface",
-            "Verified PolnationMerkleTree source and ABI"
+            "????",
+            "????????",
+            "??? PolnationMerkleTree ??? ABI"
           ],
           [
-            "Event trail",
-            "Record permit-based executions",
-            "PermitExecuted event on PolygonScan"
+            "????",
+            "???? permit ???",
+            "PolygonScan ?? PermitExecuted ??"
           ]
         ]
       },
       "contracts": {
         "headers": [
-          "Contract / Address",
-          "Network",
-          "Address",
-          "Purpose"
+          "?? / ??",
+          "??",
+          "??",
+          "??"
         ],
         "rows": [
           [
             "USDC",
             "Polygon PoS",
             "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-            "Native USDC stablecoin used for balance-tier eligibility and earning settlement."
+            "???????????????? USDC ????"
           ],
           [
             "PolnationMerkleTree",
             "Polygon PoS",
             "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d",
-            "Verified MerkleTree / permit execution contract with source-code verification, Exact Match status, and Polnation Merkle Tree label context."
+            "???? MerkleTree / permit ????????????Exact Match ??? Polnation Merkle Tree ?????"
           ],
           [
             "Polnation operational wallet",
             "Polygon PoS",
             "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
-            "Operational recipient / platform wallet referenced in the Polnation Merkle Tree explorer context."
+            "Polnation Merkle Tree ?????????????? / ?????"
           ]
         ]
       },
       "glossary": {
         "headers": [
-          "Term",
-          "Definition"
+          "??",
+          "??"
         ],
         "rows": [
           [
             "Merkle Tree",
-            "A binary hash tree where the root hash represents all included data."
+            "???????????????????"
           ],
           [
             "Merkle Root",
-            "A single 32-byte hash at the top of the tree."
+            "?????? 32 ?????"
           ],
           [
             "Merkle Proof",
-            "A compact set of sibling hashes used to verify inclusion."
+            "????????????? sibling hash?"
           ],
           [
             "balanceOf()",
-            "Read-only ERC-20 function that returns token balance."
+            "????????? ERC-20 ???"
           ],
           [
             "approve()",
-            "ERC-20 function that grants a spender permission to move tokens."
+            "?? spender ????? ERC-20 ???"
           ],
           [
             "allowance()",
-            "ERC-20 function that returns the approved amount for a spender."
+            "???? spender ?????? ERC-20 ???"
           ],
           [
             "transferFrom()",
-            "ERC-20 function to transfer tokens on behalf of an owner after authorization."
+            "?????? owner ????? ERC-20 ???"
           ],
           [
-            "Non-custodial",
-            "A design where the platform never holds user funds."
+            "???",
+            "???????????????"
           ],
           [
             "Polygon PoS",
-            "A proof-of-stake blockchain network used by Polnation."
+            "Polnation ??? proof-of-stake ??????"
           ]
         ]
       }
     },
     "footer": {
       "disclaimer": "本文档仅供参考，不构成财务建议。"
+    },
+    "diagrams": {
+      "architecture": [
+        "Polnation ????",
+        "????",
+        "MetaMask / Trust",
+        "Polnation Web App",
+        "Next.js / React",
+        "Dashboard UI",
+        "?? + ??",
+        "RPC Provider",
+        "?? Polygon ????",
+        "?????",
+        "multicall balanceOf",
+        "?????",
+        "???? + rate",
+        "??????",
+        "???? + ????",
+        "USDC ??",
+        "?? balanceOf",
+        "PolnationMerkleTree",
+        "???????",
+        "PolygonScan",
+        "????? + ????"
+      ],
+      "authorization": [
+        "?? DeFi ??",
+        "????",
+        "100 USDC",
+        "DeFi ??",
+        "?? standing approval",
+        "?????",
+        "transferFrom ??",
+        "Polnation",
+        "????",
+        "USDC ?????",
+        "Polnation Engine",
+        "??????",
+        "?????",
+        "?? + ????"
+      ],
+      "verification": [
+        "PolygonScan",
+        "?? Token Approvals ??????",
+        "Revoke.cash",
+        "????????",
+        "Direct Contract Read",
+        "?? allowance(owner, spender)"
+      ]
     }
   }
 }

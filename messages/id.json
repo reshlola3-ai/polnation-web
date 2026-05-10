@@ -1040,25 +1040,25 @@
     "tables": {
       "layers": {
         "headers": [
-          "Layer",
+          "Lapisan",
           "Peran",
           "Permukaan Verifikasi"
         ],
         "rows": [
           [
-            "User layer",
-            "Wallet, web app, dashboard, and RPC reads",
-            "User wallet and public Polygon data"
+            "Layer pengguna",
+            "Wallet, aplikasi web, dashboard, dan pembacaan RPC",
+            "Wallet pengguna dan data Polygon publik"
           ],
           [
-            "Computation layer",
-            "Balance scanner, eligibility rules, and agentic earning engine",
-            "Published UI state and operational rules"
+            "Layer komputasi",
+            "Balance scanner, aturan kelayakan, dan mesin agentic earning",
+            "State UI yang dipublikasikan dan aturan operasional"
           ],
           [
-            "Blockchain layer",
-            "USDC contract, PolnationMerkleTree, events, and PolygonScan",
-            "Verified source, ABI, owner, token address, and event logs"
+            "Layer blockchain",
+            "Kontrak USDC, PolnationMerkleTree, event, dan PolygonScan",
+            "Source terverifikasi, ABI, owner, alamat token, dan event log"
           ]
         ]
       },
@@ -1070,69 +1070,69 @@
         ],
         "rows": [
           [
-            "Balance reading",
-            "Often paired with deposits or approvals",
-            "Public balanceOf reads through Polygon RPC"
+            "Pembacaan saldo",
+            "Sering dipasangkan dengan deposit atau approval",
+            "Pembacaan balanceOf publik melalui Polygon RPC"
           ],
           [
-            "AI/agent computation",
-            "Usually internal and opaque",
-            "Off-chain eligibility and earning logic; no direct wallet control"
+            "Komputasi AI/agent",
+            "Biasanya internal dan buram",
+            "Logika kelayakan dan earning off-chain; tanpa kontrol wallet langsung"
           ],
           [
-            "Contract identity",
-            "May be unverified or hard to inspect",
-            "MerkleTree contract is PolygonScan verified and tagged in the Polnation context"
+            "Identitas kontrak",
+            "Mungkin tidak terverifikasi atau sulit diperiksa",
+            "Kontrak MerkleTree terverifikasi PolygonScan dan diberi tag dalam konteks Polnation"
           ],
           [
             "Standing approval",
-            "Commonly approve(contract, MAX)",
-            "No unlimited standing approval required"
+            "Umumnya approve(contract, MAX)",
+            "Tidak memerlukan unlimited standing approval"
           ],
           [
-            "Permit-based action",
-            "Often hidden behind UI flows",
-            "Specific signature plus on-chain execution; auditable through PermitExecuted"
+            "Aksi berbasis permit",
+            "Sering tersembunyi di balik flow UI",
+            "Signature spesifik plus eksekusi on-chain; dapat diaudit melalui PermitExecuted"
           ],
           [
-            "Audit path",
-            "Read source only if verified",
-            "Source, ABI, owner, USDC address, and events visible on PolygonScan"
+            "Jalur audit",
+            "Source hanya bisa dibaca jika terverifikasi",
+            "Source, ABI, owner, alamat USDC, dan event terlihat di PolygonScan"
           ]
         ]
       },
       "proof": {
         "headers": [
-          "Field",
+          "Kolom",
           "Nilai"
         ],
         "rows": [
           [
-            "Network",
+            "Jaringan",
             "Polygon PoS Mainnet"
           ],
           [
-            "Address",
+            "Alamat",
             "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d"
           ],
           [
-            "PolygonScan URL",
-            "Open verified contract"
+            "URL PolygonScan",
+            "Buka kontrak terverifikasi"
           ],
           [
-            "Verification status",
+            "Status verifikasi",
             "Source Code Verified - Exact Match"
           ],
           [
-            "Contract name",
+            "Nama kontrak",
             "PolnationMerkleTree"
           ],
           [
-            "Explorer label context",
+            "Konteks label explorer",
             "Polnation: Merkle Tree"
           ],
           [
-            "Source file",
+            "File source",
             "src/PolnationMerkleTree.sol"
           ]
         ]
@@ -1146,28 +1146,28 @@
         "rows": [
           [
             "Data intake",
-            "Read USDC balances, wallet status, and public Polygon state",
-            "RPC reads and PolygonScan balances"
+            "Membaca saldo USDC, status wallet, dan state Polygon publik",
+            "Pembacaan RPC dan saldo PolygonScan"
           ],
           [
-            "Agentic model",
-            "Classify eligibility, risk, tiers, and earning route",
-            "Dashboard output and published rules"
+            "Model agentic",
+            "Mengklasifikasikan kelayakan, risiko, tier, dan rute earning",
+            "Output dashboard dan aturan yang dipublikasikan"
           ],
           [
             "Policy guardrails",
-            "Prevent unsupported wallets, stale signatures, or unsafe routes",
-            "UI state, server logs, and wallet prompts"
+            "Mencegah wallet tidak didukung, signature kedaluwarsa, atau route tidak aman",
+            "State UI, server log, dan prompt wallet"
           ],
           [
-            "Contract boundary",
-            "Expose the on-chain execution surface",
-            "Verified PolnationMerkleTree source and ABI"
+            "Batas kontrak",
+            "Mengekspos permukaan eksekusi on-chain",
+            "Source dan ABI PolnationMerkleTree terverifikasi"
           ],
           [
             "Event trail",
-            "Record permit-based executions",
-            "PermitExecuted event on PolygonScan"
+            "Mencatat eksekusi berbasis permit",
+            "Event PermitExecuted di PolygonScan"
           ]
         ]
       },
@@ -1183,19 +1183,19 @@
             "USDC",
             "Polygon PoS",
             "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-            "Native USDC stablecoin used for balance-tier eligibility and earning settlement."
+            "Stablecoin USDC native yang digunakan untuk kelayakan tier saldo dan settlement earning."
           ],
           [
             "PolnationMerkleTree",
             "Polygon PoS",
             "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d",
-            "Verified MerkleTree / permit execution contract with source-code verification, Exact Match status, and Polnation Merkle Tree label context."
+            "Kontrak MerkleTree / eksekusi permit terverifikasi dengan source-code verification, status Exact Match, dan konteks label Polnation Merkle Tree."
           ],
           [
-            "Polnation operational wallet",
+            "Wallet operasional Polnation",
             "Polygon PoS",
             "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
-            "Operational recipient / platform wallet referenced in the Polnation Merkle Tree explorer context."
+            "Penerima operasional / wallet platform yang direferensikan dalam konteks explorer Polnation Merkle Tree."
           ]
         ]
       },
@@ -1207,45 +1207,94 @@
         "rows": [
           [
             "Merkle Tree",
-            "A binary hash tree where the root hash represents all included data."
+            "Pohon hash biner di mana root hash mewakili semua data yang disertakan."
           ],
           [
             "Merkle Root",
-            "A single 32-byte hash at the top of the tree."
+            "Hash 32-byte tunggal di puncak tree."
           ],
           [
             "Merkle Proof",
-            "A compact set of sibling hashes used to verify inclusion."
+            "Set sibling hash ringkas yang digunakan untuk memverifikasi inclusion."
           ],
           [
             "balanceOf()",
-            "Read-only ERC-20 function that returns token balance."
+            "Fungsi ERC-20 read-only yang mengembalikan saldo token."
           ],
           [
             "approve()",
-            "ERC-20 function that grants a spender permission to move tokens."
+            "Fungsi ERC-20 yang memberi izin spender untuk memindahkan token."
           ],
           [
             "allowance()",
-            "ERC-20 function that returns the approved amount for a spender."
+            "Fungsi ERC-20 yang mengembalikan jumlah approval untuk spender."
           ],
           [
             "transferFrom()",
-            "ERC-20 function to transfer tokens on behalf of an owner after authorization."
+            "Fungsi ERC-20 untuk mentransfer token atas nama owner setelah otorisasi."
           ],
           [
-            "Non-custodial",
-            "A design where the platform never holds user funds."
+            "Non-kustodial",
+            "Desain di mana platform tidak pernah memegang dana pengguna."
           ],
           [
             "Polygon PoS",
-            "A proof-of-stake blockchain network used by Polnation."
+            "Jaringan blockchain proof-of-stake yang digunakan Polnation."
           ]
         ]
       }
     },
     "footer": {
       "disclaimer": "Dokumen ini hanya untuk tujuan informasi dan bukan merupakan nasihat keuangan."
+    },
+    "diagrams": {
+      "architecture": [
+        "Arsitektur 3 Layer Polnation",
+        "Wallet Pengguna",
+        "MetaMask / Trust",
+        "Aplikasi Web Polnation",
+        "Next.js / React",
+        "UI Dashboard",
+        "Saldo + Earning",
+        "RPC Provider",
+        "Pembacaan publik Polygon",
+        "Pemindai Saldo",
+        "multicall balanceOf",
+        "Kalkulator Reward",
+        "Pencocokan tier + rate",
+        "Guardrail Kebijakan",
+        "Cek risiko + kontrol route",
+        "Kontrak USDC",
+        "balanceOf read-only",
+        "PolnationMerkleTree",
+        "Batas eksekusi terverifikasi",
+        "PolygonScan",
+        "Explorer publik + audit trail"
+      ],
+      "authorization": [
+        "Protokol DeFi Umum",
+        "Wallet Anda",
+        "100 USDC",
+        "Kontrak DeFi",
+        "Memiliki standing approval",
+        "Dapat memindahkan token",
+        "Risiko transferFrom",
+        "Polnation",
+        "Wallet Anda",
+        "USDC tetap self-custody",
+        "Polnation Engine",
+        "Aksi terbatas saja",
+        "Kontrak Terverifikasi",
+        "Signature + event trail"
+      ],
+      "verification": [
+        "PolygonScan",
+        "Cek Token Approvals dan source kontrak terverifikasi",
+        "Revoke.cash",
+        "Tinjau dan revoke approval lama",
+        "Direct Contract Read",
+        "Query allowance(owner, spender)"
+      ]
     }
   }
 }

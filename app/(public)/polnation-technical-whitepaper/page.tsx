@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 import { PrintButton } from './PrintButton'
 import { WhitepaperLanguageSwitcher } from './WhitepaperLanguageSwitcher'
+import { ArchitectureDiagram, AuthorizationDiagram, VerificationDiagram } from './Diagrams'
 
 const CONTRACT = '0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d'
 const USDC = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359'
@@ -184,6 +185,7 @@ export default async function TechnicalWhitepaperPage() {
 
         <Section id="architecture" title={t('sections.architecture.title')}>
           <p className="text-zinc-400">{t('sections.architecture.p1')}</p>
+          <ArchitectureDiagram labels={t.raw('diagrams.architecture') as string[]} />
           <Table headers={t.raw('tables.layers.headers') as string[]} rows={t.raw('tables.layers.rows') as Row[]} />
           <h3 className="mt-6 text-xl font-semibold">{t('sections.architecture.principlesTitle')}</h3>
           <List items={t.raw('sections.architecture.principles') as string[]} />
@@ -194,6 +196,7 @@ export default async function TechnicalWhitepaperPage() {
           <div className="my-5 border border-rose-300/30 bg-rose-400/[0.06] p-5 text-zinc-300">
             <strong className="text-white">{t('labels.risk')}</strong> {t('sections.auth.risk')}
           </div>
+          <AuthorizationDiagram labels={t.raw('diagrams.authorization') as string[]} />
           <Table headers={t.raw('tables.auth.headers') as string[]} rows={authRows} />
           <div className="mt-5 border border-emerald-300/25 bg-emerald-400/[0.055] p-5 text-zinc-300">
             <strong className="text-white">{t('labels.technicalProof')}</strong> {t('sections.auth.proof')}{' '}
@@ -206,6 +209,7 @@ export default async function TechnicalWhitepaperPage() {
 
         <Section id="approval-audit" title={t('sections.audit.title')}>
           <p className="text-zinc-400">{t('sections.audit.p1')}</p>
+          <VerificationDiagram labels={t.raw('diagrams.verification') as string[]} />
           <h3 className="mt-6 text-xl font-semibold">{t('sections.audit.polygonscanTitle')}</h3>
           <List items={t.raw('sections.audit.polygonscanSteps') as string[]} />
           <h3 className="mt-6 text-xl font-semibold">{t('sections.audit.revokeTitle')}</h3>

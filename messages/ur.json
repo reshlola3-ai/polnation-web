@@ -1245,6 +1245,55 @@
     },
     "footer": {
       "disclaimer": "This document is for informational purposes only and does not constitute financial advice."
+    },
+    "diagrams": {
+      "architecture": [
+        "Polnation 3-Layer Architecture",
+        "User Wallet",
+        "MetaMask / Trust",
+        "Polnation Web App",
+        "Next.js / React",
+        "Dashboard UI",
+        "Balance + Earnings",
+        "RPC Provider",
+        "Public Polygon reads",
+        "Balance Scanner",
+        "multicall balanceOf",
+        "Reward Calculator",
+        "Tier matching + rate",
+        "Policy Guardrails",
+        "Risk checks + route control",
+        "USDC Contract",
+        "Read-only balanceOf",
+        "PolnationMerkleTree",
+        "Verified execution boundary",
+        "PolygonScan",
+        "Public explorer + audit trail"
+      ],
+      "authorization": [
+        "Typical DeFi Protocol",
+        "Your Wallet",
+        "100 USDC",
+        "DeFi Contract",
+        "Has standing approval",
+        "Can move tokens",
+        "transferFrom risk",
+        "Polnation",
+        "Your Wallet",
+        "USDC stays self-custodied",
+        "Polnation Engine",
+        "Scoped action only",
+        "Verified Contract",
+        "Signature + event trail"
+      ],
+      "verification": [
+        "PolygonScan",
+        "Check Token Approvals and verified contract source",
+        "Revoke.cash",
+        "Review and revoke stale approvals",
+        "Direct Contract Read",
+        "Query allowance(owner, spender)"
+      ]
     }
   }
 }
