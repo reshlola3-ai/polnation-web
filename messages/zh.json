@@ -865,11 +865,11 @@
       "subtitle": "Polnation 在 Polygon 上的已验证 MerkleTree 合约与链上可审计性。",
       "badges": [
         "PolygonScan 已验证",
-        "源码 Exact Match",
+        "源代码 Exact Match",
         "Polnation: Merkle Tree",
         "PermitExecuted 事件"
       ],
-      "meta": "v1.1 - May 2026 - Polygon PoS - USDC"
+      "meta": "v1.1 - 2026 年 5 月 - Polygon PoS - USDC"
     },
     "actions": {
       "savePdf": "保存为 PDF"
@@ -928,104 +928,104 @@
     "sections": {
       "abstract": {
         "title": "1. 摘要",
-        "p1": "Polnation is an Agentic AI Earning platform deployed on Polygon PoS. The product uses an off-chain agentic earning engine to read public USDC balance data, apply balance-tier and risk rules, and surface daily earning eligibility without requiring users to deposit funds into Polnation custody.",
-        "p2": "The technical thesis is simple: the AI/agent layer can compute, rank, and automate earning logic, but the trust boundary must remain public and auditable. That boundary is the verified Polnation MerkleTree contract on PolygonScan.",
+        "p1": "Polnation 是部署在 Polygon PoS 上的 Agentic AI Earning 平台。产品使用链下 agentic earning 引擎读取公开的 USDC 余额数据，应用余额等级和风险规则，并展示每日收益资格，而不要求用户把资金存入 Polnation 托管。",
+        "p2": "技术论点很简单：AI/agent 层可以计算、排序并自动化收益逻辑，但信任边界必须保持公开且可审计。这个边界就是 PolygonScan 上已验证的 Polnation MerkleTree 合约。",
         "bullets": [
-          "Agentic earning engine reads public on-chain state, balance tiers, user eligibility, and operational guardrails before producing earning actions.",
-          "The Polygon contract 0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d is listed on PolygonScan as Source Code Verified / Exact Match with contract name PolnationMerkleTree.",
-          "PolygonScan surfaces the Polnation: Merkle Tree label context, giving users a public identity reference instead of an opaque contract address.",
-          "Polnation does not require an unlimited standing USDC approval. Where a permit-based flow is used, the user signs a specific authorization and the resulting action is visible on-chain.",
-          "Users can inspect the verified Solidity source, ABI, owner, USDC address, and emitted events directly on PolygonScan."
+          "Agentic earning 引擎会在生成收益动作前读取公开链上状态、余额等级、用户资格和运营风控规则。",
+          "Polygon 合约 0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d 在 PolygonScan 上显示为 Source Code Verified / Exact Match，合约名为 PolnationMerkleTree。",
+          "PolygonScan 显示 Polnation: Merkle Tree 标签上下文，让用户看到公开身份引用，而不是一个不透明的合约地址。",
+          "Polnation 不要求无限期的 USDC standing approval。使用 permit 流程时，用户签署的是特定授权，产生的动作可在链上查看。",
+          "用户可以直接在 PolygonScan 上检查已验证的 Solidity 源码、ABI、owner、USDC 地址和事件日志。"
         ],
-        "proof": "Polnation is not asking users to trust a hidden black-box contract. The MerkleTree contract is public, verified on PolygonScan, labeled in the Polnation context, and independently inspectable by any wallet user, auditor, or exchange risk engine."
+        "proof": "Polnation 并不是要求用户相信隐藏的黑箱合约。MerkleTree 合约是公开的，已在 PolygonScan 验证，带有 Polnation 上下文标签，并且任何钱包用户、审计人员或交易所风控引擎都可以独立检查。"
       },
       "architecture": {
         "title": "2. 系统架构",
-        "p1": "The Polnation system consists of three independent layers that interact through well-defined interfaces.",
+        "p1": "Polnation 系统由三个相互独立的层组成，并通过定义清晰的接口交互。",
         "principlesTitle": "核心设计原则",
         "principles": [
-          "???????????????????????????????????????",
-          "Trustless verification: contract identity, source code, ABI, and events can be checked by any independent observer.",
-          "No single point of custody: user funds remain on the USDC contract and any token movement must be explicitly authorized by the user through a verified contract boundary."
+          "关注点分离：计算层不会持有用户钱包私钥。它只读取公开链上数据，并发布可验证的输出。",
+          "无信任验证：任何独立观察者都可以检查合约身份、源代码、ABI 和事件。",
+          "无单点托管：用户资金仍保留在 USDC 合约中，任何 token 移动都必须由用户通过已验证的合约边界明确授权。"
         ]
       },
       "auth": {
         "title": "3. 非托管与范围化授权模型",
-        "p1": "The most critical security property of Polnation is its non-custodial, scoped-authorization architecture. It avoids unlimited standing approvals and separates off-chain earning logic from on-chain execution.",
-        "risk": "Any contract with a non-zero approval can call transferFrom on approved tokens. Malicious or compromised contracts with unlimited approvals can drain wallets, which is why scoped authorization matters.",
-        "proof": "Users can check USDC allowance on-chain and inspect the verified PolnationMerkleTree source at"
+        "p1": "Polnation 最关键的安全属性，是非托管、范围化授权架构。它避免无限期 standing approval，并将链下收益逻辑与链上执行分离。",
+        "risk": "任何拥有非零 approval 的合约都可以对已授权 token 调用 transferFrom。恶意或被攻破的合约如果拥有无限授权，可能清空钱包，因此范围化授权非常重要。",
+        "proof": "用户可以在链上检查 USDC allowance，并在这里查看已验证的 PolnationMerkleTree 源码："
       },
       "audit": {
-        "title": "4. 授权与 Approval 审计指南",
-        "p1": "Do not trust the UI alone. Users can independently check approvals and inspect the verified contract boundary.",
+        "title": "4. 如何验证：授权与 Approval 审计指南",
+        "p1": "不要只相信 UI。用户可以独立检查授权，并审计已验证的合约边界。",
         "polygonscanTitle": "PolygonScan 验证",
         "polygonscanSteps": [
-          "Open polygonscan.com and search your wallet address.",
-          "Open Token Approvals and filter for USDC on Polygon.",
-          "Verify that no unexpected or unlimited Polnation-related approval is present.",
-          "Open the PolnationMerkleTree contract page and confirm Source Code Verified / Exact Match."
+          "打开 polygonscan.com，并搜索你的钱包地址。",
+          "打开 Token Approvals，并筛选 Polygon 上的 USDC。",
+          "确认没有异常或无限额的 Polnation 相关 approval。",
+          "打开 PolnationMerkleTree 合约页面，确认 Source Code Verified / Exact Match。"
         ],
         "revokeTitle": "Revoke.cash 验证",
         "revokeSteps": [
-          "Open revoke.cash and select Polygon.",
-          "Enter your wallet address or connect your wallet.",
-          "Search for USDC approvals.",
-          "??????????????????"
+          "打开 revoke.cash 并选择 Polygon。",
+          "输入你的钱包地址，或连接你的钱包。",
+          "搜索 USDC approvals。",
+          "直接在工具中撤销过期或陌生的 approvals。"
         ]
       },
       "contract": {
         "title": "5. PolygonScan 上已验证的 MerkleTree 合约",
-        "p1": "The primary technical proof for Polnation Agentic AI Earning is the public contract record on PolygonScan. The MerkleTree contract is source-code verified, exposes a readable ABI, and carries Polnation Merkle Tree identity context on the explorer.",
-        "whyTitle": "为什么验证重要",
+        "p1": "Polnation Agentic AI Earning 的主要技术证明，是 PolygonScan 上公开的合约记录。MerkleTree 合约已完成源码验证，公开可读 ABI，并在浏览器中带有 Polnation Merkle Tree 身份上下文。",
+        "whyTitle": "为什么验证很重要",
         "why": [
-          "Exact Match means the deployed bytecode corresponds to the published Solidity source.",
-          "Wallets and auditors can inspect functions such as executeWithPermit, getAllowance, owner, usdc, name, and version.",
-          "Permit execution emits PermitExecuted(owner, recipient, amount, operationId), allowing actions to be correlated on-chain.",
-          "The Polnation Merkle Tree label context makes the explorer record easier to distinguish from phishing or cloned contracts.",
-          "Verification proves inspectability; it does not remove all smart-contract, owner-key, or business-process risk."
+          "Exact Match 表示已部署字节码与公开的 Solidity 源码对应。",
+          "钱包和审计人员可以检查 executeWithPermit、getAllowance、owner、usdc、name、version 等函数。",
+          "Permit 执行会发出 PermitExecuted(owner, recipient, amount, operationId)，使动作可以在链上关联。",
+          "Polnation Merkle Tree 标签上下文让浏览器记录更容易与钓鱼或克隆合约区分。",
+          "验证证明的是可检查性；它不能消除所有智能合约、owner key 或业务流程风险。"
         ]
       },
       "verify": {
         "title": "6. 如何在链上验证合约",
-        "p1": "Users do not need to trust Polnation marketing copy. The contract can be verified directly from PolygonScan.",
+        "p1": "用户不需要相信 Polnation 的营销文案。合约可以直接从 PolygonScan 验证。",
         "steps": [
-          "Open the PolnationMerkleTree contract on PolygonScan.",
-          "Confirm the page metadata shows Contract: Verified.",
-          "Open the Contract tab and confirm Source Code Verified with Exact Match.",
-          "Confirm Contract Name is PolnationMerkleTree.",
-          "Inspect src/PolnationMerkleTree.sol and the ABI functions exposed by PolygonScan.",
-          "For executed permit flows, check Events for PermitExecuted and match owner, recipient, amount, and operationId."
+          "打开 PolygonScan 上的 PolnationMerkleTree 合约。",
+          "确认页面元数据显示 Contract: Verified。",
+          "打开 Contract 标签，并确认 Source Code Verified 与 Exact Match。",
+          "确认 Contract Name 为 PolnationMerkleTree。",
+          "检查 src/PolnationMerkleTree.sol 以及 PolygonScan 暴露的 ABI 函数。",
+          "对于已执行的 permit 流程，查看 Events 中的 PermitExecuted，并匹配 owner、recipient、amount 和 operationId。"
         ],
-        "claim": "The Agentic AI Earning narrative is backed by a public verification path: a named contract, verified source, readable ABI, and event-level audit trail on PolygonScan."
+        "claim": "Agentic AI Earning 叙事由公开验证路径支撑：具名合约、已验证源码、可读 ABI，以及 PolygonScan 上的事件级审计轨迹。"
       },
       "engine": {
         "title": "7. Agentic Earning 架构",
-        "p1": "The earning layer is agentic because it continuously evaluates public on-chain state and routes users through the safest available earning path. The AI/agent layer can automate analysis and decisions, but it cannot secretly move funds.",
-        "formula": "收益信号 = f(USDC 余额等级, 资格规则, 推荐动量, 池预算, 风险保护规则)",
+        "p1": "收益层之所以是 agentic，是因为它会持续评估公开链上状态，并将用户导向最安全的可用收益路径。AI/agent 层可以自动化分析和决策，但不能秘密移动资金。",
+        "formula": "收益信号 = f(USDC 余额等级, 资格规则, 推荐动量, 奖池预算, 风险防护规则)",
         "provesTitle": "已验证合约证明了什么",
         "proves": [
-          "The contract users interact with is not an anonymous bytecode blob.",
-          "Wallets and auditors can inspect which functions may move USDC and under what permissions.",
-          "The contract name, source, ABI, and event definitions can be checked independently of the frontend.",
-          "The Agentic AI layer remains off-chain; the on-chain boundary remains deterministic and inspectable."
+          "用户交互的合约不是匿名字节码。",
+          "钱包和审计人员可以检查哪些函数可能移动 USDC，以及在什么权限下移动。",
+          "合约名称、源码、ABI 和事件定义都可以独立于前端进行检查。",
+          "Agentic AI 层保持链下运行；链上边界保持确定性和可检查性。"
         ]
       },
       "risk": {
         "title": "8. 合规与风险框架",
         "disclosuresTitle": "风险披露",
         "disclosures": [
-          "Smart contracts carry inherent risk even when source code is verified.",
-          "Returns depend on operational performance, ecosystem conditions, and platform growth; they are not guaranteed.",
-          "USDC is a centralized stablecoin managed by Circle; depeg or issuer risk affects all USDC holders.",
-          "Polygon network congestion or validator issues may delay actions.",
-          "????????????????????"
+          "即使源代码已验证，智能合约仍然存在固有风险。",
+          "收益取决于运营表现、生态条件和平台增长；收益不被保证。",
+          "USDC 是由 Circle 管理的中心化稳定币；脱锚或发行方风险会影响所有 USDC 持有人。",
+          "Polygon 网络拥堵或验证者问题可能延迟动作。",
+          "监管变化可能影响部分司法辖区的平台运营。"
         ],
         "protectionsTitle": "用户保护",
         "protections": [
-          "If Polnation ceases operations, users keep their USDC in their own wallets.",
-          "Polnation emphasizes no unlimited standing approval and scoped user-approved actions.",
-          "Contract identity, source, ABI, and events are publicly visible.",
-          "Users can move their USDC at any time with no withdrawal lock from Polnation."
+          "如果 Polnation 停止运营，用户仍然在自己的钱包里保留 USDC。",
+          "Polnation 强调不使用无限期 standing approval，并使用用户批准的范围化动作。",
+          "合约身份、源码、ABI 和事件都是公开可见的。",
+          "用户可以随时移动自己的 USDC，没有来自 Polnation 的提现锁定。"
         ]
       },
       "references": {
@@ -1039,260 +1039,260 @@
     "tables": {
       "layers": {
         "headers": [
-          "?",
-          "??",
-          "????"
+          "层",
+          "角色",
+          "验证界面"
         ],
         "rows": [
           [
-            "???",
-            "???Web App?Dashboard ? RPC ??",
-            "????? Polygon ????"
+            "用户层",
+            "钱包、Web App、Dashboard 和 RPC 读取",
+            "用户钱包与公开 Polygon 数据"
           ],
           [
-            "???",
-            "?????????? agentic earning engine",
-            "?? UI ???????"
+            "计算层",
+            "余额扫描、资格规则和 agentic earning 引擎",
+            "已发布的 UI 状态和运营规则"
           ],
           [
-            "????",
-            "USDC ???PolnationMerkleTree???? PolygonScan",
-            "??????ABI?owner??????????"
+            "区块链层",
+            "USDC 合约、PolnationMerkleTree、事件和 PolygonScan",
+            "已验证源码、ABI、owner、token 地址和事件日志"
           ]
         ]
       },
       "auth": {
         "headers": [
-          "??",
-          "?? DeFi Vault",
+          "操作",
+          "典型 DeFi Vault",
           "Polnation Agentic AI Earning"
         ],
         "rows": [
           [
-            "????",
-            "?????? approval ??",
-            "?? Polygon RPC ???? balanceOf"
+            "余额读取",
+            "通常与存款或 approval 绑定",
+            "通过 Polygon RPC 公开读取 balanceOf"
           ],
           [
-            "AI/agent ??",
-            "????????",
-            "?????????????????"
+            "AI/agent 计算",
+            "通常是内部且不透明的",
+            "链下资格与收益逻辑；没有直接钱包控制权"
           ],
           [
-            "????",
-            "??????????",
-            "MerkleTree ???? PolygonScan ?????? Polnation ????"
+            "合约身份",
+            "可能未验证或难以检查",
+            "MerkleTree 合约已在 PolygonScan 验证，并带有 Polnation 上下文标签"
           ],
           [
             "Standing approval",
-            "?? approve(contract, MAX)",
-            "????? standing approval"
+            "常见 approve(contract, MAX)",
+            "不需要无限期 standing approval"
           ],
           [
             "Permit-based action",
-            "????? UI ???",
-            "????????????? PermitExecuted ??"
+            "常隐藏在 UI 流程背后",
+            "特定签名加链上执行；可通过 PermitExecuted 审计"
           ],
           [
-            "????",
-            "???????????",
-            "???ABI?owner?USDC ??????? PolygonScan ??"
+            "审计路径",
+            "只有在已验证时才能阅读源码",
+            "源码、ABI、owner、USDC 地址和事件在 PolygonScan 可见"
           ]
         ]
       },
       "proof": {
         "headers": [
-          "??",
-          "?"
+          "字段",
+          "值"
         ],
         "rows": [
           [
-            "??",
+            "网络",
             "Polygon PoS Mainnet"
           ],
           [
-            "??",
+            "地址",
             "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d"
           ],
           [
             "PolygonScan URL",
-            "???????"
+            "打开已验证合约"
           ],
           [
-            "????",
+            "验证状态",
             "Source Code Verified - Exact Match"
           ],
           [
-            "????",
+            "合约名称",
             "PolnationMerkleTree"
           ],
           [
-            "???????",
+            "浏览器标签上下文",
             "Polnation: Merkle Tree"
           ],
           [
-            "????",
+            "源码文件",
             "src/PolnationMerkleTree.sol"
           ]
         ]
       },
       "engine": {
         "headers": [
-          "?",
-          "??",
-          "????"
+          "层",
+          "职责",
+          "验证界面"
         ],
         "rows": [
           [
-            "????",
-            "?? USDC ???????? Polygon ????",
-            "RPC ??? PolygonScan ??"
+            "数据输入",
+            "读取 USDC 余额、钱包状态和公开 Polygon 状态",
+            "RPC 读取与 PolygonScan 余额"
           ],
           [
-            "Agentic model",
-            "???????????????",
-            "Dashboard ???????"
+            "Agentic 模型",
+            "分类资格、风险、等级和收益路径",
+            "Dashboard 输出和已发布规则"
           ],
           [
-            "Policy guardrails",
-            "???????????????????",
-            "UI ?????????????"
+            "策略防护",
+            "阻止不支持的钱包、过期签名或不安全路径",
+            "UI 状态、服务端日志和钱包提示"
           ],
           [
-            "????",
-            "????????",
-            "??? PolnationMerkleTree ??? ABI"
+            "合约边界",
+            "暴露链上执行界面",
+            "已验证的 PolnationMerkleTree 源码和 ABI"
           ],
           [
-            "????",
-            "???? permit ???",
-            "PolygonScan ?? PermitExecuted ??"
+            "事件轨迹",
+            "记录 permit-based 执行",
+            "PolygonScan 上的 PermitExecuted 事件"
           ]
         ]
       },
       "contracts": {
         "headers": [
-          "?? / ??",
-          "??",
-          "??",
-          "??"
+          "合约 / 地址",
+          "网络",
+          "地址",
+          "用途"
         ],
         "rows": [
           [
             "USDC",
             "Polygon PoS",
             "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-            "???????????????? USDC ????"
+            "用于余额等级资格和收益结算的原生 USDC 稳定币。"
           ],
           [
             "PolnationMerkleTree",
             "Polygon PoS",
             "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d",
-            "???? MerkleTree / permit ????????????Exact Match ??? Polnation Merkle Tree ?????"
+            "已验证的 MerkleTree / permit 执行合约，具有源码验证、Exact Match 状态和 Polnation Merkle Tree 标签上下文。"
           ],
           [
-            "Polnation operational wallet",
+            "Polnation 运营钱包",
             "Polygon PoS",
             "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
-            "Polnation Merkle Tree ?????????????? / ?????"
+            "Polnation Merkle Tree 浏览器上下文中引用的运营收款 / 平台钱包。"
           ]
         ]
       },
       "glossary": {
         "headers": [
-          "??",
-          "??"
+          "术语",
+          "定义"
         ],
         "rows": [
           [
             "Merkle Tree",
-            "???????????????????"
+            "一种二叉哈希树，其根哈希代表所有被包含的数据。"
           ],
           [
             "Merkle Root",
-            "?????? 32 ?????"
+            "位于树顶端的单个 32 字节哈希。"
           ],
           [
             "Merkle Proof",
-            "????????????? sibling hash?"
+            "用于验证包含关系的一组紧凑 sibling hashes。"
           ],
           [
             "balanceOf()",
-            "????????? ERC-20 ???"
+            "返回 token 余额的只读 ERC-20 函数。"
           ],
           [
             "approve()",
-            "?? spender ????? ERC-20 ???"
+            "授予 spender 移动 token 权限的 ERC-20 函数。"
           ],
           [
             "allowance()",
-            "???? spender ?????? ERC-20 ???"
+            "返回某个 spender 已获授权额度的 ERC-20 函数。"
           ],
           [
             "transferFrom()",
-            "?????? owner ????? ERC-20 ???"
+            "在授权后代表 owner 转移 token 的 ERC-20 函数。"
           ],
           [
-            "???",
-            "???????????????"
+            "非托管",
+            "平台永不持有用户资金的设计。"
           ],
           [
             "Polygon PoS",
-            "Polnation ??? proof-of-stake ??????"
+            "Polnation 使用的权益证明区块链网络。"
           ]
         ]
       }
     },
     "footer": {
-      "disclaimer": "本文档仅供参考，不构成财务建议。"
+      "disclaimer": "本文档仅供信息参考，不构成财务建议。"
     },
     "diagrams": {
       "architecture": [
-        "Polnation ????",
-        "????",
+        "Polnation 三层架构",
+        "用户钱包",
         "MetaMask / Trust",
         "Polnation Web App",
         "Next.js / React",
         "Dashboard UI",
-        "?? + ??",
+        "余额 + 收益",
         "RPC Provider",
-        "?? Polygon ????",
-        "?????",
+        "公开 Polygon 读取",
+        "余额扫描器",
         "multicall balanceOf",
-        "?????",
-        "???? + rate",
-        "??????",
-        "???? + ????",
-        "USDC ??",
-        "?? balanceOf",
+        "奖励计算器",
+        "等级匹配 + rate",
+        "策略防护",
+        "风险检查 + 路由控制",
+        "USDC 合约",
+        "只读 balanceOf",
         "PolnationMerkleTree",
-        "???????",
+        "已验证执行边界",
         "PolygonScan",
-        "????? + ????"
+        "公开浏览器 + 审计轨迹"
       ],
       "authorization": [
-        "?? DeFi ??",
-        "????",
+        "典型 DeFi 协议",
+        "你的钱包",
         "100 USDC",
-        "DeFi ??",
-        "?? standing approval",
-        "?????",
-        "transferFrom ??",
+        "DeFi 合约",
+        "拥有 standing approval",
+        "可以移动 token",
+        "transferFrom 风险",
         "Polnation",
-        "????",
-        "USDC ?????",
-        "Polnation Engine",
-        "??????",
-        "?????",
-        "?? + ????"
+        "你的钱包",
+        "USDC 保持自托管",
+        "Polnation 引擎",
+        "仅限范围化动作",
+        "已验证合约",
+        "签名 + 事件轨迹"
       ],
       "verification": [
         "PolygonScan",
-        "?? Token Approvals ??????",
+        "检查 Token Approvals 和已验证合约源码",
         "Revoke.cash",
-        "????????",
-        "Direct Contract Read",
-        "?? allowance(owner, spender)"
+        "检查并撤销过期 approvals",
+        "直接读取合约",
+        "查询 allowance(owner, spender)"
       ]
     }
   }
