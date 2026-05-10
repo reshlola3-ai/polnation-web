@@ -1,5 +1,6 @@
 'use client'
 
+import { ChevronDown } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { localeNames, type Locale } from '@/i18n/config'
@@ -28,7 +29,7 @@ function Star({ cx, cy, r, fill = '#fff' }: { cx: number; cy: number; r: number;
 }
 
 function FlagIcon({ locale }: { locale: Locale }) {
-  const baseClass = 'h-4 w-6 shrink-0 overflow-hidden border border-white/25 shadow-[0_0_14px_rgba(168,85,247,0.28)]'
+  const baseClass = 'h-4 w-6 shrink-0 overflow-hidden border border-zinc-300 shadow-sm'
 
   if (locale === 'en') {
     return (
@@ -152,28 +153,35 @@ export function WhitepaperLanguageSwitcher({ currentLocale }: { currentLocale: s
       <button
         type="button"
         onClick={() => setOpen(value => !value)}
-        className="flex items-center gap-2 px-3 py-2 font-mono text-xs font-semibold text-zinc-400 transition hover:text-white"
+        className="flex items-center gap-2 border border-zinc-300 bg-white px-3 py-2 font-mono text-xs font-semibold text-zinc-700 shadow-sm transition hover:border-zinc-400 hover:bg-zinc-50"
+        aria-expanded={open}
+        aria-haspopup="listbox"
         aria-label={`Language: ${localeNames[current.locale]}`}
       >
         <span>{current.label}</span>
         <FlagIcon locale={current.locale} />
-        <span>v</span>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-zinc-500 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />
       </button>
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-44 border border-white/10 bg-[#120d2a] shadow-xl">
+        <div
+          className="absolute right-0 z-50 mt-2 w-52 border border-zinc-200 bg-white py-1 shadow-lg"
+          role="listbox"
+        >
           {OPTIONS.map(option => (
             <button
               key={option.locale}
               type="button"
+              role="option"
+              aria-selected={option.locale === current.locale}
               onClick={() => selectLocale(option.locale)}
               className={`flex w-full items-center gap-3 px-4 py-3 text-left font-mono text-xs transition ${
                 option.locale === current.locale
-                  ? 'bg-purple-500/20 text-purple-200'
-                  : 'text-zinc-400 hover:bg-white/5 hover:text-white'
+                  ? 'bg-zinc-100 text-zinc-900'
+                  : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'
               }`}
             >
               <span>{option.label}</span>
-              <span className="truncate text-[11px] opacity-70">{localeNames[option.locale]}</span>
+              <span className="truncate text-[11px] opacity-80">{localeNames[option.locale]}</span>
               <span className="ml-auto">
                 <FlagIcon locale={option.locale} />
               </span>

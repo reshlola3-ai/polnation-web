@@ -1,0 +1,100 @@
+/* Reading progress anchor (print-hidden rules below) */
+.readingProgress {
+}
+
+/* Typography — serif headings scoped via CSS variable from layout */
+.serifHeading {
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+}
+
+.articleLink {
+  color: #670de5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 160ms ease;
+}
+
+.articleLink:hover {
+  color: #5211b8;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 280ms ease-out,
+    transform 280ms ease-out;
+}
+
+.revealVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    transition-delay: 0ms !important;
+  }
+}
+
+.codeBlock {
+  margin-top: 1.25rem;
+  overflow-x: auto;
+  border: 1px solid #e5e5e5;
+  background: #fafafa;
+  padding: 1.25rem;
+  font-family: var(--poly-font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: #52525b;
+}
+
+.formulaBox {
+  margin-block: 1.25rem;
+  border-left: 3px solid #1d4ed8;
+  background: rgba(239, 246, 255, 0.65);
+  padding: 1rem 1.25rem;
+  text-align: center;
+  font-family: var(--poly-font-mono), ui-monospace, monospace;
+  font-size: 0.875rem;
+  color: #1e3a8a;
+}
+
+/* Print */
+@media print {
+  .readingProgress {
+    display: none !important;
+  }
+
+  .printSurface {
+    background: white !important;
+    color: black !important;
+  }
+
+  .printSurface * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  .printSurface a {
+    color: black !important;
+    text-decoration: underline;
+  }
+
+  .printSurface table,
+  .printSurface th,
+  .printSurface td {
+    border-color: #000 !important;
+    background: transparent !important;
+  }
+
+  .printSurface pre,
+  .printSurface .codeBlock {
+    border: 1px solid #000 !important;
+    background: white !important;
+    color: black !important;
+  }
+}
