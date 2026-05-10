@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { cookies } from 'next/headers'
 import { getTranslations } from 'next-intl/server'
+import { Bot, Cpu, FileCheck2, Network, ShieldCheck, Sparkles, WalletCards } from 'lucide-react'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 import { PrintButton } from './PrintButton'
 import { WhitepaperLanguageSwitcher } from './WhitepaperLanguageSwitcher'
@@ -25,7 +26,7 @@ type Row = [string, string, string?]
 
 function Panel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative overflow-hidden border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.28)] md:p-7">
+    <div className="whitepaper-panel relative overflow-hidden border border-white/10 bg-white/[0.035] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.28)] md:p-7">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-purple-300/60 to-transparent" />
       {children}
     </div>
@@ -92,6 +93,62 @@ function List({ items }: { items: string[] }) {
   )
 }
 
+function WhitepaperMotionStyles() {
+  return (
+    <style
+      dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes wp-shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+          @keyframes wp-float { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -10px, 0); } }
+          @keyframes wp-pulse-border { 0%, 100% { box-shadow: 0 0 0 rgba(168,85,247,0); } 50% { box-shadow: 0 0 34px rgba(34,211,238,0.16); } }
+          @keyframes wp-flow { 0% { transform: translateX(-24%); opacity: 0; } 20%, 80% { opacity: 1; } 100% { transform: translateX(24%); opacity: 0; } }
+          @keyframes wp-scan { 0% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+          .whitepaper-title { animation: wp-shimmer 7s linear infinite; }
+          .whitepaper-crystal { animation: wp-float 5.5s ease-in-out infinite; }
+          .whitepaper-panel, .whitepaper-diagram { animation: wp-pulse-border 6s ease-in-out infinite; }
+          .whitepaper-scan { background: linear-gradient(105deg, transparent 0%, rgba(255,255,255,0.11) 48%, transparent 58%); animation: wp-scan 1.8s ease-in-out infinite; }
+          .whitepaper-flow { position: relative; overflow: hidden; }
+          .whitepaper-flow::after { content: ""; position: absolute; left: 16%; right: 16%; top: 50%; height: 1px; background: linear-gradient(90deg, transparent, rgba(34,211,238,0.85), transparent); animation: wp-flow 2.8s ease-in-out infinite; }
+          .whitepaper-icon-tile { transform: translateZ(0); transition: transform .24s ease, border-color .24s ease, background .24s ease; }
+          .whitepaper-icon-tile:hover { transform: translateY(-4px); border-color: rgba(34,211,238,.45); background: rgba(255,255,255,.075); }
+          @media (prefers-reduced-motion: reduce) {
+            .whitepaper-title, .whitepaper-crystal, .whitepaper-panel, .whitepaper-diagram, .whitepaper-scan, .whitepaper-flow::after { animation: none; }
+            .whitepaper-node, .whitepaper-icon-tile { transition: none; }
+          }
+        `,
+      }}
+    />
+  )
+}
+
+function ProofStrip({ badges }: { badges: string[] }) {
+  const items = [
+    { icon: <Bot className="h-5 w-5" />, label: 'Agentic AI' },
+    { icon: <Network className="h-5 w-5" />, label: 'Polygon' },
+    { icon: <ShieldCheck className="h-5 w-5" />, label: badges[0] ?? 'Verified' },
+    { icon: <FileCheck2 className="h-5 w-5" />, label: badges[1] ?? 'Source Match' },
+    { icon: <WalletCards className="h-5 w-5" />, label: 'USDC' },
+    { icon: <Cpu className="h-5 w-5" />, label: 'MerkleTree' },
+  ]
+
+  return (
+    <div className="my-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+      {items.map((item) => (
+        <div
+          key={item.label}
+          className="whitepaper-icon-tile flex min-h-24 flex-col justify-between border border-white/10 bg-white/[0.04] p-4"
+        >
+          <div className="flex items-center justify-between text-cyan-200">
+            <span className="grid h-9 w-9 place-items-center border border-white/15 bg-white/10">{item.icon}</span>
+            <Sparkles className="h-4 w-4 text-purple-200/70" />
+          </div>
+          <div className="mt-4 font-mono text-[11px] uppercase tracking-[0.06em] text-zinc-200">{item.label}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default async function TechnicalWhitepaperPage() {
   const cookieStore = await cookies()
   const localeCookie = cookieStore.get('locale')?.value as Locale | undefined
@@ -107,6 +164,7 @@ export default async function TechnicalWhitepaperPage() {
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#0d0b21] text-[#f8f4ff]">
+      <WhitepaperMotionStyles />
       <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:32px_32px]" />
       <div className="pointer-events-none fixed right-0 top-0 h-[520px] w-[520px] rounded-full bg-purple-600/20 blur-[130px]" />
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-5 md:px-6 md:py-8">
@@ -125,7 +183,7 @@ export default async function TechnicalWhitepaperPage() {
             <div className="mb-7 inline-flex border border-purple-300/30 bg-purple-600/15 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.08em] text-purple-200">
               {t('hero.docType')}
             </div>
-            <h1 className="max-w-3xl bg-[linear-gradient(110deg,#c084fc_0%,#fff_18%,#22d3ee_38%,#a855f7_58%,#fff_78%,#c084fc_100%)] bg-[length:200%_100%] bg-clip-text text-5xl font-bold leading-[0.9] text-transparent md:text-8xl">
+            <h1 className="whitepaper-title max-w-3xl bg-[linear-gradient(110deg,#c084fc_0%,#fff_18%,#22d3ee_38%,#a855f7_58%,#fff_78%,#c084fc_100%)] bg-[length:200%_100%] bg-clip-text text-5xl font-bold leading-[0.9] text-transparent md:text-8xl">
               {t('hero.title')}
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-300 md:text-2xl">
@@ -152,10 +210,13 @@ export default async function TechnicalWhitepaperPage() {
               alt="Polnation Crystal"
               fill
               priority
-              className="object-contain drop-shadow-2xl"
+              className="whitepaper-crystal object-contain drop-shadow-2xl"
             />
+            <div className="whitepaper-flow absolute inset-x-8 bottom-8 h-px bg-white/10" />
           </div>
         </header>
+
+        <ProofStrip badges={t.raw('hero.badges') as string[]} />
 
         <div className="my-8 text-center print:hidden">
           <PrintButton label={t('actions.savePdf')} />
