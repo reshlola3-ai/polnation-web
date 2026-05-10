@@ -1,24 +1,26 @@
-export const locales = ['en', 'fr', 'id', 'vi', 'hi', 'ar', 'ur'] as const
+export const locales = ['en', 'zh', 'fr', 'id', 'vi', 'hi', 'ar', 'ur'] as const
 export type Locale = (typeof locales)[number]
 
 export const defaultLocale: Locale = 'en'
 
 export const localeNames: Record<Locale, string> = {
   en: 'English',
-  fr: 'Français',
+  zh: 'Chinese',
+  fr: 'French',
   id: 'Indonesia',
-  vi: 'Tiếng Việt',
-  hi: 'हिन्दी',
-  ar: 'العربية',
-  ur: 'اردو',
+  vi: 'Vietnamese',
+  hi: 'Hindi',
+  ar: 'Arabic',
+  ur: 'Urdu',
 }
 
 export const localeFlags: Record<Locale, string> = {
-  en: '🇺🇸',
-  fr: '🇫🇷',
-  id: '🇮🇩',
-  vi: '🇻🇳',
-  hi: '🇮🇳',
-  ar: '🇸🇦',
-  ur: '🇵🇰',
+  en: 'EN',
+  zh: 'ZH',
+  fr: 'FR',
+  id: 'ID',
+  vi: 'VI',
+  hi: 'HI',
+  ar: 'AR',
+  ur: 'UR',
 }

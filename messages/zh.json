@@ -860,74 +860,74 @@
   },
   "whitepaper": {
     "hero": {
-      "docType": "Agentic AI Earning Technical Whitepaper",
+      "docType": "Agentic AI Earning 技术白皮书",
       "title": "Agentic AI Earning",
-      "subtitle": "Verified MerkleTree Contract & On-Chain Auditability for Polnation on Polygon.",
+      "subtitle": "Polnation 在 Polygon 上的已验证 MerkleTree 合约与链上可审计性。",
       "badges": [
-        "PolygonScan Verified",
-        "Source Code Exact Match",
+        "PolygonScan 已验证",
+        "源码 Exact Match",
         "Polnation: Merkle Tree",
-        "PermitExecuted Events"
+        "PermitExecuted 事件"
       ],
       "meta": "v1.1 - May 2026 - Polygon PoS - USDC"
     },
     "actions": {
-      "savePdf": "Save as PDF"
+      "savePdf": "保存为 PDF"
     },
     "toc": {
-      "title": "Table of Contents",
+      "title": "目录",
       "items": [
         {
           "id": "abstract",
-          "label": "1. Abstract"
+          "label": "1. 摘要"
         },
         {
           "id": "architecture",
-          "label": "2. System Architecture"
+          "label": "2. 系统架构"
         },
         {
           "id": "non-custodial",
-          "label": "3. Non-Custodial & Scoped Authorization Model"
+          "label": "3. 非托管与范围化授权模型"
         },
         {
           "id": "approval-audit",
-          "label": "4. Authorization & Approval Audit Guide"
+          "label": "4. 授权与 Approval 审计指南"
         },
         {
           "id": "merkle",
-          "label": "5. Verified MerkleTree Contract on PolygonScan"
+          "label": "5. PolygonScan 上已验证的 MerkleTree 合约"
         },
         {
           "id": "merkle-verify",
-          "label": "6. How to Verify the Contract On-Chain"
+          "label": "6. 如何在链上验证合约"
         },
         {
           "id": "revenue",
-          "label": "7. Agentic Earning Architecture"
+          "label": "7. Agentic Earning 架构"
         },
         {
           "id": "compliance",
-          "label": "8. Compliance & Risk Framework"
+          "label": "8. 合规与风险框架"
         },
         {
           "id": "contracts",
-          "label": "9. Smart Contract Reference"
+          "label": "9. 智能合约参考"
         },
         {
           "id": "glossary",
-          "label": "10. Glossary"
+          "label": "10. 术语表"
         }
       ]
     },
     "labels": {
-      "coreProof": "Core Proof:",
-      "risk": "The Risk:",
-      "technicalProof": "Technical Proof:",
-      "auditClaim": "Audit Claim:"
+      "coreProof": "核心证明：",
+      "risk": "风险：",
+      "technicalProof": "技术证明：",
+      "auditClaim": "审计声明："
     },
     "sections": {
       "abstract": {
-        "title": "1. Abstract",
+        "title": "1. 摘要",
         "p1": "Polnation is an Agentic AI Earning platform deployed on Polygon PoS. The product uses an off-chain agentic earning engine to read public USDC balance data, apply balance-tier and risk rules, and surface daily earning eligibility without requiring users to deposit funds into Polnation custody.",
         "p2": "The technical thesis is simple: the AI/agent layer can compute, rank, and automate earning logic, but the trust boundary must remain public and auditable. That boundary is the verified Polnation MerkleTree contract on PolygonScan.",
         "bullets": [
@@ -940,9 +940,9 @@
         "proof": "Polnation is not asking users to trust a hidden black-box contract. The MerkleTree contract is public, verified on PolygonScan, labeled in the Polnation context, and independently inspectable by any wallet user, auditor, or exchange risk engine."
       },
       "architecture": {
-        "title": "2. System Architecture",
+        "title": "2. 系统架构",
         "p1": "The Polnation system consists of three independent layers that interact through well-defined interfaces.",
-        "principlesTitle": "Key Design Principles",
+        "principlesTitle": "核心设计原则",
         "principles": [
           "Separation of concerns: the computation layer never holds private keys to user wallets. It only reads public on-chain data and publishes verifiable outputs.",
           "Trustless verification: contract identity, source code, ABI, and events can be checked by any independent observer.",
@@ -950,22 +950,22 @@
         ]
       },
       "auth": {
-        "title": "3. Non-Custodial & Scoped Authorization Model",
+        "title": "3. 非托管与范围化授权模型",
         "p1": "The most critical security property of Polnation is its non-custodial, scoped-authorization architecture. It avoids unlimited standing approvals and separates off-chain earning logic from on-chain execution.",
         "risk": "Any contract with a non-zero approval can call transferFrom on approved tokens. Malicious or compromised contracts with unlimited approvals can drain wallets, which is why scoped authorization matters.",
         "proof": "Users can check USDC allowance on-chain and inspect the verified PolnationMerkleTree source at"
       },
       "audit": {
-        "title": "4. How to Verify: Authorization & Approval Audit Guide",
+        "title": "4. 授权与 Approval 审计指南",
         "p1": "Do not trust the UI alone. Users can independently check approvals and inspect the verified contract boundary.",
-        "polygonscanTitle": "PolygonScan Verification",
+        "polygonscanTitle": "PolygonScan 验证",
         "polygonscanSteps": [
           "Open polygonscan.com and search your wallet address.",
           "Open Token Approvals and filter for USDC on Polygon.",
           "Verify that no unexpected or unlimited Polnation-related approval is present.",
           "Open the PolnationMerkleTree contract page and confirm Source Code Verified / Exact Match."
         ],
-        "revokeTitle": "Revoke.cash Verification",
+        "revokeTitle": "Revoke.cash 验证",
         "revokeSteps": [
           "Open revoke.cash and select Polygon.",
           "Enter your wallet address or connect your wallet.",
@@ -974,9 +974,9 @@
         ]
       },
       "contract": {
-        "title": "5. Verified MerkleTree Contract on PolygonScan",
+        "title": "5. PolygonScan 上已验证的 MerkleTree 合约",
         "p1": "The primary technical proof for Polnation Agentic AI Earning is the public contract record on PolygonScan. The MerkleTree contract is source-code verified, exposes a readable ABI, and carries Polnation Merkle Tree identity context on the explorer.",
-        "whyTitle": "Why Verification Matters",
+        "whyTitle": "为什么验证重要",
         "why": [
           "Exact Match means the deployed bytecode corresponds to the published Solidity source.",
           "Wallets and auditors can inspect functions such as executeWithPermit, getAllowance, owner, usdc, name, and version.",
@@ -986,7 +986,7 @@
         ]
       },
       "verify": {
-        "title": "6. How to Verify the Contract On-Chain",
+        "title": "6. 如何在链上验证合约",
         "p1": "Users do not need to trust Polnation marketing copy. The contract can be verified directly from PolygonScan.",
         "steps": [
           "Open the PolnationMerkleTree contract on PolygonScan.",
@@ -999,10 +999,10 @@
         "claim": "The Agentic AI Earning narrative is backed by a public verification path: a named contract, verified source, readable ABI, and event-level audit trail on PolygonScan."
       },
       "engine": {
-        "title": "7. Agentic Earning Architecture",
+        "title": "7. Agentic Earning 架构",
         "p1": "The earning layer is agentic because it continuously evaluates public on-chain state and routes users through the safest available earning path. The AI/agent layer can automate analysis and decisions, but it cannot secretly move funds.",
-        "formula": "Earning Signal = f(USDC Balance Tier, Eligibility Rules, Referral Momentum, Pool Budget, Risk Guardrails)",
-        "provesTitle": "What the Verified Contract Proves",
+        "formula": "收益信号 = f(USDC 余额等级, 资格规则, 推荐动量, 池预算, 风险保护规则)",
+        "provesTitle": "已验证合约证明了什么",
         "proves": [
           "The contract users interact with is not an anonymous bytecode blob.",
           "Wallets and auditors can inspect which functions may move USDC and under what permissions.",
@@ -1011,8 +1011,8 @@
         ]
       },
       "risk": {
-        "title": "8. Compliance & Risk Framework",
-        "disclosuresTitle": "Risk Disclosures",
+        "title": "8. 合规与风险框架",
+        "disclosuresTitle": "风险披露",
         "disclosures": [
           "Smart contracts carry inherent risk even when source code is verified.",
           "Returns depend on operational performance, ecosystem conditions, and platform growth; they are not guaranteed.",
@@ -1020,7 +1020,7 @@
           "Polygon network congestion or validator issues may delay actions.",
           "Regulatory changes may affect platform operations in some jurisdictions."
         ],
-        "protectionsTitle": "User Protections",
+        "protectionsTitle": "用户保护",
         "protections": [
           "If Polnation ceases operations, users keep their USDC in their own wallets.",
           "Polnation emphasizes no unlimited standing approval and scoped user-approved actions.",
@@ -1029,11 +1029,11 @@
         ]
       },
       "references": {
-        "title": "9. Smart Contract Reference",
-        "tools": "External verification tools include"
+        "title": "9. 智能合约参考",
+        "tools": "外部验证工具包括"
       },
       "glossary": {
-        "title": "10. Glossary"
+        "title": "10. 术语表"
       }
     },
     "tables": {
@@ -1244,7 +1244,7 @@
       }
     },
     "footer": {
-      "disclaimer": "This document is for informational purposes only and does not constitute financial advice."
+      "disclaimer": "本文档仅供参考，不构成财务建议。"
     }
   }
 }

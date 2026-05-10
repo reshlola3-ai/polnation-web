@@ -15,6 +15,7 @@
     "@tanstack/react-query": "^5.90.17",
     "@walletconnect/ethereum-provider": "^2.23.7",
     "@web3modal/wagmi": "^5.1.11",
+    "critters": "^0.0.25",
     "framer-motion": "^12.27.0",
     "html-to-image": "^1.11.13",
     "lottie-react": "^2.4.1",

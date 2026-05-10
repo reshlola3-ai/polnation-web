@@ -6,6 +6,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL('/polygon-clone/index.html', request.url))
   }
 
+  const publicPaths = [
+    '/polnation-technical-whitepaper',
+    '/polnation-technical-whitepaper.html',
+  ]
+  if (publicPaths.some(path => request.nextUrl.pathname === path)) {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })
