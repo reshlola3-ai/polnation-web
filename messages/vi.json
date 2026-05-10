@@ -860,439 +860,439 @@
   },
   "whitepaper": {
     "hero": {
-      "docType": "Agentic AI Earning Technical Whitepaper",
+      "docType": "Sách trắng kỹ thuật Agentic AI Earning",
       "title": "Agentic AI Earning",
-      "subtitle": "Verified MerkleTree Contract & On-Chain Auditability for Polnation on Polygon.",
+      "subtitle": "Hợp đồng MerkleTree đã xác minh và khả năng kiểm toán on-chain của Polnation trên Polygon.",
       "badges": [
-        "PolygonScan Verified",
-        "Source Code Exact Match",
+        "Đã xác minh PolygonScan",
+        "Mã nguồn Exact Match",
         "Polnation: Merkle Tree",
-        "PermitExecuted Events"
+        "Sự kiện PermitExecuted"
       ],
-      "meta": "v1.1 - May 2026 - Polygon PoS - USDC"
+      "meta": "v1.1 - tháng 5 2026 - Polygon PoS - USDC"
     },
     "actions": {
-      "savePdf": "Save as PDF"
+      "savePdf": "Lưu thành PDF"
     },
     "toc": {
-      "title": "Table of Contents",
+      "title": "Mục lục",
       "items": [
         {
           "id": "abstract",
-          "label": "1. Abstract"
+          "label": "1. Tóm tắt"
         },
         {
           "id": "architecture",
-          "label": "2. System Architecture"
+          "label": "2. Kiến trúc hệ thống"
         },
         {
           "id": "non-custodial",
-          "label": "3. Non-Custodial & Scoped Authorization Model"
+          "label": "3. Mô hình không lưu ký và ủy quyền giới hạn"
         },
         {
           "id": "approval-audit",
-          "label": "4. Authorization & Approval Audit Guide"
+          "label": "4. Hướng dẫn kiểm toán authorization và approval"
         },
         {
           "id": "merkle",
-          "label": "5. Verified MerkleTree Contract on PolygonScan"
+          "label": "5. Hợp đồng MerkleTree đã xác minh trên PolygonScan"
         },
         {
           "id": "merkle-verify",
-          "label": "6. How to Verify the Contract On-Chain"
+          "label": "6. Cách xác minh hợp đồng on-chain"
         },
         {
           "id": "revenue",
-          "label": "7. Agentic Earning Architecture"
+          "label": "7. Kiến trúc Agentic Earning"
         },
         {
           "id": "compliance",
-          "label": "8. Compliance & Risk Framework"
+          "label": "8. Khung tuân thủ và rủi ro"
         },
         {
           "id": "contracts",
-          "label": "9. Smart Contract Reference"
+          "label": "9. Tham chiếu smart contract"
         },
         {
           "id": "glossary",
-          "label": "10. Glossary"
+          "label": "10. Thuật ngữ"
         }
       ]
     },
     "labels": {
-      "coreProof": "Core Proof:",
-      "risk": "The Risk:",
-      "technicalProof": "Technical Proof:",
-      "auditClaim": "Audit Claim:"
+      "coreProof": "Bằng chứng cốt lõi:",
+      "risk": "Rủi ro:",
+      "technicalProof": "Bằng chứng kỹ thuật:",
+      "auditClaim": "Tuyên bố kiểm toán:"
     },
     "sections": {
       "abstract": {
-        "title": "1. Abstract",
-        "p1": "Polnation is an Agentic AI Earning platform deployed on Polygon PoS. The product uses an off-chain agentic earning engine to read public USDC balance data, apply balance-tier and risk rules, and surface daily earning eligibility without requiring users to deposit funds into Polnation custody.",
-        "p2": "The technical thesis is simple: the AI/agent layer can compute, rank, and automate earning logic, but the trust boundary must remain public and auditable. That boundary is the verified Polnation MerkleTree contract on PolygonScan.",
+        "title": "1. Tóm tắt",
+        "p1": "Polnation là nền tảng Agentic AI Earning triển khai trên Polygon PoS. Sản phẩm dùng engine agentic off-chain để đọc số dư USDC công khai, áp dụng quy tắc tier và rủi ro, rồi hiển thị điều kiện earning hằng ngày mà không yêu cầu người dùng gửi tiền vào Polnation.",
+        "p2": "Luận điểm kỹ thuật rất đơn giản: lớp AI/agent có thể tính toán, xếp hạng và tự động hóa logic earning, nhưng ranh giới tin cậy phải công khai và có thể kiểm toán. Ranh giới đó là hợp đồng Polnation MerkleTree đã xác minh trên PolygonScan.",
         "bullets": [
-          "Agentic earning engine reads public on-chain state, balance tiers, user eligibility, and operational guardrails before producing earning actions.",
-          "The Polygon contract 0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d is listed on PolygonScan as Source Code Verified / Exact Match with contract name PolnationMerkleTree.",
-          "PolygonScan surfaces the Polnation: Merkle Tree label context, giving users a public identity reference instead of an opaque contract address.",
-          "Polnation does not require an unlimited standing USDC approval. Where a permit-based flow is used, the user signs a specific authorization and the resulting action is visible on-chain.",
-          "Users can inspect the verified Solidity source, ABI, owner, USDC address, and emitted events directly on PolygonScan."
+          "Le moteur agentic earning lit l etat on-chain public, les niveaux de solde, l eligibilite utilisateur et les garde-fous operationnels avant de produire des actions.",
+          "Le contrat Polygon 0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d est indique sur PolygonScan comme Source Code Verified / Exact Match avec le nom PolnationMerkleTree.",
+          "PolygonScan affiche le contexte Polnation: Merkle Tree, ce qui donne une reference d identite publique au lieu d une adresse opaque.",
+          "Polnation ne demande pas d approval USDC permanent illimite. Lorsqu un flux permit est utilise, l utilisateur signe une autorisation precise et l action est visible on-chain.",
+          "Les utilisateurs peuvent inspecter directement sur PolygonScan le source Solidity verifie, l ABI, le owner, l adresse USDC et les evenements emis."
         ],
-        "proof": "Polnation is not asking users to trust a hidden black-box contract. The MerkleTree contract is public, verified on PolygonScan, labeled in the Polnation context, and independently inspectable by any wallet user, auditor, or exchange risk engine."
+        "proof": "Polnation không yêu cầu người dùng tin vào một hợp đồng hộp đen. Hợp đồng MerkleTree công khai, đã xác minh trên PolygonScan, có ngữ cảnh nhãn Polnation và có thể được kiểm tra độc lập."
       },
       "architecture": {
-        "title": "2. System Architecture",
-        "p1": "The Polnation system consists of three independent layers that interact through well-defined interfaces.",
-        "principlesTitle": "Key Design Principles",
+        "title": "2. Kiến trúc hệ thống",
+        "p1": "Hệ thống Polnation gồm ba lớp độc lập tương tác qua giao diện rõ ràng.",
+        "principlesTitle": "Nguyên tắc thiết kế",
         "principles": [
-          "Separation of concerns: the computation layer never holds private keys to user wallets. It only reads public on-chain data and publishes verifiable outputs.",
-          "Trustless verification: contract identity, source code, ABI, and events can be checked by any independent observer.",
-          "No single point of custody: user funds remain on the USDC contract and any token movement must be explicitly authorized by the user through a verified contract boundary."
+          "Tách biệt trách nhiệm: lớp tính toán không bao giờ giữ private key của ví người dùng.",
+          "Xác minh không cần tin cậy: danh tính hợp đồng, source code, ABI và sự kiện có thể được kiểm tra độc lập.",
+          "Không có điểm lưu ký đơn lẻ: tiền vẫn ở hợp đồng USDC và mọi chuyển động token phải do người dùng ủy quyền rõ ràng."
         ]
       },
       "auth": {
-        "title": "3. Non-Custodial & Scoped Authorization Model",
-        "p1": "The most critical security property of Polnation is its non-custodial, scoped-authorization architecture. It avoids unlimited standing approvals and separates off-chain earning logic from on-chain execution.",
-        "risk": "Any contract with a non-zero approval can call transferFrom on approved tokens. Malicious or compromised contracts with unlimited approvals can drain wallets, which is why scoped authorization matters.",
-        "proof": "Users can check USDC allowance on-chain and inspect the verified PolnationMerkleTree source at"
+        "title": "3. Mô hình không lưu ký và ủy quyền giới hạn",
+        "p1": "Thuộc tính bảo mật quan trọng nhất của Polnation là kiến trúc không lưu ký với ủy quyền giới hạn. Nó tránh approval vĩnh viễn không giới hạn và tách logic off-chain khỏi thực thi on-chain.",
+        "risk": "Bất kỳ hợp đồng nào có approval khác 0 đều có thể gọi transferFrom trên token đã được cấp quyền. Hợp đồng độc hại hoặc bị xâm phạm với approval không giới hạn có thể rút sạch ví.",
+        "proof": "Người dùng có thể kiểm tra allowance USDC on-chain và xem source PolnationMerkleTree đã xác minh tại"
       },
       "audit": {
-        "title": "4. How to Verify: Authorization & Approval Audit Guide",
-        "p1": "Do not trust the UI alone. Users can independently check approvals and inspect the verified contract boundary.",
-        "polygonscanTitle": "PolygonScan Verification",
+        "title": "4. Hướng dẫn kiểm toán authorization và approval",
+        "p1": "Đừng chỉ tin UI. Người dùng có thể tự kiểm tra approval và ranh giới hợp đồng đã xác minh.",
+        "polygonscanTitle": "Xác minh PolygonScan",
         "polygonscanSteps": [
-          "Open polygonscan.com and search your wallet address.",
-          "Open Token Approvals and filter for USDC on Polygon.",
-          "Verify that no unexpected or unlimited Polnation-related approval is present.",
-          "Open the PolnationMerkleTree contract page and confirm Source Code Verified / Exact Match."
+          "Mở polygonscan.com và tìm địa chỉ ví của bạn.",
+          "Mở Token Approvals và lọc USDC trên Polygon.",
+          "Đảm bảo không có approval Polnation bất ngờ hoặc không giới hạn.",
+          "Mở trang hợp đồng PolnationMerkleTree và xác nhận Source Code Verified / Exact Match."
         ],
-        "revokeTitle": "Revoke.cash Verification",
+        "revokeTitle": "Xác minh Revoke.cash",
         "revokeSteps": [
-          "Open revoke.cash and select Polygon.",
-          "Enter your wallet address or connect your wallet.",
-          "Search for USDC approvals.",
-          "Revoke stale or unfamiliar approvals directly from the tool."
+          "Mở revoke.cash và chọn Polygon.",
+          "Nhập địa chỉ ví hoặc kết nối ví.",
+          "Tìm approval USDC.",
+          "Thu hồi approval cũ hoặc không quen thuộc."
         ]
       },
       "contract": {
-        "title": "5. Verified MerkleTree Contract on PolygonScan",
-        "p1": "The primary technical proof for Polnation Agentic AI Earning is the public contract record on PolygonScan. The MerkleTree contract is source-code verified, exposes a readable ABI, and carries Polnation Merkle Tree identity context on the explorer.",
-        "whyTitle": "Why Verification Matters",
+        "title": "5. Hợp đồng MerkleTree đã xác minh trên PolygonScan",
+        "p1": "Bằng chứng kỹ thuật chính của Polnation Agentic AI Earning là bản ghi hợp đồng công khai trên PolygonScan.",
+        "whyTitle": "Vì sao xác minh quan trọng",
         "why": [
-          "Exact Match means the deployed bytecode corresponds to the published Solidity source.",
-          "Wallets and auditors can inspect functions such as executeWithPermit, getAllowance, owner, usdc, name, and version.",
-          "Permit execution emits PermitExecuted(owner, recipient, amount, operationId), allowing actions to be correlated on-chain.",
-          "The Polnation Merkle Tree label context makes the explorer record easier to distinguish from phishing or cloned contracts.",
-          "Verification proves inspectability; it does not remove all smart-contract, owner-key, or business-process risk."
+          "Exact Match signifie que le bytecode deployee correspond au source Solidity publie.",
+          "Les wallets et auditeurs peuvent inspecter executeWithPermit, getAllowance, owner, usdc, name et version.",
+          "L execution permit emet PermitExecuted(owner, recipient, amount, operationId), ce qui permet de relier les actions on-chain.",
+          "Le contexte Polnation Merkle Tree aide a distinguer le contrat des copies ou phishing.",
+          "La verification prouve l inspectabilite, mais ne supprime pas tous les risques smart contract, owner-key ou metier."
         ]
       },
       "verify": {
-        "title": "6. How to Verify the Contract On-Chain",
-        "p1": "Users do not need to trust Polnation marketing copy. The contract can be verified directly from PolygonScan.",
+        "title": "6. Cách xác minh hợp đồng on-chain",
+        "p1": "Người dùng không cần tin vào nội dung marketing. Hợp đồng có thể được xác minh trực tiếp trên PolygonScan.",
         "steps": [
-          "Open the PolnationMerkleTree contract on PolygonScan.",
-          "Confirm the page metadata shows Contract: Verified.",
-          "Open the Contract tab and confirm Source Code Verified with Exact Match.",
-          "Confirm Contract Name is PolnationMerkleTree.",
-          "Inspect src/PolnationMerkleTree.sol and the ABI functions exposed by PolygonScan.",
-          "For executed permit flows, check Events for PermitExecuted and match owner, recipient, amount, and operationId."
+          "Ouvrez le contrat PolnationMerkleTree sur PolygonScan.",
+          "Confirmez que la page indique Contract: Verified.",
+          "Ouvrez l onglet Contract et confirmez Source Code Verified avec Exact Match.",
+          "Confirmez que Contract Name est PolnationMerkleTree.",
+          "Inspectez src/PolnationMerkleTree.sol et les fonctions ABI exposees.",
+          "Pour les flux permit executes, verifiez Events pour PermitExecuted et comparez owner, recipient, amount et operationId."
         ],
-        "claim": "The Agentic AI Earning narrative is backed by a public verification path: a named contract, verified source, readable ABI, and event-level audit trail on PolygonScan."
+        "claim": "Luận điểm Agentic AI Earning được hỗ trợ bởi đường dẫn xác minh công khai: hợp đồng có tên, source đã xác minh, ABI đọc được và audit trail qua sự kiện."
       },
       "engine": {
-        "title": "7. Agentic Earning Architecture",
-        "p1": "The earning layer is agentic because it continuously evaluates public on-chain state and routes users through the safest available earning path. The AI/agent layer can automate analysis and decisions, but it cannot secretly move funds.",
-        "formula": "Earning Signal = f(USDC Balance Tier, Eligibility Rules, Referral Momentum, Pool Budget, Risk Guardrails)",
-        "provesTitle": "What the Verified Contract Proves",
+        "title": "7. Kiến trúc Agentic Earning",
+        "p1": "Lớp earning mang tính agentic vì nó liên tục đánh giá trạng thái on-chain công khai và đưa người dùng đến tuyến earning an toàn nhất.",
+        "formula": "Tín hiệu earning = f(tier số dư USDC, quy tắc đủ điều kiện, referral momentum, ngân sách pool, rào chắn rủi ro)",
+        "provesTitle": "Hợp đồng đã xác minh chứng minh điều gì",
         "proves": [
-          "The contract users interact with is not an anonymous bytecode blob.",
-          "Wallets and auditors can inspect which functions may move USDC and under what permissions.",
-          "The contract name, source, ABI, and event definitions can be checked independently of the frontend.",
-          "The Agentic AI layer remains off-chain; the on-chain boundary remains deterministic and inspectable."
+          "Le contrat utilise n est pas un bytecode anonyme.",
+          "Les wallets et auditeurs peuvent verifier quelles fonctions peuvent deplacer USDC et sous quelles permissions.",
+          "Le nom, le source, l ABI et les evenements sont verifiables independamment du frontend.",
+          "La couche Agentic AI reste off-chain ; la frontiere on-chain reste deterministe et inspectable."
         ]
       },
       "risk": {
-        "title": "8. Compliance & Risk Framework",
-        "disclosuresTitle": "Risk Disclosures",
+        "title": "8. Khung tuân thủ và rủi ro",
+        "disclosuresTitle": "Công bố rủi ro",
         "disclosures": [
-          "Smart contracts carry inherent risk even when source code is verified.",
-          "Returns depend on operational performance, ecosystem conditions, and platform growth; they are not guaranteed.",
-          "USDC is a centralized stablecoin managed by Circle; depeg or issuer risk affects all USDC holders.",
-          "Polygon network congestion or validator issues may delay actions.",
-          "Regulatory changes may affect platform operations in some jurisdictions."
+          "Les smart contracts comportent un risque inherent meme si le source est verifie.",
+          "Les rendements dependent des performances operationnelles, des conditions ecosysteme et de la croissance ; ils ne sont pas garantis.",
+          "USDC est un stablecoin centralise gere par Circle ; le risque de depeg ou d emetteur affecte tous les detenteurs.",
+          "La congestion Polygon ou des problemes validateurs peuvent retarder les actions.",
+          "Les changements reglementaires peuvent affecter les operations dans certaines juridictions."
         ],
-        "protectionsTitle": "User Protections",
+        "protectionsTitle": "Bảo vệ người dùng",
         "protections": [
-          "If Polnation ceases operations, users keep their USDC in their own wallets.",
-          "Polnation emphasizes no unlimited standing approval and scoped user-approved actions.",
-          "Contract identity, source, ABI, and events are publicly visible.",
-          "Users can move their USDC at any time with no withdrawal lock from Polnation."
+          "Si Polnation cesse ses operations, les utilisateurs conservent leurs USDC dans leur propre wallet.",
+          "Polnation privilegie l absence d approval permanent illimite et les actions limitees approuvees par l utilisateur.",
+          "L identite du contrat, le source, l ABI et les evenements sont publics.",
+          "Les utilisateurs peuvent deplacer leurs USDC a tout moment sans verrouillage de retrait Polnation."
         ]
       },
       "references": {
-        "title": "9. Smart Contract Reference",
-        "tools": "External verification tools include"
+        "title": "9. Tham chiếu smart contract",
+        "tools": "Công cụ xác minh bên ngoài gồm"
       },
       "glossary": {
-        "title": "10. Glossary"
+        "title": "10. Thuật ngữ"
       }
     },
     "tables": {
       "layers": {
         "headers": [
-          "Layer",
-          "Role",
-          "Verification Surface"
+          "Couche",
+          "Vai tr?",
+          "Surface de verification"
         ],
         "rows": [
           [
-            "User layer",
-            "Wallet, web app, dashboard, and RPC reads",
-            "User wallet and public Polygon data"
+            "Couche utilisateur",
+            "Wallet, application web, dashboard et lectures RPC",
+            "Wallet utilisateur et donnees Polygon publiques"
           ],
           [
-            "Computation layer",
-            "Balance scanner, eligibility rules, and agentic earning engine",
-            "Published UI state and operational rules"
+            "Couche calcul",
+            "Scanner de solde, regles eligibilite et moteur agentic earning",
+            "Etat UI publie et regles operationnelles"
           ],
           [
-            "Blockchain layer",
-            "USDC contract, PolnationMerkleTree, events, and PolygonScan",
-            "Verified source, ABI, owner, token address, and event logs"
+            "Couche blockchain",
+            "Contrat USDC, PolnationMerkleTree, evenements et PolygonScan",
+            "Source verifie, ABI, owner, adresse token et logs"
           ]
         ]
       },
       "auth": {
         "headers": [
-          "Operation",
-          "Typical DeFi Vault",
+          "Thao t?c",
+          "Vault DeFi typique",
           "Polnation Agentic AI Earning"
         ],
         "rows": [
           [
-            "Balance reading",
-            "Often paired with deposits or approvals",
-            "Public balanceOf reads through Polygon RPC"
+            "Lecture solde",
+            "Souvent liee a depots ou approvals",
+            "Lectures balanceOf publiques via Polygon RPC"
           ],
           [
-            "AI/agent computation",
-            "Usually internal and opaque",
-            "Off-chain eligibility and earning logic; no direct wallet control"
+            "Calcul AI/agent",
+            "Souvent interne et opaque",
+            "Logique off-chain sans controle direct du wallet"
           ],
           [
-            "Contract identity",
-            "May be unverified or hard to inspect",
-            "MerkleTree contract is PolygonScan verified and tagged in the Polnation context"
+            "Identite contrat",
+            "Peut etre non verifiee ou difficile a inspecter",
+            "Contrat MerkleTree verifie PolygonScan et etiquette Polnation"
           ],
           [
             "Standing approval",
-            "Commonly approve(contract, MAX)",
-            "No unlimited standing approval required"
+            "Souvent approve(contract, MAX)",
+            "Aucun approval permanent illimite requis"
           ],
           [
-            "Permit-based action",
-            "Often hidden behind UI flows",
-            "Specific signature plus on-chain execution; auditable through PermitExecuted"
+            "Action permit",
+            "Souvent cachee dans l UI",
+            "Signature specifique plus execution on-chain ; audit via PermitExecuted"
           ],
           [
-            "Audit path",
-            "Read source only if verified",
-            "Source, ABI, owner, USDC address, and events visible on PolygonScan"
+            "Chemin audit",
+            "Source lisible seulement si verifie",
+            "Source, ABI, owner, USDC et evenements visibles sur PolygonScan"
           ]
         ]
       },
       "proof": {
         "headers": [
-          "Field",
-          "Value"
+          "Champ",
+          "Valeur"
         ],
         "rows": [
           [
-            "Network",
+            "Reseau",
             "Polygon PoS Mainnet"
           ],
           [
-            "Address",
+            "Adresse",
             "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d"
           ],
           [
-            "PolygonScan URL",
-            "Open verified contract"
+            "URL PolygonScan",
+            "Ouvrir le contrat verifie"
           ],
           [
-            "Verification status",
+            "Statut verification",
             "Source Code Verified - Exact Match"
           ],
           [
-            "Contract name",
+            "Nom contrat",
             "PolnationMerkleTree"
           ],
           [
-            "Explorer label context",
+            "Contexte label explorer",
             "Polnation: Merkle Tree"
           ],
           [
-            "Source file",
+            "Fichier source",
             "src/PolnationMerkleTree.sol"
           ]
         ]
       },
       "engine": {
         "headers": [
-          "Layer",
-          "Responsibility",
-          "Verification Surface"
+          "Couche",
+          "Responsabilite",
+          "Surface de verification"
         ],
         "rows": [
           [
             "Data intake",
-            "Read USDC balances, wallet status, and public Polygon state",
-            "RPC reads and PolygonScan balances"
+            "Lire soldes USDC, statut wallet et etat Polygon public",
+            "Lectures RPC et soldes PolygonScan"
           ],
           [
-            "Agentic model",
-            "Classify eligibility, risk, tiers, and earning route",
-            "Dashboard output and published rules"
+            "Modele agentique",
+            "Classer eligibilite, risque, niveaux et route earning",
+            "Dashboard et regles publiees"
           ],
           [
-            "Policy guardrails",
-            "Prevent unsupported wallets, stale signatures, or unsafe routes",
-            "UI state, server logs, and wallet prompts"
+            "Garde-fous",
+            "Eviter wallets non supportes, signatures expirees ou routes non sures",
+            "Etat UI, logs serveur, prompts wallet"
           ],
           [
-            "Contract boundary",
-            "Expose the on-chain execution surface",
-            "Verified PolnationMerkleTree source and ABI"
+            "Frontiere contrat",
+            "Exposer la surface execution on-chain",
+            "Source et ABI PolnationMerkleTree verifies"
           ],
           [
-            "Event trail",
-            "Record permit-based executions",
-            "PermitExecuted event on PolygonScan"
+            "Piste evenements",
+            "Enregistrer executions permit",
+            "Evenement PermitExecuted sur PolygonScan"
           ]
         ]
       },
       "contracts": {
         "headers": [
-          "Contract / Address",
-          "Network",
-          "Address",
-          "Purpose"
+          "Contrat / Adresse",
+          "Reseau",
+          "Adresse",
+          "Objectif"
         ],
         "rows": [
           [
             "USDC",
             "Polygon PoS",
             "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-            "Native USDC stablecoin used for balance-tier eligibility and earning settlement."
+            "Stablecoin USDC utilise pour eligibilite de niveau et settlement earning."
           ],
           [
             "PolnationMerkleTree",
             "Polygon PoS",
             "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d",
-            "Verified MerkleTree / permit execution contract with source-code verification, Exact Match status, and Polnation Merkle Tree label context."
+            "Contrat MerkleTree / permit verifie avec source-code verification, Exact Match et contexte Polnation Merkle Tree."
           ],
           [
-            "Polnation operational wallet",
+            "Wallet operationnel Polnation",
             "Polygon PoS",
             "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
-            "Operational recipient / platform wallet referenced in the Polnation Merkle Tree explorer context."
+            "Wallet plateforme reference dans le contexte explorer Polnation Merkle Tree."
           ]
         ]
       },
       "glossary": {
         "headers": [
-          "Term",
+          "Terme",
           "Definition"
         ],
         "rows": [
           [
             "Merkle Tree",
-            "A binary hash tree where the root hash represents all included data."
+            "Arbre de hachage binaire dont la racine represente toutes les donnees incluses."
           ],
           [
             "Merkle Root",
-            "A single 32-byte hash at the top of the tree."
+            "Hash unique de 32 octets au sommet de l arbre."
           ],
           [
             "Merkle Proof",
-            "A compact set of sibling hashes used to verify inclusion."
+            "Ensemble compact de hashes voisins pour verifier l inclusion."
           ],
           [
             "balanceOf()",
-            "Read-only ERC-20 function that returns token balance."
+            "Fonction ERC-20 read-only qui retourne le solde."
           ],
           [
             "approve()",
-            "ERC-20 function that grants a spender permission to move tokens."
+            "Fonction ERC-20 donnant permission a un spender."
           ],
           [
             "allowance()",
-            "ERC-20 function that returns the approved amount for a spender."
+            "Fonction ERC-20 retournant le montant approuve."
           ],
           [
             "transferFrom()",
-            "ERC-20 function to transfer tokens on behalf of an owner after authorization."
+            "Fonction ERC-20 transferant des tokens apres autorisation."
           ],
           [
             "Non-custodial",
-            "A design where the platform never holds user funds."
+            "Design ou la plateforme ne detient jamais les fonds utilisateur."
           ],
           [
             "Polygon PoS",
-            "A proof-of-stake blockchain network used by Polnation."
+            "Reseau blockchain proof-of-stake utilise par Polnation."
           ]
         ]
       }
     },
     "footer": {
-      "disclaimer": "This document is for informational purposes only and does not constitute financial advice."
+      "disclaimer": "Tài liệu này chỉ nhằm mục đích thông tin và không cấu thành tư vấn tài chính."
     },
     "diagrams": {
       "architecture": [
-        "Polnation 3-Layer Architecture",
-        "User Wallet",
+        "Architecture Polnation en 3 couches",
+        "Wallet utilisateur",
         "MetaMask / Trust",
-        "Polnation Web App",
+        "Application Web Polnation",
         "Next.js / React",
         "Dashboard UI",
-        "Balance + Earnings",
-        "RPC Provider",
-        "Public Polygon reads",
-        "Balance Scanner",
+        "Solde + gains",
+        "Fournisseur RPC",
+        "Lectures Polygon publiques",
+        "Scanner solde",
         "multicall balanceOf",
-        "Reward Calculator",
-        "Tier matching + rate",
-        "Policy Guardrails",
-        "Risk checks + route control",
-        "USDC Contract",
-        "Read-only balanceOf",
+        "Calculateur rewards",
+        "Correspondance niveau + taux",
+        "Garde-fous politiques",
+        "Controle risque + route",
+        "Contrat USDC",
+        "balanceOf read-only",
         "PolnationMerkleTree",
-        "Verified execution boundary",
+        "Frontiere execution verifiee",
         "PolygonScan",
-        "Public explorer + audit trail"
+        "Explorateur public + audit trail"
       ],
       "authorization": [
-        "Typical DeFi Protocol",
-        "Your Wallet",
+        "Protocole DeFi typique",
+        "Votre wallet",
         "100 USDC",
-        "DeFi Contract",
-        "Has standing approval",
-        "Can move tokens",
-        "transferFrom risk",
+        "Contrat DeFi",
+        "Approval permanent",
+        "Peut deplacer tokens",
+        "Risque transferFrom",
         "Polnation",
-        "Your Wallet",
-        "USDC stays self-custodied",
-        "Polnation Engine",
-        "Scoped action only",
-        "Verified Contract",
-        "Signature + event trail"
+        "Votre wallet",
+        "USDC reste self-custody",
+        "Moteur Polnation",
+        "Action limitee seulement",
+        "Contrat verifie",
+        "Signature + piste evenements"
       ],
       "verification": [
         "PolygonScan",
-        "Check Token Approvals and verified contract source",
+        "Verifier Token Approvals et source contrat",
         "Revoke.cash",
-        "Review and revoke stale approvals",
-        "Direct Contract Read",
-        "Query allowance(owner, spender)"
+        "Examiner et revoquer approvals anciens",
+        "Lecture contrat directe",
+        "Interroger allowance(owner, spender)"
       ]
     }
   }

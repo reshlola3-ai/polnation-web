@@ -7,6 +7,11 @@ const OPTIONS = [
   { locale: 'en', label: 'EN' },
   { locale: 'zh', label: 'ZH' },
   { locale: 'id', label: 'ID' },
+  { locale: 'vi', label: 'VI' },
+  { locale: 'fr', label: 'FR' },
+  { locale: 'hi', label: 'HI' },
+  { locale: 'ar', label: 'AR' },
+  { locale: 'ur', label: 'UR' },
 ] as const
 
 export function WhitepaperLanguageSwitcher({ currentLocale }: { currentLocale: string }) {
