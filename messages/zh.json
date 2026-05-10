@@ -932,7 +932,7 @@
         "p2": "技术论点很简单：AI/agent 层可以计算、排序并自动化收益逻辑，但信任边界必须保持公开且可审计。这个边界就是 PolygonScan 上已验证的 Polnation MerkleTree 合约。",
         "bullets": [
           "Agentic earning 引擎会在生成收益动作前读取公开链上状态、余额等级、用户资格和运营风控规则。",
-          "Polygon 合约 0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d 在 PolygonScan 上显示为 Source Code Verified / Exact Match，合约名为 PolnationMerkleTree。",
+          "Polygon 合约 0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63 在 PolygonScan 上显示为 Source Code Verified / Exact Match，合约名为 PolnationMerkleTree。",
           "PolygonScan 显示 Polnation: Merkle Tree 标签上下文，让用户看到公开身份引用，而不是一个不透明的合约地址。",
           "Polnation 不要求无限期的 USDC standing approval。使用 permit 流程时，用户签署的是特定授权，产生的动作可在链上查看。",
           "用户可以直接在 PolygonScan 上检查已验证的 Solidity 源码、ABI、owner、USDC 地址和事件日志。"
@@ -1112,7 +1112,7 @@
           ],
           [
             "地址",
-            "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d"
+            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63"
           ],
           [
             "PolygonScan URL",
@@ -1187,13 +1187,13 @@
           [
             "PolnationMerkleTree",
             "Polygon PoS",
-            "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d",
+            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
             "已验证的 MerkleTree / permit 执行合约，具有源码验证、Exact Match 状态和 Polnation Merkle Tree 标签上下文。"
           ],
           [
             "Polnation 运营钱包",
             "Polygon PoS",
-            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
+            "0x0ADA3111B866fF1aD0477F0C5D2e8eD35A36Eb5b",
             "Polnation Merkle Tree 浏览器上下文中引用的运营收款 / 平台钱包。"
           ]
         ]

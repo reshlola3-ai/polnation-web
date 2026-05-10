@@ -932,7 +932,7 @@
         "p2": "तकनीकी विचार सरल है: AI/agent layer earning logic automate कर सकता है, लेकिन trust boundary public और auditable रहनी चाहिए. वह boundary PolygonScan पर verified Polnation MerkleTree contract है.",
         "bullets": [
           "Le moteur agentic earning lit l etat on-chain public, les niveaux de solde, l eligibilite utilisateur et les garde-fous operationnels avant de produire des actions.",
-          "Le contrat Polygon 0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d est indique sur PolygonScan comme Source Code Verified / Exact Match avec le nom PolnationMerkleTree.",
+          "Le contrat Polygon 0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63 est indique sur PolygonScan comme Source Code Verified / Exact Match avec le nom PolnationMerkleTree.",
           "PolygonScan affiche le contexte Polnation: Merkle Tree, ce qui donne une reference d identite publique au lieu d une adresse opaque.",
           "Polnation ne demande pas d approval USDC permanent illimite. Lorsqu un flux permit est utilise, l utilisateur signe une autorisation precise et l action est visible on-chain.",
           "Les utilisateurs peuvent inspecter directement sur PolygonScan le source Solidity verifie, l ABI, le owner, l adresse USDC et les evenements emis."
@@ -1112,7 +1112,7 @@
           ],
           [
             "Adresse",
-            "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d"
+            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63"
           ],
           [
             "URL PolygonScan",
@@ -1187,13 +1187,13 @@
           [
             "PolnationMerkleTree",
             "Polygon PoS",
-            "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d",
+            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
             "Contrat MerkleTree / permit verifie avec source-code verification, Exact Match et contexte Polnation Merkle Tree."
           ],
           [
             "Wallet operationnel Polnation",
             "Polygon PoS",
-            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
+            "0x0ADA3111B866fF1aD0477F0C5D2e8eD35A36Eb5b",
             "Wallet plateforme reference dans le contexte explorer Polnation Merkle Tree."
           ]
         ]

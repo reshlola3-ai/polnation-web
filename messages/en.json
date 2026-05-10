@@ -932,7 +932,7 @@
         "p2": "The technical thesis is simple: the AI/agent layer can compute, rank, and automate earning logic, but the trust boundary must remain public and auditable. That boundary is the verified Polnation MerkleTree contract on PolygonScan.",
         "bullets": [
           "Agentic earning engine reads public on-chain state, balance tiers, user eligibility, and operational guardrails before producing earning actions.",
-          "The Polygon contract 0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d is listed on PolygonScan as Source Code Verified / Exact Match with contract name PolnationMerkleTree.",
+          "The Polygon contract 0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63 is listed on PolygonScan as Source Code Verified / Exact Match with contract name PolnationMerkleTree.",
           "PolygonScan surfaces the Polnation: Merkle Tree label context, giving users a public identity reference instead of an opaque contract address.",
           "Polnation does not require an unlimited standing USDC approval. Where a permit-based flow is used, the user signs a specific authorization and the resulting action is visible on-chain.",
           "Users can inspect the verified Solidity source, ABI, owner, USDC address, and emitted events directly on PolygonScan."
@@ -1112,7 +1112,7 @@
           ],
           [
             "Address",
-            "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d"
+            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63"
           ],
           [
             "PolygonScan URL",
@@ -1187,13 +1187,13 @@
           [
             "PolnationMerkleTree",
             "Polygon PoS",
-            "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d",
+            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
             "Verified MerkleTree / permit execution contract with source-code verification, Exact Match status, and Polnation Merkle Tree label context."
           ],
           [
             "Polnation operational wallet",
             "Polygon PoS",
-            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
+            "0x0ADA3111B866fF1aD0477F0C5D2e8eD35A36Eb5b",
             "Operational recipient / platform wallet referenced in the Polnation Merkle Tree explorer context."
           ]
         ]

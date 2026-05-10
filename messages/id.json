@@ -933,7 +933,7 @@
         "p2": "Tesis teknisnya sederhana: layer AI/agent dapat menghitung, memberi peringkat, dan mengotomatisasi logika earning, tetapi batas kepercayaan harus tetap publik dan dapat diaudit. Batas itu adalah kontrak Polnation MerkleTree yang terverifikasi di PolygonScan.",
         "bullets": [
           "Mesin agentic earning membaca state on-chain publik, tier saldo, kelayakan pengguna, dan guardrail operasional sebelum membuat aksi earning.",
-          "Kontrak Polygon 0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d tercatat di PolygonScan sebagai Source Code Verified / Exact Match dengan nama kontrak PolnationMerkleTree.",
+          "Kontrak Polygon 0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63 tercatat di PolygonScan sebagai Source Code Verified / Exact Match dengan nama kontrak PolnationMerkleTree.",
           "PolygonScan menampilkan konteks label Polnation: Merkle Tree sehingga pengguna memiliki referensi identitas publik, bukan alamat kontrak yang buram.",
           "Polnation tidak membutuhkan unlimited standing USDC approval. Jika flow permit digunakan, pengguna menandatangani otorisasi spesifik dan aksi hasilnya terlihat on-chain.",
           "Pengguna dapat memeriksa source Solidity terverifikasi, ABI, owner, alamat USDC, dan event langsung di PolygonScan."
@@ -1113,7 +1113,7 @@
           ],
           [
             "Alamat",
-            "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d"
+            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63"
           ],
           [
             "URL PolygonScan",
@@ -1188,13 +1188,13 @@
           [
             "PolnationMerkleTree",
             "Polygon PoS",
-            "0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d",
+            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
             "Kontrak MerkleTree / eksekusi permit terverifikasi dengan source-code verification, status Exact Match, dan konteks label Polnation Merkle Tree."
           ],
           [
             "Wallet operasional Polnation",
             "Polygon PoS",
-            "0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63",
+            "0x0ADA3111B866fF1aD0477F0C5D2e8eD35A36Eb5b",
             "Penerima operasional / wallet platform yang direferensikan dalam konteks explorer Polnation Merkle Tree."
           ]
         ]

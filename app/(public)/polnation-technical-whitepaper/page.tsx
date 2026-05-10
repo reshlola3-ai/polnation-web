@@ -8,9 +8,9 @@ import { PrintButton } from './PrintButton'
 import { WhitepaperLanguageSwitcher } from './WhitepaperLanguageSwitcher'
 import { ArchitectureDiagram, AuthorizationDiagram, VerificationDiagram } from './Diagrams'
 
-const CONTRACT = '0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d'
+const CONTRACT = '0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63'
 const USDC = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359'
-const OP_WALLET = '0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63'
+const OP_WALLET = '0x0ADA3111B866fF1aD0477F0C5D2e8eD35A36Eb5b'
 const POLYGONSCAN = `https://polygonscan.com/address/${CONTRACT}#code`
 
 export const metadata: Metadata = {
