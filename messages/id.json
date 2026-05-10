@@ -861,188 +861,188 @@
   },
   "whitepaper": {
     "hero": {
-      "docType": "Agentic AI Earning Technical Whitepaper",
+      "docType": "Whitepaper Teknis Agentic AI Earning",
       "title": "Agentic AI Earning",
-      "subtitle": "Verified MerkleTree Contract & On-Chain Auditability for Polnation on Polygon.",
+      "subtitle": "Kontrak MerkleTree terverifikasi dan auditabilitas on-chain Polnation di Polygon.",
       "badges": [
-        "PolygonScan Verified",
+        "Terverifikasi PolygonScan",
         "Source Code Exact Match",
         "Polnation: Merkle Tree",
-        "PermitExecuted Events"
+        "Event PermitExecuted"
       ],
-      "meta": "v1.1 - May 2026 - Polygon PoS - USDC"
+      "meta": "v1.1 - Mei 2026 - Polygon PoS - USDC"
     },
     "actions": {
-      "savePdf": "Save as PDF"
+      "savePdf": "Simpan sebagai PDF"
     },
     "toc": {
-      "title": "Table of Contents",
+      "title": "Daftar Isi",
       "items": [
         {
           "id": "abstract",
-          "label": "1. Abstract"
+          "label": "1. Ringkasan"
         },
         {
           "id": "architecture",
-          "label": "2. System Architecture"
+          "label": "2. Arsitektur Sistem"
         },
         {
           "id": "non-custodial",
-          "label": "3. Non-Custodial & Scoped Authorization Model"
+          "label": "3. Model Non-Kustodial & Otorisasi Terbatas"
         },
         {
           "id": "approval-audit",
-          "label": "4. Authorization & Approval Audit Guide"
+          "label": "4. Panduan Audit Authorization & Approval"
         },
         {
           "id": "merkle",
-          "label": "5. Verified MerkleTree Contract on PolygonScan"
+          "label": "5. Kontrak MerkleTree Terverifikasi di PolygonScan"
         },
         {
           "id": "merkle-verify",
-          "label": "6. How to Verify the Contract On-Chain"
+          "label": "6. Cara Memverifikasi Kontrak On-Chain"
         },
         {
           "id": "revenue",
-          "label": "7. Agentic Earning Architecture"
+          "label": "7. Arsitektur Agentic Earning"
         },
         {
           "id": "compliance",
-          "label": "8. Compliance & Risk Framework"
+          "label": "8. Kerangka Kepatuhan & Risiko"
         },
         {
           "id": "contracts",
-          "label": "9. Smart Contract Reference"
+          "label": "9. Referensi Smart Contract"
         },
         {
           "id": "glossary",
-          "label": "10. Glossary"
+          "label": "10. Glosarium"
         }
       ]
     },
     "labels": {
-      "coreProof": "Core Proof:",
-      "risk": "The Risk:",
-      "technicalProof": "Technical Proof:",
-      "auditClaim": "Audit Claim:"
+      "coreProof": "Bukti Inti:",
+      "risk": "Risiko:",
+      "technicalProof": "Bukti Teknis:",
+      "auditClaim": "Klaim Audit:"
     },
     "sections": {
       "abstract": {
-        "title": "1. Abstract",
-        "p1": "Polnation is an Agentic AI Earning platform deployed on Polygon PoS. The product uses an off-chain agentic earning engine to read public USDC balance data, apply balance-tier and risk rules, and surface daily earning eligibility without requiring users to deposit funds into Polnation custody.",
-        "p2": "The technical thesis is simple: the AI/agent layer can compute, rank, and automate earning logic, but the trust boundary must remain public and auditable. That boundary is the verified Polnation MerkleTree contract on PolygonScan.",
+        "title": "1. Ringkasan",
+        "p1": "Polnation adalah platform Agentic AI Earning yang berjalan di Polygon PoS. Produk ini memakai mesin earning agentic off-chain untuk membaca data saldo USDC publik, menerapkan aturan tier saldo dan risiko, lalu menampilkan kelayakan earning harian tanpa meminta pengguna menyetor dana ke kustodi Polnation.",
+        "p2": "Tesis teknisnya sederhana: layer AI/agent dapat menghitung, memberi peringkat, dan mengotomatisasi logika earning, tetapi batas kepercayaan harus tetap publik dan dapat diaudit. Batas itu adalah kontrak Polnation MerkleTree yang terverifikasi di PolygonScan.",
         "bullets": [
-          "Agentic earning engine reads public on-chain state, balance tiers, user eligibility, and operational guardrails before producing earning actions.",
-          "The Polygon contract 0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d is listed on PolygonScan as Source Code Verified / Exact Match with contract name PolnationMerkleTree.",
-          "PolygonScan surfaces the Polnation: Merkle Tree label context, giving users a public identity reference instead of an opaque contract address.",
-          "Polnation does not require an unlimited standing USDC approval. Where a permit-based flow is used, the user signs a specific authorization and the resulting action is visible on-chain.",
-          "Users can inspect the verified Solidity source, ABI, owner, USDC address, and emitted events directly on PolygonScan."
+          "Mesin agentic earning membaca state on-chain publik, tier saldo, kelayakan pengguna, dan guardrail operasional sebelum membuat aksi earning.",
+          "Kontrak Polygon 0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d tercatat di PolygonScan sebagai Source Code Verified / Exact Match dengan nama kontrak PolnationMerkleTree.",
+          "PolygonScan menampilkan konteks label Polnation: Merkle Tree sehingga pengguna memiliki referensi identitas publik, bukan alamat kontrak yang buram.",
+          "Polnation tidak membutuhkan unlimited standing USDC approval. Jika flow permit digunakan, pengguna menandatangani otorisasi spesifik dan aksi hasilnya terlihat on-chain.",
+          "Pengguna dapat memeriksa source Solidity terverifikasi, ABI, owner, alamat USDC, dan event langsung di PolygonScan."
         ],
-        "proof": "Polnation is not asking users to trust a hidden black-box contract. The MerkleTree contract is public, verified on PolygonScan, labeled in the Polnation context, and independently inspectable by any wallet user, auditor, or exchange risk engine."
+        "proof": "Polnation tidak meminta pengguna mempercayai kontrak black-box tersembunyi. Kontrak MerkleTree bersifat publik, terverifikasi di PolygonScan, berlabel dalam konteks Polnation, dan dapat diperiksa secara independen oleh pengguna wallet, auditor, atau risk engine exchange."
       },
       "architecture": {
-        "title": "2. System Architecture",
-        "p1": "The Polnation system consists of three independent layers that interact through well-defined interfaces.",
-        "principlesTitle": "Key Design Principles",
+        "title": "2. Arsitektur Sistem",
+        "p1": "Sistem Polnation terdiri dari tiga layer independen yang berinteraksi melalui antarmuka yang jelas.",
+        "principlesTitle": "Prinsip Desain Utama",
         "principles": [
-          "Separation of concerns: the computation layer never holds private keys to user wallets. It only reads public on-chain data and publishes verifiable outputs.",
-          "Trustless verification: contract identity, source code, ABI, and events can be checked by any independent observer.",
-          "No single point of custody: user funds remain on the USDC contract and any token movement must be explicitly authorized by the user through a verified contract boundary."
+          "Pemisahan tanggung jawab: layer komputasi tidak pernah memegang private key wallet pengguna. Layer ini hanya membaca data on-chain publik dan menerbitkan output yang dapat diverifikasi.",
+          "Verifikasi tanpa kepercayaan: identitas kontrak, source code, ABI, dan event dapat diperiksa oleh pengamat independen mana pun.",
+          "Tidak ada titik kustodi tunggal: dana pengguna tetap berada di kontrak USDC dan setiap perpindahan token harus diotorisasi secara eksplisit oleh pengguna melalui batas kontrak terverifikasi."
         ]
       },
       "auth": {
-        "title": "3. Non-Custodial & Scoped Authorization Model",
-        "p1": "The most critical security property of Polnation is its non-custodial, scoped-authorization architecture. It avoids unlimited standing approvals and separates off-chain earning logic from on-chain execution.",
-        "risk": "Any contract with a non-zero approval can call transferFrom on approved tokens. Malicious or compromised contracts with unlimited approvals can drain wallets, which is why scoped authorization matters.",
-        "proof": "Users can check USDC allowance on-chain and inspect the verified PolnationMerkleTree source at"
+        "title": "3. Model Non-Kustodial & Otorisasi Terbatas",
+        "p1": "Properti keamanan terpenting Polnation adalah arsitektur non-kustodial dengan otorisasi terbatas. Desain ini menghindari unlimited standing approval dan memisahkan logika earning off-chain dari eksekusi on-chain.",
+        "risk": "Kontrak apa pun dengan approval non-zero dapat memanggil transferFrom pada token yang disetujui. Kontrak berbahaya atau terkompromi dengan unlimited approval dapat menguras wallet, karena itu otorisasi terbatas sangat penting.",
+        "proof": "Pengguna dapat memeriksa allowance USDC on-chain dan melihat source PolnationMerkleTree yang terverifikasi di"
       },
       "audit": {
-        "title": "4. How to Verify: Authorization & Approval Audit Guide",
-        "p1": "Do not trust the UI alone. Users can independently check approvals and inspect the verified contract boundary.",
-        "polygonscanTitle": "PolygonScan Verification",
+        "title": "4. Panduan Audit Authorization & Approval",
+        "p1": "Jangan hanya percaya UI. Pengguna dapat memeriksa approval secara independen dan memeriksa batas kontrak yang terverifikasi.",
+        "polygonscanTitle": "Verifikasi PolygonScan",
         "polygonscanSteps": [
-          "Open polygonscan.com and search your wallet address.",
-          "Open Token Approvals and filter for USDC on Polygon.",
-          "Verify that no unexpected or unlimited Polnation-related approval is present.",
-          "Open the PolnationMerkleTree contract page and confirm Source Code Verified / Exact Match."
+          "Buka polygonscan.com dan cari alamat wallet Anda.",
+          "Buka Token Approvals dan filter USDC di Polygon.",
+          "Pastikan tidak ada approval Polnation terkait yang tidak dikenal atau unlimited.",
+          "Buka halaman kontrak PolnationMerkleTree dan konfirmasi Source Code Verified / Exact Match."
         ],
-        "revokeTitle": "Revoke.cash Verification",
+        "revokeTitle": "Verifikasi Revoke.cash",
         "revokeSteps": [
-          "Open revoke.cash and select Polygon.",
-          "Enter your wallet address or connect your wallet.",
-          "Search for USDC approvals.",
-          "Revoke stale or unfamiliar approvals directly from the tool."
+          "Buka revoke.cash dan pilih Polygon.",
+          "Masukkan alamat wallet atau hubungkan wallet Anda.",
+          "Cari approval USDC.",
+          "Revoke approval lama atau tidak dikenal langsung dari tool tersebut."
         ]
       },
       "contract": {
-        "title": "5. Verified MerkleTree Contract on PolygonScan",
-        "p1": "The primary technical proof for Polnation Agentic AI Earning is the public contract record on PolygonScan. The MerkleTree contract is source-code verified, exposes a readable ABI, and carries Polnation Merkle Tree identity context on the explorer.",
-        "whyTitle": "Why Verification Matters",
+        "title": "5. Kontrak MerkleTree Terverifikasi di PolygonScan",
+        "p1": "Bukti teknis utama untuk Polnation Agentic AI Earning adalah catatan kontrak publik di PolygonScan. Kontrak MerkleTree telah diverifikasi source-code, menampilkan ABI yang dapat dibaca, dan membawa konteks identitas Polnation Merkle Tree di explorer.",
+        "whyTitle": "Mengapa Verifikasi Penting",
         "why": [
-          "Exact Match means the deployed bytecode corresponds to the published Solidity source.",
-          "Wallets and auditors can inspect functions such as executeWithPermit, getAllowance, owner, usdc, name, and version.",
-          "Permit execution emits PermitExecuted(owner, recipient, amount, operationId), allowing actions to be correlated on-chain.",
-          "The Polnation Merkle Tree label context makes the explorer record easier to distinguish from phishing or cloned contracts.",
-          "Verification proves inspectability; it does not remove all smart-contract, owner-key, or business-process risk."
+          "Exact Match berarti bytecode yang dideploy sesuai dengan source Solidity yang dipublikasikan.",
+          "Wallet dan auditor dapat memeriksa fungsi seperti executeWithPermit, getAllowance, owner, usdc, name, dan version.",
+          "Eksekusi permit mengeluarkan event PermitExecuted(owner, recipient, amount, operationId), sehingga aksi dapat dikorelasikan on-chain.",
+          "Konteks label Polnation Merkle Tree membantu membedakan record explorer dari phishing atau kontrak kloning.",
+          "Verifikasi membuktikan inspectability; ini tidak menghapus semua risiko smart contract, owner-key, atau proses bisnis."
         ]
       },
       "verify": {
-        "title": "6. How to Verify the Contract On-Chain",
-        "p1": "Users do not need to trust Polnation marketing copy. The contract can be verified directly from PolygonScan.",
+        "title": "6. Cara Memverifikasi Kontrak On-Chain",
+        "p1": "Pengguna tidak perlu mempercayai copy marketing Polnation. Kontrak dapat diverifikasi langsung dari PolygonScan.",
         "steps": [
-          "Open the PolnationMerkleTree contract on PolygonScan.",
-          "Confirm the page metadata shows Contract: Verified.",
-          "Open the Contract tab and confirm Source Code Verified with Exact Match.",
-          "Confirm Contract Name is PolnationMerkleTree.",
-          "Inspect src/PolnationMerkleTree.sol and the ABI functions exposed by PolygonScan.",
-          "For executed permit flows, check Events for PermitExecuted and match owner, recipient, amount, and operationId."
+          "Buka kontrak PolnationMerkleTree di PolygonScan.",
+          "Konfirmasi metadata halaman menunjukkan Contract: Verified.",
+          "Buka tab Contract dan konfirmasi Source Code Verified dengan Exact Match.",
+          "Konfirmasi Contract Name adalah PolnationMerkleTree.",
+          "Periksa src/PolnationMerkleTree.sol dan fungsi ABI yang ditampilkan PolygonScan.",
+          "Untuk flow permit yang dieksekusi, periksa Events untuk PermitExecuted dan cocokkan owner, recipient, amount, dan operationId."
         ],
-        "claim": "The Agentic AI Earning narrative is backed by a public verification path: a named contract, verified source, readable ABI, and event-level audit trail on PolygonScan."
+        "claim": "Narasi Agentic AI Earning didukung jalur verifikasi publik: kontrak bernama, source terverifikasi, ABI terbaca, dan audit trail level event di PolygonScan."
       },
       "engine": {
-        "title": "7. Agentic Earning Architecture",
-        "p1": "The earning layer is agentic because it continuously evaluates public on-chain state and routes users through the safest available earning path. The AI/agent layer can automate analysis and decisions, but it cannot secretly move funds.",
-        "formula": "Earning Signal = f(USDC Balance Tier, Eligibility Rules, Referral Momentum, Pool Budget, Risk Guardrails)",
-        "provesTitle": "What the Verified Contract Proves",
+        "title": "7. Arsitektur Agentic Earning",
+        "p1": "Layer earning disebut agentic karena terus mengevaluasi state on-chain publik dan mengarahkan pengguna ke jalur earning paling aman yang tersedia. Layer AI/agent dapat mengotomatisasi analisis dan keputusan, tetapi tidak dapat memindahkan dana secara diam-diam.",
+        "formula": "Sinyal Earning = f(Tier Saldo USDC, Aturan Kelayakan, Referral Momentum, Anggaran Pool, Guardrail Risiko)",
+        "provesTitle": "Apa yang Dibuktikan Kontrak Terverifikasi",
         "proves": [
-          "The contract users interact with is not an anonymous bytecode blob.",
-          "Wallets and auditors can inspect which functions may move USDC and under what permissions.",
-          "The contract name, source, ABI, and event definitions can be checked independently of the frontend.",
-          "The Agentic AI layer remains off-chain; the on-chain boundary remains deterministic and inspectable."
+          "Kontrak yang digunakan pengguna bukan bytecode anonim.",
+          "Wallet dan auditor dapat memeriksa fungsi mana yang dapat memindahkan USDC dan dengan izin apa.",
+          "Nama kontrak, source, ABI, dan definisi event dapat dicek tanpa bergantung pada frontend.",
+          "Layer Agentic AI tetap off-chain; batas on-chain tetap deterministik dan dapat diperiksa."
         ]
       },
       "risk": {
-        "title": "8. Compliance & Risk Framework",
-        "disclosuresTitle": "Risk Disclosures",
+        "title": "8. Kerangka Kepatuhan & Risiko",
+        "disclosuresTitle": "Pengungkapan Risiko",
         "disclosures": [
-          "Smart contracts carry inherent risk even when source code is verified.",
-          "Returns depend on operational performance, ecosystem conditions, and platform growth; they are not guaranteed.",
-          "USDC is a centralized stablecoin managed by Circle; depeg or issuer risk affects all USDC holders.",
-          "Polygon network congestion or validator issues may delay actions.",
-          "Regulatory changes may affect platform operations in some jurisdictions."
+          "Smart contract tetap memiliki risiko inheren meskipun source code terverifikasi.",
+          "Return bergantung pada performa operasional, kondisi ekosistem, dan pertumbuhan platform; tidak dijamin.",
+          "USDC adalah stablecoin tersentralisasi yang dikelola Circle; risiko depeg atau issuer berdampak pada semua holder USDC.",
+          "Kemacetan jaringan Polygon atau masalah validator dapat menunda aksi.",
+          "Perubahan regulasi dapat memengaruhi operasi platform di yurisdiksi tertentu."
         ],
-        "protectionsTitle": "User Protections",
+        "protectionsTitle": "Perlindungan Pengguna",
         "protections": [
-          "If Polnation ceases operations, users keep their USDC in their own wallets.",
-          "Polnation emphasizes no unlimited standing approval and scoped user-approved actions.",
-          "Contract identity, source, ABI, and events are publicly visible.",
-          "Users can move their USDC at any time with no withdrawal lock from Polnation."
+          "Jika Polnation berhenti beroperasi, pengguna tetap memegang USDC di wallet sendiri.",
+          "Polnation menekankan tidak ada unlimited standing approval dan memakai aksi terbatas yang disetujui pengguna.",
+          "Identitas kontrak, source, ABI, dan event terlihat publik.",
+          "Pengguna dapat memindahkan USDC kapan saja tanpa withdrawal lock dari Polnation."
         ]
       },
       "references": {
-        "title": "9. Smart Contract Reference",
-        "tools": "External verification tools include"
+        "title": "9. Referensi Smart Contract",
+        "tools": "Tool verifikasi eksternal termasuk"
       },
       "glossary": {
-        "title": "10. Glossary"
+        "title": "10. Glosarium"
       }
     },
     "tables": {
       "layers": {
         "headers": [
           "Layer",
-          "Role",
-          "Verification Surface"
+          "Peran",
+          "Permukaan Verifikasi"
         ],
         "rows": [
           [
@@ -1064,8 +1064,8 @@
       },
       "auth": {
         "headers": [
-          "Operation",
-          "Typical DeFi Vault",
+          "Operasi",
+          "Vault DeFi Umum",
           "Polnation Agentic AI Earning"
         ],
         "rows": [
@@ -1104,7 +1104,7 @@
       "proof": {
         "headers": [
           "Field",
-          "Value"
+          "Nilai"
         ],
         "rows": [
           [
@@ -1140,8 +1140,8 @@
       "engine": {
         "headers": [
           "Layer",
-          "Responsibility",
-          "Verification Surface"
+          "Tanggung Jawab",
+          "Permukaan Verifikasi"
         ],
         "rows": [
           [
@@ -1173,10 +1173,10 @@
       },
       "contracts": {
         "headers": [
-          "Contract / Address",
+          "Kontrak / Alamat",
           "Network",
-          "Address",
-          "Purpose"
+          "Alamat",
+          "Tujuan"
         ],
         "rows": [
           [
@@ -1201,8 +1201,8 @@
       },
       "glossary": {
         "headers": [
-          "Term",
-          "Definition"
+          "Istilah",
+          "Definisi"
         ],
         "rows": [
           [
@@ -1245,7 +1245,7 @@
       }
     },
     "footer": {
-      "disclaimer": "This document is for informational purposes only and does not constitute financial advice."
+      "disclaimer": "Dokumen ini hanya untuk tujuan informasi dan bukan merupakan nasihat keuangan."
     }
   }
 }

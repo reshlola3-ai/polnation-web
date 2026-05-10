@@ -9,6 +9,7 @@ export async function middleware(request: NextRequest) {
   const publicPaths = [
     '/polnation-technical-whitepaper',
     '/polnation-technical-whitepaper.html',
+    '/api/whitepaper-locale',
   ]
   if (publicPaths.some(path => request.nextUrl.pathname === path)) {
     return NextResponse.next()

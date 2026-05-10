@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { cookies } from 'next/headers'
 import { getTranslations } from 'next-intl/server'
-import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 import { PrintButton } from './PrintButton'
+import { WhitepaperLanguageSwitcher } from './WhitepaperLanguageSwitcher'
 
 const CONTRACT = '0x76f0d64bC0D41262aebBCc584679Ee1EBb22dd0d'
 const USDC = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359'
@@ -110,7 +110,7 @@ export default async function TechnicalWhitepaperPage() {
       <div className="pointer-events-none fixed right-0 top-0 h-[520px] w-[520px] rounded-full bg-purple-600/20 blur-[130px]" />
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-5 md:px-6 md:py-8">
         <div className="mb-4 flex justify-end print:hidden">
-          <LanguageSwitcher currentLocale={locale} />
+          <WhitepaperLanguageSwitcher currentLocale={locale} />
         </div>
 
         <header
