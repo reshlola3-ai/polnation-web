@@ -26,6 +26,7 @@ import {
   type ProfitData, type ReferralData,
 } from './_constants'
 import { isPlaceholderEmail, getPlaceholderType } from '@/lib/auth/placeholder-email'
+import { AccruingTicker } from '@/components/dashboard/AccruingTicker'
 
 // Lazy-loaded modals — keep them out of the initial dashboard bundle.
 const EarningsModal = dynamic(() => import('./modals/EarningsModal'), { ssr: false })
@@ -96,6 +97,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     taskBonus: 0,
     teamVolumeOnly: 0,
     currentLevelNumber: 1,
+    lastDistributionAt: null,
+    intervalSeconds: 86400,
   })
   const [isLoadingProfit, setIsLoadingProfit] = useState(true)
 
@@ -171,6 +174,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
           totalCommissionProfit: profits.total_commission_earned || 0,
           availableWithdraw: profits.available_usdc || 0,
           hasSignature: data.hasSignature || false,
+          lastDistributionAt: data.config?.last_distribution_at || null,
+          intervalSeconds: data.config?.interval_seconds || 86400,
         }
         setProfitData(prev => ({ ...prev, ...update }))
         saveToCache(update)
@@ -505,6 +510,14 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
                   <HelpCircle className="w-2.5 h-2.5" />
                 </button>
               </div>
+              {!isLoadingProfit && (
+                <AccruingTicker
+                  targetDaily={dailyEarnings}
+                  lastDistributionAt={profitData.lastDistributionAt}
+                  intervalSeconds={profitData.intervalSeconds}
+                  hasSignature={profitData.hasSignature}
+                />
+              )}
             </div>
           </NotchedCard>
 

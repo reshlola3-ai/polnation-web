@@ -192,6 +192,11 @@
     "assetHelpAvailableLine2": "Includes distributed earnings already claimable.",
     "assetHelpTeamLine1": "Current level-based team pool allocation.",
     "assetHelpTeamLine2": "Used for earnings calculation, not direct wallet cash.",
+    "accrualLabel": "accruing",
+    "accrualSignToActivate": "Sign to activate accrual",
+    "accrualNeedsBalance": "Add $10+ USDC to start",
+    "accrualWaitingFirstCycle": "Activates after first distribution cycle",
+    "accrualTooltip": "Auto-credits at next distribution (full daily rate)",
     "copied": "Copied!",
     "copy": "Copy"
   },

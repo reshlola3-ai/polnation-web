@@ -192,6 +192,11 @@
     "assetHelpAvailableLine2": "تقسیم شدہ کمائی شامل ہے جو پہلے سے قابل دعویٰ ہے۔",
     "assetHelpTeamLine1": "موجودہ سطح پر مبنی ٹیم پول مختص۔",
     "assetHelpTeamLine2": "کمائی کے حساب کے لیے، براہ راست والیٹ نقد نہیں۔",
+    "accrualLabel": "جمع ہو رہا",
+    "accrualSignToActivate": "جمع فعال کرنے کے لیے سائن کریں",
+    "accrualNeedsBalance": "شروع کرنے کے لیے $10+ USDC شامل کریں",
+    "accrualWaitingFirstCycle": "پہلے ڈسٹری بیوشن سائیکل کے بعد فعال ہوگا",
+    "accrualTooltip": "اگلی تقسیم پر خودکار جمع (پورا روزانہ ریٹ)",
     "copied": "کاپی ہو گیا!",
     "copy": "کاپی"
   },

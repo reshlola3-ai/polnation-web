@@ -192,6 +192,11 @@
     "assetHelpAvailableLine2": "Includes distributed earnings already claimable.",
     "assetHelpTeamLine1": "Current level-based team pool allocation.",
     "assetHelpTeamLine2": "Used for earnings calculation, not direct wallet cash.",
+    "accrualLabel": "累积中",
+    "accrualSignToActivate": "签名以激活利润累积",
+    "accrualNeedsBalance": "存入 $10+ USDC 开始累积",
+    "accrualWaitingFirstCycle": "首次发放后激活",
+    "accrualTooltip": "下次发放时自动入账（全天利润）",
     "copied": "Copied!",
     "copy": "Copy"
   },

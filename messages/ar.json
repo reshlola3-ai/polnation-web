@@ -192,6 +192,11 @@
     "assetHelpAvailableLine2": "يشمل الأرباح الموزعة القابلة للمطالبة بالفعل.",
     "assetHelpTeamLine1": "تخصيص مجمع الفريق الحالي بناءً على المستوى.",
     "assetHelpTeamLine2": "يُستخدم لحساب الأرباح، ليس نقداً مباشراً في المحفظة.",
+    "accrualLabel": "يتراكم",
+    "accrualSignToActivate": "وقّع لتفعيل التراكم",
+    "accrualNeedsBalance": "أضف 10$+ USDC للبدء",
+    "accrualWaitingFirstCycle": "يتم التفعيل بعد دورة التوزيع الأولى",
+    "accrualTooltip": "يُضاف تلقائيًا في التوزيع التالي (المعدل اليومي الكامل)",
     "copied": "تم النسخ!",
     "copy": "نسخ"
   },

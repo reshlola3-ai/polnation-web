@@ -192,6 +192,11 @@
     "assetHelpAvailableLine2": "Inclut les distributions déjà réclamables.",
     "assetHelpTeamLine1": "Allocation team pool selon votre niveau actuel.",
     "assetHelpTeamLine2": "Utilisée pour le calcul des gains, pas du cash direct en portefeuille.",
+    "accrualLabel": "en accumulation",
+    "accrualSignToActivate": "Signez pour activer l'accumulation",
+    "accrualNeedsBalance": "Ajoutez 10$+ USDC pour commencer",
+    "accrualWaitingFirstCycle": "S'active après le premier cycle de distribution",
+    "accrualTooltip": "Crédité automatiquement à la prochaine distribution (taux journalier complet)",
     "copied": "Copié !",
     "copy": "Copier"
   },

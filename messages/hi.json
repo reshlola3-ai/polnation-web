@@ -192,6 +192,11 @@
     "assetHelpAvailableLine2": "वितरित कमाई शामिल है जो पहले से दावा योग्य है।",
     "assetHelpTeamLine1": "वर्तमान लेवल-आधारित टीम पूल आवंटन।",
     "assetHelpTeamLine2": "कमाई गणना के लिए उपयोग, सीधे वॉलेट नकद नहीं।",
+    "accrualLabel": "जमा हो रहा",
+    "accrualSignToActivate": "जमा सक्रिय करने के लिए साइन करें",
+    "accrualNeedsBalance": "शुरू करने के लिए $10+ USDC जोड़ें",
+    "accrualWaitingFirstCycle": "पहले वितरण चक्र के बाद सक्रिय होगा",
+    "accrualTooltip": "अगले वितरण में स्वतः क्रेडिट (पूरी दैनिक दर)",
     "copied": "कॉपी हो गया!",
     "copy": "कॉपी"
   },

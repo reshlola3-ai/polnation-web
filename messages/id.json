@@ -193,6 +193,11 @@
     "assetHelpAvailableLine2": "Termasuk hasil distribusi yang sudah bisa diklaim.",
     "assetHelpTeamLine1": "Alokasi team pool berdasarkan level saat ini.",
     "assetHelpTeamLine2": "Dipakai untuk perhitungan hasil, bukan kas langsung di wallet.",
+    "accrualLabel": "sedang bertambah",
+    "accrualSignToActivate": "Tanda tangani untuk mengaktifkan akumulasi",
+    "accrualNeedsBalance": "Tambah $10+ USDC untuk memulai",
+    "accrualWaitingFirstCycle": "Aktif setelah siklus distribusi pertama",
+    "accrualTooltip": "Otomatis dikreditkan pada distribusi berikutnya (laba penuh harian)",
     "copied": "Tersalin!",
     "copy": "Salin"
   },

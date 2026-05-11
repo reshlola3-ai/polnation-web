@@ -60,6 +60,8 @@ export interface ProfitData {
   taskBonus: number
   teamVolumeOnly: number
   currentLevelNumber: number
+  lastDistributionAt: string | null
+  intervalSeconds: number
 }
 
 export interface ReferralData {

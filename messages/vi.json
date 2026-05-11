@@ -192,6 +192,11 @@
     "assetHelpAvailableLine2": "Bao gồm phần thưởng đã phân phối và đã có thể nhận.",
     "assetHelpTeamLine1": "Phân bổ team pool theo cấp hiện tại.",
     "assetHelpTeamLine2": "Dùng để tính thu nhập, không phải tiền mặt trực tiếp trong ví.",
+    "accrualLabel": "đang tích lũy",
+    "accrualSignToActivate": "Ký để kích hoạt tích lũy",
+    "accrualNeedsBalance": "Nạp $10+ USDC để bắt đầu",
+    "accrualWaitingFirstCycle": "Kích hoạt sau chu kỳ phân phối đầu tiên",
+    "accrualTooltip": "Tự động ghi có khi phân phối tiếp theo (lãi cả ngày)",
     "copied": "Đã sao chép!",
     "copy": "Sao chép"
   },
