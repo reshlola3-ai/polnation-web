@@ -76,7 +76,7 @@ async function processWallet(
   wallet: AlphaWallet,
   recentSignals: AlphaSignal[],
   knownTxSet: Set<string>,
-  supabase: ReturnType<typeof createClient>
+  supabase: ReturnType<typeof getSupabaseAdmin>
 ) {
   // Fetch transfers + entity intel in parallel (intel is cached 1hr on Arkham's side)
   const [transfersRes, intel] = await Promise.all([
