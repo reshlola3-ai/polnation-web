@@ -71,7 +71,7 @@ export function SignalCard({ signal, isNew }: Props) {
               {meta?.emoji} {meta?.name ?? signal.pattern_id}
             </span>
             {age === 'new' && (
-              <EyebrowTag style={{ color: 'var(--poly-orange)' }}>NEW</EyebrowTag>
+              <EyebrowTag className="text-[var(--poly-orange)]">NEW</EyebrowTag>
             )}
           </div>
           <EyebrowTag className="shrink-0 ml-2">

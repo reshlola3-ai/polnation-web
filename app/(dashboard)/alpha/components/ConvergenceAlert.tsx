@@ -17,7 +17,7 @@ export function ConvergenceAlert({ signal }: { signal: AlphaSignal }) {
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <EyebrowTag style={{ color: 'var(--poly-orange)' }}>
+        <EyebrowTag className="text-[var(--poly-orange)]">
           ⚡ Convergence Detected
         </EyebrowTag>
         <div className="flex items-center gap-1.5">
