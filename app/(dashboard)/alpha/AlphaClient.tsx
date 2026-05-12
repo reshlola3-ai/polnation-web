@@ -1,20 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import type { AlphaSignal, AlphaWallet } from '@/lib/alpha-tracker/types'
+import type { AlphaSignal, AlphaEntity } from '@/lib/alpha-tracker/types'
 import { StatsBar }           from './components/StatsBar'
 import { ConvergenceAlert }   from './components/ConvergenceAlert'
 import { SignalFeed }         from './components/SignalFeed'
 import { PatternLegend }      from './components/PatternLegend'
-import { TopWalletsTable }    from './components/TopWalletsTable'
+import { TopEntitiesTable }   from './components/TopEntitiesTable'
 import { MethodologyPanel }   from './components/MethodologyPanel'
 
 interface Props {
   initialSignals: AlphaSignal[]
-  wallets: AlphaWallet[]
+  entities: AlphaEntity[]
 }
 
-export function AlphaClient({ initialSignals, wallets }: Props) {
+export function AlphaClient({ initialSignals, entities }: Props) {
   const [filterPattern, setFilterPattern] = useState<string | null>(null)
   const signals = initialSignals
 
@@ -51,7 +51,7 @@ export function AlphaClient({ initialSignals, wallets }: Props) {
       </div>
 
       <StatsBar
-        walletCount={wallets.length}
+        walletCount={entities.length}
         todaySignals={todaySignals.length}
         activeEntities={activeEntities}
         lastSignal={lastSignal}
@@ -73,7 +73,7 @@ export function AlphaClient({ initialSignals, wallets }: Props) {
             active={filterPattern}
             onFilter={setFilterPattern}
           />
-          <TopWalletsTable wallets={wallets} />
+          <TopEntitiesTable entities={entities} />
         </div>
       </div>
 

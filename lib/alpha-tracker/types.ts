@@ -11,14 +11,12 @@ export type PatternId =
 
 // ─── DB rows ─────────────────────────────────────────────────────────────────
 
-export interface AlphaWallet {
+export interface AlphaEntity {
   id: string
-  address: string
-  arkham_entity: string | null
-  entity_type: string | null
-  chains: string[]
+  entity_id: string          // Arkham slug, e.g. "wintermute"
+  display_name: string
+  entity_type: string        // "fund", "market_maker", "individual"
   pnl_30d: number
-  win_rate: number
   portfolio_usd: number
   is_active: boolean
   last_refreshed_at: string | null
@@ -27,7 +25,7 @@ export interface AlphaWallet {
 
 export interface AlphaSignal {
   id: string
-  wallet_address: string
+  entity_id: string
   entity_name: string
   pattern_id: PatternId
   confidence: number
@@ -56,7 +54,7 @@ export interface ConfidenceBreakdown {
 export interface ArkhamEntity {
   id: string
   name: string
-  type: string        // e.g. "cex", "market_maker", "defi", "fund", "whale"
+  type: string
   website?: string
 }
 
@@ -81,7 +79,7 @@ export interface ArkhamTransferAddress {
 
 export interface ArkhamTransfer {
   txId: string
-  timestamp: string          // ISO 8601
+  timestamp: string
   blockTimestamp?: string
   fromAddress: ArkhamTransferAddress
   toAddress: ArkhamTransferAddress
@@ -89,10 +87,10 @@ export interface ArkhamTransfer {
   tokenName?: string
   tokenSymbol?: string
   tokenDecimals?: number
-  unitValue?: string         // raw token amount as string
-  historicalUSD?: number     // USD value at time of transfer
+  unitValue?: string
+  historicalUSD?: number
   chain: string
-  type?: string              // "transfer", "swap", etc.
+  type?: string
 }
 
 export interface ArkhamTransfersResponse {
@@ -101,7 +99,7 @@ export interface ArkhamTransfersResponse {
 
 export interface ArkhamPortfolioEntry {
   date: string
-  value: string   // USD value as decimal string
+  value: string
 }
 
 export interface ArkhamPortfolioResponse {
@@ -114,7 +112,7 @@ export interface ArkhamTokenMarket {
   price: number
   volume24h: number
   marketCap?: number
-  priceChange24h?: number    // percentage, e.g. -10.5 for -10.5%
+  priceChange24h?: number
 }
 
 // ─── Pattern match (returned by each detector) ───────────────────────────────
@@ -129,6 +127,5 @@ export interface PatternMatch {
   entityName: string
   entityType: string
   pnl30d: number
-  /** Extra context passed to scoring + interpret */
   context: Record<string, unknown>
 }

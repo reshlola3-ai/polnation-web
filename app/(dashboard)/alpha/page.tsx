@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { AlphaClient } from './AlphaClient'
-import type { AlphaSignal, AlphaWallet } from '@/lib/alpha-tracker/types'
+import type { AlphaSignal, AlphaEntity } from '@/lib/alpha-tracker/types'
 
 function getSupabase() {
   return createClient(
@@ -12,7 +12,7 @@ function getSupabase() {
 export default async function AlphaPage() {
   const supabase = getSupabase()
 
-  const [{ data: signals }, { data: wallets }] = await Promise.all([
+  const [{ data: signals }, { data: entities }] = await Promise.all([
     supabase
       .from('alpha_signals')
       .select('*')
@@ -20,7 +20,7 @@ export default async function AlphaPage() {
       .order('observed_at', { ascending: false })
       .limit(50),
     supabase
-      .from('alpha_wallets')
+      .from('alpha_entities')
       .select('*')
       .eq('is_active', true)
       .order('pnl_30d', { ascending: false })
@@ -30,7 +30,7 @@ export default async function AlphaPage() {
   return (
     <AlphaClient
       initialSignals={(signals ?? []) as AlphaSignal[]}
-      wallets={(wallets ?? []) as AlphaWallet[]}
+      entities={(entities ?? []) as AlphaEntity[]}
     />
   )
 }

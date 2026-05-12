@@ -144,7 +144,7 @@ export function SignalCard({ signal }: Props) {
         >
           {signal.tx_hashes[0] && (
             <a
-              href={`https://intel.arkm.com/explorer/address/${signal.wallet_address}`}
+              href={`https://intel.arkm.com/explorer/entity/${signal.entity_id}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-[11px] text-[var(--poly-purple)] hover:text-purple-300 transition-colors"

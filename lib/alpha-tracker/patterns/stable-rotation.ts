@@ -1,26 +1,28 @@
 import type { ArkhamTransfer, PatternMatch } from '../types'
 
-const MIN_USD     = 500_000
-const WINDOW_MS   = 2 * 60 * 60 * 1000   // 2 hours
+const MIN_USD   = 500_000
+const WINDOW_MS = 2 * 60 * 60 * 1000
 
 const STABLES = new Set(['USDC', 'USDT', 'DAI', 'BUSD', 'TUSD', 'FRAX', 'LUSD', 'PYUSD', 'USDS', 'crvUSD'])
 
+const isOutbound = (t: ArkhamTransfer, entityId: string) =>
+  t.fromAddress?.arkhamEntity?.id === entityId
+const isInbound = (t: ArkhamTransfer, entityId: string) =>
+  t.toAddress?.arkhamEntity?.id === entityId
+
 /**
  * Stable → Token Rotation: entity moves > $500K out of stablecoins and into a
- * specific non-stable token within a 2-hour window. This is a high-conviction
- * signal — moving from risk-off to risk-on with size.
+ * specific non-stable token within a 2-hour window.
  */
 export function detectStableRotation(
-  walletAddress: string,
+  entityId: string,
   entityName: string,
   entityType: string,
   pnl30d: number,
   transfers: ArkhamTransfer[]
 ): PatternMatch | null {
-  const addr = walletAddress.toLowerCase()
-
   const stableOuts = transfers.filter(
-    t => t.fromAddress.address.toLowerCase() === addr
+    t => isOutbound(t, entityId)
       && t.tokenSymbol && STABLES.has(t.tokenSymbol)
       && (t.historicalUSD ?? 0) >= MIN_USD
   )
@@ -29,12 +31,11 @@ export function detectStableRotation(
   for (const stableOut of stableOuts) {
     const stableTime = new Date(stableOut.timestamp).getTime()
 
-    // Find a non-stable inbound close in time on the same chain
     const tokenIn = transfers.find(
-      t => t.toAddress.address.toLowerCase() === addr
+      t => isInbound(t, entityId)
         && t.tokenSymbol && !STABLES.has(t.tokenSymbol)
         && t.chain === stableOut.chain
-        && (t.historicalUSD ?? 0) >= MIN_USD * 0.7  // allow 30% slippage
+        && (t.historicalUSD ?? 0) >= MIN_USD * 0.7
         && Math.abs(new Date(t.timestamp).getTime() - stableTime) <= WINDOW_MS
     )
     if (!tokenIn) continue

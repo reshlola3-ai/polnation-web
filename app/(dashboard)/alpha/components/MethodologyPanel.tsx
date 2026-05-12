@@ -24,11 +24,11 @@ export function MethodologyPanel() {
         <div className="mt-4 space-y-4 text-[12px] text-white/55 leading-relaxed">
           <section>
             <p className="text-white/75 font-medium mb-1">Data Source</p>
-            <p>All on-chain activity is sourced from Arkham Intelligence's licensed API. Wallet labels and entity attributions reflect Arkham's current classifications across 15 blockchains.</p>
+            <p>All on-chain activity is sourced from Arkham Intelligence's licensed API. We track curated smart-money entities — every wallet Arkham has labeled under each entity, across all supported blockchains.</p>
           </section>
           <section>
             <p className="text-white/75 font-medium mb-1">Signal Detection</p>
-            <p>Seven pattern detectors evaluate every transfer from monitored wallets. A pattern triggers a signal only when all rule conditions are met simultaneously — minimum thresholds on amount, entity type, and token context.</p>
+            <p>Seven pattern detectors evaluate every qualifying transfer from monitored entities. A pattern triggers a signal only when all rule conditions are met simultaneously — minimum thresholds on amount, entity type, and token context.</p>
           </section>
           <section>
             <p className="text-white/75 font-medium mb-1">Confidence Scoring</p>
@@ -36,7 +36,7 @@ export function MethodologyPanel() {
           </section>
           <section>
             <p className="text-white/75 font-medium mb-1">Refresh Cadence</p>
-            <p>Signals are refreshed every 5 minutes. New signals are pushed live to this page via WebSocket — no manual refresh required. Signals expire after 24 hours.</p>
+            <p>Signals refresh once daily. Each signal stays visible for 7 days before expiring.</p>
           </section>
           <section className="pt-2 border-t border-white/[0.06]">
             <p className="text-white/40">

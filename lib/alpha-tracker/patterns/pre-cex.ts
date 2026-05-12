@@ -4,29 +4,30 @@ const MIN_USD = 500_000
 const MAX_TOKEN_VOLUME_24H = 10_000_000
 const MARKET_MAKER_TYPES = ['market_maker', 'trading_firm', 'fund', 'institution']
 
+const isInbound = (t: ArkhamTransfer, entityId: string) =>
+  t.toAddress?.arkhamEntity?.id === entityId
+
 /**
- * Pre-CEX Accumulation: labeled market maker accumulates a token whose 24h
+ * Pre-CEX Accumulation: a market-maker entity accumulates a token whose 24h
  * trading volume is below $10M — often precedes exchange listings or OTC deals.
  */
 export function detectPreCex(
-  walletAddress: string,
+  entityId: string,
   entityName: string,
   entityType: string,
   pnl30d: number,
   transfers: ArkhamTransfer[],
-  tokenVolumes: Record<string, number>   // tokenSymbol → 24h volume USD
+  tokenVolumes: Record<string, number>
 ): PatternMatch | null {
   if (!MARKET_MAKER_TYPES.some(t => entityType.toLowerCase().includes(t))) return null
 
-  // Group inbound transfers by token
   const inbound = transfers.filter(
-    t => t.toAddress.address.toLowerCase() === walletAddress.toLowerCase()
+    t => isInbound(t, entityId)
       && t.historicalUSD != null
       && (t.historicalUSD ?? 0) >= MIN_USD
   )
   if (!inbound.length) return null
 
-  // Aggregate by token, pick the largest
   const byToken = new Map<string, { usd: number; txHashes: string[]; chain: string; tokenAddress?: string }>()
   for (const tx of inbound) {
     const sym = tx.tokenSymbol ?? 'UNKNOWN'

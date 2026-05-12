@@ -8,34 +8,29 @@ const LP_KEYWORDS = [
   'liquidity', 'lp', 'pool',
 ]
 
-function isLpContract(tx: ArkhamTransfer): boolean {
-  const label = (
-    tx.toAddress.arkhamLabel?.name ?? tx.toAddress.arkhamEntity?.name ?? ''
-  ).toLowerCase()
+const isLpContract = (tx: ArkhamTransfer): boolean => {
+  const label = (tx.toAddress.arkhamLabel?.name ?? tx.toAddress.arkhamEntity?.name ?? '').toLowerCase()
   return LP_KEYWORDS.some(k => label.includes(k))
 }
 
+const isOutbound = (t: ArkhamTransfer, entityId: string) =>
+  t.fromAddress?.arkhamEntity?.id === entityId
+
 /**
  * LP Positioning: entity adds > $200K of liquidity to a known DEX pool.
- * Smart money providing LP to a pool signals conviction in the underlying pair.
  */
 export function detectLpPosition(
-  walletAddress: string,
+  entityId: string,
   entityName: string,
   entityType: string,
   pnl30d: number,
   transfers: ArkhamTransfer[]
 ): PatternMatch | null {
-  const addr = walletAddress.toLowerCase()
-
   const lpTxs = transfers.filter(
-    t => t.fromAddress.address.toLowerCase() === addr
-      && isLpContract(t)
-      && (t.historicalUSD ?? 0) >= MIN_LP_USD
+    t => isOutbound(t, entityId) && isLpContract(t) && (t.historicalUSD ?? 0) >= MIN_LP_USD
   )
   if (!lpTxs.length) return null
 
-  // Group by destination (pool) + chain
   const byPool = new Map<string, { usd: number; txHashes: string[]; sym: string; chain: string; tokenAddress?: string }>()
   for (const tx of lpTxs) {
     const key = `${tx.toAddress.address}_${tx.chain}`
