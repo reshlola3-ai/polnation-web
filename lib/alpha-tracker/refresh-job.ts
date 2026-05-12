@@ -78,15 +78,18 @@ async function processWallet(
   knownTxSet: Set<string>,
   supabase: ReturnType<typeof getSupabaseAdmin>
 ) {
-  // Fetch transfers + entity intel in parallel (intel is cached 1hr on Arkham's side)
+  // Only fetch transfers every run; intel is expensive (1 credit/call) — throttle to once per 24h
+  const needsIntelRefresh = shouldRefreshIntel(wallet)
+
   const [transfersRes, intel] = await Promise.all([
     getTransfers(wallet.address, { timeLast: '6h', usdGte: '50000', limit: 100 }),
-    getAddressIntel(wallet.address).catch(() => null),
+    needsIntelRefresh ? getAddressIntel(wallet.address).catch(() => null) : Promise.resolve(null),
   ])
 
   const transfers = transfersRes.transfers ?? []
   if (!transfers.length) return
 
+  // Use DB values as default; only override when we fetched fresh intel
   const entityName = intel?.arkhamEntity?.name
     ?? wallet.arkham_entity
     ?? wallet.address.slice(0, 8) + '…'
@@ -94,9 +97,9 @@ async function processWallet(
     ?? wallet.entity_type
     ?? 'unknown'
 
-  // Refresh 30d PnL if we have an entity name (do occasionally, not every run)
+  // Refresh 30d PnL alongside intel (both throttled to once per 24h)
   let pnl30d = wallet.pnl_30d
-  if (intel?.arkhamEntity?.id && shouldRefreshPnl(wallet)) {
+  if (needsIntelRefresh && intel?.arkhamEntity?.id) {
     pnl30d = await getEntity30dPnl(intel.arkhamEntity.id).catch(() => wallet.pnl_30d)
     await supabase.from('alpha_wallets').update({
       pnl_30d: pnl30d,
@@ -187,8 +190,8 @@ async function processWallet(
   }
 }
 
-function shouldRefreshPnl(wallet: AlphaWallet): boolean {
+function shouldRefreshIntel(wallet: AlphaWallet): boolean {
   if (!wallet.last_refreshed_at) return true
   const age = Date.now() - new Date(wallet.last_refreshed_at).getTime()
-  return age > 60 * 60 * 1000   // refresh entity PnL at most once per hour
+  return age > 24 * 60 * 60 * 1000   // intel label lookup at most once per 24h per wallet
 }
