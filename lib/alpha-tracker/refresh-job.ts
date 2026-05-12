@@ -40,11 +40,11 @@ export async function runRefreshJob(): Promise<{ processed: number; inserted: nu
     return { processed: 0, inserted: 0 }
   }
 
-  // 2. Load recent signals for convergence detection (last 4h)
+  // 2. Load recent signals for convergence detection (last 24h)
   const { data: recentSignals } = await supabase
     .from('alpha_signals')
     .select('*')
-    .gt('observed_at', new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString())
+    .gt('observed_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
 
   const recent: AlphaSignal[] = recentSignals ?? []
 
@@ -82,7 +82,7 @@ async function processWallet(
   const needsIntelRefresh = shouldRefreshIntel(wallet)
 
   const [transfersRes, intel] = await Promise.all([
-    getTransfers(wallet.address, { timeLast: '6h', usdGte: '50000', limit: 100 }),
+    getTransfers(wallet.address, { timeLast: '24h', usdGte: '50000', limit: 100 }),
     needsIntelRefresh ? getAddressIntel(wallet.address).catch(() => null) : Promise.resolve(null),
   ])
 

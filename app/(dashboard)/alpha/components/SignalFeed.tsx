@@ -5,10 +5,9 @@ import type { AlphaSignal } from '@/lib/alpha-tracker/types'
 
 interface Props {
   signals: AlphaSignal[]
-  newIds: Set<string>
 }
 
-export function SignalFeed({ signals, newIds }: Props) {
+export function SignalFeed({ signals }: Props) {
   if (!signals.length) {
     return (
       <div className="py-16 text-center">
@@ -23,11 +22,7 @@ export function SignalFeed({ signals, newIds }: Props) {
   return (
     <div className="space-y-3">
       {signals.map(signal => (
-        <SignalCard
-          key={signal.id}
-          signal={signal}
-          isNew={newIds.has(signal.id)}
-        />
+        <SignalCard key={signal.id} signal={signal} />
       ))}
     </div>
   )

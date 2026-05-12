@@ -24,38 +24,25 @@ function relativeTime(iso: string): string {
   if (m < 1)   return 'just now'
   if (m < 60)  return `${m}m ago`
   const h = Math.floor(m / 60)
-  return `${h}h ago`
-}
-
-function cardAge(iso: string): 'new' | 'live' | 'aged' {
-  const diff = Date.now() - new Date(iso).getTime()
-  if (diff < 60_000)        return 'new'
-  if (diff < 30 * 60_000)   return 'live'
-  return 'aged'
+  if (h < 24)  return `${h}h ago`
+  const d = Math.floor(h / 24)
+  return `${d}d ago`
 }
 
 interface Props {
   signal: AlphaSignal
-  isNew?: boolean
 }
 
-export function SignalCard({ signal, isNew }: Props) {
+export function SignalCard({ signal }: Props) {
   const [showBreakdown, setShowBreakdown] = useState(false)
   const meta    = PATTERN_META[signal.pattern_id]
   const color   = PATTERN_COLORS[signal.pattern_id] ?? 'rgba(255,255,255,0.18)'
-  const age     = cardAge(signal.observed_at)
   const breakdown = signal.confidence_breakdown as ConfidenceBreakdown
 
-  const strokeOpacity = age === 'new' ? 0.8 : age === 'live' ? 0.4 : 0.18
-  const strokeColor = age === 'aged'
-    ? 'rgba(255,255,255,0.12)'
-    : `${color}${Math.round(strokeOpacity * 255).toString(16).padStart(2, '0')}`
+  const strokeColor = `${color}66`   // ~40% alpha
 
   return (
-    <div
-      className={`transition-all duration-300 ${isNew ? 'animate-slide-in' : ''}`}
-      style={age === 'aged' ? { opacity: 0.75 } : {}}
-    >
+    <div>
       <NotchedCard strokeColor={strokeColor} pad={18}>
         {/* Card header */}
         <div className="flex items-start justify-between mb-3">
@@ -70,9 +57,6 @@ export function SignalCard({ signal, isNew }: Props) {
             >
               {meta?.emoji} {meta?.name ?? signal.pattern_id}
             </span>
-            {age === 'new' && (
-              <EyebrowTag className="text-[var(--poly-orange)]">NEW</EyebrowTag>
-            )}
           </div>
           <EyebrowTag className="shrink-0 ml-2">
             {relativeTime(signal.observed_at)}

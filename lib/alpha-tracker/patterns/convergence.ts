@@ -1,18 +1,18 @@
 import type { AlphaSignal, PatternMatch } from '../types'
 
-const WINDOW_MS    = 4 * 60 * 60 * 1000   // 4 hours
+const WINDOW_MS    = 24 * 60 * 60 * 1000   // 24 hours
 const MIN_ENTITIES = 2
 
 /**
  * Convergence: 2+ unrelated smart-money entities have bought the same token
- * within a 4-hour window. This is the highest-confidence pattern — multiple
- * independent actors reaching the same conclusion simultaneously.
+ * within a 24-hour window. Highest-confidence pattern — multiple independent
+ * actors reaching the same conclusion in the same daily window.
  *
  * Called after inserting a new signal; checks existing recent signals in DB.
  */
 export function detectConvergence(
   newSignal: { tokenSymbol: string; entityName: string; amountUsd: number; chain: string },
-  recentSignals: AlphaSignal[]   // last 4h from DB, excluding current entity
+  recentSignals: AlphaSignal[]   // last 24h from DB, excluding current entity
 ): PatternMatch | null {
   const { tokenSymbol, entityName, amountUsd, chain } = newSignal
   if (!tokenSymbol) return null
@@ -41,7 +41,7 @@ export function detectConvergence(
     context: {
       entities: allEntities,
       entityCount: allEntities.length,
-      windowHours: 4,
+      windowHours: 24,
     },
   }
 }
