@@ -606,6 +606,53 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
         ))}
       </div>
 
+      {/* Alpha Lead Tracker entry card */}
+      <Link href="/alpha" className="block active:scale-[0.98] transition-transform duration-200 ease-out">
+        <BevelCard size="lg" pad={20}>
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.12em] text-white/40 mb-0.5"
+                 style={{ fontFamily: 'var(--poly-font-mono)' }}>Alpha Intel</p>
+              <p className="text-sm font-semibold text-white tracking-tight">Smart-Money Signal Engine</p>
+            </div>
+            <span className="flex items-center gap-1.5 text-[11px] shrink-0"
+                  style={{ fontFamily: 'var(--poly-font-mono)', color: 'var(--poly-orange)' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--poly-orange)] animate-pulse" />
+              LIVE
+            </span>
+          </div>
+          <div className="flex items-center gap-4 mb-4">
+            <div>
+              <p className="text-[20px] font-semibold tabular-nums text-white"
+                 style={{ fontFamily: 'var(--poly-font-mono)' }}>—</p>
+              <p className="text-[10px] uppercase tracking-[0.12em] text-white/40 mt-0.5"
+                 style={{ fontFamily: 'var(--poly-font-mono)' }}>Signals today</p>
+            </div>
+            <div className="w-px h-7 bg-white/10" />
+            <div>
+              <p className="text-[20px] font-semibold tabular-nums text-white"
+                 style={{ fontFamily: 'var(--poly-font-mono)' }}>15</p>
+              <p className="text-[10px] uppercase tracking-[0.12em] text-white/40 mt-0.5"
+                 style={{ fontFamily: 'var(--poly-font-mono)' }}>Wallets tracked</p>
+            </div>
+            <div className="w-px h-7 bg-white/10" />
+            <div>
+              <p className="text-[11px] text-white/40"
+                 style={{ fontFamily: 'var(--poly-font-mono)' }}>Powered by</p>
+              <p className="text-[11px] text-white/60"
+                 style={{ fontFamily: 'var(--poly-font-mono)' }}>Arkham Intel</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-end">
+            <span className="inline-flex items-center gap-1 text-[12px]"
+                  style={{ fontFamily: 'var(--poly-font-mono)', color: 'var(--poly-purple)' }}>
+              Open Tracker
+              <ArrowUpRight className="w-3 h-3" />
+            </span>
+          </div>
+        </BevelCard>
+      </Link>
+
       {/* Community + Progress */}
       <section className="kraken-panel p-5">
         {/* Header */}

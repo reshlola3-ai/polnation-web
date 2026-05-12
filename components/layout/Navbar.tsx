@@ -22,6 +22,7 @@ const ClipboardList = dynamic(() => import('lucide-react').then((m) => m.Clipboa
 const BookOpen = dynamic(() => import('lucide-react').then((m) => m.BookOpen), { ssr: false })
 const GraduationCap = dynamic(() => import('lucide-react').then((m) => m.GraduationCap), { ssr: false })
 const ChevronDown = dynamic(() => import('lucide-react').then((m) => m.ChevronDown), { ssr: false })
+const Crosshair = dynamic(() => import('lucide-react').then((m) => m.Crosshair), { ssr: false })
 
 interface NavbarProps {
   user: User | null
@@ -64,6 +65,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
     { href: '/tasks', label: t('tasks'), icon: ClipboardList },
     { href: '/earnings', label: t('earnings'), icon: TrendingUp },
     { href: '/team', label: t('team'), icon: Users },
+    { href: '/alpha', label: t('alpha'), icon: Crosshair },
     { href: '/profile', label: t('profile'), icon: UserIcon },
   ]
 

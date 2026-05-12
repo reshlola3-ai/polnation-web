@@ -1,5 +1,11 @@
 {
   "regions": ["sin1", "bom1"],
+  "crons": [
+    {
+      "path": "/api/cron/refresh-alpha-tracker",
+      "schedule": "*/5 * * * *"
+    }
+  ],
   "functions": {
     "app/api/**/*.ts": {
       "memory": 1024,
