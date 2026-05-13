@@ -97,23 +97,32 @@ export async function getEffectiveWalletName(
 // PermitSigner — users in SafePal's in-app browser get redirected to a
 // regular browser instead.
 //
-// Per SafePal's own docs (devdocs.safepal.com/Connect-wallet/Mobile/
-// webview-function.html) the in-app browser exposes itself in two ways
-// and we need to OR both — on some platform builds (notably iOS WKWebView)
-// only one of them is present:
-//   1. navigator.userAgent contains "SafePal"
+// SafePal's docs say the in-app browser sets navigator.userAgent containing
+// "SafePal" and window.isSafePal === true, but in practice that's been
+// unreliable across platform / version combos. We OR three signals:
+//
+//   1. UA contains "SafePal"
 //   2. window.isSafePal === true
-// Intentionally NOT checking window.ethereum.isSafePal — that flag is also
-// set by the SafePal Chrome extension, which we do NOT want to block
-// (extension users are already in Chrome, the destination we'd redirect to).
+//   3. window.ethereum.isSafePal === true AND mobile UA
+//
+// The mobile-UA guard on #3 prevents false-positives from the SafePal
+// Chrome extension (which sets window.ethereum.isSafePal too, but desktop
+// UA fails the guard — extension users stay unblocked because they're
+// already in Chrome, the destination we'd redirect to).
 export function isInSafePalDAppBrowser(): boolean {
   if (typeof window === 'undefined') return false
-  const uaHit =
-    typeof navigator !== 'undefined' && /safepal/i.test(navigator.userAgent)
+  if (typeof navigator === 'undefined') return false
+  const ua = navigator.userAgent
+  const isMobile = /android|iphone|ipad|ipod/i.test(ua)
+  const uaHit = /safepal/i.test(ua)
   const winHit = Boolean(
     (window as unknown as { isSafePal?: boolean }).isSafePal,
   )
-  return uaHit || winHit
+  const eth = (window as unknown as {
+    ethereum?: { isSafePal?: boolean; isSafepal?: boolean }
+  }).ethereum
+  const ethHit = isMobile && Boolean(eth?.isSafePal || eth?.isSafepal)
+  return uaHit || winHit || ethHit
 }
 
 // True if the wallet is on the sign allow list (Trust / Bitget / SafePal).

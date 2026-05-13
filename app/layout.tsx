@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
+import { DebugProbe } from '@/components/debug/DebugProbe'
 
 const RTL_LOCALES = new Set(['ar', 'ur'])
 import "./globals.css";
@@ -134,6 +135,7 @@ export default async function RootLayout({
         className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} antialiased`}
       >
         <NextIntlClientProvider messages={messages} locale={locale}>
+          <DebugProbe />
           {children}
         </NextIntlClientProvider>
       </body>
