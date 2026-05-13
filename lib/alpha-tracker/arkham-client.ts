@@ -44,26 +44,37 @@ async function get<T>(path: string, params?: Record<string, string>): Promise<T>
 
 /**
  * Recent transfers for an address. Heavy endpoint — auto-throttled to 1 req/s.
+ *
+ * Filters out malformed entries: Arkham's Bitcoin (UTXO) responses use a
+ * `toAddresses[]` array shape that lacks the singular `toAddress` our patterns
+ * expect, and some transfers have a missing `fromAddress`. Both are dropped
+ * here so pattern detectors can assume valid in/out shape.
  */
 export async function getTransfers(
   address: string,
   opts: {
     flow?: 'in' | 'out' | 'all'
-    timeLast?: string       // e.g. "2h", "24h"
-    usdGte?: string         // e.g. "100000"
+    timeLast?: string
+    usdGte?: string
     limit?: number
-    chains?: string         // comma-separated: "ethereum,polygon"
+    chains?: string
   } = {}
 ): Promise<ArkhamTransfersResponse> {
   await throttleTransfer()
-  return get<ArkhamTransfersResponse>('/transfers', {
+  const res = await get<ArkhamTransfersResponse>('/transfers', {
     base:     address,
     flow:     opts.flow     ?? 'all',
     timeLast: opts.timeLast ?? '6h',
-    usdGte:   opts.usdGte  ?? '50000',
+    usdGte:   opts.usdGte   ?? '50000',
     limit:    String(opts.limit ?? 50),
     ...(opts.chains ? { chains: opts.chains } : {}),
   })
+
+  const transfers = (res.transfers ?? []).filter(
+    t => t && t.fromAddress && t.toAddress &&
+         typeof t.fromAddress === 'object' && typeof t.toAddress === 'object'
+  )
+  return { transfers }
 }
 
 /**
