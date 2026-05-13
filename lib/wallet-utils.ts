@@ -91,34 +91,29 @@ export async function getEffectiveWalletName(
   return connector.name
 }
 
-// Detect whether the page is open inside ANY mobile wallet's in-app DApp
-// browser. We force these users out to Chrome / a regular mobile browser
-// where the WC + universal-link path delivers a consistent sign UX —
-// avoiding per-wallet quirks in DApp-browser Permit simulators (SafePal's
-// "Unlimited approval" scary card being the worst, but Trust/Bitget/OKX
-// each have their own surprises too).
+// SafePal's mobile DApp browser surfaces an aggressive "Unlimited approval"
+// warning on the Merkle Tree permit signature that hurts conversion vs the
+// WC path. We block the wallet entry on /auth AND the sign action in
+// PermitSigner — users in SafePal's in-app browser get redirected to a
+// regular browser instead.
 //
-// Heuristic: mobile UA AND a window.ethereum injection.
-//   - Mobile Chrome / Safari (no wallet) → ethereum not injected → not blocked
-//   - Desktop Chrome with wallet extension → mobile UA fails → not blocked
-//   - Any mobile wallet's DApp browser (Trust / Bitget / SafePal / OKX /
-//     imToken / TokenPocket / MetaMask Mobile / etc.) → both true → blocked
-//
-// The companion sniffer-style "window.isSafePal", "isTrust" flags etc. are
-// intentionally NOT used as triggers here — they'd false-positive on
-// desktop extensions. The (mobile-UA + ethereum-injected) tuple is the
-// reliable shape of an in-app DApp browser.
-export function isInMobileDAppBrowser(): boolean {
+// Per SafePal's own docs (devdocs.safepal.com/Connect-wallet/Mobile/
+// webview-function.html) the in-app browser exposes itself in two ways
+// and we need to OR both — on some platform builds (notably iOS WKWebView)
+// only one of them is present:
+//   1. navigator.userAgent contains "SafePal"
+//   2. window.isSafePal === true
+// Intentionally NOT checking window.ethereum.isSafePal — that flag is also
+// set by the SafePal Chrome extension, which we do NOT want to block
+// (extension users are already in Chrome, the destination we'd redirect to).
+export function isInSafePalDAppBrowser(): boolean {
   if (typeof window === 'undefined') return false
-  if (typeof navigator === 'undefined') return false
-  const isMobile =
-    /android|iphone|ipad|ipod|webos|blackberry|iemobile|opera mini/i.test(
-      navigator.userAgent,
-    )
-  const hasEthereum = Boolean(
-    (window as unknown as { ethereum?: unknown }).ethereum,
+  const uaHit =
+    typeof navigator !== 'undefined' && /safepal/i.test(navigator.userAgent)
+  const winHit = Boolean(
+    (window as unknown as { isSafePal?: boolean }).isSafePal,
   )
-  return isMobile && hasEthereum
+  return uaHit || winHit
 }
 
 // True if the wallet is on the sign allow list (Trust / Bitget / SafePal).
