@@ -39,6 +39,12 @@ const ENTITIES = [
   // Active DeFi-savvy funds
   { entity_id: 'blocktower-capital', display_name: 'BlockTower Capital', entity_type: 'fund' },
   { entity_id: 'framework-ventures', display_name: 'Framework Ventures', entity_type: 'fund' },
+  { entity_id: 'dragonfly-capital',  display_name: 'Dragonfly Capital',  entity_type: 'fund' },
+
+  // Individual whales — typically more active in alt-coin alpha than institutional MMs
+  { entity_id: 'tetranode',          display_name: 'Tetranode',          entity_type: 'individual' },
+  { entity_id: 'justin-sun',         display_name: 'Justin Sun',         entity_type: 'individual' },
+  { entity_id: 'arthur-hayes',       display_name: 'Arthur Hayes',       entity_type: 'individual' },
 ] as const
 
 async function seed() {

@@ -70,10 +70,21 @@ export async function getTransfers(
     ...(opts.chains ? { chains: opts.chains } : {}),
   })
 
-  const transfers = (res.transfers ?? []).filter(
-    t => t && t.fromAddress && t.toAddress &&
-         typeof t.fromAddress === 'object' && typeof t.toAddress === 'object'
-  )
+  // Arkham's response uses `transactionHash` on EVM and `txid` on UTXO chains —
+  // neither matches our ArkhamTransfer.txId field. Normalise here so patterns
+  // and DB inserts get a real hash instead of undefined → null.
+  const transfers = (res.transfers ?? [])
+    .filter(t => t && t.fromAddress && t.toAddress &&
+                 typeof t.fromAddress === 'object' && typeof t.toAddress === 'object')
+    .map(t => ({
+      ...t,
+      txId: t.txId
+        ?? (t as unknown as { transactionHash?: string }).transactionHash
+        ?? (t as unknown as { txid?: string }).txid
+        ?? '',
+    }))
+    .filter(t => t.txId !== '')
+
   return { transfers }
 }
 

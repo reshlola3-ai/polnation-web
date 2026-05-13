@@ -53,10 +53,13 @@ export function detectNetAccumulation(
     const cur = byToken.get(sym) ?? {
       netUsd: 0, txHashes: [], chain: t.chain, tokenAddress: t.tokenAddress, threshold,
     }
-    if (isInbound(t, entityId))       cur.netUsd += usd
-    else if (isOutbound(t, entityId)) cur.netUsd -= usd
+    const inbound  = isInbound(t, entityId)
+    const outbound = isOutbound(t, entityId)
+    if (inbound && outbound) continue   // self-transfer between entity's own wallets
+    if (inbound)       cur.netUsd += usd
+    else if (outbound) cur.netUsd -= usd
     else continue
-    cur.txHashes.push(t.txId)
+    if (t.txId) cur.txHashes.push(t.txId)
     byToken.set(sym, cur)
   }
 

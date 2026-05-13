@@ -51,6 +51,43 @@ export function buildWhatText(match: PatternMatch): string {
   }
 }
 
+/**
+ * Short, actionable monitoring suggestion tailored to the pattern. Shown in
+ * the "→ MONITOR" tile on the signal card — tells the user what to watch.
+ */
+export function buildMonitorText(match: PatternMatch): string {
+  const { tokenSymbol } = match
+
+  switch (match.patternId) {
+    case 'pre_cex':
+      return `Watch ${tokenSymbol} for exchange listing announcements or unusual volume spikes over the next 48-72h.`
+
+    case 'bridge_buy':
+      return `Monitor ${tokenSymbol} price on the destination chain. Bridge-then-buy precedes directional moves within hours, not days.`
+
+    case 'lp_position':
+      return `Track ${tokenSymbol} pool volume and price stability. LP entries from smart money often coincide with imminent volume catalysts.`
+
+    case 'stable_rotation':
+      return `Watch ${tokenSymbol} for follow-through. Rotation out of stables into a single token is high-conviction — momentum usually plays out in 24-72h.`
+
+    case 'convergence':
+      return `${tokenSymbol} now has multiple entities converging — among the highest-conviction signals available. Track price action on all listed chains.`
+
+    case 'dca_dump':
+      return `Watch ${tokenSymbol} for reversal signals over 24-48h. Smart-money DCAs into weakness often mark local bottoms.`
+
+    case 'pre_gov':
+      return `Monitor ${tokenSymbol} governance forum and upcoming proposals. Accumulation ahead of a vote signals an upcoming directional outcome.`
+
+    case 'net_accumulation':
+      return `Watch ${tokenSymbol} price and volume over 24-48h. Inventory builds frequently precede liquidity events — exchange listings, OTC unlocks, or pump cycles.`
+
+    default:
+      return `Monitor ${tokenSymbol} price action and on-chain activity over the next 24-72h.`
+  }
+}
+
 export function buildMeaningText(match: PatternMatch): string {
   const { tokenSymbol } = match
 
