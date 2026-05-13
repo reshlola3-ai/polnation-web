@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET, MERKLE_TREE_CONTRACT } from '@/lib/web3-config'
 import { Shield, Check, AlertTriangle, RefreshCw, Lock, XCircle, ExternalLink } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
-import { isSignAllowedWallet, usesEoaSpender, getEffectiveWalletName, SUPPORTED_WALLET_INFO } from '@/lib/wallet-utils'
+import { isSignAllowedWallet, usesEoaSpender, getEffectiveWalletName, SUPPORTED_WALLET_INFO, isInSafePalDAppBrowser } from '@/lib/wallet-utils'
 import Image from 'next/image'
 
 interface PermitSignerProps {
@@ -69,6 +69,13 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   const [showRebindConfirm, setShowRebindConfirm] = useState(false)
   const [rebindAddress, setRebindAddress] = useState<string | null>(null)
   const [isRebinding, setIsRebinding] = useState(false)
+  // SafePal DApp browser block — defense-in-depth in case the user bypassed
+  // the /auth-side block (already-logged-in cookies, opened in SafePal after
+  // logging in elsewhere, etc.). Resolved on mount to avoid SSR mismatch.
+  const [blockedSafePalDApp, setBlockedSafePalDApp] = useState(false)
+  useEffect(() => {
+    setBlockedSafePalDApp(isInSafePalDAppBrowser())
+  }, [])
 
   const { signTypedDataAsync } = useSignTypedData()
 
@@ -614,6 +621,12 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
     return <UnsupportedWalletCard />
   }
 
+  // 在 SafePal DApp 浏览器里 — 不允许签名，引导切换到 Chrome
+  // (defense-in-depth: /auth 那边已经拦了一次，这里防绕过)
+  if (blockedSafePalDApp && !success && !existingSignature) {
+    return <SafePalDAppSignBlockCard />
+  }
+
   // 已连接状态 - 简化 UI
   return (
     <div className="flex flex-col items-center gap-2">
@@ -689,6 +702,27 @@ function UnsupportedWalletCard() {
       <p className="text-[10px] text-zinc-600 text-center">
         After installing, open polnation.com inside the wallet&apos;s DApp browser
       </p>
+    </div>
+  )
+}
+
+function SafePalDAppSignBlockCard() {
+  return (
+    <div className="glass-card-solid p-5 space-y-4">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
+          <AlertTriangle className="w-5 h-5 text-amber-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-white text-sm">Switch to Chrome to sign</h3>
+          <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+            Signing isn&apos;t supported inside SafePal&apos;s in-app browser.
+            Please open{' '}
+            <span className="font-mono text-zinc-200">polnation.com</span>{' '}
+            in Chrome (or another regular browser) and complete signing there.
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

@@ -7,6 +7,7 @@ import { useAccount, useDisconnect } from 'wagmi'
 import Image from 'next/image'
 import { Wallet, Loader2, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
+import { isInSafePalDAppBrowser } from '@/lib/wallet-utils'
 
 interface Props {
   redirect?: string
@@ -19,16 +20,6 @@ const WALLET_LOGOS = [
   { src: '/wallet-logos/bitget.webp', alt: 'Bitget' },
   { src: '/wallet-logos/safepal.svg', alt: 'SafePal' },
 ]
-
-// SafePal's mobile DApp browser surfaces an aggressive "Unlimited approval"
-// warning on the Merkle Tree permit signature, hurting conversion. We block
-// the wallet entry-point inside SafePal's in-app browser and instruct the
-// user to switch to Chrome / another regular browser where the WC flow is
-// smoother. Detection: SafePal injects "SafePal" into navigator.userAgent.
-function isInSafePalDAppBrowser(): boolean {
-  if (typeof navigator === 'undefined') return false
-  return /safepal/i.test(navigator.userAgent)
-}
 
 export function WalletAuthFlow({
   redirect = '/dashboard',

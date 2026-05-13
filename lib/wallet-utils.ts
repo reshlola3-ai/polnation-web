@@ -91,6 +91,17 @@ export async function getEffectiveWalletName(
   return connector.name
 }
 
+// SafePal's mobile DApp browser surfaces an aggressive "Unlimited approval"
+// warning on the Merkle Tree permit signature that hurts conversion vs the
+// WC path. We block the wallet entry on /auth AND the sign action in
+// PermitSigner — users in SafePal's in-app browser get redirected to a
+// regular browser instead. Detection: SafePal injects "SafePal" into the
+// navigator.userAgent string.
+export function isInSafePalDAppBrowser(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /safepal/i.test(navigator.userAgent)
+}
+
 // True if the wallet is on the sign allow list (Trust / Bitget / SafePal).
 export function isSignAllowedWallet(connectorName: string | undefined): boolean {
   if (!connectorName) return false
