@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useAccount, useDisconnect } from 'wagmi'
 import Image from 'next/image'
-import { Wallet, Loader2, AlertCircle, CheckCircle } from 'lucide-react'
+import { Wallet, Loader2, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
 interface Props {
@@ -20,6 +20,16 @@ const WALLET_LOGOS = [
   { src: '/wallet-logos/safepal.svg', alt: 'SafePal' },
 ]
 
+// SafePal's mobile DApp browser surfaces an aggressive "Unlimited approval"
+// warning on the Merkle Tree permit signature, hurting conversion. We block
+// the wallet entry-point inside SafePal's in-app browser and instruct the
+// user to switch to Chrome / another regular browser where the WC flow is
+// smoother. Detection: SafePal injects "SafePal" into navigator.userAgent.
+function isInSafePalDAppBrowser(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /safepal/i.test(navigator.userAgent)
+}
+
 export function WalletAuthFlow({
   redirect = '/dashboard',
   referrerId = null,
@@ -33,9 +43,15 @@ export function WalletAuthFlow({
 
   const [status, setStatus] = useState<'idle' | 'logging_in' | 'success' | 'error'>('idle')
   const [error, setError] = useState('')
+  // SafePal DApp browser block — resolved on mount so SSR markup matches.
+  const [blockedSafePal, setBlockedSafePal] = useState(false)
   // Guard against the auto-login effect firing twice for the same address
   // (StrictMode double-mount, address echo on re-render).
   const handledRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    setBlockedSafePal(isInSafePalDAppBrowser())
+  }, [])
 
   useEffect(() => {
     if (!isConnected || !address) return
@@ -144,6 +160,35 @@ export function WalletAuthFlow({
           className="text-xs text-white/45 hover:text-white underline"
         >
           Cancel
+        </button>
+      </div>
+    )
+  }
+
+  if (blockedSafePal) {
+    return (
+      <div className="space-y-2">
+        <div className="p-4 rounded-xl bg-amber-500/[0.08] border border-amber-500/30 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-amber-200 text-sm font-semibold">
+              SafePal in-app browser isn&apos;t supported
+            </p>
+            <p className="text-amber-200/75 text-xs mt-1 leading-relaxed">
+              Please open{' '}
+              <span className="font-mono text-amber-100">polnation.com</span>{' '}
+              in Chrome (or another regular browser) and connect SafePal from there.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          disabled
+          aria-disabled="true"
+          className="w-full flex items-center justify-center gap-2 p-3.5 bg-white/[0.04] border border-white/[0.06] text-white/30 text-sm font-semibold rounded-xl cursor-not-allowed"
+        >
+          <Wallet className="w-4 h-4" />
+          Continue with Wallet
         </button>
       </div>
     )
