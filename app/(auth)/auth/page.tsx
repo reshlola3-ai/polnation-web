@@ -3,12 +3,49 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import { AuthLayout } from '@/components/layout/AuthLayout'
-import { Web3Provider } from '@/components/providers/Web3Provider'
-import { WalletAuthFlow } from '@/components/auth/WalletAuthFlow'
 import { EmailAuthForm } from '@/components/auth/EmailAuthForm'
 import { TelegramLoginButton } from '@/components/auth/TelegramLoginButton'
-import { User } from 'lucide-react'
+import { User, Wallet } from 'lucide-react'
+
+// Lazy-loaded: keeps the ~300KB Web3 stack (wagmi + viem + @web3modal +
+// WalletConnect) and its render-blocking Google Fonts @import out of the
+// /auth initial bundle. See components/auth/WalletAuthSection.tsx for the
+// full reasoning.
+const WalletAuthSection = dynamic(
+  () => import('@/components/auth/WalletAuthSection'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="space-y-2">
+        <div className="w-full flex items-center justify-center gap-2 p-3.5 bg-purple-600/40 text-white/70 text-sm font-semibold rounded-xl">
+          <Wallet className="w-4 h-4" />
+          Continue with Wallet
+        </div>
+        <div className="flex items-center justify-center gap-2 pt-1">
+          <span className="text-[10px] text-white/40">Supports</span>
+          {[
+            { src: '/wallet-logos/trust.webp', alt: 'Trust' },
+            { src: '/wallet-logos/bitget.webp', alt: 'Bitget' },
+            { src: '/wallet-logos/safepal.svg', alt: 'SafePal' },
+          ].map((w) => (
+            <Image
+              key={w.alt}
+              src={w.src}
+              alt={w.alt}
+              width={16}
+              height={16}
+              className="w-4 h-4 object-contain rounded-sm opacity-60"
+              unoptimized
+            />
+          ))}
+        </div>
+      </div>
+    ),
+  },
+)
 
 function AuthContent() {
   const searchParams = useSearchParams()
@@ -59,14 +96,12 @@ function AuthContent() {
       )}
 
       {/* Wallet — primary path. autoRegister=true so first-time wallets get an
-          account; existing wallets just log in. */}
-      <Web3Provider>
-        <WalletAuthFlow
-          redirect={redirect}
-          referrerId={referrerUuid || ref}
-          autoRegister={true}
-        />
-      </Web3Provider>
+          account; existing wallets just log in. Lazy-loaded — see the import. */}
+      <WalletAuthSection
+        redirect={redirect}
+        referrerId={referrerUuid || ref}
+        autoRegister={true}
+      />
 
       {/* Telegram — for users who joined via Mini App */}
       <div className="mt-4">
