@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense, use } from 'react'
 import Link from 'next/link'
 import {
   Copy, Check, Wallet, TrendingUp, Users,
@@ -33,6 +33,19 @@ const EarningsModal = dynamic(() => import('./modals/EarningsModal'), { ssr: fal
 const TierModal = dynamic(() => import('./modals/TierModal'), { ssr: false })
 const MomentumModal = dynamic(() => import('./modals/MomentumModal'), { ssr: false })
 
+
+interface TeamStats {
+  total_team_members: number
+  level1_members: number
+}
+
+interface ProfitSnapshot {
+  totalStakingProfit: number
+  totalCommissionProfit: number
+  availableWithdraw: number
+  hasSignature: boolean
+}
+
 interface DashboardClientProps {
   userId: string
   profile: {
@@ -42,13 +55,41 @@ interface DashboardClientProps {
     referral_code: string | null
     email: string | null
   } | null
-  teamStats: {
-    total_team_members: number
-    level1_members: number
-  }
+  /** Unresolved promise — streamed in via Suspense after first paint. */
+  teamStatsPromise: Promise<TeamStats>
+  /** Server-prefetched initial values for hero balance — kills the loading skeleton. */
+  initialProfitSummary?: ProfitSnapshot
 }
 
-export function DashboardClient({ userId, profile, teamStats }: DashboardClientProps) {
+/** Client child that suspends on the team stats promise. */
+function TeamStatsValues({
+  promise,
+  directLabel,
+}: {
+  promise: Promise<TeamStats>
+  directLabel: string
+}) {
+  const stats = use(promise)
+  return (
+    <>
+      <p className="text-2xl font-semibold text-white tracking-tight tabular-nums">{stats.total_team_members}</p>
+      <p className="text-[12px] text-white/50 mt-2 tabular-nums">
+        {directLabel}: <span className="text-purple-300">{stats.level1_members}</span>
+      </p>
+    </>
+  )
+}
+
+function TeamStatsSkeleton() {
+  return (
+    <>
+      <div className="animate-pulse h-6 w-12 bg-white/5 rounded" />
+      <div className="animate-pulse h-3 w-20 bg-white/5 rounded mt-2" />
+    </>
+  )
+}
+
+export function DashboardClient({ userId, profile, teamStatsPromise, initialProfitSummary }: DashboardClientProps) {
   const t = useTranslations('dashboard')
   const { address, isConnected } = useAccount()
   const [copied, setCopied] = useState(false)
@@ -77,10 +118,10 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
   const [estDailyCommission, setEstDailyCommission] = useState(0)
   const [spinCount, setSpinCount] = useState(0)
   const [profitData, setProfitData] = useState<ProfitData>({
-    totalStakingProfit: 0,
-    totalCommissionProfit: 0,
-    availableWithdraw: 0,
-    hasSignature: false,
+    totalStakingProfit: initialProfitSummary?.totalStakingProfit ?? 0,
+    totalCommissionProfit: initialProfitSummary?.totalCommissionProfit ?? 0,
+    availableWithdraw: initialProfitSummary?.availableWithdraw ?? 0,
+    hasSignature: initialProfitSummary?.hasSignature ?? false,
     communityPrizePool: 10,
     currentLevelName: 'Bronze',
     communityDailyRate: 0,
@@ -100,7 +141,8 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
     lastDistributionAt: null,
     intervalSeconds: 86400,
   })
-  const [isLoadingProfit, setIsLoadingProfit] = useState(true)
+  // If server already prefetched profit summary, no skeleton on first paint.
+  const [isLoadingProfit, setIsLoadingProfit] = useState(!initialProfitSummary)
 
   // Use bound wallet or connected wallet
   const walletAddress = profile?.wallet_address || address
@@ -782,10 +824,9 @@ export function DashboardClient({ userId, profile, teamStats }: DashboardClientP
             <Users className="w-3.5 h-3.5" />
             <span>{t('team')}</span>
           </div>
-          <p className="text-2xl font-semibold text-white tracking-tight tabular-nums">{teamStats.total_team_members}</p>
-          <p className="text-[12px] text-white/50 mt-2 tabular-nums">
-            {t('direct')}: <span className="text-purple-300">{teamStats.level1_members}</span>
-          </p>
+          <Suspense fallback={<TeamStatsSkeleton />}>
+            <TeamStatsValues promise={teamStatsPromise} directLabel={t('direct')} />
+          </Suspense>
           <Link
             href="/team"
             className="inline-flex items-center gap-1 text-[12px] text-purple-300 hover:text-purple-200 mt-1.5 font-medium"

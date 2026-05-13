@@ -2,16 +2,26 @@
 import Link from 'next/link'
 import { AlertCircle } from 'lucide-react'
 import { getTranslations } from 'next-intl/server'
-import { getAuthUser, getProfile, getTeamStats, ensureReferralCode } from '@/lib/dashboard-data'
+import {
+  getAuthUser,
+  getProfile,
+  getTeamStats,
+  getProfitSnapshot,
+  ensureReferralCode,
+} from '@/lib/dashboard-data'
 
 export default async function DashboardPage() {
-  // Parallel: getProfile + getTeamStats both await cached getAuthUser internally,
-  // so the auth call happens once total across layout + page.
-  const [t, user, profileRaw, stats] = await Promise.all([
+  // Await everything *cheap* in parallel. team_stats is the slowest (RPC may
+  // hit Supabase functions for ~100-400ms), so we kick it off but don't await
+  // — the unresolved Promise is streamed into a Suspense boundary inside
+  // DashboardClient.
+  const teamStatsPromise = getTeamStats()
+
+  const [t, user, profileRaw, profitSummary] = await Promise.all([
     getTranslations('dashboard'),
     getAuthUser(),
     getProfile(),
-    getTeamStats(),
+    getProfitSnapshot(),
   ])
 
   const profile = profileRaw ? await ensureReferralCode(profileRaw) : profileRaw
@@ -43,7 +53,8 @@ export default async function DashboardPage() {
       <DashboardClient 
         userId={user.id} 
         profile={profile}
-        teamStats={stats}
+        teamStatsPromise={teamStatsPromise}
+        initialProfitSummary={profitSummary}
       />
     </div>
   )
