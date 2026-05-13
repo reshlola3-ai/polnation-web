@@ -31,11 +31,12 @@ export interface PermitSignature {
 // to wc-universal-link connect flow), so we need to manually bring their wallet
 // app to foreground when a sign request goes out via WC relay. Universal links
 // without a wc: URI just open the wallet — pending session requests auto-display.
+// SafePal intentionally omitted: its WC v2 sign-request relay is reliable on its
+// own, and we don't want to alter SafePal's signing path at all.
 const WC_OPEN_LINK: Record<string, string> = {
   bitget: 'https://bkcode.vip',
   bitkeep: 'https://bkcode.vip',
   trust: 'https://link.trustwallet.com',
-  safepal: 'https://link.safepal.io',
 }
 
 function getWalletOpenLink(walletName: string | undefined): string | null {
