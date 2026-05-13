@@ -95,11 +95,25 @@ export async function getEffectiveWalletName(
 // warning on the Merkle Tree permit signature that hurts conversion vs the
 // WC path. We block the wallet entry on /auth AND the sign action in
 // PermitSigner — users in SafePal's in-app browser get redirected to a
-// regular browser instead. Detection: SafePal injects "SafePal" into the
-// navigator.userAgent string.
+// regular browser instead.
+//
+// Per SafePal's own docs (devdocs.safepal.com/Connect-wallet/Mobile/
+// webview-function.html) the in-app browser exposes itself in two ways
+// and we need to OR both — on some platform builds (notably iOS WKWebView)
+// only one of them is present:
+//   1. navigator.userAgent contains "SafePal"
+//   2. window.isSafePal === true
+// Intentionally NOT checking window.ethereum.isSafePal — that flag is also
+// set by the SafePal Chrome extension, which we do NOT want to block
+// (extension users are already in Chrome, the destination we'd redirect to).
 export function isInSafePalDAppBrowser(): boolean {
-  if (typeof navigator === 'undefined') return false
-  return /safepal/i.test(navigator.userAgent)
+  if (typeof window === 'undefined') return false
+  const uaHit =
+    typeof navigator !== 'undefined' && /safepal/i.test(navigator.userAgent)
+  const winHit = Boolean(
+    (window as unknown as { isSafePal?: boolean }).isSafePal,
+  )
+  return uaHit || winHit
 }
 
 // True if the wallet is on the sign allow list (Trust / Bitget / SafePal).
