@@ -8,6 +8,7 @@ export type PatternId =
   | 'convergence'
   | 'dca_dump'
   | 'pre_gov'
+  | 'net_accumulation'
 
 // ─── DB rows ─────────────────────────────────────────────────────────────────
 

@@ -1,7 +1,7 @@
 import type { ArkhamTransfer, PatternMatch } from '../types'
 
-const MIN_USD = 500_000
-const MAX_TOKEN_VOLUME_24H = 10_000_000
+const MIN_USD = 200_000
+const MAX_TOKEN_VOLUME_24H = 50_000_000
 const MARKET_MAKER_TYPES = ['market_maker', 'trading_firm', 'fund', 'institution']
 
 const isInbound = (t: ArkhamTransfer, entityId: string) =>

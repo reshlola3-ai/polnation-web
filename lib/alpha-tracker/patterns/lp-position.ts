@@ -1,6 +1,6 @@
 import type { ArkhamTransfer, PatternMatch } from '../types'
 
-const MIN_LP_USD = 200_000
+const MIN_LP_USD = 50_000
 
 const LP_KEYWORDS = [
   'uniswap', 'quickswap', 'sushiswap', 'curve', 'balancer',
@@ -31,9 +31,11 @@ export function detectLpPosition(
   )
   if (!lpTxs.length) return null
 
+  // Group by DEX entity + chain (e.g. all "aerodrome-finance" pools on base aggregate together)
   const byPool = new Map<string, { usd: number; txHashes: string[]; sym: string; chain: string; tokenAddress?: string }>()
   for (const tx of lpTxs) {
-    const key = `${tx.toAddress.address}_${tx.chain}`
+    const dex = tx.toAddress.arkhamEntity?.id ?? tx.toAddress.address
+    const key = `${dex}_${tx.chain}`
     const cur = byPool.get(key) ?? { usd: 0, txHashes: [], sym: tx.tokenSymbol ?? 'LP', chain: tx.chain, tokenAddress: tx.tokenAddress }
     cur.usd += tx.historicalUSD ?? 0
     cur.txHashes.push(tx.txId)

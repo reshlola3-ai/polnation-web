@@ -1,7 +1,7 @@
 import type { ArkhamTransfer, PatternMatch } from '../types'
 
-const MIN_USD   = 500_000
-const WINDOW_MS = 2 * 60 * 60 * 1000
+const MIN_USD   = 200_000
+const WINDOW_MS = 6 * 60 * 60 * 1000
 
 const STABLES = new Set(['USDC', 'USDT', 'DAI', 'BUSD', 'TUSD', 'FRAX', 'LUSD', 'PYUSD', 'USDS', 'crvUSD'])
 

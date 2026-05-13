@@ -41,6 +41,11 @@ export function buildWhatText(match: PatternMatch): string {
     case 'pre_gov':
       return `${entityName} accumulated ${usd(amountUsd)} of ${tokenSymbol} governance tokens over the last 48 hours`
 
+    case 'net_accumulation': {
+      const txCount = match.context.txCount as number | undefined
+      return `${entityName} netted ${usd(amountUsd)} of ${tokenSymbol} on ${chain} (inflows minus outflows across ${txCount ?? txHashes.length} transfers)`
+    }
+
     default:
       return `${entityName} made a notable ${usd(amountUsd)} move on ${tokenSymbol}`
   }
@@ -70,6 +75,9 @@ export function buildMeaningText(match: PatternMatch): string {
 
     case 'pre_gov':
       return `Accumulating governance tokens grants voting power. Large acquisitions of ${tokenSymbol} ahead of protocol votes can signal that this entity intends to influence an upcoming decision — or that they expect a governance outcome that will drive token value.`
+
+    case 'net_accumulation':
+      return `Net inventory build of ${tokenSymbol} — this entity is consistently buying more than selling. Market makers do this ahead of expected OTC demand, exchange listings, or other liquidity events; the signal is invisible at the per-transaction level but the trend is unambiguous over 24h.`
 
     default:
       return `This move by a labeled smart-money entity exceeded typical thresholds and triggered a signal.`

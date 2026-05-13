@@ -9,13 +9,14 @@ import { PATTERN_META } from '@/lib/alpha-tracker/patterns/index'
 import type { AlphaSignal, ConfidenceBreakdown } from '@/lib/alpha-tracker/types'
 
 const PATTERN_COLORS: Record<string, string> = {
-  pre_cex:         '#fee211',
-  bridge_buy:      '#e271d7',
-  lp_position:     '#00cc06',
-  stable_rotation: '#670de5',
-  convergence:     '#ff7421',
-  dca_dump:        '#e271d7',
-  pre_gov:         '#ddcff2',
+  pre_cex:          '#fee211',
+  bridge_buy:       '#e271d7',
+  lp_position:      '#00cc06',
+  stable_rotation:  '#670de5',
+  convergence:      '#ff7421',
+  dca_dump:         '#e271d7',
+  pre_gov:          '#ddcff2',
+  net_accumulation: '#3b82f6',
 }
 
 function relativeTime(iso: string): string {
