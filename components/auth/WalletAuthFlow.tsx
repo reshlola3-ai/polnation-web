@@ -7,7 +7,7 @@ import { useAccount, useDisconnect } from 'wagmi'
 import Image from 'next/image'
 import { Wallet, Loader2, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
-import { isInSafePalDAppBrowser } from '@/lib/wallet-utils'
+import { isInMobileDAppBrowser } from '@/lib/wallet-utils'
 
 interface Props {
   redirect?: string
@@ -34,14 +34,14 @@ export function WalletAuthFlow({
 
   const [status, setStatus] = useState<'idle' | 'logging_in' | 'success' | 'error'>('idle')
   const [error, setError] = useState('')
-  // SafePal DApp browser block — resolved on mount so SSR markup matches.
-  const [blockedSafePal, setBlockedSafePal] = useState(false)
+  // Mobile DApp browser block — resolved on mount so SSR markup matches.
+  const [blockedDApp, setBlockedDApp] = useState(false)
   // Guard against the auto-login effect firing twice for the same address
   // (StrictMode double-mount, address echo on re-render).
   const handledRef = useRef<string | null>(null)
 
   useEffect(() => {
-    setBlockedSafePal(isInSafePalDAppBrowser())
+    setBlockedDApp(isInMobileDAppBrowser())
   }, [])
 
   useEffect(() => {
@@ -156,19 +156,20 @@ export function WalletAuthFlow({
     )
   }
 
-  if (blockedSafePal) {
+  if (blockedDApp) {
     return (
       <div className="space-y-2">
         <div className="p-4 rounded-xl bg-amber-500/[0.08] border border-amber-500/30 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
             <p className="text-amber-200 text-sm font-semibold">
-              SafePal in-app browser isn&apos;t supported
+              Please switch to Chrome to continue
             </p>
             <p className="text-amber-200/75 text-xs mt-1 leading-relaxed">
-              Please open{' '}
+              Signing isn&apos;t supported inside in-app wallet browsers.
+              Open{' '}
               <span className="font-mono text-amber-100">polnation.com</span>{' '}
-              in Chrome (or another regular browser) and connect SafePal from there.
+              in Chrome (or another regular mobile browser) and connect your wallet from there.
             </p>
           </div>
         </div>
