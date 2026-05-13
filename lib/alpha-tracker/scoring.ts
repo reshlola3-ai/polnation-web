@@ -21,7 +21,12 @@ function scoreEntityTrackRecord(pnl30d: number): number {
 }
 
 function scorePatternStrength(match: PatternMatch): number {
-  return PATTERN_META[match.patternId].strengthScore
+  const base  = PATTERN_META[match.patternId].strengthScore
+  // Magnitude bonus, log2-scaled: $1M → +0, $2M → +1, $4M → +2, $8M → +3, $16M → +4
+  // Capped so the breakdown stays within the conceptual 0-25 range.
+  const usdM  = Math.max(1, match.amountUsd / 1_000_000)
+  const bonus = Math.min(25 - base, Math.round(Math.log2(usdM)))
+  return base + bonus
 }
 
 function scoreTokenLiquidityFit(match: PatternMatch): number {

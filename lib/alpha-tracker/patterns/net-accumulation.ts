@@ -33,7 +33,9 @@ export function detectNetAccumulation(
   entityName: string,
   entityType: string,
   pnl30d: number,
-  transfers: ArkhamTransfer[]
+  transfers: ArkhamTransfer[],
+  tokenVolumes: Record<string, number> = {},
+  tokenPriceChanges: Record<string, number> = {}
 ): PatternMatch | null {
   const byToken = new Map<string, {
     netUsd: number
@@ -71,6 +73,9 @@ export function detectNetAccumulation(
   }
   if (!best) return null
 
+  // Match keys are stored in their natural case in the volumes/changes maps
+  // (refresh-job builds them from t.tokenSymbol directly, no upper-casing).
+  const volKey = best.sym
   return {
     patternId: 'net_accumulation',
     txHashes: best.txHashes,
@@ -81,6 +86,11 @@ export function detectNetAccumulation(
     entityName,
     entityType,
     pnl30d,
-    context: { netInbound: best.netUsd, txCount: best.txHashes.length },
+    context: {
+      netInbound:      best.netUsd,
+      txCount:         best.txHashes.length,
+      tokenVolume24h:  tokenVolumes[volKey] ?? tokenVolumes[volKey.toLowerCase()],
+      priceChange24h:  tokenPriceChanges[volKey] ?? tokenPriceChanges[volKey.toLowerCase()],
+    },
   }
 }

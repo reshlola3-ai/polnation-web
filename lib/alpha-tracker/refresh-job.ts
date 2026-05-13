@@ -111,7 +111,7 @@ async function processEntity(
     detectStableRotation(entity.entity_id, entity.display_name, entity.entity_type, pnl30d, transfers),
     detectDcaDump(entity.entity_id, entity.display_name, entity.entity_type, pnl30d, transfers, tokenPriceChanges),
     detectPreGovernance(entity.entity_id, entity.display_name, entity.entity_type, pnl30d, transfers),
-    detectNetAccumulation(entity.entity_id, entity.display_name, entity.entity_type, pnl30d, transfers),
+    detectNetAccumulation(entity.entity_id, entity.display_name, entity.entity_type, pnl30d, transfers, tokenVolumes, tokenPriceChanges),
   ].filter((m): m is PatternMatch => m !== null)
 
   let inserted = 0
