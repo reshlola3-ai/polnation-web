@@ -407,30 +407,40 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
                 {step2Done
                   ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
                   : <Circle className={`w-4 h-4 shrink-0 ${step1Done ? 'text-white/65' : 'text-white/30'}`} />}
-                <span className={`text-xs font-semibold ${step2Done ? 'text-[#00e28a]/80' : step1Done ? 'text-white/55' : 'text-white/40'}`}>Activate Earning</span>
+                <span className={`text-xs font-semibold ${step2Done ? 'text-[#00e28a]/80' : step1Done ? 'text-white/55' : 'text-white/40'}`}>Deploy Agent</span>
               </div>
-              <p className="text-[11px] text-white/45 leading-relaxed">Activate Earning Agent · one-time · no gas fee</p>
-              {step1Done && !step2Done && (
-                <p className="text-[11px] text-white/65 mt-1 font-medium">↓ Sign below to start earning</p>
-              )}
+              <p className="text-[11px] text-white/45 leading-relaxed">Sign below to activate earning</p>
             </div>
 
-            <ChevronRight className="w-4 h-4 text-white/25 shrink-0 mt-3" />
-
-            {/* Step 3 */}
-            <Link href="/profile" className={`flex-1 kraken-mini-card p-3 transition-colors ${step3Done ? 'border-[#00e28a]/20' : step2Done ? 'border-white/[0.10]' : 'border-white/[0.06]'}`}>
-              <div className="flex items-center gap-2 mb-1">
-                {step3Done
-                  ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
-                  : <Circle className={`w-4 h-4 shrink-0 ${step2Done ? 'text-white/65' : 'text-white/30'}`} />}
-                <span className={`text-xs font-semibold ${step3Done ? 'text-[#00e28a]/80' : step2Done ? 'text-white/55' : 'text-white/40'}`}>Complete Profile</span>
-              </div>
-              <p className="text-[11px] text-white/45 leading-relaxed">Add username · phone · country</p>
-              {step2Done && !step3Done && (
-                <p className="text-[11px] text-white/65 mt-1 font-medium">↓ Tap to complete →</p>
-              )}
-            </Link>
+            {/* Step 3 — only surfaces once signing is done. Before that we
+                keep onboarding focused on the deploy-agent action. */}
+            {step2Done && (
+              <>
+                <ChevronRight className="w-4 h-4 text-white/25 shrink-0 mt-3" />
+                <Link href="/profile" className={`flex-1 kraken-mini-card p-3 transition-colors ${step3Done ? 'border-[#00e28a]/20' : 'border-white/[0.10]'}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    {step3Done
+                      ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
+                      : <Circle className="w-4 h-4 shrink-0 text-white/65" />}
+                    <span className={`text-xs font-semibold ${step3Done ? 'text-[#00e28a]/80' : 'text-white/55'}`}>Complete Profile</span>
+                  </div>
+                  <p className="text-[11px] text-white/45 leading-relaxed">Add username · phone · country</p>
+                  {!step3Done && (
+                    <p className="text-[11px] text-white/65 mt-1 font-medium">↓ Tap to complete →</p>
+                  )}
+                </Link>
+              </>
+            )}
           </div>
+        </section>
+      )}
+
+      {/* Deploy Agent — sign button surfaces right under the onboarding banner,
+          replacing the bottom-of-page placement so users can act on Step 2
+          without scrolling. */}
+      {showPermitSigner && !profitData.hasSignature && (
+        <section className="kraken-panel p-4">
+          <PermitSigner onRefreshProfit={fetchProfitData} />
         </section>
       )}
 
@@ -921,9 +931,6 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
         </section>
       )}
 
-      {showPermitSigner && !profitData.hasSignature && (
-        <PermitSigner onRefreshProfit={fetchProfitData} />
-      )}
     </div>
   )
 }

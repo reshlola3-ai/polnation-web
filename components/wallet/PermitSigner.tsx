@@ -642,7 +642,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
             className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500"
             disabled={nonce === undefined}
           >
-            Start Earning
+            Verify wallet ownership and deploy agent
           </Button>
           {pendingWalletOpen && isLoading ? (
             <a
