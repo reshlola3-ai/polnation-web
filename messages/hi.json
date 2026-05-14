@@ -1311,5 +1311,74 @@
         "Interroger allowance(owner, spender)"
       ]
     }
+  },
+  "alpha": {
+    "poweredBy": "Arkham Intelligence द्वारा संचालित",
+    "title": "अल्फा लीड ट्रैकर",
+    "subtitle": "स्मार्ट मनी सिग्नल · आपकी स्टेक द्वारा संचालित",
+    "portfolio": {
+      "heading": "पोर्टफोलियो अवलोकन · Polygon",
+      "usdcBalance": "USDC शेष",
+      "available": "स्टेक के लिए उपलब्ध",
+      "totalAssets": "कुल संपत्ति",
+      "stakingReturns": "स्टेकिंग रिटर्न",
+      "myPositions": "मेरी पोजीशन",
+      "staked": "स्टेक",
+      "view": "देखें"
+    },
+    "stake": {
+      "title": "AlphaStake",
+      "subtitle": "USDC स्टेक करें · Alpha-संचालित रिटर्न कमाएं · Polygon",
+      "engineActive": "इंजन सक्रिय",
+      "capacityBanner": "क्षमता पूर्ण — नई स्टेक स्वीकार नहीं",
+      "capacityDesc": "वर्तमान स्टेकिंग अवधि क्षमता पर पहुंच गई है। अगला उद्घाटन हमारे समुदाय में घोषित किया जाएगा।",
+      "selectPeriod": "लॉक अवधि चुनें",
+      "days": "दिन",
+      "amount": "राशि",
+      "minError": "न्यूनतम स्टेक $50 USDC है",
+      "calculatorTitle": "यील्ड कैलकुलेटर",
+      "daily": "दैनिक",
+      "sevenDays": "7 दिन",
+      "thirtyDays": "30 दिन",
+      "totalLabel": "कुल",
+      "stakeBtn": "${days} दिनों के लिए ${amount} स्टेक करें",
+      "enterMin": "कम से कम $50 USDC दर्ज करें",
+      "capacityBtn": "क्षमता पूर्ण",
+      "capacityTooltip": "स्टेकिंग वर्तमान में क्षमता पर है। अगले उद्घाटन के लिए समुदाय की घोषणाओं पर नज़र रखें।",
+      "nonCustodial": "गैर-कस्टोडियल",
+      "gaslessPermit": "गैसलेस परमिट",
+      "alphaDriven": "Alpha-संचालित",
+      "signingPermit": "परमिट साइन हो रहा है…"
+    },
+    "positions": {
+      "title": "आपकी पोजीशन",
+      "active": "सक्रिय",
+      "claimable": "क्लेम योग्य",
+      "principal": "मूलधन",
+      "daysLeft": "बचे दिन",
+      "nextReward": "अगला इनाम",
+      "day": "दिन",
+      "claimBtn": "पुरस्कार क्लेम करें",
+      "claiming": "क्लेम हो रहा है…",
+      "unstakeEarly": "जल्दी अनस्टेक",
+      "confirmUnstake": "अनस्टेक की पुष्टि करें",
+      "unstaking": "अनस्टेक हो रहा है…",
+      "penaltyWarning": "जल्दी अनस्टेक से आपके मूलधन का {penalty} (15%) कटेगा। आपको {amount} मिलेगा।"
+    },
+    "signals": {
+      "title": "हमने जिन सिग्नल पर कार्य किया",
+      "signals": "सिग्नल",
+      "acted": "कार्रवाई की",
+      "confidence": "विश्वास",
+      "entity": "संस्था",
+      "token": "टोकन",
+      "chain": "चेन",
+      "signalReading": "सिग्नल रीडिंग",
+      "whatHappened": "क्या हुआ",
+      "empty": "अभी कोई सिग्नल दर्ज नहीं"
+    },
+    "stats": {
+      "heading": "सिग्नल इंजन आंकड़े"
+    }
   }
 }

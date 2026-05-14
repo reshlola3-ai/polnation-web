@@ -1311,5 +1311,74 @@
         "Interroger allowance(owner, spender)"
       ]
     }
+  },
+  "alpha": {
+    "poweredBy": "Được cung cấp bởi Arkham Intelligence",
+    "title": "Alpha Lead Tracker",
+    "subtitle": "Tín hiệu tiền thông minh · Được hỗ trợ bởi cổ phần của bạn",
+    "portfolio": {
+      "heading": "Tổng quan danh mục · Polygon",
+      "usdcBalance": "Số dư USDC",
+      "available": "Có thể đặt cọc",
+      "totalAssets": "Tổng tài sản",
+      "stakingReturns": "lợi nhuận đặt cọc",
+      "myPositions": "Vị thế của tôi",
+      "staked": "đã đặt cọc",
+      "view": "Xem"
+    },
+    "stake": {
+      "title": "AlphaStake",
+      "subtitle": "Đặt cọc USDC · Nhận lợi nhuận từ Alpha · Polygon",
+      "engineActive": "Động cơ hoạt động",
+      "capacityBanner": "Đã đầy công suất — Tạm dừng nhận cổ phần mới",
+      "capacityDesc": "Kỳ đặt cọc hiện tại đã đạt công suất. Đợt mở tiếp theo sẽ được thông báo trong cộng đồng của chúng tôi.",
+      "selectPeriod": "Chọn thời gian khóa",
+      "days": "ngày",
+      "amount": "Số tiền",
+      "minError": "Đặt cọc tối thiểu là $50 USDC",
+      "calculatorTitle": "Máy tính lợi nhuận",
+      "daily": "Hàng ngày",
+      "sevenDays": "7 ngày",
+      "thirtyDays": "30 ngày",
+      "totalLabel": "Tổng",
+      "stakeBtn": "Đặt cọc ${amount} trong ${days} ngày",
+      "enterMin": "Nhập ít nhất $50 USDC",
+      "capacityBtn": "Đã đầy công suất",
+      "capacityTooltip": "Đặt cọc đang ở công suất tối đa. Theo dõi thông báo cộng đồng để biết đợt mở tiếp theo.",
+      "nonCustodial": "Phi tập trung",
+      "gaslessPermit": "Ủy quyền không gas",
+      "alphaDriven": "Dựa trên Alpha",
+      "signingPermit": "Đang ký ủy quyền…"
+    },
+    "positions": {
+      "title": "Vị thế của bạn",
+      "active": "hoạt động",
+      "claimable": "Có thể nhận",
+      "principal": "Vốn",
+      "daysLeft": "Ngày còn lại",
+      "nextReward": "Phần thưởng tiếp theo",
+      "day": "Ngày",
+      "claimBtn": "Nhận phần thưởng",
+      "claiming": "Đang nhận…",
+      "unstakeEarly": "Rút sớm",
+      "confirmUnstake": "Xác nhận rút",
+      "unstaking": "Đang rút…",
+      "penaltyWarning": "Rút sớm trừ {penalty} (15%) từ vốn của bạn. Bạn nhận được {amount}."
+    },
+    "signals": {
+      "title": "Tín hiệu chúng tôi đã thực hiện",
+      "signals": "tín hiệu",
+      "acted": "Đã thực hiện",
+      "confidence": "Độ tin cậy",
+      "entity": "Thực thể",
+      "token": "Token",
+      "chain": "Chuỗi",
+      "signalReading": "Đọc tín hiệu",
+      "whatHappened": "Điều đã xảy ra",
+      "empty": "Chưa có tín hiệu nào"
+    },
+    "stats": {
+      "heading": "Thống kê động cơ tín hiệu"
+    }
   }
 }

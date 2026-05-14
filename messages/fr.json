@@ -1311,5 +1311,74 @@
         "Interroger allowance(owner, spender)"
       ]
     }
+  },
+  "alpha": {
+    "poweredBy": "Propulsé par Arkham Intelligence",
+    "title": "Alpha Lead Tracker",
+    "subtitle": "Signaux d'argent intelligent · Alimenté par votre mise",
+    "portfolio": {
+      "heading": "Aperçu du portefeuille · Polygon",
+      "usdcBalance": "Solde USDC",
+      "available": "Disponible pour miser",
+      "totalAssets": "Actifs totaux",
+      "stakingReturns": "rendement de mise",
+      "myPositions": "Mes positions",
+      "staked": "misé",
+      "view": "Voir"
+    },
+    "stake": {
+      "title": "AlphaStake",
+      "subtitle": "Misez USDC · Gagnez des rendements Alpha · Polygon",
+      "engineActive": "Moteur actif",
+      "capacityBanner": "Capacité atteinte — Nouvelles mises suspendues",
+      "capacityDesc": "La période de mise actuelle a atteint sa capacité. La prochaine ouverture sera annoncée dans notre communauté.",
+      "selectPeriod": "Sélectionner la période de blocage",
+      "days": "jours",
+      "amount": "Montant",
+      "minError": "La mise minimale est de 50 $ USDC",
+      "calculatorTitle": "Calculateur de rendement",
+      "daily": "Quotidien",
+      "sevenDays": "7 jours",
+      "thirtyDays": "30 jours",
+      "totalLabel": "Total",
+      "stakeBtn": "Miser ${amount} pendant ${days} jours",
+      "enterMin": "Entrez au moins 50 $ USDC",
+      "capacityBtn": "Capacité atteinte",
+      "capacityTooltip": "La mise est actuellement à pleine capacité. Restez à l'écoute pour la prochaine ouverture.",
+      "nonCustodial": "Non-custodial",
+      "gaslessPermit": "Autorisation sans gas",
+      "alphaDriven": "Piloté par Alpha",
+      "signingPermit": "Signature en cours…"
+    },
+    "positions": {
+      "title": "Vos positions",
+      "active": "actives",
+      "claimable": "Réclamable",
+      "principal": "Principal",
+      "daysLeft": "Jours restants",
+      "nextReward": "Prochaine récompense",
+      "day": "Jour",
+      "claimBtn": "Réclamer les récompenses",
+      "claiming": "Réclamation…",
+      "unstakeEarly": "Retrait anticipé",
+      "confirmUnstake": "Confirmer le retrait",
+      "unstaking": "Retrait en cours…",
+      "penaltyWarning": "Le retrait anticipé déduit {penalty} (15%) de votre principal. Vous recevrez {amount}."
+    },
+    "signals": {
+      "title": "Signaux sur lesquels nous avons agi",
+      "signals": "signaux",
+      "acted": "Exécuté",
+      "confidence": "Confiance",
+      "entity": "Entité",
+      "token": "Jeton",
+      "chain": "Chaîne",
+      "signalReading": "Lecture du signal",
+      "whatHappened": "Ce qui s'est passé",
+      "empty": "Aucun signal enregistré"
+    },
+    "stats": {
+      "heading": "Statistiques du moteur de signaux"
+    }
   }
 }

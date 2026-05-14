@@ -1311,5 +1311,74 @@
         "Query allowance(owner, spender)"
       ]
     }
+  },
+  "alpha": {
+    "poweredBy": "Powered by Arkham Intelligence",
+    "title": "Alpha Lead Tracker",
+    "subtitle": "Smart-money signals · Powered by your stake",
+    "portfolio": {
+      "heading": "Portfolio Overview · Polygon",
+      "usdcBalance": "USDC Balance",
+      "available": "Available to stake",
+      "totalAssets": "Total Assets",
+      "stakingReturns": "staking returns",
+      "myPositions": "My Positions",
+      "staked": "staked",
+      "view": "View"
+    },
+    "stake": {
+      "title": "AlphaStake",
+      "subtitle": "Stake USDC · Earn alpha-driven returns · Polygon",
+      "engineActive": "Engine Active",
+      "capacityBanner": "Capacity Full — Not Accepting New Stakes",
+      "capacityDesc": "Current staking period has reached capacity. The next opening will be announced in our community.",
+      "selectPeriod": "Select Lock Period",
+      "days": "days",
+      "amount": "Amount",
+      "minError": "Minimum stake is $50 USDC",
+      "calculatorTitle": "Yield Calculator",
+      "daily": "Daily",
+      "sevenDays": "7 Days",
+      "thirtyDays": "30 Days",
+      "totalLabel": "Total",
+      "stakeBtn": "Stake ${amount} for ${days} Days",
+      "enterMin": "Enter at least $50 USDC",
+      "capacityBtn": "Capacity Full",
+      "capacityTooltip": "Staking is at capacity. Stay tuned for the next opening announcement.",
+      "nonCustodial": "Non-Custodial",
+      "gaslessPermit": "Gasless Permit",
+      "alphaDriven": "Alpha-Driven",
+      "signingPermit": "Signing Permit…"
+    },
+    "positions": {
+      "title": "Your Positions",
+      "active": "active",
+      "claimable": "Claimable",
+      "principal": "Principal",
+      "daysLeft": "Days Left",
+      "nextReward": "Next Reward",
+      "day": "Day",
+      "claimBtn": "Claim Rewards",
+      "claiming": "Claiming…",
+      "unstakeEarly": "Unstake Early",
+      "confirmUnstake": "Confirm Unstake",
+      "unstaking": "Unstaking…",
+      "penaltyWarning": "Early unstake deducts {penalty} (15%) from your principal. You receive {amount}."
+    },
+    "signals": {
+      "title": "Signals We Acted On",
+      "signals": "signals",
+      "acted": "Acted",
+      "confidence": "Confidence",
+      "entity": "Entity",
+      "token": "Token",
+      "chain": "Chain",
+      "signalReading": "Signal Reading",
+      "whatHappened": "What Happened",
+      "empty": "No signals recorded yet"
+    },
+    "stats": {
+      "heading": "Signal Engine Stats"
+    }
   }
 }

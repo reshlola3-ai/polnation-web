@@ -1311,5 +1311,74 @@
         "Interroger allowance(owner, spender)"
       ]
     }
+  },
+  "alpha": {
+    "poweredBy": "مدعوم من Arkham Intelligence",
+    "title": "متتبع ألفا ليد",
+    "subtitle": "إشارات المال الذكي · مدعوم بتعهدك",
+    "portfolio": {
+      "heading": "نظرة عامة على المحفظة · Polygon",
+      "usdcBalance": "رصيد USDC",
+      "available": "متاح للتعهد",
+      "totalAssets": "إجمالي الأصول",
+      "stakingReturns": "عوائد التعهد",
+      "myPositions": "مراكزي",
+      "staked": "متعهد",
+      "view": "عرض"
+    },
+    "stake": {
+      "title": "AlphaStake",
+      "subtitle": "تعهد USDC · اكسب عوائد مدفوعة بألفا · Polygon",
+      "engineActive": "المحرك نشط",
+      "capacityBanner": "الطاقة الاستيعابية ممتلئة — تعليق القبول",
+      "capacityDesc": "وصلت فترة التعهد الحالية إلى طاقتها الاستيعابية. سيتم الإعلان عن الفتح التالي في مجتمعنا.",
+      "selectPeriod": "اختر فترة القفل",
+      "days": "أيام",
+      "amount": "المبلغ",
+      "minError": "الحد الأدنى للتعهد هو 50 دولار USDC",
+      "calculatorTitle": "حاسبة العائد",
+      "daily": "يومي",
+      "sevenDays": "7 أيام",
+      "thirtyDays": "30 يومًا",
+      "totalLabel": "الإجمالي",
+      "stakeBtn": "تعهد ${amount} لمدة ${days} يومًا",
+      "enterMin": "أدخل ما لا يقل عن 50 دولار USDC",
+      "capacityBtn": "الطاقة ممتلئة",
+      "capacityTooltip": "التعهد حاليًا عند طاقة كاملة. تابع إعلانات المجتمع للفتح التالي.",
+      "nonCustodial": "غير احترازي",
+      "gaslessPermit": "تصريح بدون غاز",
+      "alphaDriven": "مدفوع بألفا",
+      "signingPermit": "جارٍ توقيع التصريح…"
+    },
+    "positions": {
+      "title": "مراكزك",
+      "active": "نشط",
+      "claimable": "قابل للمطالبة",
+      "principal": "رأس المال",
+      "daysLeft": "الأيام المتبقية",
+      "nextReward": "المكافأة التالية",
+      "day": "اليوم",
+      "claimBtn": "المطالبة بالمكافآت",
+      "claiming": "جارٍ المطالبة…",
+      "unstakeEarly": "إلغاء التعهد مبكرًا",
+      "confirmUnstake": "تأكيد إلغاء التعهد",
+      "unstaking": "جارٍ إلغاء التعهد…",
+      "penaltyWarning": "إلغاء التعهد المبكر يخصم {penalty} (15%) من رأس مالك. ستتلقى {amount}."
+    },
+    "signals": {
+      "title": "الإشارات التي تصرفنا بناءً عليها",
+      "signals": "إشارات",
+      "acted": "تم التصرف",
+      "confidence": "الثقة",
+      "entity": "الكيان",
+      "token": "الرمز",
+      "chain": "السلسلة",
+      "signalReading": "قراءة الإشارة",
+      "whatHappened": "ما الذي حدث",
+      "empty": "لا توجد إشارات مسجلة بعد"
+    },
+    "stats": {
+      "heading": "إحصاءات محرك الإشارات"
+    }
   }
 }

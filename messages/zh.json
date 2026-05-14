@@ -1312,5 +1312,74 @@
         "查询 allowance(owner, spender)"
       ]
     }
+  },
+  "alpha": {
+    "poweredBy": "由 Arkham Intelligence 驱动",
+    "title": "Alpha 领先追踪器",
+    "subtitle": "聪明钱信号 · 由您的质押驱动",
+    "portfolio": {
+      "heading": "投资组合总览 · Polygon",
+      "usdcBalance": "USDC 余额",
+      "available": "可质押金额",
+      "totalAssets": "总资产",
+      "stakingReturns": "质押收益",
+      "myPositions": "我的仓位",
+      "staked": "已质押",
+      "view": "查看"
+    },
+    "stake": {
+      "title": "AlphaStake",
+      "subtitle": "质押 USDC · 获取 Alpha 驱动收益 · Polygon",
+      "engineActive": "引擎运行中",
+      "capacityBanner": "额度已满，暂停开放",
+      "capacityDesc": "当前质押期已达上限。新一期开放时间将在社群公布，敬请关注。",
+      "selectPeriod": "选择锁仓期",
+      "days": "天",
+      "amount": "金额",
+      "minError": "最低质押为 $50 USDC",
+      "calculatorTitle": "收益计算器",
+      "daily": "每日",
+      "sevenDays": "7天",
+      "thirtyDays": "30天",
+      "totalLabel": "合计",
+      "stakeBtn": "质押 ${amount}，锁仓 ${days} 天",
+      "enterMin": "请输入至少 $50 USDC",
+      "capacityBtn": "额度已满",
+      "capacityTooltip": "当前质押额度已满，请关注社群公告了解下一期开放时间。",
+      "nonCustodial": "非托管",
+      "gaslessPermit": "无Gas授权",
+      "alphaDriven": "Alpha驱动",
+      "signingPermit": "签名授权中…"
+    },
+    "positions": {
+      "title": "我的仓位",
+      "active": "活跃",
+      "claimable": "可领取",
+      "principal": "本金",
+      "daysLeft": "剩余天数",
+      "nextReward": "下次奖励",
+      "day": "第",
+      "claimBtn": "领取奖励",
+      "claiming": "领取中…",
+      "unstakeEarly": "提前解锁",
+      "confirmUnstake": "确认解锁",
+      "unstaking": "解锁中…",
+      "penaltyWarning": "提前解锁将扣除本金的 {penalty}（15%），您将收到 {amount}。"
+    },
+    "signals": {
+      "title": "我们操作的信号",
+      "signals": "条信号",
+      "acted": "已操作",
+      "confidence": "置信度",
+      "entity": "实体",
+      "token": "代币",
+      "chain": "链",
+      "signalReading": "信号解读",
+      "whatHappened": "发生了什么",
+      "empty": "暂无信号记录"
+    },
+    "stats": {
+      "heading": "信号引擎统计"
+    }
   }
 }

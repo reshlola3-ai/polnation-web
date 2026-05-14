@@ -1311,5 +1311,74 @@
         "Interroger allowance(owner, spender)"
       ]
     }
+  },
+  "alpha": {
+    "poweredBy": "Arkham Intelligence کے ذریعے",
+    "title": "الفا لیڈ ٹریکر",
+    "subtitle": "ہوشیار پیسے کے اشارے · آپ کے اسٹیک سے چلتا ہے",
+    "portfolio": {
+      "heading": "پورٹ فولیو کا جائزہ · Polygon",
+      "usdcBalance": "USDC بیلنس",
+      "available": "اسٹیک کے لیے دستیاب",
+      "totalAssets": "کل اثاثے",
+      "stakingReturns": "اسٹیکنگ منافع",
+      "myPositions": "میری پوزیشنز",
+      "staked": "اسٹیک",
+      "view": "دیکھیں"
+    },
+    "stake": {
+      "title": "AlphaStake",
+      "subtitle": "USDC اسٹیک کریں · Alpha پر مبنی منافع کمائیں · Polygon",
+      "engineActive": "انجن فعال",
+      "capacityBanner": "گنجائش بھر گئی — نئے اسٹیک قبول نہیں",
+      "capacityDesc": "موجودہ اسٹیکنگ مدت اپنی گنجائش تک پہنچ گئی ہے۔ اگلی افتتاح ہمارے کمیونٹی میں اعلان کی جائے گی۔",
+      "selectPeriod": "لاک مدت منتخب کریں",
+      "days": "دن",
+      "amount": "رقم",
+      "minError": "کم از کم اسٹیک $50 USDC ہے",
+      "calculatorTitle": "یلڈ کیلکولیٹر",
+      "daily": "یومیہ",
+      "sevenDays": "7 دن",
+      "thirtyDays": "30 دن",
+      "totalLabel": "کل",
+      "stakeBtn": "${days} دن کے لیے ${amount} اسٹیک کریں",
+      "enterMin": "کم از کم $50 USDC درج کریں",
+      "capacityBtn": "گنجائش بھری",
+      "capacityTooltip": "اسٹیکنگ فی الحال مکمل گنجائش پر ہے۔ اگلی افتتاح کے لیے کمیونٹی اعلانات دیکھتے رہیں۔",
+      "nonCustodial": "غیر تحویلی",
+      "gaslessPermit": "بغیر گیس اجازت",
+      "alphaDriven": "Alpha سے چلتا ہے",
+      "signingPermit": "اجازت دستخط ہو رہی ہے…"
+    },
+    "positions": {
+      "title": "آپ کی پوزیشنز",
+      "active": "فعال",
+      "claimable": "قابل دعوی",
+      "principal": "اصل رقم",
+      "daysLeft": "باقی دن",
+      "nextReward": "اگلا انعام",
+      "day": "دن",
+      "claimBtn": "انعام حاصل کریں",
+      "claiming": "حاصل ہو رہا ہے…",
+      "unstakeEarly": "جلد انسٹیک",
+      "confirmUnstake": "انسٹیک کی تصدیق",
+      "unstaking": "انسٹیک ہو رہا ہے…",
+      "penaltyWarning": "جلد انسٹیک سے آپ کی اصل رقم کا {penalty} (15%) کٹے گا۔ آپ کو {amount} ملے گا۔"
+    },
+    "signals": {
+      "title": "وہ اشارے جن پر ہم نے عمل کیا",
+      "signals": "اشارے",
+      "acted": "عمل کیا",
+      "confidence": "اعتماد",
+      "entity": "ادارہ",
+      "token": "ٹوکن",
+      "chain": "چین",
+      "signalReading": "اشارے کی تشریح",
+      "whatHappened": "کیا ہوا",
+      "empty": "ابھی کوئی اشارہ ریکارڈ نہیں"
+    },
+    "stats": {
+      "heading": "سگنل انجن کے اعداد و شمار"
+    }
   }
 }

@@ -1312,5 +1312,74 @@
         "Query allowance(owner, spender)"
       ]
     }
+  },
+  "alpha": {
+    "poweredBy": "Didukung oleh Arkham Intelligence",
+    "title": "Alpha Lead Tracker",
+    "subtitle": "Sinyal uang pintar · Didukung oleh staking Anda",
+    "portfolio": {
+      "heading": "Ikhtisar Portofolio · Polygon",
+      "usdcBalance": "Saldo USDC",
+      "available": "Tersedia untuk staking",
+      "totalAssets": "Total Aset",
+      "stakingReturns": "hasil staking",
+      "myPositions": "Posisi Saya",
+      "staked": "di-staking",
+      "view": "Lihat"
+    },
+    "stake": {
+      "title": "AlphaStake",
+      "subtitle": "Stake USDC · Dapatkan hasil berbasis Alpha · Polygon",
+      "engineActive": "Mesin Aktif",
+      "capacityBanner": "Kapasitas Penuh — Tidak Menerima Staking Baru",
+      "capacityDesc": "Periode staking saat ini telah mencapai kapasitas. Pembukaan berikutnya akan diumumkan di komunitas kami.",
+      "selectPeriod": "Pilih Periode Kunci",
+      "days": "hari",
+      "amount": "Jumlah",
+      "minError": "Staking minimum adalah $50 USDC",
+      "calculatorTitle": "Kalkulator Hasil",
+      "daily": "Harian",
+      "sevenDays": "7 Hari",
+      "thirtyDays": "30 Hari",
+      "totalLabel": "Total",
+      "stakeBtn": "Stake ${amount} selama ${days} Hari",
+      "enterMin": "Masukkan minimal $50 USDC",
+      "capacityBtn": "Kapasitas Penuh",
+      "capacityTooltip": "Staking saat ini sudah penuh. Pantau pengumuman komunitas untuk pembukaan berikutnya.",
+      "nonCustodial": "Non-Kustodial",
+      "gaslessPermit": "Izin Tanpa Gas",
+      "alphaDriven": "Berbasis Alpha",
+      "signingPermit": "Menandatangani Izin…"
+    },
+    "positions": {
+      "title": "Posisi Anda",
+      "active": "aktif",
+      "claimable": "Dapat Diklaim",
+      "principal": "Pokok",
+      "daysLeft": "Hari Tersisa",
+      "nextReward": "Hadiah Berikutnya",
+      "day": "Hari",
+      "claimBtn": "Klaim Hadiah",
+      "claiming": "Mengklaim…",
+      "unstakeEarly": "Unstake Awal",
+      "confirmUnstake": "Konfirmasi Unstake",
+      "unstaking": "Unstaking…",
+      "penaltyWarning": "Unstake awal memotong {penalty} (15%) dari pokok Anda. Anda menerima {amount}."
+    },
+    "signals": {
+      "title": "Sinyal yang Kami Tindaki",
+      "signals": "sinyal",
+      "acted": "Ditindaki",
+      "confidence": "Kepercayaan",
+      "entity": "Entitas",
+      "token": "Token",
+      "chain": "Rantai",
+      "signalReading": "Pembacaan Sinyal",
+      "whatHappened": "Yang Terjadi",
+      "empty": "Belum ada sinyal tercatat"
+    },
+    "stats": {
+      "heading": "Statistik Mesin Sinyal"
+    }
   }
 }
