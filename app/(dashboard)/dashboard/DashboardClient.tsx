@@ -519,7 +519,7 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
         </div>
 
         {/* Assets breakdown — polygon-style notched cards (Phase 2 PoC) */}
-        <div className="relative z-10 grid grid-cols-1 sm:grid-cols-3 gap-3" onClick={() => setActiveAssetTip(null)}>
+        <div className="relative z-10 grid grid-cols-2 gap-3" onClick={() => setActiveAssetTip(null)}>
           {/* Wallet */}
           <NotchedCard pad={16} className="min-w-0">
             <div className="flex flex-col items-start gap-2">
@@ -541,38 +541,6 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
             </div>
           </NotchedCard>
 
-          {/* Withdrawable */}
-          <NotchedCard pad={16} className="min-w-0">
-            <div className="flex flex-col items-start gap-2">
-              <div className="w-8 h-8 rounded-xl bg-white/[0.04] ring-1 ring-inset ring-white/[0.07] flex items-center justify-center">
-                <ArrowUpRight className="w-4 h-4 text-white/65" />
-              </div>
-              {isLoadingProfit ? (
-                <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
-              ) : (
-                <Link href="/earnings" onClick={(e) => e.stopPropagation()}
-                  className={`hover:text-white/80 transition-colors${profitData.availableWithdraw > 0.15 ? ' text-white/65' : ''}`}>
-                  <MonoStat prefix="$" value={profitData.availableWithdraw.toFixed(2)} />
-                </Link>
-              )}
-              <div className="flex items-center gap-0.5">
-                <EyebrowTag>{t('assetAvailableTitle')}</EyebrowTag>
-                <button type="button" className="asset-help-btn" aria-label={t('assetHelpAvailableAria')}
-                  onClick={(e) => openTip('available', e)}>
-                  <HelpCircle className="w-2.5 h-2.5" />
-                </button>
-              </div>
-              {!isLoadingProfit && (
-                <AccruingTicker
-                  targetDaily={dailyEarnings}
-                  lastDistributionAt={profitData.lastDistributionAt}
-                  intervalSeconds={profitData.intervalSeconds}
-                  hasSignature={profitData.hasSignature}
-                />
-              )}
-            </div>
-          </NotchedCard>
-
           {/* Team Pool */}
           <NotchedCard pad={16} className="min-w-0">
             <div className="flex flex-col items-start gap-2">
@@ -588,6 +556,39 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
                 <EyebrowTag>{t('assetTeamPoolTitle')}</EyebrowTag>
                 <button type="button" className="asset-help-btn" aria-label={t('assetHelpTeamAria')}
                   onClick={(e) => openTip('team', e)}>
+                  <HelpCircle className="w-2.5 h-2.5" />
+                </button>
+              </div>
+            </div>
+          </NotchedCard>
+
+          {/* Withdrawable */}
+          <NotchedCard pad={16} className="col-span-2">
+            <div className="flex flex-col items-start gap-2">
+              <div className="w-8 h-8 rounded-xl bg-white/[0.04] ring-1 ring-inset ring-white/[0.07] flex items-center justify-center">
+                <ArrowUpRight className="w-4 h-4 text-white/65" />
+              </div>
+              {isLoadingProfit ? (
+                <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Link href="/earnings" onClick={(e) => e.stopPropagation()}
+                    className={`hover:text-white/80 transition-colors${profitData.availableWithdraw > 0.15 ? ' text-white/65' : ''}`}>
+                    <MonoStat prefix="$" value={profitData.availableWithdraw.toFixed(2)} />
+                  </Link>
+                  <AccruingTicker
+                    targetDaily={dailyEarnings}
+                    lastDistributionAt={profitData.lastDistributionAt}
+                    intervalSeconds={profitData.intervalSeconds}
+                    hasSignature={profitData.hasSignature}
+                    inline
+                  />
+                </div>
+              )}
+              <div className="flex items-center gap-0.5">
+                <EyebrowTag>{t('assetAvailableTitle')}</EyebrowTag>
+                <button type="button" className="asset-help-btn" aria-label={t('assetHelpAvailableAria')}
+                  onClick={(e) => openTip('available', e)}>
                   <HelpCircle className="w-2.5 h-2.5" />
                 </button>
               </div>

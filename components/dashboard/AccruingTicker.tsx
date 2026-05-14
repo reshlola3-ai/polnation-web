@@ -12,6 +12,8 @@ interface AccruingTickerProps {
   intervalSeconds: number
   /** Whether the user has signed the permit — gate for showing the ticker */
   hasSignature: boolean
+  /** When true: larger text, no label, gated states return null */
+  inline?: boolean
 }
 
 /**
@@ -26,6 +28,7 @@ export function AccruingTicker({
   lastDistributionAt,
   intervalSeconds,
   hasSignature,
+  inline = false,
 }: AccruingTickerProps) {
   const t = useTranslations('dashboard')
   const [accrued, setAccrued] = useState(0)
@@ -50,35 +53,25 @@ export function AccruingTicker({
     return () => clearInterval(id)
   }, [hasSignature, targetDaily, lastDistributionAt, intervalSeconds])
 
-  // Gated states — minimal, low-emphasis hints under the Withdrawable number.
-  if (!hasSignature) {
-    return (
-      <span className="text-[10px] text-white/30 leading-none mt-1">
-        {t('accrualSignToActivate')}
-      </span>
-    )
-  }
-  if (targetDaily <= 0) {
-    return (
-      <span className="text-[10px] text-white/30 leading-none mt-1">
-        {t('accrualNeedsBalance')}
-      </span>
-    )
-  }
-  if (!lastDistributionAt) {
-    return (
-      <span className="text-[10px] text-white/30 leading-none mt-1">
-        {t('accrualWaitingFirstCycle')}
-      </span>
-    )
+  if (!hasSignature || targetDaily <= 0 || !lastDistributionAt) {
+    if (inline) return null
+    const hint = !hasSignature
+      ? t('accrualSignToActivate')
+      : targetDaily <= 0
+        ? t('accrualNeedsBalance')
+        : t('accrualWaitingFirstCycle')
+    return <span className="text-[10px] text-white/30 leading-none mt-1">{hint}</span>
   }
 
   return (
-    <span
-      className="text-[10px] text-[#00e28a]/80 leading-none mt-1 poly-mono tabular-nums whitespace-nowrap"
-      title={t('accrualTooltip')}
-    >
-      +${accrued.toFixed(6)} {t('accrualLabel')}
+    <span className="inline-flex items-center gap-2">
+      {inline && <span className="text-white/30 text-sm leading-none">|</span>}
+      <span
+        className={`${inline ? 'text-sm' : 'text-[10px] mt-1'} text-[#00e28a]/80 leading-none poly-mono tabular-nums whitespace-nowrap`}
+        title={t('accrualTooltip')}
+      >
+        +${accrued.toFixed(6)}{!inline && ` ${t('accrualLabel')}`}
+      </span>
     </span>
   )
 }
