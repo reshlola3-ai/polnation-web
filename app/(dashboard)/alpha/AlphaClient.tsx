@@ -77,7 +77,7 @@ function PositionCard({ pos }: { pos: MockPosition }) {
   const tier      = TIERS[pos.tierIndex]
   const daysLeft  = pos.totalDays - pos.daysElapsed
   const progress  = pos.daysElapsed / pos.totalDays
-  const penalty   = pos.principal * 0.05
+  const penalty   = pos.principal * 0.15
   const countdown = useCountdown(daysLeft * 86400 - 3600)
 
   const handleClaim = useCallback(async () => {
@@ -138,7 +138,7 @@ function PositionCard({ pos }: { pos: MockPosition }) {
             <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0 mt-0.5" />
             <p className="text-[11px] text-red-300 leading-relaxed">
               Early unstake deducts{' '}
-              <span className="font-bold">${penalty.toFixed(2)} (5%)</span>.
+              <span className="font-bold">${penalty.toFixed(2)} (15%)</span>.
               {' '}You receive <span className="font-bold">${(pos.principal - penalty).toFixed(2)}</span>.
             </p>
           </div>
