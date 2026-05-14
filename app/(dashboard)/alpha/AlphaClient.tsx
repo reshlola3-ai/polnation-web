@@ -22,7 +22,7 @@ const TIERS = [
   { days: 300, dailyRate: 1.5 },
 ] as const
 
-const MOCK_POSITIONS: never[] = []
+const MOCK_POSITIONS: { id: string; tierIndex: number; principal: number; earned: number; daysElapsed: number; totalDays: number }[] = []
 
 const MOCK_USDC_BALANCE = 0
 const MOCK_TOTAL_STAKED = 0
@@ -64,7 +64,7 @@ function useCountdown(seconds: number) {
 }
 
 // ── Position card ──────────────────────────────────────────────────────────
-type MockPosition = typeof MOCK_POSITIONS[number]
+type MockPosition = { id: string; tierIndex: number; principal: number; earned: number; daysElapsed: number; totalDays: number }
 
 function PositionCard({ pos }: { pos: MockPosition }) {
   const [claiming, setClaiming]                     = useState(false)
