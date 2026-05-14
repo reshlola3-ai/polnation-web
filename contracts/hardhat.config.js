@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
-require("dotenv").config({ path: "../executor/.env" });
+require("dotenv").config({ path: "./.env" });             // contracts/.env (primary)
+require("dotenv").config({ path: "../executor/.env" });   // fallback
 
 module.exports = {
   solidity: "0.8.20",
