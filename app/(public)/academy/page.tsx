@@ -2,13 +2,11 @@ import { cookies } from 'next/headers'
 import { getTranslations } from 'next-intl/server'
 import { defaultLocale, locales, type Locale } from '@/i18n/config'
 import { createServerClient } from '@/lib/supabase-server'
-import Image from 'next/image'
-import Link from 'next/link'
 import { AcademyContent } from './AcademyContent'
 
 export const metadata = {
-  title: 'Academy - Complete Guide | Polnation',
-  description: 'Complete guide to start earning passive income with Polnation. Step-by-step tutorial for crypto beginners.',
+  title: 'Academy - Agentic Earnings Guide | Polnation',
+  description: 'Learn how Polnation Agentic Earnings works across wallet activation, USDC tiers, tasks, referrals, and Team Pool rewards.',
 }
 
 export default async function AcademyPage() {
@@ -20,6 +18,20 @@ export default async function AcademyPage() {
   const locale = localeCookie && locales.includes(localeCookie) ? localeCookie : defaultLocale
 
   const t = await getTranslations('academy')
+  const optional = (key: Parameters<typeof t>[0]) => {
+    try {
+      return t(key)
+    } catch {
+      return undefined
+    }
+  }
+  const optionalRaw = <T,>(key: Parameters<typeof t.raw>[0]) => {
+    try {
+      return t.raw(key) as T
+    } catch {
+      return undefined
+    }
+  }
 
   // Build translations object for client component
   const translations = {
@@ -81,6 +93,11 @@ export default async function AcademyPage() {
         title: t('steps.team.title'),
         intro: t('steps.team.intro'),
         benefits: t.raw('steps.team.benefits') as string[],
+        poolTitle: optional('steps.team.poolTitle'),
+        poolIntro: optional('steps.team.poolIntro'),
+        poolPoints: optionalRaw<string[]>('steps.team.poolPoints'),
+        commissionTitle: optional('steps.team.commissionTitle'),
+        commissionIntro: optional('steps.team.commissionIntro'),
       },
       // New sections - use try/catch for backwards compatibility
       tasks: (() => {
@@ -135,35 +152,6 @@ export default async function AcademyPage() {
             influencerDesc: t('steps.levels.influencerDesc'),
             applyInfluencer: t('steps.levels.applyInfluencer'),
             contactTelegram: t('steps.levels.contactTelegram'),
-          }
-        } catch { return undefined }
-      })(),
-      momentum: (() => {
-        try {
-          return {
-            title: t('steps.momentum.title'),
-            intro: t('steps.momentum.intro'),
-            whatIsTitle: t('steps.momentum.whatIsTitle'),
-            whatIsDesc: t('steps.momentum.whatIsDesc'),
-            formulaTitle: t('steps.momentum.formulaTitle'),
-            formula: t('steps.momentum.formula'),
-            baseEarning: t('steps.momentum.baseEarning'),
-            multiplier: t('steps.momentum.multiplier'),
-            finalEarning: t('steps.momentum.finalEarning'),
-            tiersTitle: t('steps.momentum.tiersTitle'),
-            recentRefs: t('steps.momentum.recentRefs'),
-            multiplierCol: t('steps.momentum.multiplierCol'),
-            decayTitle: t('steps.momentum.decayTitle'),
-            decayDesc: t('steps.momentum.decayDesc'),
-            decayRule1: t('steps.momentum.decayRule1'),
-            decayRule2: t('steps.momentum.decayRule2'),
-            decayRule3: t('steps.momentum.decayRule3'),
-            recoveryTitle: t('steps.momentum.recoveryTitle'),
-            recoveryDesc: t('steps.momentum.recoveryDesc'),
-            exampleTitle: t('steps.momentum.exampleTitle'),
-            exampleDesc: t('steps.momentum.exampleDesc'),
-            tipTitle: t('steps.momentum.tipTitle'),
-            tipDesc: t('steps.momentum.tipDesc'),
           }
         } catch { return undefined }
       })(),

@@ -11,7 +11,6 @@ import {
   TrendingUp, 
   ChevronRight,
   Play,
-  ExternalLink,
   CheckCircle2,
   ArrowRight
 } from 'lucide-react'
