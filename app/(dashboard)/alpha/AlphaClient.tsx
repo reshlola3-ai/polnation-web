@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import type { AlphaSignal, AlphaEntity } from '@/lib/alpha-tracker/types'
 import { StatsBar } from './components/StatsBar'
 import { ConvergenceAlert } from './components/ConvergenceAlert'
@@ -403,10 +404,13 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                     {active && (
                       <span className="absolute -top-px left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-purple-400" />
                     )}
-                    <span className={`text-[11px] font-black ${active ? 'text-white' : 'text-zinc-500'}`}>
-                      {t.days}d
+                    <span className={`stat-number text-3xl font-black leading-none ${active ? 'text-white' : 'text-zinc-400'}`}>
+                      {t.days}
                     </span>
-                    <span className={`stat-number text-lg font-black ${active ? 'text-cyan-400' : 'text-zinc-600'}`}>
+                    <span className={`text-[10px] font-semibold uppercase tracking-wider ${active ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                      days
+                    </span>
+                    <span className={`stat-number text-base font-black ${active ? 'text-cyan-400' : 'text-zinc-600'}`}>
                       {t.dailyRate}%
                     </span>
                     <span className="text-[9px] uppercase tracking-wider text-zinc-600">/ day</span>
@@ -449,7 +453,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                 className="flex-1 bg-transparent text-3xl font-bold text-white placeholder:text-zinc-700 focus:outline-none stat-number"
               />
               <div className="flex items-center gap-1.5 rounded-lg bg-white/[0.06] px-3 py-1.5 shrink-0">
-                <div className="h-3 w-3 rounded-full bg-blue-500" />
+                <Image src="/usdc.webp" alt="USDC" width={16} height={16} className="rounded-full" />
                 <span className="text-xs font-bold text-zinc-300">USDC</span>
               </div>
             </div>
@@ -458,26 +462,30 @@ export function AlphaClient({ initialSignals, entities }: Props) {
             )}
           </div>
 
-          {/* Returns preview */}
-          {num >= 50 && (
-            <div className="rounded-xl border border-purple-500/15 bg-purple-500/[0.05] p-4 space-y-2.5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-purple-400/60">
-                Projected Returns · {tier.days} Days · {tier.dailyRate}%/day
+          {/* Yield Calculator */}
+          <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                Yield Calculator · {tier.days} Days · {tier.dailyRate}%/day
               </p>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-zinc-500">Daily</span>
-                <span className="stat-number text-sm font-bold text-green-400">+${daily.toFixed(4)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-zinc-500">Est. APY</span>
-                <span className="stat-number text-sm font-semibold text-zinc-300">{apy.toFixed(0)}%</span>
-              </div>
-              <div className="flex justify-between items-center border-t border-white/[0.06] pt-2.5">
-                <span className="text-sm text-zinc-500">At maturity ({tier.days}d)</span>
-                <span className="stat-number text-base font-black text-cyan-400">+${total.toFixed(2)}</span>
-              </div>
+              <span className="text-[10px] font-semibold text-purple-400">{apy.toFixed(0)}% APY</span>
             </div>
-          )}
+            <div className="grid grid-cols-4 divide-x divide-white/[0.05]">
+              {[
+                { label: 'Daily',    value: daily,        suffix: '' },
+                { label: '7 Days',   value: daily * 7,    suffix: '' },
+                { label: '30 Days',  value: daily * 30,   suffix: '' },
+                { label: `${tier.days}d Total`, value: total, suffix: '', highlight: true },
+              ].map(({ label, value, highlight }) => (
+                <div key={label} className={`flex flex-col items-center py-4 gap-1 ${highlight ? 'bg-cyan-500/[0.04]' : ''}`}>
+                  <p className="text-[9px] uppercase tracking-wider text-zinc-600">{label}</p>
+                  <p className={`stat-number text-base font-black ${highlight ? 'text-cyan-400' : 'text-white'}`}>
+                    {num >= 50 ? `+$${value.toFixed(2)}` : '—'}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* CTA */}
           <Button
