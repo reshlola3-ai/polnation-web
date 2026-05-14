@@ -22,15 +22,12 @@ const TIERS = [
   { days: 300, dailyRate: 1.5 },
 ] as const
 
-const MOCK_POSITIONS = [
-  { id: 'pos-1', tierIndex: 2, principal: 500,  earned: 72.0,  daysElapsed: 12, totalDays: 60 },
-  { id: 'pos-2', tierIndex: 1, principal: 200,  earned: 23.1,  daysElapsed: 21, totalDays: 30 },
-] as const
+const MOCK_POSITIONS: never[] = []
 
-const MOCK_USDC_BALANCE = 2450.00
-const MOCK_TOTAL_STAKED = MOCK_POSITIONS.reduce((s, p) => s + p.principal, 0)
-const MOCK_TOTAL_EARNED = MOCK_POSITIONS.reduce((s, p) => s + p.earned, 0)
-const MOCK_TOTAL_ASSETS = MOCK_USDC_BALANCE + MOCK_TOTAL_STAKED + MOCK_TOTAL_EARNED
+const MOCK_USDC_BALANCE = 0
+const MOCK_TOTAL_STAKED = 0
+const MOCK_TOTAL_EARNED = 0
+const MOCK_TOTAL_ASSETS = 0
 
 const PATTERN_COLORS: Record<string, string> = {
   pre_cex:          '#fee211',
@@ -391,7 +388,18 @@ export function AlphaClient({ initialSignals, entities }: Props) {
           </div>
         </div>
 
-        <div className="p-4 sm:p-6 space-y-6">
+        {/* ── Capacity Full Banner ── */}
+        <div className="flex items-center gap-3 px-6 py-4 bg-amber-500/10 border-b border-amber-500/20">
+          <div className="h-2 w-2 rounded-full bg-amber-400 shrink-0 animate-pulse" />
+          <div>
+            <p className="text-sm font-semibold text-amber-300">额度已满，暂停开放</p>
+            <p className="text-[11px] text-amber-400/70 mt-0.5">
+              当前质押期已达上限。新一期开放时间将在社群公布，敬请关注。
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4 sm:p-6 space-y-6 opacity-40 pointer-events-none select-none">
 
           {/* Tier selector — horizontal scroll on mobile, grid on desktop */}
           <div>
