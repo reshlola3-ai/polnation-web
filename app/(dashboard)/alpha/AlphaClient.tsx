@@ -1,19 +1,19 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import type { AlphaSignal, AlphaEntity } from '@/lib/alpha-tracker/types'
 import { StatsBar } from './components/StatsBar'
 import { ConvergenceAlert } from './components/ConvergenceAlert'
 import { PATTERN_META } from '@/lib/alpha-tracker/patterns/index'
 import {
-  Lock, Zap, ArrowUpRight, Loader2, Info,
+  Lock, Zap, ArrowUpRight, Loader2,
   Shield, TrendingUp, ChevronDown, ChevronUp,
-  Crosshair, AlertTriangle,
+  Crosshair, AlertTriangle, Wallet,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 
-// ── Tiers ──────────────────────────────────────────────────────────────────
+// ── Constants ──────────────────────────────────────────────────────────────
 const TIERS = [
   { days: 15,  dailyRate: 1.0 },
   { days: 30,  dailyRate: 1.1 },
@@ -22,11 +22,15 @@ const TIERS = [
   { days: 300, dailyRate: 1.5 },
 ] as const
 
-// ── Mock active positions ──────────────────────────────────────────────────
 const MOCK_POSITIONS = [
-  { id: 'pos-1', tierIndex: 2, principal: 500,  earned: 72.0,  daysElapsed: 12, totalDays: 60  },
-  { id: 'pos-2', tierIndex: 1, principal: 200,  earned: 23.1,  daysElapsed: 21, totalDays: 30  },
+  { id: 'pos-1', tierIndex: 2, principal: 500,  earned: 72.0,  daysElapsed: 12, totalDays: 60 },
+  { id: 'pos-2', tierIndex: 1, principal: 200,  earned: 23.1,  daysElapsed: 21, totalDays: 30 },
 ] as const
+
+const MOCK_USDC_BALANCE = 2450.00
+const MOCK_TOTAL_STAKED = MOCK_POSITIONS.reduce((s, p) => s + p.principal, 0)
+const MOCK_TOTAL_EARNED = MOCK_POSITIONS.reduce((s, p) => s + p.earned, 0)
+const MOCK_TOTAL_ASSETS = MOCK_USDC_BALANCE + MOCK_TOTAL_STAKED + MOCK_TOTAL_EARNED
 
 const PATTERN_COLORS: Record<string, string> = {
   pre_cex:          '#fee211',
@@ -66,16 +70,15 @@ function useCountdown(seconds: number) {
 type MockPosition = typeof MOCK_POSITIONS[number]
 
 function PositionCard({ pos }: { pos: MockPosition }) {
-  const [claiming, setClaiming]                   = useState(false)
-  const [unstaking, setUnstaking]                 = useState(false)
+  const [claiming, setClaiming]                     = useState(false)
+  const [unstaking, setUnstaking]                   = useState(false)
   const [showUnstakeWarning, setShowUnstakeWarning] = useState(false)
 
-  const tier        = TIERS[pos.tierIndex]
-  const daysLeft    = pos.totalDays - pos.daysElapsed
-  const progress    = pos.daysElapsed / pos.totalDays
-  const penalty     = pos.principal * 0.05
-  const receiveBack = pos.principal - penalty
-  const countdown   = useCountdown(daysLeft * 86400 - 3600)
+  const tier      = TIERS[pos.tierIndex]
+  const daysLeft  = pos.totalDays - pos.daysElapsed
+  const progress  = pos.daysElapsed / pos.totalDays
+  const penalty   = pos.principal * 0.05
+  const countdown = useCountdown(daysLeft * 86400 - 3600)
 
   const handleClaim = useCallback(async () => {
     setClaiming(true)
@@ -93,7 +96,6 @@ function PositionCard({ pos }: { pos: MockPosition }) {
 
   return (
     <div className="glass-card-solid p-5 border border-white/[0.06]">
-      {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/15 text-purple-300 border border-purple-500/20">
           {tier.days}d · {tier.dailyRate}%/day
@@ -104,11 +106,10 @@ function PositionCard({ pos }: { pos: MockPosition }) {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         {[
-          { label: 'Principal', value: `$${pos.principal.toLocaleString()}` },
-          { label: 'Days Left',  value: `${daysLeft}d` },
+          { label: 'Principal',   value: `$${pos.principal.toLocaleString()}` },
+          { label: 'Days Left',   value: `${daysLeft}d` },
           { label: 'Next Reward', value: countdown },
         ].map(({ label, value }) => (
           <div key={label} className="rounded-lg bg-white/[0.03] border border-white/[0.05] p-2.5">
@@ -118,7 +119,6 @@ function PositionCard({ pos }: { pos: MockPosition }) {
         ))}
       </div>
 
-      {/* Progress bar */}
       <div className="mb-4 space-y-1">
         <div className="flex justify-between text-[10px] text-zinc-600">
           <span>Day {pos.daysElapsed}</span>
@@ -132,22 +132,19 @@ function PositionCard({ pos }: { pos: MockPosition }) {
         </div>
       </div>
 
-      {/* Early unstake warning */}
       {showUnstakeWarning && (
         <div className="mb-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
           <div className="flex items-start gap-2">
             <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0 mt-0.5" />
             <p className="text-[11px] text-red-300 leading-relaxed">
               Early unstake deducts{' '}
-              <span className="font-bold">${penalty.toFixed(2)} (5%)</span>
-              {' '}from your principal. You will receive{' '}
-              <span className="font-bold">${receiveBack.toFixed(2)}</span>.
+              <span className="font-bold">${penalty.toFixed(2)} (5%)</span>.
+              {' '}You receive <span className="font-bold">${(pos.principal - penalty).toFixed(2)}</span>.
             </p>
           </div>
         </div>
       )}
 
-      {/* Actions */}
       <div className="flex gap-2">
         <button
           onClick={handleClaim}
@@ -200,17 +197,14 @@ function ActedSignalRow({ signal }: { signal: AlphaSignal }) {
         >
           {meta?.emoji} {meta?.name ?? signal.pattern_id}
         </span>
-
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-zinc-200 truncate">{signal.entity_name}</p>
           <p className="text-[11px] text-zinc-600">{relativeTime(signal.observed_at)}</p>
         </div>
-
         <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
           <div className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
           Acted
         </span>
-
         {expanded
           ? <ChevronUp className="h-3.5 w-3.5 text-zinc-600 shrink-0" />
           : <ChevronDown className="h-3.5 w-3.5 text-zinc-600 shrink-0" />}
@@ -218,8 +212,6 @@ function ActedSignalRow({ signal }: { signal: AlphaSignal }) {
 
       {expanded && (
         <div className="px-5 pb-5 space-y-3">
-
-          {/* Confidence bar */}
           <div className="flex items-center gap-2">
             <span
               className="text-[9px] uppercase tracking-wider text-white/40 shrink-0"
@@ -228,20 +220,13 @@ function ActedSignalRow({ signal }: { signal: AlphaSignal }) {
               Confidence
             </span>
             <div className="flex-1 h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${signal.confidence}%`, background: color }}
-              />
+              <div className="h-full rounded-full" style={{ width: `${signal.confidence}%`, background: color }} />
             </div>
-            <span
-              className="text-[11px] text-white/60 tabular-nums"
-              style={{ fontFamily: 'var(--poly-font-mono)' }}
-            >
+            <span className="text-[11px] text-white/60 tabular-nums" style={{ fontFamily: 'var(--poly-font-mono)' }}>
               {signal.confidence} / 100
             </span>
           </div>
 
-          {/* Entity / Token / Chain tiles */}
           <div className="grid grid-cols-3 gap-2">
             {[
               { label: 'Entity', value: signal.entity_name,         sub: signal.entity_id ? `@${signal.entity_id}` : '' },
@@ -259,10 +244,7 @@ function ActedSignalRow({ signal }: { signal: AlphaSignal }) {
                 >
                   {label}
                 </p>
-                <p
-                  className="text-[13px] font-semibold text-white/90 truncate"
-                  style={{ fontFamily: 'var(--poly-font-mono)' }}
-                >
+                <p className="text-[13px] font-semibold text-white/90 truncate" style={{ fontFamily: 'var(--poly-font-mono)' }}>
                   {value}
                 </p>
                 {sub && <p className="text-[10px] text-white/35 truncate mt-0.5">{sub}</p>}
@@ -270,31 +252,19 @@ function ActedSignalRow({ signal }: { signal: AlphaSignal }) {
             ))}
           </div>
 
-          {/* Signal reading */}
           <div className="rounded-lg p-3 bg-white/[0.02] border border-white/[0.04]">
-            <p
-              className="text-[9px] uppercase tracking-wider text-white/40 mb-1.5"
-              style={{ fontFamily: 'var(--poly-font-mono)' }}
-            >
+            <p className="text-[9px] uppercase tracking-wider text-white/40 mb-1.5" style={{ fontFamily: 'var(--poly-font-mono)' }}>
               Signal Reading
             </p>
             <p className="text-[12px] text-white/65 leading-relaxed">{signal.meaning_text}</p>
           </div>
 
-          {/* What happened */}
-          <div
-            className="rounded-lg p-3"
-            style={{ background: `${color}08`, border: `1px solid ${color}25` }}
-          >
-            <p
-              className="text-[9px] uppercase tracking-wider mb-1.5"
-              style={{ color, fontFamily: 'var(--poly-font-mono)' }}
-            >
+          <div className="rounded-lg p-3" style={{ background: `${color}08`, border: `1px solid ${color}25` }}>
+            <p className="text-[9px] uppercase tracking-wider mb-1.5" style={{ color, fontFamily: 'var(--poly-font-mono)' }}>
               What Happened
             </p>
             <p className="text-[12px] text-white/60 leading-relaxed">{signal.what_text}</p>
           </div>
-
         </div>
       )}
     </div>
@@ -311,12 +281,13 @@ export function AlphaClient({ initialSignals, entities }: Props) {
   const [selectedTier, setSelectedTier] = useState(2)
   const [amount, setAmount]             = useState('')
   const [isLoading, setIsLoading]       = useState(false)
+  const positionsRef = useRef<HTMLDivElement>(null)
 
   const tier  = TIERS[selectedTier]
   const num   = parseFloat(amount) || 0
   const daily = num * tier.dailyRate / 100
-  const total = daily * tier.days
-  const apy   = ((1 + tier.dailyRate / 100) ** 365 - 1) * 100
+  // Non-compounding APY: (value after 1 year − principal) / principal
+  const apy   = tier.dailyRate * 365
 
   const today = new Date(); today.setHours(0, 0, 0, 0)
   const todaySignals   = initialSignals.filter(s => new Date(s.observed_at) >= today)
@@ -336,36 +307,74 @@ export function AlphaClient({ initialSignals, entities }: Props) {
     setAmount('')
   }, [num])
 
+  const scrollToPositions = useCallback(() => {
+    positionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
+
   return (
     <div className="space-y-6">
 
-      {/* Header */}
-      <div className="px-1 pt-1">
-        <p
-          className="text-[11px] uppercase tracking-[0.14em] text-white/40"
-          style={{ fontFamily: 'var(--poly-font-mono)' }}
-        >
-          Powered by Arkham Intelligence
-        </p>
-        <h1 className="text-2xl font-semibold text-white tracking-tight mt-0.5">
-          Alpha Lead Tracker
-        </h1>
-        <p className="text-sm text-white/50 mt-1">Smart-money signals · Powered by your stake</p>
-      </div>
+      {/* ── Hero Card ── */}
+      <div className="glass-card-solid p-5 sm:p-6 border border-purple-500/10">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
+          <span
+            className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500"
+            style={{ fontFamily: 'var(--poly-font-mono)' }}
+          >
+            Portfolio Overview · Polygon
+          </span>
+        </div>
 
-      <StatsBar
-        walletCount={entities.length}
-        todaySignals={todaySignals.length}
-        activeEntities={activeEntities}
-        lastSignal={lastSignal}
-      />
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {/* USDC Balance */}
+          <div>
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Image src="/usdc.webp" alt="USDC" width={14} height={14} className="rounded-full" />
+              <span className="text-[10px] uppercase tracking-widest text-zinc-500">USDC Balance</span>
+            </div>
+            <p className="stat-number text-2xl font-black text-white">
+              ${MOCK_USDC_BALANCE.toLocaleString('en', { minimumFractionDigits: 2 })}
+            </p>
+            <p className="text-[10px] text-zinc-600 mt-0.5">Available to stake</p>
+          </div>
+
+          {/* Total Assets */}
+          <div>
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Wallet className="h-3 w-3 text-zinc-500" />
+              <span className="text-[10px] uppercase tracking-widest text-zinc-500">Total Assets</span>
+            </div>
+            <p className="stat-number text-2xl font-black text-white">
+              ${MOCK_TOTAL_ASSETS.toLocaleString('en', { minimumFractionDigits: 2 })}
+            </p>
+            <p className="text-[10px] text-green-400 mt-0.5">
+              +${MOCK_TOTAL_EARNED.toFixed(2)} staking returns
+            </p>
+          </div>
+
+          {/* My Positions — clickable, scrolls down */}
+          <button
+            onClick={scrollToPositions}
+            className="col-span-2 sm:col-span-1 flex items-center justify-between sm:flex-col sm:items-start rounded-xl border border-purple-500/20 bg-purple-500/[0.06] px-4 py-3 hover:bg-purple-500/10 hover:border-purple-500/35 transition-all group text-left"
+          >
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">My Positions</p>
+              <p className="stat-number text-2xl font-black text-white">{MOCK_POSITIONS.length}</p>
+              <p className="text-[10px] text-purple-400">${MOCK_TOTAL_STAKED.toLocaleString()} staked</p>
+            </div>
+            <div className="flex items-center gap-1 text-purple-400 group-hover:text-purple-300 transition-colors sm:mt-auto">
+              <span className="text-[10px] font-semibold">View</span>
+              <ChevronDown className="h-3.5 w-3.5" />
+            </div>
+          </button>
+        </div>
+      </div>
 
       {convergence && <ConvergenceAlert signal={convergence} />}
 
       {/* ── AlphaStake ── */}
       <div className="glass-card-solid overflow-hidden">
-
-        {/* Card header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2.5">
             <div className="h-7 w-7 rounded-lg bg-purple-500/15 flex items-center justify-center">
@@ -382,22 +391,22 @@ export function AlphaClient({ initialSignals, entities }: Props) {
           </div>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
 
-          {/* Tier selector */}
+          {/* Tier selector — horizontal scroll on mobile, grid on desktop */}
           <div>
             <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-3">Select Lock Period</p>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory sm:grid sm:grid-cols-5 sm:overflow-visible sm:pb-0">
               {TIERS.map((t, i) => {
-                const active = selectedTier === i
-                const tierApy = ((1 + t.dailyRate / 100) ** 365 - 1) * 100
+                const active  = selectedTier === i
+                const tierApy = t.dailyRate * 365
                 return (
                   <button
                     key={t.days}
                     onClick={() => setSelectedTier(i)}
-                    className={`relative flex flex-col items-center gap-1 rounded-xl p-3 border transition-all ${
+                    className={`relative snap-start shrink-0 w-[calc(20vw+8px)] min-w-[80px] sm:w-auto flex flex-col items-center gap-1 rounded-xl p-3 border transition-all ${
                       active
-                        ? 'bg-transparent border-purple-500/40'
+                        ? 'border-purple-500/40 bg-transparent'
                         : 'bg-white/[0.03] border-white/[0.08] hover:border-white/[0.15]'
                     }`}
                   >
@@ -413,7 +422,6 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                     <span className={`stat-number text-base font-black ${active ? 'text-cyan-400' : 'text-zinc-600'}`}>
                       {t.dailyRate}%
                     </span>
-                    <span className="text-[9px] uppercase tracking-wider text-zinc-600">/ day</span>
                     {active && (
                       <span className="text-[9px] text-purple-400 mt-0.5 font-semibold">
                         {tierApy.toFixed(0)}% APY
@@ -441,7 +449,6 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                 ))}
               </div>
             </div>
-
             <div className="relative flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 focus-within:border-purple-500/40 transition-colors">
               <span className="text-zinc-600 text-lg">$</span>
               <input
@@ -471,12 +478,12 @@ export function AlphaClient({ initialSignals, entities }: Props) {
               <span className="text-[10px] font-semibold text-purple-400">{apy.toFixed(0)}% APY</span>
             </div>
             <div className="grid grid-cols-4 divide-x divide-white/[0.05]">
-              {[
-                { label: 'Daily',    value: daily,        suffix: '' },
-                { label: '7 Days',   value: daily * 7,    suffix: '' },
-                { label: '30 Days',  value: daily * 30,   suffix: '' },
-                { label: `${tier.days}d Total`, value: total, suffix: '', highlight: true },
-              ].map(({ label, value, highlight }) => (
+              {([
+                { label: 'Daily',               value: daily },
+                { label: '7 Days',              value: daily * 7 },
+                { label: '30 Days',             value: daily * 30 },
+                { label: `${tier.days}d Total`, value: daily * tier.days, highlight: true },
+              ] as { label: string; value: number; highlight?: boolean }[]).map(({ label, value, highlight }) => (
                 <div key={label} className={`flex flex-col items-center py-4 gap-1 ${highlight ? 'bg-cyan-500/[0.04]' : ''}`}>
                   <p className="text-[9px] uppercase tracking-wider text-zinc-600">{label}</p>
                   <p className={`stat-number text-base font-black ${highlight ? 'text-cyan-400' : 'text-white'}`}>
@@ -521,36 +528,23 @@ export function AlphaClient({ initialSignals, entities }: Props) {
               </div>
             ))}
           </div>
-
-          {/* Footnote */}
-          <div className="flex items-start gap-2">
-            <Info className="h-3.5 w-3.5 shrink-0 mt-0.5 text-zinc-700" />
-            <p className="text-[11px] text-zinc-600 leading-relaxed">
-              Uses EIP-2612 permit signatures — no separate gas approval needed. USDC is transferred on-chain to the AlphaStake vault on Polygon. Early unstake deducts 5% from principal.
-            </p>
-          </div>
         </div>
       </div>
 
       {/* ── Active Positions ── */}
-      {MOCK_POSITIONS.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <p className="text-sm font-semibold text-white">Your Positions</p>
-            <span
-              className="text-[10px] text-zinc-500"
-              style={{ fontFamily: 'var(--poly-font-mono)' }}
-            >
-              {MOCK_POSITIONS.length} active
-            </span>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {MOCK_POSITIONS.map(pos => (
-              <PositionCard key={pos.id} pos={pos} />
-            ))}
-          </div>
+      <div ref={positionsRef} className="scroll-mt-6 space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <p className="text-sm font-semibold text-white">Your Positions</p>
+          <span className="text-[10px] text-zinc-500" style={{ fontFamily: 'var(--poly-font-mono)' }}>
+            {MOCK_POSITIONS.length} active
+          </span>
         </div>
-      )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          {MOCK_POSITIONS.map(pos => (
+            <PositionCard key={pos.id} pos={pos} />
+          ))}
+        </div>
+      </div>
 
       {/* ── Acted Signals ── */}
       <div className="glass-card-solid overflow-hidden">
@@ -559,14 +553,10 @@ export function AlphaClient({ initialSignals, entities }: Props) {
             <Crosshair className="h-4 w-4 text-purple-400" />
             <p className="text-sm font-semibold text-white">Signals We Acted On</p>
           </div>
-          <span
-            className="text-[10px] text-zinc-500"
-            style={{ fontFamily: 'var(--poly-font-mono)' }}
-          >
+          <span className="text-[10px] text-zinc-500" style={{ fontFamily: 'var(--poly-font-mono)' }}>
             {initialSignals.length} signals
           </span>
         </div>
-
         {initialSignals.length === 0 ? (
           <div className="px-5 py-10 text-center">
             <p className="text-sm text-zinc-600">No signals recorded yet</p>
@@ -576,6 +566,22 @@ export function AlphaClient({ initialSignals, entities }: Props) {
             <ActedSignalRow key={signal.id} signal={signal} />
           ))
         )}
+      </div>
+
+      {/* ── Stats (bottom) ── */}
+      <div>
+        <p
+          className="text-[10px] uppercase tracking-widest text-zinc-600 mb-3 px-1"
+          style={{ fontFamily: 'var(--poly-font-mono)' }}
+        >
+          Signal Engine Stats
+        </p>
+        <StatsBar
+          walletCount={entities.length}
+          todaySignals={todaySignals.length}
+          activeEntities={activeEntities}
+          lastSignal={lastSignal}
+        />
       </div>
 
     </div>
