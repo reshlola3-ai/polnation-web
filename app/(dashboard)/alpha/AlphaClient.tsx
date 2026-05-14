@@ -216,19 +216,84 @@ function ActedSignalRow({ signal }: { signal: AlphaSignal }) {
       </button>
 
       {expanded && (
-        <div className="px-5 pb-4">
+        <div className="px-5 pb-5 space-y-3">
+
+          {/* Confidence bar */}
+          <div className="flex items-center gap-2">
+            <span
+              className="text-[9px] uppercase tracking-wider text-white/40 shrink-0"
+              style={{ fontFamily: 'var(--poly-font-mono)' }}
+            >
+              Confidence
+            </span>
+            <div className="flex-1 h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full"
+                style={{ width: `${signal.confidence}%`, background: color }}
+              />
+            </div>
+            <span
+              className="text-[11px] text-white/60 tabular-nums"
+              style={{ fontFamily: 'var(--poly-font-mono)' }}
+            >
+              {signal.confidence} / 100
+            </span>
+          </div>
+
+          {/* Entity / Token / Chain tiles */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: 'Entity', value: signal.entity_name,         sub: signal.entity_id ? `@${signal.entity_id}` : '' },
+              { label: 'Token',  value: signal.token_symbol ?? '—', sub: signal.chain ?? '' },
+              { label: 'Chain',  value: signal.chain ?? '—',        sub: '' },
+            ].map(({ label, value, sub }) => (
+              <div
+                key={label}
+                className="rounded-lg p-2.5"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                <p
+                  className="text-[9px] uppercase tracking-[0.12em] text-white/40 mb-1 truncate"
+                  style={{ fontFamily: 'var(--poly-font-mono)' }}
+                >
+                  {label}
+                </p>
+                <p
+                  className="text-[13px] font-semibold text-white/90 truncate"
+                  style={{ fontFamily: 'var(--poly-font-mono)' }}
+                >
+                  {value}
+                </p>
+                {sub && <p className="text-[10px] text-white/35 truncate mt-0.5">{sub}</p>}
+              </div>
+            ))}
+          </div>
+
+          {/* Signal reading */}
+          <div className="rounded-lg p-3 bg-white/[0.02] border border-white/[0.04]">
+            <p
+              className="text-[9px] uppercase tracking-wider text-white/40 mb-1.5"
+              style={{ fontFamily: 'var(--poly-font-mono)' }}
+            >
+              Signal Reading
+            </p>
+            <p className="text-[12px] text-white/65 leading-relaxed">{signal.meaning_text}</p>
+          </div>
+
+          {/* What happened */}
           <div
-            className="rounded-lg p-3 text-[12px] text-white/60 leading-relaxed"
-            style={{ background: `${color}08`, border: `1px solid ${color}20` }}
+            className="rounded-lg p-3"
+            style={{ background: `${color}08`, border: `1px solid ${color}25` }}
           >
             <p
               className="text-[9px] uppercase tracking-wider mb-1.5"
               style={{ color, fontFamily: 'var(--poly-font-mono)' }}
             >
-              Signal Type
+              What Happened
             </p>
-            <p>{signal.what_text}</p>
+            <p className="text-[12px] text-white/60 leading-relaxed">{signal.what_text}</p>
           </div>
+
         </div>
       )}
     </div>
@@ -331,7 +396,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                     onClick={() => setSelectedTier(i)}
                     className={`relative flex flex-col items-center gap-1 rounded-xl p-3 border transition-all ${
                       active
-                        ? 'bg-purple-500/15 border-purple-500/40'
+                        ? 'bg-transparent border-purple-500/40'
                         : 'bg-white/[0.03] border-white/[0.08] hover:border-white/[0.15]'
                     }`}
                   >
