@@ -634,35 +634,43 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
           (Dashboard/Tasks/Withdraw/Team/Profile) so mobile users don't see
           duplicate "Team" / "Tasks" entries. */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        {[
-          { href: '/share',        icon: Share2,         label: 'Invite',   badge: undefined,  iconBg: 'bg-purple-500/15 border-purple-500/30', iconColor: 'text-purple-300' },
-          { href: '/test-lottery', icon: Dices,          label: 'Lottery',  badge: spinCount,  iconBg: 'bg-orange-500/15 border-orange-500/30', iconColor: 'text-orange-300' },
-          { href: '/earnings',     icon: ArrowUpRight,   label: 'Withdraw', badge: undefined,  iconBg: 'bg-[#00e28a]/15 border-[#00e28a]/30',  iconColor: 'text-[#00e28a]'  },
-          { href: '/academy',      icon: GraduationCap,  label: 'Academy',  badge: undefined,  iconBg: 'bg-blue-500/15 border-blue-500/30',     iconColor: 'text-blue-300'   },
-        ].map(({ href, icon: Icon, label, badge, iconBg, iconColor }) => (
-          <Link
-            key={href}
-            href={href}
-            className="relative block active:scale-[0.98] transition-transform duration-200 ease-out"
-          >
+        {([
+          { href: '/share',                 Icon: Share2,        label: t('quickInvite'),   badge: undefined, iconBg: 'bg-purple-500/15 border-purple-500/30', iconColor: 'text-purple-300', external: false },
+          { href: '/test-lottery',          Icon: Dices,         label: t('quickLottery'),  badge: spinCount,  iconBg: 'bg-orange-500/15 border-orange-500/30', iconColor: 'text-orange-300', external: false },
+          { href: 'https://t.me/polnation', Icon: null,          label: t('quickTelegram'), badge: undefined, iconBg: 'bg-[#2AABEE]/15 border-[#2AABEE]/30',  iconColor: 'text-[#2AABEE]',  external: true  },
+          { href: '/academy',               Icon: GraduationCap, label: t('quickAcademy'),  badge: undefined, iconBg: 'bg-blue-500/15 border-blue-500/30',     iconColor: 'text-blue-300',   external: false },
+        ] as const).map(({ href, Icon, label, badge, iconBg, iconColor, external }) => {
+          const inner = (
             <BevelCard size="sm" pad={12} className="flex items-center gap-3">
               <div className={`w-8 h-8 flex items-center justify-center border shrink-0 ${iconBg}`}>
-                <Icon className={`w-4 h-4 ${iconColor}`} />
+                {Icon ? (
+                  <Icon className={`w-4 h-4 ${iconColor}`} />
+                ) : (
+                  <svg viewBox="0 0 24 24" className={`w-4 h-4 ${iconColor}`} fill="currentColor">
+                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                  </svg>
+                )}
               </div>
-              <span
-                className="text-[11px] uppercase text-white/85"
-                style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.1em' }}
-              >
+              <span className="text-[11px] uppercase text-white/85" style={{ fontFamily: 'var(--poly-font-mono)', letterSpacing: '0.1em' }}>
                 {label}
               </span>
             </BevelCard>
-            {badge != null && badge > 0 && (
-              <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-[var(--poly-purple)] text-white text-[10px] font-bold rounded-full flex items-center justify-center z-10">
-                {badge}
-              </span>
-            )}
-          </Link>
-        ))}
+          )
+          const badge_el = badge != null && badge > 0 ? (
+            <span className="absolute top-2 right-2 min-w-[18px] h-[18px] px-1 bg-[var(--poly-purple)] text-white text-[10px] font-bold rounded-full flex items-center justify-center z-10">
+              {badge}
+            </span>
+          ) : null
+          return external ? (
+            <a key={href} href={href} target="_blank" rel="noopener noreferrer" className="relative block active:scale-[0.98] transition-transform duration-200 ease-out">
+              {inner}{badge_el}
+            </a>
+          ) : (
+            <Link key={href} href={href} className="relative block active:scale-[0.98] transition-transform duration-200 ease-out">
+              {inner}{badge_el}
+            </Link>
+          )
+        })}
       </div>
 
       {/* Alpha Lead Tracker entry card */}
@@ -672,12 +680,12 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
             <div>
               <p className="text-[11px] uppercase tracking-[0.12em] text-white/40 mb-0.5"
                  style={{ fontFamily: 'var(--poly-font-mono)' }}>Alpha Intel</p>
-              <p className="text-sm font-semibold text-white tracking-tight">Smart-Money Signal Engine</p>
+              <p className="text-sm font-semibold text-white tracking-tight">{t('alphaTitle')}</p>
             </div>
             <span className="flex items-center gap-1.5 text-[11px] shrink-0"
                   style={{ fontFamily: 'var(--poly-font-mono)', color: 'var(--poly-orange)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--poly-orange)] animate-pulse" />
-              LIVE
+              {t('alphaLive')}
             </span>
           </div>
           <div className="flex items-center gap-4 mb-4">
@@ -685,19 +693,19 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
               <p className="text-[20px] font-semibold tabular-nums text-white"
                  style={{ fontFamily: 'var(--poly-font-mono)' }}>—</p>
               <p className="text-[10px] uppercase tracking-[0.12em] text-white/40 mt-0.5"
-                 style={{ fontFamily: 'var(--poly-font-mono)' }}>Signals today</p>
+                 style={{ fontFamily: 'var(--poly-font-mono)' }}>{t('alphaSignalsToday')}</p>
             </div>
             <div className="w-px h-7 bg-white/10" />
             <div>
               <p className="text-[20px] font-semibold tabular-nums text-white"
                  style={{ fontFamily: 'var(--poly-font-mono)' }}>15</p>
               <p className="text-[10px] uppercase tracking-[0.12em] text-white/40 mt-0.5"
-                 style={{ fontFamily: 'var(--poly-font-mono)' }}>Wallets tracked</p>
+                 style={{ fontFamily: 'var(--poly-font-mono)' }}>{t('alphaWalletsTracked')}</p>
             </div>
             <div className="w-px h-7 bg-white/10" />
             <div>
               <p className="text-[11px] text-white/40"
-                 style={{ fontFamily: 'var(--poly-font-mono)' }}>Powered by</p>
+                 style={{ fontFamily: 'var(--poly-font-mono)' }}>{t('alphaPoweredBy')}</p>
               <p className="text-[11px] text-white/60"
                  style={{ fontFamily: 'var(--poly-font-mono)' }}>Arkham Intel</p>
             </div>
@@ -705,7 +713,7 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
           <div className="flex items-center justify-end">
             <span className="inline-flex items-center gap-1 text-[12px]"
                   style={{ fontFamily: 'var(--poly-font-mono)', color: 'var(--poly-purple)' }}>
-              Open Tracker
+              {t('alphaOpenTracker')}
               <ArrowUpRight className="w-3 h-3" />
             </span>
           </div>
