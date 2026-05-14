@@ -363,7 +363,9 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
     ? !isPlaceholderEmail(profile?.email)
     : !!walletAddress
   const step2Done = profitData.hasSignature
-  const step3Done = !!profile?.profile_completed
+  const step3Done = isTgOnly
+    ? !!profile?.profile_completed
+    : !isPlaceholderEmail(profile?.email) || !!profile?.profile_completed
   const allDone = step1Done && step2Done && step3Done
   
   return (
@@ -422,9 +424,13 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
                     {step3Done
                       ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
                       : <Circle className="w-4 h-4 shrink-0 text-white/65" />}
-                    <span className={`text-xs font-semibold ${step3Done ? 'text-[#00e28a]/80' : 'text-white/55'}`}>Complete Profile</span>
+                    <span className={`text-xs font-semibold ${step3Done ? 'text-[#00e28a]/80' : 'text-white/55'}`}>
+                      {isTgOnly ? 'Complete Profile' : 'Set up Email & Password'}
+                    </span>
                   </div>
-                  <p className="text-[11px] text-white/45 leading-relaxed">Add username · phone · country</p>
+                  <p className="text-[11px] text-white/45 leading-relaxed">
+                    {isTgOnly ? 'Add username · phone · country' : 'Secure your account with email & password'}
+                  </p>
                   {!step3Done && (
                     <p className="text-[11px] text-white/65 mt-1 font-medium">↓ Tap to complete →</p>
                   )}
@@ -629,19 +635,19 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
           duplicate "Team" / "Tasks" entries. */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {[
-          { href: '/share',        icon: Share2,         label: 'Invite',   badge: undefined },
-          { href: '/test-lottery', icon: Dices,          label: 'Lottery',  badge: spinCount },
-          { href: '/earnings',     icon: ArrowUpRight,   label: 'Withdraw', badge: undefined },
-          { href: '/academy',      icon: GraduationCap,  label: 'Academy',  badge: undefined },
-        ].map(({ href, icon: Icon, label, badge }) => (
+          { href: '/share',        icon: Share2,         label: 'Invite',   badge: undefined,  iconBg: 'bg-purple-500/15 border-purple-500/30', iconColor: 'text-purple-300' },
+          { href: '/test-lottery', icon: Dices,          label: 'Lottery',  badge: spinCount,  iconBg: 'bg-orange-500/15 border-orange-500/30', iconColor: 'text-orange-300' },
+          { href: '/earnings',     icon: ArrowUpRight,   label: 'Withdraw', badge: undefined,  iconBg: 'bg-[#00e28a]/15 border-[#00e28a]/30',  iconColor: 'text-[#00e28a]'  },
+          { href: '/academy',      icon: GraduationCap,  label: 'Academy',  badge: undefined,  iconBg: 'bg-blue-500/15 border-blue-500/30',     iconColor: 'text-blue-300'   },
+        ].map(({ href, icon: Icon, label, badge, iconBg, iconColor }) => (
           <Link
             key={href}
             href={href}
             className="relative block active:scale-[0.98] transition-transform duration-200 ease-out"
           >
             <BevelCard size="sm" pad={12} className="flex items-center gap-3">
-              <div className="w-8 h-8 flex items-center justify-center border border-white/15 shrink-0">
-                <Icon className="w-4 h-4 text-white/85" />
+              <div className={`w-8 h-8 flex items-center justify-center border shrink-0 ${iconBg}`}>
+                <Icon className={`w-4 h-4 ${iconColor}`} />
               </div>
               <span
                 className="text-[11px] uppercase text-white/85"
