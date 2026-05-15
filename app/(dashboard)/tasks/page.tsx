@@ -365,67 +365,65 @@ export default function TasksPage() {
       {verifiedStatusLoaded && verified !== false && <>
 
       {/* Progress banner */}
-      <div className="relative overflow-hidden rounded-2xl p-4 md:p-6 bg-gradient-to-r from-purple-600 to-indigo-600">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl" />
-        <div className="relative z-10 flex items-center justify-between gap-4">
-          <div className="flex-1">
-            <p className="text-purple-200 text-xs md:text-sm">{t('totalBonus')}</p>
-            <div className="flex items-center gap-2">
-              <p className="text-2xl md:text-3xl font-bold text-white currency">${progress.total_task_bonus.toFixed(2)}</p>
-              <button onClick={() => setShowBonusModal(true)}
-                className="w-5 h-5 rounded-full bg-white/20 text-white/80 hover:bg-white/30 flex items-center justify-center text-xs font-bold">?</button>
-            </div>
-            <p className="text-purple-200 text-[10px] md:text-xs mt-1">{t('addedToProgress')}</p>
+      <div className="glass-card-solid rounded-2xl p-4 md:p-5 flex items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-zinc-500 mb-1">{t('totalBonus')}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-2xl md:text-3xl font-bold text-white font-mono">${progress.total_task_bonus.toFixed(2)}</p>
+            <button onClick={() => setShowBonusModal(true)}
+              className="w-5 h-5 rounded-full bg-white/10 text-zinc-400 hover:bg-white/20 hover:text-white flex items-center justify-center text-xs font-bold transition-colors shrink-0">?</button>
           </div>
-          <div className="text-right shrink-0">
-            <div className="flex items-center justify-end gap-1.5 mb-1">
-              <Flame className="w-4 h-4 text-orange-300" />
-              <span className="text-base font-semibold text-white">{progress.current_streak} {t('dayStreak')}</span>
-            </div>
-            <p className="text-purple-200 text-xs">{progress.total_checkins} {t('totalCheckins')}</p>
+          <p className="text-xs text-zinc-600 mt-1">{t('addedToProgress')}</p>
+        </div>
+        <div className="text-right shrink-0 border-l border-white/[0.06] pl-4">
+          <div className="flex items-center justify-end gap-1.5 mb-1">
+            <Flame className="w-3.5 h-3.5 text-orange-400" />
+            <span className="text-sm font-semibold text-white font-mono">{progress.current_streak}</span>
+            <span className="text-xs text-zinc-500">{t('dayStreak')}</span>
           </div>
+          <p className="text-xs text-zinc-500 font-mono">{progress.total_checkins} {t('totalCheckins')}</p>
         </div>
       </div>
 
       {/* Daily Check-in */}
       {checkinTask && (
-        <div className="overflow-hidden rounded-2xl">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-4 md:px-6 py-3 md:py-4 relative">
-            <div className="flex items-center justify-between relative z-10 gap-3">
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-                  <Calendar className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white">{t('checkin.title')}</h3>
-                  <p className="text-purple-200 text-xs">{t('checkin.subtitle')}</p>
-                </div>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-white/85 text-xl font-bold">{progress.current_streak}</p>
-                <p className="text-purple-200 text-[10px]">{t('checkin.streakDays')}</p>
+        <div className="glass-card-solid rounded-2xl overflow-hidden">
+          <div className="px-4 md:px-5 py-3 border-b border-white/[0.06] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Calendar className="w-4 h-4 text-purple-400 shrink-0" />
+              <div>
+                <p className="font-semibold text-white text-sm">{t('checkin.title')}</p>
+                <p className="text-zinc-500 text-xs">{t('checkin.subtitle')}</p>
               </div>
             </div>
+            <div className="text-right shrink-0">
+              <p className="text-white font-semibold font-mono text-lg leading-none">{progress.current_streak}</p>
+              <p className="text-zinc-500 text-xs mt-0.5">{t('checkin.streakDays')}</p>
+            </div>
           </div>
-          <div className="bg-[#1A1333] px-3 md:px-6 py-4 border-x border-b border-purple-500/20">
-            <div className="flex items-center justify-between mb-4 gap-1">
+          <div className="px-3 md:px-5 py-4">
+            <div className="flex items-end justify-between mb-4 gap-1">
               {[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 1.0].map((reward, index) => {
                 const day = index + 1
                 const isCompleted = day <= progress.current_streak
                 const isToday = day === progress.current_streak + 1
                 const isBonus = day === 7
                 return (
-                  <div key={day} className="flex flex-col items-center flex-1">
-                    <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center mb-1 transition-all ${
+                  <div key={day} className="flex flex-col items-center flex-1 gap-1">
+                    <div className={`w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all ${
                       isBonus
-                        ? (isCompleted ? 'bg-[#00e28a] shadow-lg scale-110' : 'bg-[var(--poly-purple)]')
-                        : (isCompleted ? 'bg-gradient-to-br from-purple-500 to-indigo-600' : isToday ? 'bg-white/10 border-2 border-purple-400 border-dashed' : 'bg-white/5')
+                        ? (isCompleted ? 'bg-[#00e28a]' : 'bg-cyan-500/20 border border-cyan-500/30')
+                        : (isCompleted ? 'bg-purple-500' : isToday ? 'bg-white/[0.06] border-2 border-purple-400 border-dashed' : 'bg-white/[0.04] border border-white/10')
                     }`}>
-                      {isBonus ? (isCompleted ? <span className="text-sm">🎉</span> : <Gift className="w-4 h-4 text-white/50" />)
-                        : isCompleted ? <CheckCircle className="w-4 h-4 text-white" />
-                        : <span className="text-[10px] text-zinc-500 font-medium">{day}</span>}
+                      {isBonus
+                        ? (isCompleted
+                            ? <Gift className="w-4 h-4 text-black" />
+                            : <Gift className="w-4 h-4 text-cyan-400" />)
+                        : isCompleted
+                          ? <CheckCircle className="w-4 h-4 text-white" />
+                          : <span className="text-xs text-zinc-500 font-mono">{day}</span>}
                     </div>
-                    <span className={`text-[9px] font-medium ${isCompleted ? 'text-[#00e28a]' : 'text-zinc-600'}`}>${reward.toFixed(1)}</span>
+                    <span className={`text-xs font-mono ${isCompleted ? 'text-[#00e28a]' : 'text-zinc-600'}`}>${reward.toFixed(1)}</span>
                   </div>
                 )
               })}
@@ -433,66 +431,70 @@ export default function TasksPage() {
             <button
               onClick={() => completeTask('daily_checkin')}
               disabled={!checkinTask.can_complete || submitting === 'daily_checkin'}
-              className={`w-full py-2.5 rounded-xl font-bold text-base transition-all active:scale-[0.98] ${
-                checkinTask.can_complete ? 'btn-gradient text-white shadow-lg' : 'bg-white/10 text-zinc-500 cursor-not-allowed'
+              className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] ${
+                checkinTask.can_complete
+                  ? 'bg-purple-500 hover:bg-purple-400 text-white'
+                  : 'bg-white/[0.06] text-zinc-500 cursor-not-allowed'
               }`}
             >
-              {submitting === 'daily_checkin' ? <RefreshCw className="w-5 h-5 animate-spin mx-auto" />
+              {submitting === 'daily_checkin'
+                ? <RefreshCw className="w-4 h-4 animate-spin mx-auto" />
                 : checkinTask.can_complete
                   ? <span className="flex items-center justify-center gap-2"><Calendar className="w-4 h-4" />{t('checkin.checkInNow')}</span>
                   : <span className="flex items-center justify-center gap-2"><CheckCircle className="w-4 h-4" />{t('checkin.checkedIn')}</span>}
             </button>
             {progress.current_streak >= 5 && progress.current_streak < 7 && (
-              <p className="text-center text-xs text-purple-400 mt-2">
-                🔥 {t('checkin.streakBonus', { n: 7 - progress.current_streak })}
+              <p className="text-center text-xs text-zinc-400 mt-2 flex items-center justify-center gap-1">
+                <Flame className="w-3 h-3 text-orange-400" />
+                {t('checkin.streakBonus', { n: 7 - progress.current_streak })}
               </p>
             )}
           </div>
         </div>
       )}
 
-      {/* ── Quest Chapters ─────────────────────────────────────────────── */}
+      {/* ── Chapters ───────────────────────────────────────────────────── */}
       {chapters.map((chapter) => {
-        const color = getChapterColor(chapter.group)
         const isExpanded = expandedChapter === chapter.group
         const progressPct = chapter.total > 0 ? Math.round((chapter.completed / chapter.total) * 100) : 0
 
         return (
-          <div key={chapter.group} className={`rounded-2xl border ${color.border} overflow-hidden`}>
+          <div key={chapter.group} className="glass-card-solid rounded-2xl overflow-hidden border-t-2 border-t-purple-500/25">
             {/* Chapter header */}
             <button
-              className={`w-full bg-gradient-to-r ${color.bg} px-4 md:px-6 py-4 flex items-center gap-3 ${!chapter.is_accessible ? 'opacity-60' : ''}`}
+              className={`w-full px-4 md:px-5 py-4 flex items-center gap-3 text-left transition-colors hover:bg-white/[0.02] ${!chapter.is_accessible ? 'opacity-50 cursor-default' : ''}`}
               onClick={() => {
                 if (!chapter.is_accessible) return
                 setExpandedChapter(isExpanded ? null : chapter.group)
               }}
             >
-              <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center text-white shrink-0">
-                {chapter.is_complete ? <CheckCircle className="w-5 h-5" /> : !chapter.is_accessible ? <Lock className="w-5 h-5" /> : getChapterIcon(chapter.group)}
-              </div>
-              <div className="flex-1 text-left min-w-0">
-                <p className="font-bold text-white text-sm md:text-base truncate">{getChapterTitle(chapter.group)}</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-white/70 text-xs">{tQ('chapterProgress', { done: chapter.completed, total: chapter.total })}</span>
-                  <span className={`px-1.5 py-0.5 text-[10px] rounded-full ${color.badge}`}>{getChapterBonus(chapter.group)}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  {chapter.is_complete && <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />}
+                  {!chapter.is_complete && !chapter.is_accessible && <Lock className="w-4 h-4 text-zinc-600 shrink-0" />}
+                  <p className="font-semibold text-white text-sm truncate">{getChapterTitle(chapter.group)}</p>
                 </div>
+                <p className="text-xs text-zinc-500 font-mono mt-0.5">
+                  {tQ('chapterProgress', { done: chapter.completed, total: chapter.total })} · {progressPct}%
+                </p>
               </div>
-              {/* Progress bar */}
-              <div className="w-16 hidden sm:block">
-                <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
-                  <div className="h-full bg-white/80 rounded-full transition-all" style={{ width: `${progressPct}%` }} />
+              <div className="flex items-center gap-3 shrink-0">
+                <div className="w-20 hidden sm:block">
+                  <div className="h-1 bg-white/[0.08] rounded-full overflow-hidden">
+                    <div className="h-full bg-purple-500 rounded-full transition-all" style={{ width: `${progressPct}%` }} />
+                  </div>
                 </div>
-                <p className="text-white/60 text-[10px] text-right mt-0.5">{progressPct}%</p>
+                {chapter.is_accessible
+                  ? (isExpanded ? <ChevronUp className="w-4 h-4 text-zinc-500" /> : <ChevronDown className="w-4 h-4 text-zinc-500" />)
+                  : <Lock className="w-4 h-4 text-zinc-600" />}
               </div>
-              {chapter.is_accessible && (isExpanded ? <ChevronUp className="w-4 h-4 text-white/70 shrink-0" /> : <ChevronDown className="w-4 h-4 text-white/70 shrink-0" />)}
-              {!chapter.is_accessible && <Lock className="w-4 h-4 text-white/40 shrink-0" />}
             </button>
 
             {/* Locked message */}
             {!chapter.is_accessible && (
-              <div className="bg-[#1A1333] px-4 py-3 border-t border-white/5 text-center">
-                <p className="text-zinc-500 text-sm flex items-center justify-center gap-1.5">
-                  <Lock className="w-3.5 h-3.5" />
+              <div className="px-4 py-3 border-t border-white/[0.04]">
+                <p className="text-zinc-600 text-xs flex items-center gap-1.5">
+                  <Lock className="w-3 h-3" />
                   {tQ('chapterLocked', { n: chapter.index - 1 })}
                 </p>
               </div>
@@ -500,7 +502,7 @@ export default function TasksPage() {
 
             {/* Chapter tasks */}
             {chapter.is_accessible && isExpanded && (
-              <div className="bg-[#1A1333] divide-y divide-white/5">
+              <div className="border-t border-white/[0.06] divide-y divide-white/[0.04]">
                 {chapter.tasks.map((task) => (
                   <TaskRow
                     key={task.id}
@@ -527,11 +529,11 @@ export default function TasksPage() {
                   />
                 ))}
 
-                {/* Chapter completion banner */}
+                {/* Chapter completion row */}
                 {chapter.is_complete && (
-                  <div className="px-4 py-3 bg-white/[0.04] flex items-center justify-center gap-2">
-                    <Trophy className="w-4 h-4 text-[#00e28a]" />
-                    <span className="text-[#00e28a] text-sm font-medium">{tQ('chapterComplete')} {getChapterBonus(chapter.group)}</span>
+                  <div className="px-4 py-3 flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-[#00e28a]" />
+                    <span className="text-[#00e28a] text-xs font-medium">{tQ('chapterComplete')} {getChapterBonus(chapter.group)}</span>
                   </div>
                 )}
               </div>
@@ -541,88 +543,87 @@ export default function TasksPage() {
       })}
 
       {/* Referral bonus card */}
-      <div className="glass-card-solid p-4 md:p-6 border border-[#00e28a]/20 bg-[#00e28a]/[0.04]">
-        <h3 className="font-semibold text-white mb-3 flex items-center gap-2 text-sm md:text-base">
+      <div className="glass-card-solid rounded-2xl overflow-hidden">
+        <div className="px-4 py-3.5 border-b border-white/[0.06] flex items-center gap-2">
           <Gift className="w-4 h-4 text-[#00e28a]" />
-          {t('referral.title')}
-          <span className="px-2 py-0.5 bg-[#00e28a]/[0.10] text-[#00e28a]/80 text-[10px] rounded-full">{t('referral.autoTag')}</span>
-        </h3>
-        <div className="p-3 md:p-4 bg-white/[0.04] rounded-xl border border-[#00e28a]/15">
+          <h3 className="font-semibold text-white text-sm">{t('referral.title')}</h3>
+          <span className="px-2 py-0.5 bg-white/[0.06] text-zinc-400 text-xs rounded-full ml-auto">{t('referral.autoTag')}</span>
+        </div>
+        <div className="p-4">
           <p className="text-xs text-zinc-500 mb-3">{t('referral.description')}</p>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex items-center gap-4">
+          <div className="p-3 bg-[#00e28a]/[0.06] border border-[#00e28a]/20 rounded-xl mb-3">
+            <div className="flex items-center gap-5">
               <div>
                 <p className="text-xs text-zinc-500">{t('referral.available')}</p>
-                <p className="text-lg font-bold text-[#00e28a]">${referralBonus.pending.toFixed(2)}</p>
+                <p className="text-lg font-bold text-[#00e28a] font-mono">${referralBonus.pending.toFixed(2)}</p>
               </div>
               <div>
                 <p className="text-xs text-zinc-500">{t('referral.referrals')}</p>
-                <p className="text-lg font-bold text-white">{referralBonus.count}</p>
+                <p className="text-lg font-bold text-white font-mono">{referralBonus.count}</p>
               </div>
               <div>
                 <p className="text-xs text-zinc-500">{t('referral.claimed')}</p>
-                <p className="text-lg font-bold text-zinc-400">${referralBonus.claimed.toFixed(2)}</p>
+                <p className="text-lg font-bold text-zinc-500 font-mono">${referralBonus.claimed.toFixed(2)}</p>
               </div>
             </div>
-            <Button onClick={claimReferralBonus} disabled={referralBonus.pending <= 0 || claimingReferral}
-              isLoading={claimingReferral} className="sm:ml-auto bg-[var(--poly-purple)] hover:bg-[var(--poly-purple-hover)]">
-              <Gift className="w-4 h-4 mr-2" />
-              {t('referral.claimAmount', { amount: referralBonus.pending.toFixed(2) })}
-            </Button>
           </div>
+          <Button onClick={claimReferralBonus} disabled={referralBonus.pending <= 0 || claimingReferral}
+            isLoading={claimingReferral}
+            className="w-full bg-[#00e28a] hover:bg-[#00e28a]/90 text-black font-semibold disabled:bg-white/[0.06] disabled:text-zinc-500">
+            <Gift className="w-4 h-4 mr-2" />
+            {t('referral.claimAmount', { amount: referralBonus.pending.toFixed(2) })}
+          </Button>
         </div>
       </div>
 
       {/* ── Share Modal ─────────────────────────────────────────────────── */}
       {showShareModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowShareModal(false)}>
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-5 max-w-lg w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowShareModal(false)}>
+          <div className="glass-card-solid border border-white/[0.10] rounded-2xl p-5 max-w-lg w-full max-h-[90vh] overflow-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Share2 className="w-5 h-5 text-purple-400" />
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-purple-400" />
                 {tQ('shareModalTitle')}
               </h3>
-              <button onClick={() => setShowShareModal(false)} className="p-1 hover:bg-white/10 rounded-full">
-                <X className="w-5 h-5 text-zinc-400" />
+              <button onClick={() => setShowShareModal(false)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
+                <X className="w-4 h-4 text-zinc-400" />
               </button>
             </div>
 
-            {/* Referral link */}
             <div className="mb-4">
-              <label className="text-xs text-zinc-400 mb-1.5 block">{tQ('shareModalLinkLabel')}</label>
+              <label className="text-xs text-zinc-500 mb-1.5 block">{tQ('shareModalLinkLabel')}</label>
               <div className="flex gap-2">
-                <div className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-200 truncate">{referralLink}</div>
+                <div className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-zinc-300 font-mono truncate">{referralLink}</div>
                 <Button size="sm" variant="outline" onClick={() => {
                   navigator.clipboard.writeText(referralLink)
                   setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000)
                 }}>
-                  <Copy className="w-4 h-4 mr-1" />
+                  <Copy className="w-3.5 h-3.5 mr-1" />
                   {linkCopied ? tQ('copied') : tQ('copyLink')}
                 </Button>
               </div>
             </div>
 
-            {/* Ad copy */}
             <div className="mb-4">
-              <label className="text-xs text-zinc-400 mb-1.5 block">{tQ('shareModalAdCopy')}</label>
-              <div className="bg-zinc-800/60 rounded-xl p-4 border border-zinc-700">
-                <pre className="text-sm text-zinc-200 whitespace-pre-wrap font-sans leading-relaxed">{getAdText()}</pre>
+              <label className="text-xs text-zinc-500 mb-1.5 block">{tQ('shareModalAdCopy')}</label>
+              <div className="bg-white/[0.03] rounded-xl p-4 border border-white/[0.06]">
+                <pre className="text-xs text-zinc-300 whitespace-pre-wrap font-sans leading-relaxed">{getAdText()}</pre>
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1" onClick={() => {
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1 text-xs" onClick={() => {
                 navigator.clipboard.writeText(getAdText())
                 setAllCopied(true); setTimeout(() => setAllCopied(false), 2000)
               }}>
-                <Copy className="w-4 h-4 mr-2" />
+                <Copy className="w-3.5 h-3.5 mr-1.5" />
                 {allCopied ? tQ('copied') : tQ('copyAll')}
               </Button>
-              <Button className="flex-1 bg-black hover:bg-zinc-800" onClick={() => {
+              <Button className="flex-1 text-xs bg-white/[0.08] hover:bg-white/[0.12] text-white" onClick={() => {
                 const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(getAdText())}`
                 window.open(tweetUrl, '_blank')
               }}>
-                <Twitter className="w-4 h-4 mr-2" />
+                <Twitter className="w-3.5 h-3.5 mr-1.5" />
                 {tQ('shareToX')}
               </Button>
             </div>
@@ -632,15 +633,15 @@ export default function TasksPage() {
 
       {/* ── Bonus Breakdown Modal ───────────────────────────────────────── */}
       {showBonusModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setShowBonusModal(false)}>
-          <div className="bg-zinc-900 border border-zinc-700 rounded-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowBonusModal(false)}>
+          <div className="glass-card-solid border border-white/[0.10] rounded-2xl p-5 max-w-sm w-full" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">{t('bonusModal.title')}</h3>
-              <button onClick={() => setShowBonusModal(false)} className="p-1 hover:bg-white/10 rounded-full">
-                <X className="w-5 h-5 text-zinc-400" />
+              <h3 className="text-base font-semibold text-white">{t('bonusModal.title')}</h3>
+              <button onClick={() => setShowBonusModal(false)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
+                <X className="w-4 h-4 text-zinc-400" />
               </button>
             </div>
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2">
               {Object.entries({
                 checkin: t('bonusModal.checkin'),
                 social: t('bonusModal.social'),
@@ -650,16 +651,14 @@ export default function TasksPage() {
                 community: t('bonusModal.community'),
                 referral: t('bonusModal.referralBonus'),
               }).filter(([k]) => (bonusBreakdown[k] || 0) > 0).map(([k, label]) => (
-                <div key={k} className="flex justify-between text-zinc-300">
-                  <span>{label}</span>
-                  <span className="text-[#00e28a]">${(bonusBreakdown[k] || 0).toFixed(2)}</span>
+                <div key={k} className="flex justify-between items-center">
+                  <span className="text-sm text-zinc-400">{label}</span>
+                  <span className="text-sm font-mono text-[#00e28a]">${(bonusBreakdown[k] || 0).toFixed(2)}</span>
                 </div>
               ))}
-              <div className="border-t border-zinc-700 pt-2 mt-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-zinc-500 text-xs">Total</span>
-                  <span className="text-lg font-bold text-[#00e28a]">${progress.total_task_bonus.toFixed(2)}</span>
-                </div>
+              <div className="border-t border-white/[0.06] pt-3 mt-2 flex justify-between items-center">
+                <span className="text-xs text-zinc-500">Total</span>
+                <span className="text-lg font-bold font-mono text-[#00e28a]">${progress.total_task_bonus.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -708,54 +707,49 @@ function TaskRow({
   const isSocialTask = task.task_category === 'social'
   const isReferralTask = task.verification_type === 'referral_check'
 
-  const statusColor = task.is_completed ? 'text-[#00e28a]' : task.is_pending ? 'text-white/55' : !task.is_unlocked ? 'text-zinc-600' : 'text-zinc-400'
-  const rowBg = task.is_completed ? 'bg-[#00e28a]/[0.04]' : task.is_pending ? 'bg-white/[0.03]' : !task.is_unlocked ? 'opacity-50' : ''
+  const rowBg = task.is_completed ? 'bg-[#00e28a]/[0.03]' : !task.is_unlocked ? 'opacity-40' : ''
 
   return (
-    <div className={`px-4 py-4 ${rowBg}`}>
+    <div className={`px-4 py-3.5 ${rowBg}`}>
       <div className="flex items-start gap-3">
-        {/* Step indicator */}
+        {/* Status indicator */}
         <div className="shrink-0 mt-0.5">
           {task.is_completed
-            ? <CheckCircle className="w-5 h-5 text-green-400" />
+            ? <CheckCircle className="w-4 h-4 text-[#00e28a]" />
             : task.is_pending
-              ? <div className="w-5 h-5 rounded-full border-2 border-white/50 flex items-center justify-center"><div className="w-2 h-2 rounded-full bg-white/50" /></div>
+              ? <div className="w-4 h-4 rounded-full border-2 border-zinc-500 flex items-center justify-center"><div className="w-1.5 h-1.5 rounded-full bg-zinc-500" /></div>
               : !task.is_unlocked
-                ? <Lock className="w-5 h-5 text-zinc-600" />
-                : <Circle className="w-5 h-5 text-zinc-500" />}
+                ? <Lock className="w-4 h-4 text-zinc-600" />
+                : <Circle className="w-4 h-4 text-zinc-600" />}
         </div>
 
         <div className="flex-1 min-w-0">
           {/* Task name + reward */}
           <div className="flex items-start justify-between gap-2 mb-0.5">
             <div className="flex items-center gap-1.5 min-w-0">
-              {/* Social icon */}
-              {isSocialTask && (
-                <div className="w-5 h-5 shrink-0">{getSocialIcon(task.task_key)}</div>
-              )}
-              {isWalletTask && <Wallet className="w-4 h-4 text-indigo-400 shrink-0" />}
-              {isGroupTask && <Users className="w-4 h-4 text-white/45 shrink-0" />}
-              {isReferralTask && <Gift className="w-4 h-4 text-[#00e28a] shrink-0" />}
-              {isShareTask && <Share2 className="w-4 h-4 text-purple-400 shrink-0" />}
-              <p className={`font-medium text-sm ${task.is_unlocked ? 'text-white' : 'text-zinc-500'}`}>{getTaskName(task)}</p>
-              {/* Wallet tooltip trigger */}
+              {isSocialTask && <div className="w-4 h-4 shrink-0">{getSocialIcon(task.task_key)}</div>}
+              {isWalletTask && <Wallet className="w-3.5 h-3.5 text-zinc-500 shrink-0" />}
+              {isGroupTask && <Users className="w-3.5 h-3.5 text-zinc-500 shrink-0" />}
+              {isReferralTask && <Gift className="w-3.5 h-3.5 text-zinc-500 shrink-0" />}
+              {isShareTask && <Share2 className="w-3.5 h-3.5 text-zinc-500 shrink-0" />}
+              <p className={`font-medium text-sm ${task.is_unlocked ? 'text-white/90' : 'text-zinc-500'}`}>{getTaskName(task)}</p>
               {isWalletTask && (
-                <button onClick={onToggleWalletTooltip} className="p-0.5 hover:bg-white/10 rounded-full transition-colors">
-                  <Info className="w-3.5 h-3.5 text-zinc-400 hover:text-indigo-400" />
+                <button onClick={onToggleWalletTooltip} className="p-0.5 hover:bg-white/10 rounded-full transition-colors shrink-0">
+                  <Info className="w-3 h-3 text-zinc-600 hover:text-zinc-400" />
                 </button>
               )}
             </div>
-            <p className={`font-semibold text-sm shrink-0 ${task.is_completed ? 'text-zinc-500 line-through' : 'text-[#00e28a]'}`}>
+            <p className={`text-xs font-mono shrink-0 ${task.is_completed ? 'text-zinc-600 line-through' : 'text-[#00e28a]'}`}>
               +${task.reward_usd}
             </p>
           </div>
 
-          <p className="text-xs text-zinc-500">{getTaskDesc(task)}</p>
+          <p className="text-xs text-zinc-500 leading-relaxed">{getTaskDesc(task)}</p>
 
           {/* Wallet tooltip */}
           {isWalletTask && showWalletTooltip && (
-            <div className="mt-2 p-3 bg-indigo-900/30 border border-indigo-500/30 rounded-lg text-xs text-indigo-200 whitespace-pre-wrap">
-              <p className="font-semibold text-indigo-300 mb-1">{tQ('walletTooltipTitle')}</p>
+            <div className="mt-2 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg text-xs text-zinc-300 whitespace-pre-wrap">
+              <p className="font-medium text-zinc-200 mb-1">{tQ('walletTooltipTitle')}</p>
               {tQ('walletTooltipBody')}
             </div>
           )}
@@ -764,11 +758,11 @@ function TaskRow({
           {isReferralTask && task.referral_target > 0 && !task.is_completed && (
             <div className="mt-2">
               <div className="flex items-center justify-between text-xs mb-1">
-                <span className="text-zinc-400">{tQ('referralProgress', { current: task.referral_progress, target: task.referral_target })}</span>
-                <span className="text-zinc-500">{Math.round((task.referral_progress / task.referral_target) * 100)}%</span>
+                <span className="text-zinc-500 font-mono">{tQ('referralProgress', { current: task.referral_progress, target: task.referral_target })}</span>
+                <span className="text-zinc-600 font-mono">{Math.round((task.referral_progress / task.referral_target) * 100)}%</span>
               </div>
-              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-[#00e28a] rounded-full transition-all"
+              <div className="h-1 bg-white/[0.08] rounded-full overflow-hidden">
+                <div className="h-full bg-purple-500 rounded-full transition-all"
                   style={{ width: `${Math.min(100, Math.round((task.referral_progress / task.referral_target) * 100))}%` }} />
               </div>
             </div>
@@ -776,7 +770,7 @@ function TaskRow({
 
           {/* Pending status */}
           {task.is_pending && (
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-white/55">
+            <div className="mt-1.5 flex items-center gap-1.5 text-xs text-zinc-500">
               <Loader2 className="w-3 h-3 animate-spin" />
               {tQ('waitingReview')}
             </div>
@@ -784,121 +778,109 @@ function TaskRow({
 
           {/* Actions */}
           {!task.is_completed && !task.is_pending && task.is_unlocked && (
-            <div className="mt-3">
-              {/* Social task buttons */}
+            <div className="mt-2.5">
               {isSocialTask && (
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => { if (task.social_url) { window.open(task.social_url, '_blank'); onSocialVisit(task.task_key) } }}
-                    className="gap-1.5 text-xs py-1.5">
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    className="gap-1.5 text-xs">
+                    <ExternalLink className="w-3 h-3" />
                     {tQ('visit')}
                   </Button>
                   <Button size="sm" onClick={() => onComplete(task.task_key)}
                     disabled={!socialVisited.has(task.task_key) || submitting === task.task_key}
                     isLoading={submitting === task.task_key}
-                    className="text-xs py-1.5">
+                    className="text-xs bg-purple-500 hover:bg-purple-400">
                     {tQ('verify')}
                   </Button>
                 </div>
               )}
 
-              {/* Wallet task */}
               {isWalletTask && (
                 <Button size="sm" onClick={() => onComplete(task.task_key)}
                   disabled={!profileHasWallet || submitting === task.task_key}
                   isLoading={submitting === task.task_key}
-                  className="gap-2 text-xs py-1.5 bg-indigo-600 hover:bg-indigo-500">
-                  <Wallet className="w-3.5 h-3.5" />
-                  {profileHasWallet ? tQ('walletConnectBtn') : tQ('walletConnectBtn')}
+                  className="gap-1.5 text-xs bg-purple-500 hover:bg-purple-400">
+                  <Wallet className="w-3 h-3" />
+                  {tQ('walletConnectBtn')}
                 </Button>
               )}
 
-              {/* Share task — open modal, then auto-complete */}
               {isShareTask && (
                 <Button size="sm" onClick={() => {
                   onShowShareModal()
-                  // Auto-complete after delay when modal is opened
                   setTimeout(() => onComplete(task.task_key), 3000)
                 }}
                   disabled={submitting === task.task_key}
                   isLoading={submitting === task.task_key}
-                  className="gap-2 text-xs py-1.5 bg-purple-600 hover:bg-purple-500">
-                  <Share2 className="w-3.5 h-3.5" />
+                  className="gap-1.5 text-xs bg-purple-500 hover:bg-purple-400">
+                  <Share2 className="w-3 h-3" />
                   {tQ('shareModalTitle')}
                 </Button>
               )}
 
-              {/* Group task: contact admin */}
               {isGroupTask && (
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <p className="text-xs text-zinc-500">{tQ('contactAdminDesc')}</p>
                   <a
                     href={ADMIN_TELEGRAM}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => {
-                      // Submit notification to API
-                      onComplete(task.task_key, undefined, `User is requesting verification for task: ${task.task_key}`)
-                    }}
-                    className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs rounded-lg font-medium transition-colors"
+                    onClick={() => onComplete(task.task_key, undefined, `User is requesting verification for task: ${task.task_key}`)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-white text-xs rounded-lg font-medium transition-colors"
                   >
-                    <LottieIcon src="/telegram.json" className="w-4 h-4" />
+                    <LottieIcon src="/telegram.json" className="w-3.5 h-3.5" />
                     {tQ('contactAdminTelegram')}
                     <ArrowRight className="w-3 h-3" />
                   </a>
                 </div>
               )}
 
-              {/* Profile setup */}
               {task.verification_type === 'profile_check' && (
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => window.location.href = '/profile'}
-                    className="gap-1.5 text-xs py-1.5">
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    className="gap-1.5 text-xs">
+                    <ExternalLink className="w-3 h-3" />
                     {tQ('goToProfile')}
                   </Button>
                   <Button size="sm" onClick={() => onComplete(task.task_key)}
                     disabled={submitting === task.task_key} isLoading={submitting === task.task_key}
-                    className="text-xs py-1.5">
+                    className="text-xs bg-purple-500 hover:bg-purple-400">
                     {tQ('claimReward')}
                   </Button>
                 </div>
               )}
 
-              {/* Referral milestone */}
               {isReferralTask && (
                 <Button size="sm" onClick={() => onComplete(task.task_key)}
                   disabled={!task.can_complete || submitting === task.task_key}
                   isLoading={submitting === task.task_key}
-                  className={`text-xs py-1.5 ${task.can_complete ? 'bg-[var(--poly-purple)] hover:bg-[var(--poly-purple-hover)]' : ''}`}>
+                  className={`text-xs ${task.can_complete ? 'bg-purple-500 hover:bg-purple-400' : ''}`}>
                   {task.can_complete ? tQ('claimReward') : tQ('referralProgress', { current: task.referral_progress, target: task.referral_target })}
                 </Button>
               )}
 
-              {/* Promotion task */}
               {isPromotionTask && (
-                <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <Input placeholder={useTranslations('tasks')('promotion.placeholder')} value={promotionUrl}
-                      onChange={e => onSetPromotionUrl(e.target.value)} className="flex-1 text-xs h-8" />
-                    <Button size="sm" onClick={() => onComplete(task.task_key, promotionUrl)}
-                      disabled={!promotionUrl || submitting === task.task_key}
-                      isLoading={submitting === task.task_key}>
-                      <Send className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
+                <div className="flex gap-2">
+                  <Input placeholder={useTranslations('tasks')('promotion.placeholder')} value={promotionUrl}
+                    onChange={e => onSetPromotionUrl(e.target.value)} className="flex-1 text-xs h-8" />
+                  <Button size="sm" onClick={() => onComplete(task.task_key, promotionUrl)}
+                    disabled={!promotionUrl || submitting === task.task_key}
+                    isLoading={submitting === task.task_key}
+                    className="bg-purple-500 hover:bg-purple-400">
+                    <Send className="w-3 h-3" />
+                  </Button>
                 </div>
               )}
 
-              {/* Video task */}
               {isVideoTask && (
                 <div className="flex gap-2">
                   <Input placeholder={useTranslations('tasks')('video.placeholder')} value={videoUrl}
                     onChange={e => onSetVideoUrl(e.target.value)} className="flex-1 text-xs h-8" />
                   <Button size="sm" onClick={() => onComplete(task.task_key, videoUrl)}
                     disabled={!videoUrl || submitting === task.task_key}
-                    isLoading={submitting === task.task_key}>
-                    <Send className="w-3.5 h-3.5" />
+                    isLoading={submitting === task.task_key}
+                    className="bg-purple-500 hover:bg-purple-400">
+                    <Send className="w-3 h-3" />
                   </Button>
                 </div>
               )}
