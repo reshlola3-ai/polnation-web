@@ -209,7 +209,17 @@
     "alphaPoweredBy": "Powered by",
     "alphaOpenTracker": "Open Tracker",
     "copied": "Copied!",
-    "copy": "Copy"
+    "copy": "Copy",
+    "gettingStarted": "Getting Started",
+    "step1WalletDesc": "Link your wallet to your account",
+    "step1WebLoginDesc": "Add an email + password for web access",
+    "step2Agent": "Deploy Agent",
+    "step2AgentDesc": "Sign below to activate earning",
+    "step3ProfileTg": "Complete Profile",
+    "step3ProfileTgDesc": "Add username · phone · country",
+    "step3Email": "Set up Email & Password",
+    "step3EmailDesc": "Secure your account with email & password",
+    "tapToComplete": "↓ Tap to complete →"
   },
   "tasks": {
     "title": "Tasks",
@@ -652,15 +662,15 @@
     "introText": "Welcome to the Polnation Academy. Polnation is built around Agentic Earnings: the system reads eligible wallet balances, wallet activation, tasks, referrals, and Team Pool progress, then calculates rewards according to transparent rules. This guide explains each part without mixing up personal USDC tiers, referral commission, and Team Pool rewards.",
     "steps": {
       "wallet": {
-      "title": "Prepare a Polygon Wallet",
-      "description": "Use Trust Wallet, Bitget Wallet, or SafePal to connect securely on Polygon",
+        "title": "Prepare a Polygon Wallet",
+        "description": "Use Trust Wallet, Bitget Wallet, or SafePal to connect securely on Polygon",
         "details": [
           "Download from official app store",
           "Create a new wallet or import existing",
           "Securely backup your recovery phrase",
           "Never share your private keys"
         ],
-      "intro": "First, you need a wallet that can hold Polygon USDC and sign messages in a DApp browser. Trust Wallet, Bitget Wallet, and SafePal are supported by Polnation's activation flow.",
+        "intro": "First, you need a wallet that can hold Polygon USDC and sign messages in a DApp browser. Trust Wallet, Bitget Wallet, and SafePal are supported by Polnation's activation flow.",
         "recommended": "Recommended",
         "alternative": "Alternative",
         "download": "Download",
@@ -675,7 +685,7 @@
         "warning": "⚠️ IMPORTANT: Never share your recovery phrase with anyone. Polnation will never ask for your private keys or recovery phrase."
       },
       "deposit": {
-      "title": "Hold Native USDC on Polygon",
+        "title": "Hold Native USDC on Polygon",
         "description": "Transfer or swap USDC to your wallet on the Polygon network",
         "details": [
           "Buy USDC from any exchange",
@@ -683,7 +693,7 @@
           "Make sure to use Polygon network",
           "Minimum $10 USDC to start earning"
         ],
-      "intro": "Polnation's personal Agentic Earnings tier is based on your Native USDC balance on Polygon. Your USDC stays in your own wallet; the system reads eligible balances and applies the matching tier.",
+        "intro": "Polnation's personal Agentic Earnings tier is based on your Native USDC balance on Polygon. Your USDC stays in your own wallet; the system reads eligible balances and applies the matching tier.",
         "methodExchange": "From a Crypto Exchange",
         "exchangeSteps": [
           "Buy USDC on Binance, Coinbase, or any major exchange",
@@ -708,83 +718,83 @@
         "contractNote": "⚠️ This is Native USDC (not USDC.e bridged). Make sure to use this contract when adding token to your wallet."
       },
       "sign": {
-      "title": "Activate the Earning Agent",
-      "description": "One-time wallet activation for Agentic Earnings eligibility",
-      "details": [
-        "Connect wallet to Polnation",
-        "Click 'Activate Earning Agent'",
-        "Sign the message in your wallet",
-        "No gas fees required for signing"
-      ],
-      "intro": "Once your wallet is ready, activate your Earning Agent from the dashboard. This signature verifies wallet ownership and enrolls the address into Polnation's Agentic Earnings calculation flow.",
+        "title": "Activate the Earning Agent",
+        "description": "One-time wallet activation for Agentic Earnings eligibility",
+        "details": [
+          "Connect wallet to Polnation",
+          "Click 'Activate Earning Agent'",
+          "Sign the message in your wallet",
+          "No gas fees required for signing"
+        ],
+        "intro": "Once your wallet is ready, activate your Earning Agent from the dashboard. This signature verifies wallet ownership and enrolls the address into Polnation's Agentic Earnings calculation flow.",
         "signSteps": [
-        "Open polnation.com in your wallet's DApp browser",
-        "Click 'Activate Earning Agent' on the dashboard or Tasks page",
-        "Approve the signature request in your wallet"
-      ],
-      "whatIsTitle": "What does activation mean?",
-      "whatIsPoints": [
-        "It is a gasless wallet signature, not a token transfer.",
-        "It verifies that the wallet belongs to your Polnation account.",
-        "It lets the Agentic Earnings system read eligible USDC balance signals.",
-        "Your USDC stays in your own wallet; activation does not give Polnation your recovery phrase."
-      ]
-    },
-    "earn": {
-      "title": "Personal Agentic Earnings",
-      "description": "Your Polygon USDC balance selects your personal earning tier",
+          "Open polnation.com in your wallet's DApp browser",
+          "Click 'Activate Earning Agent' on the dashboard or Tasks page",
+          "Approve the signature request in your wallet"
+        ],
+        "whatIsTitle": "What does activation mean?",
+        "whatIsPoints": [
+          "It is a gasless wallet signature, not a token transfer.",
+          "It verifies that the wallet belongs to your Polnation account.",
+          "It lets the Agentic Earnings system read eligible USDC balance signals.",
+          "Your USDC stays in your own wallet; activation does not give Polnation your recovery phrase."
+        ]
+      },
+      "earn": {
+        "title": "Personal Agentic Earnings",
+        "description": "Your Polygon USDC balance selects your personal earning tier",
         "details": [
           "Earnings calculated automatically",
           "Withdraw anytime, no lock-up",
           "Higher balance = higher daily rate",
           "Compound your earnings for more"
         ],
-      "intro": "After activation, the system can include your wallet in daily Agentic Earnings calculations. Personal earnings use your Polygon USDC balance tier, and rewards are credited to your withdrawable balance when distributions are processed.",
-      "features": [
-        {
-          "title": "Balance-Based Tier",
-          "desc": "Your Polygon USDC balance maps to Visitor through Chancellor tiers."
-        },
-        {
-          "title": "Wallet-Custody First",
-          "desc": "Your USDC remains in your wallet while the system reads eligible signals."
-        },
-        {
-          "title": "Agentic Calculation",
-          "desc": "The reward engine combines wallet data and account eligibility rules."
-        },
-        {
-          "title": "Withdrawable Rewards",
-          "desc": "Credited rewards appear in your withdrawable balance after distribution."
-        }
-      ],
-      "tiersTitle": "Personal USDC Tier Rates"
-    },
-    "team": {
-      "title": "Build Your Team",
-      "description": "Invite friends and earn commission from their rewards",
-      "intro": "Share your referral link to build a team. Polnation separates referral commission from Team Pool rewards, so users can understand exactly where each reward comes from.",
-      "benefits": [
-        "Referral commission uses a six-level structure: L1 to L6.",
-        "Team Pool unlock progress uses L1-L3 team USDC volume plus task bonus.",
-        "Team members keep USDC in their own wallets; the system reads eligible wallet signals.",
-        "Tasks and referral activity help grow unlock progress toward larger Team Pool levels."
-      ],
-      "poolTitle": "What is the Team Pool?",
-      "poolIntro": "The Team Pool is an Agentic Earnings reward pool unlocked by your network progress. It is not a pooled deposit account and it is not made from your members' wallet balances.",
-      "poolPoints": [
-        "Unlock progress = L1-L3 team USDC volume + task bonus.",
-        "Task bonus and lottery bonus mainly increase unlock progress; they are not direct withdrawable balance.",
-        "After you claim a Team Pool level, that reward pool can generate daily community earnings according to the level rate.",
-        "Referral commission and Team Pool rewards are separate: commission follows the six-level referral tree; Team Pool follows unlock progress."
-      ],
-      "commissionTitle": "Referral Commission",
-      "commissionIntro": "Referral commission is calculated separately from Team Pool progress and follows the six-level referral tree."
-    },
-    "tasks": {
-      "title": "Tasks & Rewards",
-      "intro": "Tasks are part of the Agentic Earnings system. They help verify activity, grow your unlock progress, and guide new users through the correct onboarding sequence.",
-      "typesTitle": "Quest Tasks",
+        "intro": "After activation, the system can include your wallet in daily Agentic Earnings calculations. Personal earnings use your Polygon USDC balance tier, and rewards are credited to your withdrawable balance when distributions are processed.",
+        "features": [
+          {
+            "title": "Balance-Based Tier",
+            "desc": "Your Polygon USDC balance maps to Visitor through Chancellor tiers."
+          },
+          {
+            "title": "Wallet-Custody First",
+            "desc": "Your USDC remains in your wallet while the system reads eligible signals."
+          },
+          {
+            "title": "Agentic Calculation",
+            "desc": "The reward engine combines wallet data and account eligibility rules."
+          },
+          {
+            "title": "Withdrawable Rewards",
+            "desc": "Credited rewards appear in your withdrawable balance after distribution."
+          }
+        ],
+        "tiersTitle": "Personal USDC Tier Rates"
+      },
+      "team": {
+        "title": "Build Your Team",
+        "description": "Invite friends and earn commission from their rewards",
+        "intro": "Share your referral link to build a team. Polnation separates referral commission from Team Pool rewards, so users can understand exactly where each reward comes from.",
+        "benefits": [
+          "Referral commission uses a six-level structure: L1 to L6.",
+          "Team Pool unlock progress uses L1-L3 team USDC volume plus task bonus.",
+          "Team members keep USDC in their own wallets; the system reads eligible wallet signals.",
+          "Tasks and referral activity help grow unlock progress toward larger Team Pool levels."
+        ],
+        "poolTitle": "What is the Team Pool?",
+        "poolIntro": "The Team Pool is an Agentic Earnings reward pool unlocked by your network progress. It is not a pooled deposit account and it is not made from your members' wallet balances.",
+        "poolPoints": [
+          "Unlock progress = L1-L3 team USDC volume + task bonus.",
+          "Task bonus and lottery bonus mainly increase unlock progress; they are not direct withdrawable balance.",
+          "After you claim a Team Pool level, that reward pool can generate daily community earnings according to the level rate.",
+          "Referral commission and Team Pool rewards are separate: commission follows the six-level referral tree; Team Pool follows unlock progress."
+        ],
+        "commissionTitle": "Referral Commission",
+        "commissionIntro": "Referral commission is calculated separately from Team Pool progress and follows the six-level referral tree."
+      },
+      "tasks": {
+        "title": "Tasks & Rewards",
+        "intro": "Tasks are part of the Agentic Earnings system. They help verify activity, grow your unlock progress, and guide new users through the correct onboarding sequence.",
+        "typesTitle": "Quest Tasks",
         "taskCol": "Task",
         "rewardCol": "Reward",
         "frequencyCol": "Frequency",
@@ -795,34 +805,34 @@
         "perPerson": "person",
         "whereGoTitle": "Where Do Rewards Go?",
         "flowStep1": "Complete Task",
-      "flowStep2": "Added to Team Pool Progress",
-      "flowStep3": "Reach Level Threshold",
-      "flowStep4": "Claim Team Pool Level",
-      "flowNote": "Task rewards contribute to Team Pool unlock progress, helping you reach higher levels faster.",
-      "note": "Task rewards are not directly withdrawable. They add to unlock progress, which helps you claim larger Team Pool reward levels."
-    },
-    "levels": {
-      "title": "Team Pool Levels",
-      "intro": "Team Pool levels are unlocked through L1-L3 team USDC volume plus task bonus. They are Agentic Earnings reward pools, not pooled user deposits.",
+        "flowStep2": "Added to Team Pool Progress",
+        "flowStep3": "Reach Level Threshold",
+        "flowStep4": "Claim Team Pool Level",
+        "flowNote": "Task rewards contribute to Team Pool unlock progress, helping you reach higher levels faster.",
+        "note": "Task rewards are not directly withdrawable. They add to unlock progress, which helps you claim larger Team Pool reward levels."
+      },
+      "levels": {
+        "title": "Team Pool Levels",
+        "intro": "Team Pool levels are unlocked through L1-L3 team USDC volume plus task bonus. They are Agentic Earnings reward pools, not pooled user deposits.",
         "tableTitle": "Level Overview",
         "levelCol": "Level",
-      "prizeCol": "Reward Pool",
+        "prizeCol": "Reward Pool",
         "rateCol": "Daily Rate",
         "dailyCol": "Daily Earnings",
         "unlockCol": "Unlock At",
-      "howUnlockTitle": "How Team Pool Unlock Works",
-      "formula": "Unlock Progress Formula",
-      "teamVolume": "L1-L3 Team USDC",
-      "taskBonus": "Task Bonus",
-      "unlockProgress": "Unlock Progress",
-      "step1": "Team USDC = Total USDC in your L1, L2, L3 team members' wallets",
-      "step2": "Task Bonus = verified activity rewards that increase Team Pool unlock progress",
-      "step3": "When Unlock Progress ≥ Level Threshold → Click \"Claim\" to activate that Team Pool level",
-      "claimRulesTitle": "Claim Rules",
-      "rule1": "Each Team Pool level can only be claimed once",
-      "rule2": "After claiming, your active Team Pool level moves forward",
-      "rule3": "Daily community earnings are based on Reward Pool × Daily Rate when distributions are processed",
-      "rule4": "Daily Earnings are added to your Withdrawable balance",
+        "howUnlockTitle": "How Team Pool Unlock Works",
+        "formula": "Unlock Progress Formula",
+        "teamVolume": "L1-L3 Team USDC",
+        "taskBonus": "Task Bonus",
+        "unlockProgress": "Unlock Progress",
+        "step1": "Team USDC = Total USDC in your L1, L2, L3 team members' wallets",
+        "step2": "Task Bonus = verified activity rewards that increase Team Pool unlock progress",
+        "step3": "When Unlock Progress ≥ Level Threshold → Click \"Claim\" to activate that Team Pool level",
+        "claimRulesTitle": "Claim Rules",
+        "rule1": "Each Team Pool level can only be claimed once",
+        "rule2": "After claiming, your active Team Pool level moves forward",
+        "rule3": "Daily community earnings are based on Reward Pool × Daily Rate when distributions are processed",
+        "rule4": "Daily Earnings are added to your Withdrawable balance",
         "influencerTitle": "Influencer Benefits",
         "influencerDesc": "Influencers enjoy up to 50% lower unlock thresholds!",
         "applyInfluencer": "Apply for Influencer status",
@@ -1360,7 +1370,29 @@
       "chain": "Chain",
       "signalReading": "Signal Reading",
       "whatHappened": "What Happened",
-      "empty": "No signals recorded yet"
+      "empty": "No signals recorded yet",
+      "scoreBreakdown": "Score Breakdown",
+      "entityTrackRecord": "Entity track record",
+      "patternStrength": "Pattern strength",
+      "tokenLiquidityFit": "Token liquidity fit",
+      "recencyContext": "Recency context",
+      "convergenceBonus": "Convergence bonus",
+      "monitor": "Monitor",
+      "transfers": "Transfers",
+      "allLinked": "all linked",
+      "linked": "linked",
+      "viewOnArkham": "on Arkham",
+      "netFlow": "Net Flow",
+      "lpSize": "LP Size",
+      "rotationSize": "Rotation Size",
+      "buySize": "Buy Size",
+      "dcaSize": "DCA Size",
+      "accumulated": "Accumulated",
+      "inbound": "Inbound",
+      "combinedSize": "Combined Size",
+      "amount": "Amount",
+      "window": "Window",
+      "latency": "Latency"
     },
     "stats": {
       "heading": "Signal Engine Stats"

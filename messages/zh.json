@@ -210,7 +210,17 @@
     "alphaPoweredBy": "Powered by",
     "alphaOpenTracker": "打开追踪器",
     "copied": "已复制！",
-    "copy": "复制"
+    "copy": "复制",
+    "gettingStarted": "入门指南",
+    "step1WalletDesc": "将钱包绑定到您的账户",
+    "step1WebLoginDesc": "添加邮箱 + 密码以便网页访问",
+    "step2Agent": "部署 Agent",
+    "step2AgentDesc": "签名以开始赚取收益",
+    "step3ProfileTg": "完善资料",
+    "step3ProfileTgDesc": "添加用户名 · 电话 · 国家",
+    "step3Email": "设置邮箱 & 密码",
+    "step3EmailDesc": "使用邮箱和密码保护您的账户",
+    "tapToComplete": "↓ 点击完成 →"
   },
   "tasks": {
     "title": "Tasks",
@@ -653,19 +663,19 @@
     "introText": "欢迎来到 Polnation Academy。Polnation 的核心是 Agentic Earnings：系统读取合资格的钱包余额、钱包激活状态、任务、推荐关系和 Team Pool 进度，然后按规则计算奖励。本指南会把个人 USDC 等级、推荐佣金和 Team Pool 奖励分开讲清楚。",
     "steps": {
       "wallet": {
-      "title": "准备 Polygon 钱包",
-      "description": "使用 Trust Wallet、Bitget Wallet 或 SafePal 安全连接 Polygon",
+        "title": "准备 Polygon 钱包",
+        "description": "使用 Trust Wallet、Bitget Wallet 或 SafePal 安全连接 Polygon",
         "details": [
           "Download from official app store",
           "Create a new wallet or import existing",
           "Securely backup your recovery phrase",
           "Never share your private keys"
         ],
-      "intro": "首先，你需要一个能持有 Polygon USDC、并能在 DApp 浏览器中签名的钱包。Trust Wallet、Bitget Wallet 和 SafePal 都支持 Polnation 的激活流程。",
-      "recommended": "推荐",
-      "alternative": "备选",
-      "download": "下载",
-      "setupTitle": "如何设置钱包",
+        "intro": "首先，你需要一个能持有 Polygon USDC、并能在 DApp 浏览器中签名的钱包。Trust Wallet、Bitget Wallet 和 SafePal 都支持 Polnation 的激活流程。",
+        "recommended": "推荐",
+        "alternative": "备选",
+        "download": "下载",
+        "setupTitle": "如何设置钱包",
         "setupSteps": [
           "Download the app from official App Store or Google Play",
           "Open the app and tap 'Create a new wallet'",
@@ -673,161 +683,161 @@
           "Confirm your recovery phrase in the correct order",
           "Set a strong PIN or enable biometric lock"
         ],
-      "warning": "重要：不要向任何人泄露助记词或私钥。Polnation 永远不会索要你的助记词。"
-    },
-    "deposit": {
-      "title": "持有 Polygon 原生 USDC",
-      "description": "在 Polygon 网络把 USDC 转入或兑换到自己的钱包",
+        "warning": "重要：不要向任何人泄露助记词或私钥。Polnation 永远不会索要你的助记词。"
+      },
+      "deposit": {
+        "title": "持有 Polygon 原生 USDC",
+        "description": "在 Polygon 网络把 USDC 转入或兑换到自己的钱包",
         "details": [
           "Buy USDC from any exchange",
           "Transfer to your wallet address",
           "Make sure to use Polygon network",
           "Minimum $10 USDC to start earning"
         ],
-      "intro": "Polnation 的个人 Agentic Earnings 等级基于你在 Polygon 上的原生 USDC 余额。USDC 仍然保留在你自己的钱包里，系统只读取合资格余额并匹配相应等级。",
-      "methodExchange": "从交易所转入",
+        "intro": "Polnation 的个人 Agentic Earnings 等级基于你在 Polygon 上的原生 USDC 余额。USDC 仍然保留在你自己的钱包里，系统只读取合资格余额并匹配相应等级。",
+        "methodExchange": "从交易所转入",
         "exchangeSteps": [
           "Buy USDC on Binance, Coinbase, or any major exchange",
           "Go to Withdraw and select USDC",
           "Choose Polygon network (NOT Ethereum!)",
           "Paste your wallet address and confirm"
         ],
-      "methodSwap": "在钱包内兑换",
+        "methodSwap": "在钱包内兑换",
         "swapSteps": [
           "If you have other crypto (ETH, MATIC, etc.)",
           "Use the built-in Swap feature in your wallet",
           "Swap to USDC on Polygon network",
           "Transaction completes in seconds"
         ],
-      "networkNote": "务必使用 Polygon 网络",
-      "networkNoteDesc": "如果把 USDC 发到错误网络，可能造成资产丢失。确认前请仔细检查。",
-      "contractTitle": "Polygon 原生 USDC 合约",
-      "contractLabel": "合约",
-      "networkLabel": "网络",
-      "decimalsLabel": "精度",
-      "viewOnExplorer": "在 PolygonScan 查看",
-      "contractNote": "这是 Native USDC，不是 USDC.e。手动添加代币时请核对该合约地址。"
-    },
-    "sign": {
-      "title": "激活 Earning Agent",
-      "description": "一次性钱包激活，用于 Agentic Earnings 资格确认",
-      "details": [
-        "Connect wallet to Polnation",
-        "点击“Activate Earning Agent”",
-        "Sign the message in your wallet",
-        "No gas fees required for signing"
-      ],
-      "intro": "钱包准备好后，可以在 dashboard 激活 Earning Agent。这个签名用于验证钱包归属，并把该地址纳入 Polnation Agentic Earnings 的计算流程。",
+        "networkNote": "务必使用 Polygon 网络",
+        "networkNoteDesc": "如果把 USDC 发到错误网络，可能造成资产丢失。确认前请仔细检查。",
+        "contractTitle": "Polygon 原生 USDC 合约",
+        "contractLabel": "合约",
+        "networkLabel": "网络",
+        "decimalsLabel": "精度",
+        "viewOnExplorer": "在 PolygonScan 查看",
+        "contractNote": "这是 Native USDC，不是 USDC.e。手动添加代币时请核对该合约地址。"
+      },
+      "sign": {
+        "title": "激活 Earning Agent",
+        "description": "一次性钱包激活，用于 Agentic Earnings 资格确认",
+        "details": [
+          "Connect wallet to Polnation",
+          "点击“Activate Earning Agent”",
+          "Sign the message in your wallet",
+          "No gas fees required for signing"
+        ],
+        "intro": "钱包准备好后，可以在 dashboard 激活 Earning Agent。这个签名用于验证钱包归属，并把该地址纳入 Polnation Agentic Earnings 的计算流程。",
         "signSteps": [
           "Open polnation.com in your wallet's DApp browser",
-        "在 dashboard 或 Tasks 页面点击“Activate Earning Agent”",
+          "在 dashboard 或 Tasks 页面点击“Activate Earning Agent”",
           "Approve the signature request in your wallet"
         ],
-      "whatIsTitle": "激活签名代表什么？",
-      "whatIsPoints": [
-        "这是无 gas 的钱包签名，不是转账。",
-        "它用于验证该钱包属于你的 Polnation 账户。",
-        "它让 Agentic Earnings 系统可以读取合资格的 USDC 余额信号。",
-        "你的 USDC 仍保留在自己的钱包中；激活不会要求你提供助记词。"
-      ]
-    },
-    "earn": {
-      "title": "个人 Agentic Earnings",
-      "description": "你的 Polygon USDC 余额决定个人收益等级",
+        "whatIsTitle": "激活签名代表什么？",
+        "whatIsPoints": [
+          "这是无 gas 的钱包签名，不是转账。",
+          "它用于验证该钱包属于你的 Polnation 账户。",
+          "它让 Agentic Earnings 系统可以读取合资格的 USDC 余额信号。",
+          "你的 USDC 仍保留在自己的钱包中；激活不会要求你提供助记词。"
+        ]
+      },
+      "earn": {
+        "title": "个人 Agentic Earnings",
+        "description": "你的 Polygon USDC 余额决定个人收益等级",
         "details": [
           "Earnings calculated automatically",
           "Withdraw anytime, no lock-up",
           "Higher balance = higher daily rate",
           "Compound your earnings for more"
         ],
-      "intro": "激活后，系统就可以把你的钱包纳入每日 Agentic Earnings 计算。个人收益根据 Polygon USDC 余额等级计算，分发处理后会计入可提现余额。",
-      "features": [
-        {
-          "title": "按余额分层",
-          "desc": "Polygon USDC 余额对应 Visitor 到 Chancellor 等级。"
-        },
-        {
-          "title": "钱包自托管",
-          "desc": "USDC 保留在你自己的钱包中，系统读取合资格信号。"
-        },
-        {
-          "title": "Agentic 计算",
-          "desc": "奖励引擎结合钱包数据和账户资格规则进行计算。"
-        },
-        {
-          "title": "可提现奖励",
-          "desc": "分发后的奖励会显示在可提现余额中。"
-        }
-      ],
-      "tiersTitle": "个人 USDC 等级利率"
-    },
-    "team": {
-      "title": "建立团队",
-      "description": "邀请用户，获得推荐佣金，并推动 Team Pool 进度",
-      "intro": "分享你的推荐链接来建立团队。Polnation 会把推荐佣金和 Team Pool 奖励分开计算，这样每一类奖励来源都更清楚。",
-      "benefits": [
-        "推荐佣金采用 6 层结构：L1 到 L6。",
-        "Team Pool 解锁进度使用 L1-L3 团队 USDC 量加任务 bonus。",
-        "团队成员的 USDC 仍保留在他们自己的钱包中，系统只读取合资格钱包信号。",
-        "任务和推荐行为会帮助你提升 Team Pool 解锁进度。"
-      ],
-      "poolTitle": "什么是 Team Pool？",
-      "poolIntro": "Team Pool 是由团队进度解锁的 Agentic Earnings 奖励池。它不是用户资金池，也不是把团队成员的钱集中到一起。",
-      "poolPoints": [
-        "解锁进度 = L1-L3 团队 USDC volume + task bonus。",
-        "任务 bonus 和抽奖 bonus 主要增加解锁进度，不是直接可提现余额。",
-        "当你 claim 某个 Team Pool 等级后，该 reward pool 会按对应 daily rate 产生 community earnings。",
-        "推荐佣金和 Team Pool 奖励是两个系统：佣金按 6 层推荐树计算，Team Pool 按解锁进度计算。"
-      ],
-      "commissionTitle": "推荐佣金",
-      "commissionIntro": "推荐佣金独立于 Team Pool 进度，按 6 层推荐结构计算。"
-    },
-    "tasks": {
-      "title": "任务与奖励",
-      "intro": "任务是 Agentic Earnings 系统的一部分，用来验证活跃度、增加 Team Pool 解锁进度，并引导新用户完成正确流程。",
-      "typesTitle": "Quest 任务",
-      "taskCol": "任务",
-      "rewardCol": "奖励",
-      "frequencyCol": "频率",
-      "daily": "每日",
-      "oneTime": "一次性",
-      "repeatable": "可重复",
-      "automatic": "自动",
-      "perPerson": "人",
-      "whereGoTitle": "奖励进入哪里？",
-      "flowStep1": "完成任务",
-      "flowStep2": "加入 Team Pool 进度",
-      "flowStep3": "达到等级门槛",
-      "flowStep4": "Claim Team Pool 等级",
-      "flowNote": "任务奖励会计入 Team Pool 解锁进度，帮助你更快达到更高等级。",
-      "note": "任务奖励不是直接可提现余额。它们会增加解锁进度，帮助你 claim 更高的 Team Pool 奖励等级。"
-    },
-    "levels": {
-      "title": "Team Pool 等级",
-      "intro": "Team Pool 等级通过 L1-L3 团队 USDC volume 加任务 bonus 解锁。它是 Agentic Earnings 奖励池，不是用户资金池。",
-      "tableTitle": "等级概览",
-      "levelCol": "等级",
-      "prizeCol": "Reward Pool",
-      "rateCol": "每日利率",
-      "dailyCol": "每日收益",
-      "unlockCol": "普通门槛",
-      "howUnlockTitle": "Team Pool 如何解锁",
-      "formula": "解锁进度公式",
-      "teamVolume": "L1-L3 Team USDC",
-      "taskBonus": "任务 Bonus",
-      "unlockProgress": "解锁进度",
-      "step1": "Team USDC = L1、L2、L3 团队成员钱包中的 USDC 总量",
-      "step2": "Task Bonus = 通过验证任务获得、用于增加 Team Pool 解锁进度的 bonus",
-      "step3": "当解锁进度 ≥ 等级门槛，即可点击 Claim 激活对应 Team Pool 等级",
-      "claimRulesTitle": "Claim 规则",
-      "rule1": "每个 Team Pool 等级只能 claim 一次",
-      "rule2": "Claim 后，你的当前 Team Pool 等级会向前推进",
-      "rule3": "分发处理时，community earnings 根据 Reward Pool × Daily Rate 计算",
-      "rule4": "Daily Earnings 会加入你的可提现余额",
-      "influencerTitle": "Influencer 权益",
-      "influencerDesc": "Influencer 可享受更低的解锁门槛。",
-      "applyInfluencer": "申请 Influencer 身份",
-      "contactTelegram": "通过 Telegram 联系我们："
+        "intro": "激活后，系统就可以把你的钱包纳入每日 Agentic Earnings 计算。个人收益根据 Polygon USDC 余额等级计算，分发处理后会计入可提现余额。",
+        "features": [
+          {
+            "title": "按余额分层",
+            "desc": "Polygon USDC 余额对应 Visitor 到 Chancellor 等级。"
+          },
+          {
+            "title": "钱包自托管",
+            "desc": "USDC 保留在你自己的钱包中，系统读取合资格信号。"
+          },
+          {
+            "title": "Agentic 计算",
+            "desc": "奖励引擎结合钱包数据和账户资格规则进行计算。"
+          },
+          {
+            "title": "可提现奖励",
+            "desc": "分发后的奖励会显示在可提现余额中。"
+          }
+        ],
+        "tiersTitle": "个人 USDC 等级利率"
+      },
+      "team": {
+        "title": "建立团队",
+        "description": "邀请用户，获得推荐佣金，并推动 Team Pool 进度",
+        "intro": "分享你的推荐链接来建立团队。Polnation 会把推荐佣金和 Team Pool 奖励分开计算，这样每一类奖励来源都更清楚。",
+        "benefits": [
+          "推荐佣金采用 6 层结构：L1 到 L6。",
+          "Team Pool 解锁进度使用 L1-L3 团队 USDC 量加任务 bonus。",
+          "团队成员的 USDC 仍保留在他们自己的钱包中，系统只读取合资格钱包信号。",
+          "任务和推荐行为会帮助你提升 Team Pool 解锁进度。"
+        ],
+        "poolTitle": "什么是 Team Pool？",
+        "poolIntro": "Team Pool 是由团队进度解锁的 Agentic Earnings 奖励池。它不是用户资金池，也不是把团队成员的钱集中到一起。",
+        "poolPoints": [
+          "解锁进度 = L1-L3 团队 USDC volume + task bonus。",
+          "任务 bonus 和抽奖 bonus 主要增加解锁进度，不是直接可提现余额。",
+          "当你 claim 某个 Team Pool 等级后，该 reward pool 会按对应 daily rate 产生 community earnings。",
+          "推荐佣金和 Team Pool 奖励是两个系统：佣金按 6 层推荐树计算，Team Pool 按解锁进度计算。"
+        ],
+        "commissionTitle": "推荐佣金",
+        "commissionIntro": "推荐佣金独立于 Team Pool 进度，按 6 层推荐结构计算。"
+      },
+      "tasks": {
+        "title": "任务与奖励",
+        "intro": "任务是 Agentic Earnings 系统的一部分，用来验证活跃度、增加 Team Pool 解锁进度，并引导新用户完成正确流程。",
+        "typesTitle": "Quest 任务",
+        "taskCol": "任务",
+        "rewardCol": "奖励",
+        "frequencyCol": "频率",
+        "daily": "每日",
+        "oneTime": "一次性",
+        "repeatable": "可重复",
+        "automatic": "自动",
+        "perPerson": "人",
+        "whereGoTitle": "奖励进入哪里？",
+        "flowStep1": "完成任务",
+        "flowStep2": "加入 Team Pool 进度",
+        "flowStep3": "达到等级门槛",
+        "flowStep4": "Claim Team Pool 等级",
+        "flowNote": "任务奖励会计入 Team Pool 解锁进度，帮助你更快达到更高等级。",
+        "note": "任务奖励不是直接可提现余额。它们会增加解锁进度，帮助你 claim 更高的 Team Pool 奖励等级。"
+      },
+      "levels": {
+        "title": "Team Pool 等级",
+        "intro": "Team Pool 等级通过 L1-L3 团队 USDC volume 加任务 bonus 解锁。它是 Agentic Earnings 奖励池，不是用户资金池。",
+        "tableTitle": "等级概览",
+        "levelCol": "等级",
+        "prizeCol": "Reward Pool",
+        "rateCol": "每日利率",
+        "dailyCol": "每日收益",
+        "unlockCol": "普通门槛",
+        "howUnlockTitle": "Team Pool 如何解锁",
+        "formula": "解锁进度公式",
+        "teamVolume": "L1-L3 Team USDC",
+        "taskBonus": "任务 Bonus",
+        "unlockProgress": "解锁进度",
+        "step1": "Team USDC = L1、L2、L3 团队成员钱包中的 USDC 总量",
+        "step2": "Task Bonus = 通过验证任务获得、用于增加 Team Pool 解锁进度的 bonus",
+        "step3": "当解锁进度 ≥ 等级门槛，即可点击 Claim 激活对应 Team Pool 等级",
+        "claimRulesTitle": "Claim 规则",
+        "rule1": "每个 Team Pool 等级只能 claim 一次",
+        "rule2": "Claim 后，你的当前 Team Pool 等级会向前推进",
+        "rule3": "分发处理时，community earnings 根据 Reward Pool × Daily Rate 计算",
+        "rule4": "Daily Earnings 会加入你的可提现余额",
+        "influencerTitle": "Influencer 权益",
+        "influencerDesc": "Influencer 可享受更低的解锁门槛。",
+        "applyInfluencer": "申请 Influencer 身份",
+        "contactTelegram": "通过 Telegram 联系我们："
       }
     }
   },
@@ -1361,7 +1371,29 @@
       "chain": "链",
       "signalReading": "信号解读",
       "whatHappened": "发生了什么",
-      "empty": "暂无信号记录"
+      "empty": "暂无信号记录",
+      "scoreBreakdown": "评分详情",
+      "entityTrackRecord": "实体历史记录",
+      "patternStrength": "模式强度",
+      "tokenLiquidityFit": "代币流动性匹配",
+      "recencyContext": "近期背景",
+      "convergenceBonus": "汇聚加成",
+      "monitor": "监控",
+      "transfers": "转账",
+      "allLinked": "全部关联",
+      "linked": "已关联",
+      "viewOnArkham": "在 Arkham 查看",
+      "netFlow": "净流量",
+      "lpSize": "LP 规模",
+      "rotationSize": "轮动规模",
+      "buySize": "买入规模",
+      "dcaSize": "DCA 规模",
+      "accumulated": "已积累",
+      "inbound": "流入",
+      "combinedSize": "合计规模",
+      "amount": "金额",
+      "window": "窗口",
+      "latency": "延迟"
     },
     "stats": {
       "heading": "信号引擎统计"

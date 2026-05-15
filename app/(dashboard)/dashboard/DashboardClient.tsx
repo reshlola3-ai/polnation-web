@@ -373,7 +373,7 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
       {/* Onboarding Banner — hides once all steps complete */}
       {!allDone && (
         <section className="kraken-panel p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--kraken-muted)] mb-3">Getting Started</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--kraken-muted)] mb-3">{t('gettingStarted')}</p>
           <div className="flex items-start gap-2">
             {/* Step 1 — Connect Wallet (or "Set up web login" for TG-only users) */}
             {isTgOnly ? (
@@ -385,9 +385,9 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
                   {step1Done
                     ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
                     : <Circle className="w-4 h-4 text-purple-300 shrink-0" />}
-                  <span className={`text-xs font-semibold ${step1Done ? 'text-[#00e28a]/80' : 'text-purple-200'}`}>Set up web login</span>
+                  <span className={`text-xs font-semibold ${step1Done ? 'text-[#00e28a]/80' : 'text-purple-200'}`}>{t('webLoginSetup')}</span>
                 </div>
-                <p className="text-[11px] text-white/45 leading-relaxed">Add an email + password for web access</p>
+                <p className="text-[11px] text-white/45 leading-relaxed">{t('step1WebLoginDesc')}</p>
               </Link>
             ) : (
               <div className={`flex-1 kraken-mini-card p-3 transition-colors ${step1Done ? 'border-[#00e28a]/20' : 'border-purple-500/20'}`}>
@@ -395,9 +395,9 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
                   {step1Done
                     ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
                     : <Circle className="w-4 h-4 text-purple-300 shrink-0" />}
-                  <span className={`text-xs font-semibold ${step1Done ? 'text-[#00e28a]/80' : 'text-purple-200'}`}>Connect Wallet</span>
+                  <span className={`text-xs font-semibold ${step1Done ? 'text-[#00e28a]/80' : 'text-purple-200'}`}>{t('connectWallet')}</span>
                 </div>
-                <p className="text-[11px] text-white/45 leading-relaxed">Link your wallet to your account</p>
+                <p className="text-[11px] text-white/45 leading-relaxed">{t('step1WalletDesc')}</p>
               </div>
             )}
 
@@ -409,9 +409,9 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
                 {step2Done
                   ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
                   : <Circle className={`w-4 h-4 shrink-0 ${step1Done ? 'text-white/65' : 'text-white/30'}`} />}
-                <span className={`text-xs font-semibold ${step2Done ? 'text-[#00e28a]/80' : step1Done ? 'text-white/55' : 'text-white/40'}`}>Deploy Agent</span>
+                <span className={`text-xs font-semibold ${step2Done ? 'text-[#00e28a]/80' : step1Done ? 'text-white/55' : 'text-white/40'}`}>{t('step2Agent')}</span>
               </div>
-              <p className="text-[11px] text-white/45 leading-relaxed">Sign below to activate earning</p>
+              <p className="text-[11px] text-white/45 leading-relaxed">{t('step2AgentDesc')}</p>
             </div>
 
             {/* Step 3 — only surfaces once signing is done. Before that we
@@ -425,14 +425,14 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
                       ? <CheckCircle className="w-4 h-4 text-[#00e28a] shrink-0" />
                       : <Circle className="w-4 h-4 shrink-0 text-white/65" />}
                     <span className={`text-xs font-semibold ${step3Done ? 'text-[#00e28a]/80' : 'text-white/55'}`}>
-                      {isTgOnly ? 'Complete Profile' : 'Set up Email & Password'}
+                      {isTgOnly ? t('step3ProfileTg') : t('step3Email')}
                     </span>
                   </div>
                   <p className="text-[11px] text-white/45 leading-relaxed">
-                    {isTgOnly ? 'Add username · phone · country' : 'Secure your account with email & password'}
+                    {isTgOnly ? t('step3ProfileTgDesc') : t('step3EmailDesc')}
                   </p>
                   {!step3Done && (
-                    <p className="text-[11px] text-white/65 mt-1 font-medium">↓ Tap to complete →</p>
+                    <p className="text-[11px] text-white/65 mt-1 font-medium">{t('tapToComplete')}</p>
                   )}
                 </Link>
               </>

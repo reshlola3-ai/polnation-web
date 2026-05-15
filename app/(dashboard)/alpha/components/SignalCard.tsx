@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { NotchedCard } from '@/components/ui/poly/NotchedCard'
 import { EyebrowTag }  from '@/components/ui/poly/EyebrowTag'
 import { ExternalLink, ArrowUpRight } from 'lucide-react'
@@ -31,37 +32,39 @@ function relativeTime(iso: string): string {
   return `${d}d ago`
 }
 
+type T = ReturnType<typeof useTranslations<'alpha'>>
+
 /** Pattern-specific 3rd-row stat tiles. Mostly direction + window context. */
-function thirdRow(signal: AlphaSignal): { label: string; value: string; sub: string } {
+function thirdRow(signal: AlphaSignal, t: T): { label: string; value: string; sub: string } {
   switch (signal.pattern_id) {
     case 'net_accumulation':
-      return { label: 'Window',  value: '24h',   sub: 'rolling' }
+      return { label: t('signals.window'),  value: '24h',   sub: 'rolling' }
     case 'bridge_buy':
-      return { label: 'Latency', value: '<30m',  sub: 'bridge → buy' }
+      return { label: t('signals.latency'), value: '<30m',  sub: 'bridge → buy' }
     case 'stable_rotation':
-      return { label: 'Window',  value: '6h',    sub: 'rotation' }
+      return { label: t('signals.window'),  value: '6h',    sub: 'rotation' }
     case 'pre_gov':
-      return { label: 'Window',  value: '48h',   sub: 'accumulation' }
+      return { label: t('signals.window'),  value: '48h',   sub: 'accumulation' }
     case 'dca_dump':
-      return { label: 'Window',  value: '24h',   sub: 'price down ≥10%' }
+      return { label: t('signals.window'),  value: '24h',   sub: 'price down ≥10%' }
     case 'convergence':
-      return { label: 'Window',  value: '24h',   sub: 'cross-entity' }
+      return { label: t('signals.window'),  value: '24h',   sub: 'cross-entity' }
     default:
-      return { label: 'Window',  value: '24h',   sub: 'observation' }
+      return { label: t('signals.window'),  value: '24h',   sub: 'observation' }
   }
 }
 
-function flowLabel(patternId: string): { label: string; sub: string } {
+function flowLabel(patternId: string, t: T): { label: string; sub: string } {
   switch (patternId) {
-    case 'net_accumulation': return { label: 'Net Flow',       sub: 'inflows − outflows' }
-    case 'lp_position':      return { label: 'LP Size',        sub: 'liquidity added' }
-    case 'stable_rotation':  return { label: 'Rotation Size',  sub: 'into token' }
-    case 'bridge_buy':       return { label: 'Buy Size',       sub: 'post-bridge' }
-    case 'dca_dump':         return { label: 'DCA Size',       sub: 'into weakness' }
-    case 'pre_gov':          return { label: 'Accumulated',    sub: '48h total' }
-    case 'pre_cex':          return { label: 'Inbound',        sub: 'pre-listing' }
-    case 'convergence':      return { label: 'Combined Size',  sub: 'all entities' }
-    default:                 return { label: 'Amount',         sub: '' }
+    case 'net_accumulation': return { label: t('signals.netFlow'),       sub: 'inflows − outflows' }
+    case 'lp_position':      return { label: t('signals.lpSize'),        sub: 'liquidity added' }
+    case 'stable_rotation':  return { label: t('signals.rotationSize'),  sub: 'into token' }
+    case 'bridge_buy':       return { label: t('signals.buySize'),       sub: 'post-bridge' }
+    case 'dca_dump':         return { label: t('signals.dcaSize'),       sub: 'into weakness' }
+    case 'pre_gov':          return { label: t('signals.accumulated'),   sub: '48h total' }
+    case 'pre_cex':          return { label: t('signals.inbound'),       sub: 'pre-listing' }
+    case 'convergence':      return { label: t('signals.combinedSize'),  sub: 'all entities' }
+    default:                 return { label: t('signals.amount'),        sub: '' }
   }
 }
 
@@ -70,6 +73,7 @@ interface Props {
 }
 
 export function SignalCard({ signal }: Props) {
+  const t = useTranslations('alpha')
   const [showBreakdown, setShowBreakdown] = useState(false)
   const meta      = PATTERN_META[signal.pattern_id]
   const color     = PATTERN_COLORS[signal.pattern_id] ?? 'rgba(255,255,255,0.18)'
@@ -89,8 +93,8 @@ export function SignalCard({ signal }: Props) {
     context:     {},
   } as PatternMatch)
 
-  const flow = flowLabel(signal.pattern_id)
-  const third = thirdRow(signal)
+  const flow = flowLabel(signal.pattern_id, t)
+  const third = thirdRow(signal, t)
   const validHashes = signal.tx_hashes.filter(h => h && h !== 'null')
 
   return (
@@ -117,7 +121,7 @@ export function SignalCard({ signal }: Props) {
         className="flex items-center gap-2 mb-4 cursor-pointer group"
         onClick={() => setShowBreakdown(v => !v)}
       >
-        <EyebrowTag>Confidence</EyebrowTag>
+        <EyebrowTag>{t('signals.confidence')}</EyebrowTag>
         <div className="flex-1 h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
           <div
             className="h-full rounded-full"
@@ -138,14 +142,14 @@ export function SignalCard({ signal }: Props) {
       {/* Confidence breakdown */}
       {showBreakdown && breakdown && (
         <div className="mb-4 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06] space-y-1.5">
-          <EyebrowTag>Score Breakdown</EyebrowTag>
+          <EyebrowTag>{t('signals.scoreBreakdown')}</EyebrowTag>
           <div className="mt-2 space-y-1">
             {([
-              ['Entity track record', breakdown.entity_track_record, 30],
-              ['Pattern strength',    breakdown.pattern_strength,    25],
-              ['Token liquidity fit', breakdown.token_liquidity_fit, 15],
-              ['Recency context',     breakdown.recency_context,     15],
-              ['Convergence bonus',   breakdown.convergence_bonus,   15],
+              [t('signals.entityTrackRecord'), breakdown.entity_track_record, 30],
+              [t('signals.patternStrength'),   breakdown.pattern_strength,    25],
+              [t('signals.tokenLiquidityFit'), breakdown.token_liquidity_fit, 15],
+              [t('signals.recencyContext'),    breakdown.recency_context,     15],
+              [t('signals.convergenceBonus'),  breakdown.convergence_bonus,   15],
             ] as [string, number, number][]).map(([label, val, max]) => (
               <div key={label} className="flex items-center justify-between gap-2">
                 <span className="text-[11px] text-white/50">{label}</span>
@@ -163,9 +167,9 @@ export function SignalCard({ signal }: Props) {
 
       {/* 6-tile data grid */}
       <div className="grid grid-cols-3 gap-2 mb-4">
-        <StatTile label="Entity"   value={signal.entity_name}            sub={signal.entity_id ? `@${signal.entity_id}` : ''} />
-        <StatTile label="Token"    value={signal.token_symbol ?? '—'}    sub={signal.token_address ? `${signal.token_address.slice(0,6)}…${signal.token_address.slice(-4)}` : 'native'} />
-        <StatTile label="Chain"    value={chainLabel(signal.chain)}      sub={signal.chain ?? ''} />
+        <StatTile label={t('signals.entity')} value={signal.entity_name}            sub={signal.entity_id ? `@${signal.entity_id}` : ''} />
+        <StatTile label={t('signals.token')}  value={signal.token_symbol ?? '—'}    sub={signal.token_address ? `${signal.token_address.slice(0,6)}…${signal.token_address.slice(-4)}` : 'native'} />
+        <StatTile label={t('signals.chain')}  value={chainLabel(signal.chain)}      sub={signal.chain ?? ''} />
         <StatTile
           label={flow.label}
           value={signal.amount_usd != null ? usdCompact(signal.amount_usd) : '—'}
@@ -174,16 +178,16 @@ export function SignalCard({ signal }: Props) {
           color={color}
         />
         <StatTile
-          label="Transfers"
+          label={t('signals.transfers')}
           value={String(signal.tx_hashes.length)}
-          sub={validHashes.length === signal.tx_hashes.length ? 'all linked' : `${validHashes.length} linked`}
+          sub={validHashes.length === signal.tx_hashes.length ? t('signals.allLinked') : `${validHashes.length} ${t('signals.linked')}`}
         />
         <StatTile label={third.label} value={third.value} sub={third.sub} />
       </div>
 
       {/* Signal reading */}
       <div className="mb-3 p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-        <EyebrowTag className="mb-1.5">Signal Reading</EyebrowTag>
+        <EyebrowTag className="mb-1.5">{t('signals.signalReading')}</EyebrowTag>
         <p className="text-[12px] text-white/65 leading-relaxed">
           {signal.meaning_text}
         </p>
@@ -203,7 +207,7 @@ export function SignalCard({ signal }: Props) {
             className="text-[9px] uppercase tracking-[0.12em] mb-1"
             style={{ fontFamily: 'var(--poly-font-mono)', color }}
           >
-            Monitor
+            {t('signals.monitor')}
           </p>
           <p className="text-[12px] text-white/70 leading-relaxed">
             {monitorText}
@@ -223,7 +227,7 @@ export function SignalCard({ signal }: Props) {
           className="inline-flex items-center gap-1 text-[11px] text-[var(--poly-purple)] hover:text-purple-300 transition-colors"
           style={{ fontFamily: 'var(--poly-font-mono)' }}
         >
-          View {signal.entity_name} on Arkham <ExternalLink className="w-3 h-3" />
+          {signal.entity_name} {t('signals.viewOnArkham')} <ExternalLink className="w-3 h-3" />
         </a>
         {validHashes.length > 0 && (
           <a
