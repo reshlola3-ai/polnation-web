@@ -7,12 +7,8 @@ import { User } from '@supabase/supabase-js'
 import { type Locale } from '@/i18n/config'
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher'
 import { 
-  BookOpen,
-  Wallet, 
   Coins, 
-  PenTool, 
   TrendingUp,
-  Users,
   Download,
   ExternalLink,
   CheckCircle2,
@@ -152,15 +148,37 @@ interface AcademyContentProps {
 }
 
 const sections = [
-  { id: 'introduction', icon: BookOpen },
-  { id: 'step-1', icon: Wallet },
-  { id: 'step-2', icon: Coins },
-  { id: 'step-3', icon: PenTool },
-  { id: 'step-4', icon: TrendingUp },
-  { id: 'step-5', icon: Users },
-  { id: 'step-6', icon: ClipboardList },
-  { id: 'step-7', icon: Crown },
+  { id: 'introduction', image: '/logonew.png', alt: 'Polnation Academy', fit: 'contain' },
+  { id: 'step-1', image: '/wallet-logos/trust.webp', alt: 'Wallet apps', fit: 'contain' },
+  { id: 'step-2', image: '/usdc.webp', alt: 'USDC', fit: 'contain' },
+  { id: 'step-3', image: '/logo.svg', alt: 'Polnation', fit: 'contain' },
+  { id: 'step-4', image: '/partners/usdc.webp', alt: 'Agentic Earnings', fit: 'contain' },
+  { id: 'step-5', image: '/crowdfunding.webp', alt: 'Team Pool', fit: 'cover' },
+  { id: 'step-6', image: '/images/dashboard-hero.png', alt: 'Tasks and rewards', fit: 'cover' },
+  { id: 'step-7', image: '/levels/level-6.webp', alt: 'Team levels', fit: 'contain' },
 ]
+
+type SectionMedia = (typeof sections)[number]
+
+function MediaIcon({ section, size = 'large' }: { section: SectionMedia; size?: 'small' | 'large' }) {
+  const isSmall = size === 'small'
+
+  return (
+    <span
+      className={`relative flex-shrink-0 overflow-hidden border border-white/10 bg-zinc-950 shadow-lg ${
+        isSmall ? 'w-5 h-5 rounded-md' : 'w-12 h-12 rounded-xl'
+      }`}
+    >
+      <Image
+        src={section.image}
+        alt={section.alt}
+        fill
+        sizes={isSmall ? '20px' : '48px'}
+        className={section.fit === 'cover' ? 'object-cover' : 'object-contain p-1.5'}
+      />
+    </span>
+  )
+}
 
 const personalTiers = [
   { name: 'Visitor', balance: '$0 - $9.99', rate: '0%' },
@@ -278,7 +296,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
             </Link>
             <div className="hidden sm:block w-px h-6 bg-zinc-700" />
             <div className="flex items-center gap-2 text-zinc-400">
-              <BookOpen className="w-4 h-4" />
+              <MediaIcon section={sections[0]} size="small" />
               <span className="text-sm font-medium">Academy</span>
             </div>
           </div>
@@ -331,7 +349,6 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
             
             <nav className="space-y-1">
               {sections.map((section) => {
-                const Icon = section.icon
                 const isActive = activeSection === section.id
                 return (
                   <button
@@ -345,7 +362,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
                       }
                     `}
                   >
-                    <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-purple-400' : ''}`} />
+                    <MediaIcon section={section} size="small" />
                     <span className="truncate">{sectionTitles[section.id]}</span>
                   </button>
                 )
@@ -413,9 +430,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
             {/* Step 1: Download Wallet */}
             <section id="step-1" className="mb-16 scroll-mt-20">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
-                  <Wallet className="w-6 h-6 text-white" />
-                </div>
+                <MediaIcon section={sections[1]} />
                 <div>
                   <div className="text-sm text-cyan-400 font-medium">{t.step} 1</div>
                   <h2 className="text-2xl font-bold text-white">{t.steps.wallet.title}</h2>
@@ -491,9 +506,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
             {/* Step 2: Get USDC */}
             <section id="step-2" className="mb-16 scroll-mt-20">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg">
-                  <Coins className="w-6 h-6 text-white" />
-                </div>
+                <MediaIcon section={sections[2]} />
                 <div>
                   <div className="text-sm text-emerald-400 font-medium">{t.step} 2</div>
                   <h2 className="text-2xl font-bold text-white">{t.steps.deposit.title}</h2>
@@ -583,9 +596,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
             {/* Step 3: Activate Earning Agent */}
             <section id="step-3" className="mb-16 scroll-mt-20">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
-                  <PenTool className="w-6 h-6 text-white" />
-                </div>
+                <MediaIcon section={sections[3]} />
                 <div>
                   <div className="text-sm text-purple-400 font-medium">{t.step} 3</div>
                   <h2 className="text-2xl font-bold text-white">{t.steps.sign.title}</h2>
@@ -625,9 +636,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
             {/* Step 4: Personal Agentic Earnings */}
             <section id="step-4" className="mb-16 scroll-mt-20">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center shadow-lg">
-                  <TrendingUp className="w-6 h-6 text-white" />
-                </div>
+                <MediaIcon section={sections[4]} />
                 <div>
                   <div className="text-sm text-orange-400 font-medium">{t.step} 4</div>
                   <h2 className="text-2xl font-bold text-white">{t.steps.earn.title}</h2>
@@ -671,9 +680,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
             {/* Step 5: Build Team */}
             <section id="step-5" className="mb-16 scroll-mt-20">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
+                <MediaIcon section={sections[5]} />
                 <div>
                   <div className="text-sm text-pink-400 font-medium">{t.bonus}</div>
                   <h2 className="text-2xl font-bold text-white">{t.steps.team.title}</h2>
@@ -734,9 +741,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
             {/* Step 6: Tasks & Rewards */}
             <section id="step-6" className="mb-16 scroll-mt-20">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shadow-lg">
-                  <ClipboardList className="w-6 h-6 text-white" />
-                </div>
+                <MediaIcon section={sections[6]} />
                 <div>
                   <div className="text-sm text-emerald-400 font-medium">{t.step} 6</div>
                   <h2 className="text-2xl font-bold text-white">{t.steps.tasks?.title || 'Tasks & Rewards'}</h2>
@@ -854,9 +859,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
             {/* Step 7: Team Levels */}
             <section id="step-7" className="mb-16 scroll-mt-20">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg">
-                  <Crown className="w-6 h-6 text-white" />
-                </div>
+                <MediaIcon section={sections[7]} />
                 <div>
                   <div className="text-sm text-amber-400 font-medium">{t.step} 7</div>
                   <h2 className="text-2xl font-bold text-white">{t.steps.levels?.title || 'Team Levels & Prize Pools'}</h2>

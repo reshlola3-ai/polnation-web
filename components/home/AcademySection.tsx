@@ -5,10 +5,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { 
   GraduationCap, 
-  Wallet, 
-  Coins, 
-  PenTool, 
-  TrendingUp, 
   ChevronRight,
   Play,
   CheckCircle2,
@@ -47,11 +43,11 @@ interface AcademySectionProps {
   }
 }
 
-const stepIcons = [
-  { icon: Wallet, color: 'from-blue-500 to-cyan-500', glow: 'blue' },
-  { icon: Coins, color: 'from-green-500 to-emerald-500', glow: 'green' },
-  { icon: PenTool, color: 'from-purple-500 to-pink-500', glow: 'purple' },
-  { icon: TrendingUp, color: 'from-orange-500 to-yellow-500', glow: 'orange' },
+const stepMedia = [
+  { image: '/wallet-logos/trust.webp', alt: 'Wallet app', fit: 'contain' },
+  { image: '/usdc.webp', alt: 'USDC', fit: 'contain' },
+  { image: '/logo.svg', alt: 'Polnation activation', fit: 'contain' },
+  { image: '/crowdfunding.webp', alt: 'Agentic Earnings', fit: 'cover' },
 ]
 
 export function AcademySection({ translations: t }: AcademySectionProps) {
@@ -86,7 +82,7 @@ export function AcademySection({ translations: t }: AcademySectionProps) {
         {/* Steps Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {steps.map((step, index) => {
-            const { icon: Icon, color, glow } = stepIcons[index]
+            const media = stepMedia[index]
             const isExpanded = expandedStep === index
 
             return (
@@ -116,21 +112,14 @@ export function AcademySection({ translations: t }: AcademySectionProps) {
                   )}
 
                   {/* Icon */}
-                  <div className={`
-                    w-14 h-14 rounded-xl bg-gradient-to-br ${color} 
-                    flex items-center justify-center mb-4
-                    shadow-lg group-hover:scale-110 transition-transform duration-300
-                  `}
-                    style={{
-                      boxShadow: isExpanded ? `0 0 30px rgba(${
-                        glow === 'blue' ? '59, 130, 246' :
-                        glow === 'green' ? '16, 185, 129' :
-                        glow === 'purple' ? '168, 85, 247' :
-                        '249, 115, 22'
-                      }, 0.4)` : undefined
-                    }}
-                  >
-                    <Icon className="w-7 h-7 text-white" />
+                  <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-zinc-950 border border-white/10 mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <Image
+                      src={media.image}
+                      alt={media.alt}
+                      fill
+                      sizes="56px"
+                      className={media.fit === 'cover' ? 'object-cover' : 'object-contain p-2'}
+                    />
                   </div>
 
                   {/* Title & Description */}
@@ -155,24 +144,15 @@ export function AcademySection({ translations: t }: AcademySectionProps) {
                           ))}
                         </div>
                         
-                        {/* Placeholder Image */}
-                        <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-800/50 border border-zinc-700">
+                        {/* Step media */}
+                        <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-950 border border-zinc-700">
                           <Image
-                            src={`/academy/step-${index + 1}.png`}
-                            alt={step.title}
+                            src={media.image}
+                            alt={media.alt}
                             fill
-                            className="object-cover"
-                            onError={(e) => {
-                              // Fallback to placeholder
-                              const target = e.target as HTMLImageElement
-                              target.style.display = 'none'
-                            }}
+                            sizes="(min-width: 768px) 320px, 100vw"
+                            className={media.fit === 'cover' ? 'object-cover' : 'object-contain p-8'}
                           />
-                          {/* Placeholder overlay */}
-                          <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-500">
-                            <Icon className="w-12 h-12 mb-2 opacity-30" />
-                            <span className="text-xs opacity-50">{t.step} {index + 1}</span>
-                          </div>
                         </div>
                       </div>
                     </div>
