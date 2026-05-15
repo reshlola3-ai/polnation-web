@@ -1412,5 +1412,14 @@
     "stats": {
       "heading": "Thống kê động cơ tín hiệu"
     }
+  },
+  "verifyGate": {
+    "telegramTitle": "Kết nối Telegram",
+    "telegramSubtitle": "Một tài khoản trên mỗi Telegram — ngăn trùng lặp",
+    "telegramDescription": "Để truy cập nhiệm vụ, hãy liên kết tài khoản Telegram. Mỗi Telegram chỉ có thể liên kết với một tài khoản Polnation.",
+    "telegramAlreadyBound": "Tài khoản Telegram này đã được liên kết với tài khoản khác.",
+    "telegramGenericError": "Liên kết Telegram thất bại. Vui lòng thử lại.",
+    "recommended": "Khuyến nghị",
+    "orDivider": "hoặc"
   }
 }

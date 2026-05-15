@@ -1412,5 +1412,14 @@
     "stats": {
       "heading": "سگنل انجن کے اعداد و شمار"
     }
+  },
+  "verifyGate": {
+    "telegramTitle": "Telegram جوڑیں",
+    "telegramSubtitle": "ہر Telegram کے لیے ایک اکاؤنٹ — نقل کو روکتا ہے",
+    "telegramDescription": "ٹاسک تک رسائی کے لیے، اپنا Telegram اکاؤنٹ جوڑیں۔ ہر Telegram صرف ایک Polnation اکاؤنٹ سے جڑ سکتا ہے۔",
+    "telegramAlreadyBound": "یہ Telegram اکاؤنٹ پہلے سے کسی اور اکاؤنٹ سے منسلک ہے۔",
+    "telegramGenericError": "Telegram جوڑنے میں ناکام۔ براہ کرم دوبارہ کوشش کریں۔",
+    "recommended": "تجویز کردہ",
+    "orDivider": "یا"
   }
 }

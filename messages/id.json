@@ -1413,5 +1413,14 @@
     "stats": {
       "heading": "Statistik Mesin Sinyal"
     }
+  },
+  "verifyGate": {
+    "telegramTitle": "Hubungkan Telegram",
+    "telegramSubtitle": "Satu akun per Telegram — mencegah duplikat",
+    "telegramDescription": "Untuk mengakses tugas, hubungkan akun Telegram Anda. Setiap Telegram hanya dapat dihubungkan ke satu akun Polnation.",
+    "telegramAlreadyBound": "Akun Telegram ini sudah terhubung ke akun lain.",
+    "telegramGenericError": "Gagal menghubungkan Telegram. Silakan coba lagi.",
+    "recommended": "Direkomendasikan",
+    "orDivider": "atau"
   }
 }

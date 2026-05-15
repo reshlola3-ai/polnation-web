@@ -12,6 +12,7 @@ import { User, Phone, Send, Wallet, Check, ExternalLink, CheckCircle, Mail, Lock
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useAccount } from 'wagmi'
 import { isPlaceholderEmail, getPlaceholderType } from '@/lib/auth/placeholder-email'
+import { TelegramBindButton } from '@/components/auth/TelegramBindButton'
 
 function RequiredLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -434,6 +435,44 @@ export default function ProfilePage() {
                     <span className="text-xs bg-purple-500/20 px-2 py-0.5 rounded text-purple-300">MetaMask</span>
                   </div>
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* Telegram verified-link status. Separate from the optional
+              "Telegram Username" text field above — this is the cryptographically
+              verified TG identity used to gate Tasks / prevent duplicates. */}
+          <div>
+            <label className="block text-sm font-medium text-zinc-400 mb-2">
+              Telegram Account
+            </label>
+            {profile?.telegram_verified ? (
+              <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                <div className="flex items-center gap-2 mb-1">
+                  <CheckCircle className="w-4 h-4 text-blue-400" />
+                  <span className="text-sm font-medium text-blue-300">Telegram Linked</span>
+                </div>
+                <code className="text-sm font-mono text-zinc-300 bg-white/5 px-2 py-1 rounded inline-block mt-1">
+                  @{profile.telegram_username || `tg_${String(profile.telegram_chat_id ?? '').slice(-6)}`}
+                </code>
+                <p className="text-xs text-zinc-500 mt-2">One Telegram account per profile — cannot be changed.</p>
+              </div>
+            ) : (
+              <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Send className="w-5 h-5 text-blue-400" />
+                  <div>
+                    <p className="text-sm font-medium text-zinc-300">No Telegram linked</p>
+                    <p className="text-xs text-zinc-500">Required to access Tasks rewards</p>
+                  </div>
+                </div>
+                <TelegramBindButton
+                  onBound={() => loadProfile()}
+                  errorLabels={{
+                    alreadyBound: 'This Telegram account is already linked to another account.',
+                    generic: 'Failed to link Telegram. Please try again.',
+                  }}
+                />
               </div>
             )}
           </div>

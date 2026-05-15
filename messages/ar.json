@@ -1412,5 +1412,14 @@
     "stats": {
       "heading": "إحصاءات محرك الإشارات"
     }
+  },
+  "verifyGate": {
+    "telegramTitle": "ربط Telegram",
+    "telegramSubtitle": "حساب واحد لكل Telegram — يمنع التكرار",
+    "telegramDescription": "للوصول إلى المهام، اربط حساب Telegram الخاص بك. يمكن ربط كل Telegram بحساب Polnation واحد فقط.",
+    "telegramAlreadyBound": "هذا الحساب على Telegram مرتبط بالفعل بحساب آخر.",
+    "telegramGenericError": "فشل ربط Telegram. يرجى المحاولة مرة أخرى.",
+    "recommended": "موصى به",
+    "orDivider": "أو"
   }
 }

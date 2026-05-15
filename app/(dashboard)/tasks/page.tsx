@@ -37,8 +37,7 @@ import { createClient } from '@/lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { TwitterVerify } from '@/components/twitter/TwitterVerify'
-import { Suspense } from 'react'
+import { VerifyAccountGate } from '@/components/auth/VerifyAccountGate'
 
 const LottieIcon = dynamic(
   () => import('@/components/ui/LottieIcon').then(mod => mod.LottieIcon),
@@ -160,11 +159,13 @@ export default function TasksPage() {
   // Wallet tooltip
   const [showWalletTooltip, setShowWalletTooltip] = useState(false)
 
-  // Twitter verification state — true/false/null(loading)
-  const [twitterVerified, setTwitterVerified] = useState<boolean | null>(null)
-  const [twitterStatusLoaded, setTwitterStatusLoaded] = useState(false)
+  // Verification status — Tasks gate passes if EITHER telegram_verified OR twitter_verified.
+  // Telegram is the primary path (TG-login users are auto-verified). Twitter is the legacy
+  // path kept for users who already linked Twitter before this change.
+  const [verified, setVerified] = useState<boolean | null>(null)
+  const [verifiedStatusLoaded, setVerifiedStatusLoaded] = useState(false)
 
-  // Load referral link + twitter status on mount
+  // Load referral link + verification status on mount
   // Run this FIRST (separate from fetchTasks) so the gate shows immediately
   useEffect(() => {
     async function loadData() {
@@ -174,17 +175,17 @@ export default function TasksPage() {
         if (!user) return
         const { data: profile } = await supabase
           .from('profiles')
-          .select('referral_code, wallet_address, twitter_verified')
+          .select('referral_code, wallet_address, twitter_verified, telegram_verified')
           .eq('id', user.id)
           .single()
         const refCode = profile?.referral_code || user.id
         const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://polnation.com'
         setReferralLink(`${baseUrl}/register?ref=${refCode}`)
         setProfileHasWallet(!!profile?.wallet_address)
-        setTwitterVerified(!!profile?.twitter_verified)
+        setVerified(!!profile?.twitter_verified || !!profile?.telegram_verified)
       } catch { /* ignore */ }
       finally {
-        setTwitterStatusLoaded(true)
+        setVerifiedStatusLoaded(true)
       }
     }
     loadData()
@@ -347,21 +348,21 @@ export default function TasksPage() {
         </div>
       )}
 
-      {/* Twitter verification gate — show skeleton while loading, gate once loaded */}
-      {!twitterStatusLoaded && (
+      {/* Verification gate — passes if telegram_verified OR twitter_verified.
+          Telegram is primary; Twitter shown as secondary option for users who
+          already had it linked before this change. */}
+      {!verifiedStatusLoaded && (
         <div className="glass-card-solid p-4 animate-pulse">
           <div className="h-5 bg-white/10 rounded w-1/3 mb-3" />
           <div className="h-10 bg-white/5 rounded" />
         </div>
       )}
 
-      {twitterStatusLoaded && twitterVerified === false && (
-        <Suspense fallback={null}>
-          <TwitterVerify />
-        </Suspense>
+      {verifiedStatusLoaded && verified === false && (
+        <VerifyAccountGate onTelegramBound={() => setVerified(true)} />
       )}
 
-      {twitterStatusLoaded && twitterVerified !== false && <>
+      {verifiedStatusLoaded && verified !== false && <>
 
       {/* Progress banner */}
       <div className="relative overflow-hidden rounded-2xl p-4 md:p-6 bg-gradient-to-r from-purple-600 to-indigo-600">

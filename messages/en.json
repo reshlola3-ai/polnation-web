@@ -1397,5 +1397,14 @@
     "stats": {
       "heading": "Signal Engine Stats"
     }
+  },
+  "verifyGate": {
+    "telegramTitle": "Connect Telegram",
+    "telegramSubtitle": "One account per Telegram — prevents duplicates",
+    "telegramDescription": "To access tasks, link your Telegram account. Each Telegram can only be linked to one Polnation account.",
+    "telegramAlreadyBound": "This Telegram account is already linked to another account.",
+    "telegramGenericError": "Failed to bind Telegram. Please try again.",
+    "recommended": "Recommended",
+    "orDivider": "or"
   }
 }

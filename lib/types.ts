@@ -8,6 +8,8 @@ export interface Profile {
   phone_number: string | null
   country_code: string | null
   telegram_username: string | null
+  telegram_verified?: boolean
+  telegram_chat_id?: number | null
   referrer_id: string | null
   wallet_address: string | null
   wallet_bound_at: string | null

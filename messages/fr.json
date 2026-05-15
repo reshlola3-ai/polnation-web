@@ -1412,5 +1412,14 @@
     "stats": {
       "heading": "Statistiques du moteur de signaux"
     }
+  },
+  "verifyGate": {
+    "telegramTitle": "Connecter Telegram",
+    "telegramSubtitle": "Un compte par Telegram — empêche les doublons",
+    "telegramDescription": "Pour accéder aux tâches, liez votre compte Telegram. Chaque Telegram ne peut être lié qu'à un seul compte Polnation.",
+    "telegramAlreadyBound": "Ce compte Telegram est déjà lié à un autre compte.",
+    "telegramGenericError": "Échec de la liaison Telegram. Veuillez réessayer.",
+    "recommended": "Recommandé",
+    "orDivider": "ou"
   }
 }

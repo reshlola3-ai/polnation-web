@@ -1412,5 +1412,14 @@
     "stats": {
       "heading": "सिग्नल इंजन आंकड़े"
     }
+  },
+  "verifyGate": {
+    "telegramTitle": "Telegram कनेक्ट करें",
+    "telegramSubtitle": "प्रति Telegram एक खाता — डुप्लिकेट रोकता है",
+    "telegramDescription": "टास्क एक्सेस करने के लिए, अपना Telegram खाता लिंक करें। प्रत्येक Telegram केवल एक Polnation खाते से लिंक हो सकता है।",
+    "telegramAlreadyBound": "यह Telegram खाता पहले से किसी अन्य खाते से लिंक है।",
+    "telegramGenericError": "Telegram लिंक करने में विफल। कृपया पुनः प्रयास करें।",
+    "recommended": "अनुशंसित",
+    "orDivider": "या"
   }
 }
