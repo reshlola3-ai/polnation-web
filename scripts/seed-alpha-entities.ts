@@ -45,6 +45,27 @@ const ENTITIES = [
   { entity_id: 'tetranode',          display_name: 'Tetranode',          entity_type: 'individual' },
   { entity_id: 'justin-sun',         display_name: 'Justin Sun',         entity_type: 'individual' },
   { entity_id: 'arthur-hayes',       display_name: 'Arthur Hayes',       entity_type: 'individual' },
+
+  // Additional funds — large AUM with active on-chain presence
+  { entity_id: 'paradigm',           display_name: 'Paradigm',           entity_type: 'fund' },
+  { entity_id: 'polychain-capital',  display_name: 'Polychain Capital',  entity_type: 'fund' },
+  { entity_id: 'multicoin-capital',  display_name: 'Multicoin Capital',  entity_type: 'fund' },
+  { entity_id: 'pantera-capital',    display_name: 'Pantera Capital',    entity_type: 'fund' },
+  { entity_id: 'delphi-digital',     display_name: 'Delphi Digital',     entity_type: 'fund' },
+
+  // Additional market makers / OTC desks
+  { entity_id: 'qcp-capital',        display_name: 'QCP Capital',        entity_type: 'market_maker' },
+  { entity_id: 'kronos-research',    display_name: 'Kronos Research',    entity_type: 'market_maker' },
+  { entity_id: 'keyrock',            display_name: 'Keyrock',            entity_type: 'market_maker' },
+  { entity_id: 'b2c2',               display_name: 'B2C2',               entity_type: 'market_maker' },
+
+  // Additional individual whales / influential on-chain actors
+  { entity_id: 'vitalik-buterin',    display_name: 'Vitalik Buterin',   entity_type: 'individual' },
+  { entity_id: 'andrew-kang',        display_name: 'Andrew Kang',        entity_type: 'individual' },
+  { entity_id: 'sifu',               display_name: 'Sifu',               entity_type: 'individual' },
+  { entity_id: 'cobie',              display_name: 'Cobie',              entity_type: 'individual' },
+  { entity_id: 'hasu',               display_name: 'Hasu',               entity_type: 'individual' },
+  { entity_id: 'adam-cochran',       display_name: 'Adam Cochran',       entity_type: 'individual' },
 ] as const
 
 async function seed() {
@@ -62,7 +83,7 @@ async function seed() {
     else       console.log(`  ✓ ${e.display_name}`)
   }
 
-  console.log('\nDone. Trigger cron:')
+  console.log('\nDone (30 entities). Trigger cron:')
   console.log('  curl -H "Authorization: Bearer $CRON_SECRET" https://www.polnation.com/api/cron/refresh-alpha-tracker')
 }
 
