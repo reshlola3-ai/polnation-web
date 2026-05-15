@@ -35,6 +35,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const body = await request.json().catch(() => ({}))
+    const force = body?.force === true
+
     // 获取配置和等级
     const { data: config } = await supabase
       .from('airdrop_config')
@@ -51,14 +54,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No active profit tiers configured' }, { status: 400 })
     }
 
-    // 检查是否可以发放
-    if (config?.last_distribution_at) {
+    // 检查是否可以发放（force=true 时跳过间隔检查）
+    if (!force && config?.last_distribution_at) {
       const lastDist = new Date(config.last_distribution_at)
       const intervalMs = (config.interval_seconds || 86400) * 1000
       const nextAllowed = new Date(lastDist.getTime() + intervalMs)
-      
+
       if (new Date() < nextAllowed) {
-        return NextResponse.json({ 
+        return NextResponse.json({
           error: 'Too early to calculate',
           next_allowed_at: nextAllowed.toISOString(),
           seconds_remaining: Math.ceil((nextAllowed.getTime() - Date.now()) / 1000)

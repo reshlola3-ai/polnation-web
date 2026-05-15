@@ -92,6 +92,7 @@ export default function AirdropPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [calculating, setCalculating] = useState(false)
   const [distributing, setDistributing] = useState<string | null>(null)
+  const [forceDistributing, setForceDistributing] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   
@@ -224,6 +225,49 @@ export default function AirdropPage() {
       setError('Network error')
     } finally {
       setCalculating(false)
+    }
+  }
+
+  const handleForceDistribute = async () => {
+    if (!confirm('【测试模式】跳过24小时限制，立即计算并发放奖励？')) return
+    setForceDistributing(true)
+    setError('')
+    setSuccess('')
+    setPreviewResult(null)
+    try {
+      // Step 1: calculate with force flag
+      const calcRes = await fetch('/api/admin/airdrop/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ force: true }),
+      })
+      const calcData = await calcRes.json()
+      if (!calcRes.ok) {
+        setError(calcData.error || 'Force calculate failed')
+        return
+      }
+
+      // Step 2: immediately distribute
+      const distRes = await fetch('/api/admin/airdrop/distribute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ round_id: calcData.round_id }),
+      })
+      const distData = await distRes.json()
+      if (!distRes.ok) {
+        setError(distData.error || 'Force distribute failed')
+        return
+      }
+
+      const commissionMsg = parseFloat(distData.total_commissions || '0') > 0
+        ? `，佣金: $${parseFloat(distData.total_commissions).toFixed(6)}`
+        : ''
+      setSuccess(`[测试] 立即发放成功！${distData.distributed_count} 位用户，总计: $${distData.total_distributed}${commissionMsg}`)
+      fetchData()
+    } catch {
+      setError('Network error')
+    } finally {
+      setForceDistributing(false)
     }
   }
 
@@ -478,6 +522,23 @@ export default function AirdropPage() {
                 )}
                 计算利润 (预览)
               </Button>
+
+              {/* Force Distribute — for testing only */}
+              <div className="mt-3 pt-3 border-t border-zinc-700">
+                <Button
+                  onClick={handleForceDistribute}
+                  disabled={forceDistributing || calculating}
+                  className="w-full bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white"
+                >
+                  {forceDistributing ? (
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  立即发放 (测试 — 跳过24小时)
+                </Button>
+                <p className="text-center text-[10px] text-orange-500/60 mt-1">跳过冷却时间，直接计算并发放，仅用于测试</p>
+              </div>
 
               {config?.last_distribution_at && (
                 <p className="text-center text-xs text-zinc-500 mt-3">
