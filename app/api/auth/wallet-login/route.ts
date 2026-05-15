@@ -42,14 +42,26 @@ export async function POST(request: Request) {
       .eq('wallet_address', normalizedAddress)
       .single()
 
-    // If no profile found and autoRegister is true, create new account
-    if ((profileError || !profile) && autoRegister) {
-      return await createWalletAccount(normalizedAddress, resolvedReferrerId)
-    }
-
     if (profileError || !profile) {
+      // Fallback: wallet_address may not be set in profiles — try matching by wallet email
+      const walletEmail = `${normalizedAddress.slice(2, 10)}@wallet.polnation.com`
+      const { data: profileByEmail } = await supabaseAdmin
+        .from('profiles')
+        .select('id, email, username')
+        .eq('email', walletEmail)
+        .single()
+
+      if (profileByEmail) {
+        return await generateLoginSession(profileByEmail)
+      }
+
+      // No existing account — create one if autoRegister
+      if (autoRegister) {
+        return await createWalletAccount(normalizedAddress, resolvedReferrerId)
+      }
+
       return NextResponse.json(
-        { 
+        {
           error: 'No account found for this wallet',
           needsRegistration: true,
           walletAddress: normalizedAddress
@@ -111,8 +123,23 @@ async function createWalletAccount(walletAddress: string, referrerId: string | n
     if (authError || !authUser.user) {
       console.error('=== AUTH USER CREATION FAILED ===')
       console.error('Auth error:', authError)
-      console.error('Auth error message:', authError?.message)
-      console.error('Auth error code:', authError?.code)
+
+      // Email already exists → this wallet was previously registered; log them in instead
+      const isEmailConflict = authError?.message?.toLowerCase().includes('already registered')
+        || authError?.message?.toLowerCase().includes('already been registered')
+        || authError?.code === 'email_exists'
+      if (isEmailConflict) {
+        console.log('Email conflict — looking up existing wallet account to log in')
+        const { data: existingProfile } = await supabaseAdmin
+          .from('profiles')
+          .select('id, email, username')
+          .eq('email', walletEmail)
+          .single()
+        if (existingProfile) {
+          return await generateLoginSession(existingProfile)
+        }
+      }
+
       return NextResponse.json(
         { error: 'Failed to create account: ' + (authError?.message || 'Unknown error'), details: authError },
         { status: 500 }

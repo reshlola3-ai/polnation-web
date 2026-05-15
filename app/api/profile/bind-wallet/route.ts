@@ -31,6 +31,17 @@ export async function POST(request: NextRequest) {
     { auth: { autoRefreshToken: false, persistSession: false } }
   )
 
+  // One wallet per account — reject if already bound
+  const { data: existing } = await admin
+    .from('profiles')
+    .select('wallet_address')
+    .eq('id', user.id)
+    .single()
+
+  if (existing?.wallet_address) {
+    return NextResponse.json({ error: 'wallet_already_bound' }, { status: 409 })
+  }
+
   const { error } = await admin
     .from('profiles')
     .update({ wallet_address: address.toLowerCase() })
