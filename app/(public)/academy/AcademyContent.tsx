@@ -214,6 +214,12 @@ const walletOptions = [
 export function AcademyContent({ translations: t, user, locale }: AcademyContentProps) {
   const [activeSection, setActiveSection] = useState('introduction')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const teamPoolPoints = Array.isArray(t.steps.team.poolPoints) ? t.steps.team.poolPoints : [
+    'Team Pool progress is calculated from L1-L3 team USDC volume plus task bonus.',
+    'Task and lottery bonus mainly increase unlock progress; they are not direct withdrawable balance.',
+    'After a level is claimed, its reward pool can generate daily community earnings according to that level rate.',
+    'Your members keep their USDC in their own wallets; Polnation reads eligible signals and calculates rewards through the Agentic Earnings system.',
+  ]
 
   // Track scroll position to update active section
   useEffect(() => {
@@ -715,12 +721,7 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
                   {t.steps.team.poolIntro || 'The Team Pool is an Agentic Earnings reward pool unlocked by your network progress. It is not a pool of user deposits.'}
                 </p>
                 <ul className="space-y-3">
-                  {(t.steps.team.poolPoints || [
-                    'Team Pool progress is calculated from L1-L3 team USDC volume plus task bonus.',
-                    'Task and lottery bonus mainly increase unlock progress; they are not direct withdrawable balance.',
-                    'After a level is claimed, its reward pool can generate daily community earnings according to that level rate.',
-                    'Your members keep their USDC in their own wallets; Polnation reads eligible signals and calculates rewards through the Agentic Earnings system.',
-                  ]).map((point, i) => (
+                  {teamPoolPoints.map((point, i) => (
                     <li key={i} className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-pink-300 flex-shrink-0 mt-0.5" />
                       <span className="text-sm text-zinc-300">{point}</span>

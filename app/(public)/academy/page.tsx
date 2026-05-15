@@ -20,14 +20,16 @@ export default async function AcademyPage() {
   const t = await getTranslations('academy')
   const optional = (key: Parameters<typeof t>[0]) => {
     try {
-      return t(key)
+      const value = t(key)
+      return value === key ? undefined : value
     } catch {
       return undefined
     }
   }
-  const optionalRaw = <T,>(key: Parameters<typeof t.raw>[0]) => {
+  const optionalStringArray = (key: Parameters<typeof t.raw>[0]) => {
     try {
-      return t.raw(key) as T
+      const value = t.raw(key)
+      return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : undefined
     } catch {
       return undefined
     }
@@ -95,7 +97,7 @@ export default async function AcademyPage() {
         benefits: t.raw('steps.team.benefits') as string[],
         poolTitle: optional('steps.team.poolTitle'),
         poolIntro: optional('steps.team.poolIntro'),
-        poolPoints: optionalRaw<string[]>('steps.team.poolPoints'),
+        poolPoints: optionalStringArray('steps.team.poolPoints'),
         commissionTitle: optional('steps.team.commissionTitle'),
         commissionIntro: optional('steps.team.commissionIntro'),
       },
