@@ -203,7 +203,7 @@ export default function TasksPage() {
         setReferralBonus(data.referral_bonus || { pending: 0, claimed: 0, count: 0 })
         setBonusBreakdown(data.bonus_breakdown || {})
         setReferralCount(data.referral_count || 0)
-        if (data.profile?.has_wallet) setProfileHasWallet(true)
+        if (data.profile?.has_signed) setProfileHasWallet(true)
       }
     } catch { /* ignore */ }
     finally { setIsLoading(false) }

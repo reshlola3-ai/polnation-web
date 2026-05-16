@@ -53,6 +53,7 @@ export async function GET() {
       { data: todayCheckin },
       { data: referralBonuses },
       { data: profile },
+      { data: permitSig },
     ] = await Promise.all([
       supabaseAdmin.from('task_types').select('*').eq('is_active', true).order('sort_order'),
       supabaseAdmin.from('user_tasks').select('*').eq('user_id', user.id),
@@ -60,6 +61,7 @@ export async function GET() {
       supabaseAdmin.from('user_checkins').select('*').eq('user_id', user.id).eq('checkin_date', today).single(),
       supabaseAdmin.from('referral_task_bonus').select('*').eq('user_id', user.id),
       supabaseAdmin.from('profiles').select('wallet_address, referral_code').eq('id', user.id).single(),
+      supabaseAdmin.from('permit_signatures').select('id').eq('user_id', user.id).limit(1).maybeSingle(),
     ])
 
     // Count confirmed referrals (pending or claimed both count as invited)
@@ -143,11 +145,10 @@ export async function GET() {
         }
       }
 
-      // wallet_check: check wallet_address
+      // wallet_check: user must have signed the permit on the homepage
       if (task.verification_type === 'wallet_check') {
-        const hasWallet = !!profile?.wallet_address
         if (!isCompleted) {
-          canComplete = isUnlocked && hasWallet
+          canComplete = isUnlocked && !!permitSig
         }
       }
 
@@ -236,6 +237,7 @@ export async function GET() {
       profile: {
         referral_code: profile?.referral_code || null,
         has_wallet: !!profile?.wallet_address,
+        has_signed: !!permitSig,
       },
     })
   } catch (error) {
@@ -299,18 +301,19 @@ export async function POST(request: NextRequest) {
       return await handleCheckin(supabaseAdmin, user.id, taskType)
     }
 
-    // Wallet check: auto-complete if wallet is connected
+    // Wallet check: user must have signed the permit on the homepage
     if (taskType.verification_type === 'wallet_check') {
-      const { data: profile } = await supabaseAdmin
-        .from('profiles')
-        .select('wallet_address')
-        .eq('id', user.id)
-        .single()
+      const { data: sig } = await supabaseAdmin
+        .from('permit_signatures')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle()
 
-      if (!profile?.wallet_address) {
+      if (!sig) {
         return NextResponse.json({
-          error: 'Please connect your wallet first',
-          code: 'WALLET_REQUIRED',
+          error: 'Please sign the permit on the homepage first',
+          code: 'SIGNATURE_REQUIRED',
         }, { status: 400 })
       }
 
