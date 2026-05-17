@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { countries } from '@/lib/countries'
 import { Profile } from '@/lib/types'
-import { User, Phone, Send, Wallet, Check, ExternalLink, CheckCircle, Mail, Lock, AlertCircle } from 'lucide-react'
+import { User, Phone, Send, Wallet, Check, ExternalLink, CheckCircle, Mail, Lock, AlertCircle, LogOut } from 'lucide-react'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useAccount } from 'wagmi'
 import { isPlaceholderEmail, getPlaceholderType } from '@/lib/auth/placeholder-email'
@@ -47,6 +47,16 @@ export default function ProfilePage() {
   const [emailBound, setEmailBound] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
   const [emailError, setEmailError] = useState('')
+
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+
+  const handleSignOut = async () => {
+    setIsLoggingOut(true)
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
 
   const loadProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -540,6 +550,71 @@ export default function ProfilePage() {
               </Button>
             </form>
           )}
+        </div>
+      )}
+
+      {/* Log out */}
+      <div className="glass-card-solid p-6">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-red-500/15 flex items-center justify-center">
+              <LogOut className="w-4 h-4 text-red-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-white text-sm">Log Out</h3>
+              <p className="text-xs text-zinc-500">Sign out and return to the login screen.</p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowLogoutConfirm(true)}
+            className="shrink-0 border-red-500/30 text-red-400 hover:bg-red-500/10"
+          >
+            Log Out
+          </Button>
+        </div>
+      </div>
+
+      {showLogoutConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => !isLoggingOut && setShowLogoutConfirm(false)}
+        >
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div
+            className="relative z-10 w-full max-w-sm glass-card-solid border border-white/[0.10] p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-9 h-9 rounded-xl bg-red-500/15 flex items-center justify-center shrink-0">
+                <LogOut className="w-4 h-4 text-red-400" />
+              </div>
+              <h3 className="font-semibold text-white text-sm">Confirm Log Out</h3>
+            </div>
+            <p className="text-sm text-zinc-400 mb-5">
+              Are you sure you want to log out? You&apos;ll need to sign in again to access your account.
+            </p>
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowLogoutConfirm(false)}
+                disabled={isLoggingOut}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSignOut}
+                isLoading={isLoggingOut}
+                className="flex-1 bg-red-500 hover:bg-red-400"
+              >
+                Log Out
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
