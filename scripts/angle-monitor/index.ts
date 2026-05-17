@@ -17,8 +17,9 @@ const CHAT_ID    = process.env.TG_CHAT_ID    || '-1003548662779'
 const ALCHEMY    = process.env.ALCHEMY_API_KEY || 'EPSkgE2Y0OHmmJnMwU8KX'
 const MIN_USDC   = Number(process.env.MIN_USDC ?? 10)   // $10 default
 
-const ETH_WS   = `wss://eth-mainnet.g.alchemy.com/v2/${ALCHEMY}`
-const POLY_WS  = `wss://polygon-mainnet.g.alchemy.com/v2/${ALCHEMY}`
+// Keyless public WebSocket endpoints (publicnode.com). Override via env if you have a paid key.
+const ETH_WS   = process.env.ETH_WS  || 'wss://ethereum-rpc.publicnode.com'
+const POLY_WS  = process.env.POLY_WS || 'wss://polygon-bor-rpc.publicnode.com'
 
 const USDC_ETH  = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' as Address
 const USDC_POLY = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as Address
