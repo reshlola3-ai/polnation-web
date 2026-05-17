@@ -54,8 +54,10 @@ export default function ProfilePage() {
   const handleSignOut = async () => {
     setIsLoggingOut(true)
     await supabase.auth.signOut()
-    router.push('/login')
-    router.refresh()
+    // Hard navigation (not router.push) so the browser issues a fresh request
+    // AFTER the auth cookies are cleared. A soft nav races middleware, which
+    // sees a still-valid session on /login and bounces back to /dashboard.
+    window.location.href = '/login'
   }
 
   const loadProfile = async () => {
