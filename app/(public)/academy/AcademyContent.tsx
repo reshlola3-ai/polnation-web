@@ -413,10 +413,14 @@ export function AcademyContent({ translations: t, user, locale }: AcademyContent
                   <Play className="w-5 h-5 text-cyan-400" />
                   {t.videoTutorial}
                 </h2>
-                <div className="aspect-video rounded-xl overflow-hidden bg-zinc-800/50 border border-zinc-700 flex flex-col items-center justify-center">
-                  <Play className="w-12 h-12 text-zinc-600 mb-3" />
-                  <p className="text-zinc-500">{t.videoComingSoon}</p>
-                  <p className="text-xs text-zinc-600 mt-1">{t.videoComingSoonDesc}</p>
+                <div className="aspect-video rounded-xl overflow-hidden bg-zinc-800/50 border border-zinc-700">
+                  <iframe
+                    src="https://www.youtube.com/embed/PF2h7U4dRik"
+                    title={t.videoTutorial}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
                 </div>
               </div>
 
