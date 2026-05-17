@@ -32,7 +32,7 @@ export function WalletAuthFlow({
   const { disconnect } = useDisconnect()
   const supabase = createClient()
 
-  const [status, setStatus] = useState<'idle' | 'logging_in' | 'success' | 'error'>('idle')
+  const [status, setStatus] = useState<'idle' | 'logging_in' | 'success' | 'error' | 'logged_out'>('idle')
   const [error, setError] = useState('')
   // SafePal DApp browser block — resolved on mount so SSR markup matches.
   const [blockedSafePal, setBlockedSafePal] = useState(false)
@@ -47,6 +47,17 @@ export function WalletAuthFlow({
   useEffect(() => {
     if (!isConnected || !address) return
     if (handledRef.current === address) return
+    // One-shot logout guard: the user explicitly signed out, but in a dApp
+    // in-app browser the injected provider re-announces (EIP-6963) and wagmi
+    // reconnects regardless of cleared storage. Skip the auto-login this once
+    // and show an explicit re-login button instead of silently re-creating
+    // the session the user just destroyed.
+    if (typeof window !== 'undefined' && localStorage.getItem('pol_logged_out')) {
+      localStorage.removeItem('pol_logged_out')
+      handledRef.current = address
+      setStatus('logged_out')
+      return
+    }
     handledRef.current = address
     handleWalletLogin(address)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -181,6 +192,39 @@ export function WalletAuthFlow({
           <Wallet className="w-4 h-4" />
           Continue with Wallet
         </button>
+      </div>
+    )
+  }
+
+  if (status === 'logged_out') {
+    return (
+      <div className="space-y-2">
+        <button
+          type="button"
+          onClick={() => {
+            handledRef.current = null
+            if (isConnected && address) handleWalletLogin(address)
+            else open()
+          }}
+          className="w-full flex items-center justify-center gap-2 p-3.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-colors rounded-xl"
+        >
+          <Wallet className="w-4 h-4" />
+          Continue with Wallet
+        </button>
+        <div className="flex items-center justify-center gap-2 pt-1">
+          <span className="text-[10px] text-white/40">Supports</span>
+          {WALLET_LOGOS.map((w) => (
+            <Image
+              key={w.alt}
+              src={w.src}
+              alt={w.alt}
+              width={16}
+              height={16}
+              className="w-4 h-4 object-contain rounded-sm opacity-60"
+              unoptimized
+            />
+          ))}
+        </div>
       </div>
     )
   }

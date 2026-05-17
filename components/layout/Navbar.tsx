@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { createClient } from '@/lib/supabase'
+import { signOutEverywhere } from '@/lib/auth/sign-out'
 import { User } from '@supabase/supabase-js'
 import { useTranslations } from 'next-intl'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -33,11 +33,9 @@ interface NavbarProps {
 export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
   const t = useTranslations('nav')
   const pathname = usePathname()
-  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
-  const supabase = createClient()
 
   // Close the user dropdown when clicking outside.
   useEffect(() => {
@@ -52,9 +50,7 @@ export function Navbar({ user, locale, isMobile = false }: NavbarProps) {
   }, [userMenuOpen])
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
-    router.refresh()
+    await signOutEverywhere('/')
   }
 
   // Initial for the user-menu avatar (first letter of email, fallback ·)

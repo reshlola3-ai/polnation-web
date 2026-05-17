@@ -12,6 +12,7 @@ import { User, Phone, Send, Wallet, Check, ExternalLink, CheckCircle, Mail, Lock
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useAccount } from 'wagmi'
 import { isPlaceholderEmail, getPlaceholderType } from '@/lib/auth/placeholder-email'
+import { signOutEverywhere } from '@/lib/auth/sign-out'
 import { TelegramBindButton } from '@/components/auth/TelegramBindButton'
 
 function RequiredLabel({ children }: { children: React.ReactNode }) {
@@ -53,11 +54,7 @@ export default function ProfilePage() {
 
   const handleSignOut = async () => {
     setIsLoggingOut(true)
-    await supabase.auth.signOut()
-    // Hard navigation (not router.push) so the browser issues a fresh request
-    // AFTER the auth cookies are cleared. A soft nav races middleware, which
-    // sees a still-valid session on /login and bounces back to /dashboard.
-    window.location.href = '/login'
+    await signOutEverywhere('/login')
   }
 
   const loadProfile = async () => {
