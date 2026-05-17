@@ -105,7 +105,7 @@ interface BonusBreakdown {
 }
 
 // Admin Telegram link
-const ADMIN_TELEGRAM = 'https://t.me/polnationadmin'
+const ADMIN_TELEGRAM = 'https://t.me/polnationalf'
 const SUPPORT_TELEGRAM = 'https://t.me/polnationsupport'
 
 export default function TasksPage() {

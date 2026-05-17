@@ -131,63 +131,39 @@ export async function POST() {
     }
   }
 
-  // ========== 3. 检查直推下线：已认证 Twitter → 推荐人 +1 次（不再要求 airdrop）==========
-  const { data: directReferrals } = await admin
+  // ========== 3. 直推下线认证（TG 或 Twitter 任一即可）→ 推荐人 +1 ==========
+  // OR 逻辑：每个 referral 只发一次 spin，无论后续是否再补另一项认证。
+  // 去重时同时检查老的两个 reason（referral_twitter_verified /
+  // referral_telegram_joined），避免已经发过 spin 的老下线再补发。
+  const { data: verifiedReferrals } = await admin
     .from('profiles')
-    .select('id')
+    .select('id, twitter_verified, telegram_chat_id')
     .eq('referrer_id', user.id)
-    .eq('twitter_verified', true)
 
-  if (directReferrals && directReferrals.length > 0) {
-    for (const referral of directReferrals) {
-      // 检查是否已经为该下线发放过
+  const eligibleReferrals = (verifiedReferrals || []).filter(
+    r => r.twitter_verified === true || r.telegram_chat_id != null
+  )
+
+  if (eligibleReferrals.length > 0) {
+    for (const referral of eligibleReferrals) {
       const { data: existingGrant } = await admin
         .from('lottery_spin_grants')
         .select('id')
         .eq('user_id', user.id)
-        .eq('grant_reason', 'referral_twitter_verified')
         .eq('referral_id', referral.id)
-        .single()
+        .in('grant_reason', [
+          'referral_verified',
+          'referral_twitter_verified',
+          'referral_telegram_joined',
+        ])
+        .maybeSingle()
 
       if (!existingGrant) {
         await admin
           .from('lottery_spin_grants')
           .insert({
             user_id: user.id,
-            grant_reason: 'referral_twitter_verified',
-            referral_id: referral.id,
-            milestone_count: 1,
-            spins_granted: 1,
-          })
-        newSpinsGranted += 1
-      }
-    }
-  }
-
-  // ========== 4. TG 直推：下线绑定了 telegram_chat_id → 推荐人 +1 次 ==========
-  // 与第 3 条并行：一个下线如果先 TG 加入再做 Twitter 验证，会触发两次（两个独立的奖励动作）
-  const { data: tgReferrals } = await admin
-    .from('profiles')
-    .select('id')
-    .eq('referrer_id', user.id)
-    .not('telegram_chat_id', 'is', null)
-
-  if (tgReferrals && tgReferrals.length > 0) {
-    for (const referral of tgReferrals) {
-      const { data: existingGrant } = await admin
-        .from('lottery_spin_grants')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('grant_reason', 'referral_telegram_joined')
-        .eq('referral_id', referral.id)
-        .single()
-
-      if (!existingGrant) {
-        await admin
-          .from('lottery_spin_grants')
-          .insert({
-            user_id: user.id,
-            grant_reason: 'referral_telegram_joined',
+            grant_reason: 'referral_verified',
             referral_id: referral.id,
             milestone_count: 1,
             spins_granted: 1,
