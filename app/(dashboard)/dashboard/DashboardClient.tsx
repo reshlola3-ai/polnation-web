@@ -577,7 +577,7 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
               {isLoadingProfit ? (
                 <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex items-baseline gap-2">
                   <Link href="/earnings" onClick={(e) => e.stopPropagation()}
                     className={`hover:text-white/80 transition-colors${profitData.availableWithdraw > 0.15 ? ' text-white/65' : ''}`}>
                     <MonoStat prefix="$" value={profitData.availableWithdraw.toFixed(2)} />

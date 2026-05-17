@@ -65,9 +65,9 @@ export function AccruingTicker({
 
   return (
     <span className="inline-flex items-center gap-2">
-      {inline && <span className="text-white/30 text-sm leading-none">|</span>}
+      {inline && <span className="text-white/30 text-[20px] leading-none">|</span>}
       <span
-        className={`${inline ? 'text-sm' : 'text-[10px] mt-1'} text-[#00e28a]/80 leading-none poly-mono tabular-nums whitespace-nowrap`}
+        className={`${inline ? 'text-[20px]' : 'text-[10px] mt-1'} text-[#00e28a]/80 leading-none poly-mono tabular-nums whitespace-nowrap`}
         title={t('accrualTooltip')}
       >
         +${accrued.toFixed(6)}{!inline && ` ${t('accrualLabel')}`}
