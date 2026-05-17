@@ -31,7 +31,7 @@ const ANGLE_ETH = new Map<string, string>([
 ])
 
 const ANGLE_POLY = new Map<string, string>([
-  ['0x222222880e079445df703c0604706e71a538fd4f', 'Transmuter'],
+  ['0x3ef3d8ba38ebe18db133cec108f4d14ce00dd9ae', 'Stake'],
 ])
 
 // ─── Telegram ─────────────────────────────────────────────────────────────────
