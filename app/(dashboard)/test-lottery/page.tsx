@@ -369,14 +369,14 @@ export default function TestLotteryPage() {
           <EyebrowTag className="mb-3 block">Prize Odds</EyebrowTag>
           <div className="grid grid-cols-2 gap-1.5">
             {[
-              { label: t.prizes.usdc_05,  chance: '15%',  tone: 'var(--poly-emerald)' },
-              { label: t.prizes.usdc_1,   chance: '7%',   tone: 'var(--poly-emerald)' },
-              { label: t.prizes.usdc_5,   chance: '2.5%', tone: 'var(--poly-emerald)' },
-              { label: t.prizes.usdc_10,  chance: '0.5%', tone: 'var(--poly-emerald)' },
-              { label: t.prizes.bonus_1,  chance: '20%',  tone: 'var(--poly-purple)' },
-              { label: t.prizes.bonus_2,  chance: '10%',  tone: 'var(--poly-purple)' },
-              { label: t.prizes.bonus_3,  chance: '5%',   tone: 'var(--poly-purple)' },
-              { label: t.prizes.thanks,   chance: '40%',  tone: 'var(--poly-grey-200)' },
+              { label: t.prizes.usdc_05,     chance: '15.45%', tone: 'var(--poly-emerald)' },
+              { label: t.prizes.usdc_1,      chance: '7%',     tone: 'var(--poly-emerald)' },
+              { label: t.prizes.usdc_5,      chance: '2.5%',   tone: 'var(--poly-emerald)' },
+              { label: t.prizes.electronics, chance: '0.05%',  tone: 'var(--poly-grey-200)' },
+              { label: t.prizes.bonus_1,     chance: '20%',    tone: 'var(--poly-purple)' },
+              { label: t.prizes.bonus_2,     chance: '10%',    tone: 'var(--poly-purple)' },
+              { label: t.prizes.bonus_3,     chance: '5%',     tone: 'var(--poly-purple)' },
+              { label: t.prizes.thanks,      chance: '40%',    tone: 'var(--poly-grey-200)' },
             ].map((p, i) => (
               <div key={i} className="flex items-center justify-between p-2 bg-white/[0.04] border border-white/[0.05]">
                 <span className="text-xs font-medium" style={{ color: p.tone }}>{p.label}</span>

@@ -365,7 +365,7 @@
     <!-- Node: Spin Wheel (right top) -->
     <rect x="570" y="100" width="140" height="52" rx="12" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.4)" stroke-width="1"/>
     <text x="640" y="121" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="700">🎰 Spin Wheel</text>
-    <text x="640" y="138" text-anchor="middle" fill="#71717a" font-size="11">Up to $10 USDC</text>
+    <text x="640" y="138" text-anchor="middle" fill="#71717a" font-size="11">USDC + Electronics</text>
     <line x1="570" y1="126" x2="428" y2="193" stroke="rgba(245,158,11,0.35)" stroke-width="1.5" stroke-dasharray="4,3"/>
 
     <!-- Node: Team Pool (right bottom) -->
@@ -897,7 +897,7 @@
         <path d="M130,120 L81.8,32.4 A100,100 0 0,1 111.3,21.8 Z" fill="rgba(239,68,68,0.5)" stroke="rgba(0,0,0,0.25)" stroke-width="1.2"/>
         <!-- $5 USDC 2.5% → 9° arc, ends at 268.2° -->
         <path d="M130,120 L111.3,21.8 A100,100 0 0,1 126.9,20.1 Z" fill="rgba(99,102,241,0.5)" stroke="rgba(0,0,0,0.25)" stroke-width="1.2"/>
-        <!-- $10 USDC 0.5% → 1.8° arc, ends at top -->
+        <!-- Premium Electronics — ultra-rare slice at top -->
         <path d="M130,120 L126.9,20.1 A100,100 0 0,1 130,20 Z" fill="rgba(251,191,36,0.75)" stroke="rgba(0,0,0,0.25)" stroke-width="1.2"/>
 
         <!-- Center -->
@@ -909,43 +909,43 @@
 
         <!-- Legend -->
         <rect x="280" y="20" width="12" height="12" rx="3" fill="rgba(113,113,122,0.5)"/>
-        <text x="298" y="31" fill="#a1a1aa" font-size="12">Try Again — 40%</text>
+        <text x="298" y="31" fill="#a1a1aa" font-size="12">Try Again</text>
 
         <rect x="280" y="42" width="12" height="12" rx="3" fill="rgba(124,58,237,0.5)"/>
-        <text x="298" y="53" fill="#a1a1aa" font-size="12">+$1 Bonus — 20%</text>
+        <text x="298" y="53" fill="#a1a1aa" font-size="12">+$1 Bonus</text>
 
         <rect x="280" y="64" width="12" height="12" rx="3" fill="rgba(16,185,129,0.5)"/>
-        <text x="298" y="75" fill="#a1a1aa" font-size="12">$0.50 USDC — 15%</text>
+        <text x="298" y="75" fill="#a1a1aa" font-size="12">$0.50 USDC</text>
 
         <rect x="280" y="86" width="12" height="12" rx="3" fill="rgba(245,158,11,0.5)"/>
-        <text x="298" y="97" fill="#a1a1aa" font-size="12">+$2 Bonus — 10%</text>
+        <text x="298" y="97" fill="#a1a1aa" font-size="12">+$2 Bonus</text>
 
         <rect x="280" y="108" width="12" height="12" rx="3" fill="rgba(6,182,212,0.5)"/>
-        <text x="298" y="119" fill="#a1a1aa" font-size="12">$1 USDC — 7%</text>
+        <text x="298" y="119" fill="#a1a1aa" font-size="12">$1 USDC</text>
 
         <rect x="280" y="130" width="12" height="12" rx="3" fill="rgba(239,68,68,0.5)"/>
-        <text x="298" y="141" fill="#a1a1aa" font-size="12">+$3 Bonus — 5%</text>
+        <text x="298" y="141" fill="#a1a1aa" font-size="12">+$3 Bonus</text>
 
         <rect x="280" y="152" width="12" height="12" rx="3" fill="rgba(99,102,241,0.5)"/>
-        <text x="298" y="163" fill="#a1a1aa" font-size="12">$5 USDC — 2.5%</text>
+        <text x="298" y="163" fill="#a1a1aa" font-size="12">$5 USDC</text>
 
         <rect x="280" y="174" width="12" height="12" rx="3" fill="rgba(251,191,36,0.6)"/>
-        <text x="298" y="185" fill="#fbbf24" font-size="12" font-weight="700">$10 USDC — 0.5% 🏆</text>
+        <text x="298" y="185" fill="#fbbf24" font-size="12" font-weight="700">📱 Premium Electronics 🏆</text>
       </svg>
-      <div class="diagram-caption">Fig 3 — Spin Wheel prize distribution (weighted probability)</div>
+      <div class="diagram-caption">Fig 3 — Spin Wheel prize tiers</div>
     </div>
 
     <h3>Prize Table</h3>
     <table>
-      <tr><th>Prize</th><th>Type</th><th>Probability</th></tr>
-      <tr><td>Try Again</td><td>No reward</td><td>40%</td></tr>
-      <tr><td>+$1 Bonus Credit</td><td>Platform bonus</td><td>20%</td></tr>
-      <tr><td>$0.50 USDC</td><td>Real USDC</td><td>15%</td></tr>
-      <tr><td>+$2 Bonus Credit</td><td>Platform bonus</td><td>10%</td></tr>
-      <tr><td>$1 USDC</td><td>Real USDC</td><td>7%</td></tr>
-      <tr><td>+$3 Bonus Credit</td><td>Platform bonus</td><td>5%</td></tr>
-      <tr><td>$5 USDC</td><td>Real USDC</td><td>2.5%</td></tr>
-      <tr><td><strong>$10 USDC</strong></td><td>Real USDC</td><td><strong>0.5%</strong></td></tr>
+      <tr><th>Prize</th><th>Type</th><th>Rarity</th></tr>
+      <tr><td>Try Again</td><td>No reward</td><td>Most Common</td></tr>
+      <tr><td>+$1 Bonus Credit</td><td>Platform bonus</td><td>Common</td></tr>
+      <tr><td>$0.50 USDC</td><td>Real USDC</td><td>Common</td></tr>
+      <tr><td>+$2 Bonus Credit</td><td>Platform bonus</td><td>Uncommon</td></tr>
+      <tr><td>$1 USDC</td><td>Real USDC</td><td>Uncommon</td></tr>
+      <tr><td>+$3 Bonus Credit</td><td>Platform bonus</td><td>Rare</td></tr>
+      <tr><td>$5 USDC</td><td>Real USDC</td><td>Rare</td></tr>
+      <tr><td><strong>📱 Premium Electronics</strong></td><td>Physical prize · contact admin</td><td><strong>Ultra Rare 🏆</strong></td></tr>
     </table>
 
     <h3>How to Get More Spins</h3>
@@ -1428,7 +1428,7 @@
     <td>🎰 Spin Wheel</td>
     <td>Active</td>
     <td>Per spin ticket</td>
-    <td>$0.50 – $10 USDC/spin</td>
+    <td>USDC + Premium Electronics</td>
   </tr>
   <tr>
     <td>🏆 Team Pool — Bronze</td>
@@ -1611,7 +1611,6 @@ const T = {
     'Example (on $100 profit)': 'Ví Dụ (lợi nhuận $100)',
     'Prize': 'Giải Thưởng',
     'Type': 'Loại',
-    'Probability': 'Xác Suất',
     'Name': 'Tên',
     'Reward Pool': 'Quỹ Thưởng',
     'Daily Rate': 'Tỷ Lệ Hàng Ngày',
@@ -1731,7 +1730,15 @@ const T = {
     'Fig 1 — Seven income streams connected to a single earning account': 'Hình 1 — Bảy luồng thu nhập kết nối với một tài khoản kiếm tiền duy nhất',
     'Fig 2 — Balance tier structure and daily distribution timeline': 'Hình 2 — Cấu trúc cấp số dư và lịch trình phân phối hàng ngày',
     'Fig 2 — Referral commission flows upward through all 6 levels automatically': 'Hình 2 — Hoa hồng giới thiệu chảy lên qua tất cả 6 cấp tự động',
-    'Fig 3 — Spin Wheel prize distribution (weighted probability)': 'Hình 3 — Phân phối giải thưởng Vòng Quay (xác suất có trọng số)',
+    'Fig 3 — Spin Wheel prize tiers': 'Hình 3 — Cấp bậc giải thưởng Vòng Quay',
+    'Rarity': 'Độ Hiếm',
+    'Most Common': 'Phổ Biến Nhất',
+    'Common': 'Phổ Biến',
+    'Uncommon': 'Ít Phổ Biến',
+    'Rare': 'Hiếm',
+    'Ultra Rare 🏆': 'Cực Hiếm 🏆',
+    '📱 Premium Electronics': '📱 Đồ Điện Tử Cao Cấp',
+    'Physical prize · contact admin': 'Giải thưởng vật phẩm · liên hệ admin',
     'Fig 5 — Quest chapter progression; tasks within each chapter are completable in parallel': 'Hình 5 — Tiến trình chương Quest; các nhiệm vụ trong mỗi chương có thể hoàn thành song song',
     'Fig 6 — Team Leader support resources and privileges': 'Hình 6 — Tài nguyên và đặc quyền hỗ trợ Trưởng Nhóm',
     'Fig 7 — Normal vs. Influencer volume requirements per level (shorter bar = easier unlock)': 'Hình 7 — Yêu cầu volume Bình Thường vs. Influencer theo cấp (thanh ngắn hơn = dễ mở khóa hơn)',
@@ -1760,7 +1767,7 @@ const T = {
     'Permanent': 'Vĩnh viễn',
     '$0.50 - $150+ per day': '$0.50 - $150+ mỗi ngày',
     'Scales with team size': 'Tăng theo quy mô đội nhóm',
-    '$0.50 – $10 USDC/spin': '$0.50 – $10 USDC/lần quay',
+    'USDC + Premium Electronics': 'USDC + Đồ Điện Tử Cao Cấp',
     'Up to 50% faster unlock': 'Mở khóa nhanh hơn đến 50%',
     '$40+ total': 'Hơn $40 tổng cộng',
     'Ch.1 — Onboarding': 'Ch.1 — Nhập Môn',
@@ -1838,7 +1845,6 @@ const T = {
     'Example (on $100 profit)': 'Contoh (dari keuntungan $100)',
     'Prize': 'Hadiah',
     'Type': 'Jenis',
-    'Probability': 'Probabilitas',
     'Name': 'Nama',
     'Reward Pool': 'Pool Hadiah',
     'Daily Rate': 'Tingkat Harian',
@@ -1956,7 +1962,15 @@ const T = {
     'Fig 1 — Seven income streams connected to a single earning account': 'Gbr 1 — Tujuh aliran penghasilan terhubung ke satu akun penghasilan',
     'Fig 2 — Balance tier structure and daily distribution timeline': 'Gbr 2 — Struktur tier saldo dan timeline distribusi harian',
     'Fig 2 — Referral commission flows upward through all 6 levels automatically': 'Gbr 2 — Komisi referral mengalir ke atas melalui semua 6 tingkat secara otomatis',
-    'Fig 3 — Spin Wheel prize distribution (weighted probability)': 'Gbr 3 — Distribusi hadiah Spin Wheel (probabilitas berbobot)',
+    'Fig 3 — Spin Wheel prize tiers': 'Gbr 3 — Tingkat hadiah Spin Wheel',
+    'Rarity': 'Kelangkaan',
+    'Most Common': 'Paling Umum',
+    'Common': 'Umum',
+    'Uncommon': 'Tidak Umum',
+    'Rare': 'Langka',
+    'Ultra Rare 🏆': 'Sangat Langka 🏆',
+    '📱 Premium Electronics': '📱 Elektronik Premium',
+    'Physical prize · contact admin': 'Hadiah fisik · hubungi admin',
     'Fig 5 — Quest chapter progression; tasks within each chapter are completable in parallel': 'Gbr 5 — Perkembangan chapter Quest; tugas dalam setiap chapter dapat diselesaikan secara paralel',
     'Fig 6 — Team Leader support resources and privileges': 'Gbr 6 — Sumber daya dukungan dan hak istimewa Pemimpin Tim',
     'Fig 7 — Normal vs. Influencer volume requirements per level (shorter bar = easier unlock)': 'Gbr 7 — Persyaratan volume Normal vs. Influencer per level (bar lebih pendek = lebih mudah dibuka)',
@@ -1985,7 +1999,7 @@ const T = {
     'Permanent': 'Permanen',
     '$0.50 - $150+ per day': '$0,50 - $150+ per hari',
     'Scales with team size': 'Skala dengan ukuran tim',
-    '$0.50 – $10 USDC/spin': '$0,50 – $10 USDC/putaran',
+    'USDC + Premium Electronics': 'USDC + Elektronik Premium',
     'Up to 50% faster unlock': 'Buka hingga 50% lebih cepat',
     '$40+ total': 'Total $40+',
     'Ch.1 — Onboarding': 'Ch.1 — Orientasi',
@@ -2063,7 +2077,6 @@ const T = {
     'Example (on $100 profit)': 'Exemple (sur $100 de profit)',
     'Prize': 'Prix',
     'Type': 'Type',
-    'Probability': 'Probabilité',
     'Name': 'Nom',
     'Reward Pool': 'Pool de Récompenses',
     'Daily Rate': 'Taux Quotidien',
@@ -2181,7 +2194,15 @@ const T = {
     'Fig 1 — Seven income streams connected to a single earning account': 'Fig. 1 — Sept sources de revenus connectées à un seul compte de gains',
     'Fig 2 — Balance tier structure and daily distribution timeline': 'Fig. 2 — Structure des tiers de solde et calendrier de distribution quotidienne',
     'Fig 2 — Referral commission flows upward through all 6 levels automatically': 'Fig. 2 — Les commissions de parrainage remontent automatiquement à travers les 6 niveaux',
-    'Fig 3 — Spin Wheel prize distribution (weighted probability)': 'Fig. 3 — Distribution des prix de la Roue de Spin (probabilité pondérée)',
+    'Fig 3 — Spin Wheel prize tiers': 'Fig. 3 — Niveaux de prix de la Roue de Spin',
+    'Rarity': 'Rareté',
+    'Most Common': 'Très Commun',
+    'Common': 'Commun',
+    'Uncommon': 'Peu Commun',
+    'Rare': 'Rare',
+    'Ultra Rare 🏆': 'Ultra Rare 🏆',
+    '📱 Premium Electronics': '📱 Électronique Premium',
+    'Physical prize · contact admin': 'Prix physique · contacter l\'admin',
     'Fig 5 — Quest chapter progression; tasks within each chapter are completable in parallel': 'Fig. 5 — Progression des chapitres de Quête ; les tâches de chaque chapitre sont réalisables en parallèle',
     'Fig 6 — Team Leader support resources and privileges': 'Fig. 6 — Ressources de soutien et privilèges du Team Leader',
     'Fig 7 — Normal vs. Influencer volume requirements per level (shorter bar = easier unlock)': 'Fig. 7 — Exigences de volume Normal vs. Influencer par niveau (barre plus courte = déblocage plus facile)',
@@ -2210,7 +2231,7 @@ const T = {
     'Permanent': 'Permanent',
     '$0.50 - $150+ per day': '$0,50 - $150+ par jour',
     'Scales with team size': 'Évolue avec la taille de l\'équipe',
-    '$0.50 – $10 USDC/spin': '$0,50 – $10 USDC/spin',
+    'USDC + Premium Electronics': 'USDC + Électronique Premium',
     'Up to 50% faster unlock': 'Déverrouillage jusqu\'à 50% plus rapide',
     '$40+ total': '$40+ au total',
     'Ch.1 — Onboarding': 'Ch.1 — Intégration',
@@ -2288,7 +2309,6 @@ const T = {
     'Example (on $100 profit)': 'Ejemplo (en ganancia de $100)',
     'Prize': 'Premio',
     'Type': 'Tipo',
-    'Probability': 'Probabilidad',
     'Name': 'Nombre',
     'Reward Pool': 'Pool de Recompensas',
     'Daily Rate': 'Tasa Diaria',
@@ -2406,7 +2426,15 @@ const T = {
     'Fig 1 — Seven income streams connected to a single earning account': 'Fig. 1 — Siete fuentes de ingresos conectadas a una sola cuenta de ganancias',
     'Fig 2 — Balance tier structure and daily distribution timeline': 'Fig. 2 — Estructura de niveles de saldo y cronograma de distribución diaria',
     'Fig 2 — Referral commission flows upward through all 6 levels automatically': 'Fig. 2 — Las comisiones de referido fluyen hacia arriba a través de los 6 niveles automáticamente',
-    'Fig 3 — Spin Wheel prize distribution (weighted probability)': 'Fig. 3 — Distribución de premios de la Rueda de Giro (probabilidad ponderada)',
+    'Fig 3 — Spin Wheel prize tiers': 'Fig. 3 — Niveles de premios de la Rueda de Giro',
+    'Rarity': 'Rareza',
+    'Most Common': 'Más Común',
+    'Common': 'Común',
+    'Uncommon': 'Poco Común',
+    'Rare': 'Raro',
+    'Ultra Rare 🏆': 'Ultra Raro 🏆',
+    '📱 Premium Electronics': '📱 Electrónica Premium',
+    'Physical prize · contact admin': 'Premio físico · contactar admin',
     'Fig 5 — Quest chapter progression; tasks within each chapter are completable in parallel': 'Fig. 5 — Progresión de capítulos de Misión; las tareas dentro de cada capítulo son completables en paralelo',
     'Fig 6 — Team Leader support resources and privileges': 'Fig. 6 — Recursos de apoyo y privilegios del Líder de Equipo',
     'Fig 7 — Normal vs. Influencer volume requirements per level (shorter bar = easier unlock)': 'Fig. 7 — Requisitos de volumen Normal vs. Influencer por nivel (barra más corta = desbloqueo más fácil)',
@@ -2435,7 +2463,7 @@ const T = {
     'Permanent': 'Permanente',
     '$0.50 - $150+ per day': '$0.50 - $150+ por día',
     'Scales with team size': 'Escala con el tamaño del equipo',
-    '$0.50 – $10 USDC/spin': '$0.50 – $10 USDC/giro',
+    'USDC + Premium Electronics': 'USDC + Electrónica Premium',
     'Up to 50% faster unlock': 'Desbloqueo hasta 50% más rápido',
     '$40+ total': '$40+ en total',
     'Ch.1 — Onboarding': 'Cap.1 — Incorporación',

@@ -116,19 +116,19 @@ declare global {
 // ── Prize configs (must match server PRIZES table in /api/lottery/spin) ──────
 // Mirrors components/lottery/LotteryWheel.tsx PRIZE_CONFIGS for visual parity.
 
-const PRIZE_CONFIGS = [
-  { type: 'bonus_1', color: '#7c3aed', amount: 1 },
-  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
-  { type: 'usdc_05', color: '#059669', amount: 0.5 },
-  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
-  { type: 'bonus_2', color: '#7c3aed', amount: 2 },
-  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
-  { type: 'usdc_1',  color: '#0891b2', amount: 1 },
-  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
-  { type: 'bonus_3', color: '#7c3aed', amount: 3 },
-  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
-  { type: 'usdc_5',  color: '#d97706', amount: 5 },
-  { type: 'thanks',  color: '#1e1b4b', amount: 0 },
+const PRIZE_CONFIGS: Array<{ type: string; color: string; amount: number; icon?: string }> = [
+  { type: 'bonus_1',     color: '#7c3aed', amount: 1 },
+  { type: 'thanks',      color: '#1e1b4b', amount: 0 },
+  { type: 'usdc_05',     color: '#059669', amount: 0.5 },
+  { type: 'thanks',      color: '#1e1b4b', amount: 0 },
+  { type: 'bonus_2',     color: '#7c3aed', amount: 2 },
+  { type: 'thanks',      color: '#1e1b4b', amount: 0 },
+  { type: 'usdc_1',      color: '#0891b2', amount: 1 },
+  { type: 'thanks',      color: '#1e1b4b', amount: 0 },
+  { type: 'bonus_3',     color: '#7c3aed', amount: 3 },
+  { type: 'thanks',      color: '#1e1b4b', amount: 0 },
+  { type: 'usdc_5',      color: '#d97706', amount: 5 },
+  { type: 'electronics', color: '#6b7280', amount: 0, icon: '📱' },
 ] as const
 
 const PRIZE_LABELS: Record<string, string> = {
@@ -139,6 +139,7 @@ const PRIZE_LABELS: Record<string, string> = {
   usdc_1: '$1 USDC',
   usdc_5: '$5 USDC',
   usdc_10: '$10 USDC',
+  electronics: 'Premium Electronics',
   thanks: 'Try Again',
 }
 
@@ -624,6 +625,7 @@ export default function LotteryMiniPage() {
 
     const isWin = result.type !== 'thanks'
     const isUsdc = result.type.startsWith('usdc_')
+    const isElectronics = result.type === 'electronics'
 
     if (isWin) {
       tg?.HapticFeedback?.notificationOccurred('success')
@@ -633,7 +635,9 @@ export default function LotteryMiniPage() {
 
     const label = PRIZE_LABELS[result.type] || result.type
     const message = isWin
-      ? isUsdc
+      ? isElectronics
+        ? (t.electronicsAdded?.(label) ?? `${label}\n\n🎁 Contact admin on Telegram to claim your prize.`)
+        : isUsdc
         ? t.usdcAdded(label)
         : t.bonusAdded(label)
       : t.betterLuck
@@ -811,13 +815,24 @@ export default function LotteryMiniPage() {
   // ── 6. Wheel visual config ──────────────────────────────────────────────────
 
   const prizes = PRIZE_CONFIGS.map((p) => ({
-    fonts: [{
-      text: PRIZE_LABELS[p.type] || p.type,
-      top: '12%',
-      fontSize: '11px',
-      fontColor: '#fff',
-      fontWeight: '600',
-    }],
+    fonts: p.icon
+      ? [
+          { text: p.icon, top: '8%', fontSize: '22px' },
+          {
+            text: PRIZE_LABELS[p.type] || p.type,
+            top: '46%',
+            fontSize: '9px',
+            fontColor: '#fff',
+            fontWeight: '700',
+          },
+        ]
+      : [{
+          text: PRIZE_LABELS[p.type] || p.type,
+          top: '12%',
+          fontSize: '11px',
+          fontColor: '#fff',
+          fontWeight: '600',
+        }],
     background: p.color,
   }))
 
@@ -1529,6 +1544,7 @@ export default function LotteryMiniPage() {
               {spinHistory.map((item, i) => {
                 const isWin = item.prize_type !== 'thanks'
                 const isUsdc = item.prize_type?.startsWith('usdc_')
+                const isElectronics = item.prize_type === 'electronics'
                 const label = item.prize_label || PRIZE_LABELS[item.prize_type] || item.prize_type
                 const date = new Date(item.created_at).toLocaleDateString('en', {
                   month: 'short', day: 'numeric',
@@ -1552,12 +1568,20 @@ export default function LotteryMiniPage() {
                         +${item.prize_amount.toFixed(2)}
                       </span>
                     )}
-                    {!isUsdc && isWin && (
+                    {!isUsdc && isWin && !isElectronics && (
                       <span
                         className="text-[12px] shrink-0 ml-3"
                         style={{ color: 'var(--poly-purple)', fontFamily: 'var(--poly-font-mono)' }}
                       >
                         BONUS
+                      </span>
+                    )}
+                    {isElectronics && (
+                      <span
+                        className="text-[12px] shrink-0 ml-3"
+                        style={{ color: 'var(--poly-grey-200)', fontFamily: 'var(--poly-font-mono)' }}
+                      >
+                        🎁 ADMIN
                       </span>
                     )}
                   </div>

@@ -43,7 +43,7 @@ interface LotteryWheelProps {
   t: LotteryTranslations
 }
 
-const PRIZE_CONFIGS = [
+const PRIZE_CONFIGS: Array<{ type: string; color: string; amount: number; icon?: string }> = [
   { type: 'bonus_1', color: '#7c3aed', amount: 1 },
   { type: 'thanks', color: '#1e1b4b', amount: 0 },
   { type: 'usdc_05', color: '#059669', amount: 0.5 },
@@ -55,7 +55,7 @@ const PRIZE_CONFIGS = [
   { type: 'bonus_3', color: '#7c3aed', amount: 3 },
   { type: 'thanks', color: '#1e1b4b', amount: 0 },
   { type: 'usdc_5', color: '#d97706', amount: 5 },
-  { type: 'thanks', color: '#1e1b4b', amount: 0 },
+  { type: 'electronics', color: '#6b7280', amount: 0, icon: '📱' },
 ]
 
 export function LotteryWheel({ t }: LotteryWheelProps) {
@@ -112,13 +112,24 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
   }, [checkStatus, checkAndGrantSpins])
 
   const prizes = PRIZE_CONFIGS.map((p) => ({
-    fonts: [{ 
-      text: t.prizes[p.type] || p.type, 
-      top: '12%',
-      fontSize: '12px',
-      fontColor: '#fff',
-      fontWeight: '600',
-    }],
+    fonts: p.icon
+      ? [
+          { text: p.icon, top: '10%', fontSize: '24px' },
+          {
+            text: t.prizes[p.type] || p.type,
+            top: '48%',
+            fontSize: '10px',
+            fontColor: '#fff',
+            fontWeight: '700',
+          },
+        ]
+      : [{
+          text: t.prizes[p.type] || p.type,
+          top: '12%',
+          fontSize: '12px',
+          fontColor: '#fff',
+          fontWeight: '600',
+        }],
     background: p.color,
     range: undefined,
   }))
@@ -204,6 +215,7 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
   const isWin = result && result.type !== 'thanks'
   const isUsdcWin = result && result.type.startsWith('usdc_')
   const isBonusWin = result && result.type.startsWith('bonus_')
+  const isElectronicsWin = result && result.type === 'electronics'
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -300,10 +312,12 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
                 </p>
                 {/* 奖励去向说明 */}
                 <p className="text-xs text-zinc-400 mb-6">
-                  {isUsdcWin 
+                  {isUsdcWin
                     ? (t.usdcNote || '💰 USDC has been added to your withdrawable balance')
-                    : isBonusWin 
+                    : isBonusWin
                     ? (t.bonusNote || '⭐ Bonus has been added to your unlock progress')
+                    : isElectronicsWin
+                    ? '🎁 Contact admin on Telegram to claim your prize'
                     : ''
                   }
                 </p>
@@ -355,12 +369,12 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
                       </p>
                     </div>
                     <div className="text-right">
-                      <span className={`text-sm font-bold ${record.prize_type === 'thanks' ? 'text-zinc-500' : record.prize_type.startsWith('usdc_') ? 'text-green-400' : 'text-purple-400'}`}>
-                        {record.prize_amount > 0 ? `+$${record.prize_amount}` : '-'}
+                      <span className={`text-sm font-bold ${record.prize_type === 'thanks' ? 'text-zinc-500' : record.prize_type === 'electronics' ? 'text-zinc-300' : record.prize_type.startsWith('usdc_') ? 'text-green-400' : 'text-purple-400'}`}>
+                        {record.prize_type === 'electronics' ? '🎁' : record.prize_amount > 0 ? `+$${record.prize_amount}` : '-'}
                       </span>
                       {record.prize_type !== 'thanks' && (
                         <p className="text-[10px] text-zinc-600">
-                          {record.prize_type.startsWith('usdc_') ? 'Withdrawable' : 'Unlock Progress'}
+                          {record.prize_type === 'electronics' ? 'Contact Admin' : record.prize_type.startsWith('usdc_') ? 'Withdrawable' : 'Unlock Progress'}
                         </p>
                       )}
                     </div>
