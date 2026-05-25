@@ -18,7 +18,8 @@ import {
   FileSignature,
   TrendingUp,
   Crown,
-  ClipboardList
+  ClipboardList,
+  ChevronRight
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -54,7 +55,6 @@ export default function AdminUsersPage() {
   const [syncingWallets, setSyncingWallets] = useState(false)
   const [syncResult, setSyncResult] = useState<{ synced: number; skipped: number; message: string } | null>(null)
   const [error, setError] = useState('')
-  const [expandedUser, setExpandedUser] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'created_at' | 'usdc_balance' | 'team_count'>('created_at')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
 
@@ -336,152 +336,120 @@ export default function AdminUsersPage() {
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Telegram</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Signature</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Joined</th>
+                  <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-8 text-zinc-500">
+                    <td colSpan={8} className="text-center py-8 text-zinc-500">
                       Loading...
                     </td>
                   </tr>
                 ) : sortedUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-8 text-zinc-500">
+                    <td colSpan={8} className="text-center py-8 text-zinc-500">
                       No users found
                     </td>
                   </tr>
                 ) : (
                   sortedUsers.map((user) => (
-                    <>
-                      <tr 
-                        key={user.id} 
-                        className="border-b border-zinc-700/50 hover:bg-zinc-700/20 cursor-pointer"
-                        onClick={() => setExpandedUser(expandedUser === user.id ? null : user.id)}
-                      >
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-zinc-700 rounded-full flex items-center justify-center">
-                              <Users className="w-4 h-4 text-zinc-400" />
-                            </div>
-                            <div>
-                              <p className="text-white font-medium">{user.username || 'Unknown'}</p>
-                              <p className="text-zinc-500 text-xs">{user.email}</p>
-                            </div>
+                    <tr
+                      key={user.id}
+                      className="border-b border-zinc-700/50 hover:bg-zinc-700/20 cursor-pointer transition-colors"
+                      onClick={() => router.push(`/admin/users/${user.id}`)}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-zinc-700 rounded-full flex items-center justify-center">
+                            <Users className="w-4 h-4 text-zinc-400" />
                           </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          {user.wallet_address ? (
-                            <div className="flex items-center gap-2">
-                              <CheckCircle className="w-4 h-4 text-green-400" />
-                              <code className="text-zinc-300 text-xs">
-                                {user.wallet_address.slice(0, 6)}...{user.wallet_address.slice(-4)}
-                              </code>
-                              <a
-                                href={`https://polygonscan.com/address/${user.wallet_address}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-zinc-500 hover:text-emerald-400"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2 text-zinc-500">
-                              <XCircle className="w-4 h-4" />
-                              <span className="text-xs">Not connected</span>
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`font-mono text-sm ${
-                            parseFloat(user.usdc_balance || '0') > 0 ? 'text-green-400' : 'text-zinc-500'
-                          }`}>
-                            ${parseFloat(user.usdc_balance || '0').toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="text-sm">
-                            <span className="text-white">{user.team_count || 0}</span>
-                            <span className="text-zinc-500 text-xs ml-1">members</span>
-                            {user.team_usdc && parseFloat(user.team_usdc) > 0 && (
-                              <p className="text-green-400 text-xs">
-                                ${parseFloat(user.team_usdc).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                              </p>
-                            )}
+                          <div>
+                            <p className="text-white font-medium">{user.username || 'Unknown'}</p>
+                            <p className="text-zinc-500 text-xs">{user.email}</p>
                           </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          {user.telegram_username ? (
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        {user.wallet_address ? (
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-400" />
+                            <code className="text-zinc-300 text-xs">
+                              {user.wallet_address.slice(0, 6)}...{user.wallet_address.slice(-4)}
+                            </code>
                             <a
-                              href={`https://t.me/${user.telegram_username}`}
+                              href={`https://polygonscan.com/address/${user.wallet_address}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-sm"
+                              className="text-zinc-500 hover:text-emerald-400"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <MessageCircle className="w-4 h-4" />
-                              @{user.telegram_username}
+                              <ExternalLink className="w-3 h-3" />
                             </a>
-                          ) : (
-                            <span className="text-zinc-500 text-xs">-</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-zinc-500">
+                            <XCircle className="w-4 h-4" />
+                            <span className="text-xs">Not connected</span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`font-mono text-sm ${
+                          parseFloat(user.usdc_balance || '0') > 0 ? 'text-green-400' : 'text-zinc-500'
+                        }`}>
+                          ${parseFloat(user.usdc_balance || '0').toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="text-sm">
+                          <span className="text-white">{user.team_count || 0}</span>
+                          <span className="text-zinc-500 text-xs ml-1">members</span>
+                          {user.team_usdc && parseFloat(user.team_usdc) > 0 && (
+                            <p className="text-green-400 text-xs">
+                              ${parseFloat(user.team_usdc).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </p>
                           )}
-                        </td>
-                        <td className="px-4 py-3">
-                          {user.has_signature ? (
-                            user.signature_valid ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-400 rounded-lg text-xs">
-                                <CheckCircle className="w-3 h-3" /> Valid
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/20 text-red-400 rounded-lg text-xs">
-                                <XCircle className="w-3 h-3" /> Invalid
-                              </span>
-                            )
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        {user.telegram_username ? (
+                          <a
+                            href={`https://t.me/${user.telegram_username}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-sm"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            @{user.telegram_username}
+                          </a>
+                        ) : (
+                          <span className="text-zinc-500 text-xs">-</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {user.has_signature ? (
+                          user.signature_valid ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-400 rounded-lg text-xs">
+                              <CheckCircle className="w-3 h-3" /> Valid
+                            </span>
                           ) : (
-                            <span className="text-zinc-500 text-xs">No signature</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-xs text-zinc-400">
-                          {new Date(user.created_at).toLocaleDateString()}
-                        </td>
-                      </tr>
-                      {/* Expanded Details */}
-                      {expandedUser === user.id && (
-                        <tr className="bg-zinc-800/30">
-                          <td colSpan={7} className="px-4 py-4">
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                              <div>
-                                <p className="text-zinc-500 text-xs mb-1">Referrer</p>
-                                <p className="text-white">
-                                  {user.referrer?.username || user.referrer?.email || 'None'}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-zinc-500 text-xs mb-1">Country</p>
-                                <p className="text-white">{user.country_code || '-'}</p>
-                              </div>
-                              <div>
-                                <p className="text-zinc-500 text-xs mb-1">Phone</p>
-                                <p className="text-white">
-                                  {user.phone_country_code && user.phone_number 
-                                    ? `${user.phone_country_code} ${user.phone_number}`
-                                    : '-'
-                                  }
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-zinc-500 text-xs mb-1">Profile Status</p>
-                                <p className={user.profile_completed ? 'text-green-400' : 'text-amber-400'}>
-                                  {user.profile_completed ? 'Completed' : 'Incomplete'}
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </>
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/20 text-red-400 rounded-lg text-xs">
+                              <XCircle className="w-3 h-3" /> Invalid
+                            </span>
+                          )
+                        ) : (
+                          <span className="text-zinc-500 text-xs">No signature</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-zinc-400">
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <ChevronRight className="w-4 h-4 text-zinc-500 inline" />
+                      </td>
+                    </tr>
                   ))
                 )}
               </tbody>
