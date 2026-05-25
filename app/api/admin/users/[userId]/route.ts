@@ -106,6 +106,13 @@ export async function GET(
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
+    // 5b. Withdrawals (full list, client paginates)
+    const { data: withdrawals } = await supabaseAdmin
+      .from('withdrawals')
+      .select('id, token_type, amount, usd_amount, wallet_address, status, tx_hash, error_message, processed_at, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+
     // 6. Community status
     const { data: communityInfo } = await supabaseAdmin
       .rpc('get_user_community_info', { target_user_id: userId })
@@ -144,6 +151,7 @@ export async function GET(
       upline,
       downline,
       lottery: lotteryRecords || [],
+      withdrawals: withdrawals || [],
       community: {
         info: community,
         levels: communityLevels || [],

@@ -25,6 +25,7 @@ import {
   Globe,
   Calendar,
   TrendingUp,
+  ArrowDownToLine,
 } from 'lucide-react'
 
 interface ProfileData {
@@ -114,11 +115,25 @@ interface DailyEarning {
   is_credited: boolean
 }
 
+interface WithdrawalRecord {
+  id: string
+  token_type: string
+  amount: number
+  usd_amount: number | null
+  wallet_address: string
+  status: string
+  tx_hash: string | null
+  error_message: string | null
+  processed_at: string | null
+  created_at: string
+}
+
 interface DetailResponse {
   profile: ProfileData
   upline: UplineEntry[]
   downline: DownlineEntry[]
   lottery: LotteryRecord[]
+  withdrawals: WithdrawalRecord[]
   community: {
     info: CommunityInfo | null
     levels: CommunityLevel[]
@@ -128,6 +143,7 @@ interface DetailResponse {
 }
 
 const LOTTERY_PAGE_SIZE = 20
+const WITHDRAWAL_PAGE_SIZE = 20
 
 function formatDate(value: string | null | undefined) {
   if (!value) return '-'
@@ -154,6 +170,7 @@ export default function AdminUserDetailPage({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [lotteryPage, setLotteryPage] = useState(1)
+  const [withdrawalPage, setWithdrawalPage] = useState(1)
   const [expandedLevels, setExpandedLevels] = useState<Record<string, boolean>>({
     L1: true,
     L2: false,
@@ -209,10 +226,12 @@ export default function AdminUserDetailPage({
   const lottery = data?.lottery || []
   const totalSpins = lottery.length
   const winningSpins = lottery.filter((r) => r.prize_type !== 'thanks').length
-  const totalWonUsdc = lottery.reduce(
-    (sum, r) => sum + (Number(r.prize_amount) || 0),
-    0
-  )
+  const withdrawableUsdc = lottery
+    .filter((r) => r.prize_type.startsWith('usdc_'))
+    .reduce((sum, r) => sum + (Number(r.prize_amount) || 0), 0)
+  const bonusLocked = lottery
+    .filter((r) => r.prize_type.startsWith('bonus_'))
+    .reduce((sum, r) => sum + (Number(r.prize_amount) || 0), 0)
   const prizeDistribution: Record<string, number> = {}
   for (const r of lottery) {
     prizeDistribution[r.prize_label] = (prizeDistribution[r.prize_label] || 0) + 1
@@ -221,6 +240,24 @@ export default function AdminUserDetailPage({
   const lotteryPageRows = lottery.slice(
     (lotteryPage - 1) * LOTTERY_PAGE_SIZE,
     lotteryPage * LOTTERY_PAGE_SIZE
+  )
+
+  // Withdrawal aggregates
+  const withdrawals = data?.withdrawals || []
+  const totalWithdrawals = withdrawals.length
+  const completedUsd = withdrawals
+    .filter((w) => w.status === 'completed')
+    .reduce((sum, w) => sum + (Number(w.usd_amount) || Number(w.amount) || 0), 0)
+  const statusCounts: Record<string, number> = {}
+  for (const w of withdrawals) {
+    statusCounts[w.status] = (statusCounts[w.status] || 0) + 1
+  }
+  const pendingCount = (statusCounts['pending'] || 0) + (statusCounts['processing'] || 0)
+  const failedCount = statusCounts['failed'] || 0
+  const withdrawalTotalPages = Math.max(1, Math.ceil(totalWithdrawals / WITHDRAWAL_PAGE_SIZE))
+  const withdrawalPageRows = withdrawals.slice(
+    (withdrawalPage - 1) * WITHDRAWAL_PAGE_SIZE,
+    withdrawalPage * WITHDRAWAL_PAGE_SIZE
   )
 
   // Community progress
@@ -514,14 +551,14 @@ export default function AdminUserDetailPage({
                   <Stat label="Total Spins" value={totalSpins.toString()} color="text-white" />
                   <Stat label="Winning Spins" value={winningSpins.toString()} color="text-emerald-400" />
                   <Stat
-                    label="Total USDC Won"
-                    value={`$${totalWonUsdc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    label="USDC Won (Withdrawable)"
+                    value={`$${withdrawableUsdc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                     color="text-green-400"
                   />
                   <Stat
-                    label="Unique Prizes"
-                    value={Object.keys(prizeDistribution).length.toString()}
-                    color="text-pink-300"
+                    label="Bonus Won (Locked)"
+                    value={`$${bonusLocked.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    color="text-amber-300"
                   />
                 </div>
 
@@ -590,6 +627,120 @@ export default function AdminUserDetailPage({
                           <button
                             onClick={() => setLotteryPage((p) => Math.min(lotteryTotalPages, p + 1))}
                             disabled={lotteryPage === lotteryTotalPages}
+                            className="px-3 py-1 rounded-lg bg-zinc-700/40 border border-zinc-600 text-zinc-300 hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </section>
+
+            {/* Section: Withdrawals */}
+            <section className="bg-zinc-800/50 border border-zinc-700 rounded-xl overflow-hidden">
+              <header className="px-5 py-3 border-b border-zinc-700 flex items-center gap-2">
+                <ArrowDownToLine className="w-4 h-4 text-cyan-400" />
+                <h2 className="text-sm font-semibold text-white">Withdraw History</h2>
+              </header>
+              <div className="p-5">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                  <Stat label="Total Withdrawals" value={totalWithdrawals.toString()} color="text-white" />
+                  <Stat
+                    label="Completed (USD)"
+                    value={`$${completedUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    color="text-green-400"
+                  />
+                  <Stat label="Pending / Processing" value={pendingCount.toString()} color="text-amber-300" />
+                  <Stat label="Failed" value={failedCount.toString()} color="text-red-400" />
+                </div>
+
+                {totalWithdrawals === 0 ? (
+                  <p className="text-sm text-zinc-500">No withdrawal records.</p>
+                ) : (
+                  <>
+                    <div className="overflow-x-auto rounded-lg border border-zinc-700">
+                      <table className="w-full text-sm">
+                        <thead className="bg-zinc-800/80">
+                          <tr className="border-b border-zinc-700">
+                            <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Time</th>
+                            <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Token</th>
+                            <th className="text-right text-xs font-medium text-zinc-400 px-4 py-2">Amount</th>
+                            <th className="text-right text-xs font-medium text-zinc-400 px-4 py-2">USD</th>
+                            <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Status</th>
+                            <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Tx</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {withdrawalPageRows.map((w) => (
+                            <tr key={w.id} className="border-b border-zinc-700/50">
+                              <td className="px-4 py-2 text-xs text-zinc-400">
+                                {formatDate(w.created_at)}
+                                {w.processed_at && w.processed_at !== w.created_at && (
+                                  <p className="text-[10px] text-zinc-600">
+                                    done: {formatDate(w.processed_at)}
+                                  </p>
+                                )}
+                              </td>
+                              <td className="px-4 py-2 text-white">{w.token_type}</td>
+                              <td className="px-4 py-2 text-right font-mono text-zinc-200">
+                                {Number(w.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 })}
+                              </td>
+                              <td className="px-4 py-2 text-right font-mono">
+                                {w.usd_amount != null ? (
+                                  <span className="text-green-400">
+                                    ${Number(w.usd_amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </span>
+                                ) : (
+                                  <span className="text-zinc-500">-</span>
+                                )}
+                              </td>
+                              <td className="px-4 py-2">
+                                <WithdrawStatusBadge status={w.status} />
+                                {w.status === 'failed' && w.error_message && (
+                                  <p className="text-[10px] text-red-300 mt-1 max-w-[200px] truncate" title={w.error_message}>
+                                    {w.error_message}
+                                  </p>
+                                )}
+                              </td>
+                              <td className="px-4 py-2">
+                                {w.tx_hash ? (
+                                  <a
+                                    href={`https://polygonscan.com/tx/${w.tx_hash}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 text-blue-400 hover:text-blue-300 text-xs"
+                                  >
+                                    <code>{w.tx_hash.slice(0, 6)}...{w.tx_hash.slice(-4)}</code>
+                                    <ExternalLink className="w-3 h-3" />
+                                  </a>
+                                ) : (
+                                  <span className="text-zinc-600 text-xs">-</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {withdrawalTotalPages > 1 && (
+                      <div className="mt-3 flex items-center justify-between text-xs">
+                        <span className="text-zinc-500">
+                          Page {withdrawalPage} of {withdrawalTotalPages} ({totalWithdrawals} records)
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setWithdrawalPage((p) => Math.max(1, p - 1))}
+                            disabled={withdrawalPage === 1}
+                            className="px-3 py-1 rounded-lg bg-zinc-700/40 border border-zinc-600 text-zinc-300 hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            Prev
+                          </button>
+                          <button
+                            onClick={() => setWithdrawalPage((p) => Math.min(withdrawalTotalPages, p + 1))}
+                            disabled={withdrawalPage === withdrawalTotalPages}
                             className="px-3 py-1 rounded-lg bg-zinc-700/40 border border-zinc-600 text-zinc-300 hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed"
                           >
                             Next
@@ -813,6 +964,20 @@ function Stat({ label, value, color }: { label: string; value: string; color: st
       <p className="text-zinc-400 text-xs">{label}</p>
       <p className={`text-lg font-bold ${color}`}>{value}</p>
     </div>
+  )
+}
+
+function WithdrawStatusBadge({ status }: { status: string }) {
+  const cls = {
+    completed: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300',
+    processing: 'bg-blue-500/15 border-blue-500/30 text-blue-300',
+    pending: 'bg-amber-500/15 border-amber-500/30 text-amber-300',
+    failed: 'bg-red-500/15 border-red-500/30 text-red-300',
+  }[status] || 'bg-zinc-700/40 border-zinc-600 text-zinc-300'
+  return (
+    <span className={`inline-block px-2 py-0.5 rounded-md border text-[11px] uppercase ${cls}`}>
+      {status}
+    </span>
   )
 }
 
