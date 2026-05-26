@@ -31,6 +31,23 @@ const nextConfig: NextConfig = {
         destination: '/team',
         permanent: true,
       },
+      // Legal page aliases — external backlinks / SEO crawlers may
+      // use these "standard" slugs. Map to our real pages.
+      {
+        source: '/terms-of-use',
+        destination: '/terms',
+        permanent: true,
+      },
+      {
+        source: '/legal-terms',
+        destination: '/terms',
+        permanent: true,
+      },
+      {
+        source: '/privacy-policy',
+        destination: '/privacy',
+        permanent: true,
+      },
     ];
   },
 
