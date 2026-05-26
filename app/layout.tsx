@@ -56,18 +56,14 @@ export const metadata: Metadata = {
   creator: "Polnation",
   publisher: "Polnation",
   
-  // Canonical URL
+  // Base URL for resolving relative URLs in metadata.
+  // NOTE: do NOT set a global `alternates.canonical` here — it would
+  // make every page declare the homepage as its canonical, causing
+  // Google to drop them as "Alternative page with proper canonical tag".
+  // Pages that need a specific canonical set it themselves.
   metadataBase: new URL(siteUrl),
-  alternates: {
-    canonical: "/",
-    languages: {
-      "en": "/",
-      "fr": "/",
-      "id": "/",
-      "vi": "/",
-    },
-  },
-  
+
+
   // Open Graph (Facebook, LinkedIn, etc.)
   openGraph: {
     type: "website",

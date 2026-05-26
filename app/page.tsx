@@ -1,8 +1,13 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Suspense } from 'react'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@/lib/supabase-server'
+
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+}
 import { Navbar } from '@/components/layout/Navbar'
 import { LazyFeaturesSection } from '@/components/home/LazyFeaturesSection'
 import { LazyChainStats } from '@/components/home/LazyChainStats'
