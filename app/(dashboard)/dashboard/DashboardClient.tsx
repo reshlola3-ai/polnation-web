@@ -558,8 +558,11 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
               ) : (
                 <MonoStat prefix="$" value={profitData.communityPrizePool.toFixed(0)} />
               )}
-              <div className="flex items-center gap-0.5">
+              <div className="flex items-center gap-1 flex-wrap">
                 <EyebrowTag>{t('assetTeamPoolTitle')}</EyebrowTag>
+                <span className="inline-flex items-center h-4 px-1.5 rounded-md bg-purple-500/15 border border-purple-500/30 text-[9px] font-semibold text-purple-200 tracking-wide whitespace-nowrap">
+                  L{profitData.currentLevelNumber} {profitData.currentLevelName}
+                </span>
                 <button type="button" className="asset-help-btn" aria-label={t('assetHelpTeamAria')}
                   onClick={(e) => openTip('team', e)}>
                   <HelpCircle className="w-2.5 h-2.5" />
@@ -577,7 +580,7 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
               {isLoadingProfit ? (
                 <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
               ) : (
-                <div className="flex items-baseline gap-2">
+                <div className="flex items-baseline gap-2 flex-wrap">
                   <Link href="/earnings" onClick={(e) => e.stopPropagation()}
                     className={`hover:text-white/80 transition-colors${profitData.availableWithdraw > 0.15 ? ' text-white/65' : ''}`}>
                     <MonoStat prefix="$" value={profitData.availableWithdraw.toFixed(2)} />
@@ -589,6 +592,13 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
                     hasSignature={profitData.hasSignature}
                     inline
                   />
+                  {profitData.communityDailyEarnings > 0 && (
+                    <span className="inline-flex items-center gap-1 text-[11px] text-purple-300/80 poly-mono tabular-nums whitespace-nowrap">
+                      <span className="text-white/30">|</span>
+                      +${profitData.communityDailyEarnings.toFixed(4)}
+                      <span className="text-purple-300/50 text-[9px] uppercase tracking-wider">pool/day</span>
+                    </span>
+                  )}
                 </div>
               )}
               <div className="flex items-center gap-0.5">
