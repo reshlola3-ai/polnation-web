@@ -66,35 +66,45 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User status not found' }, { status: 404 })
     }
 
-    // 检查是否是管理员设置的等级（不能 claim）
-    if (status.is_admin_set) {
-      return NextResponse.json({ 
-        error: 'Admin-set levels cannot claim reward pools' 
-      }, { status: 400 })
-    }
-
-    // 获取当前等级（最低为1）
-    const currentLevel = Math.max(1, status.current_level || 1)
-
-    // 检查请求的 level 是否是当前等级
-    if (level !== currentLevel) {
-      return NextResponse.json({ 
-        error: 'Can only claim current level reward pool' 
-      }, { status: 400 })
-    }
-
-    // 检查是否已领取
-    const { data: existingClaim } = await supabaseAdmin
+    // 查询已领过的 levels（用于 admin-set 的顺序判定，以及通用的已领检查）
+    const { data: priorClaims } = await supabaseAdmin
       .from('community_pool_claims')
-      .select('*')
+      .select('level')
       .eq('user_id', user.id)
-      .eq('level', level)
-      .single()
 
-    if (existingClaim) {
-      return NextResponse.json({ 
-        error: 'This level reward pool has already been claimed' 
+    const claimedLevels = (priorClaims || []).map(c => c.level as number)
+    const highestClaimed = claimedLevels.length > 0 ? Math.max(...claimedLevels) : 0
+    const nextUnclaimed = highestClaimed + 1
+
+    if (claimedLevels.includes(level)) {
+      return NextResponse.json({
+        error: 'This level reward pool has already been claimed'
       }, { status: 400 })
+    }
+
+    if (status.is_admin_set) {
+      // Admin-set 用户：必须按顺序领，且 real_level 必须追上 admin-set 等级
+      if (level !== nextUnclaimed) {
+        return NextResponse.json({
+          error: `Must claim Level ${nextUnclaimed} next`
+        }, { status: 400 })
+      }
+
+      const adminLockLevel = status.current_level || 0
+      const realLevel = status.real_level || 0
+      if (realLevel < adminLockLevel) {
+        return NextResponse.json({
+          error: `Locked: real level must reach Level ${adminLockLevel} to unlock claims`
+        }, { status: 400 })
+      }
+    } else {
+      // 自然用户：每次只能领当前等级
+      const currentLevel = Math.max(1, status.current_level || 1)
+      if (level !== currentLevel) {
+        return NextResponse.json({
+          error: 'Can only claim current level reward pool'
+        }, { status: 400 })
+      }
     }
 
     // 获取等级信息
@@ -176,18 +186,21 @@ export async function POST(request: NextRequest) {
         })
     }
 
-    // 领取后升级到下一等级
     const nextLevel = level + 1
-    
-    // 更新社群账户：累计收益 + 升级到下一等级
+
+    // 自然用户：领取后升级到下一等级；admin-set 用户：current_level / real_level 不动
+    const statusUpdate: Record<string, unknown> = {
+      total_community_earned: (status.total_community_earned || 0) + claimAmount,
+      updated_at: new Date().toISOString(),
+    }
+    if (!status.is_admin_set) {
+      statusUpdate.current_level = nextLevel
+      statusUpdate.real_level = nextLevel
+    }
+
     await supabaseAdmin
       .from('user_community_status')
-      .update({
-        current_level: nextLevel,
-        real_level: nextLevel, // 真实等级也同步升级
-        total_community_earned: (status.total_community_earned || 0) + claimAmount,
-        updated_at: new Date().toISOString(),
-      })
+      .update(statusUpdate)
       .eq('user_id', user.id)
 
     // 获取下一等级信息（用于返回消息）
@@ -197,13 +210,17 @@ export async function POST(request: NextRequest) {
       .eq('level', nextLevel)
       .single()
 
+    const message = status.is_admin_set
+      ? `🎉 Claimed $${claimAmount} from ${levelInfo.name}!`
+      : `🎉 Claimed $${claimAmount} from ${levelInfo.name}! Upgraded to ${nextLevelInfo?.name || `Level ${nextLevel}`}!`
+
     return NextResponse.json({
       success: true,
       claimed_level: level,
       claimed_amount: claimAmount,
-      new_level: nextLevel,
+      new_level: status.is_admin_set ? status.current_level : nextLevel,
       new_level_name: nextLevelInfo?.name || `Level ${nextLevel}`,
-      message: `🎉 Claimed $${claimAmount} from ${levelInfo.name}! Upgraded to ${nextLevelInfo?.name || `Level ${nextLevel}`}!`,
+      message,
     })
   } catch (error) {
     console.error('Claim error:', error)

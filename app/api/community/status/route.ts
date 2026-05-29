@@ -224,9 +224,42 @@ export async function GET(request: NextRequest) {
     // 判断是否达到当前等级的解锁门槛
     const hasReachedCurrentThreshold = effectiveVolume >= currentUnlockVolume
 
-    // 可领取的等级：当前等级且未领取且达到门槛
+    // 可领取的等级
     const claimableLevels: number[] = []
-    if (!status?.is_admin_set && hasReachedCurrentThreshold && !claimedLevels.includes(currentLevel)) {
+    let adminLockReason: { type: 'real_level_too_low' | 'volume_short'; needed: number; nextLevel: number } | null = null
+
+    if (status?.is_admin_set) {
+      // Admin-set 用户：必须按顺序从 Bronze 起领，且 real_level 须 >= admin-set 等级
+      const highestClaimed = claimedLevels.length > 0 ? Math.max(...claimedLevels) : 0
+      const nextUnclaimed = highestClaimed + 1
+      const adminLockLevel = status?.admin_set_level || currentLevel
+      const realLevel = status?.real_level || 0
+      const nextLevelCfg = levels?.find(l => l.level === nextUnclaimed)
+      const nextLevelUnlockVol = nextLevelCfg
+        ? (status?.is_influencer ? nextLevelCfg.unlock_volume_influencer : nextLevelCfg.unlock_volume_normal)
+        : Infinity
+
+      if (realLevel < adminLockLevel) {
+        // 用 admin-set 等级的门槛做"还差多少"的依据
+        const lockLevelCfg = levels?.find(l => l.level === adminLockLevel)
+        const lockUnlockVol = lockLevelCfg
+          ? (status?.is_influencer ? lockLevelCfg.unlock_volume_influencer : lockLevelCfg.unlock_volume_normal)
+          : 0
+        adminLockReason = {
+          type: 'real_level_too_low',
+          needed: Math.max(0, lockUnlockVol - effectiveVolume),
+          nextLevel: adminLockLevel,
+        }
+      } else if (nextLevelCfg && effectiveVolume >= nextLevelUnlockVol) {
+        claimableLevels.push(nextUnclaimed)
+      } else if (nextLevelCfg) {
+        adminLockReason = {
+          type: 'volume_short',
+          needed: Math.max(0, nextLevelUnlockVol - effectiveVolume),
+          nextLevel: nextUnclaimed,
+        }
+      }
+    } else if (hasReachedCurrentThreshold && !claimedLevels.includes(currentLevel)) {
       claimableLevels.push(currentLevel)
     }
 
@@ -286,6 +319,7 @@ export async function GET(request: NextRequest) {
       volumeToNextLevel: volumeToUnlock,
       claimedLevels,
       claimableLevels,
+      adminLockReason,
       dailyEarnings,
       dailyEarningAmount: baseDailyEarning * momentumMultiplier,
       baseDailyEarning,

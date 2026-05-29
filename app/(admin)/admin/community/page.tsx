@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
@@ -83,6 +83,49 @@ export default function AdminCommunityPage() {
   const [grantSpinsUser, setGrantSpinsUser] = useState<CommunityUser | null>(null)
   const [spinsToAdd, setSpinsToAdd] = useState(10)
   const [grantingSpins, setGrantingSpins] = useState(false)
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('')
+  const [levelFilter, setLevelFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'influencer' | 'admin_set' | 'normal'>('all')
+  const [fundsFilter, setFundsFilter] = useState<'all' | 'has_volume' | 'no_volume' | 'has_earned' | 'no_earned'>('all')
+  const [walletFilter, setWalletFilter] = useState<'all' | 'has_wallet' | 'no_wallet'>('all')
+
+  const filteredUsers = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    return users.filter((u) => {
+      if (q) {
+        const hay = `${u.username || ''} ${u.email || ''} ${u.wallet_address || ''}`.toLowerCase()
+        if (!hay.includes(q)) return false
+      }
+      if (levelFilter !== 'all' && String(u.current_level) !== levelFilter) return false
+      if (statusFilter === 'influencer' && !u.is_influencer) return false
+      if (statusFilter === 'admin_set' && !u.is_admin_set) return false
+      if (statusFilter === 'normal' && (u.is_influencer || u.is_admin_set)) return false
+      if (fundsFilter === 'has_volume' && !(u.team_volume_l123 > 0)) return false
+      if (fundsFilter === 'no_volume' && u.team_volume_l123 > 0) return false
+      if (fundsFilter === 'has_earned' && !(u.total_community_earned > 0)) return false
+      if (fundsFilter === 'no_earned' && u.total_community_earned > 0) return false
+      if (walletFilter === 'has_wallet' && !u.wallet_address) return false
+      if (walletFilter === 'no_wallet' && u.wallet_address) return false
+      return true
+    })
+  }, [users, searchQuery, levelFilter, statusFilter, fundsFilter, walletFilter])
+
+  const resetFilters = () => {
+    setSearchQuery('')
+    setLevelFilter('all')
+    setStatusFilter('all')
+    setFundsFilter('all')
+    setWalletFilter('all')
+  }
+
+  const filtersActive =
+    searchQuery !== '' ||
+    levelFilter !== 'all' ||
+    statusFilter !== 'all' ||
+    fundsFilter !== 'all' ||
+    walletFilter !== 'all'
 
   const fetchData = useCallback(async () => {
     setIsLoading(true)
@@ -404,7 +447,12 @@ export default function AdminCommunityPage() {
         {/* Users Table */}
         <div className="bg-zinc-800/50 border border-zinc-700 rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-zinc-700 flex items-center justify-between">
-            <h2 className="text-white font-semibold">用户社群状态</h2>
+            <h2 className="text-white font-semibold">
+              用户社群状态
+              <span className="ml-2 text-xs text-zinc-500 font-normal">
+                Showing {filteredUsers.length} of {users.length}
+              </span>
+            </h2>
             <Button
               variant="outline"
               size="sm"
@@ -414,6 +462,90 @@ export default function AdminCommunityPage() {
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             </Button>
+          </div>
+
+          {/* Filters */}
+          <div className="px-4 py-3 border-b border-zinc-700 bg-zinc-900/40 flex flex-wrap items-end gap-3">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-[10px] uppercase tracking-wide text-zinc-500 mb-1">搜索</label>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="username / email / wallet"
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] uppercase tracking-wide text-zinc-500 mb-1">等级</label>
+              <select
+                value={levelFilter}
+                onChange={(e) => setLevelFilter(e.target.value)}
+                className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-purple-500"
+              >
+                <option value="all">全部</option>
+                {[0, 1, 2, 3, 4, 5, 6].map((lvl) => (
+                  <option key={lvl} value={String(lvl)}>
+                    L{lvl} {lvl === 0 ? '' : getLevelName(lvl)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] uppercase tracking-wide text-zinc-500 mb-1">状态</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+                className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-purple-500"
+              >
+                <option value="all">全部</option>
+                <option value="influencer">Influencer</option>
+                <option value="admin_set">Admin-set</option>
+                <option value="normal">Normal</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] uppercase tracking-wide text-zinc-500 mb-1">资金</label>
+              <select
+                value={fundsFilter}
+                onChange={(e) => setFundsFilter(e.target.value as typeof fundsFilter)}
+                className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-purple-500"
+              >
+                <option value="all">全部</option>
+                <option value="has_volume">有 Volume</option>
+                <option value="no_volume">无 Volume</option>
+                <option value="has_earned">有累计收益</option>
+                <option value="no_earned">无累计收益</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-[10px] uppercase tracking-wide text-zinc-500 mb-1">钱包</label>
+              <select
+                value={walletFilter}
+                onChange={(e) => setWalletFilter(e.target.value as typeof walletFilter)}
+                className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-purple-500"
+              >
+                <option value="all">全部</option>
+                <option value="has_wallet">已绑</option>
+                <option value="no_wallet">未绑</option>
+              </select>
+            </div>
+
+            {filtersActive && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={resetFilters}
+                className="border-zinc-600 text-zinc-300 hover:bg-zinc-700"
+              >
+                <X className="w-3 h-3 mr-1" />
+                Reset
+              </Button>
+            )}
           </div>
 
           <div className="overflow-x-auto">
@@ -436,14 +568,14 @@ export default function AdminCommunityPage() {
                       Loading...
                     </td>
                   </tr>
-                ) : users.length === 0 ? (
+                ) : filteredUsers.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="text-center py-8 text-zinc-500">
-                      No users found
+                      {users.length === 0 ? 'No users found' : 'No users match the filters'}
                     </td>
                   </tr>
                 ) : (
-                  users.map((user) => (
+                  filteredUsers.map((user) => (
                     <tr key={user.user_id} className="border-b border-zinc-700/50 hover:bg-zinc-700/20">
                       <td className="px-4 py-3">
                         <div>

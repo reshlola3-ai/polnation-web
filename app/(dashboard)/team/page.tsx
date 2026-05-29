@@ -65,6 +65,7 @@ interface ApiResponse {
   volumeToNextLevel: number
   claimedLevels: number[]
   claimableLevels: number[]
+  adminLockReason?: { type: 'real_level_too_low' | 'volume_short'; needed: number; nextLevel: number } | null
   dailyEarnings: DailyEarning[]
   dailyEarningAmount: number
   lastDailyDistribution?: string
@@ -95,6 +96,7 @@ export default function TeamPage() {
   const [volumeToNextLevel, setVolumeToNextLevel] = useState(0)
   const [claimedLevels, setClaimedLevels] = useState<number[]>([])
   const [claimableLevels, setClaimableLevels] = useState<number[]>([])
+  const [adminLockReason, setAdminLockReason] = useState<ApiResponse['adminLockReason']>(null)
   const [dailyEarningAmount, setDailyEarningAmount] = useState(0)
   const [effectiveVolume, setEffectiveVolume] = useState(0)
   const [taskBonus, setTaskBonus] = useState(0)
@@ -150,6 +152,7 @@ export default function TeamPage() {
         setVolumeToNextLevel(data.volumeToNextLevel)
         setClaimedLevels(data.claimedLevels || [])
         setClaimableLevels(data.claimableLevels || [])
+        setAdminLockReason(data.adminLockReason ?? null)
         setDailyEarningAmount(data.dailyEarningAmount || 0)
         setEffectiveVolume(data.effectiveVolume || 0)
         setTaskBonus(data.taskBonus || 0)
@@ -462,10 +465,21 @@ export default function TeamPage() {
               </span>
               {claimableLevels.length > 0 && (
                 <Button size="sm" onClick={(e) => { e.stopPropagation(); handleClaim(claimableLevels[0]); }} disabled={claiming !== null} className="bg-[var(--poly-purple)] text-white text-xs">
-                  {claiming !== null ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><Gift className="w-3 h-3 mr-1" /> Claim ${currentLevelInfo?.reward_pool}</>}
+                  {claiming !== null ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><Gift className="w-3 h-3 mr-1" /> Claim ${claimableLevels[0] && levels.find(l => l.level === claimableLevels[0])?.reward_pool}</>}
                 </Button>
               )}
             </div>
+
+            {/* Admin-set lock notice: pool claims gated by real_level catching up */}
+            {status?.is_admin_set && adminLockReason && (
+              <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                {adminLockReason.type === 'real_level_too_low' ? (
+                  <>🔒 Pool claims locked. Your level is gifted — earn ${adminLockReason.needed.toFixed(2)} more team volume to unlock claiming from Bronze.</>
+                ) : (
+                  <>🔒 Next claim: Level {adminLockReason.nextLevel}. Need ${adminLockReason.needed.toFixed(2)} more team volume.</>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Momentum Multiplier Info */}

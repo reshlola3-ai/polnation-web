@@ -829,6 +829,41 @@ export default function AdminUserDetailPage({
                       )}
                     </div>
 
+                    {/* Admin-set unlock status banner */}
+                    {info.is_admin_set && (() => {
+                      const adminLockLevel = info.current_level
+                      const realLevel = info.real_level
+                      const unlocked = realLevel >= adminLockLevel
+                      const claimedLevelsSet = new Set(community!.claims.map((c) => c.level))
+                      const highestClaimed = claimedLevelsSet.size > 0 ? Math.max(...claimedLevelsSet) : 0
+                      const nextUnclaimed = highestClaimed + 1
+                      const lockTarget = community!.levels.find((l) => l.level === adminLockLevel)
+                      const lockVol = lockTarget
+                        ? (info.is_influencer
+                            ? lockTarget.unlock_volume_influencer
+                            : lockTarget.unlock_volume_normal)
+                        : 0
+                      const shortfall = Math.max(0, lockVol - info.team_volume_l123)
+                      return (
+                        <div className={`rounded-lg border px-4 py-3 text-xs ${
+                          unlocked
+                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
+                            : 'bg-amber-500/10 border-amber-500/30 text-amber-200'
+                        }`}>
+                          <p className="font-semibold mb-1">
+                            {unlocked
+                              ? `Pool claims UNLOCKED · Next claimable: L${nextUnclaimed}`
+                              : `Pool claims LOCKED · Need real_level ≥ L${adminLockLevel}`}
+                          </p>
+                          <p className="opacity-90">
+                            {unlocked
+                              ? `Real level (L${realLevel}) ≥ admin-set level (L${adminLockLevel}). User can claim L${nextUnclaimed} next if volume threshold is met.`
+                              : `User needs $${Number(shortfall).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more team volume to reach L${adminLockLevel} unlock threshold.`}
+                          </p>
+                        </div>
+                      )
+                    })()}
+
                     {/* Levels overview */}
                     <div>
                       <p className="text-xs text-zinc-400 mb-2">All Levels</p>
@@ -843,49 +878,79 @@ export default function AdminUserDetailPage({
                               <th className="text-right text-xs font-medium text-zinc-400 px-3 py-2">
                                 Unlock ({info.is_influencer ? 'Influencer' : 'Normal'})
                               </th>
-                              <th className="text-center text-xs font-medium text-zinc-400 px-3 py-2">Claimed</th>
+                              <th className="text-center text-xs font-medium text-zinc-400 px-3 py-2">Pool Status</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {community!.levels.map((lvl) => {
-                              const claim = community!.claims.find((c) => c.level === lvl.level)
-                              const unlockVol = info.is_influencer
-                                ? lvl.unlock_volume_influencer
-                                : lvl.unlock_volume_normal
-                              const isCurrent = lvl.level === info.current_level
-                              return (
-                                <tr
-                                  key={lvl.level}
-                                  className={`border-b border-zinc-700/50 ${isCurrent ? 'bg-amber-500/5' : ''}`}
-                                >
-                                  <td className="px-3 py-2 text-white">
-                                    L{lvl.level}
-                                    {isCurrent && (
-                                      <span className="ml-2 text-[10px] uppercase text-amber-400">current</span>
-                                    )}
-                                  </td>
-                                  <td className="px-3 py-2 text-zinc-300">{lvl.name}</td>
-                                  <td className="px-3 py-2 text-right font-mono text-zinc-300">
-                                    ${Number(lvl.reward_pool).toLocaleString()}
-                                  </td>
-                                  <td className="px-3 py-2 text-right font-mono text-zinc-300">
-                                    {(Number(lvl.daily_rate) * 100).toFixed(2)}%
-                                  </td>
-                                  <td className="px-3 py-2 text-right font-mono text-zinc-300">
-                                    ${Number(unlockVol).toLocaleString()}
-                                  </td>
-                                  <td className="px-3 py-2 text-center">
-                                    {claim ? (
-                                      <span className="text-emerald-400 text-xs">
-                                        ${Number(claim.amount).toLocaleString()}
-                                      </span>
-                                    ) : (
-                                      <span className="text-zinc-600 text-xs">-</span>
-                                    )}
-                                  </td>
-                                </tr>
-                              )
-                            })}
+                            {(() => {
+                              const claimedLevelsSet = new Set(community!.claims.map((c) => c.level))
+                              const highestClaimed = claimedLevelsSet.size > 0 ? Math.max(...claimedLevelsSet) : 0
+                              const nextUnclaimed = highestClaimed + 1
+                              const adminUnlocked = !info.is_admin_set || info.real_level >= info.current_level
+                              return community!.levels.map((lvl) => {
+                                const claim = community!.claims.find((c) => c.level === lvl.level)
+                                const unlockVol = info.is_influencer
+                                  ? lvl.unlock_volume_influencer
+                                  : lvl.unlock_volume_normal
+                                const isCurrent = lvl.level === info.current_level
+                                const volumeMet = info.team_volume_l123 >= unlockVol
+
+                                let statusNode: React.ReactNode
+                                if (claim) {
+                                  statusNode = (
+                                    <span className="text-emerald-400 text-xs">
+                                      Claimed ${Number(claim.amount).toLocaleString()}
+                                    </span>
+                                  )
+                                } else if (info.is_admin_set && !adminUnlocked) {
+                                  statusNode = <span className="text-amber-400 text-xs">Locked (admin)</span>
+                                } else if (lvl.level !== nextUnclaimed) {
+                                  statusNode = (
+                                    <span className="text-zinc-500 text-xs">
+                                      {lvl.level < nextUnclaimed ? '—' : `After L${nextUnclaimed}`}
+                                    </span>
+                                  )
+                                } else if (!volumeMet) {
+                                  const shortfall = unlockVol - info.team_volume_l123
+                                  statusNode = (
+                                    <span className="text-zinc-400 text-xs">
+                                      Need ${Number(shortfall).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </span>
+                                  )
+                                } else {
+                                  statusNode = (
+                                    <span className="text-blue-300 text-xs font-medium">
+                                      Available
+                                    </span>
+                                  )
+                                }
+
+                                return (
+                                  <tr
+                                    key={lvl.level}
+                                    className={`border-b border-zinc-700/50 ${isCurrent ? 'bg-amber-500/5' : ''}`}
+                                  >
+                                    <td className="px-3 py-2 text-white">
+                                      L{lvl.level}
+                                      {isCurrent && (
+                                        <span className="ml-2 text-[10px] uppercase text-amber-400">current</span>
+                                      )}
+                                    </td>
+                                    <td className="px-3 py-2 text-zinc-300">{lvl.name}</td>
+                                    <td className="px-3 py-2 text-right font-mono text-zinc-300">
+                                      ${Number(lvl.reward_pool).toLocaleString()}
+                                    </td>
+                                    <td className="px-3 py-2 text-right font-mono text-zinc-300">
+                                      {(Number(lvl.daily_rate) * 100).toFixed(2)}%
+                                    </td>
+                                    <td className="px-3 py-2 text-right font-mono text-zinc-300">
+                                      ${Number(unlockVol).toLocaleString()}
+                                    </td>
+                                    <td className="px-3 py-2 text-center">{statusNode}</td>
+                                  </tr>
+                                )
+                              })
+                            })()}
                           </tbody>
                         </table>
                       </div>
