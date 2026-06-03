@@ -640,6 +640,7 @@
     "minAmount": "Số tiền tối thiểu là ${amount}",
     "insufficientBalance": "Số dư không đủ",
     "withdrawFailed": "Rút tiền thất bại",
+    "polReserveInsufficient": "Dự trữ POL không đủ. Vui lòng rút USDC thay thế.",
     "claimFailed": "Nhận thưởng thất bại",
     "taskFailed": "Không thể hoàn thành nhiệm vụ"
   },

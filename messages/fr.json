@@ -640,6 +640,7 @@
     "minAmount": "Le montant minimum est de ${amount}",
     "insufficientBalance": "Solde insuffisant",
     "withdrawFailed": "Échec du retrait",
+    "polReserveInsufficient": "La réserve de POL est insuffisante. Veuillez retirer des USDC à la place.",
     "claimFailed": "Échec de la réclamation",
     "taskFailed": "Échec de la tâche"
   },

@@ -191,6 +191,13 @@ export default function EarningsPage() {
   }, [nextDistribution?.seconds_remaining])
 
   const handleWithdraw = async () => {
+    // POL 提现暂时关闭：储备不足，引导用户改用 USDC
+    if (withdrawType === 'POL') {
+      setError(tErrors('polReserveInsufficient'))
+      setSuccess('')
+      return
+    }
+
     if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) {
       setError(tErrors('invalidAmount'))
       return
@@ -226,6 +233,10 @@ export default function EarningsPage() {
       const data = await res.json()
 
       if (!res.ok) {
+        if (data.error === 'pol_reserve_insufficient') {
+          setError(tErrors('polReserveInsufficient'))
+          return
+        }
         setError(data.error || tErrors('withdrawFailed'))
         return
       }

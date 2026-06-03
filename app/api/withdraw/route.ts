@@ -96,6 +96,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid token type. Use USDC or POL' }, { status: 400 })
     }
 
+    // POL 提现暂时关闭：储备不足，引导用户改用 USDC（安全网，前端已提前拦截）
+    if (tokenType === 'POL') {
+      return NextResponse.json({ error: 'pol_reserve_insufficient' }, { status: 403 })
+    }
+
     // 获取配置
     const { data: config } = await supabaseAdmin
       .from('airdrop_config')

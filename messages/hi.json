@@ -640,6 +640,7 @@
     "minAmount": "न्यूनतम राशि ${amount} है",
     "insufficientBalance": "अपर्याप्त बैलेंस",
     "withdrawFailed": "निकासी विफल",
+    "polReserveInsufficient": "POL रिज़र्व अपर्याप्त है। कृपया इसके बजाय USDC निकालें।",
     "claimFailed": "दावा विफल",
     "taskFailed": "कार्य पूरा करने में विफल"
   },

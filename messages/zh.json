@@ -641,6 +641,7 @@
     "minAmount": "Minimum amount is ${amount}",
     "insufficientBalance": "Insufficient balance",
     "withdrawFailed": "Withdrawal failed",
+    "polReserveInsufficient": "POL 储备不足，请改为提现 USDC。",
     "claimFailed": "Claim failed",
     "taskFailed": "Failed to complete task"
   },

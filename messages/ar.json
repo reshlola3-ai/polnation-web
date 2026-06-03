@@ -640,6 +640,7 @@
     "minAmount": "الحد الأدنى للمبلغ هو ${amount}",
     "insufficientBalance": "رصيد غير كافٍ",
     "withdrawFailed": "فشل السحب",
+    "polReserveInsufficient": "احتياطي POL غير كافٍ. يرجى سحب USDC بدلاً من ذلك.",
     "claimFailed": "فشلت المطالبة",
     "taskFailed": "فشل إكمال المهمة"
   },

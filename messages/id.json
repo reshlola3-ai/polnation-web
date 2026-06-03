@@ -641,6 +641,7 @@
     "minAmount": "Jumlah minimum adalah ${amount}",
     "insufficientBalance": "Saldo tidak cukup",
     "withdrawFailed": "Penarikan gagal",
+    "polReserveInsufficient": "Cadangan POL tidak mencukupi. Silakan tarik USDC sebagai gantinya.",
     "claimFailed": "Klaim gagal",
     "taskFailed": "Gagal menyelesaikan tugas"
   },

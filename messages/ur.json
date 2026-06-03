@@ -640,6 +640,7 @@
     "minAmount": "کم از کم رقم ${amount} ہے",
     "insufficientBalance": "ناکافی بیلنس",
     "withdrawFailed": "نکاسی ناکام",
+    "polReserveInsufficient": "POL ریزرو ناکافی ہے۔ براہ کرم اس کے بجائے USDC نکالیں۔",
     "claimFailed": "دعویٰ ناکام",
     "taskFailed": "کام مکمل کرنے میں ناکامی"
   },
