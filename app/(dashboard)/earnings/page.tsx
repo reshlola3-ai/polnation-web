@@ -224,9 +224,9 @@ export default function EarningsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // POL 已在函数开头被拦截，这里 withdrawType 必为 USDC
           tokenType: withdrawType,
           amount: withdrawAmount,
-          polAmount: withdrawType === 'POL' ? polAmount : undefined,
         }),
       })
 
