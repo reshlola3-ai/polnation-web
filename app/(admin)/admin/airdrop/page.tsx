@@ -26,7 +26,8 @@ import {
   X,
   Crown,
   ClipboardList,
-  Gift
+  Gift,
+  ArrowDownToLine
 } from 'lucide-react'
 
 interface Config {
@@ -404,6 +405,12 @@ export default function AirdropPage() {
                 <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                   <Users className="w-4 h-4 mr-2" />
                   Users
+                </Button>
+              </Link>
+              <Link href="/admin/withdrawals">
+                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                  <ArrowDownToLine className="w-4 h-4 mr-2" />
+                  Withdrawals
                 </Button>
               </Link>
               <Link href="/admin/signatures">

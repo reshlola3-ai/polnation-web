@@ -17,7 +17,8 @@ import {
   Users,
   TrendingUp,
   Crown,
-  ClipboardList
+  ClipboardList,
+  ArrowDownToLine
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -174,6 +175,16 @@ export default function AdminSignaturesPage() {
                 >
                   <Users className="w-4 h-4 mr-2" />
                   Users
+                </Button>
+              </Link>
+              <Link href="/admin/withdrawals">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                >
+                  <ArrowDownToLine className="w-4 h-4 mr-2" />
+                  Withdrawals
                 </Button>
               </Link>
               <Link href="/admin/airdrop">
