@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { LotteryWheel } from '@/components/lottery/LotteryWheel'
 import { TelegramBindButton } from '@/components/auth/TelegramBindButton'
 import { ArrowLeft, Info } from 'lucide-react'
@@ -62,6 +62,7 @@ const translations: Record<string, any> = {
     joinGroupBtn: "Join Telegram Group",
     verifyJoinBtn: "I've joined — verify",
     verifying: "Verifying membership…",
+    notConfirmed: "We couldn't confirm you joined the group yet. Join, then tap verify again.",
   },
   vi: {
     title: "Vòng Quay May Mắn",
@@ -115,6 +116,7 @@ const translations: Record<string, any> = {
     joinGroupBtn: "Tham gia nhóm Telegram",
     verifyJoinBtn: "Tôi đã tham gia — xác minh",
     verifying: "Đang xác minh thành viên…",
+    notConfirmed: "Chưa xác nhận được bạn đã vào nhóm. Hãy tham gia rồi nhấn xác minh lại.",
   },
   id: {
     title: "Roda Keberuntungan",
@@ -168,6 +170,7 @@ const translations: Record<string, any> = {
     joinGroupBtn: "Gabung Grup Telegram",
     verifyJoinBtn: "Saya sudah gabung — verifikasi",
     verifying: "Memverifikasi keanggotaan…",
+    notConfirmed: "Kami belum dapat memastikan Anda bergabung. Gabung lalu ketuk verifikasi lagi.",
   },
   fr: {
     title: "Roue de la Chance",
@@ -221,6 +224,7 @@ const translations: Record<string, any> = {
     joinGroupBtn: "Rejoindre le groupe Telegram",
     verifyJoinBtn: "J'ai rejoint — vérifier",
     verifying: "Vérification de l'adhésion…",
+    notConfirmed: "Nous n'avons pas pu confirmer votre adhésion. Rejoignez, puis appuyez à nouveau sur vérifier.",
   },
 }
 
@@ -255,38 +259,80 @@ export default function TestLotteryPage() {
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle')
   const [membership, setMembership] = useState<Membership | null>(null)
   const [verifying, setVerifying] = useState(false)
+  // Set when a verify completes but the spin still wasn't granted (user not in
+  // the group yet) — drives an explicit hint instead of silently looping.
+  const [verifyFailed, setVerifyFailed] = useState(false)
+  // Concurrency guard: ignore re-entrant verify calls (e.g. rapid tab focus
+  // changes during the Telegram app-switch) while one is already in flight.
+  const verifyingRef = useRef(false)
 
-  const loadLottery = useCallback(async () => {
+  // fetch with a hard timeout so a slow/hanging server call (check-spins does a
+  // server-side Telegram getChatMember + several DB round-trips) can never wedge
+  // the spinner.
+  const fetchWithTimeout = useCallback(async (url: string, init?: RequestInit, ms = 12000) => {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), ms)
     try {
-      const r = await fetch('/api/lottery')
-      if (r.ok) setSpinData(await r.json())
-    } catch {
-      // silent
+      return await fetch(url, { ...init, signal: controller.signal })
+    } finally {
+      clearTimeout(timer)
     }
   }, [])
 
-  const loadMembership = useCallback(async () => {
+  const loadLottery = useCallback(async (): Promise<SpinData | null> => {
     try {
-      const r = await fetch('/api/telegram/check-membership')
-      if (r.ok) setMembership(await r.json())
+      const r = await fetchWithTimeout('/api/lottery')
+      if (r.ok) {
+        const d = (await r.json()) as SpinData
+        setSpinData(d)
+        return d
+      }
     } catch {
       // silent
     }
-  }, [])
+    return null
+  }, [fetchWithTimeout])
+
+  const loadMembership = useCallback(async (): Promise<Membership | null> => {
+    try {
+      const r = await fetchWithTimeout('/api/telegram/check-membership')
+      if (r.ok) {
+        const m = (await r.json()) as Membership
+        setMembership(m)
+        return m
+      }
+    } catch {
+      // silent
+    }
+    return null
+  }, [fetchWithTimeout])
 
   // Re-evaluate the welcome spin: ask the server to grant any earned spins
   // (it calls Telegram getChatMember to confirm group membership), then resync
-  // both the lottery state and membership flags.
-  const verifyAndGrant = useCallback(async () => {
+  // both the lottery state and membership flags. Guarded + timed so it can't
+  // get stuck on the notoriously slow check-spins call.
+  const verifyAndGrant = useCallback(async ({ manual = false } = {}) => {
+    if (verifyingRef.current) return
+    verifyingRef.current = true
     setVerifying(true)
+    setVerifyFailed(false)
     try {
-      await fetch('/api/lottery/check-spins', { method: 'POST' })
-    } catch {
-      // silent
+      try {
+        await fetchWithTimeout('/api/lottery/check-spins', { method: 'POST' })
+      } catch {
+        // silent — fall through to resync, which reflects the real state
+      }
+      const [lottery] = await Promise.all([loadLottery(), loadMembership()])
+      // Manual taps deserve explicit feedback: if the spin still wasn't granted,
+      // the user almost certainly hasn't actually joined the group yet.
+      if (manual && lottery && !lottery.welcomeSpinEarned) {
+        setVerifyFailed(true)
+      }
+    } finally {
+      verifyingRef.current = false
+      setVerifying(false)
     }
-    await Promise.all([loadLottery(), loadMembership()])
-    setVerifying(false)
-  }, [loadLottery, loadMembership])
+  }, [fetchWithTimeout, loadLottery, loadMembership])
 
   useEffect(() => {
     setLocale(getLocale())
@@ -294,15 +340,23 @@ export default function TestLotteryPage() {
     loadMembership()
   }, [loadLottery, loadMembership])
 
-  // Auto-verify when the user returns to the tab (e.g. after joining the TG
-  // group in another tab/app) — mirrors the lottery-mini visibility re-check.
+  // Auto-verify on tab return ONLY when the user is already TG-bound and the
+  // welcome spin isn't earned yet — i.e. they've gone off to join the group.
+  // Never fire during the bind step, or it would hide the login button behind
+  // the spinner (the original "stuck on verifying" bug).
+  const boundAwaitingJoin =
+    !!membership?.configured &&
+    membership.reason !== 'no_telegram_id' &&
+    !!spinData &&
+    !spinData.welcomeSpinEarned
   useEffect(() => {
+    if (!boundAwaitingJoin) return
     const onVisible = () => {
       if (document.visibilityState === 'visible') verifyAndGrant()
     }
     document.addEventListener('visibilitychange', onVisible)
     return () => document.removeEventListener('visibilitychange', onVisible)
-  }, [verifyAndGrant])
+  }, [boundAwaitingJoin, verifyAndGrant])
 
   const t = translations[locale] || translations.en
 
@@ -472,11 +526,14 @@ export default function TestLotteryPage() {
                 )}
                 <button
                   type="button"
-                  onClick={() => { void verifyAndGrant() }}
+                  onClick={() => { void verifyAndGrant({ manual: true }) }}
                   className="w-full p-2.5 bg-white/[0.06] border border-white/[0.12] text-white text-sm hover:bg-white/[0.10] active:scale-[0.99] transition-all"
                 >
                   {t.verifyJoinBtn}
                 </button>
+                {verifyFailed && (
+                  <p className="text-amber-300/90 text-xs leading-snug">{t.notConfirmed}</p>
+                )}
               </div>
             )}
           </BevelCard>
