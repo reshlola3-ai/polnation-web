@@ -84,7 +84,12 @@ function verifyTelegramLoginWidget(
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as Partial<WidgetPayload>
+    const rawBody = (await request.json()) as Partial<WidgetPayload> & { transfer?: boolean }
+
+    // Pull `transfer` OUT before HMAC verification — verifyTelegramLoginWidget
+    // hashes every field except `hash`, so leaving our own flag in the payload
+    // would corrupt the data-check string and fail validation.
+    const { transfer, ...body } = rawBody
 
     const botToken = process.env.TELEGRAM_BOT_TOKEN
     if (!botToken) {
@@ -135,7 +140,30 @@ export async function POST(request: Request) {
       .maybeSingle()
 
     if (existing && existing.id !== user.id) {
-      return NextResponse.json({ error: 'telegram_already_bound' }, { status: 409 })
+      // Without an explicit transfer request, keep the "one TG = one account"
+      // policy and reject. The widget HMAC above proves the caller controls
+      // this Telegram account, so a confirmed transfer is a legitimate move.
+      if (transfer !== true) {
+        return NextResponse.json({ error: 'telegram_already_bound' }, { status: 409 })
+      }
+
+      // Transfer: detach the TG identity from the old account first so the
+      // bind below doesn't trip the unique constraint. The old account loses
+      // Telegram login (caller confirmed this in the UI warning).
+      const { error: unlinkError } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          telegram_chat_id: null,
+          telegram_username: null,
+          telegram_photo_url: null,
+          telegram_verified: false,
+        })
+        .eq('id', existing.id)
+
+      if (unlinkError) {
+        console.error('[bind-telegram] transfer unlink failed:', unlinkError.message)
+        return NextResponse.json({ error: 'transfer_failed' }, { status: 500 })
+      }
     }
 
     // Update the current user's profile with the TG identity.

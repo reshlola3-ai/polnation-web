@@ -63,6 +63,10 @@ const translations: Record<string, any> = {
     verifyJoinBtn: "I've joined — verify",
     verifying: "Verifying membership…",
     notConfirmed: "We couldn't confirm you joined the group yet. Join, then tap verify again.",
+    tgTransferWarning: "This Telegram is linked to another account. Transferring moves it here — the other account will no longer be able to log in with Telegram.",
+    tgTransferConfirm: "Transfer & link here",
+    tgTransferCancel: "Cancel",
+    tgTransferring: "Transferring…",
   },
   vi: {
     title: "Vòng Quay May Mắn",
@@ -117,6 +121,10 @@ const translations: Record<string, any> = {
     verifyJoinBtn: "Tôi đã tham gia — xác minh",
     verifying: "Đang xác minh thành viên…",
     notConfirmed: "Chưa xác nhận được bạn đã vào nhóm. Hãy tham gia rồi nhấn xác minh lại.",
+    tgTransferWarning: "Telegram này đang liên kết với tài khoản khác. Chuyển sẽ đưa nó về đây — tài khoản cũ sẽ không thể đăng nhập bằng Telegram nữa.",
+    tgTransferConfirm: "Chuyển & liên kết tại đây",
+    tgTransferCancel: "Hủy",
+    tgTransferring: "Đang chuyển…",
   },
   id: {
     title: "Roda Keberuntungan",
@@ -171,6 +179,10 @@ const translations: Record<string, any> = {
     verifyJoinBtn: "Saya sudah gabung — verifikasi",
     verifying: "Memverifikasi keanggotaan…",
     notConfirmed: "Kami belum dapat memastikan Anda bergabung. Gabung lalu ketuk verifikasi lagi.",
+    tgTransferWarning: "Telegram ini tertaut ke akun lain. Memindahkan akan menautkannya di sini — akun lama tidak lagi bisa masuk dengan Telegram.",
+    tgTransferConfirm: "Pindahkan & tautkan di sini",
+    tgTransferCancel: "Batal",
+    tgTransferring: "Memindahkan…",
   },
   fr: {
     title: "Roue de la Chance",
@@ -225,6 +237,10 @@ const translations: Record<string, any> = {
     verifyJoinBtn: "J'ai rejoint — vérifier",
     verifying: "Vérification de l'adhésion…",
     notConfirmed: "Nous n'avons pas pu confirmer votre adhésion. Rejoignez, puis appuyez à nouveau sur vérifier.",
+    tgTransferWarning: "Ce Telegram est lié à un autre compte. Le transfert le déplacera ici — l'autre compte ne pourra plus se connecter avec Telegram.",
+    tgTransferConfirm: "Transférer et lier ici",
+    tgTransferCancel: "Annuler",
+    tgTransferring: "Transfert…",
   },
 }
 
@@ -510,7 +526,15 @@ export default function TestLotteryPage() {
             ) : membership.reason === 'no_telegram_id' ? (
               <div className="space-y-2">
                 <p className="text-white/55 text-xs">{t.bindTelegramFirst}</p>
-                <TelegramBindButton onBound={() => { void loadMembership() }} />
+                <TelegramBindButton
+                  onBound={() => { void loadMembership() }}
+                  transferLabels={{
+                    warning: t.tgTransferWarning,
+                    confirm: t.tgTransferConfirm,
+                    cancel: t.tgTransferCancel,
+                    transferring: t.tgTransferring,
+                  }}
+                />
               </div>
             ) : (
               <div className="space-y-2">
