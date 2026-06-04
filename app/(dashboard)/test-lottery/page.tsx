@@ -1,7 +1,8 @@
 ﻿'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { LotteryWheel } from '@/components/lottery/LotteryWheel'
+import { TelegramBindButton } from '@/components/auth/TelegramBindButton'
 import { ArrowLeft, Info } from 'lucide-react'
 import Link from 'next/link'
 import { BevelCard } from '@/components/ui/poly/BevelCard'
@@ -55,6 +56,12 @@ const translations: Record<string, any> = {
     rewardInfo: "Reward Info",
     rewardUsdc: "USDC rewards go directly to your withdrawable balance",
     rewardBonus: "Bonus rewards are added to your unlock progress",
+    freeSpinTitle: "Join our Telegram → Free Spin",
+    freeSpinDesc: "Link your Telegram and join the official group to earn 1 free spin.",
+    bindTelegramFirst: "First, link your Telegram account:",
+    joinGroupBtn: "Join Telegram Group",
+    verifyJoinBtn: "I've joined — verify",
+    verifying: "Verifying membership…",
   },
   vi: {
     title: "Vòng Quay May Mắn",
@@ -102,6 +109,12 @@ const translations: Record<string, any> = {
     rewardInfo: "Thông Tin Thưởng",
     rewardUsdc: "USDC thưởng được chuyển thẳng vào số dư rút được",
     rewardBonus: "Bonus thưởng được thêm vào tiến trình mở khóa",
+    freeSpinTitle: "Tham gia Telegram → Lượt quay miễn phí",
+    freeSpinDesc: "Liên kết Telegram và tham gia nhóm chính thức để nhận 1 lượt quay miễn phí.",
+    bindTelegramFirst: "Trước tiên, liên kết tài khoản Telegram của bạn:",
+    joinGroupBtn: "Tham gia nhóm Telegram",
+    verifyJoinBtn: "Tôi đã tham gia — xác minh",
+    verifying: "Đang xác minh thành viên…",
   },
   id: {
     title: "Roda Keberuntungan",
@@ -149,6 +162,12 @@ const translations: Record<string, any> = {
     rewardInfo: "Info Hadiah",
     rewardUsdc: "Hadiah USDC langsung masuk saldo yang dapat ditarik",
     rewardBonus: "Hadiah bonus ditambahkan ke progres buka kunci",
+    freeSpinTitle: "Gabung Telegram → Putaran Gratis",
+    freeSpinDesc: "Tautkan Telegram dan gabung grup resmi untuk mendapat 1 putaran gratis.",
+    bindTelegramFirst: "Pertama, tautkan akun Telegram Anda:",
+    joinGroupBtn: "Gabung Grup Telegram",
+    verifyJoinBtn: "Saya sudah gabung — verifikasi",
+    verifying: "Memverifikasi keanggotaan…",
   },
   fr: {
     title: "Roue de la Chance",
@@ -196,6 +215,12 @@ const translations: Record<string, any> = {
     rewardInfo: "Info Récompenses",
     rewardUsdc: "Les récompenses USDC vont directement dans votre solde retirable",
     rewardBonus: "Les bonus sont ajoutés à votre progression de déverrouillage",
+    freeSpinTitle: "Rejoignez notre Telegram → Tour gratuit",
+    freeSpinDesc: "Liez votre Telegram et rejoignez le groupe officiel pour gagner 1 tour gratuit.",
+    bindTelegramFirst: "D'abord, liez votre compte Telegram :",
+    joinGroupBtn: "Rejoindre le groupe Telegram",
+    verifyJoinBtn: "J'ai rejoint — vérifier",
+    verifying: "Vérification de l'adhésion…",
   },
 }
 
@@ -214,20 +239,70 @@ interface SpinData {
   progressToNextSpin: number
   nextMilestone: number
   referralCode: string | null
+  welcomeSpinEarned?: boolean
+}
+
+interface Membership {
+  configured: boolean
+  isMember: boolean
+  inviteLink: string | null
+  reason?: string
 }
 
 export default function TestLotteryPage() {
   const [locale, setLocale] = useState('en')
   const [spinData, setSpinData] = useState<SpinData | null>(null)
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle')
+  const [membership, setMembership] = useState<Membership | null>(null)
+  const [verifying, setVerifying] = useState(false)
+
+  const loadLottery = useCallback(async () => {
+    try {
+      const r = await fetch('/api/lottery')
+      if (r.ok) setSpinData(await r.json())
+    } catch {
+      // silent
+    }
+  }, [])
+
+  const loadMembership = useCallback(async () => {
+    try {
+      const r = await fetch('/api/telegram/check-membership')
+      if (r.ok) setMembership(await r.json())
+    } catch {
+      // silent
+    }
+  }, [])
+
+  // Re-evaluate the welcome spin: ask the server to grant any earned spins
+  // (it calls Telegram getChatMember to confirm group membership), then resync
+  // both the lottery state and membership flags.
+  const verifyAndGrant = useCallback(async () => {
+    setVerifying(true)
+    try {
+      await fetch('/api/lottery/check-spins', { method: 'POST' })
+    } catch {
+      // silent
+    }
+    await Promise.all([loadLottery(), loadMembership()])
+    setVerifying(false)
+  }, [loadLottery, loadMembership])
 
   useEffect(() => {
     setLocale(getLocale())
-    fetch('/api/lottery')
-      .then(r => r.json())
-      .then(d => setSpinData(d))
-      .catch(() => {})
-  }, [])
+    loadLottery()
+    loadMembership()
+  }, [loadLottery, loadMembership])
+
+  // Auto-verify when the user returns to the tab (e.g. after joining the TG
+  // group in another tab/app) — mirrors the lottery-mini visibility re-check.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') verifyAndGrant()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [verifyAndGrant])
 
   const t = translations[locale] || translations.en
 
@@ -349,6 +424,64 @@ export default function TestLotteryPage() {
           )}
         </BevelCard>
       </div>
+
+      {/* ─── Welcome task: join TG group → +1 free spin (one-time) ─── */}
+      {/* Only shown when a required group is configured and the welcome spin
+          hasn't been earned yet. Two steps: link Telegram → join group →
+          server grants the spin via getChatMember verification. */}
+      {membership?.configured && spinData && !spinData.welcomeSpinEarned && (
+        <div className="max-w-lg w-full mb-5">
+          <BevelCard
+            size="lg"
+            pad={20}
+            bg="linear-gradient(135deg, rgba(124,58,237,0.18), rgba(6,182,212,0.08))"
+            strokeColor="rgba(168,85,247,0.45)"
+          >
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="min-w-0">
+                <EyebrowTag>Welcome</EyebrowTag>
+                <p className="text-white text-[15px] font-semibold mt-1 leading-tight">
+                  {t.freeSpinTitle}
+                </p>
+                <p className="text-white/55 text-xs mt-0.5">{t.freeSpinDesc}</p>
+              </div>
+              <span className="text-2xl shrink-0">🎁</span>
+            </div>
+
+            {verifying ? (
+              <div className="flex items-center gap-2 p-2.5 bg-white/[0.04] border border-white/[0.10]">
+                <div className="w-3.5 h-3.5 rounded-full border-2 border-[var(--poly-purple)] border-t-transparent animate-spin shrink-0" />
+                <p className="text-white/70 text-xs">{t.verifying}</p>
+              </div>
+            ) : membership.reason === 'no_telegram_id' ? (
+              <div className="space-y-2">
+                <p className="text-white/55 text-xs">{t.bindTelegramFirst}</p>
+                <TelegramBindButton onBound={() => { void loadMembership() }} />
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {!membership.isMember && membership.inviteLink && (
+                  <a
+                    href={membership.inviteLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full text-center p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors"
+                  >
+                    {t.joinGroupBtn}
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => { void verifyAndGrant() }}
+                  className="w-full p-2.5 bg-white/[0.06] border border-white/[0.12] text-white text-sm hover:bg-white/[0.10] active:scale-[0.99] transition-all"
+                >
+                  {t.verifyJoinBtn}
+                </button>
+              </div>
+            )}
+          </BevelCard>
+        </div>
+      )}
 
       {/* ─── Lottery Wheel ─── */}
       <BevelCard size="lg" pad={20} className="max-w-lg w-full">
