@@ -128,12 +128,22 @@ interface WithdrawalRecord {
   created_at: string
 }
 
+interface WalletAuditRecord {
+  id: string
+  event: string
+  old_address: string | null
+  new_address: string | null
+  source: string | null
+  created_at: string
+}
+
 interface DetailResponse {
   profile: ProfileData
   upline: UplineEntry[]
   downline: DownlineEntry[]
   lottery: LotteryRecord[]
   withdrawals: WithdrawalRecord[]
+  wallet_audit: WalletAuditRecord[]
   community: {
     info: CommunityInfo | null
     levels: CommunityLevel[]
@@ -243,6 +253,7 @@ export default function AdminUserDetailPage({
   )
 
   // Withdrawal aggregates
+  const walletAudit = data?.wallet_audit || []
   const withdrawals = data?.withdrawals || []
   const totalWithdrawals = withdrawals.length
   const completedUsd = withdrawals
@@ -749,6 +760,57 @@ export default function AdminUserDetailPage({
                       </div>
                     )}
                   </>
+                )}
+              </div>
+            </section>
+
+            {/* Section: Wallet Binding Audit */}
+            <section className="bg-zinc-800/50 border border-zinc-700 rounded-xl overflow-hidden">
+              <header className="px-5 py-3 border-b border-zinc-700 flex items-center gap-2">
+                <Wallet className="w-4 h-4 text-violet-400" />
+                <h2 className="text-sm font-semibold text-white">Wallet Binding Audit</h2>
+                <span className="text-[11px] text-zinc-500">绑定一次后永久不可变</span>
+              </header>
+              <div className="p-5">
+                {walletAudit.length === 0 ? (
+                  <p className="text-sm text-zinc-500">No wallet binding events recorded.</p>
+                ) : (
+                  <div className="overflow-x-auto rounded-lg border border-zinc-700">
+                    <table className="w-full text-sm">
+                      <thead className="bg-zinc-800/80">
+                        <tr className="border-b border-zinc-700">
+                          <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Time</th>
+                          <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Event</th>
+                          <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">From → To</th>
+                          <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Source</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {walletAudit.map((a) => (
+                          <tr key={a.id} className="border-b border-zinc-700/50">
+                            <td className="px-4 py-2 text-xs text-zinc-400 whitespace-nowrap">{formatDate(a.created_at)}</td>
+                            <td className="px-4 py-2">
+                              {a.event === 'change_blocked' ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-xs">
+                                  <XCircle className="w-3 h-3" /> Change blocked
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-xs">
+                                  <CheckCircle className="w-3 h-3" /> Bound
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-2 font-mono text-xs text-zinc-300">
+                              {a.old_address ? shortenAddr(a.old_address) : '—'}
+                              <span className="text-zinc-600"> → </span>
+                              {a.new_address ? shortenAddr(a.new_address) : '—'}
+                            </td>
+                            <td className="px-4 py-2 text-xs text-zinc-500">{a.source || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 )}
               </div>
             </section>

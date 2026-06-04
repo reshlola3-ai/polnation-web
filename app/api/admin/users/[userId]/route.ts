@@ -113,6 +113,13 @@ export async function GET(
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
+    // 5c. Wallet binding audit (首次绑定 + 被拦截的换绑尝试)
+    const { data: walletAudit } = await supabaseAdmin
+      .from('wallet_binding_audit')
+      .select('id, event, old_address, new_address, source, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+
     // 6. Community status
     const { data: communityInfo } = await supabaseAdmin
       .rpc('get_user_community_info', { target_user_id: userId })
@@ -152,6 +159,7 @@ export async function GET(
       downline,
       lottery: lotteryRecords || [],
       withdrawals: withdrawals || [],
+      wallet_audit: walletAudit || [],
       community: {
         info: community,
         levels: communityLevels || [],

@@ -101,42 +101,29 @@ export default function ProfilePage() {
   }, [])
 
   // 钱包连接后自动绑定到数据库，然后刷新 profile
+  // 绑定一律走服务端 /api/profile/bind-wallet（内置「已绑则拒绝」防护 + 审计留痕），
+  // 绝不在前端直接写库 —— 避免本地 profile 状态未加载时把已绑钱包覆盖掉的竞态。
   useEffect(() => {
     async function autoBindWallet() {
       if (!address || profile?.wallet_address) return
 
-      const normalizedAddress = address.toLowerCase()
-
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
+        const res = await fetch('/api/profile/bind-wallet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ address: address.toLowerCase(), source: 'profile_page' }),
+        })
+        const data = await res.json().catch(() => ({}))
 
-        // 检查钱包是否已被其他用户绑定
-        const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('wallet_address', normalizedAddress)
-          .single()
-
-        if (existingProfile && existingProfile.id !== user.id) {
-          setError('This wallet is already bound to another account')
-          return
-        }
-
-        // 钱包可用，自动绑定
-        if (!existingProfile) {
-          const { error: bindError } = await supabase
-            .from('profiles')
-            .update({
-              wallet_address: normalizedAddress,
-              wallet_bound_at: new Date().toISOString(),
-            })
-            .eq('id', user.id)
-
-          if (bindError) {
-            console.error('Failed to auto-bind wallet:', bindError)
-            return
+        if (!res.ok) {
+          if (data.error === 'wallet_already_bound') {
+            setError('Your account already has a wallet bound. The wallet cannot be changed.')
+          } else if (data.error === 'wallet_taken') {
+            setError('This wallet is already bound to another account')
           }
+          // 无论被拒原因为何，刷新一次以显示当前真实绑定
+          loadProfile()
+          return
         }
 
         loadProfile()
