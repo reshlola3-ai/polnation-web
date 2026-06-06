@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { Select } from '@/components/ui/Select'
+import { SearchableSelect } from '@/components/ui/SearchableSelect'
 import { countries } from '@/lib/countries'
 import { Profile } from '@/lib/types'
 import { User, Phone, Send, Wallet, Check, ExternalLink, CheckCircle, Mail, Lock, AlertCircle, LogOut } from 'lucide-react'
@@ -233,11 +233,13 @@ export default function ProfilePage() {
   const countryOptions = countries.map(c => ({
     value: c.code,
     label: `${c.flag} ${c.name}`,
+    search: `${c.name} ${c.code} ${c.dialCode}`,
   }))
 
   const dialCodeOptions = countries.map(c => ({
     value: c.dialCode,
     label: `${c.flag} ${c.dialCode}`,
+    search: `${c.name} ${c.code} ${c.dialCode}`,
   }))
 
   if (isLoading) {
@@ -329,10 +331,12 @@ export default function ProfilePage() {
             <RequiredLabel>Phone Number</RequiredLabel>
             <div className="flex gap-2">
               <div className="w-32">
-                <Select
+                <SearchableSelect
                   options={dialCodeOptions}
                   value={phoneCountryCode}
-                  onChange={(e) => setPhoneCountryCode(e.target.value)}
+                  onChange={setPhoneCountryCode}
+                  placeholder="Code"
+                  searchPlaceholder="Search country / code"
                 />
               </div>
               <div className="flex-1">
@@ -351,10 +355,12 @@ export default function ProfilePage() {
           {/* Country — required */}
           <div>
             <RequiredLabel>Country</RequiredLabel>
-            <Select
+            <SearchableSelect
               options={countryOptions}
               value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
+              onChange={setCountryCode}
+              placeholder="Select country"
+              searchPlaceholder="Search country"
             />
           </div>
 
