@@ -27,7 +27,10 @@ import {
   Crown,
   ClipboardList,
   Gift,
-  ArrowDownToLine
+  ArrowDownToLine,
+  History,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react'
 
 interface Config {
@@ -83,6 +86,55 @@ interface PendingRound {
   }>
 }
 
+interface MiniProfile {
+  username: string | null
+  email: string | null
+}
+
+interface HistoryRound {
+  id: string
+  round_number: number
+  distributed_at: string | null
+  snapshot_at: string | null
+  total_users: number | null
+  total_usdc: number | null
+  commission_total: number
+  commission_count: number
+  community_total: number
+  community_count: number
+}
+
+interface RoundDetail {
+  round: { id: string; round_number: number; distributed_at: string | null; snapshot_at: string | null }
+  airdrops: Array<{
+    user_id: string
+    usdc_balance: number
+    tier_level: number
+    rate_percent: number
+    profit_usdc: number
+    profile: MiniProfile | null
+  }>
+  commissions: Array<{
+    beneficiary_id: string
+    source_user_id: string
+    level: number
+    source_profit: number
+    commission_rate: number
+    commission_amount: number
+    beneficiary: MiniProfile | null
+    source: MiniProfile | null
+  }>
+  community: Array<{
+    user_id: string
+    level: number
+    reward_pool: number
+    daily_rate: number
+    momentum_multiplier: number
+    earning_amount: number
+    profile: MiniProfile | null
+  }>
+}
+
 export default function AirdropPage() {
   const router = useRouter()
   const [config, setConfig] = useState<Config | null>(null)
@@ -96,7 +148,13 @@ export default function AirdropPage() {
   const [forceDistributing, setForceDistributing] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  
+
+  // 发放历史
+  const [history, setHistory] = useState<HistoryRound[]>([])
+  const [expandedRound, setExpandedRound] = useState<string | null>(null)
+  const [roundDetails, setRoundDetails] = useState<Record<string, RoundDetail>>({})
+  const [loadingDetail, setLoadingDetail] = useState(false)
+
   // 编辑状态
   const [editingTier, setEditingTier] = useState<number | null>(null)
   const [editingConfig, setEditingConfig] = useState(false)
@@ -150,12 +208,42 @@ export default function AirdropPage() {
       setCanCalculate(roundsData.can_calculate)
       setPendingRounds(roundsData.pending_rounds || [])
 
+      // 获取发放历史
+      const historyRes = await fetch('/api/admin/airdrop/history')
+      if (historyRes.ok) {
+        const historyData = await historyRes.json()
+        setHistory(historyData.rounds || [])
+      }
+
     } catch (err) {
       console.error('Error fetching data:', err)
     } finally {
       setIsLoading(false)
     }
   }, [router])
+
+  // 展开/收起某轮 → 懒加载逐人明细
+  const toggleRound = useCallback(async (roundId: string) => {
+    if (expandedRound === roundId) {
+      setExpandedRound(null)
+      return
+    }
+    setExpandedRound(roundId)
+    if (!roundDetails[roundId]) {
+      setLoadingDetail(true)
+      try {
+        const res = await fetch(`/api/admin/airdrop/history?round_id=${roundId}`)
+        if (res.ok) {
+          const detail = await res.json()
+          setRoundDetails((prev) => ({ ...prev, [roundId]: detail }))
+        }
+      } catch (err) {
+        console.error('Error loading round detail:', err)
+      } finally {
+        setLoadingDetail(false)
+      }
+    }
+  }, [expandedRound, roundDetails])
 
   useEffect(() => {
     fetchData()
@@ -300,7 +388,18 @@ export default function AirdropPage() {
         : ''
       setSuccess(`发放成功！${data.distributed_count} 位用户，总计: $${data.total_distributed}${commissionMsg}${communityMsg}`)
       setPreviewResult(null)
-      fetchData()
+      await fetchData()
+      // 自动展开刚发放的这一轮明细
+      setExpandedRound(roundId)
+      try {
+        const detailRes = await fetch(`/api/admin/airdrop/history?round_id=${roundId}`)
+        if (detailRes.ok) {
+          const detail = await detailRes.json()
+          setRoundDetails((prev) => ({ ...prev, [roundId]: detail }))
+        }
+      } catch {
+        // 明细加载失败不影响发放结果
+      }
     } catch {
       setError('Network error')
     } finally {
@@ -779,6 +878,179 @@ export default function AirdropPage() {
                 ))}
               </div>
             )}
+
+            {/* 发放历史 */}
+            <div className="bg-zinc-800/50 border border-zinc-700 rounded-xl overflow-hidden">
+              <div className="px-4 py-3 border-b border-zinc-700 flex items-center gap-2">
+                <History className="w-4 h-4 text-emerald-400" />
+                <h3 className="text-white font-semibold">发放历史明细</h3>
+                <span className="text-xs text-zinc-500">点击某轮展开逐人明细</span>
+              </div>
+
+              {history.length === 0 ? (
+                <p className="px-4 py-6 text-sm text-zinc-500">暂无发放记录。</p>
+              ) : (
+                history.map((r) => {
+                  const detail = roundDetails[r.id]
+                  const isOpen = expandedRound === r.id
+                  return (
+                    <div key={r.id} className="border-b border-zinc-700/50">
+                      {/* 轮次汇总行 */}
+                      <button
+                        onClick={() => toggleRound(r.id)}
+                        className="w-full text-left p-4 hover:bg-zinc-700/20 transition-colors flex items-center justify-between gap-3"
+                      >
+                        <div>
+                          <p className="text-white font-medium">
+                            轮次 #{r.round_number}
+                            <span className="ml-2 text-xs text-zinc-500 font-normal">
+                              {r.distributed_at ? new Date(r.distributed_at).toLocaleString() : '-'}
+                            </span>
+                          </p>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs">
+                            <span className="text-zinc-300">{r.total_users ?? 0} 用户</span>
+                            <span className="text-green-400">
+                              利润 ${Number(r.total_usdc || 0).toFixed(6)}
+                            </span>
+                            <span className="text-amber-300">
+                              佣金 ${Number(r.commission_total || 0).toFixed(6)} ({r.commission_count}笔)
+                            </span>
+                            <span className="text-purple-300">
+                              社群池 ${Number(r.community_total || 0).toFixed(4)} ({r.community_count}人)
+                            </span>
+                          </div>
+                        </div>
+                        {isOpen ? (
+                          <ChevronUp className="w-4 h-4 text-zinc-400 shrink-0" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4 text-zinc-400 shrink-0" />
+                        )}
+                      </button>
+
+                      {/* 展开的逐人明细 */}
+                      {isOpen && (
+                        <div className="px-4 pb-4 space-y-4">
+                          {!detail ? (
+                            <p className="text-sm text-zinc-500 py-2">
+                              {loadingDetail ? '加载中...' : '无明细'}
+                            </p>
+                          ) : (
+                            <>
+                              {/* 空投利润明细 */}
+                              <div>
+                                <h4 className="text-zinc-300 text-sm font-medium mb-2 flex items-center gap-1">
+                                  <Gift className="w-3.5 h-3.5 text-emerald-400" /> 空投利润 ({detail.airdrops.length})
+                                </h4>
+                                {detail.airdrops.length === 0 ? (
+                                  <p className="text-xs text-zinc-600">无</p>
+                                ) : (
+                                  <div className="overflow-x-auto rounded-lg border border-zinc-700">
+                                    <table className="w-full text-xs">
+                                      <thead className="bg-zinc-800/80 text-zinc-400">
+                                        <tr>
+                                          <th className="text-left px-3 py-2">用户</th>
+                                          <th className="text-right px-3 py-2">USDC 余额</th>
+                                          <th className="text-center px-3 py-2">档位</th>
+                                          <th className="text-right px-3 py-2">费率</th>
+                                          <th className="text-right px-3 py-2">到账利润</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {detail.airdrops.map((a, i) => (
+                                          <tr key={`${a.user_id}-${i}`} className="border-t border-zinc-700/50">
+                                            <td className="px-3 py-2 text-zinc-200">{a.profile?.username || a.profile?.email || '—'}</td>
+                                            <td className="px-3 py-2 text-right font-mono text-zinc-300">${Number(a.usdc_balance).toFixed(2)}</td>
+                                            <td className="px-3 py-2 text-center text-zinc-400">L{a.tier_level}</td>
+                                            <td className="px-3 py-2 text-right text-zinc-400">{Number(a.rate_percent)}%</td>
+                                            <td className="px-3 py-2 text-right font-mono text-green-400">${Number(a.profit_usdc).toFixed(6)}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* 推荐佣金明细 */}
+                              <div>
+                                <h4 className="text-zinc-300 text-sm font-medium mb-2 flex items-center gap-1">
+                                  <TrendingUp className="w-3.5 h-3.5 text-amber-400" /> 推荐佣金 ({detail.commissions.length})
+                                </h4>
+                                {detail.commissions.length === 0 ? (
+                                  <p className="text-xs text-zinc-600">无</p>
+                                ) : (
+                                  <div className="overflow-x-auto rounded-lg border border-zinc-700">
+                                    <table className="w-full text-xs">
+                                      <thead className="bg-zinc-800/80 text-zinc-400">
+                                        <tr>
+                                          <th className="text-left px-3 py-2">受益人</th>
+                                          <th className="text-left px-3 py-2">来源用户</th>
+                                          <th className="text-center px-3 py-2">层级</th>
+                                          <th className="text-right px-3 py-2">比例</th>
+                                          <th className="text-right px-3 py-2">佣金</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {detail.commissions.map((c, i) => (
+                                          <tr key={`${c.beneficiary_id}-${i}`} className="border-t border-zinc-700/50">
+                                            <td className="px-3 py-2 text-zinc-200">{c.beneficiary?.username || c.beneficiary?.email || '—'}</td>
+                                            <td className="px-3 py-2 text-zinc-400">{c.source?.username || c.source?.email || '—'}</td>
+                                            <td className="px-3 py-2 text-center text-zinc-400">L{c.level}</td>
+                                            <td className="px-3 py-2 text-right text-zinc-400">{Number(c.commission_rate)}%</td>
+                                            <td className="px-3 py-2 text-right font-mono text-amber-300">${Number(c.commission_amount).toFixed(6)}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* 社群池收益明细 */}
+                              <div>
+                                <h4 className="text-zinc-300 text-sm font-medium mb-2 flex items-center gap-1">
+                                  <Crown className="w-3.5 h-3.5 text-purple-400" /> 社群池收益 ({detail.community.length})
+                                </h4>
+                                {detail.community.length === 0 ? (
+                                  <p className="text-xs text-zinc-600">无</p>
+                                ) : (
+                                  <div className="overflow-x-auto rounded-lg border border-zinc-700">
+                                    <table className="w-full text-xs">
+                                      <thead className="bg-zinc-800/80 text-zinc-400">
+                                        <tr>
+                                          <th className="text-left px-3 py-2">用户</th>
+                                          <th className="text-center px-3 py-2">等级</th>
+                                          <th className="text-right px-3 py-2">奖池</th>
+                                          <th className="text-right px-3 py-2">日利率</th>
+                                          <th className="text-center px-3 py-2">Momentum</th>
+                                          <th className="text-right px-3 py-2">收益</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {detail.community.map((c, i) => (
+                                          <tr key={`${c.user_id}-${i}`} className="border-t border-zinc-700/50">
+                                            <td className="px-3 py-2 text-zinc-200">{c.profile?.username || c.profile?.email || '—'}</td>
+                                            <td className="px-3 py-2 text-center text-zinc-400">L{c.level}</td>
+                                            <td className="px-3 py-2 text-right text-zinc-400">${Number(c.reward_pool).toFixed(0)}</td>
+                                            <td className="px-3 py-2 text-right text-zinc-400">{(Number(c.daily_rate) * 100).toFixed(1)}%</td>
+                                            <td className="px-3 py-2 text-center text-zinc-400">×{Number(c.momentum_multiplier).toFixed(1)}</td>
+                                            <td className="px-3 py-2 text-right font-mono text-purple-300">${Number(c.earning_amount).toFixed(6)}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })
+              )}
+            </div>
           </div>
 
           {/* Right Column: Configuration */}
