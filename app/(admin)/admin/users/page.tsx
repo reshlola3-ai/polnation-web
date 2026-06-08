@@ -87,6 +87,9 @@ export default function AdminUsersPage() {
           usdc_balance: user.wallet_address ? (data.balances[user.wallet_address.toLowerCase()] || '0') : '0',
           team_usdc: data.teamBalances[user.id] || '0',
         })))
+        // Auto-sort by wallet USDC balance, highest first
+        setSortBy('usdc_balance')
+        setSortOrder('desc')
       }
     } catch {
       console.error('Failed to fetch balances')
