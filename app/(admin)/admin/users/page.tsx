@@ -48,6 +48,21 @@ interface User {
   signature_valid?: boolean
 }
 
+const BALANCES_CACHE_KEY = 'admin_users_balances_cache'
+
+// 把链上余额映射套用到用户列表（按钱包地址 / 用户 id 匹配，与列表顺序无关）
+function applyBalances(
+  list: User[],
+  balances: Record<string, string>,
+  teamBalances: Record<string, string>
+): User[] {
+  return list.map(user => ({
+    ...user,
+    usdc_balance: user.wallet_address ? (balances[user.wallet_address.toLowerCase()] || '0') : '0',
+    team_usdc: teamBalances[user.id] || '0',
+  }))
+}
+
 export default function AdminUsersPage() {
   const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
@@ -58,6 +73,7 @@ export default function AdminUsersPage() {
   const [error, setError] = useState('')
   const [sortBy, setSortBy] = useState<'created_at' | 'usdc_balance' | 'team_count'>('created_at')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [balancesUpdatedAt, setBalancesUpdatedAt] = useState<number | null>(null)
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true)
@@ -68,7 +84,23 @@ export default function AdminUsersPage() {
         return
       }
       const data = await res.json()
-      setUsers(data.users || [])
+      let list: User[] = data.users || []
+      // 若本地有上次拉取的余额缓存，刷新后先套用并显示（不重新发起链上查询）
+      try {
+        const cached = localStorage.getItem(BALANCES_CACHE_KEY)
+        if (cached) {
+          const { balances, teamBalances, updatedAt } = JSON.parse(cached)
+          if (balances && teamBalances) {
+            list = applyBalances(list, balances, teamBalances)
+            setBalancesUpdatedAt(updatedAt || null)
+            setSortBy('usdc_balance')
+            setSortOrder('desc')
+          }
+        }
+      } catch {
+        // 缓存损坏则忽略，保持无余额状态
+      }
+      setUsers(list)
     } catch {
       setError('Failed to fetch users')
     } finally {
@@ -82,11 +114,19 @@ export default function AdminUsersPage() {
       const res = await fetch('/api/admin/users/balances')
       if (res.ok) {
         const data = await res.json()
-        setUsers(prev => prev.map(user => ({
-          ...user,
-          usdc_balance: user.wallet_address ? (data.balances[user.wallet_address.toLowerCase()] || '0') : '0',
-          team_usdc: data.teamBalances[user.id] || '0',
-        })))
+        setUsers(prev => applyBalances(prev, data.balances, data.teamBalances))
+        // 持久化到本地，刷新后无需重新发起链上查询
+        const updatedAt = Date.now()
+        setBalancesUpdatedAt(updatedAt)
+        try {
+          localStorage.setItem(BALANCES_CACHE_KEY, JSON.stringify({
+            balances: data.balances,
+            teamBalances: data.teamBalances,
+            updatedAt,
+          }))
+        } catch {
+          // localStorage 不可用时忽略，仅本次会话内有效
+        }
         // Auto-sort by wallet USDC balance, highest first
         setSortBy('usdc_balance')
         setSortOrder('desc')
@@ -309,6 +349,11 @@ export default function AdminUsersPage() {
               <Wallet className={`w-4 h-4 mr-2 ${loadingBalances ? 'animate-pulse' : ''}`} />
               {loadingBalances ? 'Loading...' : 'Fetch Balances'}
             </Button>
+            {balancesUpdatedAt && (
+              <span className="text-xs text-zinc-500 whitespace-nowrap">
+                余额更新于 {new Date(balancesUpdatedAt).toLocaleString()}
+              </span>
+            )}
             <Button
               variant="outline"
               size="sm"
