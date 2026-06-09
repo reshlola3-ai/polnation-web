@@ -28,7 +28,8 @@ import {
   FileSignature,
   Crown,
   ClipboardList,
-  ArrowDownToLine
+  ArrowDownToLine,
+  Megaphone
 } from 'lucide-react'
 
 interface TaskSubmission {
@@ -286,6 +287,12 @@ export default function AdminTasksPage() {
                 <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                   <Crown className="w-4 h-4 mr-2" />
                   Community
+                </Button>
+              </Link>
+              <Link href="/admin/promo">
+                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                  <Megaphone className="w-4 h-4 mr-2" />
+                  Promo
                 </Button>
               </Link>
               <Button
