@@ -1,8 +1,11 @@
 import {
   ALPHA_STAKE_ABI,
   ALPHA_TIERS,
+  AUSDC_NATIVE_POLYGON,
+  ERC20_BALANCE_ABI,
   getAlphaPublicClient,
   getAlphaStakeAddress,
+  getAlphaStrategyAddress,
   usdcFromUnits,
   type OnChainPosition,
 } from '@/lib/alphastake'
@@ -28,12 +31,12 @@ export async function fetchOnChainAlphaSummary() {
   }
 
   const client = getAlphaPublicClient()
+  const strategyAddress = getAlphaStrategyAddress()
 
   const [
     nextPositionId,
     totalStaked,
     aaveBalance,
-    totalAssets,
     idleBalance,
     minStake,
     owner,
@@ -41,13 +44,24 @@ export async function fetchOnChainAlphaSummary() {
   ] = await Promise.all([
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'nextPositionId' }),
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'totalStaked' }),
-    client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'aaveBalance' }),
-    client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'totalAssets' }),
+    // The contract's aaveBalance()/totalAssets() views read the wrong aToken
+    // (bridged USDC.e's aPolUSDC) and always return 0. Read the native-USDC
+    // aToken (aPolUSDCn) balance held by the strategy directly instead.
+    strategyAddress
+      ? client.readContract({
+          address: AUSDC_NATIVE_POLYGON,
+          abi: ERC20_BALANCE_ABI,
+          functionName: 'balanceOf',
+          args: [strategyAddress],
+        })
+      : Promise.resolve(BigInt(0)),
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'idleBalance' }),
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'MIN_STAKE' }),
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'owner' }),
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'nextWithdrawalId' }),
   ])
+
+  const totalAssets = idleBalance + aaveBalance
 
   const positionCount = Number(nextPositionId)
   const positions: OnChainPosition[] = []

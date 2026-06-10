@@ -7,6 +7,17 @@ export const USDC_POLYGON =
 export const AAVE_POOL_POLYGON =
   '0x794a61358D6845594F94dc1DB02A252b5b4814aD' as const
 
+// aToken for NATIVE USDC on Aave V3 Polygon (aPolUSDCn).
+// The deployed AlphaYieldStrategy's aaveBalance() reads the wrong aToken
+// (aPolUSDC, the bridged-USDC.e one) and always returns 0, so off-chain
+// reads must query this token's balanceOf(strategy) directly.
+export const AUSDC_NATIVE_POLYGON =
+  '0xA4D94019934D8333Ef880ABFFbF2FDd611C762BD' as const
+
+export const ERC20_BALANCE_ABI = parseAbi([
+  'function balanceOf(address account) view returns (uint256)',
+])
+
 export const ALPHA_STAKE_ABI = parseAbi([
   'function stake(uint256 amount, uint8 tierId)',
   'function stakeWithPermit(uint256 amount, uint8 tierId, uint256 deadline, uint8 v, bytes32 r, bytes32 s)',
