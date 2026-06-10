@@ -1374,7 +1374,11 @@
       "claiming": "Đang nhận…",
       "unstakeEarly": "Rút sớm",
       "confirmUnstake": "Xác nhận rút",
+      "confirmEarlyUnstakeWithPenalty": "Xác nhận rút sớm (-15%)",
       "unstaking": "Đang rút…",
+      "earlyUnstakeReviewTitle": "Cần xác nhận rút sớm",
+      "earlyUnstakeReviewBody": "Hành động này cũng có thể được thực hiện trực tiếp on-chain. Chỉ tiếp tục khi bạn hiểu khoản phạt và số tiền nhận cuối cùng.",
+      "earlyUnstakeAcknowledge": "Tôi hiểu việc rút sớm này không thể đảo ngược và sẽ trừ 15% khỏi vốn gốc.",
       "penaltyWarning": "Rút sớm trừ {penalty} (15%) từ vốn của bạn. Bạn nhận được {amount}."
     },
     "signals": {

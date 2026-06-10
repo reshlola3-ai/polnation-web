@@ -1374,7 +1374,11 @@
       "claiming": "क्लेम हो रहा है…",
       "unstakeEarly": "जल्दी अनस्टेक",
       "confirmUnstake": "अनस्टेक की पुष्टि करें",
+      "confirmEarlyUnstakeWithPenalty": "जल्दी अनस्टेक की पुष्टि करें (-15%)",
       "unstaking": "अनस्टेक हो रहा है…",
+      "earlyUnstakeReviewTitle": "जल्दी अनस्टेक के लिए पुष्टि आवश्यक है",
+      "earlyUnstakeReviewBody": "यह कार्रवाई सीधे ऑन-चेन भी की जा सकती है। penalty और अंतिम भुगतान समझने पर ही आगे बढ़ें।",
+      "earlyUnstakeAcknowledge": "मैं समझता/समझती हूं कि यह जल्दी अनस्टेक वापस नहीं किया जा सकता और मेरे मूलधन से 15% काटेगा।",
       "penaltyWarning": "जल्दी अनस्टेक से आपके मूलधन का {penalty} (15%) कटेगा। आपको {amount} मिलेगा।"
     },
     "signals": {

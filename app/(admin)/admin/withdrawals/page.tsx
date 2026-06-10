@@ -19,6 +19,7 @@ import {
   Clock,
   XCircle,
   Megaphone,
+  Lock,
 } from 'lucide-react'
 
 interface WithdrawalProfile {
@@ -194,6 +195,12 @@ export default function AdminWithdrawalsPage() {
                 <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                   <Crown className="w-4 h-4 mr-2" />
                   Community
+                </Button>
+              </Link>
+              <Link href="/admin/alphastake">
+                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                  <Lock className="w-4 h-4 mr-2" />
+                  AlphaStake
                 </Button>
               </Link>
               <Link href="/admin/airdrop">

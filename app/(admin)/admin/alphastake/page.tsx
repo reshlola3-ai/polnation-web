@@ -1,0 +1,562 @@
+'use client'
+
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { Button } from '@/components/ui/Button'
+import {
+  Shield,
+  LogOut,
+  RefreshCw,
+  Lock,
+  ExternalLink,
+  Users,
+  Wallet,
+  ArrowDownToLine,
+  TrendingUp,
+  FileSignature,
+  Crown,
+  ClipboardList,
+  Megaphone,
+  Plus,
+  Trash2,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+} from 'lucide-react'
+
+interface AlphaConfig {
+  staking_open: boolean
+  allowlist_required: boolean
+  updated_at?: string
+}
+
+interface ChainSummary {
+  totalStakedUsdc: number
+  activePrincipalUsdc: number
+  aaveBalanceUsdc: number
+  totalAssetsUsdc: number
+  idleBalanceUsdc: number
+  minStakeUsdc: number
+  openPositionCount: number
+  totalPositionCount: number
+  uniqueStakerCount: number
+  owner: string
+  aavePoolAddress: string
+}
+
+interface PositionRow {
+  positionId: number
+  user: string
+  amountUsdc: number
+  tierDays: number
+  startTime: string
+  unlockTime: string
+  closed: boolean
+  status: 'active' | 'matured' | 'closed'
+  profile: { id: string; username: string | null; email: string | null } | null
+}
+
+interface StakerRow {
+  wallet: string
+  profile: { id: string; username: string | null; email: string | null } | null
+  openPrincipalUsdc: number
+  openPositions: number
+  totalPositions: number
+}
+
+interface AllowlistRow {
+  id: string
+  user_id: string
+  wallet_address: string | null
+  note: string | null
+  username: string | null
+  email: string | null
+}
+
+interface EligibleUser {
+  userId: string
+  username: string | null
+  email: string | null
+  walletAddress: string | null
+  allowlisted: boolean
+  openPrincipalUsdc: number
+  openPositions: number
+}
+
+interface PendingWithdrawal {
+  withdrawalId: number
+  to: string
+  amountUsdc: number
+  executeAfter: string
+  ready: boolean
+}
+
+interface AlphaStakePayload {
+  config: AlphaConfig
+  chain: {
+    configured: boolean
+    contractAddress: string | null
+    summary: ChainSummary | null
+    pendingWithdrawals: PendingWithdrawal[]
+  }
+  positions: PositionRow[]
+  stakers: StakerRow[]
+  allowlist: AllowlistRow[]
+  eligibleUsers: EligibleUser[]
+}
+
+const usd = (n: number) =>
+  `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+const shortAddr = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`
+
+function StatusPill({ status }: { status: PositionRow['status'] }) {
+  const map = {
+    active: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20',
+    matured: 'bg-amber-500/15 text-amber-300 border-amber-500/20',
+    closed: 'bg-zinc-500/15 text-zinc-400 border-zinc-500/20',
+  }
+  return (
+    <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold border ${map[status]}`}>
+      {status}
+    </span>
+  )
+}
+
+export default function AdminAlphaStakePage() {
+  const router = useRouter()
+  const [data, setData] = useState<AlphaStakePayload | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [actionMsg, setActionMsg] = useState('')
+  const [search, setSearch] = useState('')
+  const [withdrawTo, setWithdrawTo] = useState('')
+  const [withdrawAmount, setWithdrawAmount] = useState('')
+  const [withdrawMode, setWithdrawMode] = useState<'instant' | 'queue'>('instant')
+  const [isWithdrawing, setIsWithdrawing] = useState(false)
+  const [allowlistUserId, setAllowlistUserId] = useState('')
+
+  const fetchData = useCallback(async () => {
+    setIsLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/admin/alphastake')
+      if (res.status === 401) {
+        router.push('/admin/login')
+        return
+      }
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || 'Failed to load')
+      setData(json)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load AlphaStake data')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [router])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  const filteredEligible = useMemo(() => {
+    if (!data) return []
+    const q = search.trim().toLowerCase()
+    if (!q) return data.eligibleUsers
+    return data.eligibleUsers.filter(u =>
+      u.username?.toLowerCase().includes(q) ||
+      u.email?.toLowerCase().includes(q) ||
+      u.walletAddress?.toLowerCase().includes(q)
+    )
+  }, [data, search])
+
+  const handleLogout = async () => {
+    await fetch('/api/admin/logout', { method: 'POST' })
+    router.push('/admin/login')
+  }
+
+  const patchConfig = async (patch: Partial<AlphaConfig>) => {
+    setActionMsg('')
+    const res = await fetch('/api/admin/alphastake/config', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    })
+    const json = await res.json()
+    if (!res.ok) throw new Error(json.error || 'Config update failed')
+    setActionMsg('Config updated')
+    await fetchData()
+  }
+
+  const addAllowlist = async () => {
+    if (!allowlistUserId) return
+    setActionMsg('')
+    const res = await fetch('/api/admin/alphastake/allowlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: allowlistUserId }),
+    })
+    const json = await res.json()
+    if (!res.ok) throw new Error(json.error || 'Failed to add allowlist user')
+    setAllowlistUserId('')
+    setActionMsg('User added to allowlist')
+    await fetchData()
+  }
+
+  const removeAllowlist = async (userId: string) => {
+    setActionMsg('')
+    const res = await fetch('/api/admin/alphastake/allowlist', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    })
+    const json = await res.json()
+    if (!res.ok) throw new Error(json.error || 'Failed to remove allowlist user')
+    setActionMsg('User removed from allowlist')
+    await fetchData()
+  }
+
+  const submitWithdraw = async () => {
+    setIsWithdrawing(true)
+    setActionMsg('')
+    try {
+      const res = await fetch('/api/admin/alphastake/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: withdrawMode,
+          to: withdrawTo,
+          amount: Number(withdrawAmount),
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error || 'Withdraw failed')
+      setActionMsg(`Withdraw tx sent: ${json.txHash}`)
+      setWithdrawAmount('')
+      await fetchData()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Withdraw failed')
+    } finally {
+      setIsWithdrawing(false)
+    }
+  }
+
+  const managePending = async (action: 'execute' | 'cancel', withdrawalId: number) => {
+    setActionMsg('')
+    const res = await fetch('/api/admin/alphastake/withdraw', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, withdrawalId }),
+    })
+    const json = await res.json()
+    if (!res.ok) throw new Error(json.error || 'Pending withdrawal action failed')
+    setActionMsg(`${action} tx sent: ${json.txHash}`)
+    await fetchData()
+  }
+
+  const summary = data?.chain.summary
+  const contractAddress = data?.chain.contractAddress
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900">
+      <header className="border-b border-zinc-700 bg-zinc-900/50 backdrop-blur sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center">
+                <Lock className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-white">AlphaStake Admin</h1>
+                <p className="text-xs text-zinc-400">Manage staking access, positions, and owner withdrawals</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              <Link href="/admin/users"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><Users className="w-4 h-4 mr-1" />Users</Button></Link>
+              <Link href="/admin/withdrawals"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><ArrowDownToLine className="w-4 h-4 mr-1" />Withdrawals</Button></Link>
+              <Link href="/admin/airdrop"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><TrendingUp className="w-4 h-4 mr-1" />Airdrop</Button></Link>
+              <Link href="/admin/signatures"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><FileSignature className="w-4 h-4 mr-1" />Signatures</Button></Link>
+              <Link href="/admin/community"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><Crown className="w-4 h-4 mr-1" />Community</Button></Link>
+              <Link href="/admin/tasks"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><ClipboardList className="w-4 h-4 mr-1" />Tasks</Button></Link>
+              <Link href="/admin/promo"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><Megaphone className="w-4 h-4 mr-1" />Promo</Button></Link>
+              <Button variant="outline" size="sm" onClick={fetchData} className="border-zinc-700 text-zinc-300">
+                <RefreshCw className={`w-4 h-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />Refresh
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleLogout} className="border-zinc-700 text-zinc-300">
+                <LogOut className="w-4 h-4 mr-1" />Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {error && (
+          <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {error}
+          </div>
+        )}
+        {actionMsg && (
+          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
+            {actionMsg}
+          </div>
+        )}
+
+        {!data?.chain.configured && (
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200 flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>Set <code className="text-amber-100">NEXT_PUBLIC_ALPHASTAKE_ADDRESS</code> in env to read on-chain positions and send owner withdrawals.</span>
+          </div>
+        )}
+
+        {contractAddress && (
+          <div className="rounded-xl border border-purple-500/20 bg-purple-500/10 px-4 py-3 text-sm text-purple-100">
+            <p className="font-semibold mb-1">Whitelist staking (off-website)</p>
+            <p className="text-purple-200/80 text-xs leading-relaxed">
+              User frontend stays closed. Allowlisted wallets stake directly on Polygonscan:
+              approve USDC → call <code className="text-purple-100">stake(amount, tierId)</code> on AlphaStake.
+              tierId: 0=15d, 1=30d, 2=60d, 3=150d, 4=300d. Min $1 USDC.
+            </p>
+          </div>
+        )}
+
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: 'Total Staked', value: summary ? usd(summary.totalStakedUsdc) : '—' },
+            { label: 'In Aave', value: summary ? usd(summary.aaveBalanceUsdc) : '—' },
+            { label: 'Open Positions', value: summary ? String(summary.openPositionCount) : '—' },
+            { label: 'Unique Stakers', value: summary ? String(summary.uniqueStakerCount) : '—' },
+          ].map(item => (
+            <div key={item.label} className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-4">
+              <p className="text-xs text-zinc-500 uppercase tracking-wider">{item.label}</p>
+              <p className="text-2xl font-bold text-white mt-1">{item.value}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="grid lg:grid-cols-2 gap-6">
+          <div className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-5 space-y-4">
+            <h2 className="text-white font-semibold flex items-center gap-2"><Shield className="w-4 h-4 text-purple-400" /> Access Control</h2>
+            <label className="flex items-center justify-between gap-4 rounded-xl border border-zinc-700 px-4 py-3">
+              <div>
+                <p className="text-sm text-white">Staking Open</p>
+                <p className="text-xs text-zinc-500">When off, frontend shows capacity full</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={data?.config.staking_open ?? false}
+                onChange={e => patchConfig({ staking_open: e.target.checked }).catch(err => setError(err.message))}
+              />
+            </label>
+            <label className="flex items-center justify-between gap-4 rounded-xl border border-zinc-700 px-4 py-3">
+              <div>
+                <p className="text-sm text-white">Require Allowlist</p>
+                <p className="text-xs text-zinc-500">Only allowlisted users can stake on the website</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={data?.config.allowlist_required ?? true}
+                onChange={e => patchConfig({ allowlist_required: e.target.checked }).catch(err => setError(err.message))}
+              />
+            </label>
+            <div className="flex gap-2">
+              <select
+                value={allowlistUserId}
+                onChange={e => setAllowlistUserId(e.target.value)}
+                className="flex-1 rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white"
+              >
+                <option value="">Select user to allowlist…</option>
+                {filteredEligible.filter(u => !u.allowlisted).map(u => (
+                  <option key={u.userId} value={u.userId}>
+                    {u.username || u.email || u.walletAddress} ({u.walletAddress ? shortAddr(u.walletAddress) : 'no wallet'})
+                  </option>
+                ))}
+              </select>
+              <Button onClick={() => addAllowlist().catch(err => setError(err.message))} disabled={!allowlistUserId}>
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="space-y-2 max-h-56 overflow-y-auto">
+              {(data?.allowlist || []).map(row => (
+                <div key={row.id} className="flex items-center justify-between rounded-xl border border-zinc-700 px-3 py-2">
+                  <div>
+                    <p className="text-sm text-white">{row.username || row.email || row.user_id}</p>
+                    <p className="text-xs text-zinc-500">{row.wallet_address ? shortAddr(row.wallet_address) : 'No wallet'}</p>
+                  </div>
+                  <button
+                    onClick={() => removeAllowlist(row.user_id).catch(err => setError(err.message))}
+                    className="text-red-400 hover:text-red-300"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-5 space-y-4">
+            <h2 className="text-white font-semibold flex items-center gap-2"><Wallet className="w-4 h-4 text-cyan-400" /> Owner Withdraw from Aave</h2>
+            {summary && (
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-xl bg-zinc-950 border border-zinc-800 p-3">
+                  <p className="text-zinc-500 text-xs">Aave Balance</p>
+                  <p className="text-white font-semibold">{usd(summary.aaveBalanceUsdc)}</p>
+                </div>
+                <div className="rounded-xl bg-zinc-950 border border-zinc-800 p-3">
+                  <p className="text-zinc-500 text-xs">Active Principal</p>
+                  <p className="text-white font-semibold">{usd(summary.activePrincipalUsdc)}</p>
+                </div>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setWithdrawMode('instant')}
+                className={`flex-1 rounded-xl px-3 py-2 text-xs font-semibold border ${withdrawMode === 'instant' ? 'border-cyan-500/40 text-cyan-300 bg-cyan-500/10' : 'border-zinc-700 text-zinc-400'}`}
+              >
+                Instant (&lt; $50k)
+              </button>
+              <button
+                onClick={() => setWithdrawMode('queue')}
+                className={`flex-1 rounded-xl px-3 py-2 text-xs font-semibold border ${withdrawMode === 'queue' ? 'border-amber-500/40 text-amber-300 bg-amber-500/10' : 'border-zinc-700 text-zinc-400'}`}
+              >
+                Queue (≥ $50k, 48h)
+              </button>
+            </div>
+            <input
+              value={withdrawTo}
+              onChange={e => setWithdrawTo(e.target.value)}
+              placeholder="Recipient address (EOA)"
+              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white"
+            />
+            <input
+              value={withdrawAmount}
+              onChange={e => setWithdrawAmount(e.target.value)}
+              placeholder="Amount in USDC"
+              type="number"
+              min="0"
+              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white"
+            />
+            <Button onClick={submitWithdraw} isLoading={isWithdrawing} className="w-full">
+              {withdrawMode === 'instant' ? 'Withdraw Instantly' : 'Queue Withdrawal'}
+            </Button>
+            {(data?.chain.pendingWithdrawals || []).length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-wider text-zinc-500">Pending Owner Withdrawals</p>
+                {data!.chain.pendingWithdrawals.map(pw => (
+                  <div key={pw.withdrawalId} className="rounded-xl border border-zinc-700 px-3 py-2 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm text-white">{usd(pw.amountUsdc)} → {shortAddr(pw.to)}</p>
+                      <p className="text-xs text-zinc-500 flex items-center gap-1">
+                        {pw.ready ? <CheckCircle className="w-3 h-3 text-emerald-400" /> : <Clock className="w-3 h-3 text-amber-400" />}
+                        {new Date(pw.executeAfter).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      {pw.ready && (
+                        <Button size="sm" onClick={() => managePending('execute', pw.withdrawalId).catch(err => setError(err.message))}>
+                          Execute
+                        </Button>
+                      )}
+                      <Button size="sm" variant="outline" onClick={() => managePending('cancel', pw.withdrawalId).catch(err => setError(err.message))}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {contractAddress && (
+              <a
+                href={`https://polygonscan.com/address/${contractAddress}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-300"
+              >
+                View AlphaStake on Polygonscan <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-5">
+          <div className="flex items-center justify-between gap-4 mb-4">
+            <h2 className="text-white font-semibold">Who Can Stake</h2>
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search username, email, wallet…"
+              className="rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white w-72 max-w-full"
+            />
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-zinc-500 border-b border-zinc-800">
+                  <th className="py-2 pr-4">User</th>
+                  <th className="py-2 pr-4">Wallet</th>
+                  <th className="py-2 pr-4">Allowlisted</th>
+                  <th className="py-2 pr-4">Open Stake</th>
+                  <th className="py-2">Positions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredEligible.map(u => (
+                  <tr key={u.userId} className="border-b border-zinc-800/70">
+                    <td className="py-3 pr-4">
+                      <p className="text-white">{u.username || '—'}</p>
+                      <p className="text-xs text-zinc-500">{u.email}</p>
+                    </td>
+                    <td className="py-3 pr-4 font-mono text-xs text-zinc-300">
+                      {u.walletAddress ? shortAddr(u.walletAddress) : '—'}
+                    </td>
+                    <td className="py-3 pr-4">
+                      <span className={`text-xs font-semibold ${u.allowlisted ? 'text-emerald-400' : 'text-zinc-500'}`}>
+                        {u.allowlisted ? 'Yes' : 'No'}
+                      </span>
+                    </td>
+                    <td className="py-3 pr-4 text-white">{usd(u.openPrincipalUsdc)}</td>
+                    <td className="py-3 text-zinc-300">{u.openPositions}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-5">
+          <h2 className="text-white font-semibold mb-4">On-Chain Positions</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-zinc-500 border-b border-zinc-800">
+                  <th className="py-2 pr-4">ID</th>
+                  <th className="py-2 pr-4">User</th>
+                  <th className="py-2 pr-4">Amount</th>
+                  <th className="py-2 pr-4">Tier</th>
+                  <th className="py-2 pr-4">Unlock</th>
+                  <th className="py-2">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(data?.positions || []).map(pos => (
+                  <tr key={pos.positionId} className="border-b border-zinc-800/70">
+                    <td className="py-3 pr-4 text-zinc-400">#{pos.positionId}</td>
+                    <td className="py-3 pr-4">
+                      <p className="text-white">{pos.profile?.username || shortAddr(pos.user)}</p>
+                      <p className="text-xs text-zinc-500 font-mono">{shortAddr(pos.user)}</p>
+                    </td>
+                    <td className="py-3 pr-4 text-white">{usd(pos.amountUsdc)}</td>
+                    <td className="py-3 pr-4 text-zinc-300">{pos.tierDays}d</td>
+                    <td className="py-3 pr-4 text-zinc-400">{new Date(pos.unlockTime).toLocaleDateString()}</td>
+                    <td className="py-3"><StatusPill status={pos.status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+  )
+}

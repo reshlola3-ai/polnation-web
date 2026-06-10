@@ -21,7 +21,8 @@ import {
   ClipboardList,
   ChevronRight,
   ArrowDownToLine,
-  Megaphone
+  Megaphone,
+  Lock,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -215,6 +216,16 @@ export default function AdminUsersPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Link href="/admin/alphastake">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+                >
+                  <Lock className="w-4 h-4 mr-2" />
+                  AlphaStake
+                </Button>
+              </Link>
               <Link href="/admin/withdrawals">
                 <Button
                   variant="outline"

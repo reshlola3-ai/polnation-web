@@ -1,5 +1,17 @@
 # AlphaStake Deployment Guide
-_Last updated: 2026-05-14_
+_Last updated: 2026-06-10_
+
+## Live Deployment (Polygon Mainnet)
+
+| Contract | Address |
+|----------|---------|
+| AlphaYieldStrategy | `0x222F505B3f7af753df10Fccf103F99C40c548673` |
+| AlphaStake | `0x25785a4be7B8Af8966189BFfa7d3D68D02C82b33` |
+| Owner | `0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63` |
+
+Both contracts are verified on Polygonscan.
+
+Whitelist users stake on-chain via Polygonscan (user website stays at capacity).
 
 ## Prerequisites
 

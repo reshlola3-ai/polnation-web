@@ -1374,7 +1374,11 @@
       "claiming": "Réclamation…",
       "unstakeEarly": "Retrait anticipé",
       "confirmUnstake": "Confirmer le retrait",
+      "confirmEarlyUnstakeWithPenalty": "Confirmer le retrait anticipé (-15%)",
       "unstaking": "Retrait en cours…",
+      "earlyUnstakeReviewTitle": "Vérification requise pour le retrait anticipé",
+      "earlyUnstakeReviewBody": "Cette action peut aussi être exécutée directement on-chain. Continuez uniquement si vous comprenez la pénalité et le montant final reçu.",
+      "earlyUnstakeAcknowledge": "Je comprends que ce retrait anticipé est irréversible et déduit 15% de mon principal.",
       "penaltyWarning": "Le retrait anticipé déduit {penalty} (15%) de votre principal. Vous recevrez {amount}."
     },
     "signals": {

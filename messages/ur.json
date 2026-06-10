@@ -1374,7 +1374,11 @@
       "claiming": "حاصل ہو رہا ہے…",
       "unstakeEarly": "جلد انسٹیک",
       "confirmUnstake": "انسٹیک کی تصدیق",
+      "confirmEarlyUnstakeWithPenalty": "جلد انسٹیک کی تصدیق (-15%)",
       "unstaking": "انسٹیک ہو رہا ہے…",
+      "earlyUnstakeReviewTitle": "جلد انسٹیک کے لیے تصدیق ضروری ہے",
+      "earlyUnstakeReviewBody": "یہ عمل براہ راست آن چین بھی کیا جا سکتا ہے۔ penalty اور آخری موصول رقم سمجھنے کے بعد ہی جاری رکھیں۔",
+      "earlyUnstakeAcknowledge": "میں سمجھتا/سمجھتی ہوں کہ یہ جلد انسٹیک ناقابل واپسی ہے اور میرے اصل سرمائے سے 15% کٹوتی کرے گا۔",
       "penaltyWarning": "جلد انسٹیک سے آپ کی اصل رقم کا {penalty} (15%) کٹے گا۔ آپ کو {amount} ملے گا۔"
     },
     "signals": {

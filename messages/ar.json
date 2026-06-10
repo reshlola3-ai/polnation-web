@@ -1374,7 +1374,11 @@
       "claiming": "جارٍ المطالبة…",
       "unstakeEarly": "إلغاء التعهد مبكرًا",
       "confirmUnstake": "تأكيد إلغاء التعهد",
+      "confirmEarlyUnstakeWithPenalty": "تأكيد إلغاء التعهد المبكر (-15%)",
       "unstaking": "جارٍ إلغاء التعهد…",
+      "earlyUnstakeReviewTitle": "تأكيد إلغاء التعهد المبكر مطلوب",
+      "earlyUnstakeReviewBody": "يمكن تنفيذ هذا الإجراء مباشرة على السلسلة أيضًا. تابع فقط إذا كنت تفهم الغرامة والمبلغ النهائي المستلم.",
+      "earlyUnstakeAcknowledge": "أفهم أن إلغاء التعهد المبكر هذا غير قابل للتراجع وسيخصم 15% من رأس مالي.",
       "penaltyWarning": "إلغاء التعهد المبكر يخصم {penalty} (15%) من رأس مالك. ستتلقى {amount}."
     },
     "signals": {

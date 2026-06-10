@@ -23,6 +23,7 @@ const TIERS = [
   { days: 300, dailyRate: 1.5 },
 ] as const
 
+// User-facing stake UI stays closed; whitelist stakes on-chain via Polygonscan.
 const AT_CAPACITY = true
 
 const MOCK_POSITIONS: { id: string; tierIndex: number; principal: number; earned: number; daysElapsed: number; totalDays: number }[] = []
@@ -74,6 +75,7 @@ function PositionCard({ pos }: { pos: MockPosition }) {
   const [claiming, setClaiming]                     = useState(false)
   const [unstaking, setUnstaking]                   = useState(false)
   const [showUnstakeWarning, setShowUnstakeWarning] = useState(false)
+  const [unstakeAcknowledged, setUnstakeAcknowledged] = useState(false)
 
   const tier      = TIERS[pos.tierIndex]
   const daysLeft  = pos.totalDays - pos.daysElapsed
@@ -88,12 +90,18 @@ function PositionCard({ pos }: { pos: MockPosition }) {
   }, [])
 
   const handleUnstake = useCallback(async () => {
-    if (!showUnstakeWarning) { setShowUnstakeWarning(true); return }
+    if (!showUnstakeWarning) {
+      setShowUnstakeWarning(true)
+      setUnstakeAcknowledged(false)
+      return
+    }
+    if (!unstakeAcknowledged) return
     setUnstaking(true)
     await new Promise(r => setTimeout(r, 1800))
     setUnstaking(false)
     setShowUnstakeWarning(false)
-  }, [showUnstakeWarning])
+    setUnstakeAcknowledged(false)
+  }, [showUnstakeWarning, unstakeAcknowledged])
 
   return (
     <div className="glass-card-solid p-5 border border-white/[0.06]">
@@ -134,16 +142,33 @@ function PositionCard({ pos }: { pos: MockPosition }) {
       </div>
 
       {showUnstakeWarning && (
-        <div className="mb-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+        <div className="mb-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20 space-y-3">
           <div className="flex items-start gap-2">
             <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0 mt-0.5" />
-            <p className="text-[11px] text-red-300 leading-relaxed">
-              {t('positions.penaltyWarning', {
-                penalty: `$${penalty.toFixed(2)}`,
-                amount:  `$${(pos.principal - penalty).toFixed(2)}`,
-              })}
-            </p>
+            <div>
+              <p className="text-[11px] font-semibold text-red-200 mb-1">
+                {t('positions.earlyUnstakeReviewTitle')}
+              </p>
+              <p className="text-[11px] text-red-300 leading-relaxed">
+                {t('positions.penaltyWarning', {
+                  penalty: `$${penalty.toFixed(2)}`,
+                  amount:  `$${(pos.principal - penalty).toFixed(2)}`,
+                })}
+              </p>
+              <p className="mt-1 text-[10px] text-red-300/80 leading-relaxed">
+                {t('positions.earlyUnstakeReviewBody')}
+              </p>
+            </div>
           </div>
+          <label className="flex items-start gap-2 rounded-lg border border-red-400/15 bg-black/10 p-2 text-[10px] leading-relaxed text-red-100/90">
+            <input
+              type="checkbox"
+              checked={unstakeAcknowledged}
+              onChange={(e) => setUnstakeAcknowledged(e.target.checked)}
+              className="mt-0.5 h-3.5 w-3.5 rounded border-red-300/40 bg-transparent text-red-400 focus:ring-red-400/40"
+            />
+            <span>{t('positions.earlyUnstakeAcknowledge')}</span>
+          </label>
         </div>
       )}
 
@@ -163,7 +188,7 @@ function PositionCard({ pos }: { pos: MockPosition }) {
         </button>
         <button
           onClick={handleUnstake}
-          disabled={unstaking}
+          disabled={unstaking || (showUnstakeWarning && !unstakeAcknowledged)}
           className={`flex-1 rounded-xl px-3 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
             showUnstakeWarning
               ? 'bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30'
@@ -173,7 +198,7 @@ function PositionCard({ pos }: { pos: MockPosition }) {
           {unstaking
             ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('positions.unstaking')}</>
             : showUnstakeWarning
-              ? <><AlertTriangle className="h-3.5 w-3.5" /> {t('positions.confirmUnstake')}</>
+              ? <><AlertTriangle className="h-3.5 w-3.5" /> {t('positions.confirmEarlyUnstakeWithPenalty')}</>
               : <><Lock className="h-3.5 w-3.5" /> {t('positions.unstakeEarly')}</>}
         </button>
       </div>
@@ -285,6 +310,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
   const [selectedTier, setSelectedTier] = useState(2)
   const [amount, setAmount]             = useState('')
   const [isLoading, setIsLoading]       = useState(false)
+  const [now]                           = useState(() => Date.now())
   const positionsRef = useRef<HTMLDivElement>(null)
 
   const tier  = TIERS[selectedTier]
@@ -299,11 +325,11 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
   const convergence = initialSignals.find(
     s => s.pattern_id === 'convergence' &&
-      new Date(s.observed_at).getTime() > Date.now() - 24 * 60 * 60 * 1000,
+      new Date(s.observed_at).getTime() > now - 24 * 60 * 60 * 1000,
   )
 
   const handleStake = useCallback(async () => {
-    if (num < 50) return
+    if (num < 1) return
     setIsLoading(true)
     await new Promise(r => setTimeout(r, 1800))
     setIsLoading(false)
@@ -471,7 +497,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0"
-                min="50"
+                min="1"
                 className="flex-1 bg-transparent text-3xl font-bold text-white placeholder:text-zinc-700 focus:outline-none stat-number"
               />
               <div className="flex items-center gap-1.5 rounded-lg bg-white/[0.06] px-3 py-1.5 shrink-0">
@@ -479,8 +505,8 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                 <span className="text-xs font-bold text-zinc-300">USDC</span>
               </div>
             </div>
-            {num > 0 && num < 50 && (
-              <p className="text-[11px] text-red-400 mt-1.5">{t('stake.minError')}</p>
+            {num > 0 && num < 1 && (
+              <p className="text-[11px] text-red-400 mt-1.5">{t('stake.minError', { min: 1 })}</p>
             )}
           </div>
 
@@ -502,7 +528,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                 <div key={label} className={`flex flex-col items-center py-4 gap-1 ${highlight ? 'bg-cyan-500/[0.04]' : ''}`}>
                   <p className="text-[9px] uppercase tracking-wider text-zinc-600">{label}</p>
                   <p className={`stat-number text-base font-black ${highlight ? 'text-cyan-400' : 'text-white'}`}>
-                    {num >= 50 ? `+$${value.toFixed(2)}` : '—'}
+                    {num >= 1 ? `+$${value.toFixed(2)}` : '—'}
                   </p>
                 </div>
               ))}
@@ -530,7 +556,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
           ) : (
             <Button
               onClick={handleStake}
-              disabled={isLoading || num < 50}
+              disabled={isLoading || num < 1}
               className="w-full py-3.5 text-sm font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-lg shadow-purple-500/20 transition-all"
             >
               {isLoading ? (
@@ -541,9 +567,9 @@ export function AlphaClient({ initialSignals, entities }: Props) {
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   <Zap className="h-4 w-4" />
-                  {num >= 50
+                  {num >= 1
                     ? `Stake $${num.toLocaleString()} for ${tier.days} ${t('stake.days')}`
-                    : t('stake.enterMin')}
+                    : t('stake.enterMin', { min: 1 })}
                 </span>
               )}
             </Button>
