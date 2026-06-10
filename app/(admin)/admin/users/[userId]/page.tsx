@@ -187,6 +187,9 @@ export default function AdminUserDetailPage({
     L3: false,
     deeper: false,
   })
+  const [balances, setBalances] = useState<Record<string, string>>({})
+  const [loadingBalances, setLoadingBalances] = useState(false)
+  const [balancesLoaded, setBalancesLoaded] = useState(false)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -213,6 +216,24 @@ export default function AdminUserDetailPage({
   useEffect(() => {
     fetchData()
   }, [fetchData])
+
+  // On-demand: fetch on-chain USDC balances for downline wallets.
+  // Reuses the admin balances endpoint (returns all wallets keyed by address).
+  const fetchDownlineBalances = useCallback(async () => {
+    setLoadingBalances(true)
+    try {
+      const res = await fetch('/api/admin/users/balances')
+      if (res.ok) {
+        const json = await res.json()
+        setBalances(json.balances || {})
+        setBalancesLoaded(true)
+      }
+    } catch {
+      console.error('Failed to fetch downline balances')
+    } finally {
+      setLoadingBalances(false)
+    }
+  }, [])
 
   const profile = data?.profile
   const community = data?.community
@@ -485,6 +506,14 @@ export default function AdminUserDetailPage({
                   <span>L2: {downlineByLevel[2]?.length || 0}</span>
                   <span>L3: {downlineByLevel[3]?.length || 0}</span>
                   <span>L4+: {deeperCount}</span>
+                  <button
+                    onClick={fetchDownlineBalances}
+                    disabled={loadingBalances}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-zinc-700 text-zinc-300 hover:bg-zinc-700/40 transition disabled:opacity-50"
+                  >
+                    <Wallet className={`w-3.5 h-3.5 ${loadingBalances ? 'animate-pulse' : ''}`} />
+                    {loadingBalances ? '读取中…' : (balancesLoaded ? '刷新余额' : '读取余额')}
+                  </button>
                 </div>
               </header>
               <div className="divide-y divide-zinc-700">
@@ -513,7 +542,7 @@ export default function AdminUserDetailPage({
                           {rows.length === 0 ? (
                             <p className="text-xs text-zinc-500 py-2">No members at this level.</p>
                           ) : (
-                            <DownlineTable rows={rows} />
+                            <DownlineTable rows={rows} balances={balances} balancesLoaded={balancesLoaded} />
                           )}
                         </div>
                       )}
@@ -541,7 +570,7 @@ export default function AdminUserDetailPage({
                         {deeperLevels.map((lvl) => (
                           <div key={lvl}>
                             <p className="text-xs text-zinc-400 mb-2">Level {lvl} ({downlineByLevel[lvl].length})</p>
-                            <DownlineTable rows={downlineByLevel[lvl]} />
+                            <DownlineTable rows={downlineByLevel[lvl]} balances={balances} balancesLoaded={balancesLoaded} />
                           </div>
                         ))}
                       </div>
@@ -1108,7 +1137,11 @@ function WithdrawStatusBadge({ status }: { status: string }) {
   )
 }
 
-function DownlineTable({ rows }: { rows: DownlineEntry[] }) {
+function DownlineTable({ rows, balances, balancesLoaded }: {
+  rows: DownlineEntry[]
+  balances: Record<string, string>
+  balancesLoaded: boolean
+}) {
   return (
     <div className="overflow-x-auto rounded-lg border border-zinc-700">
       <table className="w-full text-sm">
@@ -1116,6 +1149,7 @@ function DownlineTable({ rows }: { rows: DownlineEntry[] }) {
           <tr className="border-b border-zinc-700">
             <th className="text-left text-xs font-medium text-zinc-400 px-3 py-2">User</th>
             <th className="text-left text-xs font-medium text-zinc-400 px-3 py-2">Wallet</th>
+            <th className="text-right text-xs font-medium text-zinc-400 px-3 py-2">USDC</th>
             <th className="text-left text-xs font-medium text-zinc-400 px-3 py-2">Country</th>
             <th className="text-left text-xs font-medium text-zinc-400 px-3 py-2">Telegram</th>
             <th className="text-right text-xs font-medium text-zinc-400 px-3 py-2">Own Team</th>
@@ -1141,6 +1175,17 @@ function DownlineTable({ rows }: { rows: DownlineEntry[] }) {
                   <code className="text-xs text-zinc-300">{shortenAddr(r.wallet_address)}</code>
                 ) : (
                   <span className="text-zinc-600 text-xs">-</span>
+                )}
+              </td>
+              <td className="px-3 py-2 text-right text-xs">
+                {!r.wallet_address ? (
+                  <span className="text-zinc-600">-</span>
+                ) : !balancesLoaded ? (
+                  <span className="text-zinc-600">—</span>
+                ) : (
+                  <span className={parseFloat(balances[r.wallet_address.toLowerCase()] || '0') > 0 ? 'text-green-400 font-medium' : 'text-zinc-500'}>
+                    ${parseFloat(balances[r.wallet_address.toLowerCase()] || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
                 )}
               </td>
               <td className="px-3 py-2 text-zinc-300 text-xs">{r.country_code || '-'}</td>
