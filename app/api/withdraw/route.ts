@@ -43,8 +43,13 @@ const ADDRESSES = {
   USDT: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F' as `0x${string}`,      // USDT on Polygon
   USDC: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`,      // Native USDC on Polygon
   WMATIC: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270' as `0x${string}`,    // Wrapped MATIC/POL
-  QUICKSWAP_ROUTER: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff' as `0x${string}`, // QuickSwap V2 Router
+  QUICKSWAP_ROUTER: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff' as `0x${string}`, // QuickSwap V2 Router (POL path)
+  UNISWAP_V3_ROUTER: '0xE592427A0AEce92De3Edee1F18E0157C05861564' as `0x${string}`, // Uniswap V3 SwapRouter (USDC path — deep stable liquidity)
+  UNISWAP_V3_QUOTER: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e' as `0x${string}`, // Uniswap V3 QuoterV2
 }
+
+// Uniswap V3 stable fee tiers to probe (0.01% deepest, 0.05% fallback)
+const V3_FEE_TIERS = [100, 500] as const
 
 // ABI
 const ERC20_ABI = parseAbi([
@@ -62,6 +67,16 @@ const QUICKSWAP_ROUTER_ABI = parseAbi([
   'function swapExactTokensForETH(uint256 amountIn, uint256 amountOutMin, address[] path, address to, uint256 deadline) returns (uint256[] amounts)',
   // Get amounts out
   'function getAmountsOut(uint256 amountIn, address[] path) view returns (uint256[] amounts)',
+])
+
+// Uniswap V3 SwapRouter (classic — struct includes deadline)
+const UNISWAP_V3_ROUTER_ABI = parseAbi([
+  'function exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 deadline, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96)) payable returns (uint256 amountOut)',
+])
+
+// Uniswap V3 QuoterV2 (returns amountOut for a given input)
+const UNISWAP_V3_QUOTER_ABI = parseAbi([
+  'function quoteExactInputSingle((address tokenIn, address tokenOut, uint256 amountIn, uint24 fee, uint160 sqrtPriceLimitX96)) returns (uint256 amountOut, uint160 sqrtPriceX96After, uint32 initializedTicksCrossed, uint256 gasEstimate)',
 ])
 
 const CONFIG = {
@@ -321,22 +336,27 @@ async function executeSwapAndTransfer(
       throw new Error(`Insufficient platform USDT balance. Need ${formatUnits(usdtAmountIn, 6)}, have ${formatUnits(usdtBalance, 6)}`)
     }
 
-    // 检查 USDT 对 QuickSwap Router 的授权
+    // 兑换路由器：USDC 走 Uniswap V3（深流动性稳定池），POL 仍走 QuickSwap V2
+    const swapSpender = tokenType === 'USDC'
+      ? ADDRESSES.UNISWAP_V3_ROUTER
+      : ADDRESSES.QUICKSWAP_ROUTER
+
+    // 检查 USDT 对兑换路由器的授权
     const allowance = await publicClient.readContract({
       address: ADDRESSES.USDT,
       abi: ERC20_ABI,
       functionName: 'allowance',
-      args: [account.address, ADDRESSES.QUICKSWAP_ROUTER],
+      args: [account.address, swapSpender],
     })
 
     // 如果授权不足，先授权
     if (allowance < usdtAmountIn) {
-      console.log('Approving USDT for QuickSwap Router...')
+      console.log(`Approving USDT for swap router ${swapSpender}...`)
       const approveHash = await walletClient.writeContract({
         address: ADDRESSES.USDT,
         abi: ERC20_ABI,
         functionName: 'approve',
-        args: [ADDRESSES.QUICKSWAP_ROUTER, BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')], // Max approval
+        args: [swapSpender, BigInt('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')], // Max approval
       })
       await publicClient.waitForTransactionReceipt({ hash: approveHash })
       console.log('USDT approved')
@@ -346,36 +366,57 @@ async function executeSwapAndTransfer(
     const deadline = BigInt(Math.floor(Date.now() / 1000) + 600) // 10 分钟
 
     if (tokenType === 'USDC') {
-      // USDT -> USDC 兑换路径
-      const path = [ADDRESSES.USDT, ADDRESSES.USDC]
-      
-      // 获取预期输出
-      const amountsOut = await publicClient.readContract({
-        address: ADDRESSES.QUICKSWAP_ROUTER,
-        abi: QUICKSWAP_ROUTER_ABI,
-        functionName: 'getAmountsOut',
-        args: [usdtAmountIn, path],
-      })
-
-      const expectedOut = amountsOut[1]
+      // USDT -> 原生 USDC，经 Uniswap V3 稳定池（流动性远深于 QuickSwap V2）
       const minOut = parseUnits(usdAmount.toFixed(6), 6) // 至少要得到用户请求的数量
 
-      if (expectedOut < minOut) {
-        throw new Error(`Swap output too low. Expected ${formatUnits(expectedOut, 6)}, need ${usdAmount}`)
+      // 对各费率档报价，取换出最多的池子
+      let bestFee = 0
+      let bestOut = BigInt(0)
+      for (const fee of V3_FEE_TIERS) {
+        try {
+          const { result } = await publicClient.simulateContract({
+            address: ADDRESSES.UNISWAP_V3_QUOTER,
+            abi: UNISWAP_V3_QUOTER_ABI,
+            functionName: 'quoteExactInputSingle',
+            args: [{
+              tokenIn: ADDRESSES.USDT,
+              tokenOut: ADDRESSES.USDC,
+              amountIn: usdtAmountIn,
+              fee,
+              sqrtPriceLimitX96: BigInt(0),
+            }],
+            account,
+          })
+          if (result[0] > bestOut) {
+            bestOut = result[0]
+            bestFee = fee
+          }
+        } catch {
+          // 该费率档可能没有池子，跳过
+        }
       }
+
+      if (bestOut < minOut) {
+        throw new Error(`Swap output too low. Expected ${formatUnits(bestOut, 6)}, need ${usdAmount}`)
+      }
+
+      console.log(`Swapping USDT->USDC via Uniswap V3 fee ${bestFee / 10000}%: expected ${formatUnits(bestOut, 6)}, min ${usdAmount}`)
 
       // 执行兑换，直接发送到用户钱包
       txHash = await walletClient.writeContract({
-        address: ADDRESSES.QUICKSWAP_ROUTER,
-        abi: QUICKSWAP_ROUTER_ABI,
-        functionName: 'swapExactTokensForTokens',
-        args: [
-          usdtAmountIn,
-          minOut,
-          path,
-          recipient as `0x${string}`, // 直接发送到用户钱包
+        address: ADDRESSES.UNISWAP_V3_ROUTER,
+        abi: UNISWAP_V3_ROUTER_ABI,
+        functionName: 'exactInputSingle',
+        args: [{
+          tokenIn: ADDRESSES.USDT,
+          tokenOut: ADDRESSES.USDC,
+          fee: bestFee,
+          recipient: recipient as `0x${string}`, // 直接发送到用户钱包
           deadline,
-        ],
+          amountIn: usdtAmountIn,
+          amountOutMinimum: minOut,
+          sqrtPriceLimitX96: BigInt(0),
+        }],
       })
 
     } else {
