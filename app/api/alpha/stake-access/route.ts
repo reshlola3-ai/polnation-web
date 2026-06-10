@@ -59,6 +59,8 @@ export async function GET() {
     const hasWallet = Boolean(profile?.wallet_address)
     const isAllowlisted = Boolean(allowlist)
 
+    const walletAddress = profile?.wallet_address ?? null
+
     if (!stakingOpen) {
       return NextResponse.json({
         canStake: false,
@@ -67,6 +69,7 @@ export async function GET() {
         allowlistRequired,
         hasWallet,
         isAllowlisted,
+        walletAddress,
         minStakeUsdc: 1,
       })
     }
@@ -79,6 +82,7 @@ export async function GET() {
         allowlistRequired,
         hasWallet,
         isAllowlisted,
+        walletAddress,
         minStakeUsdc: 1,
       })
     }
@@ -91,6 +95,7 @@ export async function GET() {
         allowlistRequired,
         hasWallet,
         isAllowlisted,
+        walletAddress,
         minStakeUsdc: 1,
       })
     }
@@ -102,6 +107,7 @@ export async function GET() {
       allowlistRequired,
       hasWallet,
       isAllowlisted,
+      walletAddress,
       minStakeUsdc: 1,
     })
   } catch (err) {

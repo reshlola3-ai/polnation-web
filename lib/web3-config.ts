@@ -72,6 +72,16 @@ export const USDC_ABI = [
     inputs: [],
     outputs: [{ name: '', type: 'bytes32' }],
   },
+  {
+    name: 'approve',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'spender', type: 'address' },
+      { name: 'amount', type: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'bool' }],
+  },
   // Permit function (EIP-2612)
   {
     name: 'permit',

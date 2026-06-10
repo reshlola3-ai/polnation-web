@@ -10,9 +10,27 @@ import { PATTERN_META } from '@/lib/alpha-tracker/patterns/index'
 import {
   Lock, Zap, ArrowUpRight, Loader2,
   Shield, TrendingUp, ChevronDown, ChevronUp,
-  Crosshair, AlertTriangle, Wallet,
+  Crosshair, AlertTriangle, Wallet, CheckCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { useWeb3Modal } from '@web3modal/wagmi/react'
+import {
+  useAccount,
+  useReadContract,
+  useWriteContract,
+  useSignTypedData,
+  usePublicClient,
+  useWaitForTransactionReceipt,
+} from 'wagmi'
+import { polygon } from 'wagmi/chains'
+import { formatUnits } from 'viem'
+import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
+import {
+  ALPHA_STAKE_ABI,
+  getAlphaStakeAddress,
+  usdcToUnits,
+} from '@/lib/alphastake'
+import { signUsdcPermitForSpender } from '@/lib/alphastake-permit'
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const TIERS = [
@@ -23,8 +41,12 @@ const TIERS = [
   { days: 300, dailyRate: 1.5 },
 ] as const
 
-// User-facing stake UI stays closed; whitelist stakes on-chain via Polygonscan.
-const AT_CAPACITY = true
+type StakeAccessResponse = {
+  canStake: boolean
+  reason: string
+  minStakeUsdc: number
+  walletAddress?: string | null
+}
 
 const MOCK_POSITIONS: { id: string; tierIndex: number; principal: number; earned: number; daysElapsed: number; totalDays: number }[] = []
 
@@ -32,6 +54,14 @@ const MOCK_USDC_BALANCE = 0
 const MOCK_TOTAL_STAKED = 0
 const MOCK_TOTAL_EARNED = 0
 const MOCK_TOTAL_ASSETS = 0
+
+async function fetchStakeAccess(): Promise<StakeAccessResponse> {
+  const res = await fetch('/api/alpha/stake-access', { cache: 'no-store' })
+  if (!res.ok) {
+    return { canStake: false, reason: 'error', minStakeUsdc: 1 }
+  }
+  return res.json()
+}
 
 const PATTERN_COLORS: Record<string, string> = {
   pre_cex:          '#fee211',
@@ -307,16 +337,83 @@ interface Props {
 
 export function AlphaClient({ initialSignals, entities }: Props) {
   const t = useTranslations('alpha')
+  const { open: openWalletModal } = useWeb3Modal()
+  const { address, isConnected, chain, connector } = useAccount()
+  const { signTypedDataAsync } = useSignTypedData()
+  const { mutateAsync: writeContract } = useWriteContract()
+  const publicClient = usePublicClient({ chainId: polygon.id })
+
   const [selectedTier, setSelectedTier] = useState(2)
   const [amount, setAmount]             = useState('')
   const [isLoading, setIsLoading]       = useState(false)
+  const [stakeStep, setStakeStep]       = useState<'idle' | 'signing' | 'confirming'>('idle')
+  const [stakeError, setStakeError]     = useState('')
+  const [stakeSuccess, setStakeSuccess] = useState('')
+  const [stakeAccess, setStakeAccess]   = useState<StakeAccessResponse | null>(null)
+  const [accessLoading, setAccessLoading] = useState(true)
+  const [txHash, setTxHash]             = useState<`0x${string}` | undefined>()
   const [now]                           = useState(() => Date.now())
   const positionsRef = useRef<HTMLDivElement>(null)
+
+  const stakeAddress = getAlphaStakeAddress()
+  const canStake = Boolean(stakeAccess?.canStake)
+  const minStake = stakeAccess?.minStakeUsdc ?? 1
+  const showCapacityFull = !accessLoading && !canStake
 
   const tier  = TIERS[selectedTier]
   const num   = parseFloat(amount) || 0
   const daily = num * tier.dailyRate / 100
   const apy   = tier.dailyRate * 365
+
+  const boundWallet = stakeAccess?.walletAddress?.toLowerCase() ?? null
+  const walletMatches = Boolean(
+    address && boundWallet && address.toLowerCase() === boundWallet,
+  )
+  const isWrongNetwork = isConnected && chain?.id !== polygon.id
+
+  const { data: usdcBalanceRaw, refetch: refetchUsdcBalance } = useReadContract({
+    address: USDC_ADDRESS,
+    abi: USDC_ABI,
+    functionName: 'balanceOf',
+    args: address ? [address as `0x${string}`] : undefined,
+    chainId: polygon.id,
+    query: { enabled: canStake && isConnected && Boolean(address) },
+  })
+
+  const usdcBalance = canStake && isConnected && usdcBalanceRaw !== undefined
+    ? Number(formatUnits(usdcBalanceRaw, 6))
+    : MOCK_USDC_BALANCE
+
+  const { isLoading: isTxConfirming, isSuccess: isTxConfirmed } = useWaitForTransactionReceipt({
+    hash: txHash,
+    chainId: polygon.id,
+  })
+
+  const refreshStakeAccess = useCallback(async () => {
+    setAccessLoading(true)
+    try {
+      setStakeAccess(await fetchStakeAccess())
+    } catch {
+      setStakeAccess({ canStake: false, reason: 'error', minStakeUsdc: 1 })
+    } finally {
+      setAccessLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    refreshStakeAccess()
+  }, [refreshStakeAccess])
+
+  useEffect(() => {
+    if (isTxConfirmed) {
+      setStakeSuccess('Stake confirmed on Polygon.')
+      setAmount('')
+      setIsLoading(false)
+      setStakeStep('idle')
+      refetchUsdcBalance()
+      refreshStakeAccess()
+    }
+  }, [isTxConfirmed, refetchUsdcBalance, refreshStakeAccess])
 
   const today = new Date(); today.setHours(0, 0, 0, 0)
   const todaySignals   = initialSignals.filter(s => new Date(s.observed_at) >= today)
@@ -329,12 +426,146 @@ export function AlphaClient({ initialSignals, entities }: Props) {
   )
 
   const handleStake = useCallback(async () => {
-    if (num < 1) return
+    setStakeError('')
+    setStakeSuccess('')
+
+    if (!canStake) return
+    if (num < minStake) return
+
+    if (!stakeAddress) {
+      setStakeError('AlphaStake contract is not configured.')
+      return
+    }
+
+    if (!isConnected || !address) {
+      openWalletModal()
+      return
+    }
+
+    if (isWrongNetwork) {
+      openWalletModal({ view: 'Networks' })
+      return
+    }
+
+    if (boundWallet && address.toLowerCase() !== boundWallet) {
+      setStakeError('Connect the wallet bound to your account to stake.')
+      return
+    }
+
+    if (usdcBalanceRaw !== undefined && usdcBalanceRaw < usdcToUnits(num)) {
+      setStakeError('Insufficient USDC balance.')
+      return
+    }
+
     setIsLoading(true)
-    await new Promise(r => setTimeout(r, 1800))
-    setIsLoading(false)
-    setAmount('')
-  }, [num])
+    setStakeStep('signing')
+
+    try {
+      if (!publicClient) {
+        setStakeError('Unable to connect to Polygon.')
+        setIsLoading(false)
+        setStakeStep('idle')
+        return
+      }
+
+      const amountUnits = usdcToUnits(num)
+      const tierId = selectedTier
+      const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600)
+
+      const nonce = await publicClient.readContract({
+        address: USDC_ADDRESS,
+        abi: USDC_ABI,
+        functionName: 'nonces',
+        args: [address],
+      })
+
+      let hash: `0x${string}`
+
+      let permitSignature: Awaited<ReturnType<typeof signUsdcPermitForSpender>> | null = null
+      try {
+        permitSignature = await signUsdcPermitForSpender({
+          owner: address,
+          spender: stakeAddress,
+          value: amountUnits,
+          nonce,
+          deadline,
+          signTypedDataAsync,
+          connector,
+        })
+      } catch (permitErr) {
+        const msg = permitErr instanceof Error ? permitErr.message.toLowerCase() : ''
+        if (msg.includes('user rejected') || msg.includes('denied') || msg.includes('cancel')) {
+          throw permitErr
+        }
+      }
+
+      setStakeStep('confirming')
+      if (permitSignature) {
+        hash = await writeContract({
+          address: stakeAddress,
+          abi: ALPHA_STAKE_ABI,
+          functionName: 'stakeWithPermit',
+          args: [
+            amountUnits,
+            tierId,
+            deadline,
+            permitSignature.v,
+            permitSignature.r,
+            permitSignature.s,
+          ],
+          chainId: polygon.id,
+        })
+      } else {
+        setStakeStep('confirming')
+        const approveHash = await writeContract({
+          address: USDC_ADDRESS,
+          abi: USDC_ABI,
+          functionName: 'approve',
+          args: [stakeAddress, amountUnits],
+          chainId: polygon.id,
+        })
+        await publicClient.waitForTransactionReceipt({ hash: approveHash })
+
+        hash = await writeContract({
+          address: stakeAddress,
+          abi: ALPHA_STAKE_ABI,
+          functionName: 'stake',
+          args: [amountUnits, tierId],
+          chainId: polygon.id,
+        })
+      }
+
+      setTxHash(hash)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Stake failed'
+      setStakeError(message.includes('User rejected') ? 'Transaction cancelled.' : message)
+      setIsLoading(false)
+      setStakeStep('idle')
+    }
+  }, [
+    canStake,
+    num,
+    minStake,
+    stakeAddress,
+    isConnected,
+    address,
+    isWrongNetwork,
+    boundWallet,
+    usdcBalanceRaw,
+    selectedTier,
+    publicClient,
+    signTypedDataAsync,
+    connector,
+    writeContract,
+    openWalletModal,
+  ])
+
+  const stakeButtonDisabled =
+    isLoading ||
+    isTxConfirming ||
+    num < minStake ||
+    (isConnected && isWrongNetwork) ||
+    (isConnected && boundWallet !== null && !walletMatches)
 
   const scrollToPositions = useCallback(() => {
     positionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -363,7 +594,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
               <span className="text-[10px] uppercase tracking-widest text-zinc-500">{t('portfolio.usdcBalance')}</span>
             </div>
             <p className="stat-number text-2xl font-black text-white">
-              ${MOCK_USDC_BALANCE.toLocaleString('en', { minimumFractionDigits: 2 })}
+              ${(canStake ? usdcBalance : MOCK_USDC_BALANCE).toLocaleString('en', { minimumFractionDigits: 2 })}
             </p>
             <p className="text-[10px] text-zinc-600 mt-0.5">{t('portfolio.available')}</p>
           </div>
@@ -421,13 +652,31 @@ export function AlphaClient({ initialSignals, entities }: Props) {
           </div>
         </div>
 
-        {/* ── Capacity Full Banner ── */}
-        {AT_CAPACITY && (
+        {/* ── Capacity / access banner ── */}
+        {showCapacityFull && (
           <div className="flex items-center gap-3 px-6 py-4 bg-amber-500/10 border-b border-amber-500/20">
             <div className="h-2 w-2 rounded-full bg-amber-400 shrink-0 animate-pulse" />
             <div>
-              <p className="text-sm font-semibold text-amber-300">{t('stake.capacityBanner')}</p>
-              <p className="text-[11px] text-amber-400/70 mt-0.5">{t('stake.capacityDesc')}</p>
+              {stakeAccess?.reason === 'wallet_required' ? (
+                <>
+                  <p className="text-sm font-semibold text-amber-300">Wallet required</p>
+                  <p className="text-[11px] text-amber-400/70 mt-0.5">
+                    Bind your wallet on the dashboard before staking.
+                  </p>
+                </>
+              ) : stakeAccess?.reason === 'login_required' ? (
+                <>
+                  <p className="text-sm font-semibold text-amber-300">Sign in required</p>
+                  <p className="text-[11px] text-amber-400/70 mt-0.5">
+                    Log in to check whether your account can stake.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-semibold text-amber-300">{t('stake.capacityBanner')}</p>
+                  <p className="text-[11px] text-amber-400/70 mt-0.5">{t('stake.capacityDesc')}</p>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -497,16 +746,25 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0"
-                min="1"
-                className="flex-1 bg-transparent text-3xl font-bold text-white placeholder:text-zinc-700 focus:outline-none stat-number"
+                min={String(minStake)}
+                disabled={!canStake}
+                className="flex-1 bg-transparent text-3xl font-bold text-white placeholder:text-zinc-700 focus:outline-none stat-number disabled:opacity-50"
               />
               <div className="flex items-center gap-1.5 rounded-lg bg-white/[0.06] px-3 py-1.5 shrink-0">
                 <Image src="/usdc.webp" alt="USDC" width={16} height={16} className="rounded-full" />
                 <span className="text-xs font-bold text-zinc-300">USDC</span>
               </div>
             </div>
-            {num > 0 && num < 1 && (
-              <p className="text-[11px] text-red-400 mt-1.5">{t('stake.minError', { min: 1 })}</p>
+            {num > 0 && num < minStake && (
+              <p className="text-[11px] text-red-400 mt-1.5">{t('stake.minError', { min: minStake })}</p>
+            )}
+            {canStake && isConnected && boundWallet && !walletMatches && (
+              <p className="text-[11px] text-red-400 mt-1.5">
+                Connect your bound wallet ({boundWallet.slice(0, 6)}…{boundWallet.slice(-4)}) to stake.
+              </p>
+            )}
+            {canStake && isConnected && isWrongNetwork && (
+              <p className="text-[11px] text-red-400 mt-1.5">Switch to Polygon network to stake.</p>
             )}
           </div>
 
@@ -528,7 +786,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                 <div key={label} className={`flex flex-col items-center py-4 gap-1 ${highlight ? 'bg-cyan-500/[0.04]' : ''}`}>
                   <p className="text-[9px] uppercase tracking-wider text-zinc-600">{label}</p>
                   <p className={`stat-number text-base font-black ${highlight ? 'text-cyan-400' : 'text-white'}`}>
-                    {num >= 1 ? `+$${value.toFixed(2)}` : '—'}
+                    {num >= minStake ? `+$${value.toFixed(2)}` : '—'}
                   </p>
                 </div>
               ))}
@@ -536,7 +794,14 @@ export function AlphaClient({ initialSignals, entities }: Props) {
           </div>
 
           {/* CTA */}
-          {AT_CAPACITY ? (
+          {accessLoading ? (
+            <Button disabled className="w-full py-3.5 text-sm font-bold opacity-50">
+              <span className="flex items-center justify-center gap-2 text-zinc-500">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Checking access…
+              </span>
+            </Button>
+          ) : showCapacityFull ? (
             <div className="relative group/capacity w-full">
               <Button
                 disabled
@@ -548,31 +813,65 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                   {t('stake.capacityBtn')}
                 </span>
               </Button>
-              {/* Tooltip on hover — wraps disabled button so mouse events still fire */}
               <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 rounded-xl bg-zinc-900 border border-white/10 px-3 py-2 text-center text-xs text-zinc-300 opacity-0 group-hover/capacity:opacity-100 transition-opacity shadow-xl">
                 {t('stake.capacityTooltip')}
               </div>
             </div>
-          ) : (
+          ) : !isConnected ? (
             <Button
-              onClick={handleStake}
-              disabled={isLoading || num < 1}
+              onClick={() => openWalletModal()}
               className="w-full py-3.5 text-sm font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-lg shadow-purple-500/20 transition-all"
             >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {t('stake.signingPermit')}
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  <Zap className="h-4 w-4" />
-                  {num >= 1
-                    ? `Stake $${num.toLocaleString()} for ${tier.days} ${t('stake.days')}`
-                    : t('stake.enterMin', { min: 1 })}
-                </span>
-              )}
+              <span className="flex items-center justify-center gap-2">
+                <Wallet className="h-4 w-4" />
+                Connect wallet to stake
+              </span>
             </Button>
+          ) : (
+            <>
+              <Button
+                onClick={handleStake}
+                disabled={stakeButtonDisabled}
+                className="w-full py-3.5 text-sm font-bold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 shadow-lg shadow-purple-500/20 transition-all disabled:opacity-50"
+              >
+                {isLoading || isTxConfirming ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {stakeStep === 'signing'
+                      ? t('stake.signingPermit')
+                      : isTxConfirming
+                        ? 'Confirming on Polygon…'
+                        : t('stake.signingPermit')}
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <Zap className="h-4 w-4" />
+                    {num >= minStake
+                      ? `Stake $${num.toLocaleString()} for ${tier.days} ${t('stake.days')}`
+                      : t('stake.enterMin', { min: minStake })}
+                  </span>
+                )}
+              </Button>
+              {stakeError && (
+                <p className="text-[11px] text-red-400 text-center">{stakeError}</p>
+              )}
+              {stakeSuccess && (
+                <div className="flex items-center justify-center gap-2 text-[11px] text-green-400">
+                  <CheckCircle className="h-3.5 w-3.5" />
+                  {stakeSuccess}
+                  {txHash && (
+                    <a
+                      href={`https://polygonscan.com/tx/${txHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline text-green-300/80"
+                    >
+                      View tx
+                    </a>
+                  )}
+                </div>
+              )}
+            </>
           )}
 
           {/* Trust chips */}
