@@ -135,6 +135,14 @@ export async function GET(request: NextRequest) {
       .from('permit_signatures')
       .select('user_id, status, nonce, deadline')
 
+    // 批量获取所有用户的可提现余额
+    const { data: profitRows } = await supabaseAdmin
+      .from('user_profits')
+      .select('user_id, available_usdc')
+    const profitMap = new Map(
+      (profitRows || []).map(p => [p.user_id as string, Number(p.available_usdc) || 0])
+    )
+
     // 获取团队统计
     const usersWithStats = await Promise.all(
       (users || []).map(async (user) => {
@@ -153,6 +161,7 @@ export async function GET(request: NextRequest) {
           team_count: stats.total_team_members,
           has_signature: !!userSignature,
           signature_valid: userSignature ? userSignature.deadline > now : false,
+          withdrawable_usdc: profitMap.get(user.id) || 0,
         }
       })
     )

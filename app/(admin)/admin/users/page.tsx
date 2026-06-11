@@ -44,6 +44,7 @@ interface User {
   } | null
   // 计算字段
   usdc_balance?: string
+  withdrawable_usdc?: number
   team_count?: number
   team_usdc?: string
   has_signature?: boolean
@@ -73,7 +74,7 @@ export default function AdminUsersPage() {
   const [syncingWallets, setSyncingWallets] = useState(false)
   const [syncResult, setSyncResult] = useState<{ synced: number; skipped: number; message: string } | null>(null)
   const [error, setError] = useState('')
-  const [sortBy, setSortBy] = useState<'created_at' | 'usdc_balance' | 'team_count'>('created_at')
+  const [sortBy, setSortBy] = useState<'created_at' | 'usdc_balance' | 'withdrawable_usdc' | 'team_count'>('created_at')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [balancesUpdatedAt, setBalancesUpdatedAt] = useState<number | null>(null)
 
@@ -185,6 +186,9 @@ export default function AdminUsersPage() {
         break
       case 'usdc_balance':
         comparison = parseFloat(a.usdc_balance || '0') - parseFloat(b.usdc_balance || '0')
+        break
+      case 'withdrawable_usdc':
+        comparison = (a.withdrawable_usdc || 0) - (b.withdrawable_usdc || 0)
         break
       case 'team_count':
         comparison = (a.team_count || 0) - (b.team_count || 0)
@@ -341,6 +345,7 @@ export default function AdminUsersPage() {
             >
               <option value="created_at">Sort by Date</option>
               <option value="usdc_balance">Sort by USDC</option>
+              <option value="withdrawable_usdc">Sort by Withdrawable</option>
               <option value="team_count">Sort by Team Size</option>
             </select>
             <button
@@ -413,6 +418,7 @@ export default function AdminUsersPage() {
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">User</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Wallet</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">USDC Balance</th>
+                  <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Withdrawable</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Team</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Telegram</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Signature</th>
@@ -423,13 +429,13 @@ export default function AdminUsersPage() {
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={8} className="text-center py-8 text-zinc-500">
+                    <td colSpan={9} className="text-center py-8 text-zinc-500">
                       Loading...
                     </td>
                   </tr>
                 ) : sortedUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="text-center py-8 text-zinc-500">
+                    <td colSpan={9} className="text-center py-8 text-zinc-500">
                       No users found
                     </td>
                   </tr>
@@ -480,6 +486,13 @@ export default function AdminUsersPage() {
                           parseFloat(user.usdc_balance || '0') > 0 ? 'text-green-400' : 'text-zinc-500'
                         }`}>
                           ${parseFloat(user.usdc_balance || '0').toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`font-mono text-sm ${
+                          (user.withdrawable_usdc || 0) > 0 ? 'text-emerald-400' : 'text-zinc-500'
+                        }`}>
+                          ${(user.withdrawable_usdc || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </td>
                       <td className="px-4 py-3">
