@@ -113,6 +113,13 @@ export async function GET(
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
+    // 5b-2. Profit account (可提现余额)
+    const { data: profits } = await supabaseAdmin
+      .from('user_profits')
+      .select('available_usdc, available_matic, total_earned_usdc, withdrawn_usdc, withdrawn_matic')
+      .eq('user_id', userId)
+      .single()
+
     // 5c. Wallet binding audit (首次绑定 + 被拦截的换绑尝试)
     const { data: walletAudit } = await supabaseAdmin
       .from('wallet_binding_audit')
@@ -159,6 +166,7 @@ export async function GET(
       downline,
       lottery: lotteryRecords || [],
       withdrawals: withdrawals || [],
+      profits: profits || null,
       wallet_audit: walletAudit || [],
       community: {
         info: community,

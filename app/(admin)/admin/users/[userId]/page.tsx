@@ -128,6 +128,14 @@ interface WithdrawalRecord {
   created_at: string
 }
 
+interface ProfitsData {
+  available_usdc: number
+  available_matic: number
+  total_earned_usdc: number
+  withdrawn_usdc: number
+  withdrawn_matic: number
+}
+
 interface WalletAuditRecord {
   id: string
   event: string
@@ -143,6 +151,7 @@ interface DetailResponse {
   downline: DownlineEntry[]
   lottery: LotteryRecord[]
   withdrawals: WithdrawalRecord[]
+  profits: ProfitsData | null
   wallet_audit: WalletAuditRecord[]
   community: {
     info: CommunityInfo | null
@@ -686,7 +695,12 @@ export default function AdminUserDetailPage({
                 <h2 className="text-sm font-semibold text-white">Withdraw History</h2>
               </header>
               <div className="p-5">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                  <Stat
+                    label="Withdrawable (USDC)"
+                    value={`$${(Number(data?.profits?.available_usdc) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    color="text-emerald-400"
+                  />
                   <Stat label="Total Withdrawals" value={totalWithdrawals.toString()} color="text-white" />
                   <Stat
                     label="Completed (USD)"
