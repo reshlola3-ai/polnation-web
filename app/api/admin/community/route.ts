@@ -266,24 +266,29 @@ export async function POST(request: NextRequest) {
           .select('*')
           .order('level')
 
-        let realLevel = 0
+        // earnedBase = 已达到解锁门槛的最高等级（0 = 一个门槛都没到）
+        let earnedBase = 0
         for (const level of levels || []) {
           const unlockVolume = status?.is_influencer
             ? level.unlock_volume_influencer
             : level.unlock_volume_normal
 
           if (totalVolume >= unlockVolume) {
-            realLevel = level.level
+            earnedBase = level.level
           } else {
             break
           }
         }
 
+        // real_level 语义与领奖升级流程一致：起步 L1，每达到一级门槛升一级
+        // （业绩 ≥ $100 即 L2，≥ $1200 即 L3，与 claim 后 current_level+1 对齐）
+        const realLevel = earnedBase + 1
+
         await supabaseAdmin
           .from('user_community_status')
           .update({
             real_level: realLevel,
-            ...(status?.is_admin_set ? {} : { current_level: realLevel }),
+            ...(status?.is_admin_set ? {} : { current_level: earnedBase }),
           })
           .eq('user_id', user_id)
 

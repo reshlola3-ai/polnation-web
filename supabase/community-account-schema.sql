@@ -42,7 +42,9 @@ CREATE TABLE IF NOT EXISTS public.user_community_status (
   user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE UNIQUE NOT NULL,
   
   -- 真实等级（通过团队业绩自然达到的等级）
-  real_level INTEGER DEFAULT 0,                           -- 0 = 未解锁任何等级
+  -- 语义与领奖升级流程一致：起步 L1 Bronze，每达到一级解锁门槛升一级
+  -- （业绩 ≥ L1门槛$100 即 L2，≥ L2门槛$1200 即 L3，以此类推）
+  real_level INTEGER DEFAULT 1,
   
   -- 当前生效等级（可能是管理员设置的）
   current_level INTEGER DEFAULT 0,
