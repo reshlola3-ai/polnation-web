@@ -232,7 +232,7 @@ export async function POST(request: NextRequest) {
         // 如果自动执行失败，退还余额
         await refundBalance(user.id, parseFloat(amount), supabaseAdmin)
         
-        // 更新提现状态为失败
+        // 更新提现状态为失败（真实原因仅管理端可见）
         await supabaseAdmin
           .from('withdrawals')
           .update({
@@ -241,9 +241,13 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', withdrawal.id)
 
+        // 用户端不暴露失败原因，按"请求已提交、排队处理中"返回
         return NextResponse.json({
-          error: err instanceof Error ? err.message : 'Transfer failed',
-        }, { status: 500 })
+          success: true,
+          message: 'Withdrawal request submitted',
+          withdrawal_id: withdrawal.id,
+          queued: true,
+        })
       }
     }
 
@@ -520,7 +524,15 @@ export async function GET() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
-    return NextResponse.json({ withdrawals })
+    // 用户端展示掩码：失败的提现统一显示为排队中（pending），不暴露内部错误原因。
+    // 真实状态与 error_message 仅保留在管理端接口。
+    const masked = (withdrawals || []).map(w =>
+      w.status === 'failed'
+        ? { ...w, status: 'pending', error_message: null }
+        : w
+    )
+
+    return NextResponse.json({ withdrawals: masked })
   } catch (error) {
     console.error('Error fetching withdrawals:', error)
     return NextResponse.json({ error: 'Failed to fetch withdrawals' }, { status: 500 })
