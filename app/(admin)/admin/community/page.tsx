@@ -93,6 +93,15 @@ export default function AdminCommunityPage() {
   const [fundsFilter, setFundsFilter] = useState<'all' | 'has_volume' | 'no_volume' | 'has_earned' | 'no_earned'>('all')
   const [walletFilter, setWalletFilter] = useState<'all' | 'has_wallet' | 'no_wallet'>('all')
 
+  const adminSetCount = useMemo(
+    () => users.filter((u) => u.is_admin_set).length,
+    [users],
+  )
+
+  const toggleAdminSetFilter = () => {
+    setStatusFilter((prev) => (prev === 'admin_set' ? 'all' : 'admin_set'))
+  }
+
   const filteredUsers = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     return users.filter((u) => {
@@ -460,13 +469,37 @@ export default function AdminCommunityPage() {
 
         {/* Users Table */}
         <div className="bg-zinc-800/50 border border-zinc-700 rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-zinc-700 flex items-center justify-between">
-            <h2 className="text-white font-semibold">
-              用户社群状态
-              <span className="ml-2 text-xs text-zinc-500 font-normal">
-                Showing {filteredUsers.length} of {users.length}
-              </span>
-            </h2>
+          <div className="px-4 py-3 border-b border-zinc-700 flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h2 className="text-white font-semibold">
+                用户社群状态
+                <span className="ml-2 text-xs text-zinc-500 font-normal">
+                  Showing {filteredUsers.length} of {users.length}
+                </span>
+              </h2>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={toggleAdminSetFilter}
+                className={
+                  statusFilter === 'admin_set'
+                    ? 'border-amber-500 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25'
+                    : 'border-zinc-600 text-zinc-300 hover:bg-zinc-700'
+                }
+              >
+                <Crown className="w-3.5 h-3.5 mr-1.5" />
+                手动设置
+                {adminSetCount > 0 && (
+                  <span className={`ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                    statusFilter === 'admin_set'
+                      ? 'bg-amber-500/30 text-amber-100'
+                      : 'bg-zinc-700 text-zinc-400'
+                  }`}>
+                    {adminSetCount}
+                  </span>
+                )}
+              </Button>
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -516,7 +549,7 @@ export default function AdminCommunityPage() {
               >
                 <option value="all">全部</option>
                 <option value="influencer">Influencer</option>
-                <option value="admin_set">Admin-set</option>
+                <option value="admin_set">手动设置</option>
                 <option value="normal">Normal</option>
               </select>
             </div>
