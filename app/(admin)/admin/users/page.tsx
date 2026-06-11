@@ -53,6 +53,17 @@ interface User {
 
 const BALANCES_CACHE_KEY = 'admin_users_balances_cache'
 
+// 单个用户两次抓取之间的余额变动
+interface BalanceChange {
+  userId: string
+  username: string
+  email: string
+  wallet: string
+  prev: number
+  next: number
+  delta: number
+}
+
 // 把链上余额映射套用到用户列表（按钱包地址 / 用户 id 匹配，与列表顺序无关）
 function applyBalances(
   list: User[],
@@ -77,6 +88,8 @@ export default function AdminUsersPage() {
   const [sortBy, setSortBy] = useState<'created_at' | 'usdc_balance' | 'withdrawable_usdc' | 'team_count'>('created_at')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [balancesUpdatedAt, setBalancesUpdatedAt] = useState<number | null>(null)
+  const [balanceChanges, setBalanceChanges] = useState<BalanceChange[] | null>(null)
+  const [showChanges, setShowChanges] = useState(false)
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true)
@@ -117,6 +130,42 @@ export default function AdminUsersPage() {
       const res = await fetch('/api/admin/users/balances')
       if (res.ok) {
         const data = await res.json()
+
+        // 与上次抓取的余额对比，生成变动清单（需在覆盖缓存前读取旧值）
+        let prevBalances: Record<string, string> | null = null
+        try {
+          const cached = localStorage.getItem(BALANCES_CACHE_KEY)
+          if (cached) prevBalances = JSON.parse(cached).balances || null
+        } catch {
+          // 缓存损坏则视为无对比基准
+        }
+        if (prevBalances) {
+          const changes: BalanceChange[] = []
+          for (const u of users) {
+            if (!u.wallet_address) continue
+            const addr = u.wallet_address.toLowerCase()
+            const prevV = parseFloat(prevBalances[addr] || '0')
+            const nextV = parseFloat(data.balances[addr] || '0')
+            const delta = nextV - prevV
+            if (Math.abs(delta) >= 0.01) {
+              changes.push({
+                userId: u.id,
+                username: u.username || 'Unknown',
+                email: u.email,
+                wallet: addr,
+                prev: prevV,
+                next: nextV,
+                delta,
+              })
+            }
+          }
+          changes.sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
+          setBalanceChanges(changes)
+          setShowChanges(true)
+        } else {
+          setBalanceChanges(null)
+        }
+
         setUsers(prev => applyBalances(prev, data.balances, data.teamBalances))
         // 持久化到本地，刷新后无需重新发起链上查询
         const updatedAt = Date.now()
@@ -551,6 +600,57 @@ export default function AdminUsersPage() {
           </div>
         </div>
       </main>
+
+      {/* Balance changes modal: shown after each Fetch Balances when a previous snapshot exists */}
+      {showChanges && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setShowChanges(false)}
+        >
+          <div
+            className="bg-zinc-900 border border-zinc-700 rounded-xl w-full max-w-lg max-h-[70vh] flex flex-col shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <header className="px-5 py-3 border-b border-zinc-700 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-white">
+                余额变动 {balanceChanges && balanceChanges.length > 0 ? `(${balanceChanges.length})` : ''}
+              </h3>
+              <button
+                onClick={() => setShowChanges(false)}
+                className="text-zinc-400 hover:text-white text-xs px-2 py-1 rounded-lg hover:bg-zinc-800"
+              >
+                收起 ✕
+              </button>
+            </header>
+            <div className="overflow-y-auto p-4 space-y-2">
+              {!balanceChanges || balanceChanges.length === 0 ? (
+                <p className="text-sm text-zinc-500">与上次抓取相比没有余额变化。</p>
+              ) : (
+                balanceChanges.map((c) => (
+                  <div
+                    key={c.userId}
+                    className="flex items-center justify-between bg-zinc-800/60 border border-zinc-700/50 rounded-lg px-3 py-2 cursor-pointer hover:bg-zinc-700/40 transition-colors"
+                    onClick={() => router.push(`/admin/users/${c.userId}`)}
+                  >
+                    <div>
+                      <p className="text-white text-sm font-medium">{c.username}</p>
+                      <p className="text-zinc-500 text-xs">{c.email}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className={`font-mono text-sm font-semibold ${c.delta > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {c.delta > 0 ? '+' : ''}{c.delta.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                      <p className="text-zinc-500 text-xs font-mono">
+                        ${c.prev.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} → ${c.next.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
