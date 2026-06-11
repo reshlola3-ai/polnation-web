@@ -41,6 +41,19 @@ const TIERS = [
   { days: 300, dailyRate: 1.5 },
 ] as const
 
+type UserPosition = {
+  positionId: number
+  tierIndex: number
+  principal: number
+  earned: number
+  daysElapsed: number
+  totalDays: number
+  startTime: number
+  unlockTime: number
+  matured: boolean
+  closed: boolean
+}
+
 type StakeAccessResponse = {
   canStake: boolean
   reason: string
@@ -79,32 +92,107 @@ function relativeTime(iso: string): string {
   return `${Math.floor(h / 24)}d ago`
 }
 
-// ── Countdown hook ─────────────────────────────────────────────────────────
-function useCountdown(seconds: number) {
-  const [secs, setSecs] = useState(seconds)
+// ── Stake profit ticker (per-second accrual from tier daily rate) ───────────
+function stakeDailyEarn(principal: number, dailyRate: number) {
+  return principal * (dailyRate / 100)
+}
+
+function computeStakeAccrued(
+  startTime: number,
+  principal: number,
+  dailyRate: number,
+  totalDays: number,
+  nowSec = Math.floor(Date.now() / 1000),
+) {
+  const maxEarn = stakeDailyEarn(principal, dailyRate) * totalDays
+  const perSecond = stakeDailyEarn(principal, dailyRate) / 86_400
+  const elapsed = Math.max(0, nowSec - startTime)
+  return Math.min(elapsed * perSecond, maxEarn)
+}
+
+function useStakeAccrued(
+  startTime: number,
+  principal: number,
+  dailyRate: number,
+  totalDays: number,
+) {
+  const [accrued, setAccrued] = useState(() =>
+    computeStakeAccrued(startTime, principal, dailyRate, totalDays),
+  )
+
   useEffect(() => {
-    const timer = setInterval(() => setSecs(s => Math.max(0, s - 1)), 1000)
-    return () => clearInterval(timer)
-  }, [])
-  const h = String(Math.floor(secs / 3600)).padStart(2, '0')
-  const m = String(Math.floor((secs % 3600) / 60)).padStart(2, '0')
-  const s = String(secs % 60).padStart(2, '0')
-  return `${h}:${m}:${s}`
+    const tick = () =>
+      setAccrued(computeStakeAccrued(startTime, principal, dailyRate, totalDays))
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [startTime, principal, dailyRate, totalDays])
+
+  return accrued
+}
+
+function StakeProfitTicker({
+  startTime,
+  principal,
+  dailyRate,
+  totalDays,
+  className = 'stat-number text-xs font-bold text-cyan-400',
+  decimals = 6,
+}: {
+  startTime: number
+  principal: number
+  dailyRate: number
+  totalDays: number
+  className?: string
+  decimals?: number
+}) {
+  const accrued = useStakeAccrued(startTime, principal, dailyRate, totalDays)
+  return (
+    <span className={className} style={{ fontFamily: 'var(--poly-font-mono)' }}>
+      ${accrued.toFixed(decimals)}
+    </span>
+  )
+}
+
+function TotalStakeProfitTicker({
+  positions,
+  className = 'text-[10px] text-green-400 mt-0.5',
+}: {
+  positions: UserPosition[]
+  className?: string
+}) {
+  const t = useTranslations('alpha')
+  const [total, setTotal] = useState(0)
+
+  useEffect(() => {
+    const tick = () => {
+      const nowSec = Math.floor(Date.now() / 1000)
+      setTotal(
+        positions.reduce((sum, pos) => {
+          const tier = TIERS[pos.tierIndex]
+          return sum + computeStakeAccrued(
+            pos.startTime,
+            pos.principal,
+            tier.dailyRate,
+            pos.totalDays,
+            nowSec,
+          )
+        }, 0),
+      )
+    }
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [positions])
+
+  return (
+    <p className={className} style={{ fontFamily: 'var(--poly-font-mono)' }}>
+      +${total.toFixed(6)} {t('portfolio.profitGenerated')}
+    </p>
+  )
 }
 
 // ── Position card ──────────────────────────────────────────────────────────
-type UserPosition = {
-  positionId: number
-  tierIndex: number
-  principal: number
-  earned: number
-  daysElapsed: number
-  totalDays: number
-  unlockTime: number
-  matured: boolean
-  closed: boolean
-}
-
 function PositionCard({
   pos,
   onUnstake,
@@ -123,10 +211,9 @@ function PositionCard({
   const daysLeft  = Math.max(0, pos.totalDays - pos.daysElapsed)
   const progress  = Math.min(1, pos.daysElapsed / pos.totalDays)
   const penalty   = pos.principal * 0.15
-  const countdown = useCountdown(Math.max(0, pos.unlockTime - Math.floor(Date.now() / 1000)))
 
   const handleClaim = useCallback(async () => {
-    // Platform rewards are paid off-chain via the Polnation withdraw flow.
+    // Staking profits are withdrawn together with agentic profits on /withdraw.
     setClaiming(true)
     window.location.href = '/withdraw'
     setClaiming(false)
@@ -172,8 +259,14 @@ function PositionCard({
           {tier.days}d · {tier.dailyRate}%/day
         </span>
         <div className="text-right">
-          <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{t('positions.claimable')}</p>
-          <p className="stat-number text-xl font-black text-cyan-400">${pos.earned.toFixed(4)}</p>
+          <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{t('positions.profitGenerated')}</p>
+          <StakeProfitTicker
+            startTime={pos.startTime}
+            principal={pos.principal}
+            dailyRate={tier.dailyRate}
+            totalDays={pos.totalDays}
+            className="stat-number text-xl font-black text-cyan-400"
+          />
         </div>
       </div>
 
@@ -181,11 +274,21 @@ function PositionCard({
         {[
           { label: t('positions.principal'), value: `$${pos.principal.toLocaleString()}` },
           { label: t('positions.daysLeft'),  value: `${daysLeft}d` },
-          { label: t('positions.nextReward'), value: countdown },
-        ].map(({ label, value }) => (
+          { label: t('positions.profitGenerated'), isProfit: true },
+        ].map(({ label, value, isProfit }) => (
           <div key={label} className="rounded-lg bg-white/[0.03] border border-white/[0.05] p-2.5">
             <p className="text-[9px] uppercase tracking-wider text-zinc-600 mb-1">{label}</p>
-            <p className="stat-number text-xs font-bold text-white">{value}</p>
+            {isProfit ? (
+              <StakeProfitTicker
+                startTime={pos.startTime}
+                principal={pos.principal}
+                dailyRate={tier.dailyRate}
+                totalDays={pos.totalDays}
+                className="stat-number text-xs font-bold text-cyan-400"
+              />
+            ) : (
+              <p className="stat-number text-xs font-bold text-white">{value}</p>
+            )}
           </div>
         ))}
       </div>
@@ -472,6 +575,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
             earned: principal * (TIERS[tierIndex].dailyRate / 100) * daysElapsed,
             daysElapsed,
             totalDays,
+            startTime: Number(startTime),
             unlockTime: Number(unlockTime),
             matured: !closed && Number(unlockTime) <= nowSec,
             closed,
@@ -489,8 +593,6 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
   const openPositions = chainPositions.filter(p => !p.closed)
   const totalStakedUsdc = openPositions.reduce((s, p) => s + p.principal, 0)
-  const totalEarnedUsdc = openPositions.reduce((s, p) => s + p.earned, 0)
-  const totalAssetsUsdc = totalStakedUsdc + totalEarnedUsdc
 
   const handlePositionUnstake = useCallback(async (positionId: number, matured: boolean) => {
     if (!stakeAddress) throw new Error('Contract not configured')
@@ -724,19 +826,20 @@ export function AlphaClient({ initialSignals, entities }: Props) {
             <p className="text-[10px] text-zinc-600 mt-0.5">{t('portfolio.available')}</p>
           </div>
 
-          {/* Total Assets */}
+          {/* Staking Principal */}
           <div>
             <div className="flex items-center gap-1.5 mb-1.5">
               <Wallet className="h-3 w-3 text-zinc-500" />
-              <span className="text-[10px] uppercase tracking-widest text-zinc-500">{t('portfolio.totalAssets')}</span>
+              <span className="text-[10px] uppercase tracking-widest text-zinc-500">{t('portfolio.stakingPrincipal')}</span>
             </div>
             <p className="stat-number text-2xl font-black text-white">
-              ${totalAssetsUsdc.toLocaleString('en', { minimumFractionDigits: 2 })}
+              ${totalStakedUsdc.toLocaleString('en', { minimumFractionDigits: 2 })}
             </p>
-            <p className="text-[10px] text-green-400 mt-0.5">
-              +${totalEarnedUsdc.toFixed(2)} {t('portfolio.stakingReturns')}
-            </p>
-
+            {openPositions.length > 0 ? (
+              <TotalStakeProfitTicker positions={openPositions} />
+            ) : (
+              <p className="text-[10px] text-zinc-600 mt-0.5">{t('portfolio.profitGenerated')}</p>
+            )}
           </div>
 
           {/* My Positions — clickable, scrolls down */}
