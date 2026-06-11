@@ -21,6 +21,8 @@ export const ERC20_BALANCE_ABI = parseAbi([
 export const ALPHA_STAKE_ABI = parseAbi([
   'function stake(uint256 amount, uint8 tierId)',
   'function stakeWithPermit(uint256 amount, uint8 tierId, uint256 deadline, uint8 v, bytes32 r, bytes32 s)',
+  'function withdraw(uint256 positionId)',
+  'function emergencyUnstake(uint256 positionId)',
   'function nextPositionId() view returns (uint256)',
   'function totalStaked() view returns (uint256)',
   'function aaveBalance() view returns (uint256)',

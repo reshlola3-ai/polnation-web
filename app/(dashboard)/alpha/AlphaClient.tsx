@@ -48,12 +48,7 @@ type StakeAccessResponse = {
   walletAddress?: string | null
 }
 
-const MOCK_POSITIONS: { id: string; tierIndex: number; principal: number; earned: number; daysElapsed: number; totalDays: number }[] = []
-
 const MOCK_USDC_BALANCE = 0
-const MOCK_TOTAL_STAKED = 0
-const MOCK_TOTAL_EARNED = 0
-const MOCK_TOTAL_ASSETS = 0
 
 async function fetchStakeAccess(): Promise<StakeAccessResponse> {
   const res = await fetch('/api/alpha/stake-access', { cache: 'no-store' })
@@ -98,28 +93,59 @@ function useCountdown(seconds: number) {
 }
 
 // ── Position card ──────────────────────────────────────────────────────────
-type MockPosition = { id: string; tierIndex: number; principal: number; earned: number; daysElapsed: number; totalDays: number }
+type UserPosition = {
+  positionId: number
+  tierIndex: number
+  principal: number
+  earned: number
+  daysElapsed: number
+  totalDays: number
+  unlockTime: number
+  matured: boolean
+  closed: boolean
+}
 
-function PositionCard({ pos }: { pos: MockPosition }) {
+function PositionCard({
+  pos,
+  onUnstake,
+}: {
+  pos: UserPosition
+  onUnstake: (positionId: number, matured: boolean) => Promise<void>
+}) {
   const t = useTranslations('alpha')
   const [claiming, setClaiming]                     = useState(false)
   const [unstaking, setUnstaking]                   = useState(false)
   const [showUnstakeWarning, setShowUnstakeWarning] = useState(false)
   const [unstakeAcknowledged, setUnstakeAcknowledged] = useState(false)
+  const [actionError, setActionError]               = useState('')
 
   const tier      = TIERS[pos.tierIndex]
-  const daysLeft  = pos.totalDays - pos.daysElapsed
-  const progress  = pos.daysElapsed / pos.totalDays
+  const daysLeft  = Math.max(0, pos.totalDays - pos.daysElapsed)
+  const progress  = Math.min(1, pos.daysElapsed / pos.totalDays)
   const penalty   = pos.principal * 0.15
-  const countdown = useCountdown(daysLeft * 86400 - 3600)
+  const countdown = useCountdown(Math.max(0, pos.unlockTime - Math.floor(Date.now() / 1000)))
 
   const handleClaim = useCallback(async () => {
+    // Platform rewards are paid off-chain via the Polnation withdraw flow.
     setClaiming(true)
-    await new Promise(r => setTimeout(r, 1200))
+    window.location.href = '/withdraw'
     setClaiming(false)
   }, [])
 
   const handleUnstake = useCallback(async () => {
+    setActionError('')
+    if (pos.matured) {
+      setUnstaking(true)
+      try {
+        await onUnstake(pos.positionId, true)
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Withdraw failed'
+        setActionError(msg.includes('User rejected') ? 'Transaction cancelled.' : msg)
+      } finally {
+        setUnstaking(false)
+      }
+      return
+    }
     if (!showUnstakeWarning) {
       setShowUnstakeWarning(true)
       setUnstakeAcknowledged(false)
@@ -127,11 +153,17 @@ function PositionCard({ pos }: { pos: MockPosition }) {
     }
     if (!unstakeAcknowledged) return
     setUnstaking(true)
-    await new Promise(r => setTimeout(r, 1800))
-    setUnstaking(false)
-    setShowUnstakeWarning(false)
-    setUnstakeAcknowledged(false)
-  }, [showUnstakeWarning, unstakeAcknowledged])
+    try {
+      await onUnstake(pos.positionId, false)
+      setShowUnstakeWarning(false)
+      setUnstakeAcknowledged(false)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unstake failed'
+      setActionError(msg.includes('User rejected') ? 'Transaction cancelled.' : msg)
+    } finally {
+      setUnstaking(false)
+    }
+  }, [pos.matured, pos.positionId, showUnstakeWarning, unstakeAcknowledged, onUnstake])
 
   return (
     <div className="glass-card-solid p-5 border border-white/[0.06]">
@@ -222,16 +254,23 @@ function PositionCard({ pos }: { pos: MockPosition }) {
           className={`flex-1 rounded-xl px-3 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
             showUnstakeWarning
               ? 'bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30'
-              : 'bg-white/[0.04] border border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/[0.15]'
+              : pos.matured
+                ? 'bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/25'
+                : 'bg-white/[0.04] border border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/[0.15]'
           }`}
         >
           {unstaking
             ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('positions.unstaking')}</>
-            : showUnstakeWarning
-              ? <><AlertTriangle className="h-3.5 w-3.5" /> {t('positions.confirmEarlyUnstakeWithPenalty')}</>
-              : <><Lock className="h-3.5 w-3.5" /> {t('positions.unstakeEarly')}</>}
+            : pos.matured
+              ? <><ArrowUpRight className="h-3.5 w-3.5" /> Withdraw Principal</>
+              : showUnstakeWarning
+                ? <><AlertTriangle className="h-3.5 w-3.5" /> {t('positions.confirmEarlyUnstakeWithPenalty')}</>
+                : <><Lock className="h-3.5 w-3.5" /> {t('positions.unstakeEarly')}</>}
         </button>
       </div>
+      {actionError && (
+        <p className="text-[11px] text-red-400 mt-2">{actionError}</p>
+      )}
     </div>
   )
 }
@@ -389,6 +428,91 @@ export function AlphaClient({ initialSignals, entities }: Props) {
     chainId: polygon.id,
   })
 
+  // ── On-chain positions (connected wallet, or bound wallet when not connected) ──
+  const [chainPositions, setChainPositions] = useState<UserPosition[]>([])
+  const positionWallet = (address ?? boundWallet) as `0x${string}` | null
+
+  const loadPositions = useCallback(async () => {
+    if (!stakeAddress || !positionWallet || !publicClient) {
+      setChainPositions([])
+      return
+    }
+    try {
+      const ids = await publicClient.readContract({
+        address: stakeAddress,
+        abi: ALPHA_STAKE_ABI,
+        functionName: 'getUserPositions',
+        args: [positionWallet],
+      })
+      const raw = await Promise.all(
+        ids.map(id =>
+          publicClient.readContract({
+            address: stakeAddress,
+            abi: ALPHA_STAKE_ABI,
+            functionName: 'getPosition',
+            args: [id],
+          })
+        )
+      )
+      const nowSec = Math.floor(Date.now() / 1000)
+      setChainPositions(
+        raw.map((p, i) => {
+          const [, amount, tierId, startTime, unlockTime, closed] = p
+          const tierIndex = Math.min(Number(tierId), TIERS.length - 1)
+          const totalDays = TIERS[tierIndex].days
+          const daysElapsed = Math.min(
+            totalDays,
+            Math.floor((nowSec - Number(startTime)) / 86400)
+          )
+          const principal = Number(formatUnits(amount, 6))
+          return {
+            positionId: Number(ids[i]),
+            tierIndex,
+            principal,
+            earned: principal * (TIERS[tierIndex].dailyRate / 100) * daysElapsed,
+            daysElapsed,
+            totalDays,
+            unlockTime: Number(unlockTime),
+            matured: !closed && Number(unlockTime) <= nowSec,
+            closed,
+          }
+        })
+      )
+    } catch {
+      // RPC hiccup — keep last known positions
+    }
+  }, [stakeAddress, positionWallet, publicClient])
+
+  useEffect(() => {
+    loadPositions()
+  }, [loadPositions])
+
+  const openPositions = chainPositions.filter(p => !p.closed)
+  const totalStakedUsdc = openPositions.reduce((s, p) => s + p.principal, 0)
+  const totalEarnedUsdc = openPositions.reduce((s, p) => s + p.earned, 0)
+  const totalAssetsUsdc = totalStakedUsdc + totalEarnedUsdc
+
+  const handlePositionUnstake = useCallback(async (positionId: number, matured: boolean) => {
+    if (!stakeAddress) throw new Error('Contract not configured')
+    if (!isConnected || !address) {
+      openWalletModal()
+      throw new Error('Connect your wallet first.')
+    }
+    if (boundWallet && address.toLowerCase() !== boundWallet) {
+      throw new Error('Connect the wallet bound to your account.')
+    }
+    const hash = await writeContract({
+      address: stakeAddress,
+      abi: ALPHA_STAKE_ABI,
+      functionName: matured ? 'withdraw' : 'emergencyUnstake',
+      args: [BigInt(positionId)],
+      chainId: polygon.id,
+    })
+    await publicClient?.waitForTransactionReceipt({ hash })
+    await loadPositions()
+    refetchUsdcBalance()
+  }, [stakeAddress, isConnected, address, boundWallet, writeContract, publicClient, loadPositions, refetchUsdcBalance, openWalletModal])
+
   const refreshStakeAccess = useCallback(async () => {
     setAccessLoading(true)
     try {
@@ -412,8 +536,9 @@ export function AlphaClient({ initialSignals, entities }: Props) {
       setStakeStep('idle')
       refetchUsdcBalance()
       refreshStakeAccess()
+      loadPositions()
     }
-  }, [isTxConfirmed, refetchUsdcBalance, refreshStakeAccess])
+  }, [isTxConfirmed, refetchUsdcBalance, refreshStakeAccess, loadPositions])
 
   const today = new Date(); today.setHours(0, 0, 0, 0)
   const todaySignals   = initialSignals.filter(s => new Date(s.observed_at) >= today)
@@ -606,10 +731,10 @@ export function AlphaClient({ initialSignals, entities }: Props) {
               <span className="text-[10px] uppercase tracking-widest text-zinc-500">{t('portfolio.totalAssets')}</span>
             </div>
             <p className="stat-number text-2xl font-black text-white">
-              ${MOCK_TOTAL_ASSETS.toLocaleString('en', { minimumFractionDigits: 2 })}
+              ${totalAssetsUsdc.toLocaleString('en', { minimumFractionDigits: 2 })}
             </p>
             <p className="text-[10px] text-green-400 mt-0.5">
-              +${MOCK_TOTAL_EARNED.toFixed(2)} {t('portfolio.stakingReturns')}
+              +${totalEarnedUsdc.toFixed(2)} {t('portfolio.stakingReturns')}
             </p>
 
           </div>
@@ -621,8 +746,8 @@ export function AlphaClient({ initialSignals, entities }: Props) {
           >
             <div>
               <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1">{t('portfolio.myPositions')}</p>
-              <p className="stat-number text-2xl font-black text-white">{MOCK_POSITIONS.length}</p>
-              <p className="text-[10px] text-purple-400">${MOCK_TOTAL_STAKED.toLocaleString()} {t('portfolio.staked')}</p>
+              <p className="stat-number text-2xl font-black text-white">{openPositions.length}</p>
+              <p className="text-[10px] text-purple-400">${totalStakedUsdc.toLocaleString()} {t('portfolio.staked')}</p>
             </div>
             <div className="flex items-center gap-1 text-purple-400 group-hover:text-purple-300 transition-colors sm:mt-auto">
               <span className="text-[10px] font-semibold">{t('portfolio.view')}</span>
@@ -895,12 +1020,12 @@ export function AlphaClient({ initialSignals, entities }: Props) {
         <div className="flex items-center justify-between px-1">
           <p className="text-sm font-semibold text-white">{t('positions.title')}</p>
           <span className="text-[10px] text-zinc-500" style={{ fontFamily: 'var(--poly-font-mono)' }}>
-            {MOCK_POSITIONS.length} {t('positions.active')}
+            {openPositions.length} {t('positions.active')}
           </span>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          {MOCK_POSITIONS.map(pos => (
-            <PositionCard key={pos.id} pos={pos} />
+          {openPositions.map(pos => (
+            <PositionCard key={pos.positionId} pos={pos} onUnstake={handlePositionUnstake} />
           ))}
         </div>
       </div>
