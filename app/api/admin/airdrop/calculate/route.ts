@@ -317,15 +317,18 @@ export async function POST(request: NextRequest) {
         const levelInfo = communityLevelMap.get(status.current_level)
         if (!levelInfo || levelInfo.daily_rate <= 0) continue
 
-        // 检查今天是否已经发放
-        const { data: existingEarning } = await supabase
-          .from('community_daily_earnings')
-          .select('id')
-          .eq('user_id', status.user_id)
-          .eq('earning_date', today)
-          .single()
+        // 只读预览是"一轮日收益会发多少"的投影，展示全部符合条件用户；
+        // 正常流程仍跳过今日已发放的用户，避免与实际发放口径不一致。
+        if (!previewOnly) {
+          const { data: existingEarning } = await supabase
+            .from('community_daily_earnings')
+            .select('id')
+            .eq('user_id', status.user_id)
+            .eq('earning_date', today)
+            .single()
 
-        if (existingEarning) continue
+          if (existingEarning) continue
+        }
 
         const earningAmount = levelInfo.reward_pool * levelInfo.daily_rate
         communityEarningsTotal += earningAmount
