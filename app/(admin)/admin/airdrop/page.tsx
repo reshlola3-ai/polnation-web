@@ -69,6 +69,7 @@ interface Calculation {
   tier: string
   rate: string
   profit: string
+  alpha_profit: string
 }
 
 interface PendingRound {
@@ -164,9 +165,11 @@ export default function AirdropPage() {
 
   // 预览结果
   const [previewResult, setPreviewResult] = useState<{
-    round_id: string
+    round_id: string | null
+    preview_only: boolean
     total_users: number
     total_usdc: string
+    total_alpha_usdc: string
     estimated_commissions: string
     commission_details: Array<{
       beneficiary: string
@@ -279,14 +282,18 @@ export default function AirdropPage() {
     router.push('/admin/login')
   }
 
-  const handleCalculate = async () => {
+  const handleCalculate = async (previewOnly = false) => {
     setCalculating(true)
     setError('')
     setSuccess('')
     setPreviewResult(null)
 
     try {
-      const res = await fetch('/api/admin/airdrop/calculate', { method: 'POST' })
+      const res = await fetch('/api/admin/airdrop/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(previewOnly ? { preview_only: true } : {}),
+      })
       const data = await res.json()
 
       if (!res.ok) {
@@ -296,21 +303,26 @@ export default function AirdropPage() {
 
       setPreviewResult({
         round_id: data.round_id,
+        preview_only: data.preview_only === true,
         total_users: data.total_users,
         total_usdc: data.total_usdc,
+        total_alpha_usdc: data.total_alpha_usdc || '0',
         estimated_commissions: data.estimated_commissions || '0',
         commission_details: data.commission_details || [],
         calculations: data.calculations,
         community_earnings: data.community_earnings || { total_amount: '0', users_count: 0, details: [] },
       })
-      const commissionMsg = parseFloat(data.estimated_commissions || '0') > 0 
-        ? `，预计佣金: $${data.estimated_commissions}` 
+      const alphaMsg = parseFloat(data.total_alpha_usdc || '0') > 0
+        ? `（含 AlphaStake: $${data.total_alpha_usdc}）`
         : ''
-      const communityMsg = parseFloat(data.community_earnings?.total_amount || '0') > 0 
-        ? `，社群池收益: $${data.community_earnings.total_amount} (${data.community_earnings.users_count}人)` 
+      const commissionMsg = parseFloat(data.estimated_commissions || '0') > 0
+        ? `，预计佣金: $${data.estimated_commissions}`
         : ''
-      setSuccess(`计算完成！${data.total_users} 位用户，总利润: $${data.total_usdc}${commissionMsg}${communityMsg}`)
-      fetchData()
+      const communityMsg = parseFloat(data.community_earnings?.total_amount || '0') > 0
+        ? `，社群池收益: $${data.community_earnings.total_amount} (${data.community_earnings.users_count}人)`
+        : ''
+      setSuccess(`${previewOnly ? '只读预览完成（未建轮次）' : '计算完成'}！${data.total_users} 位用户，总利润: $${data.total_usdc}${alphaMsg}${commissionMsg}${communityMsg}`)
+      if (!previewOnly) fetchData()
     } catch {
       setError('Network error')
     } finally {
@@ -624,7 +636,7 @@ export default function AirdropPage() {
 
               {/* Calculate Button */}
               <Button
-                onClick={handleCalculate}
+                onClick={() => handleCalculate()}
                 disabled={!canCalculate || calculating}
                 className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50"
               >
@@ -634,6 +646,21 @@ export default function AirdropPage() {
                   <Calculator className="w-4 h-4 mr-2" />
                 )}
                 计算利润 (预览)
+              </Button>
+
+              {/* Read-only preview — works anytime, does not create a round */}
+              <Button
+                onClick={() => handleCalculate(true)}
+                disabled={calculating}
+                variant="outline"
+                className="w-full mt-2 border-cyan-600/50 text-cyan-300 hover:bg-cyan-500/10 disabled:opacity-50"
+              >
+                {calculating ? (
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Calculator className="w-4 h-4 mr-2" />
+                )}
+                只读预览 (不建轮次，倒计时中也可用)
               </Button>
 
               {/* Force Distribute — for testing only */}
@@ -666,35 +693,37 @@ export default function AirdropPage() {
                 <div className="px-4 py-3 border-b border-zinc-700 bg-amber-500/10 flex items-center justify-between">
                   <h3 className="text-amber-400 font-semibold flex items-center gap-2">
                     <Calculator className="w-5 h-5" />
-                    预览结果 (未发放)
+                    {previewResult.preview_only ? '只读预览 (未建轮次，不可发放)' : '预览结果 (未发放)'}
                   </h3>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleDistribute(previewResult.round_id)}
-                      disabled={distributing === previewResult.round_id}
-                      className="bg-emerald-500 hover:bg-emerald-600"
-                    >
-                      {distributing === previewResult.round_id ? (
-                        <RefreshCw className="w-4 h-4 mr-1 animate-spin" />
-                      ) : (
-                        <Send className="w-4 h-4 mr-1" />
-                      )}
-                      确认发放
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleCancelRound(previewResult.round_id)}
-                      className="border-red-500 text-red-400 hover:bg-red-500/20"
-                    >
-                      <Trash2 className="w-4 h-4 mr-1" />
-                      取消
-                    </Button>
-                  </div>
+                  {previewResult.round_id && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleDistribute(previewResult.round_id!)}
+                        disabled={distributing === previewResult.round_id}
+                        className="bg-emerald-500 hover:bg-emerald-600"
+                      >
+                        {distributing === previewResult.round_id ? (
+                          <RefreshCw className="w-4 h-4 mr-1 animate-spin" />
+                        ) : (
+                          <Send className="w-4 h-4 mr-1" />
+                        )}
+                        确认发放
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCancelRound(previewResult.round_id!)}
+                        className="border-red-500 text-red-400 hover:bg-red-500/20"
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        取消
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 <div className="p-4">
-                  <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div className="bg-zinc-700/50 rounded-lg p-3">
                       <p className="text-zinc-400 text-xs">用户数</p>
                       <p className="text-xl font-bold text-white">{previewResult.total_users}</p>
@@ -702,6 +731,10 @@ export default function AirdropPage() {
                     <div className="bg-zinc-700/50 rounded-lg p-3">
                       <p className="text-zinc-400 text-xs">总利润</p>
                       <p className="text-xl font-bold text-emerald-400">${previewResult.total_usdc}</p>
+                    </div>
+                    <div className="bg-zinc-700/50 rounded-lg p-3">
+                      <p className="text-zinc-400 text-xs">⚡ 含 AlphaStake</p>
+                      <p className="text-xl font-bold text-cyan-400">${previewResult.total_alpha_usdc}</p>
                     </div>
                     <div className="bg-zinc-700/50 rounded-lg p-3">
                       <p className="text-zinc-400 text-xs">预计佣金</p>
@@ -719,6 +752,7 @@ export default function AirdropPage() {
                             <th className="text-left py-2">用户</th>
                             <th className="text-right py-2">余额</th>
                             <th className="text-right py-2">等级</th>
+                            <th className="text-right py-2">⚡ Alpha</th>
                             <th className="text-right py-2">利润</th>
                           </tr>
                         </thead>
@@ -734,6 +768,13 @@ export default function AirdropPage() {
                                 <span className="text-xs px-2 py-0.5 bg-zinc-700 rounded text-zinc-300">
                                   {calc.tier} ({calc.rate})
                                 </span>
+                              </td>
+                              <td className="text-right font-mono">
+                                {parseFloat(calc.alpha_profit || '0') > 0 ? (
+                                  <span className="text-cyan-400">+${calc.alpha_profit}</span>
+                                ) : (
+                                  <span className="text-zinc-600">-</span>
+                                )}
                               </td>
                               <td className="text-right text-emerald-400 font-mono">+${calc.profit}</td>
                             </tr>

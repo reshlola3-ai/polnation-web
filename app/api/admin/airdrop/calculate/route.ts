@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => ({}))
     const force = body?.force === true
+    // 只读预览：不建轮次、不落库、不受发放间隔限制，随时可看
+    const previewOnly = body?.preview_only === true
 
     // 获取配置和等级
     const { data: config } = await supabase
@@ -56,8 +58,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No active profit tiers configured' }, { status: 400 })
     }
 
-    // 检查是否可以发放（force=true 时跳过间隔检查）
-    if (!force && config?.last_distribution_at) {
+    // 检查是否可以发放（force=true / 只读预览时跳过间隔检查）
+    if (!force && !previewOnly && config?.last_distribution_at) {
       const lastDist = new Date(config.last_distribution_at)
       const intervalMs = (config.interval_seconds || 86400) * 1000
       const nextAllowed = new Date(lastDist.getTime() + intervalMs)
@@ -125,17 +127,21 @@ export async function POST(request: NextRequest) {
       console.error('AlphaStake profit snapshot failed:', err)
     }
 
-    // 创建新的空投轮次
-    const { data: round, error: roundError } = await supabase
-      .from('airdrop_rounds')
-      .insert({
-        status: 'pending',
-        snapshot_at: new Date().toISOString(),
-      })
-      .select()
-      .single()
+    // 创建新的空投轮次（只读预览不建轮次）
+    let round: { id: string } | null = null
+    if (!previewOnly) {
+      const { data: newRound, error: roundError } = await supabase
+        .from('airdrop_rounds')
+        .insert({
+          status: 'pending',
+          snapshot_at: new Date().toISOString(),
+        })
+        .select()
+        .single()
 
-    if (roundError) throw roundError
+      if (roundError) throw roundError
+      round = newRound
+    }
 
     // 计算每个用户的利润
     const calculations = []
@@ -167,7 +173,7 @@ export async function POST(request: NextRequest) {
         const profit = baseProfit + alphaProfit
 
         calculations.push({
-          round_id: round.id,
+          round_id: round?.id ?? null,
           user_id: user.id,
           wallet_address: user.wallet_address,
           usdc_balance: balanceNumber,
@@ -186,8 +192,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 保存计算结果
-    if (calculations.length > 0) {
+    // 保存计算结果（只读预览不落库）
+    if (!previewOnly && calculations.length > 0) {
       const calcData = calculations.map(c => ({
         round_id: c.round_id,
         user_id: c.user_id,
@@ -208,13 +214,15 @@ export async function POST(request: NextRequest) {
     }
 
     // 更新轮次统计
-    await supabase
-      .from('airdrop_rounds')
-      .update({
-        total_users: calculations.length,
-        total_usdc: totalUsdc,
-      })
-      .eq('id', round.id)
+    if (round) {
+      await supabase
+        .from('airdrop_rounds')
+        .update({
+          total_users: calculations.length,
+          total_usdc: totalUsdc,
+        })
+        .eq('id', round.id)
+    }
 
     // 计算预计佣金
     const { data: commissionRates } = await supabase
@@ -334,11 +342,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const totalAlphaUsdc = calculations.reduce((sum, c) => sum + c.alpha_profit_usdc, 0)
+
     return NextResponse.json({
       success: true,
-      round_id: round.id,
+      preview_only: previewOnly,
+      round_id: round?.id ?? null,
       total_users: calculations.length,
       total_usdc: totalUsdc.toFixed(6),
+      total_alpha_usdc: totalAlphaUsdc.toFixed(6),
       estimated_commissions: estimatedCommissions.toFixed(6),
       commission_details: commissionDetails.map(c => ({
         beneficiary: c.beneficiary_username,

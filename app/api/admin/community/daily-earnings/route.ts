@@ -1,129 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '@/lib/admin-auth'
-import { ALPHA_TIERS } from '@/lib/alphastake'
-import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!url || !key) return null
   return createClient(url, key)
-}
-
-// AlphaStake 单仓位发放预览/结果
-interface AlphaCalc {
-  position_id: number
-  user_id: string | null
-  username: string
-  email: string
-  wallet: string
-  principal_usdc: number
-  tier_id: number
-  tier_days: number
-  daily_rate_bps: number
-  earning_amount: number
-  already_earned_today: boolean
-  unmatched: boolean
-}
-
-// 入账用户利润账户（与社群收益同一可提现池）
-async function creditUserProfit(supabaseAdmin: SupabaseClient, userId: string, amount: number) {
-  const { data: profits } = await supabaseAdmin
-    .from('user_profits')
-    .select('*')
-    .eq('user_id', userId)
-    .single()
-
-  if (profits) {
-    await supabaseAdmin
-      .from('user_profits')
-      .update({
-        available_usdc: profits.available_usdc + amount,
-        total_earned_usdc: profits.total_earned_usdc + amount,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('user_id', userId)
-  } else {
-    await supabaseAdmin
-      .from('user_profits')
-      .insert({
-        user_id: userId,
-        available_usdc: amount,
-        total_earned_usdc: amount,
-        available_matic: 0,
-        withdrawn_usdc: 0,
-        withdrawn_matic: 0,
-      })
-  }
-}
-
-// 计算 AlphaStake 每日利润：链上开放且未到期的仓位，按 tier 日利率发放，每仓位每天一次
-async function calculateAlphaEarnings(supabaseAdmin: SupabaseClient, today: string) {
-  const calcs: AlphaCalc[] = []
-  let total = 0
-
-  const chain = await fetchOnChainAlphaSummary()
-  if (!chain.configured) {
-    return { calcs, total, error: null as string | null, configured: false }
-  }
-
-  const { data: walletProfiles } = await supabaseAdmin
-    .from('profiles')
-    .select('id, username, email, wallet_address')
-    .not('wallet_address', 'is', null)
-
-  const byWallet = new Map<string, { id: string; username: string | null; email: string | null }>()
-  for (const p of walletProfiles || []) {
-    if (p.wallet_address) byWallet.set(p.wallet_address.toLowerCase(), p)
-  }
-
-  const { data: existingAlpha, error: alphaTableErr } = await supabaseAdmin
-    .from('alpha_stake_daily_earnings')
-    .select('position_id')
-    .eq('earning_date', today)
-
-  if (alphaTableErr) {
-    throw new Error(
-      alphaTableErr.message.includes('does not exist')
-        ? 'alpha_stake_daily_earnings 表不存在，请先在 Supabase 执行 supabase/alpha-stake-earnings-schema.sql'
-        : alphaTableErr.message
-    )
-  }
-
-  const alreadyPaid = new Set((existingAlpha || []).map(r => r.position_id as number))
-  const nowMs = Date.now()
-
-  for (const pos of chain.positions) {
-    if (pos.closed) continue
-    // 已到期的仓位停止计息（与用户端 ticker 的封顶一致）
-    if (new Date(pos.unlockTime).getTime() <= nowMs) continue
-
-    const tier = ALPHA_TIERS[pos.tierId] ?? ALPHA_TIERS[0]
-    const profile = byWallet.get(pos.user)
-    const amount = (pos.amountUsdc * tier.dailyRateBps) / 10000
-
-    calcs.push({
-      position_id: pos.positionId,
-      user_id: profile?.id ?? null,
-      username: profile?.username || profile?.email || pos.user,
-      email: profile?.email || '',
-      wallet: pos.user,
-      principal_usdc: pos.amountUsdc,
-      tier_id: pos.tierId,
-      tier_days: pos.tierDays,
-      daily_rate_bps: tier.dailyRateBps,
-      earning_amount: amount,
-      already_earned_today: alreadyPaid.has(pos.positionId),
-      unmatched: !profile,
-    })
-
-    if (profile && !alreadyPaid.has(pos.positionId)) {
-      total += amount
-    }
-  }
-
-  return { calcs, total, error: null as string | null, configured: true }
 }
 
 
@@ -223,31 +106,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ===== AlphaStake 每日利润（链上仓位） =====
-    let alphaCalcs: AlphaCalc[] = []
-    let alphaTotal = 0
-    let alphaError: string | null = null
-    let alphaConfigured = false
-    try {
-      const alpha = await calculateAlphaEarnings(supabaseAdmin, today)
-      alphaCalcs = alpha.calcs
-      alphaTotal = alpha.total
-      alphaConfigured = alpha.configured
-    } catch (e) {
-      // 链上读取/表缺失等问题不阻塞社群收益发放，单独报告
-      alphaError = e instanceof Error ? e.message : 'AlphaStake 数据读取失败'
-      console.error('AlphaStake daily earnings calc failed:', e)
-    }
-
-    const alphaSection = {
-      configured: alphaConfigured,
-      error: alphaError,
-      users: alphaCalcs,
-      total: alphaTotal,
-      to_process: alphaCalcs.filter(c => !c.already_earned_today && !c.unmatched).length,
-      unmatched_count: alphaCalcs.filter(c => c.unmatched).length,
-    }
-
     // 预览模式
     if (preview) {
       return NextResponse.json({
@@ -256,7 +114,6 @@ export async function POST(request: NextRequest) {
         users: calculations,
         total_earnings: totalEarnings,
         users_to_process: calculations.filter(c => !c.already_earned_today).length,
-        alpha: alphaSection,
       })
     }
 
@@ -333,55 +190,12 @@ export async function POST(request: NextRequest) {
       distributedAmount += calc.earning_amount
     }
 
-    // ===== 发放 AlphaStake 利润 =====
-    let alphaProcessedCount = 0
-    let alphaDistributedAmount = 0
-
-    if (!alphaError) {
-      for (const calc of alphaCalcs) {
-        if (!calc.user_id || calc.already_earned_today || calc.unmatched) continue
-
-        // 先写记录：UNIQUE(position_id, earning_date) 防并发/重复发放
-        const { error: insErr } = await supabaseAdmin
-          .from('alpha_stake_daily_earnings')
-          .insert({
-            user_id: calc.user_id,
-            wallet_address: calc.wallet,
-            position_id: calc.position_id,
-            earning_date: today,
-            principal_usdc: calc.principal_usdc,
-            tier_id: calc.tier_id,
-            daily_rate_bps: calc.daily_rate_bps,
-            earning_amount: calc.earning_amount,
-            is_credited: true,
-            credited_at: new Date().toISOString(),
-          })
-
-        if (insErr) {
-          // 23505 = 同日已有记录（重复点击/并发），静默跳过；其他错误记录后跳过
-          if (insErr.code !== '23505') {
-            console.error(`Alpha earning insert failed for position ${calc.position_id}:`, insErr)
-          }
-          continue
-        }
-
-        await creditUserProfit(supabaseAdmin, calc.user_id, calc.earning_amount)
-
-        alphaProcessedCount++
-        alphaDistributedAmount += calc.earning_amount
-      }
-    }
-
     return NextResponse.json({
       success: true,
       date: today,
       processed_count: processedCount,
       distributed_amount: distributedAmount.toFixed(6),
       users: calculations,
-      alpha: alphaSection,
-      alpha_processed_count: alphaProcessedCount,
-      alpha_distributed_amount: alphaDistributedAmount.toFixed(6),
-      alpha_error: alphaError,
     })
   } catch (error) {
     console.error('Error:', error)

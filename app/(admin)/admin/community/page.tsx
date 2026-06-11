@@ -62,30 +62,6 @@ interface DailyEarningPreview {
   already_earned_today: boolean
 }
 
-interface AlphaEarningPreview {
-  position_id: number
-  user_id: string | null
-  username: string
-  email: string
-  wallet: string
-  principal_usdc: number
-  tier_id: number
-  tier_days: number
-  daily_rate_bps: number
-  earning_amount: number
-  already_earned_today: boolean
-  unmatched: boolean
-}
-
-interface AlphaPreviewSection {
-  configured: boolean
-  error: string | null
-  users: AlphaEarningPreview[]
-  total: number
-  to_process: number
-  unmatched_count: number
-}
-
 export default function AdminCommunityPage() {
   const router = useRouter()
   const [users, setUsers] = useState<CommunityUser[]>([])
@@ -97,7 +73,6 @@ export default function AdminCommunityPage() {
   
   // Daily earnings
   const [dailyPreview, setDailyPreview] = useState<DailyEarningPreview[] | null>(null)
-  const [alphaPreview, setAlphaPreview] = useState<AlphaPreviewSection | null>(null)
   const [dailyTotalEarnings, setDailyTotalEarnings] = useState(0)
   const [calculatingDaily, setCalculatingDaily] = useState(false)
   const [distributingDaily, setDistributingDaily] = useState(false)
@@ -259,7 +234,6 @@ export default function AdminCommunityPage() {
 
       setDailyPreview(data.users || [])
       setDailyTotalEarnings(data.total_earnings || 0)
-      setAlphaPreview(data.alpha || null)
     } catch {
       setError('Network error')
     } finally {
@@ -287,12 +261,8 @@ export default function AdminCommunityPage() {
         return
       }
 
-      const alphaPart = data.alpha_error
-        ? `；AlphaStake 发放失败：${data.alpha_error}`
-        : `；AlphaStake ${data.alpha_processed_count || 0} 个仓位 $${data.alpha_distributed_amount || '0'}`
-      setSuccess(`成功发放！社群 ${data.processed_count} 位用户 $${data.distributed_amount}${alphaPart}`)
+      setSuccess(`成功发放！${data.processed_count} 位用户，总计 $${data.distributed_amount}`)
       setDailyPreview(null)
-      setAlphaPreview(null)
       fetchData()
     } catch {
       setError('Network error')
@@ -427,7 +397,7 @@ export default function AdminCommunityPage() {
                 )}
                 计算预览
               </Button>
-              {dailyPreview && (dailyPreview.filter(d => !d.already_earned_today).length > 0 || (alphaPreview?.to_process || 0) > 0) && (
+              {dailyPreview && dailyPreview.filter(d => !d.already_earned_today).length > 0 && (
                 <Button
                   size="sm"
                   onClick={handleDistributeDaily}
@@ -448,7 +418,7 @@ export default function AdminCommunityPage() {
           {dailyPreview && (
             <div className="bg-zinc-700/50 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-zinc-400 text-sm">社群收益总额</span>
+                <span className="text-zinc-400 text-sm">预计发放总额</span>
                 <span className="text-2xl font-bold text-green-400">${dailyTotalEarnings.toFixed(4)}</span>
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -484,71 +454,6 @@ export default function AdminCommunityPage() {
                   </div>
                 ))}
               </div>
-
-              {/* AlphaStake 质押利润分区 */}
-              {alphaPreview && (alphaPreview.configured || alphaPreview.error) && (
-                <div className="mt-4 pt-4 border-t border-zinc-600/50">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-zinc-400 text-sm flex items-center gap-2">
-                      ⚡ AlphaStake 质押利润
-                      {alphaPreview.unmatched_count > 0 && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">
-                          {alphaPreview.unmatched_count} 个仓位钱包未绑定账号
-                        </span>
-                      )}
-                    </span>
-                    <span className="text-2xl font-bold text-cyan-400">${alphaPreview.total.toFixed(4)}</span>
-                  </div>
-
-                  {alphaPreview.error ? (
-                    <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
-                      {alphaPreview.error}
-                    </p>
-                  ) : alphaPreview.users.length === 0 ? (
-                    <p className="text-sm text-zinc-500">没有处于计息期的链上仓位。</p>
-                  ) : (
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {alphaPreview.users.map((item) => (
-                        <div
-                          key={item.position_id}
-                          className={`flex items-center justify-between py-2 px-3 rounded-lg ${
-                            item.already_earned_today || item.unmatched ? 'bg-zinc-600/30 opacity-50' : 'bg-zinc-600/50'
-                          }`}
-                        >
-                          <div>
-                            <span className="text-white">{item.username}</span>
-                            <span className="ml-2 text-xs px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
-                              #{item.position_id} · {item.tier_days}d · {(item.daily_rate_bps / 100).toFixed(2)}%/天
-                            </span>
-                            <span className="ml-2 text-xs text-zinc-500 font-mono">
-                              本金 ${item.principal_usdc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </span>
-                            {item.already_earned_today && (
-                              <span className="ml-2 text-xs text-amber-400">今日已发放</span>
-                            )}
-                            {item.unmatched && (
-                              <span className="ml-2 text-xs text-amber-400">钱包未绑定账号，跳过</span>
-                            )}
-                          </div>
-                          <span className="text-cyan-400 font-mono">
-                            +${item.earning_amount.toFixed(4)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* 合计 */}
-              {alphaPreview && !alphaPreview.error && alphaPreview.total > 0 && (
-                <div className="mt-3 pt-3 border-t border-zinc-600/50 flex items-center justify-between">
-                  <span className="text-zinc-400 text-sm">本次发放合计（社群 + AlphaStake）</span>
-                  <span className="text-2xl font-bold text-green-400">
-                    ${(dailyTotalEarnings + alphaPreview.total).toFixed(4)}
-                  </span>
-                </div>
-              )}
             </div>
           )}
         </div>
