@@ -241,13 +241,10 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', withdrawal.id)
 
-        // 用户端不暴露失败原因，按"请求已提交、排队处理中"返回
+        // 用户端只给统一的失败提示（已退款），不暴露内部错误细节
         return NextResponse.json({
-          success: true,
-          message: 'Withdrawal request submitted',
-          withdrawal_id: withdrawal.id,
-          queued: true,
-        })
+          error: 'Withdrawal failed. Your balance has been refunded.',
+        }, { status: 500 })
       }
     }
 
@@ -524,11 +521,11 @@ export async function GET() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
-    // 用户端展示掩码：失败的提现统一显示为排队中（pending），不暴露内部错误原因。
-    // 真实状态与 error_message 仅保留在管理端接口。
+    // 用户端展示掩码：失败的提现保留 failed 状态，但错误原因统一为
+    // "提现失败，余额已退回"，不暴露内部细节（真实 error_message 仅管理端可见）。
     const masked = (withdrawals || []).map(w =>
       w.status === 'failed'
-        ? { ...w, status: 'pending', error_message: null }
+        ? { ...w, error_message: 'Withdrawal failed. Balance refunded.' }
         : w
     )
 
