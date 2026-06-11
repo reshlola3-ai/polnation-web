@@ -201,7 +201,7 @@ function PositionCard({
   onUnstake: (positionId: number, matured: boolean) => Promise<void>
 }) {
   const t = useTranslations('alpha')
-  const [claiming, setClaiming]                     = useState(false)
+  const [withdrawing, setWithdrawing]                   = useState(false)
   const [unstaking, setUnstaking]                   = useState(false)
   const [showUnstakeWarning, setShowUnstakeWarning] = useState(false)
   const [unstakeAcknowledged, setUnstakeAcknowledged] = useState(false)
@@ -212,27 +212,23 @@ function PositionCard({
   const progress  = Math.min(1, pos.daysElapsed / pos.totalDays)
   const penalty   = pos.principal * 0.15
 
-  const handleClaim = useCallback(async () => {
-    // Staking profits are withdrawn together with agentic profits on /withdraw.
-    setClaiming(true)
-    window.location.href = '/withdraw'
-    setClaiming(false)
-  }, [])
+  const handleWithdrawPrincipal = useCallback(async () => {
+    if (!pos.matured) return
+    setActionError('')
+    setWithdrawing(true)
+    try {
+      await onUnstake(pos.positionId, true)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Withdraw failed'
+      setActionError(msg.includes('User rejected') ? 'Transaction cancelled.' : msg)
+    } finally {
+      setWithdrawing(false)
+    }
+  }, [pos.matured, pos.positionId, onUnstake])
 
   const handleUnstake = useCallback(async () => {
+    if (pos.matured) return
     setActionError('')
-    if (pos.matured) {
-      setUnstaking(true)
-      try {
-        await onUnstake(pos.positionId, true)
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Withdraw failed'
-        setActionError(msg.includes('User rejected') ? 'Transaction cancelled.' : msg)
-      } finally {
-        setUnstaking(false)
-      }
-      return
-    }
     if (!showUnstakeWarning) {
       setShowUnstakeWarning(true)
       setUnstakeAcknowledged(false)
@@ -251,6 +247,12 @@ function PositionCard({
       setUnstaking(false)
     }
   }, [pos.matured, pos.positionId, showUnstakeWarning, unstakeAcknowledged, onUnstake])
+
+  const cancelEarlyUnstake = useCallback(() => {
+    setShowUnstakeWarning(false)
+    setUnstakeAcknowledged(false)
+    setActionError('')
+  }, [])
 
   return (
     <div className="glass-card-solid p-5 border border-white/[0.06]">
@@ -334,42 +336,54 @@ function PositionCard({
             />
             <span>{t('positions.earlyUnstakeAcknowledge')}</span>
           </label>
+          <button
+            type="button"
+            onClick={cancelEarlyUnstake}
+            className="w-full rounded-lg border border-white/[0.1] bg-white/[0.04] px-3 py-2 text-[11px] font-semibold text-zinc-300 hover:bg-white/[0.08] transition-colors"
+          >
+            {t('positions.cancelEarlyUnstake')}
+          </button>
         </div>
       )}
 
       <div className="flex gap-2">
         <button
-          onClick={handleClaim}
-          disabled={claiming}
-          className="withdraw-pulse flex-1 rounded-xl px-3 py-2.5 text-xs font-bold text-cyan-300 flex items-center justify-center gap-1.5 transition-all hover:bg-cyan-500/10 disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{
+          onClick={handleWithdrawPrincipal}
+          disabled={!pos.matured || withdrawing || unstaking}
+          className={`flex-1 rounded-xl px-3 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+            pos.matured
+              ? 'text-cyan-300 hover:bg-cyan-500/10'
+              : 'text-zinc-500 cursor-not-allowed'
+          }`}
+          style={pos.matured ? {
             background: 'linear-gradient(135deg, rgba(6,182,212,0.12) 0%, rgba(8,145,178,0.08) 100%)',
             border: '1px solid rgba(6,182,212,0.3)',
+          } : {
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.06)',
           }}
         >
-          {claiming
-            ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('positions.claiming')}</>
-            : <><ArrowUpRight className="h-3.5 w-3.5" /> {t('positions.claimBtn')}</>}
+          {withdrawing
+            ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('positions.withdrawingPrincipal')}</>
+            : <><ArrowUpRight className="h-3.5 w-3.5" /> {t('positions.withdrawPrincipalBtn')}</>}
         </button>
+        {!pos.matured && (
         <button
           onClick={handleUnstake}
-          disabled={unstaking || (showUnstakeWarning && !unstakeAcknowledged)}
+          disabled={unstaking || withdrawing || (showUnstakeWarning && !unstakeAcknowledged)}
           className={`flex-1 rounded-xl px-3 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
             showUnstakeWarning
               ? 'bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30'
-              : pos.matured
-                ? 'bg-cyan-500/15 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/25'
-                : 'bg-white/[0.04] border border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/[0.15]'
+              : 'bg-white/[0.04] border border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/[0.15]'
           }`}
         >
           {unstaking
             ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('positions.unstaking')}</>
-            : pos.matured
-              ? <><ArrowUpRight className="h-3.5 w-3.5" /> Withdraw Principal</>
-              : showUnstakeWarning
-                ? <><AlertTriangle className="h-3.5 w-3.5" /> {t('positions.confirmEarlyUnstakeWithPenalty')}</>
-                : <><Lock className="h-3.5 w-3.5" /> {t('positions.unstakeEarly')}</>}
+            : showUnstakeWarning
+              ? <><AlertTriangle className="h-3.5 w-3.5" /> {t('positions.confirmEarlyUnstakeWithPenalty')}</>
+              : <><Lock className="h-3.5 w-3.5" /> {t('positions.unstakeEarly')}</>}
         </button>
+        )}
       </div>
       {actionError && (
         <p className="text-[11px] text-red-400 mt-2">{actionError}</p>
