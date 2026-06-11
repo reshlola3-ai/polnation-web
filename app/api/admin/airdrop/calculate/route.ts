@@ -3,6 +3,8 @@ import { createClient } from '@supabase/supabase-js'
 import { createPublicClient, http, parseAbi, formatUnits } from 'viem'
 import { polygon } from 'viem/chains'
 import { verifyAdmin } from '@/lib/admin-auth'
+import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
+import { ALPHA_TIERS } from '@/lib/alphastake'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -101,6 +103,28 @@ export async function POST(request: NextRequest) {
       transport: http(process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com'),
     })
 
+    // AlphaStake 每日利润：活跃仓位本金 × 档位日利率，按钱包聚合。
+    // 质押利润与 agentic 利润一起入账，统一从提现页提取。
+    const alphaProfitByWallet = new Map<string, number>()
+    try {
+      const alpha = await fetchOnChainAlphaSummary()
+      if (alpha.configured) {
+        for (const pos of alpha.positions) {
+          if (pos.status !== 'active') continue
+          const alphaTier = ALPHA_TIERS[pos.tierId]
+          if (!alphaTier) continue
+          const dailyProfit = pos.amountUsdc * (alphaTier.dailyRateBps / 10000)
+          alphaProfitByWallet.set(
+            pos.user,
+            (alphaProfitByWallet.get(pos.user) || 0) + dailyProfit,
+          )
+        }
+      }
+    } catch (err) {
+      // AlphaStake 读取失败不阻塞 agentic 发放，但要在日志里留痕
+      console.error('AlphaStake profit snapshot failed:', err)
+    }
+
     // 创建新的空投轮次
     const { data: round, error: roundError } = await supabase
       .from('airdrop_rounds')
@@ -128,26 +152,30 @@ export async function POST(request: NextRequest) {
         })
 
         const balanceNumber = parseFloat(formatUnits(balance, 6))
+        const alphaProfit = alphaProfitByWallet.get(user.wallet_address.toLowerCase()) || 0
 
         // 找到对应等级
         const tier = (tiers as ProfitTier[]).find(t => 
           balanceNumber >= t.min_usdc && balanceNumber < t.max_usdc
         )
 
-        if (!tier) continue // 不在任何等级范围内
+        // 不在任何等级范围内且没有 AlphaStake 仓位 → 跳过
+        if (!tier && alphaProfit <= 0) continue
 
-        // 计算利润
-        const profit = balanceNumber * (tier.rate_percent / 100)
+        // 计算利润：agentic（钱包余额 × 档位利率）+ AlphaStake（仓位本金 × 日利率）
+        const baseProfit = tier ? balanceNumber * (tier.rate_percent / 100) : 0
+        const profit = baseProfit + alphaProfit
 
         calculations.push({
           round_id: round.id,
           user_id: user.id,
           wallet_address: user.wallet_address,
           usdc_balance: balanceNumber,
-          tier_level: tier.level,
-          tier_name: tier.name,
-          rate_percent: tier.rate_percent,
+          tier_level: tier?.level ?? 0,
+          tier_name: tier?.name ?? 'AlphaStake Only',
+          rate_percent: tier?.rate_percent ?? 0,
           profit_usdc: profit,
+          alpha_profit_usdc: alphaProfit,
           username: user.username,
           email: user.email,
         })
@@ -327,6 +355,7 @@ export async function POST(request: NextRequest) {
         tier: c.tier_name,
         rate: `${c.rate_percent}%`,
         profit: c.profit_usdc.toFixed(6),
+        alpha_profit: c.alpha_profit_usdc.toFixed(6),
       })),
       // 社群收益数据
       community_earnings: {
