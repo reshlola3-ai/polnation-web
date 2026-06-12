@@ -172,20 +172,40 @@ export async function POST(request: NextRequest) {
       }
 
       case 'restore_real_level': {
-        // 复原到真实等级
+        // 复原到真实等级：按【当前】团队业绩重算，避免还原成陈旧的 real_level
+        const { data: levels } = await supabaseAdmin
+          .from('community_levels')
+          .select('*')
+          .order('level')
+
+        const volume = status?.team_volume_l123 || 0
+        let earnedBase = 0
+        for (const level of levels || []) {
+          const unlockVolume = status?.is_influencer
+            ? level.unlock_volume_influencer
+            : level.unlock_volume_normal
+          if (volume >= unlockVolume) earnedBase = level.level
+          else break
+        }
+        const realLevel = earnedBase + 1
+
         await supabaseAdmin
           .from('user_community_status')
           .update({
             is_admin_set: false,
             admin_set_level: null,
-            current_level: status?.real_level || 0,
+            real_level: realLevel,
+            current_level: realLevel,
             admin_set_at: null,
             admin_set_by: null,
             updated_at: now,
           })
           .eq('user_id', user_id)
 
-        return NextResponse.json({ success: true, message: 'Restored to real level' })
+        return NextResponse.json({
+          success: true,
+          message: `Restored to real level L${realLevel} (based on $${volume.toFixed(2)} team volume)`,
+        })
       }
 
       case 'refresh_volume': {
@@ -288,7 +308,8 @@ export async function POST(request: NextRequest) {
           .from('user_community_status')
           .update({
             real_level: realLevel,
-            ...(status?.is_admin_set ? {} : { current_level: earnedBase }),
+            // 自然用户：current_level 与 real_level 同步（起步 L1，每过一档门槛 +1）
+            ...(status?.is_admin_set ? {} : { current_level: realLevel }),
           })
           .eq('user_id', user_id)
 
