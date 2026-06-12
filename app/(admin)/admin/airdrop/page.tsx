@@ -148,6 +148,7 @@ export default function AirdropPage() {
   const [calculating, setCalculating] = useState(false)
   const [distributing, setDistributing] = useState<string | null>(null)
   const [forceDistributing, setForceDistributing] = useState(false)
+  const [refreshingLevels, setRefreshingLevels] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -280,6 +281,30 @@ export default function AirdropPage() {
   const handleLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' })
     router.push('/admin/login')
+  }
+
+  const handleRefreshAllLevels = async () => {
+    if (!confirm('按链上业绩重算所有自然用户的等级？会读取全部钱包余额，约需数十秒。')) return
+    setRefreshingLevels(true)
+    setError('')
+    setSuccess('')
+    try {
+      const res = await fetch('/api/admin/community', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'refresh_all_levels' }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Refresh failed')
+        return
+      }
+      setSuccess(data.message || 'Levels refreshed')
+    } catch {
+      setError('Network error')
+    } finally {
+      setRefreshingLevels(false)
+    }
   }
 
   const handleCalculate = async (previewOnly = false) => {
@@ -661,6 +686,18 @@ export default function AirdropPage() {
                   <Calculator className="w-4 h-4 mr-2" />
                 )}
                 只读预览 (不建轮次，倒计时中也可用)
+              </Button>
+
+              {/* Refresh community levels from on-chain volume before previewing */}
+              <Button
+                onClick={handleRefreshAllLevels}
+                disabled={refreshingLevels || calculating}
+                variant="outline"
+                className="w-full mt-2 border-zinc-600 text-zinc-300 hover:bg-zinc-800 disabled:opacity-50"
+                title="按链上业绩重算所有自然用户等级，预览前点一次可让社群收益数字准确"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${refreshingLevels ? 'animate-spin' : ''}`} />
+                刷新全部等级（链上）
               </Button>
 
               {/* Force Distribute — for testing only */}
