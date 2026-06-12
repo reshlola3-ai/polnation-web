@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, ClipboardList, TrendingUp, Users, User } from 'lucide-react'
+import { Home, Zap, TrendingUp, Users, User } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 export function BottomNav() {
@@ -11,7 +11,7 @@ export function BottomNav() {
 
   const navItems = [
     { href: '/dashboard', label: t('dashboard'), icon: Home },
-    { href: '/tasks', label: t('tasks'), icon: ClipboardList },
+    { href: '/alpha', label: t('alpha'), icon: Zap },
     { href: '/earnings', label: t('earnings'), icon: TrendingUp },
     { href: '/team', label: t('team'), icon: Users },
     { href: '/profile', label: t('profile'), icon: User },

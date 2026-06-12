@@ -6,7 +6,7 @@ import {
   Copy, Check, Wallet, TrendingUp, Users,
   ArrowUpRight, CheckCircle, Circle, AlertCircle,
   ChevronRight, HelpCircle, X, Flame, Globe,
-  Share2, Dices, GraduationCap
+  Share2, Dices, GraduationCap, ClipboardList
 } from 'lucide-react'
 import Image from 'next/image'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
@@ -91,6 +91,7 @@ function TeamStatsSkeleton() {
 
 export function DashboardClient({ userId, profile, teamStatsPromise, initialProfitSummary }: DashboardClientProps) {
   const t = useTranslations('dashboard')
+  const tNav = useTranslations('nav')
   const { address, isConnected } = useAccount()
   const [copied, setCopied] = useState(false)
   const [showEarningsModal, setShowEarningsModal] = useState(false)
@@ -647,7 +648,7 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
         {([
           { href: '/share',                 Icon: Share2,        label: t('quickInvite'),   badge: undefined, iconBg: 'bg-purple-500/15 border-purple-500/30', iconColor: 'text-purple-300', external: false },
           { href: '/test-lottery',          Icon: Dices,         label: t('quickLottery'),  badge: spinCount,  iconBg: 'bg-orange-500/15 border-orange-500/30', iconColor: 'text-orange-300', external: false },
-          { href: 'https://t.me/polnation', Icon: null,          label: t('quickTelegram'), badge: undefined, iconBg: 'bg-[#2AABEE]/15 border-[#2AABEE]/30',  iconColor: 'text-[#2AABEE]',  external: true  },
+          { href: '/tasks',                 Icon: ClipboardList, label: tNav('tasks'),      badge: undefined, iconBg: 'bg-emerald-500/15 border-emerald-500/30', iconColor: 'text-emerald-300', external: false },
           { href: '/academy',               Icon: GraduationCap, label: t('quickAcademy'),  badge: undefined, iconBg: 'bg-blue-500/15 border-blue-500/30',     iconColor: 'text-blue-300',   external: false },
         ] as const).map(({ href, Icon, label, badge, iconBg, iconColor, external }) => {
           const inner = (
