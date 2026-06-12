@@ -65,6 +65,10 @@ interface ApiResponse {
   volumeToNextLevel: number
   claimedLevels: number[]
   claimableLevels: number[]
+  pendingLevels?: number[]
+  hasPendingClaim?: boolean
+  claimsFrozen?: boolean
+  hasIdentity?: boolean
   adminLockReason?: { type: 'real_level_too_low' | 'volume_short'; needed: number; nextLevel: number } | null
   dailyEarnings: DailyEarning[]
   dailyEarningAmount: number
@@ -79,6 +83,8 @@ interface DailyEarning {
   earning_amount: number
   is_credited: boolean
 }
+
+const SUPPORT_TELEGRAM = 'https://t.me/polnationsupport'
 
 export default function TeamPage() {
   const t = useTranslations('team')
@@ -124,6 +130,15 @@ export default function TeamPage() {
   const [loadingBalances, setLoadingBalances] = useState(false)
   const [claiming, setClaiming] = useState<number | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+  // Claim 审批流相关
+  const [pendingLevels, setPendingLevels] = useState<number[]>([])
+  const [claimsFrozen, setClaimsFrozen] = useState(false)
+  const [hasIdentity, setHasIdentity] = useState(false)
+  const [claimModalLevel, setClaimModalLevel] = useState<number | null>(null)
+  const [claimRealName, setClaimRealName] = useState('')
+  const [claimPhoto, setClaimPhoto] = useState<File | null>(null)
+  const [claimSubmitting, setClaimSubmitting] = useState(false)
+  const [claimCongrats, setClaimCongrats] = useState<{ levelName: string; amount: number } | null>(null)
   const [showAllLevels, setShowAllLevels] = useState(false)
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 })
   const [selectedLevel, setSelectedLevel] = useState<CommunityLevel | null>(null)
@@ -152,6 +167,9 @@ export default function TeamPage() {
         setVolumeToNextLevel(data.volumeToNextLevel)
         setClaimedLevels(data.claimedLevels || [])
         setClaimableLevels(data.claimableLevels || [])
+        setPendingLevels(data.pendingLevels || [])
+        setClaimsFrozen(data.claimsFrozen || false)
+        setHasIdentity(data.hasIdentity || false)
         setAdminLockReason(data.adminLockReason ?? null)
         setDailyEarningAmount(data.dailyEarningAmount || 0)
         setEffectiveVolume(data.effectiveVolume || 0)
@@ -265,25 +283,55 @@ export default function TeamPage() {
     setCurrentPage(1)
   }, [levelFilter, usdcFilter, referrals])
 
-  const handleClaim = async (level: number) => {
-    setClaiming(level)
+  // 打开 claim 弹窗（收集身份 → 提交进入审批）
+  const handleClaim = (level: number) => {
+    if (claimsFrozen) {
+      setMessage({ type: 'error', text: 'Your claims are under manual review. Please contact support.' })
+      return
+    }
     setMessage(null)
+    setClaimRealName('')
+    setClaimPhoto(null)
+    setClaimCongrats(null)
+    setClaimModalLevel(level)
+  }
+
+  // 提交 claim（multipart：首次带真名+照片）
+  const submitClaim = async () => {
+    if (claimModalLevel == null) return
+    if (!hasIdentity) {
+      if (!claimRealName.trim() || claimRealName.trim().length < 2) {
+        setMessage({ type: 'error', text: 'Please enter your real name.' })
+        return
+      }
+      if (!claimPhoto) {
+        setMessage({ type: 'error', text: 'Please upload a photo of yourself.' })
+        return
+      }
+    }
+    setClaimSubmitting(true)
+    setClaiming(claimModalLevel)
     try {
-      const res = await fetch('/api/community/claim', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ level }),
-      })
+      const fd = new FormData()
+      fd.append('level', String(claimModalLevel))
+      if (!hasIdentity) {
+        fd.append('real_name', claimRealName.trim())
+        if (claimPhoto) fd.append('photo', claimPhoto)
+      }
+      const res = await fetch('/api/community/claim', { method: 'POST', body: fd })
       const data = await res.json()
       if (!res.ok) {
         setMessage({ type: 'error', text: data.error || tErrors('claimFailed') })
         return
       }
-      setMessage({ type: 'success', text: data.message })
+      // 成功 → 显示祝贺/审核中页
+      const lvl = levels.find(l => l.level === claimModalLevel)
+      setClaimCongrats({ levelName: lvl?.name || data.level_name || `Level ${claimModalLevel}`, amount: data.claimed_amount })
       fetchCommunityStatus()
     } catch {
       setMessage({ type: 'error', text: tErrors('networkError') })
     } finally {
+      setClaimSubmitting(false)
       setClaiming(null)
     }
   }
@@ -463,12 +511,33 @@ export default function TeamPage() {
               <span className="text-white/40 text-xs">
                 {hasReachedThreshold ? '✓ Threshold reached!' : `Need $${volumeToNextLevel.toFixed(2)} more`}
               </span>
-              {claimableLevels.length > 0 && (
+              {pendingLevels.length > 0 ? (
+                <span className="text-amber-300 text-xs font-medium flex items-center gap-1">
+                  <RefreshCw className="w-3 h-3" /> Under review
+                </span>
+              ) : claimableLevels.length > 0 && !claimsFrozen && (
                 <Button size="sm" onClick={(e) => { e.stopPropagation(); handleClaim(claimableLevels[0]); }} disabled={claiming !== null} className="bg-[var(--poly-purple)] text-white text-xs">
                   {claiming !== null ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><Gift className="w-3 h-3 mr-1" /> Claim ${claimableLevels[0] && levels.find(l => l.level === claimableLevels[0])?.reward_pool}</>}
                 </Button>
               )}
             </div>
+
+            {/* 账号冻结提示 */}
+            {claimsFrozen && (
+              <div className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                🔒 Your claims are under manual review.{' '}
+                <a href={SUPPORT_TELEGRAM} target="_blank" rel="noopener noreferrer" className="underline text-red-200">
+                  Contact support
+                </a>
+              </div>
+            )}
+
+            {/* 审核中提示 */}
+            {pendingLevels.length > 0 && !claimsFrozen && (
+              <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                ⏳ Your claim is under review. The reward will be credited once approved.
+              </div>
+            )}
 
             {/* Admin-set lock notice: pool claims gated by real_level catching up */}
             {status?.is_admin_set && adminLockReason && (
@@ -890,12 +959,117 @@ export default function TeamPage() {
               
               {/* Next Level Info */}
               <div className="text-center text-xs text-zinc-500 mt-2">
-                {hasReachedThreshold 
+                {hasReachedThreshold
                   ? '✅ You have reached the threshold for current level!'
                   : `Need $${volumeToNextLevel.toFixed(2)} more to reach next level`
                 }
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Claim 弹窗：首次需身份验证；提交后进入审批 */}
+      {claimModalLevel !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          onClick={() => !claimSubmitting && setClaimModalLevel(null)}
+        >
+          <div
+            className="bg-gradient-to-b from-zinc-800 to-zinc-900 rounded-2xl p-6 max-w-sm w-full border border-white/10 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {claimCongrats ? (
+              /* ===== 祝贺 / 审核中 ===== */
+              <div className="text-center">
+                <div className="text-5xl mb-3">🎉</div>
+                <h3 className="text-lg font-bold text-white mb-1">
+                  Congratulations on reaching {claimCongrats.levelName}!
+                </h3>
+                <p className="text-[var(--poly-purple)] text-2xl font-bold mb-3">
+                  ${claimCongrats.amount}
+                </p>
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-3 text-sm text-amber-200 mb-4">
+                  🔒 Your reward is <span className="font-semibold">under review</span>. It will be
+                  credited to your withdrawable balance once approved. If you have any questions,
+                  please contact support.
+                </div>
+                <a
+                  href={SUPPORT_TELEGRAM}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full mb-2 py-2.5 rounded-lg bg-[#229ED9] text-white font-medium hover:opacity-90"
+                >
+                  💬 Contact Support
+                </a>
+                <button
+                  onClick={() => { setClaimModalLevel(null); setClaimCongrats(null) }}
+                  className="w-full py-2.5 rounded-lg bg-white/10 text-white/80 hover:bg-white/20"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              /* ===== 提交表单 ===== */
+              <>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white">
+                    Claim ${levels.find(l => l.level === claimModalLevel)?.reward_pool} ·{' '}
+                    {levels.find(l => l.level === claimModalLevel)?.name}
+                  </h3>
+                  <button
+                    onClick={() => !claimSubmitting && setClaimModalLevel(null)}
+                    className="w-8 h-8 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white/60 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <p className="text-xs text-zinc-400 mb-4">
+                  Reward claims are reviewed manually to verify account ownership. After you submit,
+                  your reward goes into review and is credited once approved.
+                </p>
+
+                {!hasIdentity && (
+                  <div className="space-y-3 mb-4">
+                    <div>
+                      <label className="block text-xs text-zinc-400 mb-1">Real name</label>
+                      <input
+                        type="text"
+                        value={claimRealName}
+                        onChange={(e) => setClaimRealName(e.target.value)}
+                        placeholder="Your full real name"
+                        className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[var(--poly-purple)]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-zinc-400 mb-1">Photo of yourself</label>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={(e) => setClaimPhoto(e.target.files?.[0] || null)}
+                        className="w-full text-xs text-zinc-300 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-[var(--poly-purple)] file:text-white"
+                      />
+                      {claimPhoto && (
+                        <p className="text-[11px] text-emerald-400 mt-1">✓ {claimPhoto.name}</p>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-zinc-500">
+                      Required for your first claim only. Stored privately for review.
+                    </p>
+                  </div>
+                )}
+
+                <button
+                  onClick={submitClaim}
+                  disabled={claimSubmitting}
+                  className="w-full py-2.5 rounded-lg bg-[var(--poly-purple)] text-white font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {claimSubmitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Gift className="w-4 h-4" />}
+                  {claimSubmitting ? 'Submitting…' : 'Submit for review'}
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

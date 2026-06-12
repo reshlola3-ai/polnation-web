@@ -15,7 +15,7 @@ async function getSupabaseUser() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!url || !key) return { supabase: null, user: null }
-  
+
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
@@ -23,12 +23,17 @@ async function getSupabaseUser() {
       },
     },
   })
-  
+
   const { data: { user } } = await supabase.auth.getUser()
   return { supabase, user }
 }
 
-// Claim 奖励池
+const IDENTITY_BUCKET = 'claim-identity'
+const MAX_PHOTO_BYTES = 8 * 1024 * 1024 // 8MB
+const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
+// Claim 奖励池 —— 审批制：提交后进入 pending，管理员批准后才发钱+升级。
+// 首次 claim 需上传自拍照片 + 真名（之后复用）。
 export async function POST(request: NextRequest) {
   const { user } = await getSupabaseUser()
   if (!user) {
@@ -41,7 +46,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { level } = await request.json()
+    const form = await request.formData()
+    const level = Number(form.get('level'))
+    const realNameRaw = (form.get('real_name') as string | null)?.trim() || ''
+    const photo = form.get('photo') as File | null
 
     if (!level || level < 1) {
       return NextResponse.json({ error: 'Invalid level' }, { status: 400 })
@@ -50,8 +58,8 @@ export async function POST(request: NextRequest) {
     // 检查用户邮箱是否绑定
     const userEmail = user.email || ''
     if (userEmail.endsWith('@wallet.polnation.com')) {
-      return NextResponse.json({ 
-        error: 'Please bind your email first to claim rewards' 
+      return NextResponse.json({
+        error: 'Please bind your email first to claim rewards'
       }, { status: 400 })
     }
 
@@ -66,13 +74,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User status not found' }, { status: 404 })
     }
 
-    // 查询已领过的 levels（用于 admin-set 的顺序判定，以及通用的已领检查）
+    // 账号被冻结 → 一律拦截，引导联系管理员
+    if (status.claims_frozen) {
+      return NextResponse.json({
+        error: 'Your claims are under manual review. Please contact support.',
+        frozen: true,
+      }, { status: 403 })
+    }
+
+    // 查询已有 claim（含 pending / completed / rejected）
     const { data: priorClaims } = await supabaseAdmin
       .from('community_pool_claims')
-      .select('level')
+      .select('level, status')
       .eq('user_id', user.id)
 
-    const claimedLevels = (priorClaims || []).map(c => c.level as number)
+    const allClaims = priorClaims || []
+
+    // 同一时间只允许一个 pending claim（等级要等批准后才升，无法排队下一档）
+    if (allClaims.some(c => c.status === 'pending')) {
+      return NextResponse.json({
+        error: 'You already have a claim under review. Please wait for approval.',
+        pending: true,
+      }, { status: 400 })
+    }
+
+    const claimedLevels = allClaims.map(c => c.level as number)
     const highestClaimed = claimedLevels.length > 0 ? Math.max(...claimedLevels) : 0
     const nextUnclaimed = highestClaimed + 1
 
@@ -120,107 +146,98 @@ export async function POST(request: NextRequest) {
 
     // 计算有效解锁进度
     const teamVolume = status.team_volume_l123 || 0
-    
-    // 获取任务奖励进度
+
     const { data: taskProgress } = await supabaseAdmin
       .from('user_task_progress')
       .select('total_task_bonus')
       .eq('user_id', user.id)
       .single()
-    
+
     const taskBonus = taskProgress?.total_task_bonus || 0
     const effectiveVolume = teamVolume + taskBonus
 
-    // 获取当前等级的解锁门槛
-    const unlockVolume = status.is_influencer 
-      ? levelInfo.unlock_volume_influencer 
+    const unlockVolume = status.is_influencer
+      ? levelInfo.unlock_volume_influencer
       : levelInfo.unlock_volume_normal
 
-    // 检查是否达到解锁门槛
     if (effectiveVolume < unlockVolume) {
-      return NextResponse.json({ 
-        error: `Need $${unlockVolume - effectiveVolume} more progress to claim this reward` 
+      return NextResponse.json({
+        error: `Need $${unlockVolume - effectiveVolume} more progress to claim this reward`
       }, { status: 400 })
+    }
+
+    // ===== 身份验证：首次 claim 需提供真名 + 自拍，之后复用 =====
+    const { data: identity } = await supabaseAdmin
+      .from('user_identity')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (!identity) {
+      // 首次：必须带真名 + 照片
+      if (!realNameRaw || realNameRaw.length < 2) {
+        return NextResponse.json({ error: 'Real name is required', need_identity: true }, { status: 400 })
+      }
+      if (!photo || typeof photo === 'string') {
+        return NextResponse.json({ error: 'A photo of yourself is required', need_identity: true }, { status: 400 })
+      }
+      if (!ALLOWED_PHOTO_TYPES.includes(photo.type)) {
+        return NextResponse.json({ error: 'Photo must be JPG, PNG or WEBP', need_identity: true }, { status: 400 })
+      }
+      if (photo.size > MAX_PHOTO_BYTES) {
+        return NextResponse.json({ error: 'Photo too large (max 8MB)', need_identity: true }, { status: 400 })
+      }
+
+      const ext = photo.type === 'image/png' ? 'png' : photo.type === 'image/webp' ? 'webp' : 'jpg'
+      const path = `${user.id}/${Date.now()}.${ext}`
+      const bytes = Buffer.from(await photo.arrayBuffer())
+
+      const { error: uploadErr } = await supabaseAdmin
+        .storage
+        .from(IDENTITY_BUCKET)
+        .upload(path, bytes, { contentType: photo.type, upsert: false })
+
+      if (uploadErr) {
+        console.error('Identity photo upload failed:', uploadErr)
+        return NextResponse.json({ error: 'Failed to upload photo, please retry' }, { status: 500 })
+      }
+
+      const { error: identErr } = await supabaseAdmin
+        .from('user_identity')
+        .insert({ user_id: user.id, real_name: realNameRaw, photo_path: path })
+
+      if (identErr) {
+        console.error('Identity insert failed:', identErr)
+        return NextResponse.json({ error: 'Failed to save identity, please retry' }, { status: 500 })
+      }
     }
 
     const claimAmount = levelInfo.reward_pool
 
-    // 创建领取记录
-    await supabaseAdmin
+    // 创建【待审批】领取记录 —— 不发钱、不升级，等管理员批准
+    const { error: claimErr } = await supabaseAdmin
       .from('community_pool_claims')
       .insert({
         user_id: user.id,
         level,
         amount: claimAmount,
         claim_type: 'natural',
-        status: 'completed',
-        credited_at: new Date().toISOString(),
+        status: 'pending',
+        claimed_at: new Date().toISOString(),
       })
 
-    // 更新用户利润账户
-    const { data: profits } = await supabaseAdmin
-      .from('user_profits')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
-
-    if (profits) {
-      await supabaseAdmin
-        .from('user_profits')
-        .update({
-          available_usdc: profits.available_usdc + claimAmount,
-          total_earned_usdc: profits.total_earned_usdc + claimAmount,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('user_id', user.id)
-    } else {
-      await supabaseAdmin
-        .from('user_profits')
-        .insert({
-          user_id: user.id,
-          available_usdc: claimAmount,
-          total_earned_usdc: claimAmount,
-          available_matic: 0,
-          withdrawn_usdc: 0,
-          withdrawn_matic: 0,
-        })
+    if (claimErr) {
+      console.error('Pending claim insert failed:', claimErr)
+      return NextResponse.json({ error: 'Failed to submit claim, please retry' }, { status: 500 })
     }
-
-    const nextLevel = level + 1
-
-    // 自然用户：领取后升级到下一等级；admin-set 用户：current_level / real_level 不动
-    const statusUpdate: Record<string, unknown> = {
-      total_community_earned: (status.total_community_earned || 0) + claimAmount,
-      updated_at: new Date().toISOString(),
-    }
-    if (!status.is_admin_set) {
-      statusUpdate.current_level = nextLevel
-      statusUpdate.real_level = nextLevel
-    }
-
-    await supabaseAdmin
-      .from('user_community_status')
-      .update(statusUpdate)
-      .eq('user_id', user.id)
-
-    // 获取下一等级信息（用于返回消息）
-    const { data: nextLevelInfo } = await supabaseAdmin
-      .from('community_levels')
-      .select('name')
-      .eq('level', nextLevel)
-      .single()
-
-    const message = status.is_admin_set
-      ? `🎉 Claimed $${claimAmount} from ${levelInfo.name}!`
-      : `🎉 Claimed $${claimAmount} from ${levelInfo.name}! Upgraded to ${nextLevelInfo?.name || `Level ${nextLevel}`}!`
 
     return NextResponse.json({
       success: true,
+      pending: true,
       claimed_level: level,
       claimed_amount: claimAmount,
-      new_level: status.is_admin_set ? status.current_level : nextLevel,
-      new_level_name: nextLevelInfo?.name || `Level ${nextLevel}`,
-      message,
+      level_name: levelInfo.name,
+      message: `🎉 Congratulations on reaching ${levelInfo.name}! Your $${claimAmount} reward is under review.`,
     })
   } catch (error) {
     console.error('Claim error:', error)

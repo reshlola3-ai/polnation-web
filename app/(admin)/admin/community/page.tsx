@@ -339,6 +339,12 @@ export default function AdminCommunityPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Link href="/admin/community/claims">
+                <Button variant="outline" size="sm" className="border-purple-600/50 text-purple-300 hover:bg-purple-500/10">
+                  <Gift className="w-4 h-4 mr-2" />
+                  Claim 审批
+                </Button>
+              </Link>
               <Link href="/admin/users">
                 <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                   <Users className="w-4 h-4 mr-2" />

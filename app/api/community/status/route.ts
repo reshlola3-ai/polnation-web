@@ -192,9 +192,8 @@ export async function GET(request: NextRequest) {
     const [claimsResult, dailyEarningsResult] = await Promise.all([
       supabaseAdmin
         .from('community_pool_claims')
-        .select('level')
-        .eq('user_id', user.id)
-        .eq('status', 'completed'),
+        .select('level, status')
+        .eq('user_id', user.id),
       supabaseAdmin
         .from('community_daily_earnings')
         .select('*')
@@ -203,8 +202,22 @@ export async function GET(request: NextRequest) {
         .limit(30),
     ])
 
-    const claimedLevels = claimsResult.data?.map(c => c.level) || []
+    const allClaimRows = claimsResult.data || []
+    // 已完成的领取（驱动等级进度）
+    const claimedLevels = allClaimRows.filter(c => c.status === 'completed').map(c => c.level)
+    // 审核中的领取（钱/等级都未生效，但不可再领、不可领下一档）
+    const pendingLevels = allClaimRows.filter(c => c.status === 'pending').map(c => c.level)
+    const hasPendingClaim = pendingLevels.length > 0
+    const claimsFrozen = !!status?.claims_frozen
     const dailyEarnings = dailyEarningsResult.data
+
+    // 是否已有身份资料（决定 claim 时是否需要上传照片+真名）
+    const { data: identityRow } = await supabaseAdmin
+      .from('user_identity')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    const hasIdentity = !!identityRow
 
     // 新逻辑：用户默认 Level 1，领取奖池后升级
     // current_level 表示用户当前所在的等级（已领取该等级的奖池则升级）
@@ -263,6 +276,11 @@ export async function GET(request: NextRequest) {
       claimableLevels.push(currentLevel)
     }
 
+    // 审核中 / 账号冻结 → 不可再领（钱和等级都还没生效）
+    if (hasPendingClaim || claimsFrozen) {
+      claimableLevels.length = 0
+    }
+
     // 下一等级（领取当前等级奖池后会升级到的等级）
     const nextLevelInfo = levels?.find(l => l.level === currentLevel + 1)
 
@@ -319,6 +337,10 @@ export async function GET(request: NextRequest) {
       volumeToNextLevel: volumeToUnlock,
       claimedLevels,
       claimableLevels,
+      pendingLevels,
+      hasPendingClaim,
+      claimsFrozen,
+      hasIdentity,
       adminLockReason,
       dailyEarnings,
       dailyEarningAmount: baseDailyEarning * momentumMultiplier,
