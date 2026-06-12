@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '@/lib/admin-auth'
+import { refreshAllNaturalLevels } from '@/lib/community-levels-server'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -245,6 +246,16 @@ export async function POST(request: NextRequest) {
       console.error('Error updating momentum data:', momentumErr)
     }
 
+    // ========== 发放社群收益前，先按链上业绩重算所有自然用户等级 ==========
+    // 团队 volume 是缓存值，会随下线余额变化而过期；不刷新会按陈旧等级误发/漏发。
+    let levelRefresh: { scanned: number; updated: number; failedWalletReads: number } | null = null
+    try {
+      const r = await refreshAllNaturalLevels(supabase)
+      levelRefresh = { scanned: r.scanned, updated: r.updated, failedWalletReads: r.failedWalletReads }
+    } catch (refreshErr) {
+      console.error('Level refresh before community payout failed:', refreshErr)
+    }
+
     // ========== 同时发放社群每日收益（含 Momentum Multiplier） ==========
     let communityProcessedCount = 0
     let communityDistributedAmount = 0
@@ -412,6 +423,8 @@ export async function POST(request: NextRequest) {
         processed_count: communityProcessedCount,
         distributed_amount: communityDistributedAmount.toFixed(6),
       },
+      // 发放前的链上等级刷新结果
+      level_refresh: levelRefresh,
       // 抽奖次数发放
       lottery_spins_granted: lotterySpinsGranted,
     })

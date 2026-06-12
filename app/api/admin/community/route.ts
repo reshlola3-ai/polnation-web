@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { createPublicClient, http, parseAbi, formatUnits } from 'viem'
 import { verifyAdmin } from '@/lib/admin-auth'
 import { polygon } from 'viem/chains'
+import { refreshAllNaturalLevels } from '@/lib/community-levels-server'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -95,6 +96,17 @@ export async function POST(request: NextRequest) {
 
   try {
     const { action, user_id, ...params } = await request.json()
+
+    // 全局操作：按链上业绩重算所有自然用户等级（不需要 user_id）
+    if (action === 'refresh_all_levels') {
+      const r = await refreshAllNaturalLevels(supabaseAdmin)
+      return NextResponse.json({
+        success: true,
+        message: `已刷新 ${r.scanned} 个用户，${r.updated} 个等级变更` +
+          (r.failedWalletReads > 0 ? `（${r.failedWalletReads} 个钱包读取失败）` : ''),
+        ...r,
+      })
+    }
 
     if (!action || !user_id) {
       return NextResponse.json({ error: 'action and user_id required' }, { status: 400 })

@@ -76,6 +76,7 @@ export default function AdminCommunityPage() {
   const [dailyTotalEarnings, setDailyTotalEarnings] = useState(0)
   const [calculatingDaily, setCalculatingDaily] = useState(false)
   const [distributingDaily, setDistributingDaily] = useState(false)
+  const [refreshingLevels, setRefreshingLevels] = useState(false)
 
   // Edit level modal
   const [editingUser, setEditingUser] = useState<CommunityUser | null>(null)
@@ -250,6 +251,31 @@ export default function AdminCommunityPage() {
     }
   }
 
+  const handleRefreshAllLevels = async () => {
+    if (!confirm('按链上业绩重算所有自然用户的等级？会读取全部钱包余额，约需数十秒。')) return
+    setRefreshingLevels(true)
+    setError('')
+    setSuccess('')
+    try {
+      const res = await fetch('/api/admin/community', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'refresh_all_levels' }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Refresh failed')
+        return
+      }
+      setSuccess(data.message || 'Levels refreshed')
+      fetchData()
+    } catch {
+      setError('Network error')
+    } finally {
+      setRefreshingLevels(false)
+    }
+  }
+
   const handleDistributeDaily = async () => {
     if (!confirm('确认发放今日社群收益？')) return
 
@@ -393,6 +419,21 @@ export default function AdminCommunityPage() {
               每日社群收益发放
             </h2>
             <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleRefreshAllLevels}
+                disabled={refreshingLevels}
+                className="border-cyan-600/50 text-cyan-300 hover:bg-cyan-500/10"
+                title="按链上业绩重算所有自然用户等级"
+              >
+                {refreshingLevels ? (
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                )}
+                刷新全部等级（链上）
+              </Button>
               <Button
                 size="sm"
                 onClick={handleCalculateDaily}
