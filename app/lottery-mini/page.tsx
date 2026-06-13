@@ -146,6 +146,80 @@ const PRIZE_LABELS: Record<string, string> = {
 type AuthStatus = 'init' | 'authenticating' | 'ready' | 'error'
 type WithdrawStatus = 'idle' | 'pending' | 'success' | 'error'
 
+// ── Wheel FX (pure CSS — keep the mini-app bundle lean) ──────────────────────
+const WHEEL_FX_CSS = `
+@keyframes lwmSpin { to { transform: rotate(360deg); } }
+@keyframes lwmOrbit { to { transform: rotate(360deg); } }
+@keyframes lwmBreath { 0%,100% { transform: translate(-50%,-50%) scale(1); opacity:.45; } 50% { transform: translate(-50%,-50%) scale(1.06); opacity:.82; } }
+@keyframes lwmTwinkle { 0%,100% { opacity:.25; transform: scale(.6);} 50% { opacity:1; transform: scale(1.25);} }
+@keyframes lwmConfetti { to { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(.5); opacity: 0; } }
+`
+
+const MINI_PALETTES: Record<string, string[]> = {
+  usdc: ['#34d399', '#fbbf24', '#10b981', '#fde68a', '#a7f3d0'],
+  bonus: ['#a855f7', '#c084fc', '#06b6d4', '#e9d5ff', '#67e8f9'],
+  electronics: ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a855f7'],
+}
+
+interface ConfettiPiece {
+  id: number
+  tx: number
+  ty: number
+  rot: number
+  color: string
+  size: number
+  round: boolean
+  delay: number
+  dur: number
+}
+
+function makeConfetti(palette: string[]): ConfettiPiece[] {
+  return Array.from({ length: 44 }, (_, i) => {
+    const angle = Math.random() * Math.PI * 2
+    const dist = 130 + Math.random() * 240
+    return {
+      id: i,
+      tx: Math.cos(angle) * dist,
+      ty: Math.sin(angle) * dist - 30,
+      rot: Math.random() * 900 - 450,
+      color: palette[i % palette.length],
+      size: 7 + Math.random() * 8,
+      round: Math.random() > 0.5,
+      delay: Math.random() * 0.12,
+      dur: 1.0 + Math.random() * 0.6,
+    }
+  })
+}
+
+// 环绕轮盘旋转的光点（纯 CSS）
+function MiniOrbitingLights({ active }: { active: boolean }) {
+  return (
+    <div
+      className="absolute left-1/2 top-1/2 pointer-events-none"
+      style={{ width: 0, height: 0, animation: `lwmOrbit ${active ? 5 : 14}s linear infinite` }}
+    >
+      {Array.from({ length: 14 }).map((_, i) => {
+        const angle = (i / 14) * 360
+        const hue = i % 2 === 0 ? '#a855f7' : '#06b6d4'
+        return (
+          <div key={i} className="absolute" style={{ transform: `rotate(${angle}deg) translateY(-162px)` }}>
+            <div
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: '9999px',
+                background: hue,
+                boxShadow: `0 0 9px 2px ${hue}`,
+                animation: `lwmTwinkle ${1.4 + (i % 4) * 0.25}s ease-in-out ${i * 0.08}s infinite`,
+              }}
+            />
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // ── Mock live ticker (placeholder until real volume) ─────────────────────────
 // Generated client-side once per session. Names are plausible TG handles
 // across regions; amounts mirror server prize tiers + realistic withdraw sums.
@@ -260,6 +334,7 @@ export default function LotteryMiniPage() {
   const [remainingSpins, setRemainingSpins] = useState(0)
   const [isInfluencer, setIsInfluencer] = useState(false)
   const [isSpinning, setIsSpinning] = useState(false)
+  const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([])
   const wheelCommandNonceRef = useRef(0)
   const [wheelSpinNonce, setWheelSpinNonce] = useState(0)
   const [wheelStopCommand, setWheelStopCommand] = useState<{ nonce: number; index: number } | null>(null)
@@ -629,6 +704,14 @@ export default function LotteryMiniPage() {
 
     if (isWin) {
       tg?.HapticFeedback?.notificationOccurred('success')
+      // 中奖彩带爆发（纯 CSS，自动消失）
+      const palette = isUsdc
+        ? MINI_PALETTES.usdc
+        : isElectronics
+        ? MINI_PALETTES.electronics
+        : MINI_PALETTES.bonus
+      setConfettiPieces(makeConfetti(palette))
+      window.setTimeout(() => setConfettiPieces([]), 1500)
     } else {
       tg?.HapticFeedback?.notificationOccurred('warning')
     }
@@ -991,7 +1074,32 @@ export default function LotteryMiniPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" dir={RTL_LOCALES.has(locale) ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen flex flex-col overflow-x-hidden" dir={RTL_LOCALES.has(locale) ? 'rtl' : 'ltr'}>
+      <style dangerouslySetInnerHTML={{ __html: WHEEL_FX_CSS }} />
+
+      {/* 中奖彩带爆发 */}
+      {confettiPieces.length > 0 && (
+        <div className="fixed inset-0 z-[80] pointer-events-none flex items-center justify-center">
+          {confettiPieces.map((p) => (
+            <span
+              key={p.id}
+              style={{
+                position: 'absolute',
+                width: p.size,
+                height: p.size,
+                background: p.color,
+                borderRadius: p.round ? '9999px' : '2px',
+                boxShadow: `0 0 8px ${p.color}`,
+                ['--tx']: `${p.tx}px`,
+                ['--ty']: `${p.ty}px`,
+                ['--rot']: `${p.rot}deg`,
+                animation: `lwmConfetti ${p.dur}s cubic-bezier(.16,1,.3,1) ${p.delay}s forwards`,
+              } as React.CSSProperties}
+            />
+          ))}
+        </div>
+      )}
+
       {/* ── Sticky brand header ──────────────────────────────────────────── */}
       <header className="sticky top-0 z-30 backdrop-blur-md bg-[#07060d]/85 border-b border-white/[0.06]">
         <div className="flex items-center justify-between max-w-md mx-auto px-3 h-12">
@@ -1181,10 +1289,50 @@ export default function LotteryMiniPage() {
           </BevelCard>
         )}
 
-        {/* Wheel */}
-        <div className="relative">
-          <div className="absolute inset-0 -m-3 rounded-full bg-gradient-to-r from-purple-500/20 to-cyan-500/20 blur-xl" />
-          <div className="relative">
+        {/* Wheel stage */}
+        <div className="relative" style={{ width: 300, height: 300 }}>
+          {/* 旋转能量光环 */}
+          <div
+            className="absolute left-1/2 top-1/2 rounded-full blur-2xl pointer-events-none"
+            style={{
+              width: 344,
+              height: 344,
+              transform: 'translate(-50%,-50%)',
+              background: 'conic-gradient(from 0deg, #a855f7, #06b6d4, #d97706, #f472b6, #a855f7)',
+              opacity: isSpinning ? 0.85 : 0.4,
+              animation: `lwmSpin ${isSpinning ? 2.2 : 9}s linear infinite`,
+              transition: 'opacity .4s ease',
+            }}
+          />
+          {/* 呼吸光晕 */}
+          <div
+            className="absolute left-1/2 top-1/2 rounded-full pointer-events-none"
+            style={{
+              width: 330,
+              height: 330,
+              background: 'radial-gradient(circle, rgba(168,85,247,.45), transparent 65%)',
+              animation: `lwmBreath ${isSpinning ? 1.1 : 3.2}s ease-in-out infinite`,
+            }}
+          />
+          {/* 霓虹外环 */}
+          <div
+            className="absolute left-1/2 top-1/2 rounded-full pointer-events-none"
+            style={{
+              width: 320,
+              height: 320,
+              transform: 'translate(-50%,-50%)',
+              border: '2px solid rgba(168,85,247,.5)',
+              boxShadow: isSpinning
+                ? '0 0 40px 5px rgba(6,182,212,.6), inset 0 0 28px rgba(168,85,247,.4)'
+                : '0 0 20px 2px rgba(168,85,247,.32), inset 0 0 16px rgba(6,182,212,.2)',
+              transition: 'box-shadow .4s ease',
+            }}
+          />
+          {/* 环绕光点 */}
+          <MiniOrbitingLights active={isSpinning} />
+
+          {/* 轮盘本体 */}
+          <div className="relative z-10">
             <LotteryWheelClient
               width="300px"
               height="300px"
