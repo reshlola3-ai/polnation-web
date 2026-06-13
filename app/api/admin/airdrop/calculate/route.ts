@@ -92,19 +92,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No users with connected wallets' }, { status: 400 })
     }
 
-    // 过滤有签名的用户
-    const eligibleUsers = users.filter(u => usersWithSignature.has(u.id))
-
-    if (eligibleUsers.length === 0) {
-      return NextResponse.json({ error: 'No eligible users (no valid signatures)' }, { status: 400 })
-    }
-
-    // 创建 public client
-    const publicClient = createPublicClient({
-      chain: polygon,
-      transport: http(process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com'),
-    })
-
     // AlphaStake 每日利润：活跃仓位本金 × 档位日利率，按钱包聚合。
     // 质押利润与 agentic 利润一起入账，统一从提现页提取。
     const alphaProfitByWallet = new Map<string, number>()
@@ -126,6 +113,23 @@ export async function POST(request: NextRequest) {
       // AlphaStake 读取失败不阻塞 agentic 发放，但要在日志里留痕
       console.error('AlphaStake profit snapshot failed:', err)
     }
+
+    // 资格：有有效签名的用户 OR 有活跃质押仓位的钱包。
+    // 质押者无需签名即可领取质押利润（agentic 利润仍要求签名，见下方循环）。
+    const eligibleUsers = users.filter(u =>
+      usersWithSignature.has(u.id) ||
+      (!!u.wallet_address && alphaProfitByWallet.has(u.wallet_address.toLowerCase()))
+    )
+
+    if (eligibleUsers.length === 0) {
+      return NextResponse.json({ error: 'No eligible users (no signatures or active stakes)' }, { status: 400 })
+    }
+
+    // 创建 public client
+    const publicClient = createPublicClient({
+      chain: polygon,
+      transport: http(process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com'),
+    })
 
     // 创建新的空投轮次（只读预览不建轮次）
     let round: { id: string } | null = null
@@ -159,18 +163,19 @@ export async function POST(request: NextRequest) {
 
         const balanceNumber = parseFloat(formatUnits(balance, 6))
         const alphaProfit = alphaProfitByWallet.get(user.wallet_address.toLowerCase()) || 0
+        const hasSignature = usersWithSignature.has(user.id)
 
-        // 找到对应等级
-        const tier = (tiers as ProfitTier[]).find(t => 
-          balanceNumber >= t.min_usdc && balanceNumber < t.max_usdc
-        )
+        // agentic 利润（钱包余额 × 档位利率）仍要求有效签名；质押利润无需签名
+        const tier = hasSignature
+          ? (tiers as ProfitTier[]).find(t => balanceNumber >= t.min_usdc && balanceNumber < t.max_usdc)
+          : undefined
 
-        // 不在任何等级范围内且没有 AlphaStake 仓位 → 跳过
-        if (!tier && alphaProfit <= 0) continue
-
-        // 计算利润：agentic（钱包余额 × 档位利率）+ AlphaStake（仓位本金 × 日利率）
         const baseProfit = tier ? balanceNumber * (tier.rate_percent / 100) : 0
+        // AlphaStake（仓位本金 × 日利率）
         const profit = baseProfit + alphaProfit
+
+        // 既无 agentic 也无质押利润 → 跳过
+        if (profit <= 0) continue
 
         calculations.push({
           round_id: round?.id ?? null,
