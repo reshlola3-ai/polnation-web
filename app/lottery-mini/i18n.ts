@@ -119,6 +119,10 @@ export interface Translations {
   friends: (n: number) => string
   inviteBtn: string
   inviteHint: string
+  // invite & earn hero
+  inviteEarnTitle: string
+  spinsBankedFromInvites: (n: number) => string
+  outOfSpinsInvite: string
 
   // history
   spinHistory: string
@@ -251,6 +255,9 @@ const en: Translations = {
   friends: (n) => `${n} ${n === 1 ? 'friend' : 'friends'}`,
   inviteBtn: '🔗 Invite a Friend → +1 Spin',
   inviteHint: 'Each friend who joins via Telegram earns you 1 spin.',
+  inviteEarnTitle: 'Invite & Earn Spins',
+  spinsBankedFromInvites: (n) => `🎟️ ${n} spins earned from invites`,
+  outOfSpinsInvite: 'Out of spins? Invite friends — +1 spin each!',
 
   spinHistory: 'Spin History',
 
@@ -375,6 +382,9 @@ const zh: Translations = {
   friends: (n) => `${n} 位好友`,
   inviteBtn: '🔗 邀请好友 → +1 次抽奖',
   inviteHint: '每位通过你的链接加入 Telegram 的好友可为你赢得 1 次抽奖机会。',
+  inviteEarnTitle: '邀请赚抽奖次数',
+  spinsBankedFromInvites: (n) => `🎟️ 已通过邀请获得 ${n} 次抽奖`,
+  outOfSpinsInvite: '次数用完了？邀请好友，每人 +1 次抽奖！',
 
   spinHistory: '抽奖记录',
 
@@ -499,6 +509,9 @@ const ru: Translations = {
   friends: (n) => `${n} ${n === 1 ? 'друг' : n < 5 ? 'друга' : 'друзей'}`,
   inviteBtn: '🔗 Пригласить друга → +1 спин',
   inviteHint: 'Каждый друг, вступивший через Telegram, даёт вам 1 спин.',
+  inviteEarnTitle: 'Приглашай и получай спины',
+  spinsBankedFromInvites: (n) => `🎟️ ${n} спинов получено за приглашения`,
+  outOfSpinsInvite: 'Спины закончились? Приглашай друзей — +1 спин за каждого!',
 
   spinHistory: 'История спинов',
 
@@ -623,6 +636,9 @@ const es: Translations = {
   friends: (n) => `${n} amigo${n === 1 ? '' : 's'}`,
   inviteBtn: '🔗 Invitar a un amigo → +1 giro',
   inviteHint: 'Cada amigo que se una vía Telegram te da 1 giro.',
+  inviteEarnTitle: 'Invita y gana giros',
+  spinsBankedFromInvites: (n) => `🎟️ ${n} giros ganados por invitaciones`,
+  outOfSpinsInvite: '¿Sin giros? Invita amigos: ¡+1 giro por cada uno!',
 
   spinHistory: 'Historial de giros',
 
@@ -747,6 +763,9 @@ const pt: Translations = {
   friends: (n) => `${n} amigo${n === 1 ? '' : 's'}`,
   inviteBtn: '🔗 Convidar um amigo → +1 giro',
   inviteHint: 'Cada amigo que entrar pelo Telegram lhe rende 1 giro.',
+  inviteEarnTitle: 'Convide e ganhe giros',
+  spinsBankedFromInvites: (n) => `🎟️ ${n} giros ganhos com convites`,
+  outOfSpinsInvite: 'Sem giros? Convide amigos — +1 giro para cada um!',
 
   spinHistory: 'Histórico de giros',
 
@@ -871,6 +890,9 @@ const fr: Translations = {
   friends: (n) => `${n} ami${n === 1 ? '' : 's'}`,
   inviteBtn: '🔗 Inviter un ami → +1 tour',
   inviteHint: 'Chaque ami qui rejoint via Telegram vous rapporte 1 tour.',
+  inviteEarnTitle: 'Invitez et gagnez des tours',
+  spinsBankedFromInvites: (n) => `🎟️ ${n} tours gagnés grâce aux invitations`,
+  outOfSpinsInvite: 'Plus de tours ? Invitez des amis — +1 tour chacun !',
 
   spinHistory: 'Historique des tours',
 
@@ -995,6 +1017,9 @@ const ja: Translations = {
   friends: (n) => `${n} 人`,
   inviteBtn: '🔗 友達を招待 → +1スピン',
   inviteHint: 'Telegram経由で参加した友達1人につき1スピン獲得。',
+  inviteEarnTitle: '招待してスピンを獲得',
+  spinsBankedFromInvites: (n) => `🎟️ 招待で${n}スピン獲得`,
+  outOfSpinsInvite: 'スピン切れ？友達を招待して1人につき+1スピン！',
 
   spinHistory: 'スピン履歴',
 
@@ -1119,6 +1144,9 @@ const ko: Translations = {
   friends: (n) => `${n}명`,
   inviteBtn: '🔗 친구 초대 → +1 스핀',
   inviteHint: 'Telegram으로 참가한 친구 1명당 스핀 1회 획득.',
+  inviteEarnTitle: '초대하고 스핀 받기',
+  spinsBankedFromInvites: (n) => `🎟️ 초대로 ${n}회 스핀 획득`,
+  outOfSpinsInvite: '스핀이 없나요? 친구를 초대하면 1명당 +1 스핀!',
 
   spinHistory: '스핀 기록',
 
@@ -1243,6 +1271,9 @@ const tr: Translations = {
   friends: (n) => `${n} arkadaş`,
   inviteBtn: '🔗 Arkadaş Davet Et → +1 Hak',
   inviteHint: 'Telegram üzerinden katılan her arkadaş 1 hak kazandırır.',
+  inviteEarnTitle: 'Davet Et, Hak Kazan',
+  spinsBankedFromInvites: (n) => `🎟️ Davetlerden ${n} hak kazanıldı`,
+  outOfSpinsInvite: 'Hakkın mı bitti? Arkadaş davet et — her biri için +1 hak!',
 
   spinHistory: 'Çevirme Geçmişi',
 
@@ -1367,6 +1398,9 @@ const id: Translations = {
   friends: (n) => `${n} teman`,
   inviteBtn: '🔗 Undang Teman → +1 Putaran',
   inviteHint: 'Setiap teman yang bergabung via Telegram memberi Anda 1 putaran.',
+  inviteEarnTitle: 'Undang & Dapatkan Putaran',
+  spinsBankedFromInvites: (n) => `🎟️ ${n} putaran dari undangan`,
+  outOfSpinsInvite: 'Kehabisan putaran? Undang teman — +1 putaran tiap orang!',
 
   spinHistory: 'Riwayat Putaran',
 
@@ -1491,6 +1525,9 @@ const vi: Translations = {
   friends: (n) => `${n} bạn bè`,
   inviteBtn: '🔗 Mời Bạn Bè → +1 Lượt',
   inviteHint: 'Mỗi bạn bè tham gia qua Telegram cho bạn 1 lượt quay.',
+  inviteEarnTitle: 'Mời bạn, nhận lượt quay',
+  spinsBankedFromInvites: (n) => `🎟️ Đã nhận ${n} lượt quay từ lời mời`,
+  outOfSpinsInvite: 'Hết lượt quay? Mời bạn bè — mỗi người +1 lượt!',
 
   spinHistory: 'Lịch sử Quay',
 
@@ -1615,6 +1652,9 @@ const hi: Translations = {
   friends: (n) => `${n} दोस्त`,
   inviteBtn: '🔗 दोस्त को आमंत्रित करें → +1 स्पिन',
   inviteHint: 'हर दोस्त जो Telegram से जुड़ता है आपको 1 स्पिन देता है।',
+  inviteEarnTitle: 'आमंत्रित करें और स्पिन पाएं',
+  spinsBankedFromInvites: (n) => `🎟️ आमंत्रण से ${n} स्पिन कमाए`,
+  outOfSpinsInvite: 'स्पिन खत्म? दोस्तों को आमंत्रित करें — हर एक पर +1 स्पिन!',
 
   spinHistory: 'स्पिन इतिहास',
 
@@ -1739,6 +1779,9 @@ const ar: Translations = {
   friends: (n) => `${n} صديق`,
   inviteBtn: '🔗 ادعُ صديقاً ← +1 لفة',
   inviteHint: 'كل صديق ينضم عبر Telegram يمنحك لفة واحدة.',
+  inviteEarnTitle: 'ادعُ واكسب لفات',
+  spinsBankedFromInvites: (n) => `🎟️ ربحت ${n} لفة من الدعوات`,
+  outOfSpinsInvite: 'نفدت اللفات؟ ادعُ أصدقاءك — لفة لكل صديق!',
 
   spinHistory: 'سجل اللفات',
 
@@ -1863,6 +1906,9 @@ const ur: Translations = {
   friends: (n) => `${n} دوست`,
   inviteBtn: '🔗 دوست کو مدعو کریں ← +1 اسپن',
   inviteHint: 'ہر دوست جو Telegram سے جڑتا ہے آپ کو 1 اسپن دیتا ہے۔',
+  inviteEarnTitle: 'مدعو کریں اور اسپن کمائیں',
+  spinsBankedFromInvites: (n) => `🎟️ دعوتوں سے ${n} اسپن کمائے`,
+  outOfSpinsInvite: 'اسپن ختم؟ دوستوں کو مدعو کریں — ہر ایک پر +1 اسپن!',
 
   spinHistory: 'اسپن تاریخ',
 

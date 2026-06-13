@@ -1347,6 +1347,41 @@ export default function LotteryMiniPage() {
           </div>
         </div>
 
+        {/* ── Invite & Earn Spins — elevate the referral→spin loop ────────── */}
+        <BevelCard
+          size="lg"
+          pad={14}
+          className="w-full"
+          bg="linear-gradient(135deg, rgba(124,58,237,0.20), rgba(6,182,212,0.10))"
+          strokeColor={remainingSpins === 0 && !isInfluencer ? 'rgba(168,85,247,0.7)' : 'rgba(168,85,247,0.4)'}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <EyebrowTag>{t.inviteEarnTitle}</EyebrowTag>
+              <p className="text-white text-[15px] font-semibold mt-1 leading-tight">
+                {remainingSpins === 0 && !isInfluencer ? t.outOfSpinsInvite : t.inviteHint}
+              </p>
+              {invitedCount > 0 && (
+                <p
+                  className="text-[12px] mt-1.5"
+                  style={{ color: 'var(--poly-emerald)', fontFamily: 'var(--poly-font-mono)' }}
+                >
+                  {t.spinsBankedFromInvites(invitedCount)}
+                </p>
+              )}
+            </div>
+            <span className="text-2xl shrink-0">🎟️</span>
+          </div>
+          <button
+            type="button"
+            onClick={handleShare}
+            disabled={!referralCode}
+            className="mt-3 w-full flex items-center justify-center gap-2 p-2.5 bg-[var(--poly-purple)] text-white text-sm font-semibold hover:bg-[var(--poly-purple-hover)] active:scale-[0.99] transition-colors shadow-cta-purple disabled:opacity-40 disabled:pointer-events-none"
+          >
+            {t.inviteBtn}
+          </button>
+        </BevelCard>
+
         {/* ── Withdraw — BevelCard ────────────────────────────────────────── */}
         <BevelCard size="lg" pad={14} className="w-full">
           <div className="flex items-center justify-between mb-3">
