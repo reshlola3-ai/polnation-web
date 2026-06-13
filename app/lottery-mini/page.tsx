@@ -688,6 +688,27 @@ export default function LotteryMiniPage() {
   // wheel's onEnd callback fires asynchronously after stop().
   const pendingResultRef = useRef<{ type: string; amount: number } | null>(null)
 
+  // 晒中奖 → 分享带邀请链接，并领取每日一次的分享返奖 spin
+  const handleShareWin = useCallback(async (prizeLabel: string) => {
+    const tg = window.Telegram?.WebApp
+    if (referralCode) {
+      const link = `https://t.me/PolnationBot/lottery?startapp=ref_${referralCode}`
+      const text = t.shareWinText(prizeLabel)
+      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`
+      if (tg?.openTelegramLink) tg.openTelegramLink(shareUrl)
+      else window.open(shareUrl, '_blank', 'noopener,noreferrer')
+    }
+    try {
+      const res = await fetch('/api/lottery/share-bonus', { method: 'POST' })
+      if (res.ok) {
+        tg?.HapticFeedback?.notificationOccurred('success')
+        await refreshState()
+      }
+    } catch {
+      // silent — daily cap is enforced server-side
+    }
+  }, [referralCode, refreshState, t])
+
   const handleWheelEnd = useCallback(() => {
     setIsSpinning(false)
     setRemainingSpins((prev) => Math.max(0, prev - 1))
@@ -725,14 +746,31 @@ export default function LotteryMiniPage() {
         : t.bonusAdded(label)
       : t.betterLuck
 
-    tg?.showPopup?.({
-      title: isWin ? t.congratsTitle : t.tryAgainTitle,
-      message,
-      buttons: [{ type: 'ok' }],
-    })
+    // 中奖：弹窗加一个"晒中奖 → +1 抽奖"按钮（自带邀请链接）
+    if (isWin) {
+      tg?.showPopup?.(
+        {
+          title: t.congratsTitle,
+          message,
+          buttons: [
+            { id: 'share', type: 'default', text: t.shareWinBtn },
+            { id: 'ok', type: 'ok' },
+          ],
+        },
+        (buttonId) => {
+          if (buttonId === 'share') handleShareWin(label)
+        },
+      )
+    } else {
+      tg?.showPopup?.({
+        title: t.tryAgainTitle,
+        message,
+        buttons: [{ type: 'ok' }],
+      })
+    }
 
     refreshState()
-  }, [refreshState, t])
+  }, [refreshState, t, handleShareWin])
 
   // ── 4. TG MainButton wiring ─────────────────────────────────────────────────
 
