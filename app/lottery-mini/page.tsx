@@ -368,8 +368,20 @@ export default function LotteryMiniPage() {
   const [welcomeSpinEarned, setWelcomeSpinEarned] = useState(false)
   const [pendingGroupVerify, setPendingGroupVerify] = useState(false)
 
-  // ── Mock live ticker (lazy init; one set per session) ──────────────────────
-  const [tickerEvents] = useState(() => generateMockTicker(25))
+  // ── Live ticker：初始用 mock 秒渲染，挂载后拉真实数据替换（为空则保留 mock，避免空白） ──
+  const [tickerEvents, setTickerEvents] = useState(() => generateMockTicker(25))
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/lottery/ticker')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || !d?.events || d.events.length === 0) return
+        setTickerEvents(d.events as TickerEvent[])
+      })
+      .catch(() => { /* keep mock */ })
+    return () => { cancelled = true }
+  }, [])
 
   // ── Rules modal ─────────────────────────────────────────────────────────────
   const [showRules, setShowRules] = useState(false)
