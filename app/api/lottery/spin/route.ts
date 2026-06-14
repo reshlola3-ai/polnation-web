@@ -221,11 +221,68 @@ export async function POST() {
       .eq('id', record.id)
   }
 
+  // ========== 每日连胜：连3天 +1抽奖，连7天 +$0.5（每个周期各一次） ==========
+  let streak = spinData.current_streak || 0
+  let streakSpinAwarded = false
+  let streakUsdcAwarded = 0
+  const todayStr = new Date().toISOString().slice(0, 10)
+  if (spinData.last_spin_date !== todayStr) {
+    const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+    streak = spinData.last_spin_date === yesterdayStr ? streak + 1 : 1
+
+    const streakUpdate: Record<string, unknown> = {
+      last_spin_date: todayStr,
+      current_streak: streak,
+      updated_at: new Date().toISOString(),
+    }
+    if (streak === 3) {
+      const { data: fresh } = await admin
+        .from('user_lottery_spins')
+        .select('total_spins')
+        .eq('user_id', user.id)
+        .single()
+      streakUpdate.total_spins = (Number(fresh?.total_spins) || 0) + 1
+      streakSpinAwarded = true
+    }
+    await admin.from('user_lottery_spins').update(streakUpdate).eq('user_id', user.id)
+
+    if (streak === 7) {
+      const { data: sp } = await admin
+        .from('user_profits')
+        .select('available_usdc, total_earned_usdc')
+        .eq('user_id', user.id)
+        .single()
+      if (sp) {
+        await admin
+          .from('user_profits')
+          .update({
+            available_usdc: (Number(sp.available_usdc) || 0) + 0.5,
+            total_earned_usdc: (Number(sp.total_earned_usdc) || 0) + 0.5,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id)
+      } else {
+        await admin.from('user_profits').insert({
+          user_id: user.id,
+          available_usdc: 0.5,
+          total_earned_usdc: 0.5,
+          available_matic: 0,
+          withdrawn_usdc: 0,
+          withdrawn_matic: 0,
+        })
+      }
+      streakUsdcAwarded = 0.5
+    }
+  }
+
   return NextResponse.json({
     prize_type: prize.type,
     prize_label: prize.label,
     prize_amount: prize.amount,
     reward_credited: rewardCredited,
     first_spin: isFirstSpin,
+    streak,
+    streak_spin_awarded: streakSpinAwarded,
+    streak_usdc_awarded: streakUsdcAwarded,
   })
 }

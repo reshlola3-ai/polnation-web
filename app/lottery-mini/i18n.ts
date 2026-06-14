@@ -138,6 +138,10 @@ export interface Translations {
   leaderboardPrizeNote: string
   leaderboardYou: (rank: number, count: number) => string
   leaderboardUnranked: string
+  // daily streak
+  streakTitle: string
+  streakNext: (remaining: number, reward: string) => string
+  streakAllDone: string
 
   // history
   spinHistory: string
@@ -282,6 +286,9 @@ const en: Translations = {
   leaderboardPrizeNote: 'Top 3 win $5 / $3 / $2 every week',
   leaderboardYou: (rank, count) => `You: #${rank} · ${count} invites`,
   leaderboardUnranked: "Invite friends to climb this week's board!",
+  streakTitle: 'Daily Streak',
+  streakNext: (remaining, reward) => `Spin ${remaining} more day(s) for ${reward}`,
+  streakAllDone: '🔥 On fire! Keep spinning daily.',
   firstWinMsg: (amount) => `You won $${amount} USDC — it's already in your withdrawable balance. Cash out below!`,
   shareWinText: (prize) => `I just won ${prize} on Polnation 🎉 Spin to win free USDC:`,
 
@@ -420,6 +427,9 @@ const zh: Translations = {
   leaderboardPrizeNote: '每周前 3 名赢 $5 / $3 / $2',
   leaderboardYou: (rank, count) => `你：第 ${rank} 名 · ${count} 人`,
   leaderboardUnranked: '邀请好友冲上本周榜单！',
+  streakTitle: '每日连胜',
+  streakNext: (remaining, reward) => `再连续 ${remaining} 天即可获得 ${reward}`,
+  streakAllDone: '🔥 火力全开！保持每日抽奖。',
   firstWinMsg: (amount) => `你赢得了 $${amount} USDC，已进入你的可提现余额。到下方提现吧！`,
   shareWinText: (prize) => `我在 Polnation 抽中了 ${prize} 🎉 快来转盘赢免费 USDC：`,
 
@@ -558,6 +568,9 @@ const ru: Translations = {
   leaderboardPrizeNote: 'Топ-3 каждую неделю получают $5 / $3 / $2',
   leaderboardYou: (rank, count) => `Вы: #${rank} · ${count} приглаш.`,
   leaderboardUnranked: 'Приглашайте друзей, чтобы попасть в топ недели!',
+  streakTitle: 'Ежедневная серия',
+  streakNext: (remaining, reward) => `Крутите ещё ${remaining} дн. для ${reward}`,
+  streakAllDone: '🔥 В ударе! Крутите каждый день.',
   firstWinMsg: (amount) => `Вы выиграли $${amount} USDC — они уже на вашем балансе для вывода. Выводите ниже!`,
   shareWinText: (prize) => `Я только что выиграл ${prize} на Polnation 🎉 Крути и выигрывай USDC:`,
 
@@ -696,6 +709,9 @@ const es: Translations = {
   leaderboardPrizeNote: 'El top 3 gana $5 / $3 / $2 cada semana',
   leaderboardYou: (rank, count) => `Tú: #${rank} · ${count} invitados`,
   leaderboardUnranked: '¡Invita amigos para subir al ranking de la semana!',
+  streakTitle: 'Racha diaria',
+  streakNext: (remaining, reward) => `Gira ${remaining} día(s) más para ${reward}`,
+  streakAllDone: '🔥 ¡En racha! Sigue girando cada día.',
   firstWinMsg: (amount) => `Ganaste $${amount} USDC, ya están en tu saldo retirable. ¡Retíralo abajo!`,
   shareWinText: (prize) => `¡Acabo de ganar ${prize} en Polnation! 🎉 Gira y gana USDC gratis:`,
 
@@ -834,6 +850,9 @@ const pt: Translations = {
   leaderboardPrizeNote: 'Top 3 ganha $5 / $3 / $2 toda semana',
   leaderboardYou: (rank, count) => `Você: #${rank} · ${count} convidados`,
   leaderboardUnranked: 'Convide amigos para subir no ranking da semana!',
+  streakTitle: 'Sequência diária',
+  streakNext: (remaining, reward) => `Gire mais ${remaining} dia(s) para ${reward}`,
+  streakAllDone: '🔥 Pegando fogo! Gire todo dia.',
   firstWinMsg: (amount) => `Você ganhou $${amount} USDC — já está no seu saldo para saque. Saque abaixo!`,
   shareWinText: (prize) => `Acabei de ganhar ${prize} na Polnation 🎉 Gire e ganhe USDC grátis:`,
 
@@ -972,6 +991,9 @@ const fr: Translations = {
   leaderboardPrizeNote: 'Le top 3 gagne 5 $ / 3 $ / 2 $ chaque semaine',
   leaderboardYou: (rank, count) => `Vous : n°${rank} · ${count} invités`,
   leaderboardUnranked: 'Invitez des amis pour grimper au classement !',
+  streakTitle: 'Série quotidienne',
+  streakNext: (remaining, reward) => `Tournez ${remaining} jour(s) de plus pour ${reward}`,
+  streakAllDone: '🔥 En feu ! Tournez chaque jour.',
   firstWinMsg: (amount) => `Vous avez gagné $${amount} USDC — déjà dans votre solde retirable. Retirez ci-dessous !`,
   shareWinText: (prize) => `Je viens de gagner ${prize} sur Polnation 🎉 Tournez et gagnez des USDC :`,
 
@@ -1110,6 +1132,9 @@ const ja: Translations = {
   leaderboardPrizeNote: '毎週トップ3が $5 / $3 / $2 を獲得',
   leaderboardYou: (rank, count) => `あなた：${rank}位 · ${count}人`,
   leaderboardUnranked: '友達を招待して今週のランキングへ！',
+  streakTitle: '毎日連続',
+  streakNext: (remaining, reward) => `あと${remaining}日連続で${reward}`,
+  streakAllDone: '🔥 絶好調！毎日回そう。',
   firstWinMsg: (amount) => `$${amount} USDCが当たりました。出金可能残高に追加済みです。下から出金しよう！`,
   shareWinText: (prize) => `Polnationで${prize}が当たった🎉 回して無料USDCを当てよう：`,
 
@@ -1248,6 +1273,9 @@ const ko: Translations = {
   leaderboardPrizeNote: '매주 상위 3명 $5 / $3 / $2 획득',
   leaderboardYou: (rank, count) => `나: ${rank}위 · ${count}명`,
   leaderboardUnranked: '친구를 초대해 이번 주 랭킹에 올라보세요!',
+  streakTitle: '데일리 연속',
+  streakNext: (remaining, reward) => `${remaining}일 더 돌리면 ${reward}`,
+  streakAllDone: '🔥 불타는 중! 매일 돌리세요.',
   firstWinMsg: (amount) => `$${amount} USDC 당첨! 이미 출금 가능 잔액에 들어왔어요. 아래에서 출금하세요!`,
   shareWinText: (prize) => `Polnation에서 ${prize} 당첨 🎉 돌리고 무료 USDC 받으세요:`,
 
@@ -1386,6 +1414,9 @@ const tr: Translations = {
   leaderboardPrizeNote: 'İlk 3 her hafta $5 / $3 / $2 kazanır',
   leaderboardYou: (rank, count) => `Sen: #${rank} · ${count} davet`,
   leaderboardUnranked: 'Bu haftanın sıralamasına girmek için arkadaş davet et!',
+  streakTitle: 'Günlük Seri',
+  streakNext: (remaining, reward) => `${reward} için ${remaining} gün daha çevir`,
+  streakAllDone: '🔥 Alev aldın! Her gün çevir.',
   firstWinMsg: (amount) => `$${amount} USDC kazandın — çekilebilir bakiyene eklendi. Aşağıdan çek!`,
   shareWinText: (prize) => `Polnation'da ${prize} kazandım 🎉 Çevir, ücretsiz USDC kazan:`,
 
@@ -1524,6 +1555,9 @@ const id: Translations = {
   leaderboardPrizeNote: 'Top 3 menang $5 / $3 / $2 tiap minggu',
   leaderboardYou: (rank, count) => `Kamu: #${rank} · ${count} undangan`,
   leaderboardUnranked: 'Undang teman untuk naik ke papan peringkat minggu ini!',
+  streakTitle: 'Rentetan Harian',
+  streakNext: (remaining, reward) => `Putar ${remaining} hari lagi untuk ${reward}`,
+  streakAllDone: '🔥 Lagi panas! Putar tiap hari.',
   firstWinMsg: (amount) => `Kamu menang $${amount} USDC — sudah masuk saldo yang bisa ditarik. Tarik di bawah!`,
   shareWinText: (prize) => `Saya baru menang ${prize} di Polnation 🎉 Putar dan menang USDC gratis:`,
 
@@ -1662,6 +1696,9 @@ const vi: Translations = {
   leaderboardPrizeNote: 'Top 3 mỗi tuần nhận $5 / $3 / $2',
   leaderboardYou: (rank, count) => `Bạn: #${rank} · ${count} lượt mời`,
   leaderboardUnranked: 'Mời bạn bè để leo lên bảng xếp hạng tuần này!',
+  streakTitle: 'Chuỗi hằng ngày',
+  streakNext: (remaining, reward) => `Quay thêm ${remaining} ngày để nhận ${reward}`,
+  streakAllDone: '🔥 Đang bốc cháy! Quay mỗi ngày.',
   firstWinMsg: (amount) => `Bạn đã thắng $${amount} USDC — đã vào số dư rút được. Rút ngay bên dưới!`,
   shareWinText: (prize) => `Tôi vừa trúng ${prize} trên Polnation 🎉 Quay để thắng USDC miễn phí:`,
 
@@ -1800,6 +1837,9 @@ const hi: Translations = {
   leaderboardPrizeNote: 'हर हफ्ते टॉप 3 जीतें $5 / $3 / $2',
   leaderboardYou: (rank, count) => `आप: #${rank} · ${count} आमंत्रण`,
   leaderboardUnranked: 'इस हफ्ते की सूची में चढ़ने के लिए दोस्तों को आमंत्रित करें!',
+  streakTitle: 'डेली स्ट्रीक',
+  streakNext: (remaining, reward) => `${reward} के लिए ${remaining} दिन और घुमाएँ`,
+  streakAllDone: '🔥 आग लगी है! रोज़ घुमाते रहें।',
   firstWinMsg: (amount) => `आपने $${amount} USDC जीते — यह आपके निकासी बैलेंस में आ गया है। नीचे निकालें!`,
   shareWinText: (prize) => `मैंने Polnation पर ${prize} जीता 🎉 घुमाएँ और मुफ़्त USDC जीतें:`,
 
@@ -1938,6 +1978,9 @@ const ar: Translations = {
   leaderboardPrizeNote: 'أفضل 3 يفوزون بـ $5 / $3 / $2 كل أسبوع',
   leaderboardYou: (rank, count) => `أنت: #${rank} · ${count} دعوة`,
   leaderboardUnranked: 'ادعُ أصدقاءك لتصعد لوحة هذا الأسبوع!',
+  streakTitle: 'سلسلة يومية',
+  streakNext: (remaining, reward) => `أدر ${remaining} يوم إضافي لـ ${reward}`,
+  streakAllDone: '🔥 في قمة التألق! أدر كل يوم.',
   firstWinMsg: (amount) => `ربحت $${amount} USDC — أصبحت في رصيدك القابل للسحب. اسحبها بالأسفل!`,
   shareWinText: (prize) => `لقد ربحت ${prize} على Polnation 🎉 أدر العجلة واربح USDC مجاناً:`,
 
@@ -2076,6 +2119,9 @@ const ur: Translations = {
   leaderboardPrizeNote: 'ہر ہفتے ٹاپ 3 جیتیں $5 / $3 / $2',
   leaderboardYou: (rank, count) => `آپ: #${rank} · ${count} دعوتیں`,
   leaderboardUnranked: 'اس ہفتے کی فہرست میں آنے کے لیے دوستوں کو مدعو کریں!',
+  streakTitle: 'روزانہ اسٹریک',
+  streakNext: (remaining, reward) => `${reward} کے لیے ${remaining} دن مزید گھمائیں`,
+  streakAllDone: '🔥 آگ لگی ہے! روزانہ گھمائیں۔',
   firstWinMsg: (amount) => `آپ نے $${amount} USDC جیتے — یہ آپ کے قابلِ واپسی بیلنس میں آ گئے۔ نیچے سے نکالیں!`,
   shareWinText: (prize) => `میں نے Polnation پر ${prize} جیتا 🎉 گھمائیں اور مفت USDC جیتیں:`,
 

@@ -338,6 +338,7 @@ export default function LotteryMiniPage() {
   const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([])
   // 里程碑用"有 USDC 余额的被邀请人"计数（来自 check-spins）
   const [fundedInviteCount, setFundedInviteCount] = useState(0)
+  const [streak, setStreak] = useState(0)
 
   // 每周邀请榜
   const [leaderboard, setLeaderboard] = useState<{
@@ -623,6 +624,7 @@ export default function LotteryMiniPage() {
       setSpinHistory(lottery.spinHistory)
       setHasRealEmail(lottery.hasRealEmail)
       setUserEmail(lottery.email)
+      setStreak(Number(data.streak) || 0)
       writeLotteryCache(tgUserIdRef.current, lottery)
     } catch {
       // silent
@@ -1443,6 +1445,33 @@ export default function LotteryMiniPage() {
             />
           </div>
         </div>
+
+        {/* ── 每日连胜 ────────────────────────────────────────────────────── */}
+        <BevelCard size="lg" pad={12} className="w-full">
+          {(() => {
+            const next =
+              streak < 3 ? { target: 3, reward: '+1🎟️' } : streak < 7 ? { target: 7, reward: '+$0.5' } : null
+            const remaining = next ? next.target - streak : 0
+            const pct = next ? Math.min(100, (streak / next.target) * 100) : 100
+            return (
+              <>
+                <div className="flex items-center justify-between gap-2">
+                  <EyebrowTag>{t.streakTitle}</EyebrowTag>
+                  <span className="text-[15px] font-bold text-white">🔥 {streak}</span>
+                </div>
+                <div className="h-1.5 bg-white/[0.08] rounded-full overflow-hidden mt-2">
+                  <div
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{ width: `${pct}%`, background: next ? '#f59e0b' : 'var(--poly-emerald)' }}
+                  />
+                </div>
+                <p className="text-[11px] text-white/45 mt-2">
+                  {next ? t.streakNext(remaining, next.reward) : t.streakAllDone}
+                </p>
+              </>
+            )
+          })()}
+        </BevelCard>
 
         {/* ── Invite & Earn Spins — elevate the referral→spin loop ────────── */}
         <BevelCard

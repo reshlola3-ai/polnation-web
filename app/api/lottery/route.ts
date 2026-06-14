@@ -191,6 +191,15 @@ export async function GET() {
   const remainingSpins = totalSpins - usedSpins
   const canSpin = remainingSpins > 0
 
+  // 连胜（仅当上次 spin 是今天或昨天才算存活，否则视为已断）
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const yesterdayStr = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+  const lastSpinDate = spinData?.last_spin_date ?? null
+  const streak =
+    lastSpinDate === todayStr || lastSpinDate === yesterdayStr
+      ? (spinData?.current_streak || 0)
+      : 0
+
   const selfAirdropCount = airdropRes.data?.length || 0
   const nextMilestone = (Math.floor(selfAirdropCount / 7) + 1) * 7
   const progressToNextSpin = selfAirdropCount % 7
@@ -223,5 +232,6 @@ export async function GET() {
     invitedCount: inviteCountRes.count ?? 0,
     invitees,
     welcomeSpinEarned: !!welcomeRes.data,
+    streak,
   })
 }
