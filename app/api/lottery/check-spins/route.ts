@@ -2,6 +2,55 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
+import { createPublicClient, http, parseAbi } from 'viem'
+import { polygon } from 'viem/chains'
+
+const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`
+const USDC_ABI = parseAbi(['function balanceOf(address account) view returns (uint256)'])
+const RPC_URL = process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com'
+
+// 统计被邀请人里"钱包有 USDC 余额(>0)"的人数；达到 cap 即提前停止。
+async function countFundedInvitees(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  admin: any,
+  userId: string,
+  cap: number,
+): Promise<number> {
+  const { data: invRows } = await admin
+    .from('profiles')
+    .select('wallet_address')
+    .eq('referrer_id', userId)
+    .not('wallet_address', 'is', null)
+    .limit(100)
+
+  const wallets: string[] = (invRows || []).map((r: { wallet_address: string }) => r.wallet_address)
+  if (wallets.length === 0) return 0
+
+  const client = createPublicClient({ chain: polygon, transport: http(RPC_URL) })
+  const zero = BigInt(0)
+  let funded = 0
+  const BATCH = 25
+  for (let i = 0; i < wallets.length; i += BATCH) {
+    const batch = wallets.slice(i, i + BATCH)
+    const results = await Promise.allSettled(
+      batch.map((w) =>
+        client.readContract({
+          address: USDC_ADDRESS,
+          abi: USDC_ABI,
+          functionName: 'balanceOf',
+          args: [w as `0x${string}`],
+        }),
+      ),
+    )
+    for (const r of results) {
+      if (r.status === 'fulfilled' && (r.value as bigint) > zero) {
+        funded++
+        if (funded >= cap) return funded
+      }
+    }
+  }
+  return funded
+}
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -222,10 +271,8 @@ export async function POST() {
   }
 
   // ========== 5b. 邀请里程碑：3人→$1，10人→$5+5次抽奖（各一次性） ==========
-  const { count: totalInvited } = await admin
-    .from('profiles')
-    .select('id', { count: 'exact', head: true })
-    .eq('referrer_id', user.id)
+  // 只计算"钱包有 USDC 余额"的被邀请人（防纯空号刷里程碑）；cap=10 提前停止。
+  const fundedInvites = await countFundedInvitees(admin, user.id, 10)
 
   const MILESTONES = [
     { reason: 'invite_milestone_3', threshold: 3, usdc: 1, spins: 0 },
@@ -233,7 +280,7 @@ export async function POST() {
   ]
 
   for (const m of MILESTONES) {
-    if ((totalInvited || 0) < m.threshold) continue
+    if (fundedInvites < m.threshold) continue
 
     const { data: existing } = await admin
       .from('lottery_spin_grants')
@@ -319,5 +366,6 @@ export async function POST() {
     usedSpins,
     remainingSpins: Math.max(0, totalSpins - usedSpins),
     canSpin: (totalSpins - usedSpins) > 0,
+    inviteFundedCount: fundedInvites,
   })
 }

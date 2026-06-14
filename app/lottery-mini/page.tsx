@@ -336,6 +336,8 @@ export default function LotteryMiniPage() {
   const [isInfluencer, setIsInfluencer] = useState(false)
   const [isSpinning, setIsSpinning] = useState(false)
   const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([])
+  // 里程碑用"有 USDC 余额的被邀请人"计数（来自 check-spins）
+  const [fundedInviteCount, setFundedInviteCount] = useState(0)
   const wheelCommandNonceRef = useRef(0)
   const [wheelSpinNonce, setWheelSpinNonce] = useState(0)
   const [wheelStopCommand, setWheelStopCommand] = useState<{ nonce: number; index: number } | null>(null)
@@ -605,7 +607,11 @@ export default function LotteryMiniPage() {
       // "Verifying…" spinner resolves promptly.
       await refreshState()
       try {
-        await fetch('/api/lottery/check-spins', { method: 'POST' })
+        const r = await fetch('/api/lottery/check-spins', { method: 'POST' })
+        if (r.ok) {
+          const d = await r.json()
+          if (typeof d.inviteFundedCount === 'number') setFundedInviteCount(d.inviteFundedCount)
+        }
       } catch { /* silent */ }
       await refreshState()
       setPendingGroupVerify(false)
@@ -613,7 +619,11 @@ export default function LotteryMiniPage() {
       // Background: initial page load — show UI first, then grant silently.
       await refreshState()           // UI now visible with current spin count
       fetch('/api/lottery/check-spins', { method: 'POST' })
-        .then(() => refreshState())  // silent re-sync after grants settle
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => {
+          if (d && typeof d.inviteFundedCount === 'number') setFundedInviteCount(d.inviteFundedCount)
+          refreshState()             // silent re-sync after grants settle
+        })
         .catch(() => {})
         .finally(() => setPendingGroupVerify(false))
     }
@@ -1698,16 +1708,17 @@ export default function LotteryMiniPage() {
             const M2 = 10
             const R1 = '$1 USDC'
             const R2 = '$5 USDC + 5🎟️'
-            const allDone = invitedCount >= M2
-            const target = invitedCount < M1 ? M1 : M2
-            const reward = invitedCount < M1 ? R1 : R2
-            const remaining = Math.max(0, target - invitedCount)
-            const pct = target > 0 ? Math.min(100, (invitedCount / target) * 100) : 0
+            const count = fundedInviteCount // 只算钱包有 USDC 余额的被邀请人
+            const allDone = count >= M2
+            const target = count < M1 ? M1 : M2
+            const reward = count < M1 ? R1 : R2
+            const remaining = Math.max(0, target - count)
+            const pct = target > 0 ? Math.min(100, (count / target) * 100) : 0
             return (
               <>
                 <div className="flex items-center gap-2 mt-2.5">
                   <span className="text-[10px] text-white/55 shrink-0" style={{ fontFamily: 'var(--poly-font-mono)' }}>
-                    {invitedCount}
+                    {count}
                   </span>
                   <div className="flex-1 h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
                     <div
@@ -1726,11 +1737,11 @@ export default function LotteryMiniPage() {
                   {allDone ? t.inviteMilestoneAllDone : t.inviteMilestoneNext(remaining, reward)}
                 </p>
                 <div className="flex gap-2 mt-2.5">
-                  <div className={`flex-1 text-center py-1.5 text-[11px] border ${invitedCount >= M1 ? 'border-emerald-500/40 text-emerald-300' : 'border-white/10 text-white/50'}`}>
-                    3 → $1 {invitedCount >= M1 ? '✓' : ''}
+                  <div className={`flex-1 text-center py-1.5 text-[11px] border ${count >= M1 ? 'border-emerald-500/40 text-emerald-300' : 'border-white/10 text-white/50'}`}>
+                    3 → $1 {count >= M1 ? '✓' : ''}
                   </div>
-                  <div className={`flex-1 text-center py-1.5 text-[11px] border ${invitedCount >= M2 ? 'border-emerald-500/40 text-emerald-300' : 'border-white/10 text-white/50'}`}>
-                    10 → $5 + 5🎟️ {invitedCount >= M2 ? '✓' : ''}
+                  <div className={`flex-1 text-center py-1.5 text-[11px] border ${count >= M2 ? 'border-emerald-500/40 text-emerald-300' : 'border-white/10 text-white/50'}`}>
+                    10 → $5 + 5🎟️ {count >= M2 ? '✓' : ''}
                   </div>
                 </div>
               </>
