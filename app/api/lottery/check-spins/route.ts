@@ -221,6 +221,74 @@ export async function POST() {
     }
   }
 
+  // ========== 5b. 邀请里程碑：3人→$1，10人→$5+5次抽奖（各一次性） ==========
+  const { count: totalInvited } = await admin
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .eq('referrer_id', user.id)
+
+  const MILESTONES = [
+    { reason: 'invite_milestone_3', threshold: 3, usdc: 1, spins: 0 },
+    { reason: 'invite_milestone_10', threshold: 10, usdc: 5, spins: 5 },
+  ]
+
+  for (const m of MILESTONES) {
+    if ((totalInvited || 0) < m.threshold) continue
+
+    const { data: existing } = await admin
+      .from('lottery_spin_grants')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('grant_reason', m.reason)
+      .maybeSingle()
+    if (existing) continue
+
+    const { error: gErr } = await admin
+      .from('lottery_spin_grants')
+      .insert({
+        user_id: user.id,
+        grant_reason: m.reason,
+        milestone_count: m.threshold,
+        spins_granted: m.spins,
+      })
+    if (gErr) {
+      if (gErr.code !== '23505') console.error('milestone grant insert failed:', gErr)
+      continue
+    }
+
+    // 发放 USDC（进入可提现余额）
+    if (m.usdc > 0) {
+      const { data: profits } = await admin
+        .from('user_profits')
+        .select('available_usdc, total_earned_usdc')
+        .eq('user_id', user.id)
+        .single()
+      if (profits) {
+        await admin
+          .from('user_profits')
+          .update({
+            available_usdc: (Number(profits.available_usdc) || 0) + m.usdc,
+            total_earned_usdc: (Number(profits.total_earned_usdc) || 0) + m.usdc,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id)
+      } else {
+        await admin
+          .from('user_profits')
+          .insert({
+            user_id: user.id,
+            available_usdc: m.usdc,
+            total_earned_usdc: m.usdc,
+            available_matic: 0,
+            withdrawn_usdc: 0,
+            withdrawn_matic: 0,
+          })
+      }
+    }
+
+    newSpinsGranted += m.spins
+  }
+
   // ========== 6. 更新 total_spins ==========
   if (newSpinsGranted > 0) {
     await admin

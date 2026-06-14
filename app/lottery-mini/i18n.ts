@@ -129,6 +129,10 @@ export interface Translations {
   // first-spin welcome win
   firstWinTitle: string
   firstWinMsg: (amount: string) => string
+  // invite milestones
+  inviteMilestoneTitle: string
+  inviteMilestoneNext: (remaining: number, reward: string) => string
+  inviteMilestoneAllDone: string
 
   // history
   spinHistory: string
@@ -266,6 +270,9 @@ const en: Translations = {
   outOfSpinsInvite: 'Out of spins? Invite friends — +1 spin each!',
   shareWinBtn: '🎟️ Share & Earn +1 Spin',
   firstWinTitle: '🎉 Welcome Gift!',
+  inviteMilestoneTitle: 'Invite Milestones',
+  inviteMilestoneNext: (remaining, reward) => `Invite ${remaining} more to earn ${reward}`,
+  inviteMilestoneAllDone: '🏆 All invite milestones claimed!',
   firstWinMsg: (amount) => `You won $${amount} USDC — it's already in your withdrawable balance. Cash out below!`,
   shareWinText: (prize) => `I just won ${prize} on Polnation 🎉 Spin to win free USDC:`,
 
@@ -397,6 +404,9 @@ const zh: Translations = {
   outOfSpinsInvite: '次数用完了？邀请好友，每人 +1 次抽奖！',
   shareWinBtn: '🎟️ 晒中奖 → +1 抽奖',
   firstWinTitle: '🎉 新人见面礼！',
+  inviteMilestoneTitle: '邀请里程碑',
+  inviteMilestoneNext: (remaining, reward) => `再邀请 ${remaining} 人即可获得 ${reward}`,
+  inviteMilestoneAllDone: '🏆 所有邀请里程碑已达成！',
   firstWinMsg: (amount) => `你赢得了 $${amount} USDC，已进入你的可提现余额。到下方提现吧！`,
   shareWinText: (prize) => `我在 Polnation 抽中了 ${prize} 🎉 快来转盘赢免费 USDC：`,
 
@@ -528,6 +538,9 @@ const ru: Translations = {
   outOfSpinsInvite: 'Спины закончились? Приглашай друзей — +1 спин за каждого!',
   shareWinBtn: '🎟️ Поделиться → +1 спин',
   firstWinTitle: '🎉 Приветственный подарок!',
+  inviteMilestoneTitle: 'Этапы приглашений',
+  inviteMilestoneNext: (remaining, reward) => `Пригласите ещё ${remaining}, чтобы получить ${reward}`,
+  inviteMilestoneAllDone: '🏆 Все этапы приглашений выполнены!',
   firstWinMsg: (amount) => `Вы выиграли $${amount} USDC — они уже на вашем балансе для вывода. Выводите ниже!`,
   shareWinText: (prize) => `Я только что выиграл ${prize} на Polnation 🎉 Крути и выигрывай USDC:`,
 
@@ -659,6 +672,9 @@ const es: Translations = {
   outOfSpinsInvite: '¿Sin giros? Invita amigos: ¡+1 giro por cada uno!',
   shareWinBtn: '🎟️ Compartir → +1 giro',
   firstWinTitle: '🎉 ¡Regalo de bienvenida!',
+  inviteMilestoneTitle: 'Hitos de invitación',
+  inviteMilestoneNext: (remaining, reward) => `Invita a ${remaining} más para ganar ${reward}`,
+  inviteMilestoneAllDone: '🏆 ¡Todos los hitos de invitación logrados!',
   firstWinMsg: (amount) => `Ganaste $${amount} USDC, ya están en tu saldo retirable. ¡Retíralo abajo!`,
   shareWinText: (prize) => `¡Acabo de ganar ${prize} en Polnation! 🎉 Gira y gana USDC gratis:`,
 
@@ -790,6 +806,9 @@ const pt: Translations = {
   outOfSpinsInvite: 'Sem giros? Convide amigos — +1 giro para cada um!',
   shareWinBtn: '🎟️ Compartilhar → +1 giro',
   firstWinTitle: '🎉 Presente de boas-vindas!',
+  inviteMilestoneTitle: 'Marcos de convite',
+  inviteMilestoneNext: (remaining, reward) => `Convide mais ${remaining} para ganhar ${reward}`,
+  inviteMilestoneAllDone: '🏆 Todos os marcos de convite concluídos!',
   firstWinMsg: (amount) => `Você ganhou $${amount} USDC — já está no seu saldo para saque. Saque abaixo!`,
   shareWinText: (prize) => `Acabei de ganhar ${prize} na Polnation 🎉 Gire e ganhe USDC grátis:`,
 
@@ -921,6 +940,9 @@ const fr: Translations = {
   outOfSpinsInvite: 'Plus de tours ? Invitez des amis — +1 tour chacun !',
   shareWinBtn: '🎟️ Partager → +1 tour',
   firstWinTitle: '🎉 Cadeau de bienvenue !',
+  inviteMilestoneTitle: 'Paliers de parrainage',
+  inviteMilestoneNext: (remaining, reward) => `Invitez ${remaining} de plus pour gagner ${reward}`,
+  inviteMilestoneAllDone: '🏆 Tous les paliers de parrainage atteints !',
   firstWinMsg: (amount) => `Vous avez gagné $${amount} USDC — déjà dans votre solde retirable. Retirez ci-dessous !`,
   shareWinText: (prize) => `Je viens de gagner ${prize} sur Polnation 🎉 Tournez et gagnez des USDC :`,
 
@@ -1052,6 +1074,9 @@ const ja: Translations = {
   outOfSpinsInvite: 'スピン切れ？友達を招待して1人につき+1スピン！',
   shareWinBtn: '🎟️ シェアして+1スピン',
   firstWinTitle: '🎉 ウェルカムギフト！',
+  inviteMilestoneTitle: '招待マイルストーン',
+  inviteMilestoneNext: (remaining, reward) => `あと${remaining}人招待で${reward}獲得`,
+  inviteMilestoneAllDone: '🏆 すべての招待マイルストーン達成！',
   firstWinMsg: (amount) => `$${amount} USDCが当たりました。出金可能残高に追加済みです。下から出金しよう！`,
   shareWinText: (prize) => `Polnationで${prize}が当たった🎉 回して無料USDCを当てよう：`,
 
@@ -1183,6 +1208,9 @@ const ko: Translations = {
   outOfSpinsInvite: '스핀이 없나요? 친구를 초대하면 1명당 +1 스핀!',
   shareWinBtn: '🎟️ 공유하고 +1 스핀',
   firstWinTitle: '🎉 웰컴 선물!',
+  inviteMilestoneTitle: '초대 마일스톤',
+  inviteMilestoneNext: (remaining, reward) => `${remaining}명 더 초대하면 ${reward} 획득`,
+  inviteMilestoneAllDone: '🏆 모든 초대 마일스톤 달성!',
   firstWinMsg: (amount) => `$${amount} USDC 당첨! 이미 출금 가능 잔액에 들어왔어요. 아래에서 출금하세요!`,
   shareWinText: (prize) => `Polnation에서 ${prize} 당첨 🎉 돌리고 무료 USDC 받으세요:`,
 
@@ -1314,6 +1342,9 @@ const tr: Translations = {
   outOfSpinsInvite: 'Hakkın mı bitti? Arkadaş davet et — her biri için +1 hak!',
   shareWinBtn: '🎟️ Paylaş → +1 Hak',
   firstWinTitle: '🎉 Hoş geldin hediyesi!',
+  inviteMilestoneTitle: 'Davet Kilometre Taşları',
+  inviteMilestoneNext: (remaining, reward) => `${reward} kazanmak için ${remaining} kişi daha davet et`,
+  inviteMilestoneAllDone: '🏆 Tüm davet hedefleri tamamlandı!',
   firstWinMsg: (amount) => `$${amount} USDC kazandın — çekilebilir bakiyene eklendi. Aşağıdan çek!`,
   shareWinText: (prize) => `Polnation'da ${prize} kazandım 🎉 Çevir, ücretsiz USDC kazan:`,
 
@@ -1445,6 +1476,9 @@ const id: Translations = {
   outOfSpinsInvite: 'Kehabisan putaran? Undang teman — +1 putaran tiap orang!',
   shareWinBtn: '🎟️ Bagikan → +1 Putaran',
   firstWinTitle: '🎉 Hadiah Selamat Datang!',
+  inviteMilestoneTitle: 'Tonggak Undangan',
+  inviteMilestoneNext: (remaining, reward) => `Undang ${remaining} lagi untuk dapat ${reward}`,
+  inviteMilestoneAllDone: '🏆 Semua tonggak undangan tercapai!',
   firstWinMsg: (amount) => `Kamu menang $${amount} USDC — sudah masuk saldo yang bisa ditarik. Tarik di bawah!`,
   shareWinText: (prize) => `Saya baru menang ${prize} di Polnation 🎉 Putar dan menang USDC gratis:`,
 
@@ -1576,6 +1610,9 @@ const vi: Translations = {
   outOfSpinsInvite: 'Hết lượt quay? Mời bạn bè — mỗi người +1 lượt!',
   shareWinBtn: '🎟️ Chia sẻ → +1 lượt',
   firstWinTitle: '🎉 Quà chào mừng!',
+  inviteMilestoneTitle: 'Cột mốc mời bạn',
+  inviteMilestoneNext: (remaining, reward) => `Mời thêm ${remaining} người để nhận ${reward}`,
+  inviteMilestoneAllDone: '🏆 Đã đạt tất cả cột mốc mời bạn!',
   firstWinMsg: (amount) => `Bạn đã thắng $${amount} USDC — đã vào số dư rút được. Rút ngay bên dưới!`,
   shareWinText: (prize) => `Tôi vừa trúng ${prize} trên Polnation 🎉 Quay để thắng USDC miễn phí:`,
 
@@ -1707,6 +1744,9 @@ const hi: Translations = {
   outOfSpinsInvite: 'स्पिन खत्म? दोस्तों को आमंत्रित करें — हर एक पर +1 स्पिन!',
   shareWinBtn: '🎟️ शेयर करें → +1 स्पिन',
   firstWinTitle: '🎉 स्वागत उपहार!',
+  inviteMilestoneTitle: 'आमंत्रण माइलस्टोन',
+  inviteMilestoneNext: (remaining, reward) => `${reward} पाने के लिए ${remaining} और आमंत्रित करें`,
+  inviteMilestoneAllDone: '🏆 सभी आमंत्रण माइलस्टोन पूरे!',
   firstWinMsg: (amount) => `आपने $${amount} USDC जीते — यह आपके निकासी बैलेंस में आ गया है। नीचे निकालें!`,
   shareWinText: (prize) => `मैंने Polnation पर ${prize} जीता 🎉 घुमाएँ और मुफ़्त USDC जीतें:`,
 
@@ -1838,6 +1878,9 @@ const ar: Translations = {
   outOfSpinsInvite: 'نفدت اللفات؟ ادعُ أصدقاءك — لفة لكل صديق!',
   shareWinBtn: '🎟️ شارك → +1 لفة',
   firstWinTitle: '🎉 هدية ترحيب!',
+  inviteMilestoneTitle: 'مراحل الدعوة',
+  inviteMilestoneNext: (remaining, reward) => `ادعُ ${remaining} آخرين لتربح ${reward}`,
+  inviteMilestoneAllDone: '🏆 اكتملت كل مراحل الدعوة!',
   firstWinMsg: (amount) => `ربحت $${amount} USDC — أصبحت في رصيدك القابل للسحب. اسحبها بالأسفل!`,
   shareWinText: (prize) => `لقد ربحت ${prize} على Polnation 🎉 أدر العجلة واربح USDC مجاناً:`,
 
@@ -1969,6 +2012,9 @@ const ur: Translations = {
   outOfSpinsInvite: 'اسپن ختم؟ دوستوں کو مدعو کریں — ہر ایک پر +1 اسپن!',
   shareWinBtn: '🎟️ شیئر کریں → +1 اسپن',
   firstWinTitle: '🎉 خوش آمدید تحفہ!',
+  inviteMilestoneTitle: 'دعوت سنگِ میل',
+  inviteMilestoneNext: (remaining, reward) => `${reward} حاصل کرنے کے لیے ${remaining} اور مدعو کریں`,
+  inviteMilestoneAllDone: '🏆 تمام دعوت سنگِ میل مکمل!',
   firstWinMsg: (amount) => `آپ نے $${amount} USDC جیتے — یہ آپ کے قابلِ واپسی بیلنس میں آ گئے۔ نیچے سے نکالیں!`,
   shareWinText: (prize) => `میں نے Polnation پر ${prize} جیتا 🎉 گھمائیں اور مفت USDC جیتیں:`,
 

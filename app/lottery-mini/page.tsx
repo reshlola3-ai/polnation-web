@@ -1689,6 +1689,54 @@ export default function LotteryMiniPage() {
           </BevelCard>
         </div>
 
+        {/* ── Invite milestones (reuse the team-pool progress style) ──────── */}
+        <BevelCard size="lg" pad={14} className="w-full">
+          <EyebrowTag>{t.inviteMilestoneTitle}</EyebrowTag>
+          {(() => {
+            const M1 = 3
+            const M2 = 10
+            const R1 = '$1 USDC'
+            const R2 = '$5 USDC + 5🎟️'
+            const allDone = invitedCount >= M2
+            const target = invitedCount < M1 ? M1 : M2
+            const reward = invitedCount < M1 ? R1 : R2
+            const remaining = Math.max(0, target - invitedCount)
+            const pct = target > 0 ? Math.min(100, (invitedCount / target) * 100) : 0
+            return (
+              <>
+                <div className="flex items-center gap-2 mt-2.5">
+                  <span className="text-[10px] text-white/55 shrink-0" style={{ fontFamily: 'var(--poly-font-mono)' }}>
+                    {invitedCount}
+                  </span>
+                  <div className="flex-1 h-1.5 bg-white/[0.08] rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700 ease-out"
+                      style={{
+                        width: `${allDone ? 100 : pct}%`,
+                        background: allDone ? 'var(--poly-emerald)' : 'var(--poly-purple)',
+                      }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-white/55 shrink-0" style={{ fontFamily: 'var(--poly-font-mono)' }}>
+                    {allDone ? '✓' : target}
+                  </span>
+                </div>
+                <p className="text-[11px] text-white/45 mt-2">
+                  {allDone ? t.inviteMilestoneAllDone : t.inviteMilestoneNext(remaining, reward)}
+                </p>
+                <div className="flex gap-2 mt-2.5">
+                  <div className={`flex-1 text-center py-1.5 text-[11px] border ${invitedCount >= M1 ? 'border-emerald-500/40 text-emerald-300' : 'border-white/10 text-white/50'}`}>
+                    3 → $1 {invitedCount >= M1 ? '✓' : ''}
+                  </div>
+                  <div className={`flex-1 text-center py-1.5 text-[11px] border ${invitedCount >= M2 ? 'border-emerald-500/40 text-emerald-300' : 'border-white/10 text-white/50'}`}>
+                    10 → $5 + 5🎟️ {invitedCount >= M2 ? '✓' : ''}
+                  </div>
+                </div>
+              </>
+            )
+          })()}
+        </BevelCard>
+
         <BevelCard size="lg" pad={14} className="w-full">
           <div className="flex items-center justify-between gap-3">
             <EyebrowTag>{t.youInvited}</EyebrowTag>
