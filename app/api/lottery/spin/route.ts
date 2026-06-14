@@ -108,7 +108,17 @@ export async function POST() {
   }
 
   // ========== 抽奖 ==========
-  const prize = pickPrize()
+  // 首抽必中：用户第一次 spin（还没有任何抽奖记录）保底 $0.05 USDC，可直接提现。
+  // type 用 'usdc_05' 让转盘停在 USDC 中奖格；金额/标签覆盖为 $0.05。
+  const { count: priorSpins } = await admin
+    .from('lottery_records')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+  const isFirstSpin = (priorSpins || 0) === 0
+
+  const prize = isFirstSpin
+    ? { type: 'usdc_05', label: '$0.05 USDC', amount: 0.05 }
+    : pickPrize()
 
   // 记录抽奖结果，返回 id 用于后续精确标记
   const { data: record, error: insertError } = await admin
@@ -216,5 +226,6 @@ export async function POST() {
     prize_label: prize.label,
     prize_amount: prize.amount,
     reward_credited: rewardCredited,
+    first_spin: isFirstSpin,
   })
 }

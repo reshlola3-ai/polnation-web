@@ -678,6 +678,7 @@ export default function LotteryMiniPage() {
       pendingResultRef.current = {
         type: data.prize_type as string,
         amount: Number(data.prize_amount) || 0,
+        firstSpin: !!data.first_spin,
       }
     } catch {
       setIsSpinning(false)
@@ -686,7 +687,7 @@ export default function LotteryMiniPage() {
 
   // Result must be passed from handleSpin → handleEnd via a ref because the
   // wheel's onEnd callback fires asynchronously after stop().
-  const pendingResultRef = useRef<{ type: string; amount: number } | null>(null)
+  const pendingResultRef = useRef<{ type: string; amount: number; firstSpin?: boolean } | null>(null)
 
   // 晒中奖 → 分享带邀请链接，并领取每日一次的分享返奖 spin
   const handleShareWin = useCallback(async (prizeLabel: string) => {
@@ -746,8 +747,23 @@ export default function LotteryMiniPage() {
         : t.bonusAdded(label)
       : t.betterLuck
 
-    // 中奖：弹窗加一个"晒中奖 → +1 抽奖"按钮（自带邀请链接）
-    if (isWin) {
+    // 首抽必中：欢迎大弹窗 + 引导去提现
+    if (isWin && result.firstSpin) {
+      tg?.showPopup?.(
+        {
+          title: t.firstWinTitle,
+          message: t.firstWinMsg(result.amount.toFixed(2)),
+          buttons: [
+            { id: 'withdraw', type: 'default', text: t.withdraw },
+            { id: 'ok', type: 'ok' },
+          ],
+        },
+        () => {
+          document.getElementById('lw-withdraw')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        },
+      )
+    } else if (isWin) {
+      // 中奖：弹窗加一个"晒中奖 → +1 抽奖"按钮（自带邀请链接）
       tg?.showPopup?.(
         {
           title: t.congratsTitle,
@@ -1421,6 +1437,7 @@ export default function LotteryMiniPage() {
         </BevelCard>
 
         {/* ── Withdraw — BevelCard ────────────────────────────────────────── */}
+        <div id="lw-withdraw" className="w-full scroll-mt-16" />
         <BevelCard size="lg" pad={14} className="w-full">
           <div className="flex items-center justify-between mb-3">
             <EyebrowTag>{t.withdrawable}</EyebrowTag>

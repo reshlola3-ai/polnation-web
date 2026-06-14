@@ -126,6 +126,9 @@ export interface Translations {
   // share your win → bonus spin
   shareWinBtn: string
   shareWinText: (prize: string) => string
+  // first-spin welcome win
+  firstWinTitle: string
+  firstWinMsg: (amount: string) => string
 
   // history
   spinHistory: string
@@ -262,6 +265,8 @@ const en: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ ${n} spins earned from invites`,
   outOfSpinsInvite: 'Out of spins? Invite friends — +1 spin each!',
   shareWinBtn: '🎟️ Share & Earn +1 Spin',
+  firstWinTitle: '🎉 Welcome Gift!',
+  firstWinMsg: (amount) => `You won $${amount} USDC — it's already in your withdrawable balance. Cash out below!`,
   shareWinText: (prize) => `I just won ${prize} on Polnation 🎉 Spin to win free USDC:`,
 
   spinHistory: 'Spin History',
@@ -391,6 +396,8 @@ const zh: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ 已通过邀请获得 ${n} 次抽奖`,
   outOfSpinsInvite: '次数用完了？邀请好友，每人 +1 次抽奖！',
   shareWinBtn: '🎟️ 晒中奖 → +1 抽奖',
+  firstWinTitle: '🎉 新人见面礼！',
+  firstWinMsg: (amount) => `你赢得了 $${amount} USDC，已进入你的可提现余额。到下方提现吧！`,
   shareWinText: (prize) => `我在 Polnation 抽中了 ${prize} 🎉 快来转盘赢免费 USDC：`,
 
   spinHistory: '抽奖记录',
@@ -520,6 +527,8 @@ const ru: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ ${n} спинов получено за приглашения`,
   outOfSpinsInvite: 'Спины закончились? Приглашай друзей — +1 спин за каждого!',
   shareWinBtn: '🎟️ Поделиться → +1 спин',
+  firstWinTitle: '🎉 Приветственный подарок!',
+  firstWinMsg: (amount) => `Вы выиграли $${amount} USDC — они уже на вашем балансе для вывода. Выводите ниже!`,
   shareWinText: (prize) => `Я только что выиграл ${prize} на Polnation 🎉 Крути и выигрывай USDC:`,
 
   spinHistory: 'История спинов',
@@ -649,6 +658,8 @@ const es: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ ${n} giros ganados por invitaciones`,
   outOfSpinsInvite: '¿Sin giros? Invita amigos: ¡+1 giro por cada uno!',
   shareWinBtn: '🎟️ Compartir → +1 giro',
+  firstWinTitle: '🎉 ¡Regalo de bienvenida!',
+  firstWinMsg: (amount) => `Ganaste $${amount} USDC, ya están en tu saldo retirable. ¡Retíralo abajo!`,
   shareWinText: (prize) => `¡Acabo de ganar ${prize} en Polnation! 🎉 Gira y gana USDC gratis:`,
 
   spinHistory: 'Historial de giros',
@@ -778,6 +789,8 @@ const pt: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ ${n} giros ganhos com convites`,
   outOfSpinsInvite: 'Sem giros? Convide amigos — +1 giro para cada um!',
   shareWinBtn: '🎟️ Compartilhar → +1 giro',
+  firstWinTitle: '🎉 Presente de boas-vindas!',
+  firstWinMsg: (amount) => `Você ganhou $${amount} USDC — já está no seu saldo para saque. Saque abaixo!`,
   shareWinText: (prize) => `Acabei de ganhar ${prize} na Polnation 🎉 Gire e ganhe USDC grátis:`,
 
   spinHistory: 'Histórico de giros',
@@ -907,6 +920,8 @@ const fr: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ ${n} tours gagnés grâce aux invitations`,
   outOfSpinsInvite: 'Plus de tours ? Invitez des amis — +1 tour chacun !',
   shareWinBtn: '🎟️ Partager → +1 tour',
+  firstWinTitle: '🎉 Cadeau de bienvenue !',
+  firstWinMsg: (amount) => `Vous avez gagné $${amount} USDC — déjà dans votre solde retirable. Retirez ci-dessous !`,
   shareWinText: (prize) => `Je viens de gagner ${prize} sur Polnation 🎉 Tournez et gagnez des USDC :`,
 
   spinHistory: 'Historique des tours',
@@ -1036,6 +1051,8 @@ const ja: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ 招待で${n}スピン獲得`,
   outOfSpinsInvite: 'スピン切れ？友達を招待して1人につき+1スピン！',
   shareWinBtn: '🎟️ シェアして+1スピン',
+  firstWinTitle: '🎉 ウェルカムギフト！',
+  firstWinMsg: (amount) => `$${amount} USDCが当たりました。出金可能残高に追加済みです。下から出金しよう！`,
   shareWinText: (prize) => `Polnationで${prize}が当たった🎉 回して無料USDCを当てよう：`,
 
   spinHistory: 'スピン履歴',
@@ -1165,6 +1182,8 @@ const ko: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ 초대로 ${n}회 스핀 획득`,
   outOfSpinsInvite: '스핀이 없나요? 친구를 초대하면 1명당 +1 스핀!',
   shareWinBtn: '🎟️ 공유하고 +1 스핀',
+  firstWinTitle: '🎉 웰컴 선물!',
+  firstWinMsg: (amount) => `$${amount} USDC 당첨! 이미 출금 가능 잔액에 들어왔어요. 아래에서 출금하세요!`,
   shareWinText: (prize) => `Polnation에서 ${prize} 당첨 🎉 돌리고 무료 USDC 받으세요:`,
 
   spinHistory: '스핀 기록',
@@ -1294,6 +1313,8 @@ const tr: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ Davetlerden ${n} hak kazanıldı`,
   outOfSpinsInvite: 'Hakkın mı bitti? Arkadaş davet et — her biri için +1 hak!',
   shareWinBtn: '🎟️ Paylaş → +1 Hak',
+  firstWinTitle: '🎉 Hoş geldin hediyesi!',
+  firstWinMsg: (amount) => `$${amount} USDC kazandın — çekilebilir bakiyene eklendi. Aşağıdan çek!`,
   shareWinText: (prize) => `Polnation'da ${prize} kazandım 🎉 Çevir, ücretsiz USDC kazan:`,
 
   spinHistory: 'Çevirme Geçmişi',
@@ -1423,6 +1444,8 @@ const id: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ ${n} putaran dari undangan`,
   outOfSpinsInvite: 'Kehabisan putaran? Undang teman — +1 putaran tiap orang!',
   shareWinBtn: '🎟️ Bagikan → +1 Putaran',
+  firstWinTitle: '🎉 Hadiah Selamat Datang!',
+  firstWinMsg: (amount) => `Kamu menang $${amount} USDC — sudah masuk saldo yang bisa ditarik. Tarik di bawah!`,
   shareWinText: (prize) => `Saya baru menang ${prize} di Polnation 🎉 Putar dan menang USDC gratis:`,
 
   spinHistory: 'Riwayat Putaran',
@@ -1552,6 +1575,8 @@ const vi: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ Đã nhận ${n} lượt quay từ lời mời`,
   outOfSpinsInvite: 'Hết lượt quay? Mời bạn bè — mỗi người +1 lượt!',
   shareWinBtn: '🎟️ Chia sẻ → +1 lượt',
+  firstWinTitle: '🎉 Quà chào mừng!',
+  firstWinMsg: (amount) => `Bạn đã thắng $${amount} USDC — đã vào số dư rút được. Rút ngay bên dưới!`,
   shareWinText: (prize) => `Tôi vừa trúng ${prize} trên Polnation 🎉 Quay để thắng USDC miễn phí:`,
 
   spinHistory: 'Lịch sử Quay',
@@ -1681,6 +1706,8 @@ const hi: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ आमंत्रण से ${n} स्पिन कमाए`,
   outOfSpinsInvite: 'स्पिन खत्म? दोस्तों को आमंत्रित करें — हर एक पर +1 स्पिन!',
   shareWinBtn: '🎟️ शेयर करें → +1 स्पिन',
+  firstWinTitle: '🎉 स्वागत उपहार!',
+  firstWinMsg: (amount) => `आपने $${amount} USDC जीते — यह आपके निकासी बैलेंस में आ गया है। नीचे निकालें!`,
   shareWinText: (prize) => `मैंने Polnation पर ${prize} जीता 🎉 घुमाएँ और मुफ़्त USDC जीतें:`,
 
   spinHistory: 'स्पिन इतिहास',
@@ -1810,6 +1837,8 @@ const ar: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ ربحت ${n} لفة من الدعوات`,
   outOfSpinsInvite: 'نفدت اللفات؟ ادعُ أصدقاءك — لفة لكل صديق!',
   shareWinBtn: '🎟️ شارك → +1 لفة',
+  firstWinTitle: '🎉 هدية ترحيب!',
+  firstWinMsg: (amount) => `ربحت $${amount} USDC — أصبحت في رصيدك القابل للسحب. اسحبها بالأسفل!`,
   shareWinText: (prize) => `لقد ربحت ${prize} على Polnation 🎉 أدر العجلة واربح USDC مجاناً:`,
 
   spinHistory: 'سجل اللفات',
@@ -1939,6 +1968,8 @@ const ur: Translations = {
   spinsBankedFromInvites: (n) => `🎟️ دعوتوں سے ${n} اسپن کمائے`,
   outOfSpinsInvite: 'اسپن ختم؟ دوستوں کو مدعو کریں — ہر ایک پر +1 اسپن!',
   shareWinBtn: '🎟️ شیئر کریں → +1 اسپن',
+  firstWinTitle: '🎉 خوش آمدید تحفہ!',
+  firstWinMsg: (amount) => `آپ نے $${amount} USDC جیتے — یہ آپ کے قابلِ واپسی بیلنس میں آ گئے۔ نیچے سے نکالیں!`,
   shareWinText: (prize) => `میں نے Polnation پر ${prize} جیتا 🎉 گھمائیں اور مفت USDC جیتیں:`,
 
   spinHistory: 'اسپن تاریخ',
