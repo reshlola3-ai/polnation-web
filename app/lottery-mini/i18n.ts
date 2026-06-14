@@ -133,6 +133,11 @@ export interface Translations {
   inviteMilestoneTitle: string
   inviteMilestoneNext: (remaining: number, reward: string) => string
   inviteMilestoneAllDone: string
+  // weekly invite leaderboard
+  leaderboardTitle: string
+  leaderboardPrizeNote: string
+  leaderboardYou: (rank: number, count: number) => string
+  leaderboardUnranked: string
 
   // history
   spinHistory: string
@@ -273,6 +278,10 @@ const en: Translations = {
   inviteMilestoneTitle: 'Invite Milestones',
   inviteMilestoneNext: (remaining, reward) => `Invite ${remaining} more to earn ${reward}`,
   inviteMilestoneAllDone: '🏆 All invite milestones claimed!',
+  leaderboardTitle: 'Weekly Invite Leaderboard',
+  leaderboardPrizeNote: 'Top 3 win $5 / $3 / $2 every week',
+  leaderboardYou: (rank, count) => `You: #${rank} · ${count} invites`,
+  leaderboardUnranked: "Invite friends to climb this week's board!",
   firstWinMsg: (amount) => `You won $${amount} USDC — it's already in your withdrawable balance. Cash out below!`,
   shareWinText: (prize) => `I just won ${prize} on Polnation 🎉 Spin to win free USDC:`,
 
@@ -407,6 +416,10 @@ const zh: Translations = {
   inviteMilestoneTitle: '邀请里程碑',
   inviteMilestoneNext: (remaining, reward) => `再邀请 ${remaining} 人即可获得 ${reward}`,
   inviteMilestoneAllDone: '🏆 所有邀请里程碑已达成！',
+  leaderboardTitle: '每周邀请榜',
+  leaderboardPrizeNote: '每周前 3 名赢 $5 / $3 / $2',
+  leaderboardYou: (rank, count) => `你：第 ${rank} 名 · ${count} 人`,
+  leaderboardUnranked: '邀请好友冲上本周榜单！',
   firstWinMsg: (amount) => `你赢得了 $${amount} USDC，已进入你的可提现余额。到下方提现吧！`,
   shareWinText: (prize) => `我在 Polnation 抽中了 ${prize} 🎉 快来转盘赢免费 USDC：`,
 
@@ -541,6 +554,10 @@ const ru: Translations = {
   inviteMilestoneTitle: 'Этапы приглашений',
   inviteMilestoneNext: (remaining, reward) => `Пригласите ещё ${remaining}, чтобы получить ${reward}`,
   inviteMilestoneAllDone: '🏆 Все этапы приглашений выполнены!',
+  leaderboardTitle: 'Недельный топ приглашений',
+  leaderboardPrizeNote: 'Топ-3 каждую неделю получают $5 / $3 / $2',
+  leaderboardYou: (rank, count) => `Вы: #${rank} · ${count} приглаш.`,
+  leaderboardUnranked: 'Приглашайте друзей, чтобы попасть в топ недели!',
   firstWinMsg: (amount) => `Вы выиграли $${amount} USDC — они уже на вашем балансе для вывода. Выводите ниже!`,
   shareWinText: (prize) => `Я только что выиграл ${prize} на Polnation 🎉 Крути и выигрывай USDC:`,
 
@@ -675,6 +692,10 @@ const es: Translations = {
   inviteMilestoneTitle: 'Hitos de invitación',
   inviteMilestoneNext: (remaining, reward) => `Invita a ${remaining} más para ganar ${reward}`,
   inviteMilestoneAllDone: '🏆 ¡Todos los hitos de invitación logrados!',
+  leaderboardTitle: 'Ranking semanal de invitaciones',
+  leaderboardPrizeNote: 'El top 3 gana $5 / $3 / $2 cada semana',
+  leaderboardYou: (rank, count) => `Tú: #${rank} · ${count} invitados`,
+  leaderboardUnranked: '¡Invita amigos para subir al ranking de la semana!',
   firstWinMsg: (amount) => `Ganaste $${amount} USDC, ya están en tu saldo retirable. ¡Retíralo abajo!`,
   shareWinText: (prize) => `¡Acabo de ganar ${prize} en Polnation! 🎉 Gira y gana USDC gratis:`,
 
@@ -809,6 +830,10 @@ const pt: Translations = {
   inviteMilestoneTitle: 'Marcos de convite',
   inviteMilestoneNext: (remaining, reward) => `Convide mais ${remaining} para ganhar ${reward}`,
   inviteMilestoneAllDone: '🏆 Todos os marcos de convite concluídos!',
+  leaderboardTitle: 'Ranking semanal de convites',
+  leaderboardPrizeNote: 'Top 3 ganha $5 / $3 / $2 toda semana',
+  leaderboardYou: (rank, count) => `Você: #${rank} · ${count} convidados`,
+  leaderboardUnranked: 'Convide amigos para subir no ranking da semana!',
   firstWinMsg: (amount) => `Você ganhou $${amount} USDC — já está no seu saldo para saque. Saque abaixo!`,
   shareWinText: (prize) => `Acabei de ganhar ${prize} na Polnation 🎉 Gire e ganhe USDC grátis:`,
 
@@ -943,6 +968,10 @@ const fr: Translations = {
   inviteMilestoneTitle: 'Paliers de parrainage',
   inviteMilestoneNext: (remaining, reward) => `Invitez ${remaining} de plus pour gagner ${reward}`,
   inviteMilestoneAllDone: '🏆 Tous les paliers de parrainage atteints !',
+  leaderboardTitle: 'Classement hebdo des parrainages',
+  leaderboardPrizeNote: 'Le top 3 gagne 5 $ / 3 $ / 2 $ chaque semaine',
+  leaderboardYou: (rank, count) => `Vous : n°${rank} · ${count} invités`,
+  leaderboardUnranked: 'Invitez des amis pour grimper au classement !',
   firstWinMsg: (amount) => `Vous avez gagné $${amount} USDC — déjà dans votre solde retirable. Retirez ci-dessous !`,
   shareWinText: (prize) => `Je viens de gagner ${prize} sur Polnation 🎉 Tournez et gagnez des USDC :`,
 
@@ -1077,6 +1106,10 @@ const ja: Translations = {
   inviteMilestoneTitle: '招待マイルストーン',
   inviteMilestoneNext: (remaining, reward) => `あと${remaining}人招待で${reward}獲得`,
   inviteMilestoneAllDone: '🏆 すべての招待マイルストーン達成！',
+  leaderboardTitle: '週間招待ランキング',
+  leaderboardPrizeNote: '毎週トップ3が $5 / $3 / $2 を獲得',
+  leaderboardYou: (rank, count) => `あなた：${rank}位 · ${count}人`,
+  leaderboardUnranked: '友達を招待して今週のランキングへ！',
   firstWinMsg: (amount) => `$${amount} USDCが当たりました。出金可能残高に追加済みです。下から出金しよう！`,
   shareWinText: (prize) => `Polnationで${prize}が当たった🎉 回して無料USDCを当てよう：`,
 
@@ -1211,6 +1244,10 @@ const ko: Translations = {
   inviteMilestoneTitle: '초대 마일스톤',
   inviteMilestoneNext: (remaining, reward) => `${remaining}명 더 초대하면 ${reward} 획득`,
   inviteMilestoneAllDone: '🏆 모든 초대 마일스톤 달성!',
+  leaderboardTitle: '주간 초대 랭킹',
+  leaderboardPrizeNote: '매주 상위 3명 $5 / $3 / $2 획득',
+  leaderboardYou: (rank, count) => `나: ${rank}위 · ${count}명`,
+  leaderboardUnranked: '친구를 초대해 이번 주 랭킹에 올라보세요!',
   firstWinMsg: (amount) => `$${amount} USDC 당첨! 이미 출금 가능 잔액에 들어왔어요. 아래에서 출금하세요!`,
   shareWinText: (prize) => `Polnation에서 ${prize} 당첨 🎉 돌리고 무료 USDC 받으세요:`,
 
@@ -1345,6 +1382,10 @@ const tr: Translations = {
   inviteMilestoneTitle: 'Davet Kilometre Taşları',
   inviteMilestoneNext: (remaining, reward) => `${reward} kazanmak için ${remaining} kişi daha davet et`,
   inviteMilestoneAllDone: '🏆 Tüm davet hedefleri tamamlandı!',
+  leaderboardTitle: 'Haftalık Davet Sıralaması',
+  leaderboardPrizeNote: 'İlk 3 her hafta $5 / $3 / $2 kazanır',
+  leaderboardYou: (rank, count) => `Sen: #${rank} · ${count} davet`,
+  leaderboardUnranked: 'Bu haftanın sıralamasına girmek için arkadaş davet et!',
   firstWinMsg: (amount) => `$${amount} USDC kazandın — çekilebilir bakiyene eklendi. Aşağıdan çek!`,
   shareWinText: (prize) => `Polnation'da ${prize} kazandım 🎉 Çevir, ücretsiz USDC kazan:`,
 
@@ -1479,6 +1520,10 @@ const id: Translations = {
   inviteMilestoneTitle: 'Tonggak Undangan',
   inviteMilestoneNext: (remaining, reward) => `Undang ${remaining} lagi untuk dapat ${reward}`,
   inviteMilestoneAllDone: '🏆 Semua tonggak undangan tercapai!',
+  leaderboardTitle: 'Papan Peringkat Undangan Mingguan',
+  leaderboardPrizeNote: 'Top 3 menang $5 / $3 / $2 tiap minggu',
+  leaderboardYou: (rank, count) => `Kamu: #${rank} · ${count} undangan`,
+  leaderboardUnranked: 'Undang teman untuk naik ke papan peringkat minggu ini!',
   firstWinMsg: (amount) => `Kamu menang $${amount} USDC — sudah masuk saldo yang bisa ditarik. Tarik di bawah!`,
   shareWinText: (prize) => `Saya baru menang ${prize} di Polnation 🎉 Putar dan menang USDC gratis:`,
 
@@ -1613,6 +1658,10 @@ const vi: Translations = {
   inviteMilestoneTitle: 'Cột mốc mời bạn',
   inviteMilestoneNext: (remaining, reward) => `Mời thêm ${remaining} người để nhận ${reward}`,
   inviteMilestoneAllDone: '🏆 Đã đạt tất cả cột mốc mời bạn!',
+  leaderboardTitle: 'Bảng xếp hạng mời tuần',
+  leaderboardPrizeNote: 'Top 3 mỗi tuần nhận $5 / $3 / $2',
+  leaderboardYou: (rank, count) => `Bạn: #${rank} · ${count} lượt mời`,
+  leaderboardUnranked: 'Mời bạn bè để leo lên bảng xếp hạng tuần này!',
   firstWinMsg: (amount) => `Bạn đã thắng $${amount} USDC — đã vào số dư rút được. Rút ngay bên dưới!`,
   shareWinText: (prize) => `Tôi vừa trúng ${prize} trên Polnation 🎉 Quay để thắng USDC miễn phí:`,
 
@@ -1747,6 +1796,10 @@ const hi: Translations = {
   inviteMilestoneTitle: 'आमंत्रण माइलस्टोन',
   inviteMilestoneNext: (remaining, reward) => `${reward} पाने के लिए ${remaining} और आमंत्रित करें`,
   inviteMilestoneAllDone: '🏆 सभी आमंत्रण माइलस्टोन पूरे!',
+  leaderboardTitle: 'साप्ताहिक आमंत्रण लीडरबोर्ड',
+  leaderboardPrizeNote: 'हर हफ्ते टॉप 3 जीतें $5 / $3 / $2',
+  leaderboardYou: (rank, count) => `आप: #${rank} · ${count} आमंत्रण`,
+  leaderboardUnranked: 'इस हफ्ते की सूची में चढ़ने के लिए दोस्तों को आमंत्रित करें!',
   firstWinMsg: (amount) => `आपने $${amount} USDC जीते — यह आपके निकासी बैलेंस में आ गया है। नीचे निकालें!`,
   shareWinText: (prize) => `मैंने Polnation पर ${prize} जीता 🎉 घुमाएँ और मुफ़्त USDC जीतें:`,
 
@@ -1881,6 +1934,10 @@ const ar: Translations = {
   inviteMilestoneTitle: 'مراحل الدعوة',
   inviteMilestoneNext: (remaining, reward) => `ادعُ ${remaining} آخرين لتربح ${reward}`,
   inviteMilestoneAllDone: '🏆 اكتملت كل مراحل الدعوة!',
+  leaderboardTitle: 'لوحة دعوات الأسبوع',
+  leaderboardPrizeNote: 'أفضل 3 يفوزون بـ $5 / $3 / $2 كل أسبوع',
+  leaderboardYou: (rank, count) => `أنت: #${rank} · ${count} دعوة`,
+  leaderboardUnranked: 'ادعُ أصدقاءك لتصعد لوحة هذا الأسبوع!',
   firstWinMsg: (amount) => `ربحت $${amount} USDC — أصبحت في رصيدك القابل للسحب. اسحبها بالأسفل!`,
   shareWinText: (prize) => `لقد ربحت ${prize} على Polnation 🎉 أدر العجلة واربح USDC مجاناً:`,
 
@@ -2015,6 +2072,10 @@ const ur: Translations = {
   inviteMilestoneTitle: 'دعوت سنگِ میل',
   inviteMilestoneNext: (remaining, reward) => `${reward} حاصل کرنے کے لیے ${remaining} اور مدعو کریں`,
   inviteMilestoneAllDone: '🏆 تمام دعوت سنگِ میل مکمل!',
+  leaderboardTitle: 'ہفتہ وار دعوت لیڈربورڈ',
+  leaderboardPrizeNote: 'ہر ہفتے ٹاپ 3 جیتیں $5 / $3 / $2',
+  leaderboardYou: (rank, count) => `آپ: #${rank} · ${count} دعوتیں`,
+  leaderboardUnranked: 'اس ہفتے کی فہرست میں آنے کے لیے دوستوں کو مدعو کریں!',
   firstWinMsg: (amount) => `آپ نے $${amount} USDC جیتے — یہ آپ کے قابلِ واپسی بیلنس میں آ گئے۔ نیچے سے نکالیں!`,
   shareWinText: (prize) => `میں نے Polnation پر ${prize} جیتا 🎉 گھمائیں اور مفت USDC جیتیں:`,
 

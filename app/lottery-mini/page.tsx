@@ -338,6 +338,12 @@ export default function LotteryMiniPage() {
   const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([])
   // 里程碑用"有 USDC 余额的被邀请人"计数（来自 check-spins）
   const [fundedInviteCount, setFundedInviteCount] = useState(0)
+
+  // 每周邀请榜
+  const [leaderboard, setLeaderboard] = useState<{
+    top: Array<{ rank: number; name: string; count: number; prize: number; isMe: boolean }>
+    me: { rank: number | null; count: number } | null
+  } | null>(null)
   const wheelCommandNonceRef = useRef(0)
   const [wheelSpinNonce, setWheelSpinNonce] = useState(0)
   const [wheelStopCommand, setWheelStopCommand] = useState<{ nonce: number; index: number } | null>(null)
@@ -382,6 +388,20 @@ export default function LotteryMiniPage() {
       .catch(() => { /* keep mock */ })
     return () => { cancelled = true }
   }, [])
+
+  // 拉取每周邀请榜（session 就绪后，能拿到"我的排名"）
+  useEffect(() => {
+    if (!sessionEstablished) return
+    let cancelled = false
+    fetch('/api/lottery/leaderboard')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || !d) return
+        setLeaderboard({ top: d.top || [], me: d.me || null })
+      })
+      .catch(() => { /* silent */ })
+    return () => { cancelled = true }
+  }, [sessionEstablished])
 
   // ── Rules modal ─────────────────────────────────────────────────────────────
   const [showRules, setShowRules] = useState(false)
@@ -1760,6 +1780,51 @@ export default function LotteryMiniPage() {
             )
           })()}
         </BevelCard>
+
+        {/* ── 每周邀请榜 ─────────────────────────────────────────────────── */}
+        {leaderboard && (
+          <BevelCard size="lg" pad={14} className="w-full">
+            <div className="flex items-center justify-between gap-2">
+              <EyebrowTag>{t.leaderboardTitle}</EyebrowTag>
+              <span className="text-[13px]">🏆</span>
+            </div>
+            <p className="text-[11px] mt-1" style={{ color: 'var(--poly-emerald)' }}>
+              {t.leaderboardPrizeNote}
+            </p>
+            {leaderboard.top.length === 0 ? (
+              <p className="text-white/40 text-[12px] mt-3">{t.leaderboardUnranked}</p>
+            ) : (
+              <div className="mt-3 space-y-1">
+                {leaderboard.top.map((row) => {
+                  const medal =
+                    row.rank === 1 ? '🥇' : row.rank === 2 ? '🥈' : row.rank === 3 ? '🥉' : `#${row.rank}`
+                  return (
+                    <div
+                      key={row.rank}
+                      className={`flex items-center gap-2 py-1.5 px-2 ${row.isMe ? 'bg-[var(--poly-purple)]/15 border border-[var(--poly-purple)]/30' : ''}`}
+                    >
+                      <span className="w-6 text-center text-[13px] shrink-0">{medal}</span>
+                      <span className="flex-1 text-white text-[13px] truncate">{row.name}</span>
+                      <span className="text-white/55 text-[12px] shrink-0" style={{ fontFamily: 'var(--poly-font-mono)' }}>
+                        👥{row.count}
+                      </span>
+                      {row.prize > 0 && (
+                        <span className="text-[12px] font-semibold shrink-0" style={{ color: 'var(--poly-emerald)' }}>
+                          ${row.prize}
+                        </span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+            {leaderboard.me && leaderboard.me.rank && leaderboard.me.rank > 10 && (
+              <p className="text-[11px] text-white/55 mt-2.5 pt-2.5 border-t border-white/[0.06]">
+                {t.leaderboardYou(leaderboard.me.rank, leaderboard.me.count)}
+              </p>
+            )}
+          </BevelCard>
+        )}
 
         <BevelCard size="lg" pad={14} className="w-full">
           <div className="flex items-center justify-between gap-3">
