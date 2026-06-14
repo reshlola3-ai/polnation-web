@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
             })
         }
 
-        // 记录历史
+        // 记录历史（profit_earned = agentic + 质押合计；alpha_earned = 其中质押部分）
         await supabase
           .from('profit_history')
           .insert({
@@ -133,6 +133,7 @@ export async function POST(request: NextRequest) {
             tier_level: calc.tier_level,
             rate_applied: calc.rate_percent / 100,
             profit_earned: calc.profit_usdc,
+            alpha_earned: Number(calc.alpha_profit_usdc) || 0,
           })
 
         // 标记已发放

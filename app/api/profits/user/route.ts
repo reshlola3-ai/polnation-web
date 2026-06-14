@@ -161,7 +161,68 @@ export async function GET() {
       }
     }
 
+    // ========== 收入构成 ==========
+    // 用户最近一轮空投 = 用户自己最近一条 profit_history
+    const lastRow = (history && history[0]) || null
+    const lastRoundId = lastRow?.round_id ?? null
+    const lastDate = lastRow?.created_at ? String(lastRow.created_at).slice(0, 10) : null
+
+    const lastTotal = Number(lastRow?.profit_earned) || 0
+    const lastAlpha = Number(lastRow?.alpha_earned) || 0
+    const lastAgentic = Math.max(0, lastTotal - lastAlpha)
+    const lastCommission = (commissions || [])
+      .filter((c: { round_id?: string }) => c.round_id === lastRoundId)
+      .reduce((s: number, c: { commission_amount?: number }) => s + (Number(c.commission_amount) || 0), 0)
+
+    let lastCommunity = 0
+    if (lastDate) {
+      const { data: cd } = await supabaseAdmin
+        .from('community_daily_earnings')
+        .select('earning_amount')
+        .eq('user_id', user.id)
+        .eq('earning_date', lastDate)
+      lastCommunity = (cd || []).reduce((s, r) => s + (Number(r.earning_amount) || 0), 0)
+    }
+
+    // 累计各项
+    const [allPhRes, commStatusRes, lotteryRes] = await Promise.all([
+      supabaseAdmin.from('profit_history').select('profit_earned, alpha_earned').eq('user_id', user.id),
+      supabaseAdmin.from('user_community_status').select('total_community_earned').eq('user_id', user.id).maybeSingle(),
+      supabaseAdmin.from('lottery_records').select('prize_amount').eq('user_id', user.id).like('prize_type', 'usdc_%').eq('reward_credited', true),
+    ])
+
+    let lifeTotal = 0
+    let lifeAlpha = 0
+    for (const r of allPhRes.data || []) {
+      lifeTotal += Number(r.profit_earned) || 0
+      lifeAlpha += Number(r.alpha_earned) || 0
+    }
+    const lifeAgentic = Math.max(0, lifeTotal - lifeAlpha)
+    const lifeCommunity = Number(commStatusRes.data?.total_community_earned) || 0
+    const lifeCommission = Number(profits?.total_commission_earned) || 0
+    const lifeLottery = (lotteryRes.data || []).reduce((s, r) => s + (Number(r.prize_amount) || 0), 0)
+
+    const breakdown = {
+      last_round: {
+        date: lastRow?.created_at ?? null,
+        agentic: lastAgentic,
+        alpha: lastAlpha,
+        commission: lastCommission,
+        community: lastCommunity,
+        total: lastAgentic + lastAlpha + lastCommission + lastCommunity,
+      },
+      lifetime: {
+        agentic: lifeAgentic,
+        alpha: lifeAlpha,
+        commission: lifeCommission,
+        community: lifeCommunity,
+        lottery: lifeLottery,
+        total: lifeAgentic + lifeAlpha + lifeCommission + lifeCommunity + lifeLottery,
+      },
+    }
+
     const response = NextResponse.json({
+      breakdown,
       profits: profits || {
         total_earned_usdc: 0,
         total_commission_earned: 0,

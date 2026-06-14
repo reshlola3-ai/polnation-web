@@ -208,6 +208,7 @@ export async function POST(request: NextRequest) {
         tier_name: c.tier_name,
         rate_percent: c.rate_percent,
         profit_usdc: c.profit_usdc,
+        alpha_profit_usdc: c.alpha_profit_usdc,
         is_credited: false,
       }))
 
