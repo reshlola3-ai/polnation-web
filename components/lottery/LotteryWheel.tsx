@@ -46,7 +46,7 @@ interface LotteryWheelProps {
 
 const PRIZE_CONFIGS: Array<{ type: string; color: string; amount: number; icon?: string }> = [
   { type: 'bonus_1', color: '#7c3aed', amount: 1 },
-  { type: 'thanks', color: '#1e1b4b', amount: 0 },
+  { type: 'usdc_005', color: '#10b981', amount: 0.05 },
   { type: 'usdc_05', color: '#059669', amount: 0.5 },
   { type: 'thanks', color: '#1e1b4b', amount: 0 },
   { type: 'bonus_2', color: '#7c3aed', amount: 2 },
@@ -207,12 +207,16 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
     checkAndGrantSpins()
   }, [checkStatus, checkAndGrantSpins])
 
+  // 没有翻译时的兜底文案（如 $0.05 格子，未进 i18n 也能正确显示）
+  const FALLBACK_LABELS: Record<string, string> = { usdc_005: '$0.05' }
+  const wedgeLabel = (type: string) => t.prizes[type] || FALLBACK_LABELS[type] || type
+
   const prizes = PRIZE_CONFIGS.map((p) => ({
     fonts: p.icon
       ? [
           { text: p.icon, top: '10%', fontSize: '24px' },
           {
-            text: t.prizes[p.type] || p.type,
+            text: wedgeLabel(p.type),
             top: '48%',
             fontSize: '10px',
             fontColor: '#fff',
@@ -220,7 +224,7 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
           },
         ]
       : [{
-          text: t.prizes[p.type] || p.type,
+          text: wedgeLabel(p.type),
           top: '12%',
           fontSize: '12px',
           fontColor: '#fff',

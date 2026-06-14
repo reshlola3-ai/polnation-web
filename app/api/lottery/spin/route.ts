@@ -117,7 +117,7 @@ export async function POST() {
   const isFirstSpin = (priorSpins || 0) === 0
 
   const prize = isFirstSpin
-    ? { type: 'usdc_05', label: '$0.05 USDC', amount: 0.05 }
+    ? { type: 'usdc_005', label: '$0.05 USDC', amount: 0.05 }
     : pickPrize()
 
   // 记录抽奖结果，返回 id 用于后续精确标记

@@ -118,7 +118,7 @@ declare global {
 
 const PRIZE_CONFIGS: Array<{ type: string; color: string; amount: number; icon?: string }> = [
   { type: 'bonus_1',     color: '#7c3aed', amount: 1 },
-  { type: 'thanks',      color: '#1e1b4b', amount: 0 },
+  { type: 'usdc_005',    color: '#10b981', amount: 0.05 },
   { type: 'usdc_05',     color: '#059669', amount: 0.5 },
   { type: 'thanks',      color: '#1e1b4b', amount: 0 },
   { type: 'bonus_2',     color: '#7c3aed', amount: 2 },
@@ -132,6 +132,7 @@ const PRIZE_CONFIGS: Array<{ type: string; color: string; amount: number; icon?:
 ] as const
 
 const PRIZE_LABELS: Record<string, string> = {
+  usdc_005: '$0.05 USDC',
   bonus_1: '+$1 Bonus',
   bonus_2: '+$2 Bonus',
   bonus_3: '+$3 Bonus',
