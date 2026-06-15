@@ -67,6 +67,21 @@ const translations: Record<string, any> = {
     tgTransferConfirm: "Transfer & link here",
     tgTransferCancel: "Cancel",
     tgTransferring: "Transferring…",
+    shareWinBtn: "Share & Earn +1 Spin",
+    shareWinDone: "✓ Shared! +1 Spin Awarded",
+    firstWinTitle: "🎉 Welcome to Polnation!",
+    firstWinMsg: "Your first spin reward is now in your Withdrawable Balance.",
+    inviteMilestoneTitle: "Invite Milestones",
+    milestone3: "3 funded friends → $1 USDC",
+    milestone10: "10 funded friends → $5 + 5 Spins",
+    fundedFriends: "funded friends",
+    leaderboardTitle: "Weekly Leaderboard",
+    leaderboardPrize: "Top 3 win $5/$3/$2 — paid every Monday",
+    leaderboardYou: "(You)",
+    streakTitle: "Daily Streak 🔥",
+    streakDay3: "Day 3 → +1 Spin",
+    streakDay7: "Day 7 → +$0.50",
+    streakSpin: "Spin daily to keep your streak!",
   },
   vi: {
     title: "Vòng Quay May Mắn",
@@ -125,6 +140,21 @@ const translations: Record<string, any> = {
     tgTransferConfirm: "Chuyển & liên kết tại đây",
     tgTransferCancel: "Hủy",
     tgTransferring: "Đang chuyển…",
+    shareWinBtn: "Chia sẻ & Nhận +1 Lượt",
+    shareWinDone: "✓ Đã chia sẻ! +1 Lượt Thưởng",
+    firstWinTitle: "🎉 Chào mừng đến Polnation!",
+    firstWinMsg: "Phần thưởng lần quay đầu tiên đã được thêm vào số dư rút được.",
+    inviteMilestoneTitle: "Cột Mốc Mời Bạn",
+    milestone3: "3 bạn bè nạp tiền → $1 USDC",
+    milestone10: "10 bạn bè nạp tiền → $5 + 5 Lượt",
+    fundedFriends: "bạn bè nạp tiền",
+    leaderboardTitle: "Bảng Xếp Hạng Tuần",
+    leaderboardPrize: "Top 3 thắng $5/$3/$2 — kết thúc mỗi thứ Hai",
+    leaderboardYou: "(Bạn)",
+    streakTitle: "Chuỗi Ngày 🔥",
+    streakDay3: "Ngày 3 → +1 Lượt",
+    streakDay7: "Ngày 7 → +$0.50",
+    streakSpin: "Quay mỗi ngày để giữ chuỗi!",
   },
   id: {
     title: "Roda Keberuntungan",
@@ -183,6 +213,21 @@ const translations: Record<string, any> = {
     tgTransferConfirm: "Pindahkan & tautkan di sini",
     tgTransferCancel: "Batal",
     tgTransferring: "Memindahkan…",
+    shareWinBtn: "Bagikan & Dapatkan +1 Putaran",
+    shareWinDone: "✓ Dibagikan! +1 Putaran Diberikan",
+    firstWinTitle: "🎉 Selamat datang di Polnation!",
+    firstWinMsg: "Hadiah putaran pertama Anda telah ditambahkan ke saldo yang dapat ditarik.",
+    inviteMilestoneTitle: "Pencapaian Undangan",
+    milestone3: "3 teman yang mendanai → $1 USDC",
+    milestone10: "10 teman yang mendanai → $5 + 5 Putaran",
+    fundedFriends: "teman yang mendanai",
+    leaderboardTitle: "Papan Peringkat Mingguan",
+    leaderboardPrize: "Top 3 menang $5/$3/$2 — tiap Senin",
+    leaderboardYou: "(Anda)",
+    streakTitle: "Streak Harian 🔥",
+    streakDay3: "Hari 3 → +1 Putaran",
+    streakDay7: "Hari 7 → +$0.50",
+    streakSpin: "Putar setiap hari untuk menjaga streak!",
   },
   fr: {
     title: "Roue de la Chance",
@@ -241,6 +286,21 @@ const translations: Record<string, any> = {
     tgTransferConfirm: "Transférer et lier ici",
     tgTransferCancel: "Annuler",
     tgTransferring: "Transfert…",
+    shareWinBtn: "Partager & Gagner +1 Tour",
+    shareWinDone: "✓ Partagé ! +1 Tour Accordé",
+    firstWinTitle: "🎉 Bienvenue sur Polnation !",
+    firstWinMsg: "La récompense de votre premier tour a été ajoutée à votre solde retirable.",
+    inviteMilestoneTitle: "Jalons d'Invitation",
+    milestone3: "3 amis financés → 1 $ USDC",
+    milestone10: "10 amis financés → 5 $ + 5 Tours",
+    fundedFriends: "amis financés",
+    leaderboardTitle: "Classement Hebdomadaire",
+    leaderboardPrize: "Top 3 gagnent 5 $/3 $/2 $ — chaque lundi",
+    leaderboardYou: "(Vous)",
+    streakTitle: "Série Quotidienne 🔥",
+    streakDay3: "Jour 3 → +1 Tour",
+    streakDay7: "Jour 7 → +0,50 $",
+    streakSpin: "Tournez chaque jour pour garder votre série !",
   },
 }
 
@@ -260,6 +320,15 @@ interface SpinData {
   nextMilestone: number
   referralCode: string | null
   welcomeSpinEarned?: boolean
+  streak?: number
+}
+
+interface LeaderboardEntry {
+  rank: number
+  name: string
+  count: number
+  prize: number
+  isMe: boolean
 }
 
 interface Membership {
@@ -273,6 +342,9 @@ export default function TestLotteryPage() {
   const [locale, setLocale] = useState('en')
   const [spinData, setSpinData] = useState<SpinData | null>(null)
   const [shareState, setShareState] = useState<'idle' | 'copied'>('idle')
+  const [fundedInviteCount, setFundedInviteCount] = useState(0)
+  const [streak, setStreak] = useState(0)
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [membership, setMembership] = useState<Membership | null>(null)
   const [verifying, setVerifying] = useState(false)
   // Set when a verify completes but the spin still wasn't granted (user not in
@@ -301,6 +373,7 @@ export default function TestLotteryPage() {
       if (r.ok) {
         const d = (await r.json()) as SpinData
         setSpinData(d)
+        if (d.streak !== undefined) setStreak(d.streak)
         return d
       }
     } catch {
@@ -321,6 +394,26 @@ export default function TestLotteryPage() {
       // silent
     }
     return null
+  }, [fetchWithTimeout])
+
+  const loadFundedCount = useCallback(async () => {
+    try {
+      const r = await fetchWithTimeout('/api/lottery/check-spins', { method: 'POST' })
+      if (r.ok) {
+        const d = await r.json()
+        setFundedInviteCount(d.inviteFundedCount ?? 0)
+      }
+    } catch {}
+  }, [fetchWithTimeout])
+
+  const loadLeaderboard = useCallback(async () => {
+    try {
+      const r = await fetchWithTimeout('/api/lottery/leaderboard')
+      if (r.ok) {
+        const d = await r.json()
+        setLeaderboard(d.top ?? [])
+      }
+    } catch {}
   }, [fetchWithTimeout])
 
   // Re-evaluate the welcome spin: ask the server to grant any earned spins
@@ -354,7 +447,9 @@ export default function TestLotteryPage() {
     setLocale(getLocale())
     loadLottery()
     loadMembership()
-  }, [loadLottery, loadMembership])
+    loadFundedCount()
+    loadLeaderboard()
+  }, [loadLottery, loadMembership, loadFundedCount, loadLeaderboard])
 
   // Auto-verify on tab return ONLY when the user is already TG-bound and the
   // welcome spin isn't earned yet — i.e. they've gone off to join the group.
@@ -566,7 +661,11 @@ export default function TestLotteryPage() {
 
       {/* ─── Lottery Wheel ─── */}
       <BevelCard size="lg" pad={20} className="max-w-lg w-full">
-        <LotteryWheel t={t} />
+        <LotteryWheel
+          t={t}
+          referralCode={spinData?.referralCode ?? undefined}
+          onSpinComplete={() => { void loadLottery(); void loadFundedCount(); void loadLeaderboard() }}
+        />
       </BevelCard>
 
       {/* ─── Reward info ─── */}
@@ -579,6 +678,114 @@ export default function TestLotteryPage() {
           <span className="text-base">⭐</span>
           <p className="text-xs text-[var(--poly-purple)]">{t.rewardBonus}</p>
         </div>
+      </div>
+
+      {/* ─── Invite Milestones ─── */}
+      <div className="mt-3 max-w-lg w-full">
+        <BevelCard size="lg" pad={20}>
+          <EyebrowTag className="mb-3 block">{t.inviteMilestoneTitle || 'Invite Milestones'}</EyebrowTag>
+          <div className="mb-4">
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="text-white/60">{fundedInviteCount} {t.fundedFriends || 'funded friends'}</span>
+              <span style={{ color: 'var(--poly-emerald)' }}>/ 10</span>
+            </div>
+            <div className="h-1.5 bg-white/[0.06] overflow-hidden rounded-full">
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${Math.min(100, (fundedInviteCount / 10) * 100)}%`,
+                  background: 'linear-gradient(90deg, #10b981, #34d399)',
+                }}
+              />
+            </div>
+          </div>
+          {([
+            { count: 3,  label: t.milestone3  || '3 funded friends → $1 USDC' },
+            { count: 10, label: t.milestone10 || '10 funded friends → $5 + 5 Spins' },
+          ] as { count: number; label: string }[]).map((m) => {
+            const done = fundedInviteCount >= m.count
+            return (
+              <div key={m.count} className={`flex items-center gap-3 p-2.5 mb-1.5 border ${done ? 'border-emerald-500/30 bg-emerald-500/[0.08]' : 'border-white/[0.06] bg-white/[0.03]'}`}>
+                <span className="text-base shrink-0">{done ? '✅' : '⬜'}</span>
+                <span className={`text-sm flex-1 ${done ? 'text-emerald-300' : 'text-white/70'}`}>{m.label}</span>
+                {done && <span className="text-[10px] text-emerald-400 font-semibold shrink-0">Claimed</span>}
+              </div>
+            )
+          })}
+          <p className="text-[10px] text-white/30 mt-2">Only friends with USDC on-chain count toward milestones.</p>
+        </BevelCard>
+      </div>
+
+      {/* ─── Weekly Leaderboard ─── */}
+      <div className="mt-3 max-w-lg w-full">
+        <BevelCard size="lg" pad={20}>
+          <div className="flex items-center justify-between mb-1">
+            <EyebrowTag>{t.leaderboardTitle || 'Weekly Leaderboard'}</EyebrowTag>
+            <span className="text-[10px] text-white/35" style={{ fontFamily: 'var(--poly-font-mono)' }}>resets Mon</span>
+          </div>
+          <p className="text-xs text-white/40 mb-3">{t.leaderboardPrize || 'Top 3 win $5/$3/$2 — paid every Monday'}</p>
+          {leaderboard.length === 0 ? (
+            <p className="text-center text-white/30 text-xs py-4">No entries yet this week</p>
+          ) : (
+            <div className="space-y-1.5">
+              {leaderboard.slice(0, 5).map((entry) => {
+                const medals = ['🥇', '🥈', '🥉']
+                return (
+                  <div
+                    key={entry.rank}
+                    className={`flex items-center gap-3 p-2.5 border ${entry.isMe ? 'border-purple-400/40 bg-purple-500/10' : 'border-white/[0.06] bg-white/[0.03]'}`}
+                  >
+                    <span className="text-base w-6 text-center shrink-0">{medals[entry.rank - 1] || `#${entry.rank}`}</span>
+                    <span className={`flex-1 text-sm truncate ${entry.isMe ? 'text-purple-200' : 'text-white/75'}`}>
+                      {entry.name}{entry.isMe ? ` ${t.leaderboardYou || '(You)'}` : ''}
+                    </span>
+                    <span className="text-xs text-white/45 shrink-0">{entry.count} invites</span>
+                    {entry.prize > 0 && (
+                      <span className="text-xs font-semibold shrink-0" style={{ color: 'var(--poly-emerald)' }}>
+                        ${entry.prize}
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </BevelCard>
+      </div>
+
+      {/* ─── Daily Streak ─── */}
+      <div className="mt-3 max-w-lg w-full">
+        <BevelCard size="lg" pad={20}>
+          <EyebrowTag className="mb-3 block">{t.streakTitle || 'Daily Streak 🔥'}</EyebrowTag>
+          <div className="flex items-center gap-4 mb-4">
+            <div className="text-4xl font-black text-white leading-none">{streak}</div>
+            <div>
+              <p className="text-xs text-white/50">day{streak !== 1 ? 's' : ''} in a row</p>
+              <p className="text-xs text-amber-300/70 mt-0.5">{t.streakSpin || 'Spin daily to keep your streak!'}</p>
+            </div>
+          </div>
+          <div className="mb-3">
+            <div className="h-1.5 bg-white/[0.06] overflow-hidden rounded-full">
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${Math.min(100, (streak / 7) * 100)}%`,
+                  background: 'linear-gradient(90deg, #f59e0b, #fcd34d)',
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <div className={`flex-1 p-2 border text-center ${streak >= 3 ? 'border-amber-400/40 bg-amber-400/10' : 'border-white/[0.06] bg-white/[0.03]'}`}>
+              <p className="text-xs font-semibold" style={{ color: streak >= 3 ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}>{t.streakDay3 || 'Day 3 → +1 Spin'}</p>
+              {streak >= 3 && <p className="text-[10px] text-amber-300/60 mt-0.5">✓ Earned</p>}
+            </div>
+            <div className={`flex-1 p-2 border text-center ${streak >= 7 ? 'border-amber-400/40 bg-amber-400/10' : 'border-white/[0.06] bg-white/[0.03]'}`}>
+              <p className="text-xs font-semibold" style={{ color: streak >= 7 ? '#fbbf24' : 'rgba(255,255,255,0.4)' }}>{t.streakDay7 || 'Day 7 → +$0.50'}</p>
+              {streak >= 7 && <p className="text-[10px] text-amber-300/60 mt-0.5">✓ Earned</p>}
+            </div>
+          </div>
+        </BevelCard>
       </div>
 
       {/* ─── Prize table ─── */}

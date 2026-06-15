@@ -29,6 +29,10 @@ interface LotteryTranslations {
   bonusNote?: string
   usdcNote?: string
   checkSpins?: string
+  shareWinBtn?: string
+  shareWinDone?: string
+  firstWinTitle?: string
+  firstWinMsg?: string
 }
 
 interface SpinRecord {
@@ -42,6 +46,8 @@ interface SpinRecord {
 
 interface LotteryWheelProps {
   t: LotteryTranslations
+  referralCode?: string
+  onSpinComplete?: () => void
 }
 
 const PRIZE_CONFIGS: Array<{ type: string; color: string; amount: number; icon?: string }> = [
@@ -154,7 +160,7 @@ function OrbitingLights({ active }: { active: boolean }) {
   )
 }
 
-export function LotteryWheel({ t }: LotteryWheelProps) {
+export function LotteryWheel({ t, referralCode, onSpinComplete }: LotteryWheelProps) {
   const wheelRef = useRef<any>(null)
   const [isSpinning, setIsSpinning] = useState(false)
   const [canSpin, setCanSpin] = useState(false)
@@ -166,6 +172,8 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
   const [remainingSpins, setRemainingSpins] = useState(0)
   const [isInfluencer, setIsInfluencer] = useState(false)
   const [checking, setChecking] = useState(false)
+  const [isFirstSpin, setIsFirstSpin] = useState(false)
+  const [shareState, setShareState] = useState<'idle' | 'loading' | 'done'>('idle')
 
   // Check lottery status on mount
   const checkStatus = useCallback(async () => {
@@ -286,6 +294,7 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
       // Find the prize index
       const prizeIndex = PRIZE_CONFIGS.findIndex(p => p.type === data.prize_type)
       setResult({ type: data.prize_type, label: data.prize_label, amount: data.prize_amount })
+      setIsFirstSpin(!!data.first_spin)
       setLoading(false)
 
       // Start spinning to the correct prize
@@ -310,6 +319,32 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
     }
     // Refresh history
     checkStatus()
+    onSpinComplete?.()
+  }
+
+  const shareUrl = referralCode
+    ? `https://polnation.com/register?ref=${referralCode}`
+    : 'https://polnation.com'
+
+  const handleShareWin = async () => {
+    if (shareState !== 'idle') return
+    setShareState('loading')
+    try {
+      await fetch('/api/lottery/share-bonus', { method: 'POST' })
+      const shareText = `🎉 I just won on Polnation Lucky Wheel! Spin to win real USDC → ${shareUrl}`
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        try { await navigator.share({ title: 'Polnation Lucky Wheel', text: shareText, url: shareUrl }) } catch {}
+      } else {
+        try { await navigator.clipboard.writeText(shareText) } catch {}
+      }
+    } catch {}
+    setShareState('done')
+  }
+
+  const closeResult = () => {
+    setShowResult(false)
+    setIsFirstSpin(false)
+    setShareState('idle')
   }
 
   const isWin = result && result.type !== 'thanks'
@@ -478,7 +513,7 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowResult(false)}
+            onClick={closeResult}
           >
             <motion.div
               className="relative bg-[#1a1735] border border-purple-500/30 rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl overflow-hidden"
@@ -547,7 +582,7 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
                   >
                     {t.prizes[result.type] || result.label}
                   </p>
-                  <p className="relative text-xs text-zinc-400 mb-6">
+                  <p className="relative text-xs text-zinc-400 mb-3">
                     {isUsdcWin
                       ? t.usdcNote || '💰 USDC has been added to your withdrawable balance'
                       : isBonusWin
@@ -556,6 +591,26 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
                       ? '🎁 Contact admin on Telegram to claim your prize'
                       : ''}
                   </p>
+                  {isFirstSpin && isUsdcWin && (
+                    <div className="relative mb-3 p-3 bg-emerald-500/10 border border-emerald-500/25 rounded-xl text-left">
+                      <p className="text-emerald-300 text-sm font-semibold">{t.firstWinTitle || '🎉 Welcome to Polnation!'}</p>
+                      <p className="text-emerald-200/70 text-xs mt-0.5">{t.firstWinMsg || 'Your first spin reward is now in your Withdrawable Balance.'}</p>
+                    </div>
+                  )}
+                  {isUsdcWin && (
+                    <button
+                      type="button"
+                      onClick={handleShareWin}
+                      disabled={shareState !== 'idle'}
+                      className="relative w-full py-2.5 mb-3 border border-purple-400/40 bg-purple-500/10 text-purple-300 text-sm font-medium rounded-xl hover:bg-purple-500/20 transition-all disabled:opacity-60"
+                    >
+                      {shareState === 'done'
+                        ? (t.shareWinDone || '✓ Shared! +1 Spin Awarded')
+                        : shareState === 'loading'
+                        ? '…'
+                        : (t.shareWinBtn || '📣 Share & Earn +1 Spin')}
+                    </button>
+                  )}
                 </>
               ) : (
                 <>
@@ -571,7 +626,7 @@ export function LotteryWheel({ t }: LotteryWheelProps) {
                 </>
               )}
               <button
-                onClick={() => setShowResult(false)}
+                onClick={closeResult}
                 className="relative w-full py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white font-medium rounded-xl hover:opacity-90 transition-opacity"
               >
                 {t.close}
