@@ -28,12 +28,8 @@ async function getSupabaseUser() {
   return { supabase, user }
 }
 
-const IDENTITY_BUCKET = 'claim-identity'
-const MAX_PHOTO_BYTES = 8 * 1024 * 1024 // 8MB
-const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-
 // Claim 奖励池 —— 审批制：提交后进入 pending，管理员批准后才发钱+升级。
-// 首次 claim 需上传自拍照片 + 真名（之后复用）。
+// 首次 claim 需提供真名 + 电话（带区号），之后复用。
 export async function POST(request: NextRequest) {
   const { user } = await getSupabaseUser()
   if (!user) {
@@ -49,7 +45,7 @@ export async function POST(request: NextRequest) {
     const form = await request.formData()
     const level = Number(form.get('level'))
     const realNameRaw = (form.get('real_name') as string | null)?.trim() || ''
-    const photo = form.get('photo') as File | null
+    const phoneRaw = (form.get('phone') as string | null)?.trim() || ''
 
     if (!level || level < 1) {
       return NextResponse.json({ error: 'Invalid level' }, { status: 400 })
@@ -174,37 +170,18 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (!identity) {
-      // 首次：必须带真名 + 照片
+      // 首次：必须带真名 + 电话（带区号）
       if (!realNameRaw || realNameRaw.length < 2) {
         return NextResponse.json({ error: 'Real name is required', need_identity: true }, { status: 400 })
       }
-      if (!photo || typeof photo === 'string') {
-        return NextResponse.json({ error: 'A photo of yourself is required', need_identity: true }, { status: 400 })
-      }
-      if (!ALLOWED_PHOTO_TYPES.includes(photo.type)) {
-        return NextResponse.json({ error: 'Photo must be JPG, PNG or WEBP', need_identity: true }, { status: 400 })
-      }
-      if (photo.size > MAX_PHOTO_BYTES) {
-        return NextResponse.json({ error: 'Photo too large (max 8MB)', need_identity: true }, { status: 400 })
-      }
-
-      const ext = photo.type === 'image/png' ? 'png' : photo.type === 'image/webp' ? 'webp' : 'jpg'
-      const path = `${user.id}/${Date.now()}.${ext}`
-      const bytes = Buffer.from(await photo.arrayBuffer())
-
-      const { error: uploadErr } = await supabaseAdmin
-        .storage
-        .from(IDENTITY_BUCKET)
-        .upload(path, bytes, { contentType: photo.type, upsert: false })
-
-      if (uploadErr) {
-        console.error('Identity photo upload failed:', uploadErr)
-        return NextResponse.json({ error: 'Failed to upload photo, please retry' }, { status: 500 })
+      const phoneDigits = phoneRaw.replace(/\D/g, '')
+      if (phoneDigits.length < 6) {
+        return NextResponse.json({ error: 'A valid phone number is required', need_identity: true }, { status: 400 })
       }
 
       const { error: identErr } = await supabaseAdmin
         .from('user_identity')
-        .insert({ user_id: user.id, real_name: realNameRaw, photo_path: path })
+        .insert({ user_id: user.id, real_name: realNameRaw, phone: phoneRaw })
 
       if (identErr) {
         console.error('Identity insert failed:', identErr)

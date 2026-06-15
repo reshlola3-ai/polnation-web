@@ -56,11 +56,11 @@ export async function GET() {
     // 身份资料
     const { data: identities } = await supabase
       .from('user_identity')
-      .select('user_id, real_name, photo_path')
+      .select('user_id, real_name, photo_path, phone')
       .in('user_id', userIds.length ? userIds : ['00000000-0000-0000-0000-000000000000'])
 
-    const identityByUser = new Map<string, { real_name: string; photo_path: string }>()
-    for (const i of identities || []) identityByUser.set(i.user_id, { real_name: i.real_name, photo_path: i.photo_path })
+    const identityByUser = new Map<string, { real_name: string; photo_path: string | null; phone: string | null }>()
+    for (const i of identities || []) identityByUser.set(i.user_id, { real_name: i.real_name, photo_path: i.photo_path, phone: i.phone })
 
     // 同名计数（跨账号疑似重复）
     const nameCount = new Map<string, number>()
@@ -105,6 +105,7 @@ export async function GET() {
           reviewed_at: r.reviewed_at,
           rejected_reason: r.rejected_reason,
           real_name: ident?.real_name || null,
+          phone: ident?.phone || null,
           photo_url: photoUrl,
           same_name_count: nameKey ? (nameCount.get(nameKey) || 1) : 1,
           claims_frozen: frozenByUser.get(r.user_id) || false,

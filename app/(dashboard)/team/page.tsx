@@ -20,9 +20,10 @@ import {
 import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
+import { SearchableSelect } from '@/components/ui/SearchableSelect'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase'
-import { getCountryByCode } from '@/lib/countries'
+import { getCountryByCode, countries } from '@/lib/countries'
 import { Referral } from '@/lib/types'
 
 interface CommunityLevel {
@@ -85,6 +86,8 @@ interface DailyEarning {
 }
 
 const SUPPORT_TELEGRAM = 'https://t.me/polnationsupport'
+const SUPPORT_WHATSAPP = 'https://wa.me/212773084865?text=' +
+  encodeURIComponent('Hi Hossam, I submitted my Polnation community reward claim and would like to follow up.')
 
 export default function TeamPage() {
   const t = useTranslations('team')
@@ -136,7 +139,8 @@ export default function TeamPage() {
   const [hasIdentity, setHasIdentity] = useState(false)
   const [claimModalLevel, setClaimModalLevel] = useState<number | null>(null)
   const [claimRealName, setClaimRealName] = useState('')
-  const [claimPhoto, setClaimPhoto] = useState<File | null>(null)
+  const [claimPhoneCode, setClaimPhoneCode] = useState('+212')
+  const [claimPhoneNumber, setClaimPhoneNumber] = useState('')
   const [claimSubmitting, setClaimSubmitting] = useState(false)
   const [claimCongrats, setClaimCongrats] = useState<{ levelName: string; amount: number } | null>(null)
   const [showAllLevels, setShowAllLevels] = useState(false)
@@ -291,7 +295,7 @@ export default function TeamPage() {
     }
     setMessage(null)
     setClaimRealName('')
-    setClaimPhoto(null)
+    setClaimPhoneNumber('')
     setClaimCongrats(null)
     setClaimModalLevel(level)
   }
@@ -299,13 +303,14 @@ export default function TeamPage() {
   // 提交 claim（multipart：首次带真名+照片）
   const submitClaim = async () => {
     if (claimModalLevel == null) return
+    const phoneDigits = claimPhoneNumber.replace(/\D/g, '')
     if (!hasIdentity) {
       if (!claimRealName.trim() || claimRealName.trim().length < 2) {
         setMessage({ type: 'error', text: 'Please enter your real name.' })
         return
       }
-      if (!claimPhoto) {
-        setMessage({ type: 'error', text: 'Please upload a photo of yourself.' })
+      if (phoneDigits.length < 6) {
+        setMessage({ type: 'error', text: 'Please enter a valid phone number.' })
         return
       }
     }
@@ -316,7 +321,7 @@ export default function TeamPage() {
       fd.append('level', String(claimModalLevel))
       if (!hasIdentity) {
         fd.append('real_name', claimRealName.trim())
-        if (claimPhoto) fd.append('photo', claimPhoto)
+        fd.append('phone', `${claimPhoneCode} ${phoneDigits}`)
       }
       const res = await fetch('/api/community/claim', { method: 'POST', body: fd })
       const data = await res.json()
@@ -994,13 +999,24 @@ export default function TeamPage() {
                   credited to your withdrawable balance once approved. If you have any questions,
                   please contact support.
                 </div>
+                <p className="text-[11px] text-zinc-400 mb-2">Need help? Contact our admin directly:</p>
                 <a
                   href={SUPPORT_TELEGRAM}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full mb-2 py-2.5 rounded-lg bg-[#229ED9] text-white font-medium hover:opacity-90"
+                  className="flex items-center justify-center gap-2 w-full mb-2 py-2.5 rounded-lg bg-[#229ED9] text-white font-medium hover:opacity-90"
                 >
-                  💬 Contact Support
+                  <span className="text-base">✈️</span>
+                  Contact on Telegram
+                </a>
+                <a
+                  href={SUPPORT_WHATSAPP}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full mb-2 py-2.5 rounded-lg bg-[#25D366] text-white font-medium hover:opacity-90"
+                >
+                  <span className="text-base">🟢</span>
+                  Chat on WhatsApp (Hossam)
                 </a>
                 <button
                   onClick={() => { setClaimModalLevel(null); setClaimCongrats(null) }}
@@ -1043,19 +1059,33 @@ export default function TeamPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-zinc-400 mb-1">Photo of yourself</label>
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp"
-                        onChange={(e) => setClaimPhoto(e.target.files?.[0] || null)}
-                        className="w-full text-xs text-zinc-300 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-[var(--poly-purple)] file:text-white"
-                      />
-                      {claimPhoto && (
-                        <p className="text-[11px] text-emerald-400 mt-1">✓ {claimPhoto.name}</p>
-                      )}
+                      <label className="block text-xs text-zinc-400 mb-1">Phone number (with country code)</label>
+                      <div className="flex gap-2">
+                        <div className="w-28 shrink-0">
+                          <SearchableSelect
+                            options={countries.map(c => ({
+                              value: c.dialCode,
+                              label: `${c.flag} ${c.dialCode}`,
+                              search: `${c.name} ${c.code} ${c.dialCode}`,
+                            }))}
+                            value={claimPhoneCode}
+                            onChange={setClaimPhoneCode}
+                            placeholder="Code"
+                            searchPlaceholder="Search country / code"
+                          />
+                        </div>
+                        <input
+                          type="tel"
+                          inputMode="tel"
+                          value={claimPhoneNumber}
+                          onChange={(e) => setClaimPhoneNumber(e.target.value)}
+                          placeholder="Phone number"
+                          className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[var(--poly-purple)]"
+                        />
+                      </div>
                     </div>
                     <p className="text-[11px] text-zinc-500">
-                      Required for your first claim only. Stored privately for review.
+                      Required for your first claim only. Used to verify account ownership during review.
                     </p>
                   </div>
                 )}

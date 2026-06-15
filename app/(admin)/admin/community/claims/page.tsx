@@ -23,6 +23,7 @@ interface ClaimItem {
   reviewed_at: string | null
   rejected_reason: string | null
   real_name: string | null
+  phone: string | null
   photo_url: string | null
   same_name_count: number
   claims_frozen: boolean
@@ -162,6 +163,11 @@ export default function AdminClaimsPage() {
                     </span>
                   </div>
                   <p className="text-zinc-400 text-sm mt-0.5">{c.username || '—'} · {c.email || '—'}</p>
+                  {c.phone && (
+                    <a href={`tel:${c.phone.replace(/\s/g, '')}`} className="text-emerald-300 hover:text-emerald-200 text-sm mt-0.5 inline-flex items-center gap-1">
+                      📞 {c.phone}
+                    </a>
+                  )}
                   {c.wallet_address && (
                     <a href={`https://polygonscan.com/address/${c.wallet_address}`} target="_blank" rel="noopener noreferrer"
                       className="text-zinc-500 hover:text-emerald-400 text-xs inline-flex items-center gap-1 mt-0.5">
