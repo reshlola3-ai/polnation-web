@@ -430,6 +430,16 @@
     }
   },
   "earnings": {
+    "breakdown": {
+      "title": "تفاصيل الأرباح",
+      "lastAirdrop": "آخر إيردروب",
+      "lifetime": "الإجمالي",
+      "agentic": "ربح Agentic",
+      "alphaStake": "AlphaStake",
+      "communityDaily": "المجتمع (يومي)",
+      "lottery": "أرباح اليانصيب",
+      "total": "الإجمالي"
+    },
     "title": "الأرباح",
     "subtitle": "تتبع توزيعات أرباح مجتمعك",
     "usdcBalance": "رصيد USDC لديك",

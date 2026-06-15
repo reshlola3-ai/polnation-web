@@ -431,6 +431,16 @@
     }
   },
   "earnings": {
+    "breakdown": {
+      "title": "Rincian Pendapatan",
+      "lastAirdrop": "Airdrop terakhir",
+      "lifetime": "Total",
+      "agentic": "Pendapatan agentic",
+      "alphaStake": "AlphaStake",
+      "communityDaily": "Komunitas (harian)",
+      "lottery": "Kemenangan undian",
+      "total": "Total"
+    },
     "title": "Penghasilan",
     "subtitle": "Lacak distribusi Agentic AI Earning Anda",
     "usdcBalance": "Saldo USDC Anda",

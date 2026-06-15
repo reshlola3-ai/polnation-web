@@ -430,6 +430,16 @@
     }
   },
   "earnings": {
+    "breakdown": {
+      "title": "कमाई का विवरण",
+      "lastAirdrop": "पिछला एयरड्रॉप",
+      "lifetime": "कुल",
+      "agentic": "एजेंटिक कमाई",
+      "alphaStake": "AlphaStake",
+      "communityDaily": "कम्युनिटी (दैनिक)",
+      "lottery": "लॉटरी जीत",
+      "total": "कुल"
+    },
     "title": "कमाई",
     "subtitle": "अपने कम्युनिटी डिविडेंड वितरण ट्रैक करें",
     "usdcBalance": "आपका USDC बैलेंस",

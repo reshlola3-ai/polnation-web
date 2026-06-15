@@ -430,6 +430,16 @@
     }
   },
   "earnings": {
+    "breakdown": {
+      "title": "Earning Details",
+      "lastAirdrop": "Last airdrop",
+      "lifetime": "Lifetime",
+      "agentic": "Agentic earning",
+      "alphaStake": "AlphaStake",
+      "communityDaily": "Community pool (daily)",
+      "lottery": "Lottery winnings",
+      "total": "Total"
+    },
     "title": "Earnings",
     "subtitle": "Track your Agentic AI Earning distributions",
     "usdcBalance": "Your USDC Balance",

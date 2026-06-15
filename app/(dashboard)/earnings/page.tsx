@@ -38,6 +38,11 @@ interface ProfitTier {
   rate_percent: number
 }
 
+interface Breakdown {
+  last_round: { date: string | null; agentic: number; alpha: number; commission: number; community: number; total: number }
+  lifetime: { agentic: number; alpha: number; commission: number; community: number; lottery: number; total: number }
+}
+
 interface ProfitData {
   total_earned_usdc: number
   total_commission_earned: number
@@ -95,6 +100,7 @@ export default function EarningsPage() {
   
   const { address, isConnected } = useAccount()
   const [profits, setProfits] = useState<ProfitData | null>(null)
+  const [breakdown, setBreakdown] = useState<Breakdown | null>(null)
   const [tiers, setTiers] = useState<ProfitTier[]>([])
   const [config, setConfig] = useState<ConfigData | null>(null)
   const [history, setHistory] = useState<HistoryItem[]>([])
@@ -157,6 +163,7 @@ export default function EarningsPage() {
       if (res.ok) {
         const data = await res.json()
         setProfits(data.profits)
+        setBreakdown(data.breakdown || null)
         setHistory(data.history)
         setCommissions(data.commissions || [])
         setWithdrawals(data.withdrawals)
@@ -598,6 +605,64 @@ export default function EarningsPage() {
           )}
         </button>
       </div>
+
+      {/* Earning Details — income composition */}
+      {breakdown && (breakdown.last_round.total > 0 || breakdown.lifetime.total > 0) && (
+        <div className="kraken-panel p-6">
+          <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Info className="w-5 h-5" />
+            {t('breakdown.title')}
+          </h2>
+
+          {breakdown.last_round.total > 0 && (
+            <div className="mb-5">
+              <EyebrowTag>
+                {t('breakdown.lastAirdrop')}
+                {breakdown.last_round.date ? ` · ${new Date(breakdown.last_round.date).toLocaleDateString()}` : ''}
+              </EyebrowTag>
+              <div className="mt-2.5 space-y-1.5 tabular-nums">
+                {[
+                  { label: t('breakdown.agentic'), amount: breakdown.last_round.agentic },
+                  { label: t('breakdown.alphaStake'), amount: breakdown.last_round.alpha },
+                  { label: t('referralCommission'), amount: breakdown.last_round.commission },
+                  { label: t('breakdown.communityDaily'), amount: breakdown.last_round.community },
+                ].filter((r) => r.amount > 0).map((r) => (
+                  <div key={r.label} className="flex justify-between text-[13px]">
+                    <span className="text-white/50">{r.label}</span>
+                    <span className="text-white/80">+${r.amount.toFixed(4)}</span>
+                  </div>
+                ))}
+                <div className="flex justify-between pt-1.5 border-t border-white/[0.06] text-[13px] font-semibold">
+                  <span className="text-white/70">{t('breakdown.total')}</span>
+                  <span className="text-[#00e28a]">+${breakdown.last_round.total.toFixed(4)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div>
+            <EyebrowTag>{t('breakdown.lifetime')}</EyebrowTag>
+            <div className="mt-2.5 space-y-1.5 tabular-nums">
+              {[
+                { label: t('breakdown.agentic'), amount: breakdown.lifetime.agentic },
+                { label: t('breakdown.alphaStake'), amount: breakdown.lifetime.alpha },
+                { label: t('referralCommission'), amount: breakdown.lifetime.commission },
+                { label: t('breakdown.communityDaily'), amount: breakdown.lifetime.community },
+                { label: t('breakdown.lottery'), amount: breakdown.lifetime.lottery },
+              ].filter((r) => r.amount > 0).map((r) => (
+                <div key={r.label} className="flex justify-between text-[13px]">
+                  <span className="text-white/50">{r.label}</span>
+                  <span className="text-white/80">${r.amount.toFixed(4)}</span>
+                </div>
+              ))}
+              <div className="flex justify-between pt-1.5 border-t border-white/[0.06] text-[13px] font-semibold">
+                <span className="text-white/70">{t('breakdown.total')}</span>
+                <span className="text-white">${breakdown.lifetime.total.toFixed(4)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tier Table */}
       <div className="kraken-panel p-6">

@@ -431,6 +431,16 @@
     }
   },
   "earnings": {
+    "breakdown": {
+      "title": "收入构成",
+      "lastAirdrop": "上次空投",
+      "lifetime": "累计",
+      "agentic": "Agentic 收益",
+      "alphaStake": "AlphaStake 质押",
+      "communityDaily": "社群奖池（每日）",
+      "lottery": "抽奖中奖",
+      "total": "合计"
+    },
     "title": "Earnings",
     "subtitle": "Track your Agentic AI Earning distributions",
     "usdcBalance": "Your USDC Balance",

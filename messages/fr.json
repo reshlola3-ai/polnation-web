@@ -430,6 +430,16 @@
     }
   },
   "earnings": {
+    "breakdown": {
+      "title": "Détail des gains",
+      "lastAirdrop": "Dernier airdrop",
+      "lifetime": "Cumul",
+      "agentic": "Gain agentic",
+      "alphaStake": "AlphaStake",
+      "communityDaily": "Communauté (quotidien)",
+      "lottery": "Gains à la loterie",
+      "total": "Total"
+    },
     "title": "Revenus",
     "subtitle": "Suivez vos distributions Agentic AI Earning",
     "usdcBalance": "Votre solde USDC",

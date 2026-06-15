@@ -430,6 +430,16 @@
     }
   },
   "earnings": {
+    "breakdown": {
+      "title": "Chi tiết thu nhập",
+      "lastAirdrop": "Đợt airdrop gần nhất",
+      "lifetime": "Tổng",
+      "agentic": "Thu nhập agentic",
+      "alphaStake": "AlphaStake",
+      "communityDaily": "Cộng đồng (hằng ngày)",
+      "lottery": "Trúng thưởng",
+      "total": "Tổng"
+    },
     "title": "Thu nhập",
     "subtitle": "Theo dõi các khoản phân phối Agentic AI Earning của bạn",
     "usdcBalance": "Số dư USDC của bạn",

@@ -430,6 +430,16 @@
     }
   },
   "earnings": {
+    "breakdown": {
+      "title": "کمائی کی تفصیل",
+      "lastAirdrop": "آخری ایئرڈراپ",
+      "lifetime": "مجموعی",
+      "agentic": "Agentic کمائی",
+      "alphaStake": "AlphaStake",
+      "communityDaily": "کمیونٹی (روزانہ)",
+      "lottery": "لاٹری جیت",
+      "total": "کل"
+    },
     "title": "کمائی",
     "subtitle": "اپنی کمیونٹی ڈیویڈنڈ تقسیم ٹریک کریں",
     "usdcBalance": "آپ کا USDC بیلنس",
