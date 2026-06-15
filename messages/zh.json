@@ -357,7 +357,10 @@
       "shareToX": "Share to X",
       "ch1Bonus": "+1 Spin",
       "ch2Bonus": "+2 Spins",
-      "ch3Bonus": "+3 Spins + VIP Badge"
+      "ch3Bonus": "+3 Spins + VIP Badge",
+      "groupLinkDesc": "粘贴你的 Telegram 群组邀请链接，管理员将核验你的群成员数。",
+      "groupLinkPlaceholder": "https://t.me/你的群组",
+      "submitForReview": "提交审核"
     },
     "taskDb": {
       "profile_setup": {

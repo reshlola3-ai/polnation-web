@@ -357,7 +357,10 @@
       "shareToX": "Bagikan ke X",
       "ch1Bonus": "+1 Putaran",
       "ch2Bonus": "+2 Putaran",
-      "ch3Bonus": "+3 Putaran + Lencana VIP"
+      "ch3Bonus": "+3 Putaran + Lencana VIP",
+      "groupLinkDesc": "Tempel tautan undangan grup Telegram Anda agar admin dapat memverifikasi jumlah anggota.",
+      "groupLinkPlaceholder": "https://t.me/grup_anda",
+      "submitForReview": "Kirim untuk Ditinjau"
     },
     "taskDb": {
       "profile_setup": {

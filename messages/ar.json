@@ -356,7 +356,10 @@
       "shareToX": "شارك على X",
       "ch1Bonus": "+1 لفة",
       "ch2Bonus": "+2 لفات",
-      "ch3Bonus": "+3 لفات + شارة VIP"
+      "ch3Bonus": "+3 لفات + شارة VIP",
+      "groupLinkDesc": "الصق رابط دعوة مجموعتك على تيليجرام ليتمكن المشرف من التحقق من عدد الأعضاء.",
+      "groupLinkPlaceholder": "https://t.me/your_group",
+      "submitForReview": "إرسال للمراجعة"
     },
     "taskDb": {
       "profile_setup": {

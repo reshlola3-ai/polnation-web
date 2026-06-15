@@ -356,7 +356,10 @@
       "shareToX": "X پر شیئر کریں",
       "ch1Bonus": "+1 اسپن",
       "ch2Bonus": "+2 اسپن",
-      "ch3Bonus": "+3 اسپن + VIP بیج"
+      "ch3Bonus": "+3 اسپن + VIP بیج",
+      "groupLinkDesc": "اپنے ٹیلیگرام گروپ کا انوائٹ لنک پیسٹ کریں تاکہ ایڈمن آپ کے اراکین کی تعداد کی تصدیق کر سکے۔",
+      "groupLinkPlaceholder": "https://t.me/your_group",
+      "submitForReview": "جائزے کے لیے جمع کریں"
     },
     "taskDb": {
       "profile_setup": {

@@ -356,7 +356,10 @@
       "shareToX": "Chia sẻ lên X",
       "ch1Bonus": "+1 Lượt quay",
       "ch2Bonus": "+2 Lượt quay",
-      "ch3Bonus": "+3 Lượt quay + Huy hiệu VIP"
+      "ch3Bonus": "+3 Lượt quay + Huy hiệu VIP",
+      "groupLinkDesc": "Dán liên kết mời nhóm Telegram của bạn để quản trị viên xác minh số lượng thành viên.",
+      "groupLinkPlaceholder": "https://t.me/nhom_cua_ban",
+      "submitForReview": "Gửi để duyệt"
     },
     "taskDb": {
       "profile_setup": {

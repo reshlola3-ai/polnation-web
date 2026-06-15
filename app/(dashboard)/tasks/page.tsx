@@ -28,7 +28,6 @@ import {
   Unlock,
   Trophy,
   Star,
-  ArrowRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -699,6 +698,9 @@ function TaskRow({
   getTaskName, getTaskDesc, getSocialIcon, tQ, tCommon,
   onComplete, onSocialVisit, onShowShareModal, onToggleWalletTooltip, onSetPromotionUrl, onSetVideoUrl,
 }: TaskRowProps) {
+  // Local per-row state: multiple group tasks render at once, so the link input
+  // must not be shared across rows.
+  const [groupUrl, setGroupUrl] = useState('')
   const isGroupTask = task.task_key.startsWith('community_group_')
   const isVideoTask = task.task_key === 'video_review'
   const isPromotionTask = task.task_key === 'promotion_post'
@@ -819,19 +821,35 @@ function TaskRow({
               )}
 
               {isGroupTask && (
-                <div className="space-y-1.5">
-                  <p className="text-xs text-zinc-500">{tQ('contactAdminDesc')}</p>
-                  <a
-                    href={ADMIN_TELEGRAM}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => onComplete(task.task_key, undefined, `User is requesting verification for task: ${task.task_key}`)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-white text-xs rounded-lg font-medium transition-colors"
-                  >
-                    <LottieIcon src="/telegram.json" className="w-3.5 h-3.5" />
-                    {tQ('contactAdminTelegram')}
-                    <ArrowRight className="w-3 h-3" />
-                  </a>
+                <div className="space-y-2">
+                  <p className="text-xs text-zinc-500">{tQ('groupLinkDesc')}</p>
+                  <Input
+                    placeholder={tQ('groupLinkPlaceholder')}
+                    value={groupUrl}
+                    onChange={e => setGroupUrl(e.target.value)}
+                    className="text-xs h-8"
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => onComplete(task.task_key, groupUrl.trim(), `User submitted group link for task: ${task.task_key}`)}
+                      disabled={!groupUrl.trim() || submitting === task.task_key}
+                      isLoading={submitting === task.task_key}
+                      className="gap-1.5 text-xs bg-purple-500 hover:bg-purple-400"
+                    >
+                      <Send className="w-3 h-3" />
+                      {tQ('submitForReview')}
+                    </Button>
+                    <a
+                      href={ADMIN_TELEGRAM}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.06] hover:bg-white/[0.10] border border-white/[0.10] text-white text-xs rounded-lg font-medium transition-colors"
+                    >
+                      <LottieIcon src="/telegram.json" className="w-3.5 h-3.5" />
+                      {tQ('contactAdminTelegram')}
+                    </a>
+                  </div>
                 </div>
               )}
 

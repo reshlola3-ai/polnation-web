@@ -356,7 +356,10 @@
       "shareToX": "X पर शेयर करें",
       "ch1Bonus": "+1 स्पिन",
       "ch2Bonus": "+2 स्पिन",
-      "ch3Bonus": "+3 स्पिन + VIP बैज"
+      "ch3Bonus": "+3 स्पिन + VIP बैज",
+      "groupLinkDesc": "अपने टेलीग्राम ग्रुप का इनवाइट लिंक पेस्ट करें ताकि एडमिन आपके सदस्यों की संख्या सत्यापित कर सके।",
+      "groupLinkPlaceholder": "https://t.me/your_group",
+      "submitForReview": "समीक्षा के लिए सबमिट करें"
     },
     "taskDb": {
       "profile_setup": {

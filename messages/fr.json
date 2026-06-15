@@ -356,7 +356,10 @@
       "shareToX": "Partager sur X",
       "ch1Bonus": "+1 Tour",
       "ch2Bonus": "+2 Tours",
-      "ch3Bonus": "+3 Tours + Badge VIP"
+      "ch3Bonus": "+3 Tours + Badge VIP",
+      "groupLinkDesc": "Collez le lien d'invitation de votre groupe Telegram pour que l'administrateur vérifie le nombre de membres.",
+      "groupLinkPlaceholder": "https://t.me/votre_groupe",
+      "submitForReview": "Soumettre pour examen"
     },
     "taskDb": {
       "profile_setup": {
