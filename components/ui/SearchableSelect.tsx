@@ -29,8 +29,24 @@ export function SearchableSelect({
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [highlight, setHighlight] = useState(0)
+  // Open upward when there isn't enough room below the trigger (e.g. inside a
+  // bottom-anchored modal, or when the mobile keyboard shrinks the viewport),
+  // so the list never hides behind the nav bar / keyboard.
+  const [dropUp, setDropUp] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Estimated dropdown height: search box (~56px) + list (max-h-60 = 240px).
+  const DROPDOWN_EST_PX = 300
+  function computeDirection() {
+    const el = rootRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const vh = window.visualViewport?.height ?? window.innerHeight
+    const spaceBelow = vh - rect.bottom
+    const spaceAbove = rect.top
+    setDropUp(spaceBelow < DROPDOWN_EST_PX && spaceAbove > spaceBelow)
+  }
 
   const selected = options.find((o) => o.value === value)
 
@@ -55,12 +71,28 @@ export function SearchableSelect({
     if (open) requestAnimationFrame(() => inputRef.current?.focus())
   }, [open])
 
+  // While open, re-evaluate direction on viewport changes (keyboard show/hide,
+  // scroll, rotate) so the list stays visible.
+  useEffect(() => {
+    if (!open) return
+    const recompute = () => computeDirection()
+    window.visualViewport?.addEventListener('resize', recompute)
+    window.addEventListener('resize', recompute)
+    window.addEventListener('scroll', recompute, true)
+    return () => {
+      window.visualViewport?.removeEventListener('resize', recompute)
+      window.removeEventListener('resize', recompute)
+      window.removeEventListener('scroll', recompute, true)
+    }
+  }, [open])
+
   function toggleOpen() {
     if (open) {
       setOpen(false)
     } else {
       setQuery('')
       setHighlight(0)
+      computeDirection()
       setOpen(true)
     }
   }
@@ -105,8 +137,9 @@ export function SearchableSelect({
 
       {open && (
         <div
-          className="absolute z-50 mt-1 w-full min-w-[14rem] rounded-xl border border-[rgba(139,92,246,0.3)]
-            bg-[#1A1333] shadow-xl shadow-black/40 overflow-hidden"
+          className={`absolute z-[60] w-full min-w-[14rem] rounded-xl border border-[rgba(139,92,246,0.3)]
+            bg-[#1A1333] shadow-xl shadow-black/40 overflow-hidden
+            ${dropUp ? 'bottom-full mb-1' : 'top-full mt-1'}`}
           onKeyDown={onKeyDown}
         >
           <div className="p-2 border-b border-[rgba(139,92,246,0.2)]">
