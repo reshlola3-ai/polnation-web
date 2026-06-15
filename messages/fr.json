@@ -1438,7 +1438,10 @@
       "combinedSize": "Taille combinée",
       "amount": "Montant",
       "window": "Fenêtre",
-      "latency": "Latence"
+      "latency": "Latence",
+      "trade": "Trader",
+      "viewTx": "Voir tx",
+      "txs": "txs"
     },
     "stats": {
       "heading": "Statistiques du moteur de signaux"

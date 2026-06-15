@@ -1438,7 +1438,10 @@
       "combinedSize": "مجموعی سائز",
       "amount": "رقم",
       "window": "ونڈو",
-      "latency": "تاخیر"
+      "latency": "تاخیر",
+      "trade": "ٹریڈ",
+      "viewTx": "tx دیکھیں",
+      "txs": "txs"
     },
     "stats": {
       "heading": "سگنل انجن کے اعداد و شمار"

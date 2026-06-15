@@ -1424,7 +1424,10 @@
       "combinedSize": "合计规模",
       "amount": "金额",
       "window": "窗口",
-      "latency": "延迟"
+      "latency": "延迟",
+      "trade": "交易",
+      "viewTx": "查看交易",
+      "txs": "笔交易"
     },
     "stats": {
       "heading": "信号引擎统计"

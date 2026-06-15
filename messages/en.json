@@ -1423,7 +1423,10 @@
       "combinedSize": "Combined Size",
       "amount": "Amount",
       "window": "Window",
-      "latency": "Latency"
+      "latency": "Latency",
+      "trade": "Trade",
+      "viewTx": "View tx",
+      "txs": "txs"
     },
     "stats": {
       "heading": "Signal Engine Stats"

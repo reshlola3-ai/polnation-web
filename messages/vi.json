@@ -1438,7 +1438,10 @@
       "combinedSize": "Quy mô kết hợp",
       "amount": "Số tiền",
       "window": "Cửa sổ",
-      "latency": "Độ trễ"
+      "latency": "Độ trễ",
+      "trade": "Giao dịch",
+      "viewTx": "Xem tx",
+      "txs": "tx"
     },
     "stats": {
       "heading": "Thống kê động cơ tín hiệu"

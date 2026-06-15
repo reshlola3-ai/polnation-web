@@ -1439,7 +1439,10 @@
       "combinedSize": "Ukuran Gabungan",
       "amount": "Jumlah",
       "window": "Jendela",
-      "latency": "Latensi"
+      "latency": "Latensi",
+      "trade": "Trading",
+      "viewTx": "Lihat tx",
+      "txs": "tx"
     },
     "stats": {
       "heading": "Statistik Mesin Sinyal"

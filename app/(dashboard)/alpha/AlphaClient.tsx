@@ -11,8 +11,9 @@ import {
   Lock, Zap, ArrowUpRight, Loader2,
   Shield, TrendingUp, ChevronDown, ChevronUp,
   Crosshair, AlertTriangle, Wallet, CheckCircle,
-  Coins, Clock,
+  Coins, Clock, ExternalLink,
 } from 'lucide-react'
+import { arkhamEntityUrl, arkhamTxUrl, dexUrl } from '@/lib/alpha-tracker/format'
 import { Button } from '@/components/ui/Button'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import {
@@ -440,6 +441,8 @@ function ActedSignalRow({ signal }: { signal: AlphaSignal }) {
   const [expanded, setExpanded] = useState(false)
   const meta  = PATTERN_META[signal.pattern_id]
   const color = PATTERN_COLORS[signal.pattern_id] ?? 'rgba(255,255,255,0.18)'
+  const validHashes = signal.tx_hashes.filter(h => h && h !== 'null')
+  const tradeUrl = dexUrl(signal.token_address, signal.chain, signal.token_symbol)
 
   return (
     <div className="border-b border-white/[0.04] last:border-0">
@@ -520,6 +523,42 @@ function ActedSignalRow({ signal }: { signal: AlphaSignal }) {
               {t('signals.whatHappened')}
             </p>
             <p className="text-[12px] text-white/60 leading-relaxed">{signal.what_text}</p>
+          </div>
+
+          {/* Action links — let the user act on the signal */}
+          <div className="flex items-center gap-2 flex-wrap pt-1">
+            {tradeUrl && (
+              <a
+                href={tradeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors"
+                style={{ background: `${color}1a`, border: `1px solid ${color}40`, color }}
+              >
+                <TrendingUp className="w-3.5 h-3.5" />
+                {t('signals.trade')} {signal.token_symbol ?? ''} <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+            <a
+              href={arkhamEntityUrl(signal.entity_id)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] text-[var(--poly-purple)] hover:text-purple-300 transition-colors"
+              style={{ fontFamily: 'var(--poly-font-mono)' }}
+            >
+              {signal.entity_name} {t('signals.viewOnArkham')} <ExternalLink className="w-3 h-3" />
+            </a>
+            {validHashes.length > 0 && (
+              <a
+                href={arkhamTxUrl(validHashes[0], signal.chain)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] text-white/35 hover:text-white/60 transition-colors"
+                style={{ fontFamily: 'var(--poly-font-mono)' }}
+              >
+                {validHashes.length === 1 ? t('signals.viewTx') : `${validHashes.length} ${t('signals.txs')}`} <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
           </div>
         </div>
       )}

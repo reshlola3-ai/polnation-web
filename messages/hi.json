@@ -1438,7 +1438,10 @@
       "combinedSize": "संयुक्त साइज़",
       "amount": "राशि",
       "window": "विंडो",
-      "latency": "लेटेंसी"
+      "latency": "लेटेंसी",
+      "trade": "ट्रेड",
+      "viewTx": "tx देखें",
+      "txs": "txs"
     },
     "stats": {
       "heading": "सिग्नल इंजन आंकड़े"

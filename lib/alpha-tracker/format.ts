@@ -59,3 +59,32 @@ export function arkhamTxUrl(hash: string, chain: string | null): string {
 export function arkhamEntityUrl(entityId: string): string {
   return `https://intel.arkm.com/explorer/entity/${entityId}`
 }
+
+// DexScreener chain slugs (only chains where token-address deep links resolve).
+const DEX_CHAIN_SLUGS: Record<string, string> = {
+  ethereum:     'ethereum',
+  bsc:          'bsc',
+  polygon:      'polygon',
+  arbitrum:     'arbitrum',
+  arbitrum_one: 'arbitrum',
+  optimism:     'optimism',
+  base:         'base',
+  avalanche:    'avalanche',
+  solana:       'solana',
+}
+
+/**
+ * A "go trade this" link. Prefers a precise DexScreener token page (by address +
+ * chain); falls back to a symbol search so the user can still act. Returns null
+ * when there's nothing tradable to point at.
+ */
+export function dexUrl(
+  tokenAddress: string | null | undefined,
+  chain: string | null | undefined,
+  symbol: string | null | undefined,
+): string | null {
+  const slug = DEX_CHAIN_SLUGS[(chain ?? '').toLowerCase()]
+  if (tokenAddress && slug) return `https://dexscreener.com/${slug}/${tokenAddress}`
+  if (symbol) return `https://dexscreener.com/search?q=${encodeURIComponent(symbol)}`
+  return null
+}
