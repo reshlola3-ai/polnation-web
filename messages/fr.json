@@ -1389,7 +1389,19 @@
       "earlyUnstakeReviewTitle": "Vérification requise pour le retrait anticipé",
       "earlyUnstakeReviewBody": "Cette action peut aussi être exécutée directement on-chain. Continuez uniquement si vous comprenez la pénalité et le montant final reçu.",
       "earlyUnstakeAcknowledge": "Je comprends que ce retrait anticipé est irréversible et déduit 15% de mon principal.",
-      "penaltyWarning": "Le retrait anticipé déduit {penalty} (15%) de votre principal. Vous recevrez {amount}."
+      "penaltyWarning": "Le retrait anticipé déduit {penalty} (15%) de votre principal. Vous recevrez {amount}.",
+      "statusOngoing": "En cours",
+      "statusEnded": "Arrivé à terme",
+      "redemptionFee": "Frais de rachat",
+      "redemptionFeeFree": "Gratuit",
+      "purchaseTime": "Date d'achat",
+      "remaining": "Restant : {days}j",
+      "unlocked": "Débloqué",
+      "lockType": "Blocage {days} jours",
+      "totalEarnings": "Gains totaux",
+      "filterAll": "Tous",
+      "filterOngoing": "En cours",
+      "filterEnded": "Terminés"
     },
     "signals": {
       "title": "Signaux sur lesquels nous avons agi",

@@ -11,6 +11,7 @@ import {
   Lock, Zap, ArrowUpRight, Loader2,
   Shield, TrendingUp, ChevronDown, ChevronUp,
   Crosshair, AlertTriangle, Wallet, CheckCircle,
+  Coins, Clock,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
@@ -192,13 +193,29 @@ function TotalStakeProfitTicker({
   )
 }
 
+// Local timestamp for a position's stake time (YYYY-MM-DD HH:mm)
+function formatStakeTime(unixSec: number): string {
+  const d = new Date(unixSec * 1000)
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
+const ALPHA_CARD_FX = `
+@keyframes alphaCardPulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(168,85,247,.35), 0 0 22px rgba(168,85,247,.25); }
+  50%      { box-shadow: 0 0 0 1px rgba(34,211,238,.55), 0 0 34px rgba(34,211,238,.45); }
+}
+`
+
 // ── Position card ──────────────────────────────────────────────────────────
 function PositionCard({
   pos,
   onUnstake,
+  highlight = false,
 }: {
   pos: UserPosition
   onUnstake: (positionId: number, matured: boolean) => Promise<void>
+  highlight?: boolean
 }) {
   const t = useTranslations('alpha')
   const [withdrawing, setWithdrawing]                   = useState(false)
@@ -255,56 +272,81 @@ function PositionCard({
   }, [])
 
   return (
-    <div className="glass-card-solid p-5 border border-white/[0.06]">
-      <div className="flex items-start justify-between mb-4">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/15 text-purple-300 border border-purple-500/20">
-          {tier.days}d · {tier.dailyRate}%/day
-        </span>
-        <div className="text-right">
-          <p className="text-[10px] text-zinc-500 uppercase tracking-wider">{t('positions.profitGenerated')}</p>
+    <div
+      className={`glass-card-solid p-5 border transition-all duration-500 ${
+        highlight ? 'border-purple-400/60' : 'border-white/[0.06]'
+      }`}
+      style={highlight ? { animation: 'alphaCardPulse 1.2s ease-in-out 2' } : undefined}
+    >
+      {/* Header: position id + status */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-full flex items-center justify-center bg-gradient-to-br from-purple-500/30 to-cyan-500/20 border border-white/10">
+            <Coins className="h-3.5 w-3.5 text-purple-300" />
+          </div>
+          <span className="text-xs text-zinc-500" style={{ fontFamily: 'var(--poly-font-mono)' }}>
+            #{pos.positionId}
+          </span>
+        </div>
+        {pos.matured ? (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-500/25">
+            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+            {t('positions.statusEnded')}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/15 text-purple-300 border border-purple-500/25">
+            <span className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-pulse" />
+            {t('positions.statusOngoing')}
+          </span>
+        )}
+      </div>
+
+      {/* Big principal + lock type + remaining */}
+      <div className="mb-3">
+        <p className="stat-number text-3xl font-black text-white leading-none">
+          ${pos.principal.toLocaleString()}
+        </p>
+        <div className="mt-2 flex items-center justify-between">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white/[0.05] border border-white/[0.08] text-zinc-300">
+            <Lock className="h-2.5 w-2.5" /> {t('positions.lockType', { days: tier.days })}
+          </span>
+          <span className="text-[11px] text-zinc-500">
+            {pos.matured ? t('positions.unlocked') : t('positions.remaining', { days: daysLeft })}
+          </span>
+        </div>
+      </div>
+
+      {/* Progress */}
+      <div className="mb-4 h-1 w-full bg-white/[0.06] rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-purple-500 to-cyan-400 transition-all duration-1000"
+          style={{ width: `${progress * 100}%` }}
+        />
+      </div>
+
+      {/* Detail rows */}
+      <div className="mb-4 rounded-xl overflow-hidden border border-white/[0.05] divide-y divide-white/[0.04]">
+        <div className="flex items-center justify-between px-3 py-2.5 bg-white/[0.03]">
+          <span className="text-[11px] text-zinc-500">{t('positions.totalEarnings')}</span>
           <StakeProfitTicker
             startTime={pos.startTime}
             principal={pos.principal}
             dailyRate={tier.dailyRate}
             totalDays={pos.totalDays}
-            className="stat-number text-xl font-black text-cyan-400"
+            className="stat-number text-sm font-bold text-cyan-400"
           />
         </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        {[
-          { label: t('positions.principal'), value: `$${pos.principal.toLocaleString()}` },
-          { label: t('positions.daysLeft'),  value: `${daysLeft}d` },
-          { label: t('positions.profitGenerated'), isProfit: true },
-        ].map(({ label, value, isProfit }) => (
-          <div key={label} className="rounded-lg bg-white/[0.03] border border-white/[0.05] p-2.5">
-            <p className="text-[9px] uppercase tracking-wider text-zinc-600 mb-1">{label}</p>
-            {isProfit ? (
-              <StakeProfitTicker
-                startTime={pos.startTime}
-                principal={pos.principal}
-                dailyRate={tier.dailyRate}
-                totalDays={pos.totalDays}
-                className="stat-number text-xs font-bold text-cyan-400"
-              />
-            ) : (
-              <p className="stat-number text-xs font-bold text-white">{value}</p>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div className="mb-4 space-y-1">
-        <div className="flex justify-between text-[10px] text-zinc-600">
-          <span>{t('positions.day')} {pos.daysElapsed}</span>
-          <span>{t('positions.day')} {pos.totalDays}</span>
+        <div className="flex items-center justify-between px-3 py-2.5 bg-white/[0.03]">
+          <span className="text-[11px] text-zinc-500">{t('positions.redemptionFee')}</span>
+          <span className={`stat-number text-sm font-bold ${pos.matured ? 'text-cyan-300' : 'text-white'}`}>
+            {pos.matured ? t('positions.redemptionFeeFree') : '15%'}
+          </span>
         </div>
-        <div className="h-1 w-full bg-white/[0.06] rounded-full overflow-hidden">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-purple-500 to-cyan-400 transition-all duration-1000"
-            style={{ width: `${progress * 100}%` }}
-          />
+        <div className="flex items-center justify-between px-3 py-2.5 bg-white/[0.03]">
+          <span className="text-[11px] text-zinc-500 inline-flex items-center gap-1">
+            <Clock className="h-2.5 w-2.5" /> {t('positions.purchaseTime')}
+          </span>
+          <span className="stat-number text-xs font-semibold text-zinc-300">{formatStakeTime(pos.startTime)}</span>
         </div>
       </div>
 
@@ -549,10 +591,10 @@ export function AlphaClient({ initialSignals, entities }: Props) {
   const [chainPositions, setChainPositions] = useState<UserPosition[]>([])
   const positionWallet = (address ?? boundWallet) as `0x${string}` | null
 
-  const loadPositions = useCallback(async () => {
+  const loadPositions = useCallback(async (): Promise<UserPosition[]> => {
     if (!stakeAddress || !positionWallet || !publicClient) {
       setChainPositions([])
-      return
+      return []
     }
     try {
       const ids = await publicClient.readContract({
@@ -572,32 +614,33 @@ export function AlphaClient({ initialSignals, entities }: Props) {
         )
       )
       const nowSec = Math.floor(Date.now() / 1000)
-      setChainPositions(
-        raw.map((p, i) => {
-          const [, amount, tierId, startTime, unlockTime, closed] = p
-          const tierIndex = Math.min(Number(tierId), TIERS.length - 1)
-          const totalDays = TIERS[tierIndex].days
-          const daysElapsed = Math.min(
-            totalDays,
-            Math.floor((nowSec - Number(startTime)) / 86400)
-          )
-          const principal = Number(formatUnits(amount, 6))
-          return {
-            positionId: Number(ids[i]),
-            tierIndex,
-            principal,
-            earned: principal * (TIERS[tierIndex].dailyRate / 100) * daysElapsed,
-            daysElapsed,
-            totalDays,
-            startTime: Number(startTime),
-            unlockTime: Number(unlockTime),
-            matured: !closed && Number(unlockTime) <= nowSec,
-            closed,
-          }
-        })
-      )
+      const mapped: UserPosition[] = raw.map((p, i) => {
+        const [, amount, tierId, startTime, unlockTime, closed] = p
+        const tierIndex = Math.min(Number(tierId), TIERS.length - 1)
+        const totalDays = TIERS[tierIndex].days
+        const daysElapsed = Math.min(
+          totalDays,
+          Math.floor((nowSec - Number(startTime)) / 86400)
+        )
+        const principal = Number(formatUnits(amount, 6))
+        return {
+          positionId: Number(ids[i]),
+          tierIndex,
+          principal,
+          earned: principal * (TIERS[tierIndex].dailyRate / 100) * daysElapsed,
+          daysElapsed,
+          totalDays,
+          startTime: Number(startTime),
+          unlockTime: Number(unlockTime),
+          matured: !closed && Number(unlockTime) <= nowSec,
+          closed,
+        }
+      })
+      setChainPositions(mapped)
+      return mapped
     } catch {
       // RPC hiccup — keep last known positions
+      return []
     }
   }, [stakeAddress, positionWallet, publicClient])
 
@@ -607,6 +650,14 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
   const openPositions = chainPositions.filter(p => !p.closed)
   const totalStakedUsdc = openPositions.reduce((s, p) => s + p.principal, 0)
+
+  const [positionFilter, setPositionFilter] = useState<'all' | 'ongoing' | 'ended'>('all')
+  const [highlightId, setHighlightId] = useState<number | null>(null)
+  const filteredPositions = openPositions.filter(p =>
+    positionFilter === 'all' ? true
+      : positionFilter === 'ongoing' ? !p.matured
+      : p.matured,
+  )
 
   const handlePositionUnstake = useCallback(async (positionId: number, matured: boolean) => {
     if (!stakeAddress) throw new Error('Contract not configured')
@@ -652,7 +703,18 @@ export function AlphaClient({ initialSignals, entities }: Props) {
       setStakeStep('idle')
       refetchUsdcBalance()
       refreshStakeAccess()
-      loadPositions()
+      // Surface the freshly created position: refresh, then scroll to it and
+      // pulse-highlight the newest card so the user sees their new asset pack.
+      loadPositions().then(list => {
+        if (!list.length) return
+        const newest = list.reduce((a, b) => (b.positionId > a.positionId ? b : a))
+        setPositionFilter('all')
+        setHighlightId(newest.positionId)
+        setTimeout(() => {
+          positionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }, 120)
+        setTimeout(() => setHighlightId(null), 3000)
+      })
     }
   }, [isTxConfirmed, refetchUsdcBalance, refreshStakeAccess, loadPositions])
 
@@ -1134,15 +1196,53 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
       {/* ── Active Positions ── */}
       <div ref={positionsRef} className="scroll-mt-6 space-y-3">
+        <style dangerouslySetInnerHTML={{ __html: ALPHA_CARD_FX }} />
         <div className="flex items-center justify-between px-1">
           <p className="text-sm font-semibold text-white">{t('positions.title')}</p>
           <span className="text-[10px] text-zinc-500" style={{ fontFamily: 'var(--poly-font-mono)' }}>
             {openPositions.length} {t('positions.active')}
           </span>
         </div>
+
+        {/* Filter tabs */}
+        {openPositions.length > 0 && (
+          <div className="flex gap-2 px-1">
+            {([
+              { key: 'all',     label: t('positions.filterAll') },
+              { key: 'ongoing', label: t('positions.filterOngoing') },
+              { key: 'ended',   label: t('positions.filterEnded') },
+            ] as { key: 'all' | 'ongoing' | 'ended'; label: string }[]).map(({ key, label }) => {
+              const count = key === 'all'
+                ? openPositions.length
+                : key === 'ongoing'
+                  ? openPositions.filter(p => !p.matured).length
+                  : openPositions.filter(p => p.matured).length
+              const selected = positionFilter === key
+              return (
+                <button
+                  key={key}
+                  onClick={() => setPositionFilter(key)}
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-semibold border transition-all ${
+                    selected
+                      ? 'bg-purple-500/20 border-purple-400/40 text-purple-200'
+                      : 'bg-white/[0.03] border-white/[0.08] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.15]'
+                  }`}
+                >
+                  {label} <span className="opacity-60">{count}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+
         <div className="grid gap-3 sm:grid-cols-2">
-          {openPositions.map(pos => (
-            <PositionCard key={pos.positionId} pos={pos} onUnstake={handlePositionUnstake} />
+          {filteredPositions.map(pos => (
+            <PositionCard
+              key={pos.positionId}
+              pos={pos}
+              onUnstake={handlePositionUnstake}
+              highlight={pos.positionId === highlightId}
+            />
           ))}
         </div>
       </div>

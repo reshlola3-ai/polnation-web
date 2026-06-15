@@ -1389,7 +1389,19 @@
       "earlyUnstakeReviewTitle": "تأكيد إلغاء التعهد المبكر مطلوب",
       "earlyUnstakeReviewBody": "يمكن تنفيذ هذا الإجراء مباشرة على السلسلة أيضًا. تابع فقط إذا كنت تفهم الغرامة والمبلغ النهائي المستلم.",
       "earlyUnstakeAcknowledge": "أفهم أن إلغاء التعهد المبكر هذا غير قابل للتراجع وسيخصم 15% من رأس مالي.",
-      "penaltyWarning": "إلغاء التعهد المبكر يخصم {penalty} (15%) من رأس مالك. ستتلقى {amount}."
+      "penaltyWarning": "إلغاء التعهد المبكر يخصم {penalty} (15%) من رأس مالك. ستتلقى {amount}.",
+      "statusOngoing": "جارٍ",
+      "statusEnded": "مكتمل",
+      "redemptionFee": "رسوم الاسترداد",
+      "redemptionFeeFree": "مجاني",
+      "purchaseTime": "وقت الشراء",
+      "remaining": "متبقٍ: {days} يوم",
+      "unlocked": "مفتوح",
+      "lockType": "قفل {days} يوم",
+      "totalEarnings": "إجمالي الأرباح",
+      "filterAll": "الكل",
+      "filterOngoing": "جارٍ",
+      "filterEnded": "منتهٍ"
     },
     "signals": {
       "title": "الإشارات التي تصرفنا بناءً عليها",

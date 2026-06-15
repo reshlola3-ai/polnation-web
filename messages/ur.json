@@ -1389,7 +1389,19 @@
       "earlyUnstakeReviewTitle": "جلد انسٹیک کے لیے تصدیق ضروری ہے",
       "earlyUnstakeReviewBody": "یہ عمل براہ راست آن چین بھی کیا جا سکتا ہے۔ penalty اور آخری موصول رقم سمجھنے کے بعد ہی جاری رکھیں۔",
       "earlyUnstakeAcknowledge": "میں سمجھتا/سمجھتی ہوں کہ یہ جلد انسٹیک ناقابل واپسی ہے اور میرے اصل سرمائے سے 15% کٹوتی کرے گا۔",
-      "penaltyWarning": "جلد انسٹیک سے آپ کی اصل رقم کا {penalty} (15%) کٹے گا۔ آپ کو {amount} ملے گا۔"
+      "penaltyWarning": "جلد انسٹیک سے آپ کی اصل رقم کا {penalty} (15%) کٹے گا۔ آپ کو {amount} ملے گا۔",
+      "statusOngoing": "جاری",
+      "statusEnded": "میچور",
+      "redemptionFee": "ریڈیمپشن فیس",
+      "redemptionFeeFree": "مفت",
+      "purchaseTime": "خریداری کا وقت",
+      "remaining": "باقی: {days} دن",
+      "unlocked": "ان لاک",
+      "lockType": "{days}-دن لاک",
+      "totalEarnings": "کل کمائی",
+      "filterAll": "تمام",
+      "filterOngoing": "جاری",
+      "filterEnded": "ختم شدہ"
     },
     "signals": {
       "title": "وہ اشارے جن پر ہم نے عمل کیا",

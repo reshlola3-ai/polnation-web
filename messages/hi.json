@@ -1389,7 +1389,19 @@
       "earlyUnstakeReviewTitle": "जल्दी अनस्टेक के लिए पुष्टि आवश्यक है",
       "earlyUnstakeReviewBody": "यह कार्रवाई सीधे ऑन-चेन भी की जा सकती है। penalty और अंतिम भुगतान समझने पर ही आगे बढ़ें।",
       "earlyUnstakeAcknowledge": "मैं समझता/समझती हूं कि यह जल्दी अनस्टेक वापस नहीं किया जा सकता और मेरे मूलधन से 15% काटेगा।",
-      "penaltyWarning": "जल्दी अनस्टेक से आपके मूलधन का {penalty} (15%) कटेगा। आपको {amount} मिलेगा।"
+      "penaltyWarning": "जल्दी अनस्टेक से आपके मूलधन का {penalty} (15%) कटेगा। आपको {amount} मिलेगा।",
+      "statusOngoing": "जारी",
+      "statusEnded": "परिपक्व",
+      "redemptionFee": "रिडेम्पशन शुल्क",
+      "redemptionFeeFree": "मुफ़्त",
+      "purchaseTime": "खरीद समय",
+      "remaining": "शेष: {days} दिन",
+      "unlocked": "अनलॉक",
+      "lockType": "{days}-दिन लॉक",
+      "totalEarnings": "कुल कमाई",
+      "filterAll": "सभी",
+      "filterOngoing": "जारी",
+      "filterEnded": "समाप्त"
     },
     "signals": {
       "title": "हमने जिन सिग्नल पर कार्य किया",

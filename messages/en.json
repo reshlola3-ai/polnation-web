@@ -1374,7 +1374,19 @@
       "earlyUnstakeReviewTitle": "Early unstake review required",
       "earlyUnstakeReviewBody": "This action can also be executed directly on-chain. Use it only when you understand the penalty and final payout.",
       "earlyUnstakeAcknowledge": "I understand this early unstake is irreversible and deducts 15% from my principal.",
-      "penaltyWarning": "Early unstake deducts {penalty} (15%) from your principal. You receive {amount}."
+      "penaltyWarning": "Early unstake deducts {penalty} (15%) from your principal. You receive {amount}.",
+      "statusOngoing": "Ongoing",
+      "statusEnded": "Matured",
+      "redemptionFee": "Redemption Fee",
+      "redemptionFeeFree": "Free",
+      "purchaseTime": "Purchase Time",
+      "remaining": "Remaining: {days}d",
+      "unlocked": "Unlocked",
+      "lockType": "{days}-Day Lock",
+      "totalEarnings": "Total Earnings",
+      "filterAll": "All",
+      "filterOngoing": "Ongoing",
+      "filterEnded": "Ended"
     },
     "signals": {
       "title": "Signals We Acted On",

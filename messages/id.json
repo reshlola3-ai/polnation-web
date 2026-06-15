@@ -1390,7 +1390,19 @@
       "earlyUnstakeReviewTitle": "Konfirmasi unstake awal diperlukan",
       "earlyUnstakeReviewBody": "Tindakan ini juga dapat dijalankan langsung on-chain. Lanjutkan hanya jika Anda memahami penalti dan jumlah akhir yang diterima.",
       "earlyUnstakeAcknowledge": "Saya memahami unstake awal ini tidak dapat dibatalkan dan memotong 15% dari pokok saya.",
-      "penaltyWarning": "Unstake awal memotong {penalty} (15%) dari pokok Anda. Anda menerima {amount}."
+      "penaltyWarning": "Unstake awal memotong {penalty} (15%) dari pokok Anda. Anda menerima {amount}.",
+      "statusOngoing": "Berjalan",
+      "statusEnded": "Jatuh Tempo",
+      "redemptionFee": "Biaya Penebusan",
+      "redemptionFeeFree": "Gratis",
+      "purchaseTime": "Waktu Pembelian",
+      "remaining": "Sisa: {days} hari",
+      "unlocked": "Terbuka",
+      "lockType": "Kunci {days} Hari",
+      "totalEarnings": "Total Pendapatan",
+      "filterAll": "Semua",
+      "filterOngoing": "Berjalan",
+      "filterEnded": "Selesai"
     },
     "signals": {
       "title": "Sinyal yang Kami Tindaki",

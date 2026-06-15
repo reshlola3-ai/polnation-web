@@ -1389,7 +1389,19 @@
       "earlyUnstakeReviewTitle": "Cần xác nhận rút sớm",
       "earlyUnstakeReviewBody": "Hành động này cũng có thể được thực hiện trực tiếp on-chain. Chỉ tiếp tục khi bạn hiểu khoản phạt và số tiền nhận cuối cùng.",
       "earlyUnstakeAcknowledge": "Tôi hiểu việc rút sớm này không thể đảo ngược và sẽ trừ 15% khỏi vốn gốc.",
-      "penaltyWarning": "Rút sớm trừ {penalty} (15%) từ vốn của bạn. Bạn nhận được {amount}."
+      "penaltyWarning": "Rút sớm trừ {penalty} (15%) từ vốn của bạn. Bạn nhận được {amount}.",
+      "statusOngoing": "Đang chạy",
+      "statusEnded": "Đã đáo hạn",
+      "redemptionFee": "Phí chuộc",
+      "redemptionFeeFree": "Miễn phí",
+      "purchaseTime": "Thời gian mua",
+      "remaining": "Còn lại: {days} ngày",
+      "unlocked": "Đã mở khóa",
+      "lockType": "Khóa {days} ngày",
+      "totalEarnings": "Tổng thu nhập",
+      "filterAll": "Tất cả",
+      "filterOngoing": "Đang chạy",
+      "filterEnded": "Đã kết thúc"
     },
     "signals": {
       "title": "Tín hiệu chúng tôi đã thực hiện",

@@ -1375,7 +1375,19 @@
       "earlyUnstakeReviewTitle": "提前解锁需要确认",
       "earlyUnstakeReviewBody": "此操作也可以直接在链上执行。只有在理解罚金和最终到账金额后才继续。",
       "earlyUnstakeAcknowledge": "我理解本次提前解锁不可撤销，并会从本金中扣除 15%。",
-      "penaltyWarning": "提前解锁将扣除本金的 {penalty}（15%），您将收到 {amount}。"
+      "penaltyWarning": "提前解锁将扣除本金的 {penalty}（15%），您将收到 {amount}。",
+      "statusOngoing": "进行中",
+      "statusEnded": "已到期",
+      "redemptionFee": "赎回手续费",
+      "redemptionFeeFree": "免费",
+      "purchaseTime": "质押时间",
+      "remaining": "剩余 {days} 天",
+      "unlocked": "已解锁",
+      "lockType": "{days} 天锁仓",
+      "totalEarnings": "累计收益",
+      "filterAll": "全部",
+      "filterOngoing": "进行中",
+      "filterEnded": "已结束"
     },
     "signals": {
       "title": "我们操作的信号",
