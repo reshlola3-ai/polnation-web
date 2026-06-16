@@ -141,6 +141,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No profits available' }, { status: 400 })
     }
 
+    // 账户级提现冻结（欺诈/滥用）。列在旧库可能不存在，做存在性兜底。
+    if ((profits as { withdrawals_frozen?: boolean }).withdrawals_frozen) {
+      return NextResponse.json({ error: 'withdrawals_frozen' }, { status: 403 })
+    }
+
     // 检查可用余额（美元）
     const available = profits.available_usdc || 0
     if (parseFloat(amount) > available) {
