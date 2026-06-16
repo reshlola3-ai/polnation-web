@@ -76,10 +76,9 @@ async function processEntity(
     limit: 100,
   })
 
-  const transfers = transfersRes.transfers ?? []
-  if (!transfers.length) return 0
-
-  // Refresh 30d PnL at most once per 24h (the only periodic Arkham metadata call)
+  // Refresh 30d track-record (net-worth change) once per 24h — independent of
+  // recent transfer activity, so quiet entities still get a real score instead
+  // of being stuck at 0.
   let pnl30d = entity.pnl_30d
   if (shouldRefreshPnl(entity)) {
     pnl30d = await getEntity30dPnl(entity.entity_id).catch(() => entity.pnl_30d)
@@ -88,6 +87,9 @@ async function processEntity(
       last_refreshed_at: new Date().toISOString(),
     }).eq('entity_id', entity.entity_id)
   }
+
+  const transfers = transfersRes.transfers ?? []
+  if (!transfers.length) return 0
 
   // Token market data for pattern scoring (cheap endpoint)
   const tokenSymbols = [...new Set(transfers.map(t => t.tokenSymbol).filter(Boolean))]

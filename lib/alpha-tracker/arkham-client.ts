@@ -1,6 +1,5 @@
 import type {
   ArkhamAddressIntel,
-  ArkhamPortfolioResponse,
   ArkhamTokenMarket,
   ArkhamTransfersResponse,
 } from './types'
@@ -96,10 +95,29 @@ export async function getAddressIntel(address: string): Promise<ArkhamAddressInt
 }
 
 /**
- * Daily portfolio time series for a named entity (e.g. "wintermute").
+ * Total net worth (USD) of an entity at a point in time.
+ *
+ * The snapshot endpoint requires a `time` (unix ms) and returns holdings shaped
+ * as { chain: { tokenId: { usd } } } across every chain/token — we sum every
+ * token's USD value. Returns null on failure so callers can tell "no data"
+ * apart from a genuine $0.
  */
-export async function getEntityPortfolio(entity: string): Promise<ArkhamPortfolioResponse> {
-  return get<ArkhamPortfolioResponse>(`/portfolio/timeSeries/entity/${encodeURIComponent(entity)}`)
+export async function getEntityNetWorthUsd(entity: string, atMs: number): Promise<number | null> {
+  try {
+    const data = await get<Record<string, Record<string, { usd?: number }>>>(
+      `/portfolio/entity/${encodeURIComponent(entity)}`,
+      { time: String(atMs) },
+    )
+    let total = 0
+    for (const chain of Object.values(data ?? {})) {
+      for (const tok of Object.values(chain ?? {})) {
+        if (tok && typeof tok.usd === 'number') total += tok.usd
+      }
+    }
+    return total
+  } catch {
+    return null
+  }
 }
 
 /**
@@ -110,18 +128,18 @@ export async function getTokenMarket(tokenId: string): Promise<ArkhamTokenMarket
 }
 
 /**
- * Compute 30-day PnL (USD) for an entity from their portfolio time series.
- * Returns 0 on error (non-fatal for signal scoring).
+ * 30-day change in net worth (USD) — our "track record" proxy. Entities growing
+ * their book score higher; bleeders score lower. Not pure realized PnL (token
+ * price moves count too), but a real, differentiating signal vs the old all-zero
+ * behaviour. Returns 0 on error (non-fatal for signal scoring).
  */
 export async function getEntity30dPnl(entity: string): Promise<number> {
-  try {
-    const { values } = await getEntityPortfolio(entity)
-    if (values.length < 2) return 0
-    const sorted = [...values].sort((a, b) => a.date.localeCompare(b.date))
-    const oldest = parseFloat(sorted[0].value)
-    const latest = parseFloat(sorted[sorted.length - 1].value)
-    return isNaN(oldest) || isNaN(latest) ? 0 : latest - oldest
-  } catch {
-    return 0
-  }
+  const now = Date.now()
+  const ago = now - 30 * 24 * 60 * 60 * 1000
+  const [latest, oldest] = await Promise.all([
+    getEntityNetWorthUsd(entity, now),
+    getEntityNetWorthUsd(entity, ago),
+  ])
+  if (latest === null || oldest === null) return 0
+  return latest - oldest
 }
