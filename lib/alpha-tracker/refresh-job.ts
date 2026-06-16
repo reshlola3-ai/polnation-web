@@ -57,19 +57,31 @@ export async function runRefreshJob(): Promise<{ processed: number; signalsInser
   )
 
   let signalsInserted = 0
+  let processed = 0
   const pnlBudget = { remaining: PNL_REFRESH_PER_RUN }
   const marketCache = new Map<string, { volume24h?: number; priceChange24h?: number }>()
 
+  // Time budget: return gracefully before the 60s function limit so we never
+  // 504. Whatever we don't reach this run is picked up next run (entities are
+  // ordered stalest-first). 50s leaves headroom for the response to flush.
+  const startedAt = Date.now()
+  const TIME_BUDGET_MS = 50_000
+
   for (const entity of entities as AlphaEntity[]) {
+    if (Date.now() - startedAt > TIME_BUDGET_MS) {
+      console.warn(`[alpha] time budget reached after ${processed}/${entities.length} entities — stopping early`)
+      break
+    }
     try {
       const n = await processEntity(entity, recent, knownTxSet, supabase, pnlBudget, marketCache)
       signalsInserted += n
     } catch (err) {
       console.error(`[alpha] Error processing ${entity.entity_id}:`, err)
     }
+    processed++
   }
 
-  return { processed: entities.length, signalsInserted }
+  return { processed, signalsInserted }
 }
 
 async function processEntity(
