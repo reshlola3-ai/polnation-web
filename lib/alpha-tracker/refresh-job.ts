@@ -25,6 +25,11 @@ function getSupabaseAdmin() {
 }
 
 const MIN_CONFIDENCE = 50
+// Cap how many entities refresh their 30d track-record per run. Each refresh is
+// 2 portfolio snapshot calls; refreshing all 30 in one run blows past the 60s
+// function limit. Stalest entities go first, so over a few daily runs every
+// entity gets refreshed on a rolling ~weekly cadence (fine for a 30d metric).
+const PNL_REFRESH_PER_RUN = 5
 
 export async function runRefreshJob(): Promise<{ processed: number; signalsInserted: number }> {
   const supabase = getSupabaseAdmin()
@@ -33,6 +38,7 @@ export async function runRefreshJob(): Promise<{ processed: number; signalsInser
     .from('alpha_entities')
     .select('*')
     .eq('is_active', true)
+    .order('last_refreshed_at', { ascending: true, nullsFirst: true })
 
   if (entitiesErr || !entities?.length) {
     console.error('[alpha] Failed to load entities:', entitiesErr)
@@ -51,10 +57,11 @@ export async function runRefreshJob(): Promise<{ processed: number; signalsInser
   )
 
   let signalsInserted = 0
+  const pnlBudget = { remaining: PNL_REFRESH_PER_RUN }
 
   for (const entity of entities as AlphaEntity[]) {
     try {
-      const n = await processEntity(entity, recent, knownTxSet, supabase)
+      const n = await processEntity(entity, recent, knownTxSet, supabase, pnlBudget)
       signalsInserted += n
     } catch (err) {
       console.error(`[alpha] Error processing ${entity.entity_id}:`, err)
@@ -68,7 +75,8 @@ async function processEntity(
   entity: AlphaEntity,
   recentSignals: AlphaSignal[],
   knownTxSet: Set<string>,
-  supabase: ReturnType<typeof getSupabaseAdmin>
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  pnlBudget: { remaining: number }
 ): Promise<number> {
   const transfersRes = await getTransfers(entity.entity_id, {
     timeLast: '24h',
@@ -80,7 +88,8 @@ async function processEntity(
   // recent transfer activity, so quiet entities still get a real score instead
   // of being stuck at 0.
   let pnl30d = entity.pnl_30d
-  if (shouldRefreshPnl(entity)) {
+  if (shouldRefreshPnl(entity) && pnlBudget.remaining > 0) {
+    pnlBudget.remaining--
     pnl30d = await getEntity30dPnl(entity.entity_id).catch(() => entity.pnl_30d)
     await supabase.from('alpha_entities').update({
       pnl_30d: pnl30d,
