@@ -152,21 +152,22 @@ export async function POST() {
 
     if (selfMilestonesEarned > lastSelfGrantIndex) {
       // 有新的里程碑，发放差额次数
-      const newGrants = selfMilestonesEarned - lastSelfGrantIndex
-
       for (let i = lastSelfGrantIndex + 1; i <= selfMilestonesEarned; i++) {
         const milestoneValue = i * 7
         // 防重复：检查该 milestone 是否已存在
+        // limit(1) → array (never errors on duplicates the way .single() does);
+        // increment only if the insert actually created the row (unique index
+        // makes a re-grant fail with 23505 → treated as "already granted").
         const { data: exists } = await admin
           .from('lottery_spin_grants')
           .select('id')
           .eq('user_id', user.id)
           .eq('grant_reason', 'self_airdrop_7x')
           .eq('milestone_count', milestoneValue)
-          .single()
+          .limit(1)
 
-        if (!exists) {
-          await admin
+        if (!exists?.length) {
+          const { error: gErr } = await admin
             .from('lottery_spin_grants')
             .insert({
               user_id: user.id,
@@ -174,7 +175,8 @@ export async function POST() {
               milestone_count: milestoneValue,
               spins_granted: 1,
             })
-          newSpinsGranted += 1
+          if (!gErr) newSpinsGranted += 1
+          else if (gErr.code !== '23505') console.error('self_airdrop grant insert failed:', gErr)
         }
       }
     }
@@ -205,10 +207,10 @@ export async function POST() {
           'referral_twitter_verified',
           'referral_telegram_joined',
         ])
-        .maybeSingle()
+        .limit(1)
 
-      if (!existingGrant) {
-        await admin
+      if (!existingGrant?.length) {
+        const { error: gErr } = await admin
           .from('lottery_spin_grants')
           .insert({
             user_id: user.id,
@@ -217,7 +219,8 @@ export async function POST() {
             milestone_count: 1,
             spins_granted: 1,
           })
-        newSpinsGranted += 1
+        if (!gErr) newSpinsGranted += 1
+        else if (gErr.code !== '23505') console.error('referral grant insert failed:', gErr)
       }
     }
   }
@@ -234,9 +237,9 @@ export async function POST() {
       .select('id')
       .eq('user_id', user.id)
       .eq('grant_reason', 'welcome_join_telegram')
-      .maybeSingle()
+      .limit(1)
 
-    if (!existingWelcome) {
+    if (!existingWelcome?.length) {
       const { data: profile } = await admin
         .from('profiles')
         .select('telegram_chat_id')
@@ -252,7 +255,7 @@ export async function POST() {
           const isMember = status === 'creator' || status === 'administrator' || status === 'member' || status === 'restricted'
 
           if (isMember) {
-            await admin
+            const { error: gErr } = await admin
               .from('lottery_spin_grants')
               .insert({
                 user_id: user.id,
@@ -260,7 +263,8 @@ export async function POST() {
                 milestone_count: 1,
                 spins_granted: 1,
               })
-            newSpinsGranted += 1
+            if (!gErr) newSpinsGranted += 1
+            else if (gErr.code !== '23505') console.error('welcome grant insert failed:', gErr)
           }
         } catch (err) {
           console.error('welcome bonus group check failed:', err)
@@ -287,8 +291,8 @@ export async function POST() {
       .select('id')
       .eq('user_id', user.id)
       .eq('grant_reason', m.reason)
-      .maybeSingle()
-    if (existing) continue
+      .limit(1)
+    if (existing?.length) continue
 
     const { error: gErr } = await admin
       .from('lottery_spin_grants')
