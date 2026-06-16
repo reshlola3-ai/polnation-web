@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { runRefreshJob } from '@/lib/alpha-tracker/refresh-job'
 
-export const maxDuration = 60
+// The job serializes ~30 entities through Arkham's 1 req/s /transfers throttle
+// (~33s floor) plus token-market lookups, so 60s is too tight. 300s is the Pro
+// ceiling and leaves comfortable headroom.
+export const maxDuration = 300
 
 export async function GET(req: NextRequest) {
   const auth = req.headers.get('authorization')

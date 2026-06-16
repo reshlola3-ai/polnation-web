@@ -58,10 +58,11 @@ export async function runRefreshJob(): Promise<{ processed: number; signalsInser
 
   let signalsInserted = 0
   const pnlBudget = { remaining: PNL_REFRESH_PER_RUN }
+  const marketCache = new Map<string, { volume24h?: number; priceChange24h?: number }>()
 
   for (const entity of entities as AlphaEntity[]) {
     try {
-      const n = await processEntity(entity, recent, knownTxSet, supabase, pnlBudget)
+      const n = await processEntity(entity, recent, knownTxSet, supabase, pnlBudget, marketCache)
       signalsInserted += n
     } catch (err) {
       console.error(`[alpha] Error processing ${entity.entity_id}:`, err)
@@ -76,7 +77,8 @@ async function processEntity(
   recentSignals: AlphaSignal[],
   knownTxSet: Set<string>,
   supabase: ReturnType<typeof getSupabaseAdmin>,
-  pnlBudget: { remaining: number }
+  pnlBudget: { remaining: number },
+  marketCache: Map<string, { volume24h?: number; priceChange24h?: number }>
 ): Promise<number> {
   const transfersRes = await getTransfers(entity.entity_id, {
     timeLast: '24h',
@@ -100,7 +102,8 @@ async function processEntity(
   const transfers = transfersRes.transfers ?? []
   if (!transfers.length) return 0
 
-  // Token market data for pattern scoring (cheap endpoint)
+  // Token market data for pattern scoring (cheap endpoint). Cached per run so a
+  // token touched by many entities (ETH, USDC, …) is only fetched once.
   const tokenSymbols = [...new Set(transfers.map(t => t.tokenSymbol).filter(Boolean))]
   const tokenVolumes: Record<string, number> = {}
   const tokenPriceChanges: Record<string, number> = {}
@@ -108,7 +111,12 @@ async function processEntity(
   await Promise.allSettled(
     tokenSymbols.slice(0, 10).map(async sym => {
       try {
-        const market = await getTokenMarket(sym!.toLowerCase())
+        const key = sym!.toLowerCase()
+        let market = marketCache.get(key)
+        if (!market) {
+          market = await getTokenMarket(key)
+          marketCache.set(key, market)
+        }
         if (market.volume24h)              tokenVolumes[sym!]      = market.volume24h
         if (market.priceChange24h != null) tokenPriceChanges[sym!] = market.priceChange24h
       } catch { /* non-fatal */ }
