@@ -134,6 +134,7 @@ interface ProfitsData {
   total_earned_usdc: number
   withdrawn_usdc: number
   withdrawn_matic: number
+  withdrawals_frozen?: boolean
 }
 
 interface WalletAuditRecord {
@@ -199,6 +200,7 @@ export default function AdminUserDetailPage({
   const [balances, setBalances] = useState<Record<string, string>>({})
   const [loadingBalances, setLoadingBalances] = useState(false)
   const [balancesLoaded, setBalancesLoaded] = useState(false)
+  const [freezing, setFreezing] = useState(false)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -225,6 +227,29 @@ export default function AdminUserDetailPage({
   useEffect(() => {
     fetchData()
   }, [fetchData])
+
+  // Freeze (ban + zero withdrawable) / unfreeze a user's withdrawals.
+  const toggleFreeze = useCallback(async (freeze: boolean) => {
+    if (freeze && !window.confirm('封禁该用户提现并清零其可提现余额?此操作会把 available_usdc 等清 0。')) return
+    setFreezing(true)
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: freeze ? 'freeze_withdrawals' : 'unfreeze_withdrawals' }),
+      })
+      if (res.status === 401) { router.push('/admin/login'); return }
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}))
+        throw new Error(j.error || 'Action failed')
+      }
+      await fetchData()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Action failed')
+    } finally {
+      setFreezing(false)
+    }
+  }, [userId, router, fetchData])
 
   // On-demand: fetch on-chain USDC balances for downline wallets.
   // Reuses the admin balances endpoint (returns all wallets keyed by address).
@@ -693,6 +718,30 @@ export default function AdminUserDetailPage({
               <header className="px-5 py-3 border-b border-zinc-700 flex items-center gap-2">
                 <ArrowDownToLine className="w-4 h-4 text-cyan-400" />
                 <h2 className="text-sm font-semibold text-white">Withdraw History</h2>
+                {data?.profits?.withdrawals_frozen && (
+                  <span className="ml-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-500/15 text-red-300 border border-red-500/30">
+                    Frozen
+                  </span>
+                )}
+                <div className="ml-auto">
+                  {data?.profits?.withdrawals_frozen ? (
+                    <button
+                      onClick={() => toggleFreeze(false)}
+                      disabled={freezing}
+                      className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-zinc-600 text-zinc-300 hover:bg-zinc-700/60 disabled:opacity-50"
+                    >
+                      {freezing ? '…' : 'Unfreeze'}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => toggleFreeze(true)}
+                      disabled={freezing}
+                      className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white disabled:opacity-50"
+                    >
+                      {freezing ? '…' : 'Freeze & Zero'}
+                    </button>
+                  )}
+                </div>
               </header>
               <div className="p-5">
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">

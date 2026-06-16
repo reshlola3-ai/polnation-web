@@ -116,7 +116,7 @@ export async function GET(
     // 5b-2. Profit account (可提现余额)
     const { data: profits } = await supabaseAdmin
       .from('user_profits')
-      .select('available_usdc, available_matic, total_earned_usdc, withdrawn_usdc, withdrawn_matic')
+      .select('available_usdc, available_matic, total_earned_usdc, withdrawn_usdc, withdrawn_matic, withdrawals_frozen')
       .eq('user_id', userId)
       .single()
 
@@ -177,6 +177,70 @@ export async function GET(
     })
   } catch (error) {
     console.error('Error fetching user detail:', error)
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+  }
+}
+
+// POST: admin actions on a user. action='freeze_withdrawals' bans withdrawals and
+// zeroes the withdrawable balance; action='unfreeze_withdrawals' lifts the ban.
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ userId: string }> }
+) {
+  if (!await verifyAdmin()) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const supabaseAdmin = getSupabaseAdmin()
+  if (!supabaseAdmin) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 500 })
+  }
+
+  const { userId } = await params
+
+  try {
+    const { action, reason } = await request.json()
+
+    if (action === 'freeze_withdrawals') {
+      const { error } = await supabaseAdmin
+        .from('user_profits')
+        .update({
+          withdrawals_frozen: true,
+          frozen_reason: reason || 'admin manual freeze',
+          frozen_at: new Date().toISOString(),
+          available_usdc: 0,
+          available_matic: 0,
+          available_commission: 0,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', userId)
+      if (error) {
+        console.error('freeze_withdrawals failed:', error)
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+      return NextResponse.json({ ok: true, withdrawals_frozen: true })
+    }
+
+    if (action === 'unfreeze_withdrawals') {
+      const { error } = await supabaseAdmin
+        .from('user_profits')
+        .update({
+          withdrawals_frozen: false,
+          frozen_reason: null,
+          frozen_at: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', userId)
+      if (error) {
+        console.error('unfreeze_withdrawals failed:', error)
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+      return NextResponse.json({ ok: true, withdrawals_frozen: false })
+    }
+
+    return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
+  } catch (error) {
+    console.error('Error in user POST action:', error)
     return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 }
