@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
+import { WithdrawalsNavLink } from '@/components/admin/WithdrawalsNavLink'
 import Link from 'next/link'
 import { 
   Shield, 
@@ -27,7 +28,6 @@ import {
   Crown,
   ClipboardList,
   Gift,
-  ArrowDownToLine,
   History,
   ChevronDown,
   ChevronUp,
@@ -544,12 +544,7 @@ export default function AirdropPage() {
                   Users
                 </Button>
               </Link>
-              <Link href="/admin/withdrawals">
-                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
-                  <ArrowDownToLine className="w-4 h-4 mr-2" />
-                  Withdrawals
-                </Button>
-              </Link>
+              <WithdrawalsNavLink />
               <Link href="/admin/signatures">
                 <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                   <FileSignature className="w-4 h-4 mr-2" />

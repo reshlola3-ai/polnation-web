@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
+import { WithdrawalsNavLink } from '@/components/admin/WithdrawalsNavLink'
 import Link from 'next/link'
 import { 
   Shield, 
@@ -23,7 +24,6 @@ import {
   Calculator,
   Send,
   ClipboardList,
-  ArrowDownToLine,
   Megaphone
 } from 'lucide-react'
 
@@ -351,12 +351,7 @@ export default function AdminCommunityPage() {
                   Users
                 </Button>
               </Link>
-              <Link href="/admin/withdrawals">
-                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
-                  <ArrowDownToLine className="w-4 h-4 mr-2" />
-                  Withdrawals
-                </Button>
-              </Link>
+              <WithdrawalsNavLink />
               <Link href="/admin/airdrop">
                 <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                   <TrendingUp className="w-4 h-4 mr-2" />

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
+import { WithdrawalsNavLink } from '@/components/admin/WithdrawalsNavLink'
 import {
   Shield,
   LogOut,
@@ -12,7 +13,6 @@ import {
   ExternalLink,
   Users,
   Wallet,
-  ArrowDownToLine,
   TrendingUp,
   FileSignature,
   Crown,
@@ -274,7 +274,7 @@ export default function AdminAlphaStakePage() {
             </div>
             <div className="flex items-center gap-2 flex-wrap justify-end">
               <Link href="/admin/users"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><Users className="w-4 h-4 mr-1" />Users</Button></Link>
-              <Link href="/admin/withdrawals"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><ArrowDownToLine className="w-4 h-4 mr-1" />Withdrawals</Button></Link>
+              <WithdrawalsNavLink />
               <Link href="/admin/airdrop"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><TrendingUp className="w-4 h-4 mr-1" />Airdrop</Button></Link>
               <Link href="/admin/signatures"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><FileSignature className="w-4 h-4 mr-1" />Signatures</Button></Link>
               <Link href="/admin/community"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><Crown className="w-4 h-4 mr-1" />Community</Button></Link>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
+import { markWithdrawalsSeen } from '@/components/admin/WithdrawalsNavLink'
 import Link from 'next/link'
 import {
   LogOut,
@@ -125,6 +126,8 @@ export default function AdminWithdrawalsPage() {
 
   useEffect(() => {
     fetchData()
+    // Opening this page clears the unread badge on the nav link.
+    markWithdrawalsSeen()
   }, [fetchData])
 
   const handleLogout = async () => {
