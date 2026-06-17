@@ -43,7 +43,19 @@ interface ProfileData {
   updated_at: string
   auth_created_at: string | null
   last_sign_in_at: string | null
+  last_login_ip: string | null
+  last_login_country: string | null
+  last_login_city: string | null
+  last_login_at: string | null
   referrer: { id: string; username: string | null; email: string | null } | null
+}
+
+interface LoginEvent {
+  ip: string | null
+  country: string | null
+  city: string | null
+  user_agent: string | null
+  created_at: string
 }
 
 interface UplineEntry {
@@ -152,6 +164,7 @@ interface DetailResponse {
   downline: DownlineEntry[]
   lottery: LotteryRecord[]
   withdrawals: WithdrawalRecord[]
+  login_events: LoginEvent[]
   profits: ProfitsData | null
   wallet_audit: WalletAuditRecord[]
   community: {
@@ -177,6 +190,15 @@ function formatDate(value: string | null | undefined) {
 function shortenAddr(addr: string | null | undefined) {
   if (!addr) return '-'
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`
+}
+
+// ISO-2 country code → "🇲🇦 MA". Returns '-' when unknown.
+function countryWithFlag(cc: string | null | undefined) {
+  if (!cc || cc.length !== 2) return '-'
+  const flag = [...cc.toUpperCase()]
+    .map((c) => String.fromCodePoint(0x1f1e6 + c.charCodeAt(0) - 65))
+    .join('')
+  return `${flag} ${cc.toUpperCase()}`
 }
 
 export default function AdminUserDetailPage({
@@ -493,6 +515,54 @@ export default function AdminUserDetailPage({
                   label="User ID"
                   value={<code className="text-xs text-zinc-400">{profile.id}</code>}
                 />
+              </div>
+            </section>
+
+            {/* Section: Login & IP */}
+            <section className="bg-zinc-800/50 border border-zinc-700 rounded-xl overflow-hidden">
+              <header className="px-5 py-3 border-b border-zinc-700 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-cyan-400" />
+                <h2 className="text-sm font-semibold text-white">Login & IP</h2>
+                <span className="ml-auto text-xs text-zinc-500">{data?.login_events?.length || 0} records</span>
+              </header>
+              <div className="p-5">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                  <Field icon={<Globe className="w-3.5 h-3.5" />} label="Last IP"
+                    value={<code className="text-xs text-emerald-300">{profile.last_login_ip || '-'}</code>} />
+                  <Field icon={<Globe className="w-3.5 h-3.5" />} label="Last Country"
+                    value={countryWithFlag(profile.last_login_country)} />
+                  <Field icon={<Globe className="w-3.5 h-3.5" />} label="Last City" value={profile.last_login_city || '-'} />
+                  <Field icon={<Clock className="w-3.5 h-3.5" />} label="Last Login At" value={formatDate(profile.last_login_at)} />
+                </div>
+
+                {(!data?.login_events || data.login_events.length === 0) ? (
+                  <p className="text-sm text-zinc-500">No login records yet.</p>
+                ) : (
+                  <div className="overflow-x-auto rounded-lg border border-zinc-700">
+                    <table className="w-full text-sm">
+                      <thead className="bg-zinc-800/80">
+                        <tr className="border-b border-zinc-700">
+                          <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Time</th>
+                          <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">IP</th>
+                          <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Country</th>
+                          <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">City</th>
+                          <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Device</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.login_events.map((ev, i) => (
+                          <tr key={i} className="border-b border-zinc-700/50">
+                            <td className="px-4 py-2 text-xs text-zinc-400">{formatDate(ev.created_at)}</td>
+                            <td className="px-4 py-2"><code className="text-xs text-zinc-200">{ev.ip || '-'}</code></td>
+                            <td className="px-4 py-2 text-xs text-zinc-300">{countryWithFlag(ev.country)}</td>
+                            <td className="px-4 py-2 text-xs text-zinc-400">{ev.city || '-'}</td>
+                            <td className="px-4 py-2 text-[11px] text-zinc-500 max-w-[260px] truncate" title={ev.user_agent || ''}>{ev.user_agent || '-'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </section>
 

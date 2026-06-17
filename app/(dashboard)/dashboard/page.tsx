@@ -9,6 +9,7 @@ import {
   getProfitSnapshot,
   ensureReferralCode,
 } from '@/lib/dashboard-data'
+import { recordLogin } from '@/lib/track-login'
 
 export default async function DashboardPage() {
   // Await everything *cheap* in parallel. team_stats is the slowest (RPC may
@@ -25,6 +26,9 @@ export default async function DashboardPage() {
   ])
 
   const profile = profileRaw ? await ensureReferralCode(profileRaw) : profileRaw
+
+  // Capture real IP + geo on dashboard entry (throttled, best-effort).
+  if (user?.id) await recordLogin(user.id)
 
   return (
     <div className="space-y-4">

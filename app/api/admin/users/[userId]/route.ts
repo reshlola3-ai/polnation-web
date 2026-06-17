@@ -120,6 +120,14 @@ export async function GET(
       .eq('user_id', userId)
       .single()
 
+    // 5b-3. Login history (IP + geo)
+    const { data: loginEvents } = await supabaseAdmin
+      .from('login_events')
+      .select('ip, country, city, user_agent, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50)
+
     // 5c. Wallet binding audit (首次绑定 + 被拦截的换绑尝试)
     const { data: walletAudit } = await supabaseAdmin
       .from('wallet_binding_audit')
@@ -166,6 +174,7 @@ export async function GET(
       downline,
       lottery: lotteryRecords || [],
       withdrawals: withdrawals || [],
+      login_events: loginEvents || [],
       profits: profits || null,
       wallet_audit: walletAudit || [],
       community: {
