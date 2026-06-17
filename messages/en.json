@@ -219,7 +219,8 @@
     "step3ProfileTgDesc": "Add username · phone · country",
     "step3Email": "Set up Email & Password",
     "step3EmailDesc": "Secure your account with email & password",
-    "tapToComplete": "↓ Tap to complete →"
+    "tapToComplete": "↓ Tap to complete →",
+    "assetStakedTitle": "Alpha Staked"
   },
   "tasks": {
     "title": "Tasks",

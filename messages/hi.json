@@ -219,7 +219,8 @@
     "step3ProfileTgDesc": "उपयोगकर्ता नाम · फ़ोन · देश जोड़ें",
     "step3Email": "ईमेल & पासवर्ड सेट करें",
     "step3EmailDesc": "ईमेल और पासवर्ड से अपना खाता सुरक्षित करें",
-    "tapToComplete": "↓ पूरा करने के लिए टैप करें →"
+    "tapToComplete": "↓ पूरा करने के लिए टैप करें →",
+    "assetStakedTitle": "Alpha स्टेक्ड"
   },
   "tasks": {
     "title": "कार्य",

@@ -220,7 +220,8 @@
     "step3ProfileTgDesc": "Tambahkan nama pengguna · telepon · negara",
     "step3Email": "Siapkan Email & Kata Sandi",
     "step3EmailDesc": "Amankan akun Anda dengan email dan kata sandi",
-    "tapToComplete": "↓ Ketuk untuk menyelesaikan →"
+    "tapToComplete": "↓ Ketuk untuk menyelesaikan →",
+    "assetStakedTitle": "Alpha Di-stake"
   },
   "tasks": {
     "title": "Tugas",

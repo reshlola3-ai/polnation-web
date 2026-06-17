@@ -219,7 +219,8 @@
     "step3ProfileTgDesc": "Ajoutez nom d'utilisateur · téléphone · pays",
     "step3Email": "Configurer E-mail & Mot de passe",
     "step3EmailDesc": "Sécurisez votre compte avec un e-mail et un mot de passe",
-    "tapToComplete": "↓ Appuyez pour terminer →"
+    "tapToComplete": "↓ Appuyez pour terminer →",
+    "assetStakedTitle": "Alpha Staké"
   },
   "tasks": {
     "title": "Tâches",

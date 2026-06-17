@@ -6,7 +6,7 @@ import {
   Copy, Check, Wallet, TrendingUp, Users,
   ArrowUpRight, CheckCircle, Circle, AlertCircle,
   ChevronRight, HelpCircle, X, Flame, Globe,
-  Share2, Dices, GraduationCap, ClipboardList
+  Share2, Dices, GraduationCap, ClipboardList, Lock
 } from 'lucide-react'
 import Image from 'next/image'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
@@ -19,6 +19,7 @@ import { useAccount, useReadContract } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
+import { useAlphaStakedValue } from '@/lib/useAlphaStakedValue'
 import { useTranslations } from 'next-intl'
 import dynamic from 'next/dynamic'
 import {
@@ -158,6 +159,13 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
   })
 
   const usdcBalance = usdcBalanceRaw ? Number(formatUnits(usdcBalanceRaw, 6)) : 0
+
+  // AlphaStake staked assets (principal + accrued), read on-chain for the
+  // bound/connected wallet. Folded into Total Assets below.
+  const { stakedValue, positionCount: stakedPositions, isLoading: isStakeLoading } =
+    useAlphaStakedValue(walletAddress)
+  const hasStake = stakedValue > 0
+
   const currentTier = getTier(usdcBalance)
   const nextTier = getNextTier(usdcBalance)
   const dailyEarnings = usdcBalance * currentTier.rate
@@ -306,7 +314,8 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
   }, [])
 
   // Total Assets = wallet USDC + available to withdraw + community prize pool
-  const totalAssets = usdcBalance + profitData.availableWithdraw + profitData.communityPrizePool
+  //              + AlphaStake staked value (principal + accrued)
+  const totalAssets = usdcBalance + profitData.availableWithdraw + profitData.communityPrizePool + stakedValue
   // Referral link: show as long as user has a referral_code (all wallet users have one)
   const canShowReferralLink = !!profile?.referral_code
   const refCode = profile?.referral_code || userId
@@ -572,8 +581,32 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
             </div>
           </NotchedCard>
 
+          {/* Alpha Staked — only when the user has open positions */}
+          {hasStake && (
+            <Link href="/alpha" onClick={(e) => e.stopPropagation()} className="block min-w-0">
+              <NotchedCard pad={16} className="min-w-0">
+                <div className="flex flex-col items-start gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-cyan-500/10 ring-1 ring-inset ring-cyan-500/20 flex items-center justify-center">
+                    <Lock className="w-4 h-4 text-cyan-300" />
+                  </div>
+                  {isStakeLoading ? (
+                    <div className="animate-pulse h-5 w-14 bg-white/5 rounded" />
+                  ) : (
+                    <MonoStat prefix="$" value={stakedValue.toFixed(2)} />
+                  )}
+                  <div className="flex items-center gap-1 flex-wrap">
+                    <EyebrowTag>{t('assetStakedTitle')}</EyebrowTag>
+                    <span className="inline-flex items-center h-4 px-1.5 rounded-md bg-cyan-500/15 border border-cyan-500/30 text-[9px] font-semibold text-cyan-200 tracking-wide whitespace-nowrap">
+                      {stakedPositions} {stakedPositions === 1 ? 'position' : 'positions'}
+                    </span>
+                  </div>
+                </div>
+              </NotchedCard>
+            </Link>
+          )}
+
           {/* Withdrawable */}
-          <NotchedCard pad={16} className="col-span-2">
+          <NotchedCard pad={16} className={hasStake ? 'min-w-0' : 'col-span-2'}>
             <div className="flex flex-col items-start gap-2">
               <div className="w-8 h-8 rounded-xl bg-white/[0.04] ring-1 ring-inset ring-white/[0.07] flex items-center justify-center">
                 <ArrowUpRight className="w-4 h-4 text-white/65" />

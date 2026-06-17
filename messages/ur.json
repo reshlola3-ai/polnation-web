@@ -219,7 +219,8 @@
     "step3ProfileTgDesc": "صارف نام · فون · ملک شامل کریں",
     "step3Email": "ای میل اور پاس ورڈ ترتیب دیں",
     "step3EmailDesc": "ای میل اور پاس ورڈ سے اپنا اکاؤنٹ محفوظ کریں",
-    "tapToComplete": "↓ مکمل کرنے کے لیے ٹیپ کریں →"
+    "tapToComplete": "↓ مکمل کرنے کے لیے ٹیپ کریں →",
+    "assetStakedTitle": "Alpha اسٹیک"
   },
   "tasks": {
     "title": "کام",

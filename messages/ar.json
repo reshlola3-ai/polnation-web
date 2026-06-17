@@ -219,7 +219,8 @@
     "step3ProfileTgDesc": "أضف اسم المستخدم · الهاتف · البلد",
     "step3Email": "إعداد البريد الإلكتروني وكلمة المرور",
     "step3EmailDesc": "أمّن حسابك بالبريد الإلكتروني وكلمة المرور",
-    "tapToComplete": "↓ اضغط للإكمال →"
+    "tapToComplete": "↓ اضغط للإكمال →",
+    "assetStakedTitle": "Alpha المربوط"
   },
   "tasks": {
     "title": "المهام",

@@ -219,7 +219,8 @@
     "step3ProfileTgDesc": "Thêm tên người dùng · điện thoại · quốc gia",
     "step3Email": "Thiết lập Email & Mật khẩu",
     "step3EmailDesc": "Bảo mật tài khoản bằng email và mật khẩu",
-    "tapToComplete": "↓ Nhấn để hoàn thành →"
+    "tapToComplete": "↓ Nhấn để hoàn thành →",
+    "assetStakedTitle": "Alpha Đã Stake"
   },
   "tasks": {
     "title": "Nhiệm vụ",

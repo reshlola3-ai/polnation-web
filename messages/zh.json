@@ -220,7 +220,8 @@
     "step3ProfileTgDesc": "添加用户名 · 电话 · 国家",
     "step3Email": "设置邮箱 & 密码",
     "step3EmailDesc": "使用邮箱和密码保护您的账户",
-    "tapToComplete": "↓ 点击完成 →"
+    "tapToComplete": "↓ 点击完成 →",
+    "assetStakedTitle": "Alpha 质押"
   },
   "tasks": {
     "title": "Tasks",
