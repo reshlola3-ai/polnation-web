@@ -1,6 +1,7 @@
 import { createPublicClient, http, parseAbi, formatUnits, type PublicClient } from 'viem'
 import { polygon } from 'viem/chains'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
 
 const RPC_URL = process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com'
 const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`
@@ -116,7 +117,21 @@ export async function refreshAllNaturalLevels(
     }
   }
 
-  // 计算某用户 L1-L3 下线的钱包余额之和
+  // 把 AlphaStake 质押本金(未平仓)并入各钱包的"有效余额",这样下线质押不会
+  // 让其团队业绩贡献缩水。复用已有的批量链上汇总读取。
+  try {
+    const alpha = await fetchOnChainAlphaSummary()
+    if (alpha.configured) {
+      for (const pos of alpha.positions) {
+        if (pos.closed) continue
+        balanceByWallet.set(pos.user, (balanceByWallet.get(pos.user) || 0) + pos.amountUsdc)
+      }
+    }
+  } catch (err) {
+    console.error('[community] alpha staked read failed:', err)
+  }
+
+  // 计算某用户 L1-L3 下线的(钱包余额 + 质押本金)之和
   function teamVolume(userId: string): number {
     let total = 0
     let frontier = [userId]

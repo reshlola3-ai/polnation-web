@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { createPublicClient, http, parseAbi, formatUnits } from 'viem'
 import { polygon } from 'viem/chains'
+import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
 
 const CONFIG = {
   rpcUrl: process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com',
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
     const withoutWallet = referrals.filter((r: { wallet_address: string | null }) => !r.wallet_address)
       .map((r: { id: string; level: number; [key: string]: unknown }) => ({ ...r, usdc_balance: 0 }))
 
-    let walletBalances: { [key: string]: number } = {}
+    const walletBalances: { [key: string]: number } = {}
     const BATCH_SIZE = 100
 
     for (let i = 0; i < withWallet.length; i += BATCH_SIZE) {
@@ -104,10 +105,25 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Fold AlphaStake staked principal (open positions) into each downline's
+    // balance, so the team-volume / commission estimates count staked capital.
+    const stakedByWallet: Record<string, number> = {}
+    try {
+      const alpha = await fetchOnChainAlphaSummary()
+      if (alpha.configured) {
+        for (const pos of alpha.positions) {
+          if (pos.closed) continue
+          stakedByWallet[pos.user] = (stakedByWallet[pos.user] || 0) + pos.amountUsdc
+        }
+      }
+    } catch (err) {
+      console.error('alpha staked read failed:', err)
+    }
+
     const referralsWithBalance = [
       ...withWallet.map((r: { wallet_address: string; [key: string]: unknown }) => ({
         ...r,
-        usdc_balance: walletBalances[r.wallet_address] || 0,
+        usdc_balance: (walletBalances[r.wallet_address] || 0) + (stakedByWallet[r.wallet_address.toLowerCase()] || 0),
       })),
       ...withoutWallet,
     ]
