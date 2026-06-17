@@ -24,6 +24,7 @@ const TIERS = [
 export function useAlphaStakedValue(walletAddress?: string | null) {
   const publicClient = usePublicClient({ chainId: polygon.id })
   const [stakedValue, setStakedValue] = useState(0)
+  const [stakedDailyEarnings, setStakedDailyEarnings] = useState(0)
   const [positionCount, setPositionCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -32,6 +33,7 @@ export function useAlphaStakedValue(walletAddress?: string | null) {
     const address = getAlphaStakeAddress()
     if (!walletAddress || !publicClient || !address) {
       setStakedValue(0)
+      setStakedDailyEarnings(0)
       setPositionCount(0)
       setIsLoading(false)
       return
@@ -60,6 +62,7 @@ export function useAlphaStakedValue(walletAddress?: string | null) {
 
         const nowSec = Math.floor(Date.now() / 1000)
         let total = 0
+        let daily = 0
         let count = 0
         for (const p of raw) {
           const [, amount, tierId, startTime, , closed] = p
@@ -72,11 +75,13 @@ export function useAlphaStakedValue(walletAddress?: string | null) {
           )
           const accrued = principal * (tier.dailyRate / 100) * daysElapsed
           total += principal + accrued
+          daily += principal * (tier.dailyRate / 100) // daily yield of this position
           count++
         }
 
         if (alive) {
           setStakedValue(total)
+          setStakedDailyEarnings(daily)
           setPositionCount(count)
         }
       } catch {
@@ -91,5 +96,5 @@ export function useAlphaStakedValue(walletAddress?: string | null) {
     }
   }, [walletAddress, publicClient])
 
-  return { stakedValue, positionCount, isLoading }
+  return { stakedValue, stakedDailyEarnings, positionCount, isLoading }
 }

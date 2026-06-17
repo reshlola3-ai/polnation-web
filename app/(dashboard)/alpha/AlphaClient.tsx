@@ -1031,6 +1031,9 @@ export function AlphaClient({ initialSignals, entities }: Props) {
             <p className="text-[10px] uppercase tracking-widest text-zinc-500 mb-3">{t('stake.selectPeriod')}</p>
             <div className="flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory sm:grid sm:grid-cols-5 sm:overflow-visible sm:pb-0">
               {TIERS.map((tr, i) => {
+                // Minimum lock is 30 days — hide the 15-day tier (keep the array
+                // index so `selectedTier` still maps to the on-chain tierId).
+                if (tr.days < 30) return null
                 const active  = selectedTier === i
                 const tierApy = tr.dailyRate * 365
                 return (
