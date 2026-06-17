@@ -1083,6 +1083,15 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                     ${v}
                   </button>
                 ))}
+                {/* MAX — stake the whole wallet balance, floored to 2 decimals so
+                    rounding never makes it exceed the real balance (→ insufficient). */}
+                <button
+                  onClick={() => setAmount(String(Math.floor(usdcBalance * 100) / 100))}
+                  disabled={!canStake || usdcBalance <= 0}
+                  className="rounded-lg border border-purple-500/40 bg-purple-500/10 px-2 py-0.5 text-xs font-bold text-purple-300 hover:bg-purple-500/20 transition-all disabled:opacity-40 disabled:pointer-events-none"
+                >
+                  MAX
+                </button>
               </div>
             </div>
             <div className="relative flex items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 focus-within:border-purple-500/40 transition-colors">

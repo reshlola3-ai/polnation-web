@@ -395,7 +395,7 @@ export default function EarningsPage() {
           ].map((chip) => (
             <button
               key={chip.label}
-              onClick={() => setWithdrawAmount(chip.value > 0 ? chip.value.toFixed(2) : '')}
+              onClick={() => setWithdrawAmount(chip.value > 0 ? (Math.floor(chip.value * 100) / 100).toFixed(2) : '')}
               disabled={totalAvailable <= 0}
               className="h-10 rounded-full bg-[var(--kraken-panel)] hover:bg-white/[0.06] border border-[var(--kraken-border)] text-[13px] font-semibold text-white/80 transition-colors duration-150 ease-out disabled:opacity-30 disabled:pointer-events-none active:scale-[0.97]"
             >
