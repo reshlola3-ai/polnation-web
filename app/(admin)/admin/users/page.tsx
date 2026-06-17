@@ -26,6 +26,15 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
+// ISO-2 country code → "🇲🇦 MA". Returns '' when unknown.
+function countryWithFlag(cc: string | null | undefined) {
+  if (!cc || cc.length !== 2) return ''
+  const flag = [...cc.toUpperCase()]
+    .map((c) => String.fromCodePoint(0x1f1e6 + c.charCodeAt(0) - 65))
+    .join('')
+  return `${flag} ${cc.toUpperCase()}`
+}
+
 interface User {
   id: string
   username: string
@@ -38,6 +47,8 @@ interface User {
   wallet_bound_at: string | null
   profile_completed: boolean
   created_at: string
+  last_login_ip: string | null
+  last_login_country: string | null
   referrer: {
     username: string
     email: string
@@ -463,19 +474,20 @@ export default function AdminUsersPage() {
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Telegram</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Signature</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Joined</th>
+                  <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Last Login</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={9} className="text-center py-8 text-zinc-500">
+                    <td colSpan={10} className="text-center py-8 text-zinc-500">
                       Loading...
                     </td>
                   </tr>
                 ) : sortedUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="text-center py-8 text-zinc-500">
+                    <td colSpan={10} className="text-center py-8 text-zinc-500">
                       No users found
                     </td>
                   </tr>
@@ -579,6 +591,16 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-4 py-3 text-xs text-zinc-400">
                         {new Date(user.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 text-xs">
+                        {user.last_login_ip || user.last_login_country ? (
+                          <div className="leading-tight">
+                            <div className="text-zinc-300">{countryWithFlag(user.last_login_country) || '-'}</div>
+                            <code className="text-[11px] text-zinc-500">{user.last_login_ip || '-'}</code>
+                          </div>
+                        ) : (
+                          <span className="text-zinc-600">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <ChevronRight className="w-4 h-4 text-zinc-500 inline" />
