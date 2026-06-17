@@ -1573,7 +1573,7 @@ export default function LotteryMiniPage() {
                       min="0"
                       max={availableUsdc}
                       step="0.01"
-                      placeholder={t.maxPlaceholder(availableUsdc.toFixed(2))}
+                      placeholder={t.maxPlaceholder((Math.floor(availableUsdc * 100) / 100).toFixed(2))}
                       value={withdrawAmount}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
                       onFocus={() => setWithdrawFocused(true)}
