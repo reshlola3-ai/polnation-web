@@ -1,5 +1,6 @@
 import { defaultWagmiConfig } from '@web3modal/wagmi'
 import { polygon } from 'wagmi/chains'
+import { http, fallback } from 'viem'
 
 // WalletConnect Project ID
 export const projectId = 'ea97927d76764f8d29ee2f8787bc5d7c'
@@ -21,6 +22,11 @@ const metadata = {
 // 只支持 Polygon 网络
 export const chains = [polygon] as const
 
+// 浏览器端 RPC：优先 Alchemy（快且不受默认 polygon-rpc.com 在部分地区被 DNS
+// 污染/限速影响），挂掉再退回链默认节点。NEXT_PUBLIC_ 会暴露在前端，需在
+// Alchemy 后台用域名白名单锁死该 key。
+const alchemyUrl = process.env.NEXT_PUBLIC_ALCHEMY_POLYGON_URL
+
 // Wagmi 配置
 export const wagmiConfig = defaultWagmiConfig({
   chains,
@@ -30,6 +36,11 @@ export const wagmiConfig = defaultWagmiConfig({
   enableInjected: true,   // DApp browser injected wallets
   enableEIP6963: true,    // surface installed desktop extensions
   enableCoinbase: false,
+  transports: {
+    [polygon.id]: alchemyUrl
+      ? fallback([http(alchemyUrl), http()])
+      : http(),
+  },
 })
 
 // USDC 合约地址 (Polygon)
