@@ -23,6 +23,8 @@ import {
   ChevronRight,
   Megaphone,
   Lock,
+  Search,
+  X,
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -101,6 +103,7 @@ export default function AdminUsersPage() {
   const [balancesUpdatedAt, setBalancesUpdatedAt] = useState<number | null>(null)
   const [balanceChanges, setBalanceChanges] = useState<BalanceChange[] | null>(null)
   const [showChanges, setShowChanges] = useState(false)
+  const [search, setSearch] = useState('')
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true)
@@ -238,7 +241,16 @@ export default function AdminUsersPage() {
     router.push('/admin/login')
   }
 
-  const sortedUsers = [...users].sort((a, b) => {
+  // 搜索过滤：用户名 / 邮箱 / 钱包地址 / Telegram（不区分大小写、子串匹配）
+  const query = search.trim().toLowerCase()
+  const filteredUsers = query
+    ? users.filter((u) =>
+        [u.username, u.email, u.wallet_address, u.telegram_username]
+          .some((f) => f?.toLowerCase().includes(query))
+      )
+    : users
+
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
     let comparison = 0
     switch (sortBy) {
       case 'created_at':
@@ -389,6 +401,25 @@ export default function AdminUsersPage() {
         {/* Actions */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search name / email / wallet / telegram"
+                className="bg-zinc-800 border border-zinc-700 rounded-lg pl-9 pr-8 py-2 text-sm text-white placeholder:text-zinc-500 w-72 focus:outline-none focus:border-emerald-600"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white p-0.5"
+                  aria-label="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
@@ -405,6 +436,11 @@ export default function AdminUsersPage() {
             >
               {sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
+            {query && (
+              <span className="text-xs text-zinc-500 whitespace-nowrap">
+                {filteredUsers.length} / {users.length}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <Button
