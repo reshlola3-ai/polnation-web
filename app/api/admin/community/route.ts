@@ -328,6 +328,55 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true, volume: totalVolume, real_level: realLevel })
       }
 
+      case 'set_volume': {
+        // 推广用途：管理员手动设定 L1-L3 团队业绩。注意：下次 refresh_volume /
+        // refresh_all_levels 会按链上真实余额重算并覆盖此值（已知且接受）。
+        const { volume } = params
+        const v = Number(volume)
+        if (!Number.isFinite(v) || v < 0) {
+          return NextResponse.json({ error: 'Invalid volume' }, { status: 400 })
+        }
+
+        await supabaseAdmin
+          .from('user_community_status')
+          .update({
+            team_volume_l123: v,
+            team_volume_updated_at: now,
+            updated_at: now,
+          })
+          .eq('user_id', user_id)
+
+        // 按新 volume 重算 real_level（与 refresh_volume 同款逻辑）
+        const { data: levels } = await supabaseAdmin
+          .from('community_levels')
+          .select('*')
+          .order('level')
+
+        let earnedBase = 0
+        for (const level of levels || []) {
+          const unlockVolume = status?.is_influencer
+            ? level.unlock_volume_influencer
+            : level.unlock_volume_normal
+          if (v >= unlockVolume) {
+            earnedBase = level.level
+          } else {
+            break
+          }
+        }
+        const realLevel = earnedBase + 1
+
+        await supabaseAdmin
+          .from('user_community_status')
+          .update({
+            real_level: realLevel,
+            // 自然用户：current_level 跟随 real_level；admin_set 用户不动
+            ...(status?.is_admin_set ? {} : { current_level: realLevel }),
+          })
+          .eq('user_id', user_id)
+
+        return NextResponse.json({ success: true, volume: v, real_level: realLevel })
+      }
+
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }

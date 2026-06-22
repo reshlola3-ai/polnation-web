@@ -82,6 +82,10 @@ export default function AdminCommunityPage() {
   const [editingUser, setEditingUser] = useState<CommunityUser | null>(null)
   const [newLevel, setNewLevel] = useState(0)
 
+  // Edit volume modal (promotional: manually set L1-L3 team volume)
+  const [editVolumeUser, setEditVolumeUser] = useState<CommunityUser | null>(null)
+  const [newVolume, setNewVolume] = useState('')
+
   // Grant spins modal
   const [grantSpinsUser, setGrantSpinsUser] = useState<CommunityUser | null>(null)
   const [spinsToAdd, setSpinsToAdd] = useState(10)
@@ -751,6 +755,21 @@ export default function AdminCommunityPage() {
                             设等级
                           </Button>
 
+                          {/* Set Volume (promotional) */}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditVolumeUser(user)
+                              setNewVolume(String(user.team_volume_l123))
+                            }}
+                            disabled={processing === user.user_id}
+                            className="border-cyan-500 text-cyan-400 hover:bg-cyan-500/20 text-xs px-2 py-1"
+                          >
+                            <TrendingUp className="w-3 h-3 mr-1" />
+                            改业绩
+                          </Button>
+
                           {/* Grant Spins */}
                           <Button
                             size="sm"
@@ -918,6 +937,58 @@ export default function AdminCommunityPage() {
               <Button
                 variant="outline"
                 onClick={() => setEditingUser(null)}
+                className="flex-1 border-zinc-600 text-zinc-400"
+              >
+                取消
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Volume Modal (promotional) */}
+      {editVolumeUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 className="text-white font-semibold mb-4">设置团队业绩 (L1-L3 Volume)</h3>
+            <p className="text-zinc-400 text-sm mb-1">
+              用户: {editVolumeUser.username || editVolumeUser.email}
+            </p>
+            <p className="text-zinc-400 text-sm mb-4">
+              当前业绩: ${editVolumeUser.team_volume_l123.toFixed(2)} · 真实等级 L{editVolumeUser.real_level} {getLevelName(editVolumeUser.real_level)}
+            </p>
+
+            <div className="mb-4">
+              <label className="text-zinc-400 text-sm mb-2 block">新业绩金额 (USD)</label>
+              <input
+                type="number"
+                value={newVolume}
+                onChange={(e) => setNewVolume(e.target.value)}
+                min={0}
+                step="0.01"
+                className="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-white text-sm focus:outline-none focus:border-cyan-500"
+                placeholder="例如 7500"
+              />
+            </div>
+
+            <p className="text-amber-400 text-xs mb-4">
+              ⚠️ 推广用途。保存后会按新业绩重算真实等级；下次「刷新业绩 / 刷新全部等级（链上）」会按链上余额重算并覆盖此值。
+            </p>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => {
+                  handleAction(editVolumeUser.user_id, 'set_volume', { volume: Number(newVolume) })
+                  setEditVolumeUser(null)
+                }}
+                disabled={newVolume === '' || Number(newVolume) < 0 || !Number.isFinite(Number(newVolume))}
+                className="flex-1 bg-cyan-500 hover:bg-cyan-600"
+              >
+                确认设置
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setEditVolumeUser(null)}
                 className="flex-1 border-zinc-600 text-zinc-400"
               >
                 取消
