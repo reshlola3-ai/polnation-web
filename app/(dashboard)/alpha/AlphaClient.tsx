@@ -68,7 +68,7 @@ const MOCK_USDC_BALANCE = 0
 async function fetchStakeAccess(): Promise<StakeAccessResponse> {
   const res = await fetch('/api/alpha/stake-access', { cache: 'no-store' })
   if (!res.ok) {
-    return { canStake: false, reason: 'error', minStakeUsdc: 1 }
+    return { canStake: false, reason: 'error', minStakeUsdc: 100 }
   }
   return res.json()
 }
@@ -594,7 +594,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
   const stakeAddress = getAlphaStakeAddress()
   const canStake = Boolean(stakeAccess?.canStake)
-  const minStake = stakeAccess?.minStakeUsdc ?? 1
+  const minStake = stakeAccess?.minStakeUsdc ?? 100
   const showCapacityFull = !accessLoading && !canStake
 
   const tier  = TIERS[selectedTier]
@@ -724,7 +724,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
     try {
       setStakeAccess(await fetchStakeAccess())
     } catch {
-      setStakeAccess({ canStake: false, reason: 'error', minStakeUsdc: 1 })
+      setStakeAccess({ canStake: false, reason: 'error', minStakeUsdc: 100 })
     } finally {
       setAccessLoading(false)
     }

@@ -70,7 +70,7 @@ export async function GET() {
         hasWallet,
         isAllowlisted,
         walletAddress,
-        minStakeUsdc: 1,
+        minStakeUsdc: 100,
       })
     }
 
@@ -83,7 +83,7 @@ export async function GET() {
         hasWallet,
         isAllowlisted,
         walletAddress,
-        minStakeUsdc: 1,
+        minStakeUsdc: 100,
       })
     }
 
@@ -96,7 +96,7 @@ export async function GET() {
         hasWallet,
         isAllowlisted,
         walletAddress,
-        minStakeUsdc: 1,
+        minStakeUsdc: 100,
       })
     }
 
@@ -108,7 +108,7 @@ export async function GET() {
       hasWallet,
       isAllowlisted,
       walletAddress,
-      minStakeUsdc: 1,
+      minStakeUsdc: 100,
     })
   } catch (err) {
     console.error('[alpha/stake-access] GET failed:', err)
