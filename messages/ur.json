@@ -1446,6 +1446,21 @@
     },
     "stats": {
       "heading": "سگنل انجن کے اعداد و شمار"
+    },
+    "success": {
+      "title": "اسٹیکنگ کامیاب",
+      "subtitle": "آپ کے اثاثے اب کمائی کر رہے ہیں",
+      "lockPeriod": "{days} دن کا لاک",
+      "unlockDate": "اَن لاک تاریخ",
+      "totalEarnings": "متوقع کل آمدنی",
+      "dailyEarnings": "روزانہ آمدنی",
+      "apy": "سالانہ منافع",
+      "position": "پوزیشن",
+      "viewTx": "ٹرانزیکشن دیکھیں",
+      "scanToJoin": "PolNation میں شامل ہونے کے لیے اسکین کریں",
+      "stakedAt": "اسٹیک کیا گیا",
+      "done": "مکمل",
+      "viewPositions": "میری پوزیشنز دیکھیں"
     }
   },
   "verifyGate": {

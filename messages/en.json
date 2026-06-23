@@ -1431,6 +1431,21 @@
     },
     "stats": {
       "heading": "Signal Engine Stats"
+    },
+    "success": {
+      "title": "Staking Successful",
+      "subtitle": "Your assets are now earning",
+      "lockPeriod": "{days}-Day Lock",
+      "unlockDate": "Unlock Date",
+      "totalEarnings": "Est. Total Earnings",
+      "dailyEarnings": "Daily Earnings",
+      "apy": "APY",
+      "position": "Position",
+      "viewTx": "View tx",
+      "scanToJoin": "Scan to join PolNation",
+      "stakedAt": "Staked",
+      "done": "Done",
+      "viewPositions": "View my positions"
     }
   },
   "verifyGate": {

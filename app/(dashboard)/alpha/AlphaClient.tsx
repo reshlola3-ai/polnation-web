@@ -10,7 +10,7 @@ import { PATTERN_META } from '@/lib/alpha-tracker/patterns/index'
 import {
   Lock, Zap, ArrowUpRight, Loader2,
   Shield, TrendingUp, ChevronDown, ChevronUp,
-  Crosshair, AlertTriangle, Wallet, CheckCircle,
+  Crosshair, AlertTriangle, Wallet,
   Coins, Clock, ExternalLink,
 } from 'lucide-react'
 import { arkhamEntityUrl, arkhamTxUrl, dexUrl } from '@/lib/alpha-tracker/format'
@@ -33,6 +33,7 @@ import {
   usdcToUnits,
 } from '@/lib/alphastake'
 import { signUsdcPermitForSpender } from '@/lib/alphastake-permit'
+import { StakeSuccessScreen } from './components/StakeSuccessScreen'
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const TIERS = [
@@ -61,6 +62,17 @@ type StakeAccessResponse = {
   reason: string
   minStakeUsdc: number
   walletAddress?: string | null
+  referralCode?: string | null
+}
+
+type StakeSuccessData = {
+  amount: number
+  tierDays: number
+  dailyRate: number
+  startTime: number
+  unlockTime: number
+  positionId: number
+  txHash?: `0x${string}`
 }
 
 const MOCK_USDC_BALANCE = 0
@@ -585,7 +597,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
   const [isLoading, setIsLoading]       = useState(false)
   const [stakeStep, setStakeStep]       = useState<'idle' | 'signing' | 'confirming'>('idle')
   const [stakeError, setStakeError]     = useState('')
-  const [stakeSuccess, setStakeSuccess] = useState('')
+  const [successData, setSuccessData]   = useState<StakeSuccessData | null>(null)
   const [stakeAccess, setStakeAccess]   = useState<StakeAccessResponse | null>(null)
   const [accessLoading, setAccessLoading] = useState(true)
   const [txHash, setTxHash]             = useState<`0x${string}` | undefined>()
@@ -736,26 +748,31 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
   useEffect(() => {
     if (isTxConfirmed) {
-      setStakeSuccess('Stake confirmed on Polygon.')
       setAmount('')
       setIsLoading(false)
       setStakeStep('idle')
       refetchUsdcBalance()
       refreshStakeAccess()
-      // Surface the freshly created position: refresh, then scroll to it and
-      // pulse-highlight the newest card so the user sees their new asset pack.
+      // Surface the freshly created position in a full-screen success card,
+      // and pre-highlight the newest card for when the user returns.
       loadPositions().then(list => {
         if (!list.length) return
         const newest = list.reduce((a, b) => (b.positionId > a.positionId ? b : a))
+        const newestTier = TIERS[newest.tierIndex]
+        setSuccessData({
+          amount: newest.principal,
+          tierDays: newestTier.days,
+          dailyRate: newestTier.dailyRate,
+          startTime: newest.startTime,
+          unlockTime: newest.unlockTime,
+          positionId: newest.positionId,
+          txHash,
+        })
         setPositionFilter('all')
         setHighlightId(newest.positionId)
-        setTimeout(() => {
-          positionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }, 120)
-        setTimeout(() => setHighlightId(null), 3000)
       })
     }
-  }, [isTxConfirmed, refetchUsdcBalance, refreshStakeAccess, loadPositions])
+  }, [isTxConfirmed, txHash, refetchUsdcBalance, refreshStakeAccess, loadPositions])
 
   const today = new Date(); today.setHours(0, 0, 0, 0)
   const todaySignals   = initialSignals.filter(s => new Date(s.observed_at) >= today)
@@ -769,7 +786,6 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
   const handleStake = useCallback(async () => {
     setStakeError('')
-    setStakeSuccess('')
 
     if (!canStake) return
     if (num < minStake) return
@@ -911,6 +927,20 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
   const scrollToPositions = useCallback(() => {
     positionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
+
+  const handleSuccessDone = useCallback(() => {
+    setSuccessData(null)
+    setTimeout(() => setHighlightId(null), 3000)
+  }, [])
+
+  const handleSuccessViewPositions = useCallback(() => {
+    setSuccessData(null)
+    setPositionFilter('all')
+    setTimeout(() => {
+      positionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 120)
+    setTimeout(() => setHighlightId(null), 3000)
   }, [])
 
   return (
@@ -1210,22 +1240,6 @@ export function AlphaClient({ initialSignals, entities }: Props) {
               {stakeError && (
                 <p className="text-[11px] text-red-400 text-center">{stakeError}</p>
               )}
-              {stakeSuccess && (
-                <div className="flex items-center justify-center gap-2 text-[11px] text-green-400">
-                  <CheckCircle className="h-3.5 w-3.5" />
-                  {stakeSuccess}
-                  {txHash && (
-                    <a
-                      href={`https://polygonscan.com/tx/${txHash}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline text-green-300/80"
-                    >
-                      View tx
-                    </a>
-                  )}
-                </div>
-              )}
             </>
           )}
 
@@ -1335,6 +1349,23 @@ export function AlphaClient({ initialSignals, entities }: Props) {
           lastSignal={lastSignal}
         />
       </div>
+
+      {/* ── Full-screen success card ── */}
+      {successData && (
+        <StakeSuccessScreen
+          amount={successData.amount}
+          tierDays={successData.tierDays}
+          dailyRate={successData.dailyRate}
+          startTime={successData.startTime}
+          unlockTime={successData.unlockTime}
+          positionId={successData.positionId}
+          txHash={successData.txHash}
+          walletAddress={address ?? boundWallet}
+          referralCode={stakeAccess?.referralCode}
+          onDone={handleSuccessDone}
+          onViewPositions={handleSuccessViewPositions}
+        />
+      )}
 
     </div>
   )

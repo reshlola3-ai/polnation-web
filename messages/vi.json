@@ -1446,6 +1446,21 @@
     },
     "stats": {
       "heading": "Thống kê động cơ tín hiệu"
+    },
+    "success": {
+      "title": "Đặt cọc thành công",
+      "subtitle": "Tài sản của bạn đang sinh lời",
+      "lockPeriod": "Khóa {days} ngày",
+      "unlockDate": "Ngày mở khóa",
+      "totalEarnings": "Tổng lợi nhuận dự kiến",
+      "dailyEarnings": "Lợi nhuận hàng ngày",
+      "apy": "APY",
+      "position": "Vị thế",
+      "viewTx": "Xem giao dịch",
+      "scanToJoin": "Quét để tham gia PolNation",
+      "stakedAt": "Đã đặt cọc",
+      "done": "Hoàn tất",
+      "viewPositions": "Xem vị thế của tôi"
     }
   },
   "verifyGate": {

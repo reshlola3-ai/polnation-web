@@ -1446,6 +1446,21 @@
     },
     "stats": {
       "heading": "सिग्नल इंजन आंकड़े"
+    },
+    "success": {
+      "title": "स्टेकिंग सफल",
+      "subtitle": "आपकी संपत्ति अब कमाई कर रही है",
+      "lockPeriod": "{days}-दिन लॉक",
+      "unlockDate": "अनलॉक तिथि",
+      "totalEarnings": "अनुमानित कुल कमाई",
+      "dailyEarnings": "दैनिक कमाई",
+      "apy": "APY",
+      "position": "पोज़िशन",
+      "viewTx": "लेनदेन देखें",
+      "scanToJoin": "PolNation में शामिल होने के लिए स्कैन करें",
+      "stakedAt": "स्टेक किया गया",
+      "done": "हो गया",
+      "viewPositions": "मेरी पोज़िशन देखें"
     }
   },
   "verifyGate": {

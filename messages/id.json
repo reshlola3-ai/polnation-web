@@ -1447,6 +1447,21 @@
     },
     "stats": {
       "heading": "Statistik Mesin Sinyal"
+    },
+    "success": {
+      "title": "Staking Berhasil",
+      "subtitle": "Aset Anda kini menghasilkan",
+      "lockPeriod": "Kunci {days} Hari",
+      "unlockDate": "Tanggal Buka Kunci",
+      "totalEarnings": "Perkiraan Total Pendapatan",
+      "dailyEarnings": "Pendapatan Harian",
+      "apy": "APY",
+      "position": "Posisi",
+      "viewTx": "Lihat transaksi",
+      "scanToJoin": "Pindai untuk bergabung dengan PolNation",
+      "stakedAt": "Di-stake",
+      "done": "Selesai",
+      "viewPositions": "Lihat posisi saya"
     }
   },
   "verifyGate": {

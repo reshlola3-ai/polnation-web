@@ -1446,6 +1446,21 @@
     },
     "stats": {
       "heading": "Statistiques du moteur de signaux"
+    },
+    "success": {
+      "title": "Staking réussi",
+      "subtitle": "Vos actifs génèrent désormais des revenus",
+      "lockPeriod": "Blocage de {days} jours",
+      "unlockDate": "Date de déblocage",
+      "totalEarnings": "Gains totaux estimés",
+      "dailyEarnings": "Gains quotidiens",
+      "apy": "APY",
+      "position": "Position",
+      "viewTx": "Voir la transaction",
+      "scanToJoin": "Scannez pour rejoindre PolNation",
+      "stakedAt": "Staké le",
+      "done": "Terminé",
+      "viewPositions": "Voir mes positions"
     }
   },
   "verifyGate": {

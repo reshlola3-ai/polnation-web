@@ -1446,6 +1446,21 @@
     },
     "stats": {
       "heading": "إحصاءات محرك الإشارات"
+    },
+    "success": {
+      "title": "تم التخزين بنجاح",
+      "subtitle": "أصولك تحقق أرباحاً الآن",
+      "lockPeriod": "قفل {days} يوم",
+      "unlockDate": "تاريخ الفتح",
+      "totalEarnings": "إجمالي الأرباح المتوقعة",
+      "dailyEarnings": "الأرباح اليومية",
+      "apy": "العائد السنوي",
+      "position": "المركز",
+      "viewTx": "عرض المعاملة",
+      "scanToJoin": "امسح للانضمام إلى PolNation",
+      "stakedAt": "تم التخزين",
+      "done": "تم",
+      "viewPositions": "عرض مراكزي"
     }
   },
   "verifyGate": {

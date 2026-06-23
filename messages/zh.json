@@ -1432,6 +1432,21 @@
     },
     "stats": {
       "heading": "信号引擎统计"
+    },
+    "success": {
+      "title": "质押成功",
+      "subtitle": "你的资产已开始产生收益",
+      "lockPeriod": "{days}天锁仓",
+      "unlockDate": "解押日期",
+      "totalEarnings": "预计总收益",
+      "dailyEarnings": "每日收益",
+      "apy": "年化",
+      "position": "持仓",
+      "viewTx": "查看交易",
+      "scanToJoin": "扫码加入 PolNation",
+      "stakedAt": "质押时间",
+      "done": "完成",
+      "viewPositions": "查看我的持仓"
     }
   },
   "verifyGate": {

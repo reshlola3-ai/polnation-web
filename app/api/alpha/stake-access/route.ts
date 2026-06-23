@@ -44,7 +44,7 @@ export async function GET() {
       supabase.from('alpha_stake_config').select('*').eq('id', 1).maybeSingle(),
       supabase
         .from('profiles')
-        .select('wallet_address')
+        .select('wallet_address, referral_code')
         .eq('id', user.id)
         .single(),
       supabase
@@ -60,6 +60,7 @@ export async function GET() {
     const isAllowlisted = Boolean(allowlist)
 
     const walletAddress = profile?.wallet_address ?? null
+    const referralCode = profile?.referral_code ?? null
 
     if (!stakingOpen) {
       return NextResponse.json({
@@ -70,6 +71,7 @@ export async function GET() {
         hasWallet,
         isAllowlisted,
         walletAddress,
+        referralCode,
         minStakeUsdc: 100,
       })
     }
@@ -83,6 +85,7 @@ export async function GET() {
         hasWallet,
         isAllowlisted,
         walletAddress,
+        referralCode,
         minStakeUsdc: 100,
       })
     }
@@ -96,6 +99,7 @@ export async function GET() {
         hasWallet,
         isAllowlisted,
         walletAddress,
+        referralCode,
         minStakeUsdc: 100,
       })
     }
