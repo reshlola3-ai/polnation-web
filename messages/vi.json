@@ -574,7 +574,11 @@
     "momentumDecayCountdown": "Giảm xuống {next}x trong {days} ngày",
     "momentumInactive": "Hệ số đã chạm mức sàn (0.2×). Giới thiệu người mới để reset về 1.0×!",
     "momentumDecayExplain": "Hệ số bắt đầu ở 1.0× và giảm −0.2× mỗi 3 ngày không có hoạt động giới thiệu (tối thiểu 0.2×).",
-    "momentumDecayRate": "↓ −0.2× mỗi 3 ngày không hoạt động · Giới thiệu mới = reset về 1.0×"
+    "momentumDecayRate": "↓ −0.2× mỗi 3 ngày không hoạt động · Giới thiệu mới = reset về 1.0×",
+    "allLevels": "Tất cả cấp",
+    "levelN": "Cấp {n}",
+    "onlyWithBalance": "Có số dư",
+    "sortBalance": "Số dư"
   },
   "referral": {
     "title": "Mạng lưới Giới thiệu",

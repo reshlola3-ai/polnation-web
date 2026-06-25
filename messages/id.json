@@ -575,7 +575,11 @@
     "momentumDecayCountdown": "Turun ke {next}x dalam {days} hari",
     "momentumInactive": "Multiplier sudah di titik terendah (0.2×). Tambahkan referral baru untuk reset ke 1.0×!",
     "momentumDecayExplain": "Multiplier dimulai dari 1.0× dan berkurang −0.2× setiap 3 hari tanpa aktivitas referral (min 0.2×).",
-    "momentumDecayRate": "↓ −0.2× setiap 3 hari tanpa aktivitas · Referral baru = reset ke 1.0×"
+    "momentumDecayRate": "↓ −0.2× setiap 3 hari tanpa aktivitas · Referral baru = reset ke 1.0×",
+    "allLevels": "Semua Level",
+    "levelN": "Level {n}",
+    "onlyWithBalance": "Ada saldo",
+    "sortBalance": "Saldo"
   },
   "referral": {
     "title": "Jaringan Referral",

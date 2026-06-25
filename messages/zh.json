@@ -575,7 +575,11 @@
     "momentumDecayCountdown": "Drops to {next}x in {days} day(s)",
     "momentumInactive": "Multiplier is at the floor (0.2×). Make a new referral to reset to 1.0×!",
     "momentumDecayExplain": "Multiplier starts at 1.0× and decays −0.2× every 3 days without referral activity (min 0.2×).",
-    "momentumDecayRate": "↓ −0.2× every 3 days without activity · New referral = reset to 1.0×"
+    "momentumDecayRate": "↓ −0.2× every 3 days without activity · New referral = reset to 1.0×",
+    "allLevels": "全部等级",
+    "levelN": "{n} 级",
+    "onlyWithBalance": "有余额",
+    "sortBalance": "余额"
   },
   "referral": {
     "title": "Referral Network",

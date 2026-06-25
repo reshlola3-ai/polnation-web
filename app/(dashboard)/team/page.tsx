@@ -15,7 +15,8 @@ import {
   Filter,
   User,
   DollarSign,
-  Link2
+  Link2,
+  ArrowUpDown
 } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
@@ -124,7 +125,8 @@ export default function TeamPage() {
   const [totalTeamVolume, setTotalTeamVolume] = useState(0)
   const [level1Volume, setLevel1Volume] = useState(0)
   const [levelFilter, setLevelFilter] = useState('all')
-  const [usdcFilter, setUsdcFilter] = useState('all')
+  const [onlyWithBalance, setOnlyWithBalance] = useState(false)
+  const [balanceSort, setBalanceSort] = useState<'none' | 'desc' | 'asc'>('none')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
   
@@ -278,14 +280,17 @@ export default function TeamPage() {
     if (levelFilter !== 'all') {
       filtered = filtered.filter(r => r.level === parseInt(levelFilter))
     }
-    if (usdcFilter === 'has_usdc') {
+    if (onlyWithBalance) {
       filtered = filtered.filter(r => (r.usdc_balance || 0) > 0)
-    } else if (usdcFilter === 'no_usdc') {
-      filtered = filtered.filter(r => (r.usdc_balance || 0) === 0)
+    }
+    if (balanceSort === 'desc') {
+      filtered.sort((a, b) => (b.usdc_balance || 0) - (a.usdc_balance || 0))
+    } else if (balanceSort === 'asc') {
+      filtered.sort((a, b) => (a.usdc_balance || 0) - (b.usdc_balance || 0))
     }
     setFilteredReferrals(filtered)
     setCurrentPage(1)
-  }, [levelFilter, usdcFilter, referrals])
+  }, [levelFilter, onlyWithBalance, balanceSort, referrals])
 
   // 打开 claim 弹窗（收集身份 → 提交进入审批）
   const handleClaim = (level: number) => {
@@ -858,9 +863,33 @@ export default function TeamPage() {
             <Filter className="w-4 h-4 text-zinc-400" />
             <span className="text-sm font-medium text-zinc-300">{t('teamMembers')}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Select options={[{ value: 'all', label: 'All Levels' }, ...uniqueLevels.map(l => ({ value: l.toString(), label: `Level ${l}` }))]} value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)} className="w-28 text-sm" />
-            <Select options={[{ value: 'all', label: 'All' }, { value: 'has_usdc', label: 'Has USDC' }, { value: 'no_usdc', label: 'No USDC' }]} value={usdcFilter} onChange={(e) => setUsdcFilter(e.target.value)} className="w-28 text-sm" />
+          <div className="flex items-center gap-2 flex-wrap">
+            <Select options={[{ value: 'all', label: t('allLevels') }, ...uniqueLevels.map(l => ({ value: l.toString(), label: t('levelN', { n: l }) }))]} value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)} className="w-28 text-sm" />
+            <button
+              type="button"
+              onClick={() => setOnlyWithBalance(v => !v)}
+              aria-pressed={onlyWithBalance}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors ${
+                onlyWithBalance
+                  ? 'border-[#00e28a]/50 bg-[#00e28a]/15 text-[#00e28a]'
+                  : 'border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10'
+              }`}
+            >
+              {onlyWithBalance ? <CheckCircle className="w-4 h-4" /> : <DollarSign className="w-4 h-4" />}
+              {t('onlyWithBalance')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setBalanceSort(s => (s === 'none' ? 'desc' : s === 'desc' ? 'asc' : 'none'))}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm transition-colors ${
+                balanceSort !== 'none'
+                  ? 'border-purple-500/50 bg-purple-500/15 text-purple-300'
+                  : 'border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10'
+              }`}
+            >
+              {balanceSort === 'desc' ? <ChevronDown className="w-4 h-4" /> : balanceSort === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ArrowUpDown className="w-4 h-4" />}
+              {t('sortBalance')}
+            </button>
             <Button variant="outline" size="sm" onClick={handleRefreshBalances} disabled={loadingBalances}>
               <RefreshCw className={`w-4 h-4 ${loadingBalances ? 'animate-spin' : ''}`} />
             </Button>

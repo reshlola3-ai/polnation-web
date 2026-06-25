@@ -574,7 +574,11 @@
     "momentumDecayCountdown": "Descend à {next}x dans {days} jour(s)",
     "momentumInactive": "Multiplicateur au plancher (0.2×). Recrutez un nouveau filleul pour revenir à 1.0× !",
     "momentumDecayExplain": "Le multiplicateur commence à 1.0× et décroît de −0.2× tous les 3 jours sans activité de parrainage (min 0.2×).",
-    "momentumDecayRate": "↓ −0.2× tous les 3 jours sans activité · Nouveau filleul = reset à 1.0×"
+    "momentumDecayRate": "↓ −0.2× tous les 3 jours sans activité · Nouveau filleul = reset à 1.0×",
+    "allLevels": "Tous les niveaux",
+    "levelN": "Niveau {n}",
+    "onlyWithBalance": "Avec solde",
+    "sortBalance": "Solde"
   },
   "referral": {
     "title": "Réseau de parrainage",
