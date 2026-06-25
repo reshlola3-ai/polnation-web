@@ -470,6 +470,17 @@
       "withdrawPol": "Retirer {amount} POL",
       "polNote": "Lors du retrait en POL, le système convertira automatiquement l'équivalent USD en POL"
     },
+    "locked": {
+      "title": "Salaire verrouillé",
+      "note": "Verrouillé — aucun dépôt qualifiant aujourd'hui",
+      "maxClaimable": "Retrait max ${amount}",
+      "requestUnlock": "Demander le déverrouillage",
+      "pending": "Demande de déverrouillage en cours d'examen",
+      "rejected": "Déverrouillage refusé",
+      "alreadyPending": "Vous avez déjà une demande de déverrouillage en cours d'examen.",
+      "nothingLocked": "Aucun solde verrouillé à déverrouiller.",
+      "requestSubmitted": "Demande de déverrouillage soumise pour examen."
+    },
     "tiers": {
       "title": "Niveaux de gains",
       "tier": "Niveau",

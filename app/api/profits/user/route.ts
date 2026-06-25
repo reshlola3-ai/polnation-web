@@ -227,6 +227,7 @@ export async function GET() {
         total_earned_usdc: 0,
         total_commission_earned: 0,
         available_usdc: 0,
+        community_locked_usdc: 0,
         available_matic: 0,
         withdrawn_usdc: 0,
         withdrawn_matic: 0,

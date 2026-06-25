@@ -471,6 +471,17 @@
       "withdrawPol": "Tarik {amount} POL",
       "polNote": "Saat menarik POL, sistem akan otomatis mengkonversi USD setara ke POL"
     },
+    "locked": {
+      "title": "Gaji terkunci",
+      "note": "Terkunci — tidak ada deposit memenuhi syarat hari ini",
+      "maxClaimable": "Maks dapat ditarik ${amount}",
+      "requestUnlock": "Minta buka kunci",
+      "pending": "Permintaan buka kunci sedang ditinjau",
+      "rejected": "Buka kunci ditolak",
+      "alreadyPending": "Anda sudah memiliki permintaan buka kunci yang sedang ditinjau.",
+      "nothingLocked": "Tidak ada saldo terkunci untuk dibuka.",
+      "requestSubmitted": "Permintaan buka kunci telah dikirim untuk ditinjau."
+    },
     "tiers": {
       "title": "Tingkat Penghasilan",
       "tier": "Tingkat",

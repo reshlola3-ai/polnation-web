@@ -18,7 +18,9 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
-  Info
+  Info,
+  Lock,
+  Unlock
 } from 'lucide-react'
 import { useAccount, useReadContract } from 'wagmi'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
@@ -47,10 +49,16 @@ interface ProfitData {
   total_earned_usdc: number
   total_commission_earned: number
   available_usdc: number
+  community_locked_usdc?: number
   available_matic: number
   withdrawn_usdc: number
   withdrawn_matic: number
   current_tier: number | null
+}
+
+interface UnlockRequest {
+  status: string
+  rejected_reason: string | null
 }
 
 interface CommissionItem {
@@ -116,6 +124,10 @@ export default function EarningsPage() {
   const [success, setSuccess] = useState('')
   const [showEarningsBreakdown, setShowEarningsBreakdown] = useState(false)
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
+  const [unlockRequest, setUnlockRequest] = useState<UnlockRequest | null>(null)
+  const [requestingUnlock, setRequestingUnlock] = useState(false)
+
+  const lockedUsdc = profits?.community_locked_usdc || 0
 
   // Use bound wallet or connected wallet (same as Dashboard)
   const walletAddress = boundWalletAddress || address
@@ -172,12 +184,43 @@ export default function EarningsPage() {
         setNextDistribution(data.next_distribution)
         setBoundWalletAddress(data.wallet_address || null)
       }
+      // Locked community salary + any open unlock request
+      try {
+        const ur = await fetch('/api/community/unlock-request')
+        if (ur.ok) {
+          const urData = await ur.json()
+          setUnlockRequest(urData.request || null)
+        }
+      } catch { /* non-fatal */ }
     } catch (err) {
       console.error('Failed to fetch profits:', err)
     } finally {
       setIsLoading(false)
     }
   }, [])
+
+  const requestUnlock = async () => {
+    setRequestingUnlock(true)
+    setError(''); setSuccess('')
+    try {
+      const res = await fetch('/api/community/unlock-request', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(
+          data.error === 'request_pending' ? t('locked.alreadyPending')
+            : data.error === 'no_locked_balance' ? t('locked.nothingLocked')
+            : tErrors('networkError')
+        )
+        return
+      }
+      setSuccess(t('locked.requestSubmitted'))
+      fetchProfits()
+    } catch {
+      setError(tErrors('networkError'))
+    } finally {
+      setRequestingUnlock(false)
+    }
+  }
 
   useEffect(() => {
     fetchProfits()
@@ -384,6 +427,39 @@ export default function EarningsPage() {
             )}
           </p>
         </div>
+
+        {/* Locked community salary — visible in the withdrawable area, but gated.
+            Funds here are excluded from the withdraw amount until admin approval. */}
+        {lockedUsdc > 0 && (
+          <div className="mb-6 rounded-2xl border border-amber-500/25 bg-amber-500/[0.06] px-4 py-3.5">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[13px] text-amber-200/90">
+                <Lock className="w-3.5 h-3.5" /> {t('locked.title')}
+              </span>
+              <span className="text-[15px] font-semibold text-amber-200 tabular-nums">${lockedUsdc.toFixed(2)}</span>
+            </div>
+            <p className="mt-1 text-[11px] leading-relaxed text-amber-200/55">
+              {t('locked.note')} · {t('locked.maxClaimable', { amount: totalAvailable.toFixed(2) })}
+            </p>
+            {unlockRequest?.status === 'pending' ? (
+              <div className="mt-2.5 flex items-center gap-1.5 text-[12px] text-amber-300/80">
+                <RefreshCw className="w-3.5 h-3.5" /> {t('locked.pending')}
+              </div>
+            ) : (
+              <button
+                onClick={requestUnlock}
+                disabled={requestingUnlock}
+                className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 hover:bg-amber-500/30 px-3.5 py-1.5 text-[12px] font-semibold text-amber-200 transition-colors disabled:opacity-50"
+              >
+                {requestingUnlock ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Unlock className="w-3.5 h-3.5" />}
+                {t('locked.requestUnlock')}
+              </button>
+            )}
+            {unlockRequest?.status === 'rejected' && unlockRequest.rejected_reason && (
+              <p className="mt-2 text-[11px] text-rose-300/70">{t('locked.rejected')}: {unlockRequest.rejected_reason}</p>
+            )}
+          </div>
+        )}
 
         {/* Quick picks — Apple Wallet style chips */}
         <div className="mb-7 grid grid-cols-4 gap-2">

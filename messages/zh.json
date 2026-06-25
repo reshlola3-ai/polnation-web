@@ -471,6 +471,17 @@
       "withdrawPol": "Withdraw {amount} POL",
       "polNote": "When withdrawing POL, the system will automatically convert equivalent USD to POL"
     },
+    "locked": {
+      "title": "锁定工资",
+      "note": "今日无达标入金，已锁定",
+      "maxClaimable": "最多可领 ${amount}",
+      "requestUnlock": "申请解锁",
+      "pending": "解锁申请审核中",
+      "rejected": "解锁被驳回",
+      "alreadyPending": "你已有一个解锁申请在审核中。",
+      "nothingLocked": "没有可解锁的余额。",
+      "requestSubmitted": "解锁申请已提交，等待审核。"
+    },
     "tiers": {
       "title": "Earning Tiers",
       "tier": "Tier",

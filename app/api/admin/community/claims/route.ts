@@ -23,6 +23,18 @@ interface ClaimRow {
   profile: { username: string | null; email: string | null; wallet_address: string | null } | null
 }
 
+interface UnlockRow {
+  id: string
+  user_id: string
+  requested_amount: number
+  credited_amount: number | null
+  status: string
+  rejected_reason: string | null
+  created_at: string
+  reviewed_at: string | null
+  profile: { username: string | null; email: string | null; wallet_address: string | null } | null
+}
+
 // 列出待审 + 最近已审的 claim（带身份照片签名URL + 同名提示）
 export async function GET() {
   if (!await verifyAdmin()) {
@@ -113,9 +125,53 @@ export async function GET() {
       }))
     }
 
+    // ===== Influencer-lock: unlock requests =====
+    const unlockSelect = 'id, user_id, requested_amount, credited_amount, status, rejected_reason, created_at, reviewed_at, profile:user_id(username, email, wallet_address)'
+
+    const { data: unlockPendingRaw } = await supabase
+      .from('community_unlock_requests')
+      .select(unlockSelect)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true })
+
+    const { data: unlockRecentRaw } = await supabase
+      .from('community_unlock_requests')
+      .select(unlockSelect)
+      .in('status', ['approved', 'rejected'])
+      .order('reviewed_at', { ascending: false })
+      .limit(30)
+
+    const unlockPendingRows = (unlockPendingRaw || []) as unknown as UnlockRow[]
+    const unlockRecentRows = (unlockRecentRaw || []) as unknown as UnlockRow[]
+
+    // live locked balance for pending rows (authoritative amount admin will release)
+    const unlockUserIds = unlockPendingRows.map(r => r.user_id)
+    const { data: lockedProfits } = await supabase
+      .from('user_profits')
+      .select('user_id, community_locked_usdc')
+      .in('user_id', unlockUserIds.length ? unlockUserIds : ['00000000-0000-0000-0000-000000000000'])
+    const lockedByUser = new Map((lockedProfits || []).map(p => [p.user_id, Number(p.community_locked_usdc || 0)]))
+
+    const mapUnlock = (rows: UnlockRow[]) => rows.map(r => ({
+      id: r.id,
+      user_id: r.user_id,
+      username: r.profile?.username || null,
+      email: r.profile?.email || null,
+      wallet_address: r.profile?.wallet_address || null,
+      requested_amount: Number(r.requested_amount),
+      credited_amount: r.credited_amount != null ? Number(r.credited_amount) : null,
+      current_locked: lockedByUser.has(r.user_id) ? lockedByUser.get(r.user_id)! : null,
+      status: r.status,
+      rejected_reason: r.rejected_reason,
+      created_at: r.created_at,
+      reviewed_at: r.reviewed_at,
+    }))
+
     return NextResponse.json({
       pending: await decorate(pendingRows),
       recent: await decorate(recentRows),
+      unlockPending: mapUnlock(unlockPendingRows),
+      unlockRecent: mapUnlock(unlockRecentRows),
     })
   } catch (error) {
     console.error('Admin claims GET error:', error)
@@ -134,7 +190,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { action, claim_id, user_id, reason } = await request.json()
+    const { action, claim_id, user_id, reason, request_id } = await request.json()
     const now = new Date().toISOString()
 
     if (action === 'unfreeze') {
@@ -144,6 +200,64 @@ export async function POST(request: NextRequest) {
         .update({ claims_frozen: false, frozen_reason: null, frozen_at: null, updated_at: now })
         .eq('user_id', user_id)
       return NextResponse.json({ success: true, message: '已解冻该账号' })
+    }
+
+    // ===== Influencer-lock: unlock-request approval =====
+    if (action === 'unlock_approve' || action === 'unlock_reject') {
+      if (!request_id) return NextResponse.json({ error: 'request_id required' }, { status: 400 })
+
+      const { data: req } = await supabase
+        .from('community_unlock_requests')
+        .select('*')
+        .eq('id', request_id)
+        .single()
+
+      if (!req) return NextResponse.json({ error: 'Request not found' }, { status: 404 })
+      if (req.status !== 'pending') {
+        return NextResponse.json({ error: 'Request already reviewed' }, { status: 400 })
+      }
+
+      if (action === 'unlock_reject') {
+        await supabase
+          .from('community_unlock_requests')
+          .update({ status: 'rejected', rejected_reason: reason || null, reviewed_by: 'admin', reviewed_at: now })
+          .eq('id', request_id)
+        return NextResponse.json({ success: true, message: '已驳回解锁申请' })
+      }
+
+      // approve: move the *current* locked balance (server-authoritative) into
+      // available_usdc. The client-supplied amount is never trusted.
+      const { data: profits } = await supabase
+        .from('user_profits')
+        .select('available_usdc, community_locked_usdc')
+        .eq('user_id', req.user_id)
+        .single()
+
+      const locked = Number(profits?.community_locked_usdc || 0)
+      if (locked <= 0) {
+        // nothing left to release — close the request out cleanly
+        await supabase
+          .from('community_unlock_requests')
+          .update({ status: 'approved', credited_amount: 0, reviewed_by: 'admin', reviewed_at: now })
+          .eq('id', request_id)
+        return NextResponse.json({ success: true, message: '该用户已无锁定余额，申请已结清' })
+      }
+
+      await supabase
+        .from('user_profits')
+        .update({
+          available_usdc: Number(profits?.available_usdc || 0) + locked,
+          community_locked_usdc: 0,
+          updated_at: now,
+        })
+        .eq('user_id', req.user_id)
+
+      await supabase
+        .from('community_unlock_requests')
+        .update({ status: 'approved', credited_amount: locked, reviewed_by: 'admin', reviewed_at: now })
+        .eq('id', request_id)
+
+      return NextResponse.json({ success: true, message: `已批准：$${locked.toFixed(2)} 已转入可提现` })
     }
 
     if (!claim_id || !['approve', 'reject'].includes(action)) {

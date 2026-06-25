@@ -470,6 +470,17 @@
       "withdrawPol": "Withdraw {amount} POL",
       "polNote": "When withdrawing POL, the system will automatically convert equivalent USD to POL"
     },
+    "locked": {
+      "title": "Locked salary",
+      "note": "Locked — no qualifying deposits today",
+      "maxClaimable": "Max claimable ${amount}",
+      "requestUnlock": "Request unlock",
+      "pending": "Unlock request under review",
+      "rejected": "Unlock rejected",
+      "alreadyPending": "You already have an unlock request under review.",
+      "nothingLocked": "No locked balance to unlock.",
+      "requestSubmitted": "Unlock request submitted for review."
+    },
     "tiers": {
       "title": "Earning Tiers",
       "tier": "Tier",

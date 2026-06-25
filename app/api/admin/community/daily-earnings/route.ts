@@ -50,6 +50,16 @@ export async function POST(request: NextRequest) {
 
     const levelMap = new Map(levels?.map(l => [l.level, l]) || [])
 
+    // Influencer-lock tunables: admin-set users at >= minLevel have their daily
+    // earning gated by "movement" — L1-3 team volume must grow that day by more
+    // than naturalGrowthRate × yesterday's snapshot, else the earning is locked.
+    const { data: cfg } = await supabaseAdmin
+      .from('airdrop_config')
+      .select('movement_min_growth_rate, influencer_lock_min_level')
+      .single()
+    const movementRate = Number(cfg?.movement_min_growth_rate ?? 0.008)
+    const lockMinLevel = Number(cfg?.influencer_lock_min_level ?? 3)
+
     // 计算每个用户的收益（含 Momentum Multiplier）
     const calculations: Array<{
       user_id: string
@@ -63,6 +73,8 @@ export async function POST(request: NextRequest) {
       base_earning: number
       momentum_multiplier: number
       already_earned_today: boolean
+      locked: boolean
+      today_volume: number
     }> = []
 
     let totalEarnings = 0
@@ -87,6 +99,21 @@ export async function POST(request: NextRequest) {
       const baseEarning = levelInfo.reward_pool * levelInfo.daily_rate
       const earningAmount = baseEarning * momentum
 
+      // Movement gate: only admin-set users at >= lockMinLevel are subject to
+      // locking. Earning is unlocked (withdrawable) only if today's L1-3 team
+      // volume grew by more than the natural-growth floor; otherwise locked.
+      const todayVol = Number(status.team_volume_l123) || 0
+      const isGated = !!status.is_admin_set && Number(status.current_level) >= lockMinLevel
+      let locked = false
+      if (isGated) {
+        const prevVol = status.last_volume_snapshot != null
+          ? Number(status.last_volume_snapshot)
+          : todayVol // no baseline yet → delta 0 → locked (conservative)
+        const threshold = movementRate * prevVol
+        const hasMovement = (todayVol - prevVol) > threshold
+        locked = !hasMovement
+      }
+
       calculations.push({
         user_id: status.user_id,
         username: status.profiles?.username || status.profiles?.email || 'Unknown',
@@ -99,6 +126,8 @@ export async function POST(request: NextRequest) {
         base_earning: baseEarning,
         momentum_multiplier: momentum,
         already_earned_today: !!existingEarning,
+        locked,
+        today_volume: todayVol,
       })
 
       if (!existingEarning) {
@@ -114,6 +143,7 @@ export async function POST(request: NextRequest) {
         users: calculations,
         total_earnings: totalEarnings,
         users_to_process: calculations.filter(c => !c.already_earned_today).length,
+        locked_to_process: calculations.filter(c => !c.already_earned_today && c.locked).length,
       })
     }
 
@@ -146,12 +176,18 @@ export async function POST(request: NextRequest) {
         .eq('user_id', calc.user_id)
         .single()
 
+      // Route the earning: locked → community_locked_usdc (needs admin unlock),
+      // otherwise → available_usdc (withdrawable). total_earned counts both.
+      const creditAvailable = calc.locked ? 0 : calc.earning_amount
+      const creditLocked = calc.locked ? calc.earning_amount : 0
+
       if (profits) {
         await supabaseAdmin
           .from('user_profits')
           .update({
-            available_usdc: profits.available_usdc + calc.earning_amount,
-            total_earned_usdc: profits.total_earned_usdc + calc.earning_amount,
+            available_usdc: Number(profits.available_usdc || 0) + creditAvailable,
+            community_locked_usdc: Number(profits.community_locked_usdc || 0) + creditLocked,
+            total_earned_usdc: Number(profits.total_earned_usdc || 0) + calc.earning_amount,
             updated_at: new Date().toISOString(),
           })
           .eq('user_id', calc.user_id)
@@ -160,7 +196,8 @@ export async function POST(request: NextRequest) {
           .from('user_profits')
           .insert({
             user_id: calc.user_id,
-            available_usdc: calc.earning_amount,
+            available_usdc: creditAvailable,
+            community_locked_usdc: creditLocked,
             total_earned_usdc: calc.earning_amount,
             available_matic: 0,
             withdrawn_usdc: 0,
@@ -182,6 +219,9 @@ export async function POST(request: NextRequest) {
           last_daily_earning_date: today,
           momentum_multiplier: calc.momentum_multiplier,
           momentum_updated_at: new Date().toISOString(),
+          // advance the movement baseline to today's volume
+          last_volume_snapshot: calc.today_volume,
+          last_volume_snapshot_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
         .eq('user_id', calc.user_id)
@@ -195,6 +235,7 @@ export async function POST(request: NextRequest) {
       date: today,
       processed_count: processedCount,
       distributed_amount: distributedAmount.toFixed(6),
+      locked_count: calculations.filter(c => c.locked && !c.already_earned_today).length,
       users: calculations,
     })
   } catch (error) {

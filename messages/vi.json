@@ -470,6 +470,17 @@
       "withdrawPol": "Rút {amount} POL",
       "polNote": "Khi rút POL, hệ thống sẽ tự động chuyển đổi USD tương đương sang POL"
     },
+    "locked": {
+      "title": "Lương bị khóa",
+      "note": "Đã khóa — hôm nay không có nạp đủ điều kiện",
+      "maxClaimable": "Rút tối đa ${amount}",
+      "requestUnlock": "Yêu cầu mở khóa",
+      "pending": "Yêu cầu mở khóa đang được xét duyệt",
+      "rejected": "Mở khóa bị từ chối",
+      "alreadyPending": "Bạn đã có một yêu cầu mở khóa đang được xét duyệt.",
+      "nothingLocked": "Không có số dư bị khóa để mở.",
+      "requestSubmitted": "Yêu cầu mở khóa đã được gửi để xét duyệt."
+    },
     "tiers": {
       "title": "Cấp Thu nhập",
       "tier": "Cấp",
