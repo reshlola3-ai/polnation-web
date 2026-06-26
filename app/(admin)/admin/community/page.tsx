@@ -60,6 +60,7 @@ interface DailyEarningPreview {
   base_earning: number
   momentum_multiplier: number
   already_earned_today: boolean
+  locked?: boolean
 }
 
 export default function AdminCommunityPage() {
@@ -74,6 +75,7 @@ export default function AdminCommunityPage() {
   // Daily earnings
   const [dailyPreview, setDailyPreview] = useState<DailyEarningPreview[] | null>(null)
   const [dailyTotalEarnings, setDailyTotalEarnings] = useState(0)
+  const [lockedOnly, setLockedOnly] = useState(false)
   const [calculatingDaily, setCalculatingDaily] = useState(false)
   const [distributingDaily, setDistributingDaily] = useState(false)
   const [refreshingLevels, setRefreshingLevels] = useState(false)
@@ -476,8 +478,27 @@ export default function AdminCommunityPage() {
                 <span className="text-zinc-400 text-sm">预计发放总额</span>
                 <span className="text-2xl font-bold text-green-400">${dailyTotalEarnings.toFixed(4)}</span>
               </div>
+              {(() => {
+                const lockedCount = dailyPreview.filter(d => d.locked && !d.already_earned_today).length
+                return (
+                  <div className="flex items-center justify-between mb-3 rounded-lg bg-amber-500/[0.07] border border-amber-500/20 px-3 py-2">
+                    <span className="text-sm text-amber-200/90 flex items-center gap-1.5">
+                      🔒 今日锁定 <span className="font-semibold">{lockedCount}</span> 人（无达标入金）
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setLockedOnly(v => !v)}
+                      disabled={lockedCount === 0}
+                      className={`text-xs ${lockedOnly ? 'border-amber-500 text-amber-300 bg-amber-500/10' : 'border-zinc-600 text-zinc-300'}`}
+                    >
+                      {lockedOnly ? '显示全部' : '只看锁定'}
+                    </Button>
+                  </div>
+                )
+              })()}
               <div className="space-y-2 max-h-48 overflow-y-auto">
-                {dailyPreview.map((item) => (
+                {dailyPreview.filter(item => !lockedOnly || item.locked).map((item) => (
                   <div 
                     key={item.user_id}
                     className={`flex items-center justify-between py-2 px-3 rounded-lg ${
@@ -489,6 +510,11 @@ export default function AdminCommunityPage() {
                       <span className={`ml-2 text-xs px-2 py-0.5 rounded ${getLevelColor(item.level)}`}>
                         L{item.level} {item.level_name}
                       </span>
+                      {item.locked && (
+                        <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">
+                          🔒 锁定
+                        </span>
+                      )}
                       {item.momentum_multiplier > 1.0 && (
                         <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">
                           🔥 ×{item.momentum_multiplier.toFixed(0)}
@@ -499,8 +525,8 @@ export default function AdminCommunityPage() {
                       )}
                     </div>
                     <div className="text-right">
-                      <span className="text-green-400 font-mono">
-                        +${item.earning_amount.toFixed(4)}
+                      <span className={`font-mono ${item.locked ? 'text-amber-300' : 'text-green-400'}`}>
+                        {item.locked ? '🔒 ' : '+'}${item.earning_amount.toFixed(4)}
                       </span>
                       {item.momentum_multiplier > 1.0 && (
                         <p className="text-[10px] text-zinc-500">${item.base_earning?.toFixed(4)} × {item.momentum_multiplier.toFixed(0)}</p>
