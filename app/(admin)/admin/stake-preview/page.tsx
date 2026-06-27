@@ -29,6 +29,16 @@ const TIERS = [
 
 const RTL: Locale[] = ['ar', 'ur']
 
+// Random lowercase hex string of the given length (no 0x prefix)
+function randHex(len: number): string {
+  const chars = '0123456789abcdef'
+  let s = ''
+  for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * 16)]
+  return s
+}
+const randomTxHash = () => `0x${randHex(64)}`
+const randomWallet = () => `0x${randHex(40)}`
+
 export default function StakeSuccessPreviewPage() {
   const [locale, setLocale] = useState<Locale>('zh')
   const [amount, setAmount] = useState('1000')
@@ -108,19 +118,39 @@ export default function StakeSuccessPreviewPage() {
             </Field>
 
             <Field label="交易哈希 (txHash)">
-              <input
-                value={txHash}
-                onChange={e => setTxHash(e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-xs font-mono"
-              />
+              <div className="flex gap-2">
+                <input
+                  value={txHash}
+                  onChange={e => setTxHash(e.target.value)}
+                  className="flex-1 min-w-0 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-xs font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setTxHash(randomTxHash())}
+                  className="shrink-0 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm hover:bg-zinc-700"
+                  title="随机生成"
+                >
+                  🎲
+                </button>
+              </div>
             </Field>
 
             <Field label="钱包地址">
-              <input
-                value={walletAddress}
-                onChange={e => setWalletAddress(e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-xs font-mono"
-              />
+              <div className="flex gap-2">
+                <input
+                  value={walletAddress}
+                  onChange={e => setWalletAddress(e.target.value)}
+                  className="flex-1 min-w-0 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-xs font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setWalletAddress(randomWallet())}
+                  className="shrink-0 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm hover:bg-zinc-700"
+                  title="随机生成"
+                >
+                  🎲
+                </button>
+              </div>
             </Field>
 
             <Field label="推广码 (referralCode)">
@@ -130,6 +160,14 @@ export default function StakeSuccessPreviewPage() {
                 className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm"
               />
             </Field>
+
+            <button
+              type="button"
+              onClick={() => { setTxHash(randomTxHash()); setWalletAddress(randomWallet()) }}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-zinc-700 bg-zinc-800 py-2.5 text-sm font-semibold hover:bg-zinc-700"
+            >
+              🎲 随机哈希 + 钱包地址
+            </button>
 
             <button
               onClick={replay}
