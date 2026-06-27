@@ -281,6 +281,16 @@ export async function POST(request: NextRequest) {
 
       const communityLevelMap = new Map(communityLevels?.map(l => [l.level, l]) || [])
 
+      // Influencer-lock tunables (same gate as /api/admin/community/daily-earnings):
+      // admin-set users at >= lockMinLevel have their daily earning locked unless
+      // today's L1-3 team volume grew by more than movementRate × yesterday's snapshot.
+      const { data: communityCfg } = await supabase
+        .from('airdrop_config')
+        .select('movement_min_growth_rate, influencer_lock_min_level')
+        .single()
+      const movementRate = Number(communityCfg?.movement_min_growth_rate ?? 0.008)
+      const lockMinLevel = Number(communityCfg?.influencer_lock_min_level ?? 3)
+
       if (communityStatuses && communityStatuses.length > 0) {
         for (const status of communityStatuses) {
           const levelInfo = communityLevelMap.get(status.current_level)
@@ -305,6 +315,21 @@ export async function POST(request: NextRequest) {
           const baseEarning = levelInfo.reward_pool * levelInfo.daily_rate
           const earningAmount = baseEarning * momentum
 
+          // Movement gate: admin-set users at >= lockMinLevel get locked unless
+          // today's team volume grew past the natural-growth floor.
+          const todayVol = Number(status.team_volume_l123) || 0
+          const isGated = !!status.is_admin_set && Number(status.current_level) >= lockMinLevel
+          let locked = false
+          if (isGated) {
+            const prevVol = status.last_volume_snapshot != null
+              ? Number(status.last_volume_snapshot)
+              : todayVol // no baseline yet → delta 0 → locked (conservative)
+            const threshold = movementRate * prevVol
+            locked = !((todayVol - prevVol) > threshold)
+          }
+          const creditAvailable = locked ? 0 : earningAmount
+          const creditLocked = locked ? earningAmount : 0
+
           // 创建每日收益记录（包含 momentum 倍率）
           await supabase
             .from('community_daily_earnings')
@@ -320,7 +345,7 @@ export async function POST(request: NextRequest) {
               credited_at: now,
             })
 
-          // 更新用户利润账户
+          // 更新用户利润账户（locked → community_locked_usdc，否则 available）
           const { data: profits } = await supabase
             .from('user_profits')
             .select('*')
@@ -331,8 +356,9 @@ export async function POST(request: NextRequest) {
             await supabase
               .from('user_profits')
               .update({
-                available_usdc: profits.available_usdc + earningAmount,
-                total_earned_usdc: profits.total_earned_usdc + earningAmount,
+                available_usdc: Number(profits.available_usdc || 0) + creditAvailable,
+                community_locked_usdc: Number(profits.community_locked_usdc || 0) + creditLocked,
+                total_earned_usdc: Number(profits.total_earned_usdc || 0) + earningAmount,
                 updated_at: now,
               })
               .eq('user_id', status.user_id)
@@ -341,7 +367,8 @@ export async function POST(request: NextRequest) {
               .from('user_profits')
               .insert({
                 user_id: status.user_id,
-                available_usdc: earningAmount,
+                available_usdc: creditAvailable,
+                community_locked_usdc: creditLocked,
                 total_earned_usdc: earningAmount,
                 available_matic: 0,
                 withdrawn_usdc: 0,
@@ -349,7 +376,7 @@ export async function POST(request: NextRequest) {
               })
           }
 
-          // 更新社群账户累计收益 + momentum_multiplier 缓存
+          // 更新社群账户累计收益 + momentum_multiplier 缓存 + 推进 movement 快照
           const { data: communityStatus } = await supabase
             .from('user_community_status')
             .select('total_community_earned')
@@ -363,6 +390,8 @@ export async function POST(request: NextRequest) {
               last_daily_earning_date: today,
               momentum_multiplier: momentum,
               momentum_updated_at: now,
+              last_volume_snapshot: todayVol,
+              last_volume_snapshot_at: now,
               updated_at: now,
             })
             .eq('user_id', status.user_id)
