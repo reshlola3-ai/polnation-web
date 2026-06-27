@@ -475,6 +475,7 @@
       "note": "Verrouillé — aucun dépôt qualifiant aujourd'hui",
       "maxClaimable": "Retrait max ${amount}",
       "requestUnlock": "Demander le déverrouillage",
+      "contactAdmin": "Contacter l'admin",
       "pending": "Demande de déverrouillage en cours d'examen",
       "rejected": "Déverrouillage refusé",
       "alreadyPending": "Vous avez déjà une demande de déverrouillage en cours d'examen.",

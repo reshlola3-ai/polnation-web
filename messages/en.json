@@ -475,6 +475,7 @@
       "note": "Locked — no qualifying deposits today",
       "maxClaimable": "Max claimable ${amount}",
       "requestUnlock": "Request unlock",
+      "contactAdmin": "Contact admin",
       "pending": "Unlock request under review",
       "rejected": "Unlock rejected",
       "alreadyPending": "You already have an unlock request under review.",

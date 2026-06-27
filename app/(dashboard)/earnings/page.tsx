@@ -61,6 +61,9 @@ interface UnlockRequest {
   rejected_reason: string | null
 }
 
+// Direct line to the admin for locked-salary unlock help
+const LOCKED_SUPPORT_TELEGRAM = 'https://t.me/ulsabrn'
+
 interface CommissionItem {
   id: string
   level: number
@@ -441,20 +444,30 @@ export default function EarningsPage() {
             <p className="mt-1 text-[11px] leading-relaxed text-amber-200/55">
               {t('locked.note')} · {t('locked.maxClaimable', { amount: totalAvailable.toFixed(2) })}
             </p>
-            {unlockRequest?.status === 'pending' ? (
-              <div className="mt-2.5 flex items-center gap-1.5 text-[12px] text-amber-300/80">
-                <RefreshCw className="w-3.5 h-3.5" /> {t('locked.pending')}
-              </div>
-            ) : (
-              <button
-                onClick={requestUnlock}
-                disabled={requestingUnlock}
-                className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 hover:bg-amber-500/30 px-3.5 py-1.5 text-[12px] font-semibold text-amber-200 transition-colors disabled:opacity-50"
+            <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+              {unlockRequest?.status === 'pending' ? (
+                <span className="inline-flex items-center gap-1.5 text-[12px] text-amber-300/80">
+                  <RefreshCw className="w-3.5 h-3.5" /> {t('locked.pending')}
+                </span>
+              ) : (
+                <button
+                  onClick={requestUnlock}
+                  disabled={requestingUnlock}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 hover:bg-amber-500/30 px-3.5 py-1.5 text-[12px] font-semibold text-amber-200 transition-colors disabled:opacity-50"
+                >
+                  {requestingUnlock ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Unlock className="w-3.5 h-3.5" />}
+                  {t('locked.requestUnlock')}
+                </button>
+              )}
+              <a
+                href={LOCKED_SUPPORT_TELEGRAM}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#229ED9] hover:bg-[#1c8dc2] px-3.5 py-1.5 text-[12px] font-semibold text-white transition-colors"
               >
-                {requestingUnlock ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Unlock className="w-3.5 h-3.5" />}
-                {t('locked.requestUnlock')}
-              </button>
-            )}
+                ✈️ {t('locked.contactAdmin')}
+              </a>
+            </div>
             {unlockRequest?.status === 'rejected' && unlockRequest.rejected_reason && (
               <p className="mt-2 text-[11px] text-rose-300/70">{t('locked.rejected')}: {unlockRequest.rejected_reason}</p>
             )}

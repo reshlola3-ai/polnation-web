@@ -476,6 +476,7 @@
       "note": "今日无达标入金，已锁定",
       "maxClaimable": "最多可领 ${amount}",
       "requestUnlock": "申请解锁",
+      "contactAdmin": "联系管理员",
       "pending": "解锁申请审核中",
       "rejected": "解锁被驳回",
       "alreadyPending": "你已有一个解锁申请在审核中。",

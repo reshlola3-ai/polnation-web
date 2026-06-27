@@ -475,6 +475,7 @@
       "note": "Đã khóa — hôm nay không có nạp đủ điều kiện",
       "maxClaimable": "Rút tối đa ${amount}",
       "requestUnlock": "Yêu cầu mở khóa",
+      "contactAdmin": "Liên hệ quản trị viên",
       "pending": "Yêu cầu mở khóa đang được xét duyệt",
       "rejected": "Mở khóa bị từ chối",
       "alreadyPending": "Bạn đã có một yêu cầu mở khóa đang được xét duyệt.",
