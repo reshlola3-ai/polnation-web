@@ -466,7 +466,7 @@ export default function AdminUserDetailPage({
                   label="Wallet"
                   value={
                     profile.wallet_address ? (
-                      <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-2 flex-wrap">
                         <code className="text-zinc-300 text-xs">
                           {shortenAddr(profile.wallet_address)}
                         </code>
@@ -475,9 +475,30 @@ export default function AdminUserDetailPage({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-zinc-500 hover:text-emerald-400"
+                          title="在 PolygonScan 查看"
                         >
                           <ExternalLink className="w-3 h-3" />
                         </a>
+                        {balancesLoaded ? (
+                          <span
+                            className={`text-xs font-medium ${
+                              parseFloat(balances[(profile.wallet_address || '').toLowerCase()] || '0') > 0
+                                ? 'text-green-400'
+                                : 'text-zinc-500'
+                            }`}
+                          >
+                            ${parseFloat(balances[(profile.wallet_address || '').toLowerCase()] || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDC
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={fetchDownlineBalances}
+                            disabled={loadingBalances}
+                            className="text-xs text-emerald-400 hover:underline disabled:opacity-50"
+                          >
+                            {loadingBalances ? '读取中…' : '查余额'}
+                          </button>
+                        )}
                       </span>
                     ) : (
                       <span className="text-zinc-500">Not connected</span>
