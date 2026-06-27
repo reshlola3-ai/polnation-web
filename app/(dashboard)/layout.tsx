@@ -32,7 +32,7 @@ export default async function DashboardLayout({
         </div>
 
         {/* Mobile Header — logo + language only; navigation is in BottomNav */}
-        <div className="md:hidden sticky top-0 z-20 bg-[var(--kraken-panel)] border-b border-[var(--kraken-border)]">
+        <div className="md:hidden sticky top-0 z-20 bg-[#0D0B21]/95 backdrop-blur-xl border-b border-[var(--kraken-border)]">
           <div className="flex items-center justify-between h-12 px-4">
             <Link href="/dashboard" className="flex items-center gap-2">
               <Image src="/logo.svg" alt="Polnation" width={26} height={26} />

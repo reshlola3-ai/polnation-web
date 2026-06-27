@@ -18,7 +18,7 @@ export function BottomNav() {
   ]
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--kraken-panel)] border-t border-[var(--kraken-border)] pb-safe">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0D0B21]/95 backdrop-blur-xl border-t border-[var(--kraken-border)] shadow-[0_-8px_24px_rgba(0,0,0,0.45)] pb-safe">
       <div className="flex justify-around items-center h-16 px-1.5">
         {navItems.map((item) => {
           const Icon = item.icon
