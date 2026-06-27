@@ -56,7 +56,7 @@ export default function StakeSuccessPreviewPage() {
     <div className="min-h-screen bg-zinc-950 text-white p-6">
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex items-center justify-between">
-          <Link href="/admin" className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white">
+          <Link href="/admin/airdrop" className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white">
             <ArrowLeft className="h-4 w-4" /> Back to admin
           </Link>
           <h1 className="text-lg font-bold">AlphaStake 质押成功页 · 预览</h1>

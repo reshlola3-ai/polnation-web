@@ -569,6 +569,12 @@ export default function AirdropPage() {
                   Promo
                 </Button>
               </Link>
+              <Link href="/admin/stake-preview">
+                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  质押成功页
+                </Button>
+              </Link>
               <Button
                 variant="outline"
                 size="sm"
