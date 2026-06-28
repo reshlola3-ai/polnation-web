@@ -505,6 +505,20 @@
       "sourceUser": "Source User",
       "downlineEarnings": "Downline Earnings",
       "commissionRate": "Commission Rate"
+    },
+    "withdrawSuccess": {
+      "title": "提现成功",
+      "subtitle": "资金已发送到你的钱包",
+      "thisWithdrawal": "本次提现",
+      "txHash": "交易哈希",
+      "viewTx": "在 PolygonScan 查看",
+      "totalWithdrawn": "累计提现",
+      "memberSince": "已注册",
+      "daysValue": "{days} 天",
+      "teamVolume": "团队业绩(L1–3)",
+      "sentTo": "发送至",
+      "viewBreakdown": "查看收入明细",
+      "done": "完成"
     }
   },
   "community": {

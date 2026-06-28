@@ -504,6 +504,20 @@
       "sourceUser": "ماخذ صارف",
       "downlineEarnings": "ڈاؤن لائن کمائی",
       "commissionRate": "کمیشن شرح"
+    },
+    "withdrawSuccess": {
+      "title": "رقم نکالنا کامیاب",
+      "subtitle": "رقم آپ کے والیٹ میں بھیج دی گئی",
+      "thisWithdrawal": "یہ رقم نکالنا",
+      "txHash": "ٹرانزیکشن ہیش",
+      "viewTx": "PolygonScan پر دیکھیں",
+      "totalWithdrawn": "کل نکالی گئی رقم",
+      "memberSince": "رکن بنے",
+      "daysValue": "{days} دن",
+      "teamVolume": "ٹیم سیلز (L1–3)",
+      "sentTo": "بھیجا گیا",
+      "viewBreakdown": "آمدنی کی تفصیل دیکھیں",
+      "done": "مکمل"
     }
   },
   "community": {

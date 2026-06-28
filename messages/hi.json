@@ -504,6 +504,20 @@
       "sourceUser": "स्रोत उपयोगकर्ता",
       "downlineEarnings": "डाउनलाइन कमाई",
       "commissionRate": "कमीशन दर"
+    },
+    "withdrawSuccess": {
+      "title": "निकासी सफल",
+      "subtitle": "धनराशि आपके वॉलेट में भेज दी गई",
+      "thisWithdrawal": "यह निकासी",
+      "txHash": "लेन-देन हैश",
+      "viewTx": "PolygonScan पर देखें",
+      "totalWithdrawn": "कुल निकासी",
+      "memberSince": "सदस्य बने",
+      "daysValue": "{days} दिन",
+      "teamVolume": "टीम बिक्री (L1–3)",
+      "sentTo": "भेजा गया",
+      "viewBreakdown": "आय विवरण देखें",
+      "done": "पूर्ण"
     }
   },
   "community": {

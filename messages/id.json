@@ -505,6 +505,20 @@
       "sourceUser": "Pengguna Sumber",
       "downlineEarnings": "Penghasilan Downline",
       "commissionRate": "Rate Komisi"
+    },
+    "withdrawSuccess": {
+      "title": "Penarikan Berhasil",
+      "subtitle": "Dana dikirim ke dompet Anda",
+      "thisWithdrawal": "Penarikan ini",
+      "txHash": "Hash transaksi",
+      "viewTx": "Lihat di PolygonScan",
+      "totalWithdrawn": "Total ditarik",
+      "memberSince": "Anggota selama",
+      "daysValue": "{days} hari",
+      "teamVolume": "Penjualan tim (L1–3)",
+      "sentTo": "Dikirim ke",
+      "viewBreakdown": "Lihat rincian pendapatan",
+      "done": "Selesai"
     }
   },
   "community": {

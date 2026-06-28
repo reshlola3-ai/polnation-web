@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Wallet,
   TrendingUp,
@@ -31,6 +31,7 @@ import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
 import { MonoStat } from '@/components/ui/poly/MonoStat'
 import { BevelCard } from '@/components/ui/poly/BevelCard'
 import { Collapsible } from '@/components/ui/poly/Collapsible'
+import { WithdrawSuccessScreen } from './components/WithdrawSuccessScreen'
 
 interface ProfitTier {
   level: number
@@ -126,7 +127,12 @@ export default function EarningsPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [showEarningsBreakdown, setShowEarningsBreakdown] = useState(false)
+  const [earningsDetailsOpen, setEarningsDetailsOpen] = useState(false)
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
+  const [registeredAt, setRegisteredAt] = useState<string | null>(null)
+  const [teamVolume, setTeamVolume] = useState<number>(0)
+  const [withdrawSuccess, setWithdrawSuccess] = useState<{ amount: number; txHash: string } | null>(null)
+  const breakdownRef = useRef<HTMLDivElement | null>(null)
   const [unlockRequest, setUnlockRequest] = useState<UnlockRequest | null>(null)
   const [requestingUnlock, setRequestingUnlock] = useState(false)
 
@@ -186,6 +192,8 @@ export default function EarningsPage() {
         setConfig(data.config)
         setNextDistribution(data.next_distribution)
         setBoundWalletAddress(data.wallet_address || null)
+        setRegisteredAt(data.registered_at || null)
+        setTeamVolume(Number(data.team_volume) || 0)
       }
       // Locked community salary + any open unlock request
       try {
@@ -295,8 +303,10 @@ export default function EarningsPage() {
       }
 
       if (data.tx_hash) {
-        setSuccess(`${tCommon('success')}! TX: ${data.tx_hash.slice(0, 10)}...`)
+        // 即时上链完成 → 全屏提现成功页
+        setWithdrawSuccess({ amount: parseFloat(withdrawAmount), txHash: data.tx_hash })
       } else {
+        // 仅排队成功(无 tx_hash) → 保留内联提示
         setSuccess(tCommon('success'))
       }
       setWithdrawAmount('')
@@ -306,6 +316,15 @@ export default function EarningsPage() {
     } finally {
       setWithdrawing(false)
     }
+  }
+
+  const handleViewBreakdown = () => {
+    setWithdrawSuccess(null)
+    setEarningsDetailsOpen(true)
+    // 等折叠区展开动画后再滚动到收入构成卡片
+    setTimeout(() => {
+      breakdownRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 350)
   }
 
   const formatCountdown = (seconds: number) => {
@@ -343,6 +362,18 @@ export default function EarningsPage() {
 
   return (
     <div className="kraken-shell space-y-4">
+      {withdrawSuccess && (
+        <WithdrawSuccessScreen
+          amount={withdrawSuccess.amount}
+          txHash={withdrawSuccess.txHash}
+          totalWithdrawn={profits?.withdrawn_usdc || 0}
+          registeredAt={registeredAt}
+          teamVolume={teamVolume}
+          walletAddress={walletAddress}
+          onDone={() => setWithdrawSuccess(null)}
+          onViewBreakdown={handleViewBreakdown}
+        />
+      )}
       {/* This banner is no longer needed since we use bound wallet address */}
 
       {/* ── Header — polygon-style ───────────────────────────────────────── */}
@@ -537,6 +568,8 @@ export default function EarningsPage() {
         title="Earnings Details"
         icon={<Wallet className="w-3.5 h-3.5" />}
         preview={hasWallet ? `$${totalAvailable.toFixed(2)}` : '$—'}
+        open={earningsDetailsOpen}
+        onOpenChange={setEarningsDetailsOpen}
       >
 
       {/* ── Balance + Next Distribution ──────────────────────────────────── */}
@@ -697,7 +730,7 @@ export default function EarningsPage() {
 
       {/* Earning Details — income composition */}
       {breakdown && (breakdown.last_round.total > 0 || breakdown.lifetime.total > 0) && (
-        <div className="kraken-panel p-6">
+        <div ref={breakdownRef} className="kraken-panel p-6 scroll-mt-24">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
             <Info className="w-5 h-5" />
             {t('breakdown.title')}

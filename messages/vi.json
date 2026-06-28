@@ -504,6 +504,20 @@
       "sourceUser": "Người dùng Nguồn",
       "downlineEarnings": "Thu nhập Downline",
       "commissionRate": "Tỷ lệ Hoa hồng"
+    },
+    "withdrawSuccess": {
+      "title": "Rút tiền thành công",
+      "subtitle": "Tiền đã được gửi đến ví của bạn",
+      "thisWithdrawal": "Lần rút này",
+      "txHash": "Mã giao dịch",
+      "viewTx": "Xem trên PolygonScan",
+      "totalWithdrawn": "Tổng đã rút",
+      "memberSince": "Thành viên được",
+      "daysValue": "{days} ngày",
+      "teamVolume": "Doanh số nhóm (L1–3)",
+      "sentTo": "Gửi đến",
+      "viewBreakdown": "Xem chi tiết thu nhập",
+      "done": "Hoàn tất"
     }
   },
   "community": {

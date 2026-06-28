@@ -11,8 +11,12 @@ interface Props {
   icon?: React.ReactNode
   /** Optional preview value (right side) shown when collapsed/expanded — gives users a glance without opening. */
   preview?: React.ReactNode
-  /** Default state — defaults to collapsed. */
+  /** Default state — defaults to collapsed. Ignored when `open` is provided (controlled). */
   defaultOpen?: boolean
+  /** Controlled open state. When provided, the panel is controlled by the parent. */
+  open?: boolean
+  /** Called whenever the user toggles the header. Required for controlled mode to respond to clicks. */
+  onOpenChange?: (open: boolean) => void
   /** Padding for content area when expanded (px). Default 20. */
   contentPad?: number
   children: React.ReactNode
@@ -30,16 +34,26 @@ export function Collapsible({
   icon,
   preview,
   defaultOpen = false,
+  open: openProp,
+  onOpenChange,
   contentPad = 20,
   children,
 }: Props) {
-  const [open, setOpen] = React.useState(defaultOpen)
+  const [openState, setOpenState] = React.useState(defaultOpen)
+  const isControlled = openProp !== undefined
+  const open = isControlled ? openProp : openState
+
+  const toggle = () => {
+    const next = !open
+    if (!isControlled) setOpenState(next)
+    onOpenChange?.(next)
+  }
 
   return (
     <BevelCard size="lg" pad={0}>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
         aria-expanded={open}
         className="flex items-center w-full gap-3 px-5 py-4 hover:bg-white/[0.02] active:bg-white/[0.04] transition-colors"
       >

@@ -504,6 +504,20 @@
       "sourceUser": "المستخدم المصدر",
       "downlineEarnings": "أرباح السلسلة",
       "commissionRate": "معدل العمولة"
+    },
+    "withdrawSuccess": {
+      "title": "تم السحب بنجاح",
+      "subtitle": "تم إرسال الأموال إلى محفظتك",
+      "thisWithdrawal": "هذا السحب",
+      "txHash": "تجزئة المعاملة",
+      "viewTx": "عرض على PolygonScan",
+      "totalWithdrawn": "إجمالي المسحوب",
+      "memberSince": "عضو منذ",
+      "daysValue": "{days} يومًا",
+      "teamVolume": "مبيعات الفريق (L1–3)",
+      "sentTo": "أُرسلت إلى",
+      "viewBreakdown": "عرض تفاصيل الأرباح",
+      "done": "تم"
     }
   },
   "community": {

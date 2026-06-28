@@ -504,6 +504,20 @@
       "sourceUser": "Source User",
       "downlineEarnings": "Downline Earnings",
       "commissionRate": "Commission Rate"
+    },
+    "withdrawSuccess": {
+      "title": "Withdrawal Successful",
+      "subtitle": "Funds sent to your wallet",
+      "thisWithdrawal": "This withdrawal",
+      "txHash": "Transaction hash",
+      "viewTx": "View on PolygonScan",
+      "totalWithdrawn": "Total withdrawn",
+      "memberSince": "Member for",
+      "daysValue": "{days} days",
+      "teamVolume": "Team sales (L1–3)",
+      "sentTo": "Sent to",
+      "viewBreakdown": "View earnings breakdown",
+      "done": "Done"
     }
   },
   "community": {

@@ -504,6 +504,20 @@
       "sourceUser": "Utilisateur source",
       "downlineEarnings": "Revenus de la lignée descendante",
       "commissionRate": "Taux de commission"
+    },
+    "withdrawSuccess": {
+      "title": "Retrait réussi",
+      "subtitle": "Fonds envoyés vers votre portefeuille",
+      "thisWithdrawal": "Ce retrait",
+      "txHash": "Hash de transaction",
+      "viewTx": "Voir sur PolygonScan",
+      "totalWithdrawn": "Total retiré",
+      "memberSince": "Membre depuis",
+      "daysValue": "{days} jours",
+      "teamVolume": "Ventes d'équipe (N1–3)",
+      "sentTo": "Envoyé à",
+      "viewBreakdown": "Voir le détail des gains",
+      "done": "Terminé"
     }
   },
   "community": {

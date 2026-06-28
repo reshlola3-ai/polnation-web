@@ -74,8 +74,8 @@ export async function GET() {
           return { data: [] }
         }
       })(),
-      // 获取用户绑定的钱包地址
-      supabaseAdmin.from('profiles').select('wallet_address').eq('id', user.id).single(),
+      // 获取用户绑定的钱包地址 + 注册时间
+      supabaseAdmin.from('profiles').select('wallet_address, created_at').eq('id', user.id).single(),
     ])
 
     const config = configResult.data
@@ -85,6 +85,8 @@ export async function GET() {
     const withdrawals = withdrawalsResult.data
     const commissions = commissionsResult.data || []
     let profile = profileResult.data
+    // 注册时间在 profile 可能被自动绑定逻辑覆盖前先存下来
+    const registeredAt = (profileResult.data as { created_at?: string } | null)?.created_at ?? null
 
     // 如果用户没有绑定钱包，检查是否有签名记录，自动绑定
     if (!profile?.wallet_address) {
@@ -118,7 +120,7 @@ export async function GET() {
             .eq('id', user.id)
 
           // 更新 profile 变量
-          profile = { wallet_address: walletAddress }
+          profile = { wallet_address: walletAddress, created_at: registeredAt }
           console.log(`Auto-bound wallet ${walletAddress} to user ${user.id}`)
         }
       }
@@ -187,7 +189,7 @@ export async function GET() {
     // 累计各项
     const [allPhRes, commStatusRes, lotteryRes] = await Promise.all([
       supabaseAdmin.from('profit_history').select('profit_earned, alpha_earned').eq('user_id', user.id),
-      supabaseAdmin.from('user_community_status').select('total_community_earned').eq('user_id', user.id).maybeSingle(),
+      supabaseAdmin.from('user_community_status').select('total_community_earned, team_volume_l123').eq('user_id', user.id).maybeSingle(),
       supabaseAdmin.from('lottery_records').select('prize_amount').eq('user_id', user.id).like('prize_type', 'usdc_%').eq('reward_credited', true),
     ])
 
@@ -245,6 +247,8 @@ export async function GET() {
       },
       next_distribution: nextDistribution,
       wallet_address: profile?.wallet_address || null,
+      registered_at: registeredAt,
+      team_volume: Number(commStatusRes.data?.team_volume_l123) || 0,
       hasSignature: hasSignature,
     })
     
