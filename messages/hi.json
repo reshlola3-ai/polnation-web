@@ -468,7 +468,9 @@
       "maxWithdraw": "अधिकतम निकासी",
       "withdrawUsdc": "USDC निकालें",
       "withdrawPol": "{amount} POL निकालें",
-      "polNote": "POL निकालते समय सिस्टम स्वचालित रूप से समकक्ष USD को POL में बदलेगा"
+      "polNote": "POL निकालते समय सिस्टम स्वचालित रूप से समकक्ष USD को POL में बदलेगा",
+      "tgGroupRequired": "निकासी के लिए हमारे Telegram ग्रुप से जुड़ें।",
+      "joinTelegram": "Telegram ग्रुप से जुड़ें"
     },
     "locked": {
       "title": "लॉक्ड सैलरी",

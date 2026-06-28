@@ -468,7 +468,9 @@
       "maxWithdraw": "الحد الأقصى للسحب",
       "withdrawUsdc": "سحب USDC",
       "withdrawPol": "سحب {amount} POL",
-      "polNote": "عند سحب POL، سيحول النظام تلقائياً ما يعادله بالدولار إلى POL"
+      "polNote": "عند سحب POL، سيحول النظام تلقائياً ما يعادله بالدولار إلى POL",
+      "tgGroupRequired": "انضم إلى مجموعتنا على Telegram للسحب.",
+      "joinTelegram": "انضم إلى مجموعة Telegram"
     },
     "locked": {
       "title": "راتب مقفل",

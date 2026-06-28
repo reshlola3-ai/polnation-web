@@ -468,7 +468,9 @@
       "maxWithdraw": "Max withdrawable",
       "withdrawUsdc": "Withdraw USDC",
       "withdrawPol": "Withdraw {amount} POL",
-      "polNote": "When withdrawing POL, the system will automatically convert equivalent USD to POL"
+      "polNote": "When withdrawing POL, the system will automatically convert equivalent USD to POL",
+      "tgGroupRequired": "Join our Telegram group to withdraw.",
+      "joinTelegram": "Join Telegram group"
     },
     "locked": {
       "title": "Locked salary",

@@ -65,6 +65,9 @@ interface UnlockRequest {
 // Direct line to the admin for locked-salary unlock help
 const LOCKED_SUPPORT_TELEGRAM = 'https://t.me/ulsabrn'
 
+// Public Telegram group users must join before they can withdraw
+const WITHDRAW_TELEGRAM_GROUP = 'https://t.me/polnation'
+
 interface CommissionItem {
   id: string
   level: number
@@ -125,6 +128,7 @@ export default function EarningsPage() {
   const [withdrawAmount, setWithdrawAmount] = useState('')
   const [polPrice, setPolPrice] = useState<number>(0.15)
   const [error, setError] = useState('')
+  const [tgGroupRequired, setTgGroupRequired] = useState(false)
   const [success, setSuccess] = useState('')
   const [showEarningsBreakdown, setShowEarningsBreakdown] = useState(false)
   const [earningsDetailsOpen, setEarningsDetailsOpen] = useState(false)
@@ -278,6 +282,7 @@ export default function EarningsPage() {
 
     setWithdrawing(true)
     setError('')
+    setTgGroupRequired(false)
     setSuccess('')
 
     try {
@@ -296,6 +301,11 @@ export default function EarningsPage() {
       if (!res.ok) {
         if (data.error === 'pol_reserve_insufficient') {
           setError(tErrors('polReserveInsufficient'))
+          return
+        }
+        if (data.error === 'tg_group_required') {
+          // 不暴露原始错误码,改为引导加入 Telegram 群组
+          setTgGroupRequired(true)
           return
         }
         setError(data.error || tErrors('withdrawFailed'))
@@ -408,6 +418,22 @@ export default function EarningsPage() {
           <div role="alert" aria-live="polite" className="mb-5 flex items-center gap-2.5 rounded-2xl bg-rose-500/10 px-4 py-3 text-[13px] text-rose-300 ring-1 ring-rose-500/20">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
+          </div>
+        )}
+        {tgGroupRequired && (
+          <div role="alert" aria-live="polite" className="mb-5 rounded-2xl bg-[#229ED9]/[0.08] px-4 py-3.5 ring-1 ring-[#229ED9]/25">
+            <p className="flex items-center gap-2.5 text-[13px] text-[#7fd0f2]">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{t('withdraw.tgGroupRequired')}</span>
+            </p>
+            <a
+              href={WITHDRAW_TELEGRAM_GROUP}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#229ED9] hover:bg-[#1c8dc2] px-4 py-2 text-[13px] font-semibold text-white transition-colors"
+            >
+              ✈️ {t('withdraw.joinTelegram')}
+            </a>
           </div>
         )}
         {success && (

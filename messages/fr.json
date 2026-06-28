@@ -468,7 +468,9 @@
       "maxWithdraw": "Retrait maximum",
       "withdrawUsdc": "Retirer USDC",
       "withdrawPol": "Retirer {amount} POL",
-      "polNote": "Lors du retrait en POL, le système convertira automatiquement l'équivalent USD en POL"
+      "polNote": "Lors du retrait en POL, le système convertira automatiquement l'équivalent USD en POL",
+      "tgGroupRequired": "Rejoignez notre groupe Telegram pour retirer.",
+      "joinTelegram": "Rejoindre le groupe Telegram"
     },
     "locked": {
       "title": "Salaire verrouillé",

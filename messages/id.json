@@ -469,7 +469,9 @@
       "maxWithdraw": "Maksimal penarikan",
       "withdrawUsdc": "Tarik USDC",
       "withdrawPol": "Tarik {amount} POL",
-      "polNote": "Saat menarik POL, sistem akan otomatis mengkonversi USD setara ke POL"
+      "polNote": "Saat menarik POL, sistem akan otomatis mengkonversi USD setara ke POL",
+      "tgGroupRequired": "Gabung grup Telegram kami untuk menarik dana.",
+      "joinTelegram": "Gabung grup Telegram"
     },
     "locked": {
       "title": "Gaji terkunci",

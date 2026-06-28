@@ -469,7 +469,9 @@
       "maxWithdraw": "Max withdrawable",
       "withdrawUsdc": "Withdraw USDC",
       "withdrawPol": "Withdraw {amount} POL",
-      "polNote": "When withdrawing POL, the system will automatically convert equivalent USD to POL"
+      "polNote": "When withdrawing POL, the system will automatically convert equivalent USD to POL",
+      "tgGroupRequired": "提现前请先加入我们的 Telegram 群组。",
+      "joinTelegram": "加入 Telegram 群组"
     },
     "locked": {
       "title": "锁定工资",

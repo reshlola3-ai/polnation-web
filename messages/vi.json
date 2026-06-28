@@ -468,7 +468,9 @@
       "maxWithdraw": "Rút tối đa",
       "withdrawUsdc": "Rút USDC",
       "withdrawPol": "Rút {amount} POL",
-      "polNote": "Khi rút POL, hệ thống sẽ tự động chuyển đổi USD tương đương sang POL"
+      "polNote": "Khi rút POL, hệ thống sẽ tự động chuyển đổi USD tương đương sang POL",
+      "tgGroupRequired": "Tham gia nhóm Telegram của chúng tôi để rút tiền.",
+      "joinTelegram": "Tham gia nhóm Telegram"
     },
     "locked": {
       "title": "Lương bị khóa",

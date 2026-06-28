@@ -468,7 +468,9 @@
       "maxWithdraw": "زیادہ سے زیادہ نکاسی",
       "withdrawUsdc": "USDC نکالیں",
       "withdrawPol": "{amount} POL نکالیں",
-      "polNote": "POL نکالتے وقت سسٹم خودکار طور پر مساوی USD کو POL میں تبدیل کرے گا"
+      "polNote": "POL نکالتے وقت سسٹم خودکار طور پر مساوی USD کو POL میں تبدیل کرے گا",
+      "tgGroupRequired": "رقم نکالنے کے لیے ہمارے Telegram گروپ میں شامل ہوں۔",
+      "joinTelegram": "Telegram گروپ میں شامل ہوں"
     },
     "locked": {
       "title": "لاک شدہ تنخواہ",
