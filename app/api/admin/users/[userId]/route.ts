@@ -116,7 +116,7 @@ export async function GET(
     // 5b-2. Profit account (可提现余额)
     const { data: profits } = await supabaseAdmin
       .from('user_profits')
-      .select('available_usdc, available_matic, total_earned_usdc, withdrawn_usdc, withdrawn_matic, withdrawals_frozen')
+      .select('available_usdc, community_locked_usdc, available_matic, total_earned_usdc, withdrawn_usdc, withdrawn_matic, withdrawals_frozen')
       .eq('user_id', userId)
       .single()
 

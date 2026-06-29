@@ -142,6 +142,7 @@ interface WithdrawalRecord {
 
 interface ProfitsData {
   available_usdc: number
+  community_locked_usdc?: number
   available_matic: number
   total_earned_usdc: number
   withdrawn_usdc: number
@@ -835,11 +836,16 @@ export default function AdminUserDetailPage({
                 </div>
               </header>
               <div className="p-5">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
                   <Stat
                     label="Withdrawable (USDC)"
                     value={`$${(Number(data?.profits?.available_usdc) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                     color="text-emerald-400"
+                  />
+                  <Stat
+                    label="Locked (USDC)"
+                    value={`$${(Number(data?.profits?.community_locked_usdc) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    color={(Number(data?.profits?.community_locked_usdc) || 0) > 0 ? 'text-amber-400' : 'text-zinc-500'}
                   />
                   <Stat label="Total Withdrawals" value={totalWithdrawals.toString()} color="text-white" />
                   <Stat
