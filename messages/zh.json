@@ -1462,6 +1462,24 @@
       "viewTx": "查看交易",
       "txs": "笔交易"
     },
+    "copyTrade": {
+      "viewResult": "查看跟单结果",
+      "modalLabel": "Alpha 执行",
+      "title": "⚡ POLNATION 已跟单",
+      "subtitle": "观察到 {entity} 在 Arkham 的动作后建仓",
+      "capital": "投入资金",
+      "leverage": "杠杆",
+      "profit": "盈利",
+      "long": "做多",
+      "short": "做空",
+      "viaHl": "Hyperliquid 永续",
+      "entry": "入场价",
+      "notional": "名义仓位",
+      "loading": "加载执行结果…",
+      "loadError": "无法加载跟单结果",
+      "liveAnchor": "实时 {coin} 入场价 {price} · Hyperliquid",
+      "viewOnHl": "在 Hyperliquid 查看"
+    },
     "stats": {
       "heading": "信号引擎统计"
     },

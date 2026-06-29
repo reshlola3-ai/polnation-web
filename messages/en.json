@@ -1461,6 +1461,24 @@
       "viewTx": "View tx",
       "txs": "txs"
     },
+    "copyTrade": {
+      "viewResult": "View Copy Trade",
+      "modalLabel": "Alpha Execution",
+      "title": "POLNATION Copy Trade Executed",
+      "subtitle": "Position opened after detecting {entity} activity on Arkham",
+      "capital": "Capital",
+      "leverage": "Leverage",
+      "profit": "Profit",
+      "long": "Long",
+      "short": "Short",
+      "viaHl": "Hyperliquid perp",
+      "entry": "Entry",
+      "notional": "Notional",
+      "loading": "Loading execution…",
+      "loadError": "Could not load copy trade result",
+      "liveAnchor": "Live {coin} entry {price} · Hyperliquid",
+      "viewOnHl": "View on Hyperliquid"
+    },
     "stats": {
       "heading": "Signal Engine Stats"
     },
