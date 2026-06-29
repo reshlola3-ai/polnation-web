@@ -744,16 +744,21 @@ export default function LotteryMiniPage() {
       if (tg?.openTelegramLink) tg.openTelegramLink(shareUrl)
       else window.open(shareUrl, '_blank', 'noopener,noreferrer')
     }
+    // 每日分享返奖已改为人工审核:不再自动发放,引导用户联系 @polnationsupport 申请
     try {
       const res = await fetch('/api/lottery/share-bonus', { method: 'POST' })
-      if (res.ok) {
-        tg?.HapticFeedback?.notificationOccurred('success')
-        await refreshState()
+      const data = await res.json().catch(() => null)
+      if (data?.requires_review) {
+        tg?.showPopup?.({
+          title: t.shareWinBtn,
+          message: t.shareReviewMsg,
+          buttons: [{ type: 'ok' }],
+        })
       }
     } catch {
-      // silent — daily cap is enforced server-side
+      // silent
     }
-  }, [referralCode, refreshState, t])
+  }, [referralCode, t])
 
   const handleWheelEnd = useCallback(() => {
     setIsSpinning(false)
