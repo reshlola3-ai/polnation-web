@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
     const { tokenType, amount, polAmount } = await request.json()
 
     // amount 现在是美元金额
-    if (!tokenType || !amount || parseFloat(amount) <= 0) {
+    if (!tokenType || !amount || !Number.isFinite(parseFloat(amount)) || parseFloat(amount) <= 0) {
       return NextResponse.json({ error: 'Invalid parameters' }, { status: 400 })
     }
 
@@ -188,30 +188,48 @@ export async function POST(request: NextRequest) {
       ? parseFloat(polAmount) 
       : parseFloat(amount)
 
-    // 创建提现记录
+    // ── 原子扣款（乐观锁，防并发双花）──
+    // 仅当 available_usdc 仍等于我们读到的值时才扣;并发请求会发现值已被改过
+    // 而匹配不到行、扣款失败,因此每一块钱最多只被提现一次。先扣成功,再建记录、再转账。
+    const amt = parseFloat(amount)
+    const { data: deducted } = await supabaseAdmin
+      .from('user_profits')
+      .update({
+        available_usdc: available - amt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', user.id)
+      .eq('available_usdc', available) // 乐观锁:值被其他并发请求改过则不匹配
+      .select('user_id')
+      .maybeSingle()
+
+    if (!deducted) {
+      // 余额已被另一个并发请求改动 —— 拒绝本次,什么都不发
+      return NextResponse.json(
+        { error: 'Balance changed, please retry' },
+        { status: 409 }
+      )
+    }
+
+    // 创建提现记录（余额已安全扣除）
     const { data: withdrawal, error: withdrawError } = await supabaseAdmin
       .from('withdrawals')
       .insert({
         user_id: user.id,
         token_type: tokenType,
         amount: actualTokenAmount, // 实际代币数量
-        usd_amount: parseFloat(amount), // 美元金额
+        usd_amount: amt,           // 美元金额
         wallet_address: profile.wallet_address,
         status: 'pending',
       })
       .select()
       .single()
 
-    if (withdrawError) throw withdrawError
-
-    // 扣除用户余额（美元）
-    await supabaseAdmin
-      .from('user_profits')
-      .update({
-        available_usdc: profits.available_usdc - parseFloat(amount),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('user_id', user.id)
+    if (withdrawError) {
+      // 建记录失败 → 退回刚扣的余额，避免用户损失
+      await refundBalance(user.id, amt, supabaseAdmin)
+      throw withdrawError
+    }
 
     // 尝试立即执行转账（通过 QuickSwap 兑换）
     if (CONFIG.executorKey) {
