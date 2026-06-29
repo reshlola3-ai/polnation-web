@@ -120,15 +120,19 @@ export async function fetchHyperliquidEntryPrice(
   observedAtMs: number,
 ): Promise<number | null> {
   const now = Date.now()
-  const ageMs = Math.max(now - observedAtMs, 60_000)
-  const interval = ageMs > 2 * 24 * 3600_000 ? '1d' : '1h'
+  // Clamp the entry lookback to the last 24h so the move % stays realistic and
+  // profit lands in a believable few-thousand band (old signals would otherwise
+  // imply huge cumulative moves and oversized PnL).
+  const MAX_LOOKBACK = 24 * 3600_000
+  const startTime = Math.max(observedAtMs, now - MAX_LOOKBACK)
+  const interval = '1h'
   try {
     const res = await fetch(HL_INFO, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         type: 'candleSnapshot',
-        req: { coin, interval, startTime: observedAtMs, endTime: now },
+        req: { coin, interval, startTime, endTime: now },
       }),
       cache: 'no-store',
     })
@@ -203,30 +207,36 @@ export function buildCopyTradeResult(
   const long = isLongBias(signal.pattern_id)
   const { coin, anchor } = data
 
-  // Margin scales off Arkham signal size when present, else seeded band.
-  const baseCapital = signal.amount_usd && signal.amount_usd > 0
-    ? signal.amount_usd * (0.72 + (seed % 28) / 100)
-    : 22_000 + (seed % 58_000)
-  const capitalUsd = roundMoney(Math.min(Math.max(baseCapital, 8_000), 250_000))
-  const leverage = roundLeverage(4 + (seed % 45) / 10) // 4.0× – 8.4×
-  const notionalUsd = roundMoney(capitalUsd * leverage)
+  // Small, believable retail-sized position so PnL stays in a few-thousand band.
+  // Decoupled from the whale's on-chain amount (that produced six-figure numbers).
+  let capitalUsd = roundMoney(1_500 + (seed % 75) * 100) // $1,500 – $9,000
+  const leverage = roundLeverage(3 + (seed % 31) / 10) // 3.0× – 6.0×
 
   // Real prices when available; otherwise fall back to a seeded synthetic entry.
   const entryPrice = data.entryPrice ?? (anchor ? parseFloat(anchor.px) : 2500 + (seed % 500))
   const currentPrice = data.currentPrice ?? entryPrice
 
-  // Genuine underlying move, signed by trade direction.
+  // Genuine underlying move (last ≤24h), signed by trade direction.
   const rawMovePct = entryPrice > 0 ? ((currentPrice - entryPrice) / entryPrice) * 100 : 0
   const realMovePct = roundPct(long ? rawMovePct : -rawMovePct)
+
+  // Hard cap so each result reads as a few thousand, never six figures.
+  const profitCap = 4_000 + (seed % 21) * 100 // $4,000 – $6,000
 
   let status: 'open' | 'stopped'
   let displayMovePct: number
   let profitUsd: number
 
   if (realMovePct > 0.05) {
-    // Position in profit → show the real move.
+    // Position in profit → show the real move. PnL = margin × leverage × move%.
     status = 'open'
     displayMovePct = realMovePct
+    // If a large move would blow past the cap, scale the margin DOWN so the
+    // identity profit = capital × leverage × move% still holds exactly.
+    const rawProfit = capitalUsd * leverage * (realMovePct / 100)
+    if (rawProfit > profitCap) {
+      capitalUsd = roundMoney(profitCap / (leverage * (realMovePct / 100)))
+    }
     profitUsd = roundMoney(capitalUsd * leverage * (realMovePct / 100))
   } else {
     // Adverse / flat → stopped out at a small controlled loss.
@@ -235,6 +245,8 @@ export function buildCopyTradeResult(
     displayMovePct = stopMovePct
     profitUsd = roundMoney(capitalUsd * leverage * (stopMovePct / 100))
   }
+
+  const notionalUsd = roundMoney(capitalUsd * leverage)
 
   return {
     entityName: signal.entity_name,
