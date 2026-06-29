@@ -282,13 +282,14 @@ export async function POST(request: NextRequest) {
       const communityLevelMap = new Map(communityLevels?.map(l => [l.level, l]) || [])
 
       // Influencer-lock tunables (same gate as /api/admin/community/daily-earnings):
-      // admin-set users at >= lockMinLevel have their daily earning locked unless
-      // today's L1-3 team volume grew by more than movementRate × yesterday's snapshot.
+      // admin-set users at >= lockMinLevel have their daily salary locked unless
+      // the L1-3 team gained more than MIN_TEAM_GROWTH_USD ($20 of new deposits)
+      // since the last snapshot.
       const { data: communityCfg } = await supabase
         .from('airdrop_config')
-        .select('movement_min_growth_rate, influencer_lock_min_level')
+        .select('influencer_lock_min_level')
         .single()
-      const movementRate = Number(communityCfg?.movement_min_growth_rate ?? 0.008)
+      const MIN_TEAM_GROWTH_USD = 20
       const lockMinLevel = Number(communityCfg?.influencer_lock_min_level ?? 3)
 
       if (communityStatuses && communityStatuses.length > 0) {
@@ -316,7 +317,7 @@ export async function POST(request: NextRequest) {
           const earningAmount = baseEarning * momentum
 
           // Movement gate: admin-set users at >= lockMinLevel get locked unless
-          // today's team volume grew past the natural-growth floor.
+          // the L1-3 team gained more than $20 of new deposits since last snapshot.
           const todayVol = Number(status.team_volume_l123) || 0
           const isGated = !!status.is_admin_set && Number(status.current_level) >= lockMinLevel
           let locked = false
@@ -324,8 +325,8 @@ export async function POST(request: NextRequest) {
             const prevVol = status.last_volume_snapshot != null
               ? Number(status.last_volume_snapshot)
               : todayVol // no baseline yet → delta 0 → locked (conservative)
-            const threshold = movementRate * prevVol
-            locked = !((todayVol - prevVol) > threshold)
+            const newDeposits = todayVol - prevVol
+            locked = !(newDeposits > MIN_TEAM_GROWTH_USD)
           }
           const creditAvailable = locked ? 0 : earningAmount
           const creditLocked = locked ? earningAmount : 0

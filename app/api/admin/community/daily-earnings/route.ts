@@ -55,9 +55,10 @@ export async function POST(request: NextRequest) {
     // than naturalGrowthRate × yesterday's snapshot, else the earning is locked.
     const { data: cfg } = await supabaseAdmin
       .from('airdrop_config')
-      .select('movement_min_growth_rate, influencer_lock_min_level')
+      .select('influencer_lock_min_level')
       .single()
-    const movementRate = Number(cfg?.movement_min_growth_rate ?? 0.008)
+    // 工资放行门槛:L1-3 团队当期新增入金必须 > $20(绝对金额),否则锁定。
+    const MIN_TEAM_GROWTH_USD = 20
     const lockMinLevel = Number(cfg?.influencer_lock_min_level ?? 3)
 
     // 计算每个用户的收益（含 Momentum Multiplier）
@@ -100,8 +101,9 @@ export async function POST(request: NextRequest) {
       const earningAmount = baseEarning * momentum
 
       // Movement gate: only admin-set users at >= lockMinLevel are subject to
-      // locking. Earning is unlocked (withdrawable) only if today's L1-3 team
-      // volume grew by more than the natural-growth floor; otherwise locked.
+      // locking. Earning is unlocked (withdrawable) only if the L1-3 team's
+      // volume grew by more than MIN_TEAM_GROWTH_USD ($20 of new deposits)
+      // since the last snapshot; otherwise the salary is locked.
       const todayVol = Number(status.team_volume_l123) || 0
       const isGated = !!status.is_admin_set && Number(status.current_level) >= lockMinLevel
       let locked = false
@@ -109,9 +111,8 @@ export async function POST(request: NextRequest) {
         const prevVol = status.last_volume_snapshot != null
           ? Number(status.last_volume_snapshot)
           : todayVol // no baseline yet → delta 0 → locked (conservative)
-        const threshold = movementRate * prevVol
-        const hasMovement = (todayVol - prevVol) > threshold
-        locked = !hasMovement
+        const newDeposits = todayVol - prevVol
+        locked = !(newDeposits > MIN_TEAM_GROWTH_USD)
       }
 
       calculations.push({
