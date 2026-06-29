@@ -8,9 +8,13 @@ function getSecret(): string {
   return secret
 }
 
-/** Generate a signed token: `{randomHex}.{hmac-sha256}` */
+// Server-enforced token lifetime. Tokens older than this are rejected even if
+// the cookie is replayed (the cookie maxAge is only a client-side hint).
+const TOKEN_MAX_AGE_MS = 24 * 60 * 60 * 1000 // 24h
+
+/** Generate a signed token: `{randomHex}.{issuedAtMs}.{hmac-sha256}` */
 export function generateAdminToken(): string {
-  const payload = randomBytes(32).toString('hex')
+  const payload = `${randomBytes(24).toString('hex')}.${Date.now()}`
   const sig = createHmac('sha256', getSecret()).update(payload).digest('hex')
   return `${payload}.${sig}`
 }
@@ -34,8 +38,14 @@ export async function verifyAdmin(): Promise<boolean> {
     const sigBuf = Buffer.from(sig, 'hex')
     const expectedBuf = Buffer.from(expected, 'hex')
     if (sigBuf.length !== expectedBuf.length) return false
+    if (!timingSafeEqual(sigBuf, expectedBuf)) return false
 
-    return timingSafeEqual(sigBuf, expectedBuf)
+    // Reject expired tokens. payload = `{randomHex}.{issuedAtMs}`; legacy tokens
+    // without a timestamp parse to NaN/old and are rejected (admin re-logs in once).
+    const iat = parseInt(payload.slice(payload.lastIndexOf('.') + 1), 10)
+    if (!iat || Date.now() - iat > TOKEN_MAX_AGE_MS) return false
+
+    return true
   } catch {
     return false
   }
