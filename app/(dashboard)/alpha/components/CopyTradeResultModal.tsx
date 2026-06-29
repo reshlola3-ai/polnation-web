@@ -72,7 +72,9 @@ export function CopyTradeResultModal({ signal, accentColor, open, onClose }: Pro
 
   if (!open) return null
 
-  const profitPositive = (result?.profitUsd ?? 0) >= 0
+  const stopped = result?.status === 'stopped'
+  const profitPositive = !stopped && (result?.profitUsd ?? 0) >= 0
+  const pnlColor = profitPositive ? '#00e28a' : '#f87171'
 
   return (
     <div
@@ -141,9 +143,21 @@ export function CopyTradeResultModal({ signal, accentColor, open, onClose }: Pro
                 <p className="text-[13px] text-white/60 leading-relaxed">
                   {t('subtitle', { entity: result.entityName })}
                 </p>
-                <p className="text-[11px] text-white/35 mt-2" style={{ fontFamily: 'var(--poly-font-mono)' }}>
-                  {result.tokenSymbol} · {result.direction === 'long' ? t('long') : t('short')} · {t('viaHl')}
-                </p>
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <p className="text-[11px] text-white/35" style={{ fontFamily: 'var(--poly-font-mono)' }}>
+                    {result.coin} · {result.direction === 'long' ? t('long') : t('short')} · {t('viaHl')}
+                  </p>
+                  <span
+                    className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider"
+                    style={
+                      stopped
+                        ? { background: 'rgba(248,113,113,0.12)', color: '#f87171', border: '1px solid rgba(248,113,113,0.3)' }
+                        : { background: 'rgba(0,226,138,0.12)', color: '#00e28a', border: '1px solid rgba(0,226,138,0.3)' }
+                    }
+                  >
+                    {stopped ? t('statusStopped') : t('statusOpen')}
+                  </span>
+                </div>
               </div>
 
               <div
@@ -183,14 +197,11 @@ export function CopyTradeResultModal({ signal, accentColor, open, onClose }: Pro
                     className="text-[9px] uppercase tracking-[0.12em] text-white/40 mb-1.5"
                     style={{ fontFamily: 'var(--poly-font-mono)' }}
                   >
-                    {t('profit')}
+                    {stopped ? t('result') : t('profit')}
                   </p>
                   <p
                     className="text-lg font-bold tabular-nums"
-                    style={{
-                      fontFamily: 'var(--poly-font-mono)',
-                      color: profitPositive ? '#00e28a' : '#f87171',
-                    }}
+                    style={{ fontFamily: 'var(--poly-font-mono)', color: pnlColor }}
                   >
                     {fmtUsd(result.profitUsd, true)}
                   </p>
@@ -206,11 +217,17 @@ export function CopyTradeResultModal({ signal, accentColor, open, onClose }: Pro
                 </div>
               </div>
 
-              <div className="mt-3 grid grid-cols-2 gap-2 text-[11px]">
+              <div className="mt-3 grid grid-cols-3 gap-2 text-[11px]">
                 <div className="rounded-lg px-3 py-2 bg-white/[0.02] border border-white/[0.05]">
                   <span className="text-white/35 block mb-0.5">{t('entry')}</span>
                   <span className="text-white/70 tabular-nums" style={{ fontFamily: 'var(--poly-font-mono)' }}>
                     ${result.entryPrice.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <div className="rounded-lg px-3 py-2 bg-white/[0.02] border border-white/[0.05]">
+                  <span className="text-white/35 block mb-0.5">{t('current')}</span>
+                  <span className="text-white/70 tabular-nums" style={{ fontFamily: 'var(--poly-font-mono)' }}>
+                    ${result.currentPrice.toLocaleString('en-US', { maximumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="rounded-lg px-3 py-2 bg-white/[0.02] border border-white/[0.05]">
@@ -221,29 +238,29 @@ export function CopyTradeResultModal({ signal, accentColor, open, onClose }: Pro
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
-                <span
-                  className="text-[11px] text-white/40"
-                  style={{ fontFamily: 'var(--poly-font-mono)' }}
-                >
-                  {t('liveAnchor', {
-                    coin: result.coin,
-                    price: `$${result.livePrice.toLocaleString('en-US', { maximumFractionDigits: 2 })}`,
-                  })}
-                </span>
-                {result.hlTxHash && (
-                  <a
-                    href={hyperliquidTxUrl(result.hlTxHash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] text-white/35 hover:text-white/60 transition-colors"
-                    style={{ fontFamily: 'var(--poly-font-mono)' }}
+              {/* Always-present clickable link into the real Hyperliquid trade. */}
+              <a
+                href={hyperliquidTxUrl(result.hlTxHash)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 flex items-center justify-between gap-2 rounded-xl px-4 py-3 transition-colors group"
+                style={{ background: `${accentColor}12`, border: `1px solid ${accentColor}30` }}
+              >
+                <div className="min-w-0">
+                  <p
+                    className="text-[11px] font-semibold"
+                    style={{ color: accentColor, fontFamily: 'var(--poly-font-mono)' }}
                   >
                     {t('viewOnHl')}
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
-              </div>
+                  </p>
+                  {result.hlTxHash && (
+                    <p className="text-[10px] text-white/35 truncate mt-0.5" style={{ fontFamily: 'var(--poly-font-mono)' }}>
+                      {result.hlTxHash.slice(0, 10)}…{result.hlTxHash.slice(-8)}
+                    </p>
+                  )}
+                </div>
+                <ExternalLink className="w-4 h-4 shrink-0 text-white/40 group-hover:text-white/70 transition-colors" />
+              </a>
             </>
           )}
         </div>

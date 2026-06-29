@@ -1469,15 +1469,18 @@
       "capital": "Capital",
       "leverage": "Leverage",
       "profit": "Profit",
+      "result": "Result",
       "long": "Long",
       "short": "Short",
       "viaHl": "Hyperliquid perp",
       "entry": "Entry",
+      "current": "Current",
       "notional": "Notional",
+      "statusOpen": "In Profit",
+      "statusStopped": "Stopped Out",
       "loading": "Loading execution…",
       "loadError": "Could not load copy trade result",
-      "liveAnchor": "Live {coin} entry {price} · Hyperliquid",
-      "viewOnHl": "View on Hyperliquid"
+      "viewOnHl": "View trade on Hyperliquid"
     },
     "stats": {
       "heading": "Signal Engine Stats"

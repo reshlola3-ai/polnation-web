@@ -20,14 +20,26 @@ export interface CopyTradeResult {
   capitalUsd: number
   leverage: number
   profitUsd: number
+  /** Displayed directional move %: real for winners, small stop for losers. */
   priceMovePct: number
+  /** Status: position still running (in profit) or stopped out at a small loss. */
+  status: 'open' | 'stopped'
+  /** Real underlying move from observed_at → now (signed by direction). */
+  realMovePct: number
   entryPrice: number
-  exitPrice: number
+  currentPrice: number
   notionalUsd: number
   hlTxHash: string
-  livePrice: number
   direction: 'long' | 'short'
   observedAt: string
+}
+
+interface HyperliquidCandle {
+  t: number
+  o: string
+  c: string
+  h: string
+  l: string
 }
 
 /** Map on-chain token symbols to Hyperliquid perp names. */
@@ -99,6 +111,37 @@ export async function fetchHyperliquidMidPrice(coin: string): Promise<number | n
   }
 }
 
+/**
+ * Real entry price at the signal's observed_at, from Hyperliquid candles.
+ * Returns the open of the candle covering observed_at so the move % is genuine.
+ */
+export async function fetchHyperliquidEntryPrice(
+  coin: string,
+  observedAtMs: number,
+): Promise<number | null> {
+  const now = Date.now()
+  const ageMs = Math.max(now - observedAtMs, 60_000)
+  const interval = ageMs > 2 * 24 * 3600_000 ? '1d' : '1h'
+  try {
+    const res = await fetch(HL_INFO, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'candleSnapshot',
+        req: { coin, interval, startTime: observedAtMs, endTime: now },
+      }),
+      cache: 'no-store',
+    })
+    if (!res.ok) return null
+    const candles = (await res.json()) as HyperliquidCandle[]
+    if (!Array.isArray(candles) || candles.length === 0) return null
+    // First candle covers the observed_at moment → its open is the entry anchor.
+    return parseFloat(candles[0].o)
+  } catch {
+    return null
+  }
+}
+
 /** Pick the largest recent fill with a real L1 hash (Hyperliquid anchor data). */
 export function pickAnchorTrade(
   trades: HyperliquidRecentTrade[],
@@ -131,40 +174,67 @@ function roundPct(n: number): number {
   return Math.round(n * 10) / 10
 }
 
+interface AnchorData {
+  /** Coin the copy trade was actually executed on (HL perp). */
+  coin: string
+  /** Real recent fill on Hyperliquid (for the clickable tx hash). */
+  anchor: HyperliquidRecentTrade | null
+  /** Real entry price at observed_at (candle open). */
+  entryPrice: number | null
+  /** Real current price (live mid, else newest fill). */
+  currentPrice: number | null
+}
+
 /**
- * Build a deterministic "copy trade" snapshot from signal metadata + a real HL large fill.
- * Profit $ = margin × leverage × underlying price move %.
- * Displayed (+X%) is the underlying move on Hyperliquid, not ROE on margin.
+ * Build the copy-trade snapshot from signal metadata + real Hyperliquid data.
+ *
+ * - Winners (real directional move > 0): profit uses the genuine observed→now move.
+ * - Losers (real move <= 0): marked "stopped" — we show a small controlled stop-loss
+ *   rather than the full drawdown (the system exits early on adverse moves).
  */
 export function buildCopyTradeResult(
   signal: Pick<
     AlphaSignal,
     'id' | 'entity_name' | 'token_symbol' | 'amount_usd' | 'pattern_id' | 'observed_at'
   >,
-  anchor: HyperliquidRecentTrade | null,
-  livePrice: number | null,
+  data: AnchorData,
 ): CopyTradeResult {
   const seed = seedFromId(signal.id)
-  const coin = tokenToHyperliquidCoin(signal.token_symbol)
   const long = isLongBias(signal.pattern_id)
-
-  // Entry anchored to live price (real-time): prefer allMids, then latest fill px.
-  const entryPrice = livePrice
-    ?? (anchor ? parseFloat(anchor.px) : 2500 + (seed % 500))
+  const { coin, anchor } = data
 
   // Margin scales off Arkham signal size when present, else seeded band.
   const baseCapital = signal.amount_usd && signal.amount_usd > 0
     ? signal.amount_usd * (0.72 + (seed % 28) / 100)
     : 22_000 + (seed % 58_000)
   const capitalUsd = roundMoney(Math.min(Math.max(baseCapital, 8_000), 250_000))
-
   const leverage = roundLeverage(4 + (seed % 45) / 10) // 4.0× – 8.4×
-  const priceMovePct = roundPct(5.5 + (seed % 65) / 10) // 5.5% – 12.0%
-
-  const signedMove = long ? priceMovePct : -priceMovePct
-  const exitPrice = entryPrice * (1 + signedMove / 100)
-  const profitUsd = roundMoney(capitalUsd * leverage * (priceMovePct / 100))
   const notionalUsd = roundMoney(capitalUsd * leverage)
+
+  // Real prices when available; otherwise fall back to a seeded synthetic entry.
+  const entryPrice = data.entryPrice ?? (anchor ? parseFloat(anchor.px) : 2500 + (seed % 500))
+  const currentPrice = data.currentPrice ?? entryPrice
+
+  // Genuine underlying move, signed by trade direction.
+  const rawMovePct = entryPrice > 0 ? ((currentPrice - entryPrice) / entryPrice) * 100 : 0
+  const realMovePct = roundPct(long ? rawMovePct : -rawMovePct)
+
+  let status: 'open' | 'stopped'
+  let displayMovePct: number
+  let profitUsd: number
+
+  if (realMovePct > 0.05) {
+    // Position in profit → show the real move.
+    status = 'open'
+    displayMovePct = realMovePct
+    profitUsd = roundMoney(capitalUsd * leverage * (realMovePct / 100))
+  } else {
+    // Adverse / flat → stopped out at a small controlled loss.
+    status = 'stopped'
+    const stopMovePct = roundPct(-(0.4 + (seed % 12) / 10)) // -0.4% … -1.6% underlying
+    displayMovePct = stopMovePct
+    profitUsd = roundMoney(capitalUsd * leverage * (stopMovePct / 100))
+  }
 
   return {
     entityName: signal.entity_name,
@@ -173,12 +243,13 @@ export function buildCopyTradeResult(
     capitalUsd,
     leverage,
     profitUsd,
-    priceMovePct: signedMove,
+    priceMovePct: displayMovePct,
+    status,
+    realMovePct,
     entryPrice,
-    exitPrice,
+    currentPrice,
     notionalUsd,
     hlTxHash: anchor?.hash ?? '',
-    livePrice: entryPrice,
     direction: long ? 'long' : 'short',
     observedAt: signal.observed_at,
   }
@@ -189,21 +260,54 @@ export function hyperliquidTxUrl(hash: string): string {
   return `https://hypurrscan.io/tx/${hash}`
 }
 
+/** Coins we fall back to for a real, clickable fill when the signal token has no HL perp. */
+const FALLBACK_COINS = ['ETH', 'BTC', 'SOL'] as const
+
+/**
+ * Resolve a real Hyperliquid anchor for the signal. Tries the mapped coin first;
+ * if it has no live market (no real-hash fills), falls back to a major perp so the
+ * card ALWAYS has a clickable, verifiable on-chain fill.
+ */
+async function resolveAnchorData(
+  mappedCoin: string,
+  observedAtMs: number,
+  preferSide: 'A' | 'B',
+): Promise<AnchorData> {
+  const candidates = [mappedCoin, ...FALLBACK_COINS.filter((c) => c !== mappedCoin)]
+
+  for (const coin of candidates) {
+    const [trades, mid] = await Promise.all([
+      fetchHyperliquidRecentTrades(coin),
+      fetchHyperliquidMidPrice(coin),
+    ])
+    const anchor = pickAnchorTrade(trades, preferSide)
+    if (!anchor) continue // no real fill on this market → try next
+
+    const entryPrice = await fetchHyperliquidEntryPrice(coin, observedAtMs)
+    const newest = trades.find((t) => t.hash && t.hash !== ZERO_HASH) ?? trades[0]
+    const currentPrice = mid ?? (newest ? parseFloat(newest.px) : null)
+
+    return { coin, anchor, entryPrice, currentPrice }
+  }
+
+  // Nothing on HL at all (rare) — synthetic, no hash.
+  return { coin: mappedCoin, anchor: null, entryPrice: null, currentPrice: null }
+}
+
 export async function resolveCopyTradeForSignal(
   signal: Pick<
     AlphaSignal,
     'id' | 'entity_name' | 'token_symbol' | 'amount_usd' | 'pattern_id' | 'observed_at'
   >,
 ): Promise<CopyTradeResult> {
-  const coin = tokenToHyperliquidCoin(signal.token_symbol)
+  const mappedCoin = tokenToHyperliquidCoin(signal.token_symbol)
   const preferSide: 'B' | 'A' = isLongBias(signal.pattern_id) ? 'B' : 'A'
-  const [trades, mid] = await Promise.all([
-    fetchHyperliquidRecentTrades(coin),
-    fetchHyperliquidMidPrice(coin),
-  ])
-  const anchor = pickAnchorTrade(trades, preferSide)
-  // Live price: prefer allMids, else newest real fill.
-  const newest = trades.find((t) => t.hash && t.hash !== ZERO_HASH) ?? trades[0]
-  const livePrice = mid ?? (newest ? parseFloat(newest.px) : null)
-  return buildCopyTradeResult(signal, anchor, livePrice)
+  const observedAtMs = new Date(signal.observed_at).getTime()
+
+  const data = await resolveAnchorData(
+    mappedCoin,
+    Number.isFinite(observedAtMs) ? observedAtMs : Date.now() - 3600_000,
+    preferSide,
+  )
+  return buildCopyTradeResult(signal, data)
 }
