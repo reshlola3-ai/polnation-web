@@ -84,6 +84,17 @@ export async function POST() {
     return NextResponse.json({ error: 'no_spins' }, { status: 400 })
   }
 
+  // 冻结的账号禁止抽奖：提现冻结只拦提现，这里一并拦住抽奖发奖，防止已标记
+  // 滥用的号继续把奖金刷进 available。
+  const { data: frozenChk } = await admin
+    .from('user_profits')
+    .select('withdrawals_frozen')
+    .eq('user_id', user.id)
+    .maybeSingle()
+  if (frozenChk?.withdrawals_frozen) {
+    return NextResponse.json({ error: 'account_frozen' }, { status: 403 })
+  }
+
   const remaining = (spinData.total_spins || 0) - (spinData.used_spins || 0)
   if (remaining <= 0) {
     return NextResponse.json({ error: 'no_spins' }, { status: 400 })
@@ -245,6 +256,18 @@ export async function POST() {
       streakSpinAwarded = true
     }
     await admin.from('user_lottery_spins').update(streakUpdate).eq('user_id', user.id)
+
+    // 连签 +1 也写台账(去重:每天一条),否则 total_spins 会悄悄超过台账合计,
+    // 给余额审计制造噪音、也是个绕台账的小口子。
+    if (streakSpinAwarded) {
+      const todayInt = Number(todayStr.replace(/-/g, ''))
+      await admin.from('lottery_spin_grants').insert({
+        user_id: user.id,
+        grant_reason: 'streak_3day',
+        milestone_count: todayInt,
+        spins_granted: 1,
+      })
+    }
 
     if (streak === 7) {
       const { data: sp } = await admin
