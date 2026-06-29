@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { X, Zap, ExternalLink, Loader2 } from 'lucide-react'
+import { X, Zap, ExternalLink, Loader2, Eye } from 'lucide-react'
 import type { AlphaSignal } from '@/lib/alpha-tracker/types'
 import type { CopyTradeResult } from '@/lib/alpha-copy-trade'
 import { hyperliquidTxUrl } from '@/lib/alpha-copy-trade'
@@ -34,6 +34,7 @@ export function CopyTradeResultModal({ signal, accentColor, open, onClose }: Pro
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState<CopyTradeResult | null>(null)
+  const [revealed, setRevealed] = useState(false)
 
   useEffect(() => {
     if (!open) return
@@ -42,6 +43,7 @@ export function CopyTradeResultModal({ signal, accentColor, open, onClose }: Pro
     setLoading(true)
     setError('')
     setResult(null)
+    setRevealed(false)
 
     const params = new URLSearchParams({
       id: signal.id,
@@ -160,8 +162,11 @@ export function CopyTradeResultModal({ signal, accentColor, open, onClose }: Pro
                 </div>
               </div>
 
-              <div
-                className="grid grid-cols-3 gap-3 rounded-xl p-4"
+              <button
+                type="button"
+                onClick={() => setRevealed((v) => !v)}
+                aria-pressed={revealed}
+                className="relative w-full grid grid-cols-3 gap-3 rounded-xl p-4 text-left transition-colors hover:bg-white/[0.05]"
                 style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
               >
                 <div className="text-center min-w-0">
@@ -175,7 +180,7 @@ export function CopyTradeResultModal({ signal, accentColor, open, onClose }: Pro
                     className="text-lg font-bold text-white tabular-nums"
                     style={{ fontFamily: 'var(--poly-font-mono)' }}
                   >
-                    {fmtUsd(result.capitalUsd)}
+                    {revealed ? fmtUsd(result.capitalUsd) : '$•••••'}
                   </p>
                 </div>
                 <div className="text-center min-w-0">
@@ -201,9 +206,9 @@ export function CopyTradeResultModal({ signal, accentColor, open, onClose }: Pro
                   </p>
                   <p
                     className="text-lg font-bold tabular-nums"
-                    style={{ fontFamily: 'var(--poly-font-mono)', color: pnlColor }}
+                    style={{ fontFamily: 'var(--poly-font-mono)', color: revealed ? pnlColor : '#ffffff' }}
                   >
-                    {fmtUsd(result.profitUsd, true)}
+                    {revealed ? fmtUsd(result.profitUsd, true) : '$•••••'}
                   </p>
                   <p
                     className="text-[11px] mt-0.5 tabular-nums"
@@ -212,10 +217,20 @@ export function CopyTradeResultModal({ signal, accentColor, open, onClose }: Pro
                       color: profitPositive ? 'rgba(0,226,138,0.75)' : 'rgba(248,113,113,0.75)',
                     }}
                   >
-                    ({fmtPct(result.priceMovePct)})
+                    {revealed ? `(${fmtPct(result.priceMovePct)})` : '(••••)'}
                   </p>
                 </div>
-              </div>
+
+                {!revealed && (
+                  <span
+                    className="absolute bottom-1.5 left-0 right-0 text-center text-[9px] text-white/35 flex items-center justify-center gap-1"
+                    style={{ fontFamily: 'var(--poly-font-mono)' }}
+                  >
+                    <Eye className="w-2.5 h-2.5" />
+                    {t('tapToReveal')}
+                  </span>
+                )}
+              </button>
 
               <div className="mt-3 grid grid-cols-3 gap-2 text-[11px]">
                 <div className="rounded-lg px-3 py-2 bg-white/[0.02] border border-white/[0.05]">

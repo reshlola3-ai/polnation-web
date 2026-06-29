@@ -1478,6 +1478,7 @@
       "notional": "Notional",
       "statusOpen": "In Profit",
       "statusStopped": "Stopped Out",
+      "tapToReveal": "Tap to reveal",
       "loading": "Loading execution…",
       "loadError": "Could not load copy trade result",
       "viewOnHl": "View trade on Hyperliquid"

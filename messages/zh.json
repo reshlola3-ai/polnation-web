@@ -1479,6 +1479,7 @@
       "notional": "名义仓位",
       "statusOpen": "盈利中",
       "statusStopped": "已止损平仓",
+      "tapToReveal": "点击显示金额",
       "loading": "加载执行结果…",
       "loadError": "无法加载跟单结果",
       "viewOnHl": "在 Hyperliquid 查看交易"
