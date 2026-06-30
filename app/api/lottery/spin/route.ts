@@ -31,14 +31,17 @@ async function getUser() {
 // `electronics` is a physical prize — admin handles fulfillment manually.
 // Query `lottery_records WHERE prize_type='electronics' AND reward_credited=false`
 // to see pending shipments; flip reward_credited=true once delivered.
+// USDC cash odds cut 5x (24.95% -> 4.99%); the freed ~19.96% is added to the
+// bonus tiers proportionally (4:2:1). Bonus prizes credit locked task_progress,
+// not withdrawable balance — this lowers real-USDC payout from the wheel.
 const PRIZES = [
   { type: 'thanks', label: 'Try Again', amount: 0, weight: 40 },
-  { type: 'bonus_1', label: '+$1 Bonus', amount: 1, weight: 20 },
-  { type: 'bonus_2', label: '+$2 Bonus', amount: 2, weight: 10 },
-  { type: 'bonus_3', label: '+$3 Bonus', amount: 3, weight: 5 },
-  { type: 'usdc_05', label: '$0.50 USDC', amount: 0.5, weight: 15.45 },
-  { type: 'usdc_1', label: '$1 USDC', amount: 1, weight: 7 },
-  { type: 'usdc_5', label: '$5 USDC', amount: 5, weight: 2.5 },
+  { type: 'bonus_1', label: '+$1 Bonus', amount: 1, weight: 31.41 },
+  { type: 'bonus_2', label: '+$2 Bonus', amount: 2, weight: 15.70 },
+  { type: 'bonus_3', label: '+$3 Bonus', amount: 3, weight: 7.85 },
+  { type: 'usdc_05', label: '$0.50 USDC', amount: 0.5, weight: 3.09 },
+  { type: 'usdc_1', label: '$1 USDC', amount: 1, weight: 1.4 },
+  { type: 'usdc_5', label: '$5 USDC', amount: 5, weight: 0.5 },
   { type: 'electronics', label: 'Premium Electronics', amount: 0, weight: 0.05 },
 ]
 
