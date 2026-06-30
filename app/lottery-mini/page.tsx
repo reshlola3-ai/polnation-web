@@ -333,6 +333,7 @@ export default function LotteryMiniPage() {
   const [prepStep, setPrepStep] = useState<0 | 1 | 2 | 3>(0)
   const [referralCode, setReferralCode] = useState<string | null>(null)
   const [remainingSpins, setRemainingSpins] = useState(0)
+  const [dailyLimitReached, setDailyLimitReached] = useState(false)
   const [isInfluencer, setIsInfluencer] = useState(false)
   const [isSpinning, setIsSpinning] = useState(false)
   const [confettiPieces, setConfettiPieces] = useState<ConfettiPiece[]>([])
@@ -612,6 +613,8 @@ export default function LotteryMiniPage() {
         email: data.email ?? null,
       }
       setRemainingSpins(lottery.remainingSpins)
+      // 每日上限:服务端返回今天剩余次数,<=0 则禁用抽奖(余额不受影响)。
+      setDailyLimitReached((data.dailyRemaining ?? data.maxSpinsPerDay ?? 5) <= 0)
       setIsInfluencer(lottery.isInfluencer)
       setReferralCode(lottery.referralCode)
       setWalletAddress(lottery.walletAddress)
@@ -688,7 +691,8 @@ export default function LotteryMiniPage() {
   const handleSpin = useCallback(async () => {
     if (!sessionEstablished) return
     if (isSpinning) return
-    if (remainingSpins <= 0) return
+    if (dailyLimitReached) return
+    if (remainingSpins <= 0 && !isInfluencer) return
     setIsSpinning(true)
 
     try {
@@ -699,6 +703,15 @@ export default function LotteryMiniPage() {
         setIsSpinning(false)
         if (data?.error === 'no_spins') {
           setRemainingSpins(0)
+          window.Telegram?.WebApp?.showPopup?.({
+            title: t.noSpinsTitle,
+            message: t.noSpinsMsg,
+            buttons: [{ type: 'ok' }],
+          })
+        } else if (data?.error === 'daily_limit') {
+          // 每日上限已达(余额仍在,只是今天抽够了)。复用 no-spins 弹窗文案,
+          // 避免为此新增一套多语言 key;不清零 remainingSpins。
+          setDailyLimitReached(true)
           window.Telegram?.WebApp?.showPopup?.({
             title: t.noSpinsTitle,
             message: t.noSpinsMsg,
@@ -728,7 +741,7 @@ export default function LotteryMiniPage() {
     } catch {
       setIsSpinning(false)
     }
-  }, [sessionEstablished, isSpinning, remainingSpins, t])
+  }, [sessionEstablished, isSpinning, remainingSpins, isInfluencer, dailyLimitReached, t])
 
   // Result must be passed from handleSpin → handleEnd via a ref because the
   // wheel's onEnd callback fires asynchronously after stop().
@@ -853,7 +866,7 @@ export default function LotteryMiniPage() {
       return
     }
 
-    const canSpin = sessionEstablished && (remainingSpins > 0 || isInfluencer)
+    const canSpin = sessionEstablished && !dailyLimitReached && (remainingSpins > 0 || isInfluencer)
     const text = !sessionEstablished
       ? t.connecting
       : isSpinning
@@ -881,7 +894,7 @@ export default function LotteryMiniPage() {
     return () => {
       mb.offClick(handler)
     }
-  }, [authStatus, sessionEstablished, remainingSpins, isInfluencer, isSpinning, handleSpin, withdrawFocused, showRules, showWebLoginPanel, webLoginFocused, t])
+  }, [authStatus, sessionEstablished, remainingSpins, isInfluencer, dailyLimitReached, isSpinning, handleSpin, withdrawFocused, showRules, showWebLoginPanel, webLoginFocused, t])
 
   // Hide MainButton on unmount as a safety net (if user navigates away inside the Mini App).
   useEffect(() => {

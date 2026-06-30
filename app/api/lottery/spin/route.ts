@@ -3,6 +3,10 @@ import { cookies } from 'next/headers'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 
+// 每日抽奖上限:攒下的次数不清零,但每个自然日(UTC)最多消耗 5 次。
+// 配合反女巫(假下线不再发 spin)把"一次性提光大量 spin"的出血压成每天最多 5 次。
+const MAX_SPINS_PER_DAY = 5
+
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -101,6 +105,24 @@ export async function POST() {
   const remaining = (spinData.total_spins || 0) - (spinData.used_spins || 0)
   if (remaining <= 0) {
     return NextResponse.json({ error: 'no_spins' }, { status: 400 })
+  }
+
+  // ========== 每日上限:今天最多抽 MAX_SPINS_PER_DAY 次 ==========
+  // 按 UTC 自然日数今天的 lottery_records(与下方连胜用的 todayStr 同一日界)。
+  // 余额(total-used)仍然保留,只是当天放出的次数封顶。
+  // 注:这是先读后判,极端并发下可能略微冲过上限;抽奖人手触发、单次价值低,
+  //     可接受,真正防双消耗的是下面 used_spins 的乐观锁。
+  const dayStart = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z'
+  const { count: spinsToday } = await admin
+    .from('lottery_records')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .gte('created_at', dayStart)
+  if ((spinsToday || 0) >= MAX_SPINS_PER_DAY) {
+    return NextResponse.json(
+      { error: 'daily_limit', max_per_day: MAX_SPINS_PER_DAY },
+      { status: 429 },
+    )
   }
 
   // ========== 原子扣减：乐观锁 ==========

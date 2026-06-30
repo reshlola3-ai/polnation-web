@@ -124,7 +124,8 @@ export async function GET() {
   }
 
   // Parallelize all 4 reads — total wait time = slowest single query, not sum.
-  const [spinRes, historyRes, airdropRes, profileRes, profitsRes, inviteCountRes, inviteesRes, welcomeRes] = await Promise.all([
+  const dayStart = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z'
+  const [spinRes, historyRes, airdropRes, profileRes, profitsRes, inviteCountRes, inviteesRes, welcomeRes, spinsTodayRes] = await Promise.all([
     admin.from('user_lottery_spins').select('*').eq('user_id', user.id).single(),
     admin
       .from('lottery_records')
@@ -159,6 +160,11 @@ export async function GET() {
       .eq('user_id', user.id)
       .eq('grant_reason', 'welcome_join_telegram')
       .maybeSingle(),
+    admin
+      .from('lottery_records')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('created_at', dayStart),
   ])
 
   // Resolve referrer display name. Never expose generated tg_123456 usernames.
@@ -189,7 +195,11 @@ export async function GET() {
   const totalSpins = spinData?.total_spins || 0
   const usedSpins = spinData?.used_spins || 0
   const remainingSpins = totalSpins - usedSpins
-  const canSpin = remainingSpins > 0
+  // 每日上限:攒下的次数不清零,但今天最多抽 MAX_SPINS_PER_DAY 次。
+  const MAX_SPINS_PER_DAY = 5
+  const spinsToday = spinsTodayRes.count ?? 0
+  const dailyRemaining = Math.max(0, MAX_SPINS_PER_DAY - spinsToday)
+  const canSpin = remainingSpins > 0 && dailyRemaining > 0
 
   // 连胜（仅当上次 spin 是今天或昨天才算存活，否则视为已断）
   const todayStr = new Date().toISOString().slice(0, 10)
@@ -218,6 +228,9 @@ export async function GET() {
     totalSpins,
     usedSpins,
     remainingSpins: Math.max(0, remainingSpins),
+    spinsToday,
+    dailyRemaining,
+    maxSpinsPerDay: MAX_SPINS_PER_DAY,
     selfAirdropCount,
     progressToNextSpin,
     nextMilestone,
