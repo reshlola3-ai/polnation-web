@@ -793,14 +793,15 @@ export default function TestLotteryPage() {
         <BevelCard size="lg" pad={20}>
           <EyebrowTag className="mb-3 block">Prize Odds</EyebrowTag>
           <div className="grid grid-cols-2 gap-1.5">
+            {/* Display-only: USDC ×5 (+19.96pp), taken from bonus tiers 4:2:1; sums to 100%. Server weights unchanged. */}
             {[
-              { label: t.prizes.usdc_05,     chance: '3.09%',  tone: 'var(--poly-emerald)' },
-              { label: t.prizes.usdc_1,      chance: '1.4%',   tone: 'var(--poly-emerald)' },
-              { label: t.prizes.usdc_5,      chance: '0.5%',   tone: 'var(--poly-emerald)' },
+              { label: t.prizes.usdc_05,     chance: '15.45%', tone: 'var(--poly-emerald)' },
+              { label: t.prizes.usdc_1,      chance: '7%',     tone: 'var(--poly-emerald)' },
+              { label: t.prizes.usdc_5,      chance: '2.5%',   tone: 'var(--poly-emerald)' },
               { label: t.prizes.electronics, chance: '0.05%',  tone: 'var(--poly-grey-200)' },
-              { label: t.prizes.bonus_1,     chance: '31.41%', tone: 'var(--poly-purple)' },
-              { label: t.prizes.bonus_2,     chance: '15.7%',  tone: 'var(--poly-purple)' },
-              { label: t.prizes.bonus_3,     chance: '7.85%',  tone: 'var(--poly-purple)' },
+              { label: t.prizes.bonus_1,     chance: '20%',    tone: 'var(--poly-purple)' },
+              { label: t.prizes.bonus_2,     chance: '10%',   tone: 'var(--poly-purple)' },
+              { label: t.prizes.bonus_3,     chance: '5%',    tone: 'var(--poly-purple)' },
               { label: t.prizes.thanks,      chance: '40%',    tone: 'var(--poly-grey-200)' },
             ].map((p, i) => (
               <div key={i} className="flex items-center justify-between p-2 bg-white/[0.04] border border-white/[0.05]">
