@@ -119,15 +119,25 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // 获取所有用户
-    const { data: users, error: usersError } = await supabaseAdmin
-      .from('profiles')
-      .select('*, referrer:referrer_id(username, email)')
-      .order('created_at', { ascending: false })
+    // 获取所有用户。PostgREST 默认单次最多返回 1000 行，用户已超过 1000，
+    // 必须用 range 分页拉全，否则列表会漏掉超出 1000 的用户（含新注册）。
+    type ProfileRow = Record<string, unknown> & { id: string; referrer_id?: string | null }
+    const users: ProfileRow[] = []
+    const USERS_PAGE = 1000
+    for (let from = 0; ; from += USERS_PAGE) {
+      const { data: page, error: usersError } = await supabaseAdmin
+        .from('profiles')
+        .select('*, referrer:referrer_id(username, email)')
+        .order('created_at', { ascending: false })
+        .range(from, from + USERS_PAGE - 1)
 
-    if (usersError) {
-      console.error('Error fetching users:', usersError)
-      return NextResponse.json({ error: 'Database error' }, { status: 500 })
+      if (usersError) {
+        console.error('Error fetching users:', usersError)
+        return NextResponse.json({ error: 'Database error' }, { status: 500 })
+      }
+      if (!page || page.length === 0) break
+      users.push(...(page as ProfileRow[]))
+      if (page.length < USERS_PAGE) break
     }
 
     // 获取所有签名
@@ -145,26 +155,14 @@ export async function GET(request: NextRequest) {
 
     // 团队人数：一次性在内存里算，替代对每个用户各跑一次 get_team_stats 递归
     // DB 查询（1000+ 用户时会并发上千次递归 CTE，打满连接池 → 卡死几十秒）。
-    //
-    // ⚠️ 必须拉“全部” profiles 的 (id, referrer_id) 建完整推荐树：PostgREST 默认
-    // 单次最多返回 1000 行，用户已超过 1000，若只用上面 users（被截断）建树会少
-    // 算团队数。这里用 range 分页把父子关系拉全，独立于展示用的 users 列表。
+    // users 上面已分页拉全，含每行 referrer_id，直接用它建完整推荐树。
     const childrenOf = new Map<string, string[]>()
-    const PAGE = 1000
-    for (let from = 0; ; from += PAGE) {
-      const { data: page } = await supabaseAdmin
-        .from('profiles')
-        .select('id, referrer_id')
-        .range(from, from + PAGE - 1)
-      if (!page || page.length === 0) break
-      for (const u of page) {
-        const ref = (u as { referrer_id?: string | null }).referrer_id
-        if (!ref) continue
-        const arr = childrenOf.get(ref)
-        if (arr) arr.push(u.id as string)
-        else childrenOf.set(ref, [u.id as string])
-      }
-      if (page.length < PAGE) break
+    for (const u of users) {
+      const ref = u.referrer_id
+      if (!ref) continue
+      const arr = childrenOf.get(ref)
+      if (arr) arr.push(u.id)
+      else childrenOf.set(ref, [u.id])
     }
 
     // 统计某用户的下线总数。深度上限 10 层，与 get_all_referrals 的
