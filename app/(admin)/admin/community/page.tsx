@@ -38,6 +38,9 @@ interface CommunityUser {
   is_influencer: boolean
   team_volume_l123: number
   total_community_earned: number
+  momentum_live: number
+  momentum_days_to_decay: number | null // null=满档未计时, -1=已到底
+  momentum_last_qualified_at: string | null
 }
 
 interface CommunityLevel {
@@ -99,6 +102,7 @@ export default function AdminCommunityPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'influencer' | 'admin_set' | 'normal'>('all')
   const [fundsFilter, setFundsFilter] = useState<'all' | 'has_volume' | 'no_volume' | 'has_earned' | 'no_earned'>('all')
   const [walletFilter, setWalletFilter] = useState<'all' | 'has_wallet' | 'no_wallet'>('all')
+  const [momentumFilter, setMomentumFilter] = useState<'all' | 'decaying' | 'floor' | 'full'>('all')
 
   const adminSetCount = useMemo(
     () => users.filter((u) => u.is_admin_set).length,
@@ -126,9 +130,12 @@ export default function AdminCommunityPage() {
       if (fundsFilter === 'no_earned' && u.total_community_earned > 0) return false
       if (walletFilter === 'has_wallet' && !u.wallet_address) return false
       if (walletFilter === 'no_wallet' && u.wallet_address) return false
+      if (momentumFilter === 'decaying' && !(u.momentum_live < 1.0 && u.momentum_live > 0.2)) return false
+      if (momentumFilter === 'floor' && u.momentum_live > 0.2) return false
+      if (momentumFilter === 'full' && u.momentum_live < 1.0) return false
       return true
     })
-  }, [users, searchQuery, levelFilter, statusFilter, fundsFilter, walletFilter])
+  }, [users, searchQuery, levelFilter, statusFilter, fundsFilter, walletFilter, momentumFilter])
 
   const resetFilters = () => {
     setSearchQuery('')
@@ -136,6 +143,7 @@ export default function AdminCommunityPage() {
     setStatusFilter('all')
     setFundsFilter('all')
     setWalletFilter('all')
+    setMomentumFilter('all')
   }
 
   const filtersActive =
@@ -143,7 +151,8 @@ export default function AdminCommunityPage() {
     levelFilter !== 'all' ||
     statusFilter !== 'all' ||
     fundsFilter !== 'all' ||
-    walletFilter !== 'all'
+    walletFilter !== 'all' ||
+    momentumFilter !== 'all'
 
   const fetchData = useCallback(async () => {
     setIsLoading(true)
@@ -327,6 +336,20 @@ export default function AdminCommunityPage() {
   const getLevelName = (level: number) => {
     const l = levels.find(lv => lv.level === level)
     return l?.name || 'None'
+  }
+
+  // Momentum 倍率颜色：满档绿、衰减中黄、到底红
+  const getMomentumColor = (live: number) => {
+    if (live >= 1.0) return 'text-green-400'
+    if (live <= 0.2) return 'text-red-400'
+    return 'text-amber-400'
+  }
+
+  // 距下次衰减的说明文案
+  const getDecayLabel = (daysToDecay: number | null) => {
+    if (daysToDecay === null) return '满档 · 未计时'
+    if (daysToDecay === -1) return '已到底 0.2x'
+    return `衰减还差 ${daysToDecay} 天`
   }
 
   return (
@@ -654,6 +677,20 @@ export default function AdminCommunityPage() {
               </select>
             </div>
 
+            <div>
+              <label className="block text-[10px] uppercase tracking-wide text-zinc-500 mb-1">Momentum</label>
+              <select
+                value={momentumFilter}
+                onChange={(e) => setMomentumFilter(e.target.value as typeof momentumFilter)}
+                className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-purple-500"
+              >
+                <option value="all">全部</option>
+                <option value="decaying">衰减中 (&lt;1.0x)</option>
+                <option value="floor">已到底 (0.2x)</option>
+                <option value="full">满档 (1.0x)</option>
+              </select>
+            </div>
+
             {filtersActive && (
               <Button
                 variant="outline"
@@ -676,6 +713,7 @@ export default function AdminCommunityPage() {
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">当前等级</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">L1-L3 Volume</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">累计收益</th>
+                  <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Momentum</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">状态</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">操作</th>
                 </tr>
@@ -683,13 +721,13 @@ export default function AdminCommunityPage() {
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-8 text-zinc-500">
+                    <td colSpan={8} className="text-center py-8 text-zinc-500">
                       Loading...
                     </td>
                   </tr>
                 ) : filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-8 text-zinc-500">
+                    <td colSpan={8} className="text-center py-8 text-zinc-500">
                       {users.length === 0 ? 'No users found' : 'No users match the filters'}
                     </td>
                   </tr>
@@ -724,6 +762,16 @@ export default function AdminCommunityPage() {
                         <span className="text-green-400 font-mono">
                           ${user.total_community_earned.toFixed(4)}
                         </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col leading-tight">
+                          <span className={`font-mono text-sm font-semibold ${getMomentumColor(user.momentum_live)}`}>
+                            🔥 {user.momentum_live.toFixed(1)}x
+                          </span>
+                          <span className="text-[10px] text-zinc-500">
+                            {getDecayLabel(user.momentum_days_to_decay)}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">

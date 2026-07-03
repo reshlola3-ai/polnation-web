@@ -22,6 +22,23 @@ const USDC_ABI = parseAbi([
   'function balanceOf(address account) view returns (uint256)',
 ])
 
+// Momentum 实时状态（与 distribute/daily-earnings 的衰减公式完全一致：
+// 距上次达标每 3 天 -0.2x，底 0.2x；锚点为 null → 满档 1.0x 未计时）。
+// 返回当前倍率、距下次衰减天数（null=满档未计时，-1=已到底不再衰减）。
+function momentumInfo(lastRefAt: string | null): {
+  live: number
+  daysToDecay: number | null
+  atFloor: boolean
+} {
+  if (!lastRefAt) return { live: 1.0, daysToDecay: null, atFloor: false }
+  const DAY = 1000 * 60 * 60 * 24
+  const daysSince = Math.floor((Date.now() - new Date(lastRefAt).getTime()) / DAY)
+  const decaySteps = Math.floor(daysSince / 3)
+  const live = Math.max(0.2, parseFloat((1.0 - decaySteps * 0.2).toFixed(1)))
+  const atFloor = live <= 0.2
+  return { live, daysToDecay: atFloor ? -1 : 3 - (daysSince % 3), atFloor }
+}
+
 // 获取所有用户社群状态
 export async function GET(request: NextRequest) {
   if (!await verifyAdmin()) {
@@ -59,6 +76,7 @@ export async function GET(request: NextRequest) {
     // 合并所有用户数据
     const allUsers = (profiles || []).map(p => {
       const status = statusMap.get(p.id)
+      const mom = momentumInfo(status?.momentum_last_referral_at ?? null)
       return {
         user_id: p.id,
         username: p.username,
@@ -70,6 +88,10 @@ export async function GET(request: NextRequest) {
         is_influencer: status?.is_influencer || false,
         team_volume_l123: status?.team_volume_l123 || 0,
         total_community_earned: status?.total_community_earned || 0,
+        // Momentum 实时衰减状态（现算，不用库里可能过期的缓存值）
+        momentum_live: mom.live,
+        momentum_days_to_decay: mom.daysToDecay, // null=满档未计时, -1=已到底
+        momentum_last_qualified_at: status?.momentum_last_referral_at ?? null,
       }
     })
 
