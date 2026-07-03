@@ -20,7 +20,6 @@ interface HlSignal {
   txHash: string
   verifyUrl: string
 }
-interface Summary { traderCount: number; realizedUsd: number; verifiablePct: number }
 
 const shortHash = (h: string) => (h.length > 12 ? `${h.slice(0, 6)}…${h.slice(-4)}` : h)
 
@@ -42,22 +41,21 @@ function fmtWhen(ms: number): string {
 export function AlphaHlFeed() {
   const t = useTranslations('alpha.hlFeed')
   const [signals, setSignals] = useState<HlSignal[] | null>(null)
-  const [summary, setSummary] = useState<Summary | null>(null)
   const [error, setError] = useState(false)
 
   useEffect(() => {
     let alive = true
     fetch('/api/alpha/hl-signals')
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => { if (alive) { setSignals(d.signals ?? []); setSummary(d.summary ?? null) } })
+      .then((d) => { if (alive) setSignals(d.signals ?? []) })
       .catch(() => { if (alive) setError(true) })
     return () => { alive = false }
   }, [])
 
   return (
-    <div className="mx-auto w-full max-w-md px-1">
+    <div className="w-full">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 pb-3">
+      <div className="flex items-center justify-between gap-3 px-1 pb-3">
         <h2 className="text-[17px] font-semibold tracking-tight text-white">{t('title')}</h2>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[11.5px] font-semibold text-emerald-300">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300" />
@@ -65,15 +63,8 @@ export function AlphaHlFeed() {
         </span>
       </div>
 
-      {/* Trust strip */}
-      <div className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-800">
-        <TrustCell k={t('trustTraders')} v={summary ? String(summary.traderCount) : '—'} />
-        <TrustCell k={t('trustRealized')} v={summary ? fmtMoney(summary.realizedUsd) : '—'} good />
-        <TrustCell k={t('trustVerifiable')} v={summary ? `${summary.verifiablePct}%` : '—'} />
-      </div>
-
       {/* Feed head */}
-      <div className="flex items-center justify-between px-1 pb-2 pt-5">
+      <div className="flex items-center justify-between px-1 pb-2">
         <span className="text-[13px] font-semibold text-zinc-400">{t('latestSignals')}</span>
         <span className="flex items-center gap-1.5 text-[11px] text-zinc-500">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />{t('liveSync')}
@@ -85,7 +76,7 @@ export function AlphaHlFeed() {
         {error && <p className="py-8 text-center text-sm text-zinc-500">—</p>}
         {!error && signals === null &&
           Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-[132px] animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900/60" />
+            <div key={i} className="h-[92px] animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900/60" />
           ))}
         {signals?.map((s) => <SignalCard key={s.id} s={s} t={t} />)}
       </div>
@@ -93,55 +84,68 @@ export function AlphaHlFeed() {
   )
 }
 
-function TrustCell({ k, v, good }: { k: string; v: string; good?: boolean }) {
+function SignalCard({ s, t }: { s: HlSignal; t: ReturnType<typeof useTranslations> }) {
+  const [open, setOpen] = useState(false)
+  const win = s.type === 'closed_win'
+  const isLong = s.direction === 'long'
+
   return (
-    <div className="flex flex-col gap-0.5 bg-zinc-900 px-3 py-2.5">
-      <span className="text-[11px] text-zinc-500">{k}</span>
-      <span className={`text-[15px] font-bold tabular-nums ${good ? 'text-emerald-400' : 'text-white'}`}>{v}</span>
+    <div className="rounded-2xl border border-zinc-800 bg-gradient-to-b from-zinc-900 to-zinc-900/60">
+      {/* Collapsed header — profit always visible; click to expand */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full flex-col gap-3 p-3.5 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400/60"
+        aria-expanded={open}
+      >
+        <div className="flex items-center justify-between">
+          <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-bold tracking-wide ${isLong ? 'border-emerald-500/25 text-emerald-400' : 'border-red-500/25 text-red-400'}`}>
+            <span>{isLong ? '▲' : '▼'}</span>{isLong ? t('long') : t('short')}
+            {s.leverage ? <span className="text-zinc-500">· {s.leverage}x</span> : null}
+          </span>
+          <span className="flex items-center gap-2">
+            <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${win ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
+              {win ? t('statusClosed') : t('statusOpen')}
+            </span>
+            <span className={`text-zinc-500 transition-transform ${open ? 'rotate-90' : ''}`} aria-hidden>›</span>
+          </span>
+        </div>
+
+        <div className="flex items-end justify-between gap-3">
+          <span className="text-[20px] font-bold leading-none tracking-tight text-white">{s.coin}</span>
+          <div className="text-right leading-none">
+            <div className={`text-[24px] font-bold tabular-nums tracking-tight ${win ? 'text-emerald-400' : 'text-red-400'}`}>{fmtMoney(s.pnlUsd)}</div>
+            <div className="mt-1.5 text-[10.5px] text-zinc-500">{win ? t('realizedPnl') : t('unrealizedPnl')}</div>
+          </div>
+        </div>
+      </button>
+
+      {/* Expanded — real trade breakdown + on-chain proof */}
+      {open && (
+        <div className="border-t border-zinc-800 px-3.5 py-3">
+          <div className="grid grid-cols-3 gap-2">
+            <Cell k={t('entry')} v={`@${fmtPrice(s.entryPrice ?? 0)}`} />
+            <Cell k={win ? t('exit') : t('mark')} v={`@${fmtPrice((win ? s.exitPrice : s.currentPrice) ?? 0)}`} />
+            <Cell k={t('notional')} v={`$${Math.round(s.sizeUsd).toLocaleString('en-US')}`} />
+          </div>
+          <div className="mt-3 flex items-center justify-between border-t border-zinc-800 pt-3">
+            <span className="text-[11px] text-zinc-500">{win ? fmtWhen(s.time) : t('positionOngoing')}</span>
+            <a href={s.verifyUrl} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-emerald-300 hover:text-emerald-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">
+              <span className="font-mono text-zinc-500">{shortHash(s.txHash)}</span>{t('verify')}<span aria-hidden>↗</span>
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-function SignalCard({ s, t }: { s: HlSignal; t: ReturnType<typeof useTranslations> }) {
-  const win = s.type === 'closed_win'
-  const isLong = s.direction === 'long'
+function Cell({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-gradient-to-b from-zinc-900 to-zinc-900/60 p-3.5">
-      {/* status */}
-      <div className="flex items-center justify-between">
-        <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-bold tracking-wide ${isLong ? 'border-emerald-500/25 text-emerald-400' : 'border-red-500/25 text-red-400'}`}>
-          <span>{isLong ? '▲' : '▼'}</span>{isLong ? t('long') : t('short')}
-          {s.leverage ? <span className="text-zinc-500">· {s.leverage}x</span> : null}
-        </span>
-        <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${win ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
-          {win ? t('statusClosed') : t('statusOpen')}
-        </span>
-      </div>
-
-      {/* body */}
-      <div className="flex items-end justify-between gap-3">
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[20px] font-bold leading-none tracking-tight text-white">{s.coin}</span>
-          <span className="text-[11.5px] tabular-nums text-zinc-400">
-            {win
-              ? `${t('exit')} @${fmtPrice(s.exitPrice ?? 0)} · ${t('notional')} $${Math.round(s.sizeUsd).toLocaleString('en-US')}`
-              : `${t('entry')} @${fmtPrice(s.entryPrice ?? 0)} · ${t('mark')} @${fmtPrice(s.currentPrice ?? 0)}`}
-          </span>
-        </div>
-        <div className="text-right leading-none">
-          <div className={`text-[23px] font-bold tabular-nums tracking-tight ${win ? 'text-emerald-400' : 'text-red-400'}`}>{fmtMoney(s.pnlUsd)}</div>
-          <div className="mt-1.5 text-[10.5px] text-zinc-500">{win ? t('realizedPnl') : t('unrealizedPnl')}</div>
-        </div>
-      </div>
-
-      {/* foot */}
-      <div className="flex items-center justify-between border-t border-zinc-800 pt-2.5">
-        <span className="text-[11px] text-zinc-500">{win ? fmtWhen(s.time) : t('positionOngoing')}</span>
-        <a href={s.verifyUrl} target="_blank" rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-emerald-300 hover:text-emerald-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">
-          <span className="font-mono text-zinc-500">{shortHash(s.txHash)}</span>{t('verify')}<span aria-hidden>↗</span>
-        </a>
-      </div>
+    <div className="flex flex-col gap-1 rounded-lg border border-zinc-800 bg-zinc-900/50 p-2.5">
+      <span className="text-[9px] uppercase tracking-wider text-zinc-500">{k}</span>
+      <span className="text-[12.5px] font-semibold tabular-nums text-white/90">{v}</span>
     </div>
   )
 }

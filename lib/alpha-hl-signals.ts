@@ -9,7 +9,7 @@ const HL_INFO = 'https://api.hyperliquid.xyz/info'
 const MAX_LOSS_PER_LEADER = 2
 const LOSS_RATIO = 0.2
 const FEED_SIZE = 24
-const MIN_WIN_PNL = 50 // 过滤掉过小的赢单，卡片更有说服力
+const MIN_WIN_PNL = 500 // 只展示 ≥$500 的赢单（小额如 $120 不展示）
 
 // 服务端私有：追踪的 leader 地址（经 find-hl-leaders-enriched 验证）。切勿导出到客户端。
 const LEADER_ADDRESSES: readonly string[] = [
@@ -108,13 +108,17 @@ function aggregateWins(fills: HlFill[]): HlSignal[] {
     .filter((g) => g.pnl >= MIN_WIN_PNL && g.hash)
     .map((g) => {
       const exit = g.pxSz / g.sz
+      const direction = g.dir.includes('Long') ? ('long' as const) : ('short' as const)
+      // 由真实 closedPnl 反推有效入场价，与展示盈利完全自洽：
+      // long: pnl=(exit-entry)*size → entry=exit-pnl/size；short 相反。
+      const entry = direction === 'long' ? exit - g.pnl / g.sz : exit + g.pnl / g.sz
       return {
         id: `w_${g.hash.slice(2, 14)}`,
         type: 'closed_win' as const,
         coin: g.coin,
-        direction: g.dir.includes('Long') ? ('long' as const) : ('short' as const),
+        direction,
         leverage: null,
-        entryPrice: null,
+        entryPrice: entry,
         exitPrice: exit,
         currentPrice: null,
         sizeUsd: exit * g.sz,
