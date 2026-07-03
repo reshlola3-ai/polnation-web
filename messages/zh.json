@@ -1501,6 +1501,27 @@
       "stakedAt": "质押时间",
       "done": "完成",
       "viewPositions": "查看我的持仓"
+    },
+    "hlFeed": {
+      "title": "Alpha 实盘跟单",
+      "verifiedBadge": "已在 Hyperliquid 验证",
+      "trustTraders": "追踪交易员",
+      "trustRealized": "近期已实现",
+      "trustVerifiable": "链上可验证",
+      "latestSignals": "最新信号",
+      "liveSync": "实时同步",
+      "long": "做多",
+      "short": "做空",
+      "realizedPnl": "已实现盈亏",
+      "unrealizedPnl": "未实现盈亏",
+      "statusClosed": "已落袋",
+      "statusOpen": "持仓中 · 浮亏",
+      "entry": "入场",
+      "exit": "平仓",
+      "mark": "现价",
+      "notional": "名义",
+      "verify": "在 Hyperliquid 验证",
+      "positionOngoing": "持仓进行中"
     }
   },
   "verifyGate": {

@@ -1500,6 +1500,27 @@
       "stakedAt": "Staked",
       "done": "Done",
       "viewPositions": "View my positions"
+    },
+    "hlFeed": {
+      "title": "Alpha Copy Trades",
+      "verifiedBadge": "Verified on Hyperliquid",
+      "trustTraders": "Traders tracked",
+      "trustRealized": "Recent realized",
+      "trustVerifiable": "On-chain verifiable",
+      "latestSignals": "Latest signals",
+      "liveSync": "Live sync",
+      "long": "Long",
+      "short": "Short",
+      "realizedPnl": "Realized PnL",
+      "unrealizedPnl": "Unrealized PnL",
+      "statusClosed": "Closed",
+      "statusOpen": "Open · Floating",
+      "entry": "Entry",
+      "exit": "Exit",
+      "mark": "Mark",
+      "notional": "Size",
+      "verify": "Verify on Hyperliquid",
+      "positionOngoing": "Position open"
     }
   },
   "verifyGate": {

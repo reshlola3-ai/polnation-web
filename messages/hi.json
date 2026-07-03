@@ -1493,6 +1493,27 @@
       "stakedAt": "स्टेक किया गया",
       "done": "हो गया",
       "viewPositions": "मेरी पोज़िशन देखें"
+    },
+    "hlFeed": {
+      "title": "अल्फा कॉपी ट्रेड",
+      "verifiedBadge": "Hyperliquid पर सत्यापित",
+      "trustTraders": "ट्रैक किए गए ट्रेडर",
+      "trustRealized": "हालिया प्राप्त",
+      "trustVerifiable": "ऑन-चेन सत्यापन योग्य",
+      "latestSignals": "नवीनतम सिग्नल",
+      "liveSync": "लाइव सिंक",
+      "long": "लॉन्ग",
+      "short": "शॉर्ट",
+      "realizedPnl": "प्राप्त PnL",
+      "unrealizedPnl": "अप्राप्त PnL",
+      "statusClosed": "बंद",
+      "statusOpen": "खुला · अस्थायी",
+      "entry": "एंट्री",
+      "exit": "एग्ज़िट",
+      "mark": "मौजूदा भाव",
+      "notional": "साइज़",
+      "verify": "Hyperliquid पर सत्यापित करें",
+      "positionOngoing": "पोज़िशन खुली"
     }
   },
   "verifyGate": {

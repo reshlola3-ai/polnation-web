@@ -1493,6 +1493,27 @@
       "stakedAt": "تم التخزين",
       "done": "تم",
       "viewPositions": "عرض مراكزي"
+    },
+    "hlFeed": {
+      "title": "نسخ صفقات ألفا",
+      "verifiedBadge": "موثّق على Hyperliquid",
+      "trustTraders": "المتداولون المتابَعون",
+      "trustRealized": "المحقق مؤخراً",
+      "trustVerifiable": "قابل للتحقق على السلسلة",
+      "latestSignals": "أحدث الإشارات",
+      "liveSync": "مزامنة مباشرة",
+      "long": "شراء",
+      "short": "بيع",
+      "realizedPnl": "الربح المحقق",
+      "unrealizedPnl": "الربح غير المحقق",
+      "statusClosed": "مغلقة",
+      "statusOpen": "مفتوحة · عائمة",
+      "entry": "الدخول",
+      "exit": "الخروج",
+      "mark": "السعر الحالي",
+      "notional": "الحجم",
+      "verify": "تحقق على Hyperliquid",
+      "positionOngoing": "المركز مفتوح"
     }
   },
   "verifyGate": {

@@ -1493,6 +1493,27 @@
       "stakedAt": "Staké le",
       "done": "Terminé",
       "viewPositions": "Voir mes positions"
+    },
+    "hlFeed": {
+      "title": "Copy Trades Alpha",
+      "verifiedBadge": "Vérifié sur Hyperliquid",
+      "trustTraders": "Traders suivis",
+      "trustRealized": "Réalisé récent",
+      "trustVerifiable": "Vérifiable on-chain",
+      "latestSignals": "Derniers signaux",
+      "liveSync": "Sync en direct",
+      "long": "Long",
+      "short": "Short",
+      "realizedPnl": "PnL réalisé",
+      "unrealizedPnl": "PnL latent",
+      "statusClosed": "Clôturé",
+      "statusOpen": "Ouvert · Latent",
+      "entry": "Entrée",
+      "exit": "Sortie",
+      "mark": "Prix actuel",
+      "notional": "Taille",
+      "verify": "Vérifier sur Hyperliquid",
+      "positionOngoing": "Position ouverte"
     }
   },
   "verifyGate": {

@@ -1493,6 +1493,27 @@
       "stakedAt": "Đã đặt cọc",
       "done": "Hoàn tất",
       "viewPositions": "Xem vị thế của tôi"
+    },
+    "hlFeed": {
+      "title": "Copy Trade Alpha",
+      "verifiedBadge": "Đã xác minh trên Hyperliquid",
+      "trustTraders": "Trader theo dõi",
+      "trustRealized": "Lãi gần đây",
+      "trustVerifiable": "Xác minh on-chain",
+      "latestSignals": "Tín hiệu mới nhất",
+      "liveSync": "Đồng bộ trực tiếp",
+      "long": "Mua",
+      "short": "Bán",
+      "realizedPnl": "PnL đã chốt",
+      "unrealizedPnl": "PnL tạm tính",
+      "statusClosed": "Đã chốt",
+      "statusOpen": "Đang mở · Lỗ tạm",
+      "entry": "Vào lệnh",
+      "exit": "Thoát lệnh",
+      "mark": "Giá hiện tại",
+      "notional": "Khối lượng",
+      "verify": "Xác minh trên Hyperliquid",
+      "positionOngoing": "Vị thế đang mở"
     }
   },
   "verifyGate": {

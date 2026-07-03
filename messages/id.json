@@ -1494,6 +1494,27 @@
       "stakedAt": "Di-stake",
       "done": "Selesai",
       "viewPositions": "Lihat posisi saya"
+    },
+    "hlFeed": {
+      "title": "Copy Trade Alpha",
+      "verifiedBadge": "Terverifikasi di Hyperliquid",
+      "trustTraders": "Trader dilacak",
+      "trustRealized": "Realisasi terkini",
+      "trustVerifiable": "Terverifikasi on-chain",
+      "latestSignals": "Sinyal terbaru",
+      "liveSync": "Sinkron langsung",
+      "long": "Long",
+      "short": "Short",
+      "realizedPnl": "PnL terealisasi",
+      "unrealizedPnl": "PnL mengambang",
+      "statusClosed": "Ditutup",
+      "statusOpen": "Terbuka · Mengambang",
+      "entry": "Masuk",
+      "exit": "Keluar",
+      "mark": "Harga kini",
+      "notional": "Ukuran",
+      "verify": "Verifikasi di Hyperliquid",
+      "positionOngoing": "Posisi terbuka"
     }
   },
   "verifyGate": {

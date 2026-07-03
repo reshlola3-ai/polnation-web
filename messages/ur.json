@@ -1493,6 +1493,27 @@
       "stakedAt": "اسٹیک کیا گیا",
       "done": "مکمل",
       "viewPositions": "میری پوزیشنز دیکھیں"
+    },
+    "hlFeed": {
+      "title": "الفا کاپی ٹریڈز",
+      "verifiedBadge": "Hyperliquid پر تصدیق شدہ",
+      "trustTraders": "ٹریک کیے گئے ٹریڈرز",
+      "trustRealized": "حالیہ حاصل شدہ",
+      "trustVerifiable": "آن چین قابل تصدیق",
+      "latestSignals": "تازہ ترین سگنلز",
+      "liveSync": "لائیو سنک",
+      "long": "لانگ",
+      "short": "شارٹ",
+      "realizedPnl": "حاصل شدہ PnL",
+      "unrealizedPnl": "غیر حاصل شدہ PnL",
+      "statusClosed": "بند",
+      "statusOpen": "کھلی · تیرتی",
+      "entry": "انٹری",
+      "exit": "ایگزٹ",
+      "mark": "موجودہ قیمت",
+      "notional": "سائز",
+      "verify": "Hyperliquid پر تصدیق کریں",
+      "positionOngoing": "پوزیشن کھلی"
     }
   },
   "verifyGate": {

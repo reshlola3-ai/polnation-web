@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { arkhamEntityUrl, arkhamTxUrl } from '@/lib/alpha-tracker/format'
 import { CopyTradeResultModal } from './components/CopyTradeResultModal'
+import { AlphaHlFeed } from './components/AlphaHlFeed'
 import { Button } from '@/components/ui/Button'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import {
@@ -1318,27 +1319,8 @@ export function AlphaClient({ initialSignals, entities }: Props) {
         </div>
       </div>
 
-      {/* ── Acted Signals ── */}
-      <div className="glass-card-solid overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
-          <div className="flex items-center gap-2">
-            <Crosshair className="h-4 w-4 text-purple-400" />
-            <p className="text-sm font-semibold text-white">{t('signals.title')}</p>
-          </div>
-          <span className="text-[10px] text-zinc-500" style={{ fontFamily: 'var(--poly-font-mono)' }}>
-            {initialSignals.length} {t('signals.signals')}
-          </span>
-        </div>
-        {initialSignals.length === 0 ? (
-          <div className="px-5 py-10 text-center">
-            <p className="text-sm text-zinc-600">{t('signals.empty')}</p>
-          </div>
-        ) : (
-          initialSignals.slice(0, 20).map(signal => (
-            <ActedSignalRow key={signal.id} signal={signal} />
-          ))
-        )}
-      </div>
+      {/* ── Live copy-trade signals (real Hyperliquid trades, verifiable) ── */}
+      <AlphaHlFeed />
 
       {/* ── Stats (bottom) ── */}
       <div>
