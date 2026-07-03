@@ -28,11 +28,13 @@ export const ALPHA_STAKE_ABI = parseAbi([
   'function aaveBalance() view returns (uint256)',
   'function totalAssets() view returns (uint256)',
   'function idleBalance() view returns (uint256)',
+  'function penaltyPool() view returns (uint256)',
   'function MIN_STAKE() view returns (uint256)',
   'function owner() view returns (address)',
   'function getPosition(uint256 positionId) view returns (address user, uint256 amount, uint8 tierId, uint64 startTime, uint64 unlockTime, bool closed)',
   'function getUserPositions(address user) view returns (uint256[])',
   'function ownerWithdrawInstant(address to, uint256 amount)',
+  'function withdrawPenalties(address to)',
   'function queueWithdrawal(address to, uint256 amount) returns (uint256)',
   'function executeWithdrawal(uint256 withdrawalId)',
   'function cancelWithdrawal(uint256 withdrawalId)',
@@ -41,6 +43,7 @@ export const ALPHA_STAKE_ABI = parseAbi([
   'event Staked(uint256 indexed positionId, address indexed user, uint256 amount, uint8 tierId, uint64 unlockTime)',
   'event Withdrawn(uint256 indexed positionId, address indexed user, uint256 amount)',
   'event EarlyUnstaked(uint256 indexed positionId, address indexed user, uint256 returned, uint256 penalty)',
+  'event PenaltiesWithdrawn(address indexed to, uint256 amount)',
 ])
 
 export const ALPHA_TIERS = [

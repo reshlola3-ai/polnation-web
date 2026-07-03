@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const action = body.action as 'instant' | 'queue' | 'execute' | 'cancel'
+    const action = body.action as 'instant' | 'queue' | 'execute' | 'cancel' | 'penalties'
 
     const publicClient = getAlphaPublicClient()
     const owner = await publicClient.readContract({
@@ -102,6 +102,18 @@ export async function POST(request: NextRequest) {
         abi: ALPHA_STAKE_ABI,
         functionName: 'queueWithdrawal',
         args: [to, usdcToUnits(amount)],
+      })
+    } else if (action === 'penalties') {
+      const to = body.to as Address
+      if (!to) {
+        return NextResponse.json({ error: 'to is required' }, { status: 400 })
+      }
+
+      hash = await walletClient.writeContract({
+        address: stakeAddress,
+        abi: ALPHA_STAKE_ABI,
+        functionName: 'withdrawPenalties',
+        args: [to],
       })
     } else if (action === 'execute' || action === 'cancel') {
       withdrawalId = Number(body.withdrawalId)

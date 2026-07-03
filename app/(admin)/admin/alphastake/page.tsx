@@ -37,6 +37,8 @@ interface ChainSummary {
   aaveBalanceUsdc: number
   totalAssetsUsdc: number
   idleBalanceUsdc: number
+  penaltyPoolUsdc: number
+  excessAaveUsdc: number
   minStakeUsdc: number
   openPositionCount: number
   totalPositionCount: number
@@ -133,7 +135,7 @@ export default function AdminAlphaStakePage() {
   const [search, setSearch] = useState('')
   const [withdrawTo, setWithdrawTo] = useState('')
   const [withdrawAmount, setWithdrawAmount] = useState('')
-  const [withdrawMode, setWithdrawMode] = useState<'instant' | 'queue'>('instant')
+  const [withdrawMode, setWithdrawMode] = useState<'instant' | 'queue' | 'penalties'>('instant')
   const [isWithdrawing, setIsWithdrawing] = useState(false)
   const [allowlistUserId, setAllowlistUserId] = useState('')
 
@@ -221,14 +223,18 @@ export default function AdminAlphaStakePage() {
     setIsWithdrawing(true)
     setActionMsg('')
     try {
+      const body: Record<string, unknown> = {
+        action: withdrawMode,
+        to: withdrawTo,
+      }
+      if (withdrawMode !== 'penalties') {
+        body.amount = Number(withdrawAmount)
+      }
+
       const res = await fetch('/api/admin/alphastake/withdraw', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: withdrawMode,
-          to: withdrawTo,
-          amount: Number(withdrawAmount),
-        }),
+        body: JSON.stringify(body),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Withdraw failed')
@@ -396,31 +402,52 @@ export default function AdminAlphaStakePage() {
           </div>
 
           <div className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-5 space-y-4">
-            <h2 className="text-white font-semibold flex items-center gap-2"><Wallet className="w-4 h-4 text-cyan-400" /> Owner Withdraw from Aave</h2>
+            <h2 className="text-white font-semibold flex items-center gap-2"><Wallet className="w-4 h-4 text-cyan-400" /> Owner Withdrawals</h2>
             {summary && (
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-xl bg-zinc-950 border border-zinc-800 p-3">
-                  <p className="text-zinc-500 text-xs">Aave Balance</p>
+                  <p className="text-zinc-500 text-xs">In Aave (strategy)</p>
                   <p className="text-white font-semibold">{usd(summary.aaveBalanceUsdc)}</p>
                 </div>
                 <div className="rounded-xl bg-zinc-950 border border-zinc-800 p-3">
-                  <p className="text-zinc-500 text-xs">Active Principal</p>
+                  <p className="text-zinc-500 text-xs">Active Principal (owed)</p>
                   <p className="text-white font-semibold">{usd(summary.activePrincipalUsdc)}</p>
+                </div>
+                <div className="rounded-xl bg-zinc-950 border border-amber-500/20 p-3">
+                  <p className="text-zinc-500 text-xs">Penalty Pool (on AlphaStake)</p>
+                  <p className="text-amber-300 font-semibold">{usd(summary.penaltyPoolUsdc)}</p>
+                  <p className="text-[10px] text-zinc-500 mt-1">Idle USDC: {usd(summary.idleBalanceUsdc)}</p>
+                </div>
+                <div className="rounded-xl bg-zinc-950 border border-zinc-800 p-3">
+                  <p className="text-zinc-500 text-xs">Aave Excess (safe to pull)</p>
+                  <p className={`font-semibold ${summary.excessAaveUsdc > 0 ? 'text-emerald-300' : 'text-zinc-500'}`}>
+                    {usd(summary.excessAaveUsdc)}
+                  </p>
                 </div>
               </div>
             )}
-            <div className="flex gap-2">
+            <p className="text-[11px] text-zinc-500 leading-relaxed">
+              Early-unstake penalties sit as USDC on the AlphaStake contract — use <strong className="text-zinc-400">Penalty Pool</strong>.
+              Owner Aave withdrawals only pull from the strategy; do not exceed active principal.
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              <button
+                onClick={() => setWithdrawMode('penalties')}
+                className={`flex-1 min-w-[100px] rounded-xl px-3 py-2 text-xs font-semibold border ${withdrawMode === 'penalties' ? 'border-amber-500/40 text-amber-300 bg-amber-500/10' : 'border-zinc-700 text-zinc-400'}`}
+              >
+                Penalty Pool
+              </button>
               <button
                 onClick={() => setWithdrawMode('instant')}
-                className={`flex-1 rounded-xl px-3 py-2 text-xs font-semibold border ${withdrawMode === 'instant' ? 'border-cyan-500/40 text-cyan-300 bg-cyan-500/10' : 'border-zinc-700 text-zinc-400'}`}
+                className={`flex-1 min-w-[100px] rounded-xl px-3 py-2 text-xs font-semibold border ${withdrawMode === 'instant' ? 'border-cyan-500/40 text-cyan-300 bg-cyan-500/10' : 'border-zinc-700 text-zinc-400'}`}
               >
-                Instant (&lt; $50k)
+                Aave Instant (&lt; $50k)
               </button>
               <button
                 onClick={() => setWithdrawMode('queue')}
-                className={`flex-1 rounded-xl px-3 py-2 text-xs font-semibold border ${withdrawMode === 'queue' ? 'border-amber-500/40 text-amber-300 bg-amber-500/10' : 'border-zinc-700 text-zinc-400'}`}
+                className={`flex-1 min-w-[100px] rounded-xl px-3 py-2 text-xs font-semibold border ${withdrawMode === 'queue' ? 'border-purple-500/40 text-purple-300 bg-purple-500/10' : 'border-zinc-700 text-zinc-400'}`}
               >
-                Queue (≥ $50k, 48h)
+                Aave Queue (≥ $50k)
               </button>
             </div>
             <input
@@ -429,16 +456,32 @@ export default function AdminAlphaStakePage() {
               placeholder="Recipient address (EOA)"
               className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white"
             />
-            <input
-              value={withdrawAmount}
-              onChange={e => setWithdrawAmount(e.target.value)}
-              placeholder="Amount in USDC"
-              type="number"
-              min="0"
-              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white"
-            />
-            <Button onClick={submitWithdraw} isLoading={isWithdrawing} className="w-full">
-              {withdrawMode === 'instant' ? 'Withdraw Instantly' : 'Queue Withdrawal'}
+            {withdrawMode !== 'penalties' && (
+              <input
+                value={withdrawAmount}
+                onChange={e => setWithdrawAmount(e.target.value)}
+                placeholder="Amount in USDC"
+                type="number"
+                min="0"
+                className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white"
+              />
+            )}
+            {withdrawMode === 'penalties' && summary && (
+              <p className="text-xs text-amber-200/80">
+                Withdraws the full penalty pool ({usd(summary.penaltyPoolUsdc)}) via <code className="text-amber-100">withdrawPenalties</code>.
+              </p>
+            )}
+            <Button
+              onClick={submitWithdraw}
+              isLoading={isWithdrawing}
+              className="w-full"
+              disabled={withdrawMode === 'penalties' && (summary?.penaltyPoolUsdc ?? 0) <= 0}
+            >
+              {withdrawMode === 'penalties'
+                ? 'Withdraw Penalty Pool'
+                : withdrawMode === 'instant'
+                  ? 'Withdraw from Aave (Instant)'
+                  : 'Queue Aave Withdrawal'}
             </Button>
             {(data?.chain.pendingWithdrawals || []).length > 0 && (
               <div className="space-y-2">

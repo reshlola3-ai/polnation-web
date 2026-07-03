@@ -38,15 +38,13 @@ export async function fetchOnChainAlphaSummary() {
     totalStaked,
     aaveBalance,
     idleBalance,
+    penaltyPool,
     minStake,
     owner,
     nextWithdrawalId,
   ] = await Promise.all([
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'nextPositionId' }),
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'totalStaked' }),
-    // The contract's aaveBalance()/totalAssets() views read the wrong aToken
-    // (bridged USDC.e's aPolUSDC) and always return 0. Read the native-USDC
-    // aToken (aPolUSDCn) balance held by the strategy directly instead.
     strategyAddress
       ? client.readContract({
           address: AUSDC_NATIVE_POLYGON,
@@ -56,12 +54,14 @@ export async function fetchOnChainAlphaSummary() {
         })
       : Promise.resolve(BigInt(0)),
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'idleBalance' }),
+    client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'penaltyPool' }),
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'MIN_STAKE' }),
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'owner' }),
     client.readContract({ address, abi: ALPHA_STAKE_ABI, functionName: 'nextWithdrawalId' }),
   ])
 
   const totalAssets = idleBalance + aaveBalance
+  const excessAaveUsdc = aaveBalance > totalStaked ? aaveBalance - totalStaked : BigInt(0)
 
   const positionCount = Number(nextPositionId)
   const positions: OnChainPosition[] = []
@@ -141,6 +141,8 @@ export async function fetchOnChainAlphaSummary() {
       aaveBalanceUsdc: usdcFromUnits(aaveBalance),
       totalAssetsUsdc: usdcFromUnits(totalAssets),
       idleBalanceUsdc: usdcFromUnits(idleBalance),
+      penaltyPoolUsdc: usdcFromUnits(penaltyPool),
+      excessAaveUsdc: usdcFromUnits(excessAaveUsdc),
       minStakeUsdc: usdcFromUnits(minStake),
       openPositionCount: openPositions.length,
       totalPositionCount: positions.length,
