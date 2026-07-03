@@ -1513,7 +1513,8 @@
       "mark": "Prix actuel",
       "notional": "Taille",
       "verify": "Vérifier sur Hyperliquid",
-      "positionOngoing": "Position ouverte"
+      "positionOngoing": "Position ouverte",
+      "statusLoss": "Clôturé · perte"
     }
   },
   "verifyGate": {

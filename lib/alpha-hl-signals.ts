@@ -1,15 +1,15 @@
 // 真实 HL 跟单信号构建器。
-// 信号 = 我们追踪的盈利交易员在 Hyperliquid 上的真实成交/持仓。
+// 信号 = 我们追踪的盈利交易员在 Hyperliquid 上的真实【已平仓】交易（赚或赔）。
+// 每张卡对应一笔真实平仓 tx，closedPnl 真实，链接指向那一笔、数字完全吻合。
 // ⚠️ 隐私：leader 地址仅存在于服务端此文件，绝不下发前端。对外暴露的 HlSignal
 // 不含任何交易员身份（无名字、无地址）——只有交易本身 + 可验证的真实成交 hash。
 
 const HL_INFO = 'https://api.hyperliquid.xyz/info'
 
-// 每个 leader 最多带几个真实浮亏仓；混合目标 ~20% 浮亏。
-const MAX_LOSS_PER_LEADER = 2
-const LOSS_RATIO = 0.2
 const FEED_SIZE = 24
-const MIN_WIN_PNL = 500 // 只展示 ≥$500 的赢单（小额如 $120 不展示）
+const MIN_WIN_PNL = 500 // 只展示 ≥$500 的已平仓赢单（小额如 $120 不展示）
+const MIN_LOSS_PNL = 300 // 只展示 ≥$300（绝对值）的已平仓亏损单
+const LOSS_RATIO = 0.2 // 混合目标 ~20% 亏损单
 
 // 服务端私有：追踪的 leader 地址（经 find-hl-leaders-enriched 验证）。切勿导出到客户端。
 const LEADER_ADDRESSES: readonly string[] = [
@@ -24,18 +24,16 @@ const LEADER_ADDRESSES: readonly string[] = [
 // 对外信号（无交易员身份）。
 export interface HlSignal {
   id: string
-  type: 'closed_win' | 'open_loss'
+  type: 'closed_win' | 'closed_loss'
   coin: string
   direction: 'long' | 'short'
-  leverage: number | null
-  entryPrice: number | null
-  exitPrice: number | null
-  currentPrice: number | null
+  entryPrice: number
+  exitPrice: number
   sizeUsd: number
   pnlUsd: number
   time: number // ms epoch
-  txHash: string // 真实成交 hash（一定有值）
-  verifyUrl: string // HL 官方浏览器
+  txHash: string // 真实平仓成交 hash（一定有值）
+  verifyUrl: string // HL 官方浏览器，指向这一笔平仓 tx
 }
 
 interface HlFill {
@@ -46,15 +44,6 @@ interface HlFill {
   hash: string
   dir?: string
   closedPnl?: string
-  fee?: string
-}
-interface HlPosition {
-  coin: string
-  szi: string
-  entryPx: string
-  positionValue: string
-  unrealizedPnl: string
-  leverage?: { value?: number }
 }
 
 const isStd = (c: string): boolean => !!c && !c.includes(':')
@@ -75,110 +64,60 @@ async function hlPost<T>(body: Record<string, unknown>): Promise<T | null> {
   }
 }
 
-// 把连续的平仓 fill 聚合成一笔逻辑交易（同币同方向、间隔 <30min 归一单）。
-function aggregateWins(fills: HlFill[]): HlSignal[] {
-  const closes = fills
-    .filter((f) => f.dir?.startsWith('Close') && isStd(f.coin))
-    .sort((a, b) => a.time - b.time)
-
-  type Group = {
-    coin: string; dir: string; sz: number; pxSz: number; pnl: number
-    time: number; maxSz: number; hash: string
-  }
-  const groups: Group[] = []
-  for (const f of closes) {
-    const dir = f.dir as string
+// 按【平仓 tx hash】聚合成交 → 每笔平仓 tx 一个信号，与 explorer 页面完全对应。
+function buildClosedSignals(fills: HlFill[]): HlSignal[] {
+  type G = { coin: string; dir: string; sz: number; pxSz: number; pnl: number; time: number }
+  const byHash = new Map<string, G>()
+  for (const f of fills) {
+    if (!f.dir?.startsWith('Close') || !isStd(f.coin) || !f.hash) continue
     const sz = Number(f.sz)
-    const last = groups[groups.length - 1]
-    if (last && last.coin === f.coin && last.dir === dir && f.time - last.time < 30 * 60_000) {
-      last.sz += sz
-      last.pxSz += Number(f.px) * sz
-      last.pnl += Number(f.closedPnl) || 0
-      last.time = f.time
-      if (sz > last.maxSz) { last.maxSz = sz; last.hash = f.hash }
+    const g = byHash.get(f.hash)
+    if (g) {
+      g.sz += sz
+      g.pxSz += Number(f.px) * sz
+      g.pnl += Number(f.closedPnl) || 0
+      g.time = Math.max(g.time, f.time)
     } else {
-      groups.push({
-        coin: f.coin, dir, sz, pxSz: Number(f.px) * sz,
-        pnl: Number(f.closedPnl) || 0, time: f.time, maxSz: sz, hash: f.hash,
-      })
+      byHash.set(f.hash, { coin: f.coin, dir: f.dir, sz, pxSz: Number(f.px) * sz, pnl: Number(f.closedPnl) || 0, time: f.time })
     }
   }
 
-  return groups
-    .filter((g) => g.pnl >= MIN_WIN_PNL && g.hash)
-    .map((g) => {
-      const exit = g.pxSz / g.sz
-      const direction = g.dir.includes('Long') ? ('long' as const) : ('short' as const)
-      // 由真实 closedPnl 反推有效入场价，与展示盈利完全自洽：
-      // long: pnl=(exit-entry)*size → entry=exit-pnl/size；short 相反。
-      const entry = direction === 'long' ? exit - g.pnl / g.sz : exit + g.pnl / g.sz
-      return {
-        id: `w_${g.hash.slice(2, 14)}`,
-        type: 'closed_win' as const,
-        coin: g.coin,
-        direction,
-        leverage: null,
-        entryPrice: entry,
-        exitPrice: exit,
-        currentPrice: null,
-        sizeUsd: exit * g.sz,
-        pnlUsd: g.pnl,
-        time: g.time,
-        txHash: g.hash,
-        verifyUrl: verifyUrl(g.hash),
-      }
-    })
-}
-
-// 当前真实浮亏持仓 → 信号。必须能找到该币的真实成交 hash，否则跳过（不退回地址）。
-function buildLosses(positions: HlPosition[], fills: HlFill[]): HlSignal[] {
   const out: HlSignal[] = []
-  for (const p of positions) {
-    if (!isStd(p.coin) || Number(p.unrealizedPnl) >= 0) continue
-    const szi = Number(p.szi)
-    if (szi === 0) continue
-    // 优先该币最近的开仓 fill，退而求其次该币任意最近 fill——都是真实 hash。
-    const onCoin = fills.filter((f) => f.coin === p.coin && f.hash)
-    const opener = onCoin.find((f) => f.dir?.startsWith('Open')) ?? onCoin.sort((a, b) => b.time - a.time)[0]
-    if (!opener) continue // 无真实 hash 可验证 → 跳过
-    const notional = Number(p.positionValue)
+  for (const [hash, g] of byHash) {
+    const win = g.pnl >= 0
+    if (win ? g.pnl < MIN_WIN_PNL : -g.pnl < MIN_LOSS_PNL) continue
+    if (g.sz <= 0) continue
+    const exit = g.pxSz / g.sz
+    const direction = g.dir.includes('Long') ? ('long' as const) : ('short' as const)
+    // 由真实 closedPnl 反推有效入场价，与展示盈亏完全自洽：
+    // long: pnl=(exit-entry)*size → entry=exit-pnl/size；short 相反。（亏损时 pnl<0 亦成立）
+    const entry = direction === 'long' ? exit - g.pnl / g.sz : exit + g.pnl / g.sz
     out.push({
-      id: `l_${opener.hash.slice(2, 14)}`,
-      type: 'open_loss',
-      coin: p.coin,
-      direction: szi >= 0 ? 'long' : 'short',
-      leverage: p.leverage?.value ?? null,
-      entryPrice: Number(p.entryPx),
-      exitPrice: null,
-      currentPrice: notional / Math.abs(szi),
-      sizeUsd: notional,
-      pnlUsd: Number(p.unrealizedPnl),
-      time: opener.time,
-      txHash: opener.hash,
-      verifyUrl: verifyUrl(opener.hash),
+      id: `${win ? 'w' : 'l'}_${hash.slice(2, 14)}`,
+      type: win ? 'closed_win' : 'closed_loss',
+      coin: g.coin,
+      direction,
+      entryPrice: entry,
+      exitPrice: exit,
+      sizeUsd: exit * g.sz,
+      pnlUsd: g.pnl,
+      time: g.time,
+      txHash: hash,
+      verifyUrl: verifyUrl(hash),
     })
   }
   return out
 }
 
-interface ClearinghouseState {
-  assetPositions?: Array<{ position: HlPosition }>
-}
-
-/** 拉全部 leader 的真实交易，产出对外信号 feed（无身份、仅 hash 可验证）。 */
+/** 拉全部 leader 的真实已平仓交易，产出对外信号 feed（无身份、仅 hash 可验证）。 */
 export async function getHlSignals(): Promise<HlSignal[]> {
   const wins: HlSignal[] = []
   const losses: HlSignal[] = []
 
   for (const addr of LEADER_ADDRESSES) {
-    const [state, fills] = await Promise.all([
-      hlPost<ClearinghouseState>({ type: 'clearinghouseState', user: addr }),
-      hlPost<HlFill[]>({ type: 'userFills', user: addr }),
-    ])
-    const fillList = Array.isArray(fills) ? fills : []
-    wins.push(...aggregateWins(fillList))
-    const positions = (state?.assetPositions ?? []).map((a) => a.position)
-    losses.push(...buildLosses(positions, fillList).slice(0, MAX_LOSS_PER_LEADER))
+    const fills = await hlPost<HlFill[]>({ type: 'userFills', user: addr })
+    const closed = buildClosedSignals(Array.isArray(fills) ? fills : [])
+    for (const s of closed) (s.type === 'closed_win' ? wins : losses).push(s)
   }
 
   wins.sort((a, b) => b.time - a.time)
@@ -188,16 +127,4 @@ export async function getHlSignals(): Promise<HlSignal[]> {
   const feed = [...wins.slice(0, FEED_SIZE - nLoss), ...losses.slice(0, nLoss)]
   feed.sort((a, b) => b.time - a.time)
   return feed
-}
-
-/** 顶部信任条汇总（不泄露身份）。 */
-export function summarize(signals: HlSignal[]) {
-  const realized = signals
-    .filter((s) => s.type === 'closed_win')
-    .reduce((sum, s) => sum + s.pnlUsd, 0)
-  return {
-    traderCount: LEADER_ADDRESSES.length,
-    realizedUsd: Math.round(realized),
-    verifiablePct: 100,
-  }
 }

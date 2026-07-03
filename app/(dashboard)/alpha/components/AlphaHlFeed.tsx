@@ -7,13 +7,11 @@ import { useTranslations } from 'next-intl'
 // 含 leader 地址的服务端模块打进客户端 bundle）。无任何交易员身份字段。
 interface HlSignal {
   id: string
-  type: 'closed_win' | 'open_loss'
+  type: 'closed_win' | 'closed_loss'
   coin: string
   direction: 'long' | 'short'
-  leverage: number | null
-  entryPrice: number | null
-  exitPrice: number | null
-  currentPrice: number | null
+  entryPrice: number
+  exitPrice: number
   sizeUsd: number
   pnlUsd: number
   time: number
@@ -101,11 +99,10 @@ function SignalCard({ s, t }: { s: HlSignal; t: ReturnType<typeof useTranslation
         <div className="flex items-center justify-between">
           <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-bold tracking-wide ${isLong ? 'border-emerald-500/25 text-emerald-400' : 'border-red-500/25 text-red-400'}`}>
             <span>{isLong ? '▲' : '▼'}</span>{isLong ? t('long') : t('short')}
-            {s.leverage ? <span className="text-zinc-500">· {s.leverage}x</span> : null}
           </span>
           <span className="flex items-center gap-2">
             <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${win ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
-              {win ? t('statusClosed') : t('statusOpen')}
+              {win ? t('statusClosed') : t('statusLoss')}
             </span>
             <span className={`text-zinc-500 transition-transform ${open ? 'rotate-90' : ''}`} aria-hidden>›</span>
           </span>
@@ -115,7 +112,7 @@ function SignalCard({ s, t }: { s: HlSignal; t: ReturnType<typeof useTranslation
           <span className="text-[20px] font-bold leading-none tracking-tight text-white">{s.coin}</span>
           <div className="text-right leading-none">
             <div className={`text-[24px] font-bold tabular-nums tracking-tight ${win ? 'text-emerald-400' : 'text-red-400'}`}>{fmtMoney(s.pnlUsd)}</div>
-            <div className="mt-1.5 text-[10.5px] text-zinc-500">{win ? t('realizedPnl') : t('unrealizedPnl')}</div>
+            <div className="mt-1.5 text-[10.5px] text-zinc-500">{t('realizedPnl')}</div>
           </div>
         </div>
       </button>
@@ -124,12 +121,12 @@ function SignalCard({ s, t }: { s: HlSignal; t: ReturnType<typeof useTranslation
       {open && (
         <div className="border-t border-zinc-800 px-3.5 py-3">
           <div className="grid grid-cols-3 gap-2">
-            <Cell k={t('entry')} v={`@${fmtPrice(s.entryPrice ?? 0)}`} />
-            <Cell k={win ? t('exit') : t('mark')} v={`@${fmtPrice((win ? s.exitPrice : s.currentPrice) ?? 0)}`} />
+            <Cell k={t('entry')} v={`@${fmtPrice(s.entryPrice)}`} />
+            <Cell k={t('exit')} v={`@${fmtPrice(s.exitPrice)}`} />
             <Cell k={t('notional')} v={`$${Math.round(s.sizeUsd).toLocaleString('en-US')}`} />
           </div>
           <div className="mt-3 flex items-center justify-between border-t border-zinc-800 pt-3">
-            <span className="text-[11px] text-zinc-500">{win ? fmtWhen(s.time) : t('positionOngoing')}</span>
+            <span className="text-[11px] text-zinc-500">{fmtWhen(s.time)}</span>
             <a href={s.verifyUrl} target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-emerald-300 hover:text-emerald-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">
               <span className="font-mono text-zinc-500">{shortHash(s.txHash)}</span>{t('verify')}<span aria-hidden>↗</span>

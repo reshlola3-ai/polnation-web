@@ -1521,7 +1521,8 @@
       "mark": "现价",
       "notional": "名义",
       "verify": "在 Hyperliquid 验证",
-      "positionOngoing": "持仓进行中"
+      "positionOngoing": "持仓进行中",
+      "statusLoss": "已平仓·亏"
     }
   },
   "verifyGate": {

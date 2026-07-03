@@ -1513,7 +1513,8 @@
       "mark": "السعر الحالي",
       "notional": "الحجم",
       "verify": "تحقق على Hyperliquid",
-      "positionOngoing": "المركز مفتوح"
+      "positionOngoing": "المركز مفتوح",
+      "statusLoss": "مغلقة · خسارة"
     }
   },
   "verifyGate": {

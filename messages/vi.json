@@ -1513,7 +1513,8 @@
       "mark": "Giá hiện tại",
       "notional": "Khối lượng",
       "verify": "Xác minh trên Hyperliquid",
-      "positionOngoing": "Vị thế đang mở"
+      "positionOngoing": "Vị thế đang mở",
+      "statusLoss": "Đã chốt · lỗ"
     }
   },
   "verifyGate": {

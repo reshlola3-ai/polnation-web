@@ -1513,7 +1513,8 @@
       "mark": "موجودہ قیمت",
       "notional": "سائز",
       "verify": "Hyperliquid پر تصدیق کریں",
-      "positionOngoing": "پوزیشن کھلی"
+      "positionOngoing": "پوزیشن کھلی",
+      "statusLoss": "بند · نقصان"
     }
   },
   "verifyGate": {

@@ -1514,7 +1514,8 @@
       "mark": "Harga kini",
       "notional": "Ukuran",
       "verify": "Verifikasi di Hyperliquid",
-      "positionOngoing": "Posisi terbuka"
+      "positionOngoing": "Posisi terbuka",
+      "statusLoss": "Ditutup · rugi"
     }
   },
   "verifyGate": {

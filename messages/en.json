@@ -1520,7 +1520,8 @@
       "mark": "Mark",
       "notional": "Size",
       "verify": "Verify on Hyperliquid",
-      "positionOngoing": "Position open"
+      "positionOngoing": "Position open",
+      "statusLoss": "Closed · loss"
     }
   },
   "verifyGate": {

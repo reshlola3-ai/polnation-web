@@ -1513,7 +1513,8 @@
       "mark": "मौजूदा भाव",
       "notional": "साइज़",
       "verify": "Hyperliquid पर सत्यापित करें",
-      "positionOngoing": "पोज़िशन खुली"
+      "positionOngoing": "पोज़िशन खुली",
+      "statusLoss": "बंद · हानि"
     }
   },
   "verifyGate": {
