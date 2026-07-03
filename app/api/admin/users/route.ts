@@ -143,28 +143,63 @@ export async function GET(request: NextRequest) {
       (profitRows || []).map(p => [p.user_id as string, Number(p.available_usdc) || 0])
     )
 
-    // 获取团队统计
-    const usersWithStats = await Promise.all(
-      (users || []).map(async (user) => {
-        // 获取团队数量
-        const { data: teamStats } = await supabaseAdmin
-          .rpc('get_team_stats', { user_id: user.id })
-        
-        const stats = teamStats?.[0] || { total_team_members: 0, level1_members: 0 }
-        
-        // 检查签名状态
-        const userSignature = signatures?.find(s => s.user_id === user.id && s.status === 'pending')
-        const now = Math.floor(Date.now() / 1000)
-        
-        return {
-          ...user,
-          team_count: stats.total_team_members,
-          has_signature: !!userSignature,
-          signature_valid: userSignature ? userSignature.deadline > now : false,
-          withdrawable_usdc: profitMap.get(user.id) || 0,
+    // 团队人数：一次性在内存里算，替代对每个用户各跑一次 get_team_stats 递归
+    // DB 查询（1000+ 用户时会并发上千次递归 CTE，打满连接池 → 卡死几十秒）。
+    //
+    // ⚠️ 必须拉“全部” profiles 的 (id, referrer_id) 建完整推荐树：PostgREST 默认
+    // 单次最多返回 1000 行，用户已超过 1000，若只用上面 users（被截断）建树会少
+    // 算团队数。这里用 range 分页把父子关系拉全，独立于展示用的 users 列表。
+    const childrenOf = new Map<string, string[]>()
+    const PAGE = 1000
+    for (let from = 0; ; from += PAGE) {
+      const { data: page } = await supabaseAdmin
+        .from('profiles')
+        .select('id, referrer_id')
+        .range(from, from + PAGE - 1)
+      if (!page || page.length === 0) break
+      for (const u of page) {
+        const ref = (u as { referrer_id?: string | null }).referrer_id
+        if (!ref) continue
+        const arr = childrenOf.get(ref)
+        if (arr) arr.push(u.id as string)
+        else childrenOf.set(ref, [u.id as string])
+      }
+      if (page.length < PAGE) break
+    }
+
+    // 统计某用户的下线总数。深度上限 10 层，与 get_all_referrals 的
+    // `WHERE level < 10` 完全一致，确保 team_count 与旧值相同；visited 防环。
+    const teamCountOf = (rootId: string): number => {
+      let total = 0
+      const visited = new Set<string>()
+      // 栈元素 [id, level]，level 1 = 直推
+      const stack: Array<[string, number]> = (childrenOf.get(rootId) || []).map(c => [c, 1])
+      while (stack.length) {
+        const [cur, lvl] = stack.pop() as [string, number]
+        if (visited.has(cur)) continue
+        visited.add(cur)
+        total++
+        if (lvl < 10) {
+          for (const k of childrenOf.get(cur) || []) {
+            if (!visited.has(k)) stack.push([k, lvl + 1])
+          }
         }
-      })
-    )
+      }
+      return total
+    }
+
+    const now = Math.floor(Date.now() / 1000)
+    const usersWithStats = (users || []).map((user) => {
+      // 签名状态（逻辑保持不变）
+      const userSignature = signatures?.find(s => s.user_id === user.id && s.status === 'pending')
+      return {
+        ...user,
+        team_count: teamCountOf(user.id),
+        has_signature: !!userSignature,
+        signature_valid: userSignature ? userSignature.deadline > now : false,
+        withdrawable_usdc: profitMap.get(user.id) || 0,
+      }
+    })
 
     return NextResponse.json({ users: usersWithStats })
   } catch (error) {
