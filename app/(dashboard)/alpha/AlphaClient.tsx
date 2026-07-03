@@ -6,15 +6,12 @@ import { useTranslations } from 'next-intl'
 import type { AlphaSignal, AlphaEntity } from '@/lib/alpha-tracker/types'
 import { StatsBar } from './components/StatsBar'
 import { ConvergenceAlert } from './components/ConvergenceAlert'
-import { PATTERN_META } from '@/lib/alpha-tracker/patterns/index'
 import {
   Lock, Zap, ArrowUpRight, Loader2,
-  Shield, TrendingUp, ChevronDown, ChevronUp,
-  Crosshair, AlertTriangle, Wallet,
-  Coins, Clock, ExternalLink,
+  Shield, TrendingUp, ChevronDown,
+  AlertTriangle, Wallet,
+  Coins, Clock,
 } from 'lucide-react'
-import { arkhamEntityUrl, arkhamTxUrl } from '@/lib/alpha-tracker/format'
-import { CopyTradeResultModal } from './components/CopyTradeResultModal'
 import { AlphaHlFeed } from './components/AlphaHlFeed'
 import { Button } from '@/components/ui/Button'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
@@ -85,27 +82,6 @@ async function fetchStakeAccess(): Promise<StakeAccessResponse> {
     return { canStake: false, reason: 'error', minStakeUsdc: 100 }
   }
   return res.json()
-}
-
-const PATTERN_COLORS: Record<string, string> = {
-  pre_cex:          '#fee211',
-  bridge_buy:       '#e271d7',
-  lp_position:      '#00cc06',
-  stable_rotation:  '#670de5',
-  convergence:      '#ff7421',
-  dca_dump:         '#e271d7',
-  pre_gov:          '#ddcff2',
-  net_accumulation: '#3b82f6',
-}
-
-function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const m = Math.floor(diff / 60_000)
-  if (m < 1)  return 'just now'
-  if (m < 60) return `${m}m ago`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `${h}h ago`
-  return `${Math.floor(h / 24)}d ago`
 }
 
 // ── Stake profit ticker (per-second accrual from tier daily rate) ───────────
@@ -445,142 +421,6 @@ function PositionCard({
       {actionError && (
         <p className="text-[11px] text-red-400 mt-2">{actionError}</p>
       )}
-    </div>
-  )
-}
-
-// ── Acted signal row ───────────────────────────────────────────────────────
-function ActedSignalRow({ signal }: { signal: AlphaSignal }) {
-  const t = useTranslations('alpha')
-  const [expanded, setExpanded] = useState(false)
-  const [showCopyTrade, setShowCopyTrade] = useState(false)
-  const meta  = PATTERN_META[signal.pattern_id]
-  const color = PATTERN_COLORS[signal.pattern_id] ?? 'rgba(255,255,255,0.18)'
-  const validHashes = signal.tx_hashes.filter(h => h && h !== 'null')
-
-  return (
-    <div className="border-b border-white/[0.04] last:border-0">
-      <button
-        onClick={() => setExpanded(v => !v)}
-        className="w-full flex items-center gap-3 px-5 py-4 hover:bg-white/[0.02] transition-colors text-left"
-      >
-        <span
-          className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px]"
-          style={{ background: `${color}18`, color, fontFamily: 'var(--poly-font-mono)' }}
-        >
-          {meta?.emoji} {meta?.name ?? signal.pattern_id}
-        </span>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-zinc-200 truncate">{signal.entity_name}</p>
-          <p className="text-[11px] text-zinc-600">{relativeTime(signal.observed_at)}</p>
-        </div>
-        <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-500/10 text-green-400 border border-green-500/20">
-          <div className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-          {t('signals.acted')}
-        </span>
-        {expanded
-          ? <ChevronUp className="h-3.5 w-3.5 text-zinc-600 shrink-0" />
-          : <ChevronDown className="h-3.5 w-3.5 text-zinc-600 shrink-0" />}
-      </button>
-
-      {expanded && (
-        <div className="px-5 pb-5 space-y-3">
-          <div className="flex items-center gap-2">
-            <span
-              className="text-[9px] uppercase tracking-wider text-white/40 shrink-0"
-              style={{ fontFamily: 'var(--poly-font-mono)' }}
-            >
-              {t('signals.confidence')}
-            </span>
-            <div className="flex-1 h-[3px] bg-white/[0.06] rounded-full overflow-hidden">
-              <div className="h-full rounded-full" style={{ width: `${signal.confidence}%`, background: color }} />
-            </div>
-            <span className="text-[11px] text-white/60 tabular-nums" style={{ fontFamily: 'var(--poly-font-mono)' }}>
-              {signal.confidence} / 100
-            </span>
-          </div>
-
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { label: t('signals.entity'), value: signal.entity_name,         sub: signal.entity_id ? `@${signal.entity_id}` : '' },
-              { label: t('signals.token'),  value: signal.token_symbol ?? '—', sub: signal.chain ?? '' },
-              { label: t('signals.chain'),  value: signal.chain ?? '—',        sub: '' },
-            ].map(({ label, value, sub }) => (
-              <div
-                key={label}
-                className="rounded-lg p-2.5"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
-              >
-                <p
-                  className="text-[9px] uppercase tracking-[0.12em] text-white/40 mb-1 truncate"
-                  style={{ fontFamily: 'var(--poly-font-mono)' }}
-                >
-                  {label}
-                </p>
-                <p className="text-[13px] font-semibold text-white/90 truncate" style={{ fontFamily: 'var(--poly-font-mono)' }}>
-                  {value}
-                </p>
-                {sub && <p className="text-[10px] text-white/35 truncate mt-0.5">{sub}</p>}
-              </div>
-            ))}
-          </div>
-
-          <div className="rounded-lg p-3 bg-white/[0.02] border border-white/[0.04]">
-            <p className="text-[9px] uppercase tracking-wider text-white/40 mb-1.5" style={{ fontFamily: 'var(--poly-font-mono)' }}>
-              {t('signals.signalReading')}
-            </p>
-            <p className="text-[12px] text-white/65 leading-relaxed">{signal.meaning_text}</p>
-          </div>
-
-          <div className="rounded-lg p-3" style={{ background: `${color}08`, border: `1px solid ${color}25` }}>
-            <p className="text-[9px] uppercase tracking-wider mb-1.5" style={{ color, fontFamily: 'var(--poly-font-mono)' }}>
-              {t('signals.whatHappened')}
-            </p>
-            <p className="text-[12px] text-white/60 leading-relaxed">{signal.what_text}</p>
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap pt-1">
-            {signal.token_symbol && (
-              <button
-                type="button"
-                onClick={() => setShowCopyTrade(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-colors hover:brightness-110"
-                style={{ background: `${color}1a`, border: `1px solid ${color}40`, color }}
-              >
-                <TrendingUp className="w-3.5 h-3.5" />
-                {t('copyTrade.viewResult')}
-              </button>
-            )}
-            <a
-              href={arkhamEntityUrl(signal.entity_id)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[11px] text-[var(--poly-purple)] hover:text-purple-300 transition-colors"
-              style={{ fontFamily: 'var(--poly-font-mono)' }}
-            >
-              {signal.entity_name} {t('signals.viewOnArkham')} <ExternalLink className="w-3 h-3" />
-            </a>
-            {validHashes.length > 0 && (
-              <a
-                href={arkhamTxUrl(validHashes[0], signal.chain)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[11px] text-white/35 hover:text-white/60 transition-colors"
-                style={{ fontFamily: 'var(--poly-font-mono)' }}
-              >
-                {validHashes.length === 1 ? t('signals.viewTx') : `${validHashes.length} ${t('signals.txs')}`} <ExternalLink className="w-3 h-3" />
-              </a>
-            )}
-          </div>
-        </div>
-      )}
-
-      <CopyTradeResultModal
-        signal={signal}
-        accentColor={color}
-        open={showCopyTrade}
-        onClose={() => setShowCopyTrade(false)}
-      />
     </div>
   )
 }
