@@ -1521,7 +1521,9 @@
       "notional": "Size",
       "verify": "Verify on Hyperliquid",
       "positionOngoing": "Position open",
-      "statusLoss": "Closed · loss"
+      "statusLoss": "Closed · loss",
+      "verifyOpen": "Open tx",
+      "verifyClose": "Close tx"
     }
   },
   "verifyGate": {

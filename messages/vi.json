@@ -1514,7 +1514,9 @@
       "notional": "Khối lượng",
       "verify": "Xác minh trên Hyperliquid",
       "positionOngoing": "Vị thế đang mở",
-      "statusLoss": "Đã chốt · lỗ"
+      "statusLoss": "Đã chốt · lỗ",
+      "verifyOpen": "Tx mở lệnh",
+      "verifyClose": "Tx đóng lệnh"
     }
   },
   "verifyGate": {

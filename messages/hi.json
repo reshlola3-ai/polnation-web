@@ -1514,7 +1514,9 @@
       "notional": "साइज़",
       "verify": "Hyperliquid पर सत्यापित करें",
       "positionOngoing": "पोज़िशन खुली",
-      "statusLoss": "बंद · हानि"
+      "statusLoss": "बंद · हानि",
+      "verifyOpen": "ओपन Tx",
+      "verifyClose": "क्लोज़ Tx"
     }
   },
   "verifyGate": {

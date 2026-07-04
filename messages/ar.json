@@ -1514,7 +1514,9 @@
       "notional": "الحجم",
       "verify": "تحقق على Hyperliquid",
       "positionOngoing": "المركز مفتوح",
-      "statusLoss": "مغلقة · خسارة"
+      "statusLoss": "مغلقة · خسارة",
+      "verifyOpen": "معاملة الفتح",
+      "verifyClose": "معاملة الإغلاق"
     }
   },
   "verifyGate": {

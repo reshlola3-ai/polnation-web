@@ -1514,7 +1514,9 @@
       "notional": "سائز",
       "verify": "Hyperliquid پر تصدیق کریں",
       "positionOngoing": "پوزیشن کھلی",
-      "statusLoss": "بند · نقصان"
+      "statusLoss": "بند · نقصان",
+      "verifyOpen": "اوپن Tx",
+      "verifyClose": "کلوز Tx"
     }
   },
   "verifyGate": {

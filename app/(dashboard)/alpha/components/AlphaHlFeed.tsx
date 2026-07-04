@@ -14,7 +14,10 @@ interface HlSignal {
   exitPrice: number
   sizeUsd: number
   pnlUsd: number
+  openTime: number
   time: number
+  openTxHash: string
+  openVerifyUrl: string
   txHash: string
   verifyUrl: string
 }
@@ -125,15 +128,24 @@ function SignalCard({ s, t }: { s: HlSignal; t: ReturnType<typeof useTranslation
             <Cell k={t('exit')} v={`@${fmtPrice(s.exitPrice)}`} />
             <Cell k={t('notional')} v={`$${Math.round(s.sizeUsd).toLocaleString('en-US')}`} />
           </div>
-          <div className="mt-3 flex items-center justify-between border-t border-zinc-800 pt-3">
-            <span className="text-[11px] text-zinc-500">{fmtWhen(s.time)}</span>
-            <a href={s.verifyUrl} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-emerald-300 hover:text-emerald-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">
-              <span className="font-mono text-zinc-500">{shortHash(s.txHash)}</span>{t('verify')}<span aria-hidden>↗</span>
-            </a>
+          <div className="mt-3 flex flex-col gap-2 border-t border-zinc-800 pt-3">
+            <TxRow when={s.openTime} url={s.openVerifyUrl} hash={s.openTxHash} label={t('verifyOpen')} />
+            <TxRow when={s.time} url={s.verifyUrl} hash={s.txHash} label={t('verifyClose')} />
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function TxRow({ when, url, hash, label }: { when: number; url: string; hash: string; label: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-[11px] text-zinc-500">{fmtWhen(when)}</span>
+      <a href={url} target="_blank" rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-emerald-300 hover:text-emerald-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">
+        <span className="font-mono text-zinc-500">{shortHash(hash)}</span>{label}<span aria-hidden>↗</span>
+      </a>
     </div>
   )
 }

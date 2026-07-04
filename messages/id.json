@@ -1515,7 +1515,9 @@
       "notional": "Ukuran",
       "verify": "Verifikasi di Hyperliquid",
       "positionOngoing": "Posisi terbuka",
-      "statusLoss": "Ditutup · rugi"
+      "statusLoss": "Ditutup · rugi",
+      "verifyOpen": "Tx buka",
+      "verifyClose": "Tx tutup"
     }
   },
   "verifyGate": {

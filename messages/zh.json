@@ -1522,7 +1522,9 @@
       "notional": "名义",
       "verify": "在 Hyperliquid 验证",
       "positionOngoing": "持仓进行中",
-      "statusLoss": "已平仓·亏"
+      "statusLoss": "已平仓·亏",
+      "verifyOpen": "开仓 tx",
+      "verifyClose": "平仓 tx"
     }
   },
   "verifyGate": {
