@@ -10,6 +10,9 @@ const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string
 const USDC_ABI = parseAbi(['function balanceOf(address account) view returns (uint256)'])
 const RPC_URL = process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com'
 
+// 排名奖已暂停发放（业务决定）。恢复时把此常量改为 true 即可，发奖逻辑保持原样。
+const LEADERBOARD_PAYOUTS_ENABLED = false
+
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -48,6 +51,10 @@ export async function GET(req: NextRequest) {
   const auth = req.headers.get('authorization')
   if (auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  if (!LEADERBOARD_PAYOUTS_ENABLED) {
+    return NextResponse.json({ ok: true, paused: true, paid: [] })
   }
 
   const admin = getSupabaseAdmin()
