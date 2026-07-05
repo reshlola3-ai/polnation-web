@@ -36,9 +36,9 @@ export interface HlSignal {
   openTime: number // ms epoch,开仓时间
   time: number // ms epoch,平仓时间
   openTxHash: string // 真实开仓成交 hash
-  openVerifyUrl: string // HL 官方浏览器,指向开仓 tx
+  openVerifyUrl: string // Hypurrscan 浏览器,指向开仓 tx
   txHash: string // 真实平仓成交 hash
-  verifyUrl: string // HL 官方浏览器,指向平仓 tx
+  verifyUrl: string // Hypurrscan 浏览器,指向平仓 tx
 }
 
 interface HlFill {
@@ -52,7 +52,8 @@ interface HlFill {
 }
 
 const isStd = (c: string): boolean => !!c && !c.includes(':') && !c.startsWith('@') && !c.includes('/')
-const verifyUrl = (hash: string) => `https://app.hyperliquid.xyz/explorer/tx/${hash}`
+// 用 Hypurrscan(第三方 Hyperliquid 浏览器)查这笔成交，避免把用户直接带进 Hyperliquid 交易所。
+const verifyUrl = (hash: string) => `https://hypurrscan.io/tx/${hash}`
 
 async function hlPost<T>(body: Record<string, unknown>): Promise<T | null> {
   try {
