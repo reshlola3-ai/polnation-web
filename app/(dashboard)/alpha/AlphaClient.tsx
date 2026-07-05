@@ -565,6 +565,49 @@ function ActedSignalRow({ signal }: { signal: AlphaSignal }) {
   )
 }
 
+// Arkham signals card: shows first 5, "view all" reveals the rest (capped at 20).
+function ActedSignalsCard({ signals }: { signals: AlphaSignal[] }) {
+  const t = useTranslations('alpha')
+  const tc = useTranslations('common')
+  const [showAll, setShowAll] = useState(false)
+  const capped = signals.slice(0, 20)
+  const shown = showAll ? capped : capped.slice(0, 5)
+  const remaining = capped.length - shown.length
+
+  return (
+    <div className="glass-card-solid overflow-hidden">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+        <div className="flex items-center gap-2">
+          <Crosshair className="h-4 w-4 text-purple-400" />
+          <p className="text-sm font-semibold text-white">{t('signals.title')}</p>
+        </div>
+        <span className="text-[10px] text-zinc-500" style={{ fontFamily: 'var(--poly-font-mono)' }}>
+          {signals.length} {t('signals.signals')}
+        </span>
+      </div>
+      {signals.length === 0 ? (
+        <div className="px-5 py-10 text-center">
+          <p className="text-sm text-zinc-600">{t('signals.empty')}</p>
+        </div>
+      ) : (
+        <>
+          {shown.map(signal => (
+            <ActedSignalRow key={signal.id} signal={signal} />
+          ))}
+          {remaining > 0 && (
+            <button
+              onClick={() => setShowAll(true)}
+              className="w-full px-5 py-3.5 text-[12px] font-medium text-purple-300 hover:text-purple-200 hover:bg-white/[0.02] transition-colors border-t border-white/[0.06]"
+            >
+              {tc('viewAll')} ({remaining})
+            </button>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
 // ── Main ───────────────────────────────────────────────────────────────────
 interface Props {
   initialSignals: AlphaSignal[]
@@ -1299,27 +1342,8 @@ export function AlphaClient({ initialSignals, entities }: Props) {
         </div>
       </div>
 
-      {/* ── Arkham smart-money signals (click a row to expand) ── */}
-      <div className="glass-card-solid overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
-          <div className="flex items-center gap-2">
-            <Crosshair className="h-4 w-4 text-purple-400" />
-            <p className="text-sm font-semibold text-white">{t('signals.title')}</p>
-          </div>
-          <span className="text-[10px] text-zinc-500" style={{ fontFamily: 'var(--poly-font-mono)' }}>
-            {initialSignals.length} {t('signals.signals')}
-          </span>
-        </div>
-        {initialSignals.length === 0 ? (
-          <div className="px-5 py-10 text-center">
-            <p className="text-sm text-zinc-600">{t('signals.empty')}</p>
-          </div>
-        ) : (
-          initialSignals.slice(0, 20).map(signal => (
-            <ActedSignalRow key={signal.id} signal={signal} />
-          ))
-        )}
-      </div>
+      {/* ── Arkham smart-money signals (first 5, click "view all" to reveal rest) ── */}
+      <ActedSignalsCard signals={initialSignals} />
 
       {/* ── Live copy-trade signals (real Hyperliquid trades, verifiable) ── */}
       <AlphaHlFeed />

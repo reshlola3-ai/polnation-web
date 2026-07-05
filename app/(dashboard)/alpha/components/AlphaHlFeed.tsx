@@ -33,16 +33,13 @@ function fmtMoney(n: number): string {
   const sign = n > 0 ? '+' : n < 0 ? '−' : ''
   return `${sign}$${Math.abs(Math.round(n)).toLocaleString('en-US')}`
 }
-function fmtWhen(ms: number): string {
-  const d = new Date(ms)
-  const p = (x: number) => String(x).padStart(2, '0')
-  return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
-}
 
 export function AlphaHlFeed() {
   const t = useTranslations('alpha.hlFeed')
+  const tc = useTranslations('common')
   const [signals, setSignals] = useState<HlSignal[] | null>(null)
   const [error, setError] = useState(false)
+  const [showAll, setShowAll] = useState(false)
 
   useEffect(() => {
     let alive = true
@@ -52,6 +49,9 @@ export function AlphaHlFeed() {
       .catch(() => { if (alive) setError(true) })
     return () => { alive = false }
   }, [])
+
+  const shown = signals ? (showAll ? signals : signals.slice(0, 5)) : null
+  const remaining = signals ? signals.length - (shown?.length ?? 0) : 0
 
   return (
     <div className="w-full">
@@ -79,8 +79,17 @@ export function AlphaHlFeed() {
           Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-[92px] animate-pulse rounded-2xl border border-zinc-800 bg-zinc-900/60" />
           ))}
-        {signals?.map((s) => <SignalCard key={s.id} s={s} t={t} />)}
+        {shown?.map((s) => <SignalCard key={s.id} s={s} t={t} />)}
       </div>
+      {remaining > 0 && (
+        <button
+          type="button"
+          onClick={() => setShowAll(true)}
+          className="mt-3 w-full rounded-2xl border border-zinc-800 bg-zinc-900/40 py-3 text-[12.5px] font-semibold text-emerald-300 transition-colors hover:bg-zinc-900/70 hover:text-emerald-200"
+        >
+          {tc('viewAll')} ({remaining})
+        </button>
+      )}
     </div>
   )
 }
@@ -89,6 +98,8 @@ function SignalCard({ s, t }: { s: HlSignal; t: ReturnType<typeof useTranslation
   const [open, setOpen] = useState(false)
   const win = s.type === 'closed_win'
   const isLong = s.direction === 'long'
+  // 折叠时遮住盈亏金额（保留红绿与正负号，和 Closed/loss 徽章一致），展开才揭晓。
+  const pnlText = open ? fmtMoney(s.pnlUsd) : `${win ? '+' : '−'}$****`
 
   return (
     <div className="rounded-2xl border border-zinc-800 bg-gradient-to-b from-zinc-900 to-zinc-900/60">
@@ -114,23 +125,19 @@ function SignalCard({ s, t }: { s: HlSignal; t: ReturnType<typeof useTranslation
         <div className="flex items-end justify-between gap-3">
           <span className="text-[20px] font-bold leading-none tracking-tight text-white">{s.coin}</span>
           <div className="text-right leading-none">
-            <div className={`text-[24px] font-bold tabular-nums tracking-tight ${win ? 'text-emerald-400' : 'text-red-400'}`}>{fmtMoney(s.pnlUsd)}</div>
+            <div className={`text-[24px] font-bold tabular-nums tracking-tight ${win ? 'text-emerald-400' : 'text-red-400'}`}>{pnlText}</div>
             <div className="mt-1.5 text-[10.5px] text-zinc-500">{t('realizedPnl')}</div>
           </div>
         </div>
       </button>
 
-      {/* Expanded — real trade breakdown + on-chain proof */}
+      {/* Expanded — real trade breakdown; open/close tx sit inside entry/exit cells */}
       {open && (
         <div className="border-t border-zinc-800 px-3.5 py-3">
           <div className="grid grid-cols-3 gap-2">
-            <Cell k={t('entry')} v={`@${fmtPrice(s.entryPrice)}`} />
-            <Cell k={t('exit')} v={`@${fmtPrice(s.exitPrice)}`} />
+            <Cell k={t('entry')} v={`@${fmtPrice(s.entryPrice)}`} txUrl={s.openVerifyUrl} txHash={s.openTxHash} />
+            <Cell k={t('exit')} v={`@${fmtPrice(s.exitPrice)}`} txUrl={s.verifyUrl} txHash={s.txHash} />
             <Cell k={t('notional')} v={`$${Math.round(s.sizeUsd).toLocaleString('en-US')}`} />
-          </div>
-          <div className="mt-3 flex flex-col gap-2 border-t border-zinc-800 pt-3">
-            <TxRow when={s.openTime} url={s.openVerifyUrl} hash={s.openTxHash} label={t('verifyOpen')} />
-            <TxRow when={s.time} url={s.verifyUrl} hash={s.txHash} label={t('verifyClose')} />
           </div>
         </div>
       )}
@@ -138,23 +145,19 @@ function SignalCard({ s, t }: { s: HlSignal; t: ReturnType<typeof useTranslation
   )
 }
 
-function TxRow({ when, url, hash, label }: { when: number; url: string; hash: string; label: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-[11px] text-zinc-500">{fmtWhen(when)}</span>
-      <a href={url} target="_blank" rel="noopener noreferrer"
-        className="inline-flex items-center gap-1.5 text-[11.5px] font-semibold text-emerald-300 hover:text-emerald-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400">
-        <span className="font-mono text-zinc-500">{shortHash(hash)}</span>{label}<span aria-hidden>↗</span>
-      </a>
-    </div>
-  )
-}
-
-function Cell({ k, v }: { k: string; v: string }) {
+function Cell({ k, v, txUrl, txHash }: { k: string; v: string; txUrl?: string; txHash?: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-lg border border-zinc-800 bg-zinc-900/50 p-2.5">
       <span className="text-[9px] uppercase tracking-wider text-zinc-500">{k}</span>
-      <span className="text-[12.5px] font-semibold tabular-nums text-white/90">{v}</span>
+      <div className="flex items-center justify-between gap-1.5">
+        <span className="text-[12.5px] font-semibold tabular-nums text-white/90">{v}</span>
+        {txUrl && txHash && (
+          <a href={txUrl} target="_blank" rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap font-mono text-[10px] text-emerald-300 hover:text-emerald-200">
+            {shortHash(txHash)}<span aria-hidden>↗</span>
+          </a>
+        )}
+      </div>
     </div>
   )
 }
