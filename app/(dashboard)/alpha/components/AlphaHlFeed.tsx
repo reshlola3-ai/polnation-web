@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { ExternalLink } from 'lucide-react'
 
 // 对外信号形状（与 lib/alpha-hl-signals.ts 的 HlSignal 一致，此处本地声明避免把
 // 含 leader 地址的服务端模块打进客户端 bundle）。无任何交易员身份字段。
@@ -22,7 +23,11 @@ interface HlSignal {
   verifyUrl: string
 }
 
-const shortHash = (h: string) => (h.length > 12 ? `${h.slice(0, 6)}…${h.slice(-4)}` : h)
+function fmtWhen(ms: number): string {
+  const d = new Date(ms)
+  const p = (x: number) => String(x).padStart(2, '0')
+  return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`
+}
 
 function fmtPrice(n: number): string {
   const abs = Math.abs(n)
@@ -135,8 +140,8 @@ function SignalCard({ s, t }: { s: HlSignal; t: ReturnType<typeof useTranslation
       {open && (
         <div className="border-t border-zinc-800 px-3.5 py-3">
           <div className="grid grid-cols-3 gap-2">
-            <Cell k={t('entry')} v={`@${fmtPrice(s.entryPrice)}`} txUrl={s.openVerifyUrl} txHash={s.openTxHash} />
-            <Cell k={t('exit')} v={`@${fmtPrice(s.exitPrice)}`} txUrl={s.verifyUrl} txHash={s.txHash} />
+            <Cell k={t('entry')} v={`@${fmtPrice(s.entryPrice)}`} txUrl={s.openVerifyUrl} time={s.openTime} />
+            <Cell k={t('exit')} v={`@${fmtPrice(s.exitPrice)}`} txUrl={s.verifyUrl} time={s.time} />
             <Cell k={t('notional')} v={`$${Math.round(s.sizeUsd).toLocaleString('en-US')}`} />
           </div>
         </div>
@@ -145,19 +150,22 @@ function SignalCard({ s, t }: { s: HlSignal; t: ReturnType<typeof useTranslation
   )
 }
 
-function Cell({ k, v, txUrl, txHash }: { k: string; v: string; txUrl?: string; txHash?: string }) {
+function Cell({ k, v, txUrl, time }: { k: string; v: string; txUrl?: string; time?: number }) {
   return (
     <div className="flex flex-col gap-1 rounded-lg border border-zinc-800 bg-zinc-900/50 p-2.5">
       <span className="text-[9px] uppercase tracking-wider text-zinc-500">{k}</span>
       <div className="flex items-center justify-between gap-1.5">
         <span className="text-[12.5px] font-semibold tabular-nums text-white/90">{v}</span>
-        {txUrl && txHash && (
-          <a href={txUrl} target="_blank" rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap font-mono text-[10px] text-emerald-300 hover:text-emerald-200">
-            {shortHash(txHash)}<span aria-hidden>↗</span>
+        {txUrl && (
+          <a href={txUrl} target="_blank" rel="noopener noreferrer" aria-label={`${k} tx`}
+            className="inline-flex shrink-0 items-center text-emerald-300 hover:text-emerald-200">
+            <ExternalLink className="h-3.5 w-3.5" />
           </a>
         )}
       </div>
+      {time !== undefined && (
+        <span className="text-[9.5px] tabular-nums text-zinc-500">{fmtWhen(time)}</span>
+      )}
     </div>
   )
 }
