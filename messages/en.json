@@ -572,6 +572,11 @@
   "team": {
     "title": "Team",
     "subtitle": "Build your team and earn rewards",
+    "maintenanceTitle": "Congrats on reaching {level}!",
+    "maintenanceExplain": "Your team sales are {stakingPct}% staking / {nonStakingPct}% non-staking. Because staking is below 50%, to prevent reward farming you must maintain this level for {days} days (non-consecutive) to receive this ${amount} reward.",
+    "maintenanceProgress": "Maintained {done} / {required} days",
+    "maintenanceRemaining": "{remaining} days to go",
+    "maintenanceEarlyRelease": "Tip: once your team reaches 50% staking, the reward is released instantly.",
     "currentLevel": "Current Level",
     "rewardPool": "Prize Pool",
     "dailyRate": "Daily Rate",

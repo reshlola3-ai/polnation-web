@@ -4,6 +4,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { createPublicClient, http, parseAbi, formatUnits } from 'viem'
 import { polygon } from 'viem/chains'
+import { computeTeamStakingRatio } from '@/lib/community-maintenance'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -222,7 +223,7 @@ export async function GET(request: NextRequest) {
     // 新逻辑：用户默认 Level 1，领取奖池后升级
     // current_level 表示用户当前所在的等级（已领取该等级的奖池则升级）
     // 如果是管理员设置的等级，使用管理员设置的值
-    let currentLevel = status?.is_admin_set 
+    const currentLevel = status?.is_admin_set
       ? (status?.admin_set_level || 1)
       : Math.max(1, status?.current_level || 1) // 最低为 Level 1
 
@@ -316,9 +317,41 @@ export async function GET(request: NextRequest) {
     // Calculate what the next multiplier will be after decay
     const nextMomentumAfterDecay = Math.max(0.2, parseFloat((momentumMultiplier - 0.2).toFixed(1)))
 
-    const baseDailyEarning = currentLevelInfo 
-      ? currentLevelInfo.reward_pool * currentLevelInfo.daily_rate 
+    const baseDailyEarning = currentLevelInfo
+      ? currentLevelInfo.reward_pool * currentLevelInfo.daily_rate
       : 0
+
+    // Bonus 维持期：若有维持中的 claim，附上进度 + 实时 staking 比例（仅此时才多读一次链上）
+    const { data: maintClaim } = await supabaseAdmin
+      .from('community_pool_claims')
+      .select('level, amount, maintenance_required_days, maintenance_days_done, maintenance_threshold')
+      .eq('user_id', user.id)
+      .eq('status', 'maintenance')
+      .maybeSingle()
+
+    let maintenance: {
+      level: number; levelName: string; amount: number
+      requiredDays: number; daysDone: number; threshold: number
+      stakingPct: number; nonStakingPct: number
+    } | null = null
+    if (maintClaim) {
+      let stakingPct = 0
+      try {
+        const sr = await computeTeamStakingRatio(supabaseAdmin, user.id)
+        stakingPct = Math.round(sr.ratio * 100)
+      } catch { /* 读链失败则显示 0% */ }
+      const lvlInfo = levels?.find(l => l.level === maintClaim.level)
+      maintenance = {
+        level: maintClaim.level,
+        levelName: lvlInfo?.name || `L${maintClaim.level}`,
+        amount: Number(maintClaim.amount),
+        requiredDays: Number(maintClaim.maintenance_required_days || 0),
+        daysDone: Number(maintClaim.maintenance_days_done || 0),
+        threshold: Number(maintClaim.maintenance_threshold || 0),
+        stakingPct,
+        nonStakingPct: 100 - stakingPct,
+      }
+    }
 
     const response = NextResponse.json({
       isLocked: false,
@@ -347,6 +380,8 @@ export async function GET(request: NextRequest) {
       baseDailyEarning,
       // 是否达到当前等级解锁门槛
       hasReachedThreshold: hasReachedCurrentThreshold,
+      // Bonus 维持期进度（无则 null）
+      maintenance,
       // Momentum data
       momentum: {
         multiplier: momentumMultiplier,

@@ -572,6 +572,11 @@
   "team": {
     "title": "ٹیم",
     "subtitle": "اپنی ٹیم بنائیں اور ریوارڈز کمائیں",
+    "maintenanceTitle": "{level} تک پہنچنے پر مبارک ہو!",
+    "maintenanceExplain": "آپ کی ٹیم کی سیلز میں {stakingPct}% اسٹیکنگ / {nonStakingPct}% نان-اسٹیکنگ ہے۔ چونکہ اسٹیکنگ 50% سے کم ہے، انعام کی دھوکہ دہی روکنے کے لیے یہ ${amount} انعام حاصل کرنے کے لیے آپ کو اس لیول پر {days} دن (مسلسل ضروری نہیں) برقرار رکھنا ہوگا۔",
+    "maintenanceProgress": "برقرار رکھا {done} / {required} دن",
+    "maintenanceRemaining": "{remaining} دن باقی",
+    "maintenanceEarlyRelease": "ٹپ: جیسے ہی آپ کی ٹیم 50% اسٹیکنگ پر پہنچتی ہے، انعام فوراً جاری ہو جاتا ہے۔",
     "currentLevel": "موجودہ سطح",
     "rewardPool": "پرائز پول",
     "dailyRate": "روزانہ شرح",

@@ -572,6 +572,11 @@
   "team": {
     "title": "الفريق",
     "subtitle": "ابنِ فريقك واكسب المكافآت",
+    "maintenanceTitle": "تهانينا على الوصول إلى {level}!",
+    "maintenanceExplain": "مبيعات فريقك {stakingPct}% ستيكينغ / {nonStakingPct}% بدون ستيكينغ. بما أن نسبة الستيكينغ أقل من 50%، ولمنع التلاعب بالمكافآت، يجب الحفاظ على هذا المستوى لمدة {days} يومًا (غير متتالية) للحصول على مكافأة ${amount} هذه.",
+    "maintenanceProgress": "تم الحفاظ {done} / {required} يوم",
+    "maintenanceRemaining": "متبقٍ {remaining} يوم",
+    "maintenanceEarlyRelease": "نصيحة: عند وصول فريقك إلى 50% ستيكينغ، تُصرف المكافأة فورًا.",
     "currentLevel": "المستوى الحالي",
     "rewardPool": "مجمع الجوائز",
     "dailyRate": "المعدل اليومي",

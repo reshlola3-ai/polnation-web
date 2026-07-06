@@ -573,6 +573,11 @@
   "team": {
     "title": "Tim",
     "subtitle": "Bangun tim dan dapatkan hadiah",
+    "maintenanceTitle": "Selamat mencapai {level}!",
+    "maintenanceExplain": "Penjualan tim Anda {stakingPct}% staking / {nonStakingPct}% non-staking. Karena staking di bawah 50%, untuk mencegah kecurangan reward, Anda harus mempertahankan level ini selama {days} hari (tidak berturut-turut) untuk menerima reward ${amount} ini.",
+    "maintenanceProgress": "Dipertahankan {done} / {required} hari",
+    "maintenanceRemaining": "Kurang {remaining} hari lagi",
+    "maintenanceEarlyRelease": "Tips: begitu tim Anda mencapai 50% staking, reward langsung dicairkan.",
     "currentLevel": "Level Saat Ini",
     "rewardPool": "Pool Hadiah",
     "dailyRate": "Rate Harian",

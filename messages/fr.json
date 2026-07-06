@@ -572,6 +572,11 @@
   "team": {
     "title": "Équipe",
     "subtitle": "Construisez votre équipe et gagnez des récompenses",
+    "maintenanceTitle": "Félicitations pour avoir atteint {level} !",
+    "maintenanceExplain": "Les ventes de votre équipe sont à {stakingPct}% en staking / {nonStakingPct}% hors staking. Le staking étant inférieur à 50%, pour éviter la fraude aux récompenses, vous devez maintenir ce niveau pendant {days} jours (non consécutifs) pour recevoir cette récompense de {amount} $.",
+    "maintenanceProgress": "Maintenu {done} / {required} jours",
+    "maintenanceRemaining": "Encore {remaining} jours",
+    "maintenanceEarlyRelease": "Astuce : dès que votre équipe atteint 50% de staking, la récompense est versée immédiatement.",
     "currentLevel": "Niveau actuel",
     "rewardPool": "Pool de récompenses",
     "dailyRate": "Taux quotidien",

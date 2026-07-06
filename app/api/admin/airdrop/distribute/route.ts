@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '@/lib/admin-auth'
 import { refreshAllNaturalLevels } from '@/lib/community-levels-server'
+import { advanceMaintenanceClaims } from '@/lib/community-maintenance'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -411,6 +412,13 @@ export async function POST(request: NextRequest) {
       }
     } catch (communityErr) {
       console.error('Error distributing community earnings:', communityErr)
+    }
+
+    // ========== 推进 Bonus 维持期（与 daily-earnings 共用同一逻辑，靠 last_counted_date 防重）==========
+    try {
+      await advanceMaintenanceClaims(supabase)
+    } catch (maintErr) {
+      console.error('Error advancing maintenance claims:', maintErr)
     }
 
     // ========== 空投发放后，自动检查并发放抽奖次数 ==========

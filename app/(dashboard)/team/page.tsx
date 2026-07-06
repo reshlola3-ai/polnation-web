@@ -53,6 +53,17 @@ interface MomentumData {
   nextMultiplierAfterDecay: number
 }
 
+interface MaintenanceInfo {
+  level: number
+  levelName: string
+  amount: number
+  requiredDays: number
+  daysDone: number
+  threshold: number
+  stakingPct: number
+  nonStakingPct: number
+}
+
 interface ApiResponse {
   isLocked?: boolean
   lockReason?: string
@@ -72,6 +83,7 @@ interface ApiResponse {
   claimsFrozen?: boolean
   hasIdentity?: boolean
   adminLockReason?: { type: 'real_level_too_low' | 'volume_short'; needed: number; nextLevel: number } | null
+  maintenance?: MaintenanceInfo | null
   dailyEarnings: DailyEarning[]
   dailyEarningAmount: number
   lastDailyDistribution?: string
@@ -107,6 +119,7 @@ export default function TeamPage() {
   const [claimedLevels, setClaimedLevels] = useState<number[]>([])
   const [claimableLevels, setClaimableLevels] = useState<number[]>([])
   const [adminLockReason, setAdminLockReason] = useState<ApiResponse['adminLockReason']>(null)
+  const [maintenance, setMaintenance] = useState<MaintenanceInfo | null>(null)
   const [dailyEarningAmount, setDailyEarningAmount] = useState(0)
   const [effectiveVolume, setEffectiveVolume] = useState(0)
   const [taskBonus, setTaskBonus] = useState(0)
@@ -177,6 +190,7 @@ export default function TeamPage() {
         setClaimsFrozen(data.claimsFrozen || false)
         setHasIdentity(data.hasIdentity || false)
         setAdminLockReason(data.adminLockReason ?? null)
+        setMaintenance(data.maintenance ?? null)
         setDailyEarningAmount(data.dailyEarningAmount || 0)
         setEffectiveVolume(data.effectiveVolume || 0)
         setTaskBonus(data.taskBonus || 0)
@@ -546,6 +560,38 @@ export default function TeamPage() {
             {pendingLevels.length > 0 && !claimsFrozen && (
               <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
                 ⏳ Your claim is under review. The reward will be credited once approved.
+              </div>
+            )}
+
+            {/* Bonus 维持期：进度 + staking 占比说明 */}
+            {maintenance && (
+              <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-3 text-xs text-amber-100" onClick={(e) => e.stopPropagation()}>
+                <p className="font-semibold text-amber-200 mb-1">
+                  🎉 {t('maintenanceTitle', { level: maintenance.levelName })}
+                </p>
+                <p className="text-amber-100/90 leading-relaxed mb-2.5">
+                  {t('maintenanceExplain', {
+                    stakingPct: maintenance.stakingPct,
+                    nonStakingPct: maintenance.nonStakingPct,
+                    days: maintenance.requiredDays,
+                    amount: maintenance.amount,
+                  })}
+                </p>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-amber-200 font-medium">
+                    {t('maintenanceProgress', { done: maintenance.daysDone, required: maintenance.requiredDays })}
+                  </span>
+                  <span className="text-amber-100/70">
+                    {t('maintenanceRemaining', { remaining: Math.max(0, maintenance.requiredDays - maintenance.daysDone) })}
+                  </span>
+                </div>
+                <div className="h-2 bg-amber-900/40 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-amber-400 rounded-full transition-all"
+                    style={{ width: `${maintenance.requiredDays > 0 ? Math.min(100, (maintenance.daysDone / maintenance.requiredDays) * 100) : 0}%` }}
+                  />
+                </div>
+                <p className="text-amber-100/60 mt-1.5">{t('maintenanceEarlyRelease')}</p>
               </div>
             )}
 

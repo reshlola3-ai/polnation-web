@@ -573,6 +573,11 @@
   "team": {
     "title": "Team",
     "subtitle": "Build your team and earn rewards",
+    "maintenanceTitle": "恭喜达到 {level}！",
+    "maintenanceExplain": "你的团队销售中 {stakingPct}% 为质押、{nonStakingPct}% 为非质押。由于质押比例未超过 50%，为防止刷奖励作弊，需在此等级累计维持 {days} 天（无需连续）方可领取此 ${amount} 奖励。",
+    "maintenanceProgress": "已维持 {done} / {required} 天",
+    "maintenanceRemaining": "还差 {remaining} 天",
+    "maintenanceEarlyRelease": "提示：团队质押比例达到 50% 即可立即发放。",
     "currentLevel": "Current Level",
     "rewardPool": "Prize Pool",
     "dailyRate": "Daily Rate",

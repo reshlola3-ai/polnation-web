@@ -572,6 +572,11 @@
   "team": {
     "title": "Đội",
     "subtitle": "Xây dựng đội và kiếm thưởng",
+    "maintenanceTitle": "Chúc mừng bạn đã đạt {level}!",
+    "maintenanceExplain": "Doanh số đội của bạn là {stakingPct}% staking / {nonStakingPct}% không staking. Vì staking dưới 50%, để ngăn gian lận phần thưởng, bạn phải duy trì cấp này trong {days} ngày (không cần liên tục) để nhận phần thưởng ${amount} này.",
+    "maintenanceProgress": "Đã duy trì {done} / {required} ngày",
+    "maintenanceRemaining": "Còn {remaining} ngày",
+    "maintenanceEarlyRelease": "Mẹo: khi đội của bạn đạt 50% staking, phần thưởng sẽ được trả ngay.",
     "currentLevel": "Cấp Hiện tại",
     "rewardPool": "Pool Thưởng",
     "dailyRate": "Tỷ lệ Ngày",

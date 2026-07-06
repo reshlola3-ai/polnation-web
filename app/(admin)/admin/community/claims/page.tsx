@@ -27,6 +27,24 @@ interface ClaimItem {
   photo_url: string | null
   same_name_count: number
   claims_frozen: boolean
+  staking_ratio?: number | null
+  team_volume_live?: number | null
+  staked_volume?: number | null
+}
+
+interface MaintenanceItem {
+  id: string
+  user_id: string
+  username: string | null
+  email: string | null
+  level: number
+  level_name: string
+  amount: number
+  required_days: number
+  days_done: number
+  threshold: number
+  started_at: string | null
+  staking_ratio: number | null
 }
 
 interface UnlockItem {
@@ -48,6 +66,8 @@ export default function AdminClaimsPage() {
   const router = useRouter()
   const [pending, setPending] = useState<ClaimItem[]>([])
   const [recent, setRecent] = useState<ClaimItem[]>([])
+  const [maintenance, setMaintenance] = useState<MaintenanceItem[]>([])
+  const [maintDays, setMaintDays] = useState<Record<string, string>>({})
   const [unlockPending, setUnlockPending] = useState<UnlockItem[]>([])
   const [unlockRecent, setUnlockRecent] = useState<UnlockItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -64,6 +84,7 @@ export default function AdminClaimsPage() {
       const data = await res.json()
       setPending(data.pending || [])
       setRecent(data.recent || [])
+      setMaintenance(data.maintenance || [])
       setUnlockPending(data.unlockPending || [])
       setUnlockRecent(data.unlockRecent || [])
     } catch {
@@ -100,6 +121,12 @@ export default function AdminClaimsPage() {
     const reason = prompt('驳回理由（可选，会冻结该账号所有 claim）：') ?? ''
     act({ action: 'reject', claim_id: c.id, reason }, c.id)
   }
+  const approveMaintenance = (c: ClaimItem) => {
+    const d = Math.max(1, Math.round(Number(maintDays[c.id] || 15)))
+    act({ action: 'approve_maintenance', claim_id: c.id, days: d }, c.id)
+  }
+  const releaseMaintenance = (m: MaintenanceItem) =>
+    act({ action: 'release_maintenance', claim_id: m.id }, 'release-' + m.id)
   const unfreeze = (c: ClaimItem) => act({ action: 'unfreeze', user_id: c.user_id }, 'unfreeze-' + c.user_id)
 
   const unlockApprove = (u: UnlockItem) => act({ action: 'unlock_approve', request_id: u.id }, 'unlock-' + u.id)
@@ -186,6 +213,12 @@ export default function AdminClaimsPage() {
                     <span className="text-[11px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">
                       L{c.level} {c.level_name} · ${c.amount}
                     </span>
+                    {typeof c.staking_ratio === 'number' && (
+                      <span className={`text-[11px] px-2 py-0.5 rounded ${c.staking_ratio >= 0.5 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
+                        质押 {(c.staking_ratio * 100).toFixed(0)}% / 非质押 {(100 - c.staking_ratio * 100).toFixed(0)}%
+                        {c.staking_ratio < 0.5 && ' · 建议维持'}
+                      </span>
+                    )}
                   </div>
                   <p className="text-zinc-400 text-sm mt-0.5">{c.username || '—'} · {c.email || '—'}</p>
                   {c.phone && (
@@ -206,8 +239,21 @@ export default function AdminClaimsPage() {
                 <div className="flex flex-col gap-2 justify-center flex-shrink-0">
                   <Button size="sm" onClick={() => approve(c)} disabled={processing === c.id}
                     className="bg-green-500 hover:bg-green-600">
-                    {processing === c.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><CheckCircle className="w-4 h-4 mr-1" /> 批准</>}
+                    {processing === c.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><CheckCircle className="w-4 h-4 mr-1" /> 立即批准</>}
                   </Button>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      min={1}
+                      value={maintDays[c.id] ?? '15'}
+                      onChange={(e) => setMaintDays((s) => ({ ...s, [c.id]: e.target.value }))}
+                      className="w-14 px-2 py-1.5 rounded bg-zinc-900 border border-zinc-600 text-white text-xs text-center"
+                    />
+                    <Button size="sm" variant="outline" onClick={() => approveMaintenance(c)} disabled={processing === c.id}
+                      className="flex-1 border-amber-500 text-amber-300 hover:bg-amber-500/20 whitespace-nowrap">
+                      <Lock className="w-4 h-4 mr-1" /> 批准+维持
+                    </Button>
+                  </div>
                   <Button size="sm" variant="outline" onClick={() => reject(c)} disabled={processing === c.id}
                     className="border-red-500 text-red-400 hover:bg-red-500/20">
                     <XCircle className="w-4 h-4 mr-1" /> 驳回+冻结
@@ -215,6 +261,50 @@ export default function AdminClaimsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Bonus 维持期 */}
+        <h2 className="text-white font-semibold mb-3 flex items-center gap-2">
+          <Lock className="w-4 h-4 text-amber-400" /> 维持中 ({maintenance.length})
+        </h2>
+        {maintenance.length === 0 ? (
+          <p className="text-zinc-500 text-sm mb-8">没有维持中的奖励。</p>
+        ) : (
+          <div className="grid gap-3 mb-8">
+            {maintenance.map((m) => {
+              const pct = m.required_days > 0 ? Math.min(100, (m.days_done / m.required_days) * 100) : 0
+              return (
+                <div key={m.id} className="bg-zinc-800/50 border border-amber-700/40 rounded-xl p-4 flex gap-4 items-center">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-white font-medium">{m.username || m.email || '—'}</span>
+                      <span className="text-[11px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">
+                        L{m.level} {m.level_name} · ${m.amount}
+                      </span>
+                      {typeof m.staking_ratio === 'number' && (
+                        <span className={`text-[11px] px-2 py-0.5 rounded ${m.staking_ratio >= 0.5 ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
+                          质押 {(m.staking_ratio * 100).toFixed(0)}%
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-zinc-400 text-sm mt-1">
+                      已维持 <span className="text-white font-medium">{m.days_done} / {m.required_days}</span> 天 · 门槛 ${m.threshold.toFixed(0)}
+                    </p>
+                    <div className="h-1.5 bg-zinc-700 rounded-full overflow-hidden mt-1.5 max-w-xs">
+                      <div className="h-full bg-amber-400 rounded-full" style={{ width: `${pct}%` }} />
+                    </div>
+                    {m.started_at && (
+                      <p className="text-zinc-600 text-xs mt-1">进入维持 {new Date(m.started_at).toLocaleString()}</p>
+                    )}
+                  </div>
+                  <Button size="sm" onClick={() => releaseMaintenance(m)} disabled={processing === 'release-' + m.id}
+                    className="bg-emerald-500 hover:bg-emerald-600 flex-shrink-0">
+                    {processing === 'release-' + m.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Unlock className="w-4 h-4 mr-1" /> 立即放行</>}
+                  </Button>
+                </div>
+              )
+            })}
           </div>
         )}
 

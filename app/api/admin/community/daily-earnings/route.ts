@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '@/lib/admin-auth'
+import { advanceMaintenanceClaims } from '@/lib/community-maintenance'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -238,12 +239,22 @@ export async function POST(request: NextRequest) {
       distributedAmount += calc.earning_amount
     }
 
+    // 推进 Bonus 维持期（每达标一天 +1；达标天数够 或 staking≥50% → 放行奖金）
+    let maintenanceReleased = 0
+    try {
+      const r = await advanceMaintenanceClaims(supabaseAdmin)
+      maintenanceReleased = r.released
+    } catch (e) {
+      console.error('advanceMaintenanceClaims failed:', e)
+    }
+
     return NextResponse.json({
       success: true,
       date: today,
       processed_count: processedCount,
       distributed_amount: distributedAmount.toFixed(6),
       locked_count: calculations.filter(c => c.locked && !c.already_earned_today).length,
+      maintenance_released: maintenanceReleased,
       users: calculations,
     })
   } catch (error) {

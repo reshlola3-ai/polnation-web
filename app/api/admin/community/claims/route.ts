@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '@/lib/admin-auth'
+import { computeTeamStakingRatio, releaseMaintenanceClaim, DEFAULT_MAINTENANCE_DAYS } from '@/lib/community-maintenance'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -167,9 +168,53 @@ export async function GET() {
       reviewed_at: r.reviewed_at,
     }))
 
+    // 待审 claim 附带团队 staking 比例（合约本金 vs 钱包 USDC），给管理员做参考。
+    const pendingDecorated = await decorate(pendingRows)
+    const pendingRatios = await Promise.all(
+      pendingDecorated.map((p) => computeTeamStakingRatio(supabase!, p.user_id).catch(() => null)),
+    )
+    const pendingWithRatio = pendingDecorated.map((p, i) => ({
+      ...p,
+      staking_ratio: pendingRatios[i]?.ratio ?? null,
+      staked_volume: pendingRatios[i]?.stakedVolume ?? null,
+      team_volume_live: pendingRatios[i]?.totalVolume ?? null,
+    }))
+
+    // 维持中的 claim（已批准、资金冻结、等待达标 / staking≥50%）
+    const { data: maintRaw } = await supabase
+      .from('community_pool_claims')
+      .select('id, user_id, level, amount, maintenance_required_days, maintenance_days_done, maintenance_threshold, maintenance_started_at, staking_ratio_at_approval, profile:user_id(username, email, wallet_address)')
+      .eq('status', 'maintenance')
+      .order('maintenance_started_at', { ascending: true })
+    const maintRows = (maintRaw || []) as unknown as Array<{
+      id: string; user_id: string; level: number; amount: number
+      maintenance_required_days: number | null; maintenance_days_done: number | null
+      maintenance_threshold: number | null; maintenance_started_at: string | null
+      staking_ratio_at_approval: number | null
+      profile: { username: string | null; email: string | null } | null
+    }>
+    const maintRatios = await Promise.all(
+      maintRows.map((m) => computeTeamStakingRatio(supabase!, m.user_id).catch(() => null)),
+    )
+    const maintenance = maintRows.map((m, i) => ({
+      id: m.id,
+      user_id: m.user_id,
+      username: m.profile?.username || null,
+      email: m.profile?.email || null,
+      level: m.level,
+      level_name: levelName.get(m.level) || `L${m.level}`,
+      amount: Number(m.amount),
+      required_days: Number(m.maintenance_required_days || 0),
+      days_done: Number(m.maintenance_days_done || 0),
+      threshold: Number(m.maintenance_threshold || 0),
+      started_at: m.maintenance_started_at,
+      staking_ratio: maintRatios[i]?.ratio ?? null,
+    }))
+
     return NextResponse.json({
-      pending: await decorate(pendingRows),
+      pending: pendingWithRatio,
       recent: await decorate(recentRows),
+      maintenance,
       unlockPending: mapUnlock(unlockPendingRows),
       unlockRecent: mapUnlock(unlockRecentRows),
     })
@@ -190,7 +235,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { action, claim_id, user_id, reason, request_id } = await request.json()
+    const { action, claim_id, user_id, reason, request_id, days } = await request.json()
     const now = new Date().toISOString()
 
     if (action === 'unfreeze') {
@@ -258,6 +303,89 @@ export async function POST(request: NextRequest) {
         .eq('id', request_id)
 
       return NextResponse.json({ success: true, message: `已批准：$${locked.toFixed(2)} 已转入可提现` })
+    }
+
+    // ===== 批准但进入维持期：等级立即升、每日收益照常，奖金冻结待达标 =====
+    if (action === 'approve_maintenance') {
+      if (!claim_id) return NextResponse.json({ error: 'claim_id required' }, { status: 400 })
+      const reqDays = Math.max(1, Math.min(365, Math.round(Number(days) || DEFAULT_MAINTENANCE_DAYS)))
+
+      const { data: claim } = await supabase
+        .from('community_pool_claims')
+        .select('*')
+        .eq('id', claim_id)
+        .single()
+      if (!claim) return NextResponse.json({ error: 'Claim not found' }, { status: 404 })
+      if (claim.status !== 'pending') {
+        return NextResponse.json({ error: 'Claim already reviewed' }, { status: 400 })
+      }
+
+      const { data: status } = await supabase
+        .from('user_community_status')
+        .select('*')
+        .eq('user_id', claim.user_id)
+        .single()
+
+      // 定格标尺：领取时等级的解锁门槛（influencer 用折扣门槛）
+      const { data: levelCfg } = await supabase
+        .from('community_levels')
+        .select('unlock_volume_normal, unlock_volume_influencer')
+        .eq('level', claim.level)
+        .single()
+      const threshold = status?.is_influencer
+        ? Number(levelCfg?.unlock_volume_influencer || 0)
+        : Number(levelCfg?.unlock_volume_normal || 0)
+
+      let stakingRatio = 0
+      try {
+        stakingRatio = (await computeTeamStakingRatio(supabase, claim.user_id)).ratio
+      } catch { /* 存档失败不阻断 */ }
+
+      // 立即升级（自然用户），每日收益随新等级；admin-set 用户等级不动
+      const nextLevel = claim.level + 1
+      const statusUpdate: Record<string, unknown> = { updated_at: now }
+      if (!status?.is_admin_set) {
+        statusUpdate.current_level = nextLevel
+        statusUpdate.real_level = nextLevel
+      }
+      await supabase.from('user_community_status').update(statusUpdate).eq('user_id', claim.user_id)
+
+      // claim 转 maintenance，钱不动
+      await supabase
+        .from('community_pool_claims')
+        .update({
+          status: 'maintenance',
+          maintenance_required_days: reqDays,
+          maintenance_days_done: 0,
+          maintenance_threshold: threshold,
+          maintenance_started_at: now,
+          maintenance_last_counted_date: null,
+          staking_ratio_at_approval: stakingRatio,
+          reviewed_by: 'admin',
+          reviewed_at: now,
+        })
+        .eq('id', claim_id)
+
+      return NextResponse.json({
+        success: true,
+        message: `已进入维持期：需累计维持 ${reqDays} 天（或 staking≥50% 提前放行），$${Number(claim.amount)} 达标后自动发放`,
+      })
+    }
+
+    // ===== 维持中的 claim：管理员手动立即放行 =====
+    if (action === 'release_maintenance') {
+      if (!claim_id) return NextResponse.json({ error: 'claim_id required' }, { status: 400 })
+      const { data: claim } = await supabase
+        .from('community_pool_claims')
+        .select('*')
+        .eq('id', claim_id)
+        .single()
+      if (!claim) return NextResponse.json({ error: 'Claim not found' }, { status: 404 })
+      if (claim.status !== 'maintenance') {
+        return NextResponse.json({ error: 'Claim not in maintenance' }, { status: 400 })
+      }
+      await releaseMaintenanceClaim(supabase, claim)
+      return NextResponse.json({ success: true, message: `已立即放行：$${Number(claim.amount)} 已入账` })
     }
 
     if (!claim_id || !['approve', 'reject'].includes(action)) {

@@ -572,6 +572,11 @@
   "team": {
     "title": "टीम",
     "subtitle": "अपनी टीम बनाएं और रिवॉर्ड कमाएं",
+    "maintenanceTitle": "{level} तक पहुँचने पर बधाई!",
+    "maintenanceExplain": "आपकी टीम की बिक्री में {stakingPct}% स्टेकिंग / {nonStakingPct}% नॉन-स्टेकिंग है। स्टेकिंग 50% से कम होने के कारण, रिवॉर्ड फ़ार्मिंग रोकने के लिए यह ${amount} रिवॉर्ड पाने हेतु आपको इस स्तर पर {days} दिन (लगातार ज़रूरी नहीं) बनाए रखना होगा।",
+    "maintenanceProgress": "बनाए रखा {done} / {required} दिन",
+    "maintenanceRemaining": "{remaining} दिन शेष",
+    "maintenanceEarlyRelease": "सुझाव: जैसे ही आपकी टीम 50% स्टेकिंग पर पहुँचती है, रिवॉर्ड तुरंत जारी हो जाता है।",
     "currentLevel": "वर्तमान लेवल",
     "rewardPool": "प्राइज़ पूल",
     "dailyRate": "दैनिक दर",
