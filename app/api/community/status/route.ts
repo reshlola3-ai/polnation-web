@@ -289,33 +289,18 @@ export async function GET(request: NextRequest) {
     const progressTarget = currentUnlockVolume
     const volumeToUnlock = Math.max(0, progressTarget - effectiveVolume)
 
-    // ========== Momentum Multiplier 计算 ==========
-    // 初始 1.0x，每 3 天无 referral 活动衰减 -0.2x，最低 0.2x
+    // ========== Momentum Multiplier ==========
+    // 倍率是有状态的：每次发放若团队增长不达标就 -0.2（底 0，可归零），达标则重置 1.0。
+    // 这里直接展示上次发放存下的值，不再按时间戳反推。
     const momentumRecentReferrals = status?.momentum_recent_referrals || 0
-    const momentumLastReferralAt = status?.momentum_last_referral_at 
-      ? new Date(status.momentum_last_referral_at) 
+    const momentumLastReferralAt = status?.momentum_last_referral_at
+      ? new Date(status.momentum_last_referral_at)
       : null
 
-    // Calculate momentum multiplier — 初始 1.0x，衰减 -0.2x/3天，最低 0.2x
-    let momentumMultiplier = 1.0
-    if (momentumLastReferralAt) {
-      // 有 referral 记录，根据距离上次 referral 的天数计算衰减
-      const daysSinceLast = Math.floor((Date.now() - momentumLastReferralAt.getTime()) / (1000 * 60 * 60 * 24))
-      const decaySteps = Math.floor(daysSinceLast / 3)
-      momentumMultiplier = Math.max(0.2, parseFloat((1.0 - decaySteps * 0.2).toFixed(1)))
-    }
-    // 如果没有 momentum_last_referral_at，保持初始 1.0x
-
-    // Calculate days until next decay
-    let daysUntilDecay = 0
-    if (momentumLastReferralAt && momentumMultiplier > 0.2) {
-      const daysSinceLast = (Date.now() - momentumLastReferralAt.getTime()) / (1000 * 60 * 60 * 24)
-      const nextDecayAt = (Math.floor(daysSinceLast / 3) + 1) * 3
-      daysUntilDecay = Math.max(0, Math.ceil(nextDecayAt - daysSinceLast))
-    }
-
-    // Calculate what the next multiplier will be after decay
-    const nextMomentumAfterDecay = Math.max(0.2, parseFloat((momentumMultiplier - 0.2).toFixed(1)))
+    const momentumMultiplier = Number(status?.momentum_multiplier ?? 1.0)
+    // 不达标则下一次发放再降一档；用 1 天表示"下次发放会再降"。
+    const daysUntilDecay = momentumMultiplier > 0 ? 1 : 0
+    const nextMomentumAfterDecay = Math.max(0, parseFloat((momentumMultiplier - 0.2).toFixed(1)))
 
     const baseDailyEarning = currentLevelInfo
       ? currentLevelInfo.reward_pool * currentLevelInfo.daily_rate

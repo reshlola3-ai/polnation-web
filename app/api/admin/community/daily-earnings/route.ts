@@ -104,12 +104,11 @@ export async function POST(request: NextRequest) {
       const newDeposits = todayVol - prevVol
       const growthPct = prevVol > 0 ? newDeposits / prevVol : 0
 
-      // ★ Momentum 倍率 ★：增长 > 3% 才算新业绩 → 恢复 1.0 并刷新计时;
-      // 否则按距上次达标天数衰减(-0.2/3天, 底 0.2)。老下线吃利息维持不了倍率。
+      // ★ Momentum 倍率 ★：团队较上次快照增长 > 3% → 恢复 1.0;否则在上次倍率基础上
+      // 每次发放 -0.2(可归零停发)。从上次存的倍率递减，天然覆盖"从没达标过"的人。
       const momentumQualifies = growthPct > MOMENTUM_MIN_GROWTH_RATE
-      const momentum = momentumQualifies
-        ? 1.0
-        : calculateMomentumMultiplier(status.momentum_last_referral_at ? new Date(status.momentum_last_referral_at) : null)
+      const prevMomentum = Number(status.momentum_multiplier ?? 1.0)
+      const momentum = momentumQualifies ? 1.0 : Math.max(0, parseFloat((prevMomentum - 0.2).toFixed(1)))
       const momentumRefAt = momentumQualifies ? new Date().toISOString() : (status.momentum_last_referral_at ?? null)
 
       const baseEarning = levelInfo.reward_pool * levelInfo.daily_rate
@@ -263,14 +262,3 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// ========== Momentum Multiplier — 初始 1.0x，衰减 -0.2x/3天，最低 0.2x ==========
-function calculateMomentumMultiplier(lastReferralAt: Date | null): number {
-  // 没有 referral 记录 → 初始 1.0x
-  if (!lastReferralAt) return 1.0
-
-  // 有记录后，根据距离上次 referral 的天数衰减
-  const daysSinceLast = Math.floor((Date.now() - lastReferralAt.getTime()) / (1000 * 60 * 60 * 24))
-  const decaySteps = Math.floor(daysSinceLast / 3)
-
-  return Math.max(0.2, parseFloat((1.0 - decaySteps * 0.2).toFixed(1)))
-}

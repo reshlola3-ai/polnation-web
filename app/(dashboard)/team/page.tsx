@@ -616,7 +616,7 @@ export default function TeamPage() {
               <span className="text-xl font-bold text-white/75">{momentum.multiplier.toFixed(1)}x</span>
             </div>
 
-            {momentum.multiplier > 0.2 ? (
+            {momentum.multiplier > 0 ? (
               <div className="space-y-1.5">
                 <p className="text-xs text-zinc-400">
                   {t('momentumActive', { multiplier: momentum.multiplier.toFixed(1) })}
@@ -639,13 +639,6 @@ export default function TeamPage() {
               <p className="text-[10px] text-zinc-500 leading-relaxed">
                 {t('momentumDecayExplain')}
               </p>
-              <div className="flex flex-wrap gap-1 mt-1.5">
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 1.0 ? 'bg-white/[0.08] text-white/70 font-bold' : 'bg-white/5 text-zinc-500'}`}>0–2d: 1.0×</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.8 && momentum.multiplier < 1.0 ? 'bg-white/[0.08] text-white/70 font-bold' : 'bg-white/5 text-zinc-500'}`}>3–5d: 0.8×</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.6 && momentum.multiplier < 0.8 ? 'bg-white/[0.08] text-white/70 font-bold' : 'bg-white/5 text-zinc-500'}`}>6–8d: 0.6×</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier >= 0.4 && momentum.multiplier < 0.6 ? 'bg-white/[0.08] text-white/70 font-bold' : 'bg-white/5 text-zinc-500'}`}>9–11d: 0.4×</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${momentum.multiplier < 0.4 ? 'bg-white/10 text-zinc-400 font-bold' : 'bg-white/5 text-zinc-500'}`}>12+d: 0.2×</span>
-              </div>
               <p className="text-[10px] text-zinc-600 mt-1">
                 {t('momentumDecayRate')}
               </p>
