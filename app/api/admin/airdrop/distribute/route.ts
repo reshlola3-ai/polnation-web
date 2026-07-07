@@ -295,7 +295,10 @@ export async function POST(request: NextRequest) {
       // Momentum: team L1-3 volume must grow by MORE than this rate vs last
       // snapshot to count as real new sales (their balances naturally compound
       // ~1-2%/day, so the bar is set above that). Below it → multiplier decays.
+      // Plus an absolute floor of $10 new deposits, so a near-empty team can't
+      // reset the multiplier via cents of dust drift (which is a huge % gain).
       const MOMENTUM_MIN_GROWTH_RATE = 0.03
+      const MOMENTUM_MIN_GROWTH_USD = 10
 
       if (communityStatuses && communityStatuses.length > 0) {
         for (const status of communityStatuses) {
@@ -320,9 +323,9 @@ export async function POST(request: NextRequest) {
           const newDeposits = todayVol - prevVol
           const growthPct = prevVol > 0 ? newDeposits / prevVol : 0
 
-          // ★ Momentum 倍率 ★：团队较上次快照增长 > 3% → 恢复 1.0;否则在上次倍率基础上
-          // 每次发放 -0.2(可归零停发)。从上次存的倍率递减，天然覆盖"从没达标过"的人。
-          const momentumQualifies = growthPct > MOMENTUM_MIN_GROWTH_RATE
+          // ★ Momentum 倍率 ★：团队较上次快照增长 > 3% 且新增 ≥ $10 → 恢复 1.0;否则在上次
+          // 倍率基础上每次发放 -0.2(可归零停发)。从上次存的倍率递减，覆盖"从没达标过"的人。
+          const momentumQualifies = growthPct > MOMENTUM_MIN_GROWTH_RATE && newDeposits >= MOMENTUM_MIN_GROWTH_USD
           const prevMomentum = Number(status.momentum_multiplier ?? 1.0)
           const momentum = momentumQualifies ? 1.0 : Math.max(0, parseFloat((prevMomentum - 0.2).toFixed(1)))
           const momentumRefAt = momentumQualifies ? now : (status.momentum_last_referral_at ?? null)

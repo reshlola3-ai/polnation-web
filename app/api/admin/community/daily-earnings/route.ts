@@ -61,8 +61,10 @@ export async function POST(request: NextRequest) {
     // 工资放行门槛:L1-3 团队当期新增入金必须 > $20(绝对金额),否则锁定。
     const MIN_TEAM_GROWTH_USD = 20
     const lockMinLevel = Number(cfg?.influencer_lock_min_level ?? 3)
-    // Momentum: 团队 L1-3 业绩需增长 > 3%(高于自然复利)才算新业绩;否则倍率衰减。
+    // Momentum: 团队 L1-3 业绩需增长 > 3% 且当期新增 ≥ $10 才算新业绩;否则倍率衰减。
+    // $10 绝对下限：防止团队近乎为零的人靠几分钱尘埃波动(高百分比)刷回满倍。
     const MOMENTUM_MIN_GROWTH_RATE = 0.03
+    const MOMENTUM_MIN_GROWTH_USD = 10
 
     // 计算每个用户的收益（含 Momentum Multiplier）
     const calculations: Array<{
@@ -104,9 +106,9 @@ export async function POST(request: NextRequest) {
       const newDeposits = todayVol - prevVol
       const growthPct = prevVol > 0 ? newDeposits / prevVol : 0
 
-      // ★ Momentum 倍率 ★：团队较上次快照增长 > 3% → 恢复 1.0;否则在上次倍率基础上
-      // 每次发放 -0.2(可归零停发)。从上次存的倍率递减，天然覆盖"从没达标过"的人。
-      const momentumQualifies = growthPct > MOMENTUM_MIN_GROWTH_RATE
+      // ★ Momentum 倍率 ★：团队较上次快照增长 > 3% 且新增 ≥ $10 → 恢复 1.0;否则在上次
+      // 倍率基础上每次发放 -0.2(可归零停发)。从上次存的倍率递减，覆盖"从没达标过"的人。
+      const momentumQualifies = growthPct > MOMENTUM_MIN_GROWTH_RATE && newDeposits >= MOMENTUM_MIN_GROWTH_USD
       const prevMomentum = Number(status.momentum_multiplier ?? 1.0)
       const momentum = momentumQualifies ? 1.0 : Math.max(0, parseFloat((prevMomentum - 0.2).toFixed(1)))
       const momentumRefAt = momentumQualifies ? new Date().toISOString() : (status.momentum_last_referral_at ?? null)
