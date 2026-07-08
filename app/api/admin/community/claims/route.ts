@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { action, claim_id, user_id, reason, request_id, days } = await request.json()
+    const { action, claim_id, user_id, reason, request_id, days, amount: releaseAmount } = await request.json()
     const now = new Date().toISOString()
 
     if (action === 'unfreeze') {
@@ -270,8 +270,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true, message: '已驳回解锁申请' })
       }
 
-      // approve: move the *current* locked balance (server-authoritative) into
-      // available_usdc. The client-supplied amount is never trusted.
+      // approve: release an admin-chosen amount into available_usdc; the rest
+      // stays locked. Amount is clamped to the *current* locked balance
+      // (server-authoritative); missing/oversized amount → release full.
       const { data: profits } = await supabase
         .from('user_profits')
         .select('available_usdc, community_locked_usdc')
@@ -288,21 +289,33 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true, message: '该用户已无锁定余额，申请已结清' })
       }
 
+      // 管理员可指定放行金额（部分解锁）；不传或超出锁定额则全额放行。
+      const requested = Number(releaseAmount)
+      const release = Number.isFinite(requested) && requested > 0
+        ? Math.min(requested, locked)
+        : locked
+      const remaining = Math.max(0, parseFloat((locked - release).toFixed(6)))
+
       await supabase
         .from('user_profits')
         .update({
-          available_usdc: Number(profits?.available_usdc || 0) + locked,
-          community_locked_usdc: 0,
+          available_usdc: Number(profits?.available_usdc || 0) + release,
+          community_locked_usdc: remaining,
           updated_at: now,
         })
         .eq('user_id', req.user_id)
 
       await supabase
         .from('community_unlock_requests')
-        .update({ status: 'approved', credited_amount: locked, reviewed_by: 'admin', reviewed_at: now })
+        .update({ status: 'approved', credited_amount: release, reviewed_by: 'admin', reviewed_at: now })
         .eq('id', request_id)
 
-      return NextResponse.json({ success: true, message: `已批准：$${locked.toFixed(2)} 已转入可提现` })
+      return NextResponse.json({
+        success: true,
+        message: remaining > 0
+          ? `已放行 $${release.toFixed(2)} 到可提现，剩余 $${remaining.toFixed(2)} 继续锁定`
+          : `已批准：$${release.toFixed(2)} 已全部转入可提现`,
+      })
     }
 
     // ===== 批准但进入维持期：等级立即升、每日收益照常，奖金冻结待达标 =====

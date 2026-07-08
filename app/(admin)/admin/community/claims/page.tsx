@@ -68,6 +68,7 @@ export default function AdminClaimsPage() {
   const [recent, setRecent] = useState<ClaimItem[]>([])
   const [maintenance, setMaintenance] = useState<MaintenanceItem[]>([])
   const [maintDays, setMaintDays] = useState<Record<string, string>>({})
+  const [unlockAmt, setUnlockAmt] = useState<Record<string, string>>({})
   const [unlockPending, setUnlockPending] = useState<UnlockItem[]>([])
   const [unlockRecent, setUnlockRecent] = useState<UnlockItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -129,7 +130,12 @@ export default function AdminClaimsPage() {
     act({ action: 'release_maintenance', claim_id: m.id }, 'release-' + m.id)
   const unfreeze = (c: ClaimItem) => act({ action: 'unfreeze', user_id: c.user_id }, 'unfreeze-' + c.user_id)
 
-  const unlockApprove = (u: UnlockItem) => act({ action: 'unlock_approve', request_id: u.id }, 'unlock-' + u.id)
+  const unlockApprove = (u: UnlockItem) => {
+    const locked = u.current_locked ?? u.requested_amount
+    const raw = unlockAmt[u.id]
+    const amount = raw !== undefined && raw !== '' ? Math.max(0, Number(raw)) : locked
+    act({ action: 'unlock_approve', request_id: u.id, amount }, 'unlock-' + u.id)
+  }
   const unlockReject = (u: UnlockItem) => {
     const reason = prompt('驳回理由（可选）：') ?? ''
     act({ action: 'unlock_reject', request_id: u.id, reason }, 'unlock-' + u.id)
@@ -339,10 +345,24 @@ export default function AdminClaimsPage() {
                   )}
                   <p className="text-zinc-600 text-xs mt-0.5">申请于 {new Date(u.created_at).toLocaleString()}</p>
                 </div>
-                <div className="flex flex-col gap-2 justify-center flex-shrink-0">
+                <div className="flex flex-col gap-2 justify-center flex-shrink-0 w-48">
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-zinc-400 text-sm">$</span>
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={unlockAmt[u.id] ?? (u.current_locked ?? u.requested_amount).toFixed(2)}
+                        onChange={(e) => setUnlockAmt((s) => ({ ...s, [u.id]: e.target.value }))}
+                        className="flex-1 w-full px-2 py-1.5 rounded bg-zinc-900 border border-zinc-600 text-white text-sm text-right"
+                      />
+                    </div>
+                    <p className="text-[10px] text-zinc-500 mt-0.5">放行金额 · 余额继续锁定</p>
+                  </div>
                   <Button size="sm" onClick={() => unlockApprove(u)} disabled={processing === 'unlock-' + u.id}
                     className="bg-green-500 hover:bg-green-600">
-                    {processing === 'unlock-' + u.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Unlock className="w-4 h-4 mr-1" /> 批准转入可提现</>}
+                    {processing === 'unlock-' + u.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Unlock className="w-4 h-4 mr-1" /> 批准放行</>}
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => unlockReject(u)} disabled={processing === 'unlock-' + u.id}
                     className="border-red-500 text-red-400 hover:bg-red-500/20">
