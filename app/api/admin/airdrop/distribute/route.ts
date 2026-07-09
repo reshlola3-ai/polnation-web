@@ -17,11 +17,6 @@ interface CommissionRate {
   is_active: boolean
 }
 
-interface UplineInfo {
-  upline_id: string
-  level: number
-}
-
 // 确认发放（将利润写入用户账户 + 推荐佣金）
 export async function POST(request: NextRequest) {
   if (!await verifyAdmin()) {
@@ -34,7 +29,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { round_id } = await request.json()
+    const { round_id, dryRun } = await request.json()
 
     if (!round_id) {
       return NextResponse.json({ error: 'round_id is required' }, { status: 400 })
@@ -51,16 +46,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Round not found' }, { status: 404 })
     }
 
-    if (round.status !== 'pending') {
+    if (round.status !== 'pending' && !dryRun) {
       return NextResponse.json({ error: 'Round already processed' }, { status: 400 })
     }
 
-    // 获取计算结果
-    const { data: calculations, error: calcError } = await supabase
+    // 获取计算结果（dryRun 时取全部，便于对已发放轮次做对账预演）
+    let calcQuery = supabase
       .from('airdrop_calculations')
       .select('*')
       .eq('round_id', round_id)
-      .eq('is_credited', false)
+    if (!dryRun) calcQuery = calcQuery.eq('is_credited', false)
+    const { data: calculations, error: calcError } = await calcQuery
 
     if (calcError) throw calcError
 
@@ -88,138 +84,163 @@ export async function POST(request: NextRequest) {
     let totalCommissions = 0
     let commissionCount = 0
 
-    // 为每个用户发放利润
-    for (const calc of calculations) {
-      try {
-        // 获取或创建用户利润记录
-        const { data: existingProfit } = await supabase
-          .from('user_profits')
-          .select('*')
-          .eq('user_id', calc.user_id)
-          .single()
-
-        if (existingProfit) {
-          // 更新现有记录
-          await supabase
-            .from('user_profits')
-            .update({
-              total_earned_usdc: existingProfit.total_earned_usdc + calc.profit_usdc,
-              available_usdc: existingProfit.available_usdc + calc.profit_usdc,
-              current_tier: calc.tier_level,
-              updated_at: now,
-            })
-            .eq('user_id', calc.user_id)
-        } else {
-          // 创建新记录
-          await supabase
-            .from('user_profits')
-            .insert({
-              user_id: calc.user_id,
-              total_earned_usdc: calc.profit_usdc,
-              available_usdc: calc.profit_usdc,
-              available_matic: 0,
-              withdrawn_usdc: 0,
-              withdrawn_matic: 0,
-              current_tier: calc.tier_level,
-            })
-        }
-
-        // 记录历史（profit_earned = agentic + 质押合计；alpha_earned = 其中质押部分）
-        await supabase
-          .from('profit_history')
-          .insert({
-            user_id: calc.user_id,
-            round_id: round_id,
-            usdc_balance: calc.usdc_balance,
-            tier_level: calc.tier_level,
-            rate_applied: calc.rate_percent / 100,
-            profit_earned: calc.profit_usdc,
-            alpha_earned: Number(calc.alpha_profit_usdc) || 0,
-          })
-
-        // 标记已发放
-        await supabase
-          .from('airdrop_calculations')
-          .update({ is_credited: true })
-          .eq('id', calc.id)
-
-        distributedCount++
-        totalDistributed += calc.profit_usdc
-
-        // ========== 计算并发放推荐佣金 ==========
-        if (ratesMap.size > 0 && calc.profit_usdc > 0) {
-          // 获取用户的上线链
-          const { data: uplineChain } = await supabase
-            .rpc('get_upline_chain', { 
-              user_id: calc.user_id,
-              max_levels: 6
-            })
-
-          if (uplineChain && uplineChain.length > 0) {
-            for (const upline of uplineChain as UplineInfo[]) {
-              const rate = ratesMap.get(upline.level)
-              if (!rate) continue
-
-              // 计算佣金
-              const commissionAmount = calc.profit_usdc * (rate / 100)
-              
-              if (commissionAmount <= 0) continue
-
-              // 记录佣金
-              await supabase
-                .from('referral_commissions')
-                .insert({
-                  beneficiary_id: upline.upline_id,
-                  source_user_id: calc.user_id,
-                  round_id: round_id,
-                  level: upline.level,
-                  source_profit: calc.profit_usdc,
-                  commission_rate: rate,
-                  commission_amount: commissionAmount,
-                  is_credited: true,
-                })
-
-              // 获取上线的利润记录
-              const { data: uplineProfit } = await supabase
-                .from('user_profits')
-                .select('*')
-                .eq('user_id', upline.upline_id)
-                .single()
-
-              if (uplineProfit) {
-                // 更新上线的佣金余额
-                await supabase
-                  .from('user_profits')
-                  .update({
-                    total_commission_earned: (uplineProfit.total_commission_earned || 0) + commissionAmount,
-                    available_usdc: uplineProfit.available_usdc + commissionAmount,
-                    updated_at: now,
-                  })
-                  .eq('user_id', upline.upline_id)
-              } else {
-                // 创建上线的利润记录
-                await supabase
-                  .from('user_profits')
-                  .insert({
-                    user_id: upline.upline_id,
-                    total_earned_usdc: 0,
-                    total_commission_earned: commissionAmount,
-                    available_usdc: commissionAmount,
-                    available_matic: 0,
-                    withdrawn_usdc: 0,
-                    withdrawn_matic: 0,
-                  })
-              }
-
-              totalCommissions += commissionAmount
-              commissionCount++
-            }
-          }
-        }
-
-      } catch (err) {
-        console.error(`Error distributing to user ${calc.user_id}:`, err)
+    // ---- 内存构建上线链（替代逐用户 get_upline_chain RPC；已用脚本验证与 RPC 一致）----
+    const referrerById = new Map<string, string | null>()
+    {
+      let pageFrom = 0
+      for (;;) {
+        const { data: pRows } = await supabase
+          .from('profiles')
+          .select('id, referrer_id')
+          .range(pageFrom, pageFrom + 999)
+        if (!pRows || pRows.length === 0) break
+        for (const p of pRows) referrerById.set(p.id as string, (p.referrer_id as string | null) ?? null)
+        if (pRows.length < 1000) break
+        pageFrom += 1000
       }
+    }
+    const uplineChainOf = (userId: string, maxLevels = 6): Array<{ upline_id: string; level: number }> => {
+      const chain: Array<{ upline_id: string; level: number }> = []
+      let cur: string | null = userId
+      for (let level = 1; level <= maxLevels; level++) {
+        const referrer: string | null = cur ? (referrerById.get(cur) ?? null) : null
+        if (!referrer) break
+        chain.push({ upline_id: referrer, level })
+        cur = referrer
+      }
+      return chain
+    }
+
+    // ---- 内存累加所有增量，最后批量写（把 ~900 次串行往返压到个位数）----
+    const profitDelta = new Map<string, number>()      // user_id -> 本人利润增量
+    const commissionDelta = new Map<string, number>()  // user_id -> 佣金增量（上线）
+    const tierByUser = new Map<string, number>()        // 收益人 -> current_tier
+    const historyRows: Record<string, unknown>[] = []
+    const commissionRows: Record<string, unknown>[] = []
+    const creditedCalcIds: string[] = []
+
+    for (const calc of calculations) {
+      profitDelta.set(calc.user_id, (profitDelta.get(calc.user_id) || 0) + calc.profit_usdc)
+      tierByUser.set(calc.user_id, calc.tier_level)
+      historyRows.push({
+        user_id: calc.user_id,
+        round_id: round_id,
+        usdc_balance: calc.usdc_balance,
+        tier_level: calc.tier_level,
+        rate_applied: calc.rate_percent / 100,
+        profit_earned: calc.profit_usdc,
+        alpha_earned: Number(calc.alpha_profit_usdc) || 0,
+      })
+      creditedCalcIds.push(calc.id)
+      distributedCount++
+      totalDistributed += calc.profit_usdc
+
+      // 推荐佣金：沿上线链按层级比例累加（与原逐条逻辑等价）
+      if (ratesMap.size > 0 && calc.profit_usdc > 0) {
+        for (const upline of uplineChainOf(calc.user_id)) {
+          const rate = ratesMap.get(upline.level)
+          if (!rate) continue
+          const commissionAmount = calc.profit_usdc * (rate / 100)
+          if (commissionAmount <= 0) continue
+          commissionRows.push({
+            beneficiary_id: upline.upline_id,
+            source_user_id: calc.user_id,
+            round_id: round_id,
+            level: upline.level,
+            source_profit: calc.profit_usdc,
+            commission_rate: rate,
+            commission_amount: commissionAmount,
+            is_credited: true,
+          })
+          commissionDelta.set(upline.upline_id, (commissionDelta.get(upline.upline_id) || 0) + commissionAmount)
+          totalCommissions += commissionAmount
+          commissionCount++
+        }
+      }
+    }
+
+    // Dry-run：只算不写，返回计划发放的汇总，供上线前在真实 round 上安全预演对账。
+    if (dryRun) {
+      const affected = new Set([...profitDelta.keys(), ...commissionDelta.keys()])
+      const sample = [...profitDelta.entries()].slice(0, 10).map(([uid, p]) => ({
+        user_id: uid,
+        profit: Number(p.toFixed(6)),
+        commission: Number((commissionDelta.get(uid) || 0).toFixed(6)),
+      }))
+      return NextResponse.json({
+        dryRun: true,
+        round_id,
+        recipients: profitDelta.size,
+        affected_users: affected.size,
+        commission_beneficiaries: commissionDelta.size,
+        commission_rows: commissionRows.length,
+        history_rows: historyRows.length,
+        total_distributed: Number(totalDistributed.toFixed(6)),
+        total_commissions: Number(totalCommissions.toFixed(6)),
+        sample,
+      })
+    }
+
+    // 预取所有受影响用户（收益人 + 上线）的现有 profits
+    const affectedIds = Array.from(new Set([...profitDelta.keys(), ...commissionDelta.keys()]))
+    const existingById = new Map<string, { total_earned_usdc: number; available_usdc: number; total_commission_earned: number }>()
+    for (let i = 0; i < affectedIds.length; i += 300) {
+      const { data: rows } = await supabase
+        .from('user_profits')
+        .select('user_id, total_earned_usdc, available_usdc, total_commission_earned')
+        .in('user_id', affectedIds.slice(i, i + 300))
+      for (const r of rows || []) existingById.set(r.user_id as string, r as never)
+    }
+
+    // 批量插入历史 + 佣金记录
+    for (let i = 0; i < historyRows.length; i += 500) {
+      const { error } = await supabase.from('profit_history').insert(historyRows.slice(i, i + 500))
+      if (error) console.error('profit_history batch insert failed:', error)
+    }
+    for (let i = 0; i < commissionRows.length; i += 500) {
+      const { error } = await supabase.from('referral_commissions').insert(commissionRows.slice(i, i + 500))
+      if (error) console.error('referral_commissions batch insert failed:', error)
+    }
+
+    // 写回 user_profits：每个受影响用户合并写一次（利润+佣金），并行分片（用户互不相同 → 无竞态）
+    const writeProfit = async (uid: string) => {
+      try {
+        const prof = existingById.get(uid)
+        const addProfit = profitDelta.get(uid) || 0
+        const addCommission = commissionDelta.get(uid) || 0
+        const tier = tierByUser.get(uid)
+        if (prof) {
+          const update: Record<string, unknown> = {
+            total_earned_usdc: Number(prof.total_earned_usdc || 0) + addProfit,
+            available_usdc: Number(prof.available_usdc || 0) + addProfit + addCommission,
+            total_commission_earned: Number(prof.total_commission_earned || 0) + addCommission,
+            updated_at: now,
+          }
+          if (tier !== undefined) update.current_tier = tier
+          await supabase.from('user_profits').update(update).eq('user_id', uid)
+        } else {
+          await supabase.from('user_profits').insert({
+            user_id: uid,
+            total_earned_usdc: addProfit,
+            total_commission_earned: addCommission,
+            available_usdc: addProfit + addCommission,
+            available_matic: 0,
+            withdrawn_usdc: 0,
+            withdrawn_matic: 0,
+            ...(tier !== undefined ? { current_tier: tier } : {}),
+          })
+        }
+      } catch (err) {
+        console.error(`Error writing profits for ${uid}:`, err)
+      }
+    }
+    for (let i = 0; i < affectedIds.length; i += 50) {
+      await Promise.all(affectedIds.slice(i, i + 50).map(writeProfit))
+    }
+
+    // 批量标记已发放（幂等：重跑只处理 is_credited=false 的 calc）
+    for (let i = 0; i < creditedCalcIds.length; i += 300) {
+      await supabase.from('airdrop_calculations').update({ is_credited: true }).in('id', creditedCalcIds.slice(i, i + 300))
     }
 
     // 更新轮次状态

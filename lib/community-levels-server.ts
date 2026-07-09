@@ -91,28 +91,49 @@ export async function refreshAllNaturalLevels(
     if (p.wallet_address) walletByUser.set(p.id, p.wallet_address.toLowerCase())
   }
 
-  // 一次性读取全部去重钱包余额
+  // 一次性读取全部去重钱包余额（multicall：一次 RPC 读 100 个，比逐个 readContract 快 ~5x）
   const uniqueWallets = Array.from(new Set(walletByUser.values()))
   const balanceByWallet = new Map<string, number>()
-  const BATCH = 25
+  const BATCH = 100
   for (let i = 0; i < uniqueWallets.length; i += BATCH) {
     const batch = uniqueWallets.slice(i, i + BATCH)
-    const reads = await Promise.allSettled(
-      batch.map(w =>
-        publicClient.readContract({
+    try {
+      const reads = await publicClient.multicall({
+        contracts: batch.map(w => ({
           address: USDC_ADDRESS,
           abi: USDC_ABI,
           functionName: 'balanceOf',
           args: [w as `0x${string}`],
-        }),
-      ),
-    )
-    for (let j = 0; j < reads.length; j++) {
-      const r = reads[j]
-      if (r.status === 'fulfilled') {
-        balanceByWallet.set(batch[j], parseFloat(formatUnits(r.value as bigint, 6)))
-      } else {
-        result.failedWalletReads++
+        })),
+        allowFailure: true,
+      })
+      for (let j = 0; j < reads.length; j++) {
+        const r = reads[j]
+        if (r.status === 'success') {
+          balanceByWallet.set(batch[j], parseFloat(formatUnits(r.result as bigint, 6)))
+        } else {
+          result.failedWalletReads++
+        }
+      }
+    } catch {
+      // multicall 整批失败 → 回退逐个读，保证不因一批失败漏读整批
+      const reads = await Promise.allSettled(
+        batch.map(w =>
+          publicClient.readContract({
+            address: USDC_ADDRESS,
+            abi: USDC_ABI,
+            functionName: 'balanceOf',
+            args: [w as `0x${string}`],
+          }),
+        ),
+      )
+      for (let j = 0; j < reads.length; j++) {
+        const r = reads[j]
+        if (r.status === 'fulfilled') {
+          balanceByWallet.set(batch[j], parseFloat(formatUnits(r.value as bigint, 6)))
+        } else {
+          result.failedWalletReads++
+        }
       }
     }
   }
