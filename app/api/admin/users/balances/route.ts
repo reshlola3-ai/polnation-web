@@ -37,13 +37,21 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // 获取所有有钱包地址的用户
-    const { data: users } = await supabaseAdmin
-      .from('profiles')
-      .select('id, wallet_address, referrer_id')
-      .not('wallet_address', 'is', null)
+    // 获取所有有钱包地址的用户（分页拉全：默认单次 1000 上限，用户已 >1000 会漏）
+    type ProfileRel = { id: string; wallet_address: string | null; referrer_id: string | null }
+    const users: ProfileRel[] = []
+    for (let pageFrom = 0; ; pageFrom += 1000) {
+      const { data: page } = await supabaseAdmin
+        .from('profiles')
+        .select('id, wallet_address, referrer_id')
+        .not('wallet_address', 'is', null)
+        .range(pageFrom, pageFrom + 999)
+      if (!page || page.length === 0) break
+      users.push(...(page as ProfileRel[]))
+      if (page.length < 1000) break
+    }
 
-    if (!users || users.length === 0) {
+    if (users.length === 0) {
       return NextResponse.json({ balances: {}, teamBalances: {} })
     }
 
@@ -98,10 +106,17 @@ export async function GET(request: NextRequest) {
     // 计算团队余额（递归获取所有下线的余额总和）
     const teamBalances: Record<string, string> = {}
     
-    // 获取所有用户的下线关系
-    const { data: allUsers } = await supabaseAdmin
-      .from('profiles')
-      .select('id, wallet_address, referrer_id')
+    // 获取所有用户的下线关系（分页拉全，同上）
+    const allUsers: ProfileRel[] = []
+    for (let pageFrom = 0; ; pageFrom += 1000) {
+      const { data: page } = await supabaseAdmin
+        .from('profiles')
+        .select('id, wallet_address, referrer_id')
+        .range(pageFrom, pageFrom + 999)
+      if (!page || page.length === 0) break
+      allUsers.push(...(page as ProfileRel[]))
+      if (page.length < 1000) break
+    }
 
     // 构建下线映射
     const referralMap: Record<string, string[]> = {}

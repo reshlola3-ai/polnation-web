@@ -51,11 +51,20 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // 获取所有用户
-    const { data: profiles } = await supabaseAdmin
-      .from('profiles')
-      .select('id, username, email, wallet_address')
-      .order('created_at', { ascending: false })
+    // 获取所有用户（分页拉全：Supabase 单次默认上限 1000，用户已 >1000，
+    // 不分页会漏掉最老的一批 → 老用户在管理页搜不到、管不了）
+    type ProfileRow = { id: string; username: string | null; email: string | null; wallet_address: string | null }
+    const profiles: ProfileRow[] = []
+    for (let pageFrom = 0; ; pageFrom += 1000) {
+      const { data: page } = await supabaseAdmin
+        .from('profiles')
+        .select('id, username, email, wallet_address')
+        .order('created_at', { ascending: false })
+        .range(pageFrom, pageFrom + 999)
+      if (!page || page.length === 0) break
+      profiles.push(...(page as ProfileRow[]))
+      if (page.length < 1000) break
+    }
 
     // 获取所有用户的社群状态
     const { data: statuses } = await supabaseAdmin
