@@ -578,6 +578,7 @@
     "maintenanceProgress": "Dipertahankan {done} / {required} hari",
     "maintenanceRemaining": "Kurang {remaining} hari lagi",
     "maintenanceEarlyRelease": "Tips: begitu tim Anda mencapai 50% staking, reward langsung dicairkan.",
+    "maintenancePaused": "Kepemilikan pribadi Anda ${self} (dompet + staking), di bawah minimum ${min}. Penghitung hari dijeda dan pencairan awal saat staking 50% dinonaktifkan. Keduanya lanjut otomatis setelah Anda menambah dana.",
     "currentLevel": "Level Saat Ini",
     "rewardPool": "Pool Hadiah",
     "dailyRate": "Rate Harian",

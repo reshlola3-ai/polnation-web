@@ -577,6 +577,7 @@
     "maintenanceProgress": "Maintenu {done} / {required} jours",
     "maintenanceRemaining": "Encore {remaining} jours",
     "maintenanceEarlyRelease": "Astuce : dès que votre équipe atteint 50% de staking, la récompense est versée immédiatement.",
+    "maintenancePaused": "Vos avoirs personnels sont de {self} $ (portefeuille + staking), sous le minimum de {min} $. Le compteur de jours est en pause et le versement anticipé à 50% de staking est désactivé. Les deux reprennent automatiquement après un rechargement.",
     "currentLevel": "Niveau actuel",
     "rewardPool": "Pool de récompenses",
     "dailyRate": "Taux quotidien",

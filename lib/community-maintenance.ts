@@ -14,6 +14,13 @@ import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
 export const MAINTENANCE_RELEASE_RATIO = 0.5 // staking 比例 ≥ 50% 提前放行
 export const DEFAULT_MAINTENANCE_DAYS = 15
 
+// 申请人本人必须留在场内的最低持仓（钱包 USDC + 他自己在 AlphaStake 的未平仓本金）。
+// 维持期的达标条件看的是 L1-3 下线的 volume，本人钱包不在其中 —— 若不设这道门，
+// 申请人可以把自己提空、靠下线的钱把天数熬满，或靠下线质押触发 50% 提前放行。
+// 计入质押本金（而非只看钱包）是必须的：把钱存进 AlphaStake 会清空钱包余额，
+// 只看钱包会把「按平台期望去质押的人」误判为提空跑路。
+export const MAINTENANCE_MIN_SELF_HOLDINGS = 10
+
 const RPC_URL = process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com'
 const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`
 const USDC_ABI = parseAbi(['function balanceOf(address account) view returns (uint256)'])
@@ -36,10 +43,68 @@ interface MaintenanceClaim {
   maintenance_last_counted_date: string | null
 }
 
+export interface SelfHoldings {
+  wallet: number
+  staked: number
+  total: number
+}
+
+// fetchOnChainAlphaSummary 没有缓存，每次都完整读一遍合约仓位。调用方若要在同一次
+// 请求里既算团队比例又算本人持仓，取一次传进来即可，避免重复读链。
+export type AlphaSummary = Awaited<ReturnType<typeof fetchOnChainAlphaSummary>>
+
+// 申请人本人的场内持仓：钱包 USDC + 他自己在 AlphaStake 的未平仓本金。
+// 读链失败时返回 0，调用方据此暂停计数（宁可停住也不误放行）。
+export async function computeSelfHoldings(
+  supabase: SupabaseClient,
+  userId: string,
+  alphaPrefetched?: AlphaSummary,
+): Promise<SelfHoldings> {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('wallet_address')
+    .eq('id', userId)
+    .maybeSingle()
+
+  const wallet = (profile?.wallet_address as string | undefined)?.toLowerCase()
+  if (!wallet) return { wallet: 0, staked: 0, total: 0 }
+
+  const publicClient = createPublicClient({ chain: polygon, transport: http(RPC_URL) })
+
+  let walletUsdc = 0
+  try {
+    const b = await publicClient.readContract({
+      address: USDC_ADDRESS,
+      abi: USDC_ABI,
+      functionName: 'balanceOf',
+      args: [wallet as `0x${string}`],
+    })
+    walletUsdc = parseFloat(formatUnits(b, 6))
+  } catch (e) {
+    console.error('computeSelfHoldings: wallet read failed', e)
+  }
+
+  let staked = 0
+  try {
+    const alpha = alphaPrefetched ?? (await fetchOnChainAlphaSummary())
+    if (alpha.configured) {
+      for (const pos of alpha.positions) {
+        if (pos.closed) continue
+        if (pos.user === wallet) staked += pos.amountUsdc
+      }
+    }
+  } catch (e) {
+    console.error('computeSelfHoldings: alpha read failed', e)
+  }
+
+  return { wallet: walletUsdc, staked, total: walletUsdc + staked }
+}
+
 // 计算某用户 L1-3 团队的 staking 比例（合约本金 vs 钱包 USDC）。
 export async function computeTeamStakingRatio(
   supabase: SupabaseClient,
   userId: string,
+  alphaPrefetched?: AlphaSummary,
 ): Promise<StakingRatio> {
   const { data: referrals } = await supabase.rpc('get_all_referrals', { user_id: userId })
   const l123 = (referrals || []).filter(
@@ -89,7 +154,7 @@ export async function computeTeamStakingRatio(
   const walletSet = new Set(wallets.map((w) => w.toLowerCase()))
   let stakedVolume = 0
   try {
-    const alpha = await fetchOnChainAlphaSummary()
+    const alpha = alphaPrefetched ?? (await fetchOnChainAlphaSummary())
     if (alpha.configured) {
       for (const pos of alpha.positions) {
         if (pos.closed) continue
@@ -164,7 +229,7 @@ export async function releaseMaintenanceClaim(
 // 每 UTC 天最多计一次达标（maintenance_last_counted_date 防重）。
 export async function advanceMaintenanceClaims(
   supabase: SupabaseClient,
-): Promise<{ processed: number; released: number }> {
+): Promise<{ processed: number; released: number; paused: number }> {
   const today = new Date().toISOString().slice(0, 10)
 
   const { data: claims } = await supabase
@@ -172,11 +237,34 @@ export async function advanceMaintenanceClaims(
     .select('id, user_id, amount, level, maintenance_days_done, maintenance_required_days, maintenance_threshold, maintenance_last_counted_date')
     .eq('status', 'maintenance')
 
-  if (!claims || claims.length === 0) return { processed: 0, released: 0 }
+  if (!claims || claims.length === 0) return { processed: 0, released: 0, paused: 0 }
+
+  // 整批只读一次链上仓位，两个计算函数共用（否则每笔 claim 最多读两次）
+  let alpha: AlphaSummary | undefined
+  try {
+    alpha = await fetchOnChainAlphaSummary()
+  } catch (e) {
+    console.error('advanceMaintenanceClaims: alpha prefetch failed', e)
+  }
 
   let released = 0
+  let paused = 0
   for (const claim of claims as MaintenanceClaim[]) {
     try {
+      // 本人不在场 → 天数不加，且两条放行通道（天数满 / 团队质押≥50%）全部关闭。
+      // 提前返回还顺带省掉了下面 computeTeamStakingRatio 的那次链上读取。
+      const self = await computeSelfHoldings(supabase, claim.user_id, alpha)
+      if (self.total < MAINTENANCE_MIN_SELF_HOLDINGS) {
+        paused++
+        if (claim.maintenance_last_counted_date !== today) {
+          await supabase
+            .from('community_pool_claims')
+            .update({ maintenance_last_counted_date: today })
+            .eq('id', claim.id)
+        }
+        continue
+      }
+
       let daysDone = Number(claim.maintenance_days_done || 0)
 
       // 当天还没计过 → 检查是否达标，计一次
@@ -200,7 +288,7 @@ export async function advanceMaintenanceClaims(
 
       // 逃生通道：staking 比例 ≥ 50% 立即放行（仅在还没靠天数放行时才算）
       if (!shouldRelease) {
-        const { ratio } = await computeTeamStakingRatio(supabase, claim.user_id)
+        const { ratio } = await computeTeamStakingRatio(supabase, claim.user_id, alpha)
         if (ratio >= MAINTENANCE_RELEASE_RATIO) shouldRelease = true
       }
 
@@ -213,5 +301,5 @@ export async function advanceMaintenanceClaims(
     }
   }
 
-  return { processed: claims.length, released }
+  return { processed: claims.length, released, paused }
 }

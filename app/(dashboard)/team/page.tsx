@@ -62,6 +62,9 @@ interface MaintenanceInfo {
   threshold: number
   stakingPct: number
   nonStakingPct: number
+  selfHoldings: number
+  minSelfHoldings: number
+  paused: boolean
 }
 
 interface ApiResponse {
@@ -591,7 +594,17 @@ export default function TeamPage() {
                     style={{ width: `${maintenance.requiredDays > 0 ? Math.min(100, (maintenance.daysDone / maintenance.requiredDays) * 100) : 0}%` }}
                   />
                 </div>
-                <p className="text-amber-100/60 mt-1.5">{t('maintenanceEarlyRelease')}</p>
+                {maintenance.paused ? (
+                  // 暂停时不能显示「团队质押≥50% 立刻放行」——那条通道同样被本人持仓门槛关掉了。
+                  <p className="mt-2 rounded-md bg-red-500/15 border border-red-500/30 px-2.5 py-2 text-red-200 leading-relaxed">
+                    ⚠️ {t('maintenancePaused', {
+                      self: maintenance.selfHoldings,
+                      min: maintenance.minSelfHoldings,
+                    })}
+                  </p>
+                ) : (
+                  <p className="text-amber-100/60 mt-1.5">{t('maintenanceEarlyRelease')}</p>
+                )}
               </div>
             )}
 

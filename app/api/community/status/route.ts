@@ -4,7 +4,8 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { createPublicClient, http, parseAbi, formatUnits } from 'viem'
 import { polygon } from 'viem/chains'
-import { computeTeamStakingRatio } from '@/lib/community-maintenance'
+import { computeTeamStakingRatio, computeSelfHoldings, MAINTENANCE_MIN_SELF_HOLDINGS } from '@/lib/community-maintenance'
+import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -318,13 +319,25 @@ export async function GET(request: NextRequest) {
       level: number; levelName: string; amount: number
       requiredDays: number; daysDone: number; threshold: number
       stakingPct: number; nonStakingPct: number
+      selfHoldings: number; minSelfHoldings: number; paused: boolean
     } | null = null
     if (maintClaim) {
+      // 只读一次链上仓位，两个计算共用（fetchOnChainAlphaSummary 无缓存，读全量仓位）
+      let alpha
+      try {
+        alpha = await fetchOnChainAlphaSummary()
+      } catch { /* 读链失败 → 下面两个计算各自按 0 处理 */ }
+
       let stakingPct = 0
       try {
-        const sr = await computeTeamStakingRatio(supabaseAdmin, user.id)
+        const sr = await computeTeamStakingRatio(supabaseAdmin, user.id, alpha)
         stakingPct = Math.round(sr.ratio * 100)
       } catch { /* 读链失败则显示 0% */ }
+      // 本人场内持仓 < 门槛 → 天数已暂停（与 advanceMaintenanceClaims 同一判据）
+      let selfTotal = 0
+      try {
+        selfTotal = (await computeSelfHoldings(supabaseAdmin, user.id, alpha)).total
+      } catch { /* 读链失败按 0 处理，与后端计数逻辑一致 */ }
       const lvlInfo = levels?.find(l => l.level === maintClaim.level)
       maintenance = {
         level: maintClaim.level,
@@ -335,6 +348,9 @@ export async function GET(request: NextRequest) {
         threshold: Number(maintClaim.maintenance_threshold || 0),
         stakingPct,
         nonStakingPct: 100 - stakingPct,
+        selfHoldings: Number(selfTotal.toFixed(2)),
+        minSelfHoldings: MAINTENANCE_MIN_SELF_HOLDINGS,
+        paused: selfTotal < MAINTENANCE_MIN_SELF_HOLDINGS,
       }
     }
 

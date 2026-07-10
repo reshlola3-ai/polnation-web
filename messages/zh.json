@@ -578,6 +578,7 @@
     "maintenanceProgress": "已维持 {done} / {required} 天",
     "maintenanceRemaining": "还差 {remaining} 天",
     "maintenanceEarlyRelease": "提示：团队质押比例达到 50% 即可立即发放。",
+    "maintenancePaused": "你本人的持仓为 ${self}（钱包 + 质押），低于 ${min} 的最低要求。天数已暂停，团队质押达 50% 的提前发放也已关闭。补足后两者自动恢复。",
     "currentLevel": "Current Level",
     "rewardPool": "Prize Pool",
     "dailyRate": "Daily Rate",

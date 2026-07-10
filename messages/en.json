@@ -577,6 +577,7 @@
     "maintenanceProgress": "Maintained {done} / {required} days",
     "maintenanceRemaining": "{remaining} days to go",
     "maintenanceEarlyRelease": "Tip: once your team reaches 50% staking, the reward is released instantly.",
+    "maintenancePaused": "Your own holdings are ${self} (wallet + staking), below the ${min} minimum. The day counter is paused, and the 50% staking early release is disabled. Both resume automatically once you top up.",
     "currentLevel": "Current Level",
     "rewardPool": "Prize Pool",
     "dailyRate": "Daily Rate",
