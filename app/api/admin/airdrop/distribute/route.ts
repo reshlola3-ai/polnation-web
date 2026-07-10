@@ -83,6 +83,29 @@ export async function POST(request: NextRequest) {
     let totalDistributed = 0
     let totalCommissions = 0
     let commissionCount = 0
+    let skippedAlreadyPaid = 0
+
+    // ---- 重跑保护 ----
+    // 顺序是「先写账本、后写钱」，所以账本里存在某人本轮的行 ⇒ 他本轮已被处理过。
+    // 写钱失败时会把该行撤销（见下方 rollback），所以留在账本里的一定是钱已落地的。
+    // 若进程硬崩溃（Vercel 超时）卡在两者之间，账本行留存 → 重跑跳过 → 宁可少发也绝不重发；
+    // 少发是可被快照对账发现并补的，重发是收不回来的。
+    const alreadyPaidUsers = new Set<string>()
+    const alreadyCommissionedSources = new Set<string>()
+    if (!dryRun) {
+      const scan = async (table: string, col: string, into: Set<string>) => {
+        for (let from = 0; ; from += 1000) {
+          const { data, error } = await supabase.from(table).select(col).eq('round_id', round_id).range(from, from + 999)
+          if (error) throw new Error(`${table} rescan failed: ${error.message}`)
+          const rows = (data ?? []) as unknown as Record<string, string>[]
+          if (rows.length === 0) break
+          for (const r of rows) into.add(r[col])
+          if (rows.length < 1000) break
+        }
+      }
+      await scan('profit_history', 'user_id', alreadyPaidUsers)
+      await scan('referral_commissions', 'source_user_id', alreadyCommissionedSources)
+    }
 
     // ---- 内存构建上线链（替代逐用户 get_upline_chain RPC；已用脚本验证与 RPC 一致）----
     const referrerById = new Map<string, string | null>()
@@ -117,9 +140,14 @@ export async function POST(request: NextRequest) {
     const tierByUser = new Map<string, number>()        // 收益人 -> current_tier
     const historyRows: Record<string, unknown>[] = []
     const commissionRows: Record<string, unknown>[] = []
-    const creditedCalcIds: string[] = []
+    const creditedCalcs: Array<{ id: string; user_id: string }> = []
 
     for (const calc of calculations) {
+      // 账本里已有他本轮的行 → 钱已落地（is_credited 更新失败也不会导致重发）
+      if (alreadyPaidUsers.has(calc.user_id)) {
+        skippedAlreadyPaid++
+        continue
+      }
       profitDelta.set(calc.user_id, (profitDelta.get(calc.user_id) || 0) + calc.profit_usdc)
       tierByUser.set(calc.user_id, calc.tier_level)
       historyRows.push({
@@ -131,12 +159,13 @@ export async function POST(request: NextRequest) {
         profit_earned: calc.profit_usdc,
         alpha_earned: Number(calc.alpha_profit_usdc) || 0,
       })
-      creditedCalcIds.push(calc.id)
+      creditedCalcs.push({ id: calc.id, user_id: calc.user_id })
       distributedCount++
       totalDistributed += calc.profit_usdc
 
       // 推荐佣金：沿上线链按层级比例累加（与原逐条逻辑等价）
-      if (ratesMap.size > 0 && calc.profit_usdc > 0) {
+      // 本轮已从该来源派生过佣金 → 不再派生。否则「重跑捡回失败用户」会让他的上线拿第二次。
+      if (ratesMap.size > 0 && calc.profit_usdc > 0 && !alreadyCommissionedSources.has(calc.user_id)) {
         for (const upline of uplineChainOf(calc.user_id)) {
           const rate = ratesMap.get(upline.level)
           if (!rate) continue
@@ -181,34 +210,55 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // 失败收集：任何一笔钱没落地，都必须让调用方看见，且不得被标记成已发放。
+    const failedProfitUsers = new Set<string>()
+    const ledgerErrors: string[] = []
+
     // 预取所有受影响用户（收益人 + 上线）的现有 profits
     const affectedIds = Array.from(new Set([...profitDelta.keys(), ...commissionDelta.keys()]))
     const existingById = new Map<string, { total_earned_usdc: number; available_usdc: number; total_commission_earned: number }>()
     for (let i = 0; i < affectedIds.length; i += 300) {
-      const { data: rows } = await supabase
+      const { data: rows, error } = await supabase
         .from('user_profits')
         .select('user_id, total_earned_usdc, available_usdc, total_commission_earned')
         .in('user_id', affectedIds.slice(i, i + 300))
+      // 预取失败会让已有行的用户被误判为「无行」，进而走 insert 撞上 user_id UNIQUE 约束
+      // 而丢失这笔钱。此时必须在写入任何数据前中止。
+      if (error) {
+        console.error('user_profits prefetch failed, aborting before any write:', error)
+        return NextResponse.json(
+          { error: 'Prefetch failed; nothing was written. Safe to retry.', detail: error.message },
+          { status: 500 },
+        )
+      }
       for (const r of rows || []) existingById.set(r.user_id as string, r as never)
     }
 
     // 批量插入历史 + 佣金记录
     for (let i = 0; i < historyRows.length; i += 500) {
       const { error } = await supabase.from('profit_history').insert(historyRows.slice(i, i + 500))
-      if (error) console.error('profit_history batch insert failed:', error)
+      if (error) {
+        console.error('profit_history batch insert failed:', error)
+        ledgerErrors.push(`profit_history[${i}]: ${error.message}`)
+      }
     }
     for (let i = 0; i < commissionRows.length; i += 500) {
       const { error } = await supabase.from('referral_commissions').insert(commissionRows.slice(i, i + 500))
-      if (error) console.error('referral_commissions batch insert failed:', error)
+      if (error) {
+        console.error('referral_commissions batch insert failed:', error)
+        ledgerErrors.push(`referral_commissions[${i}]: ${error.message}`)
+      }
     }
 
     // 写回 user_profits：每个受影响用户合并写一次（利润+佣金），并行分片（用户互不相同 → 无竞态）
+    // supabase-js 数据库错误是 return { error } 而非 throw，必须显式检查，否则失败完全静默。
     const writeProfit = async (uid: string) => {
+      const prof = existingById.get(uid)
+      const addProfit = profitDelta.get(uid) || 0
+      const addCommission = commissionDelta.get(uid) || 0
+      const tier = tierByUser.get(uid)
       try {
-        const prof = existingById.get(uid)
-        const addProfit = profitDelta.get(uid) || 0
-        const addCommission = commissionDelta.get(uid) || 0
-        const tier = tierByUser.get(uid)
+        let error
         if (prof) {
           const update: Record<string, unknown> = {
             total_earned_usdc: Number(prof.total_earned_usdc || 0) + addProfit,
@@ -217,9 +267,9 @@ export async function POST(request: NextRequest) {
             updated_at: now,
           }
           if (tier !== undefined) update.current_tier = tier
-          await supabase.from('user_profits').update(update).eq('user_id', uid)
+          ;({ error } = await supabase.from('user_profits').update(update).eq('user_id', uid))
         } else {
-          await supabase.from('user_profits').insert({
+          ;({ error } = await supabase.from('user_profits').insert({
             user_id: uid,
             total_earned_usdc: addProfit,
             total_commission_earned: addCommission,
@@ -228,30 +278,66 @@ export async function POST(request: NextRequest) {
             withdrawn_usdc: 0,
             withdrawn_matic: 0,
             ...(tier !== undefined ? { current_tier: tier } : {}),
-          })
+          }))
         }
+        if (error) throw new Error(error.message)
       } catch (err) {
         console.error(`Error writing profits for ${uid}:`, err)
+        failedProfitUsers.add(uid)
       }
     }
     for (let i = 0; i < affectedIds.length; i += 50) {
       await Promise.all(affectedIds.slice(i, i + 50).map(writeProfit))
     }
 
-    // 批量标记已发放（幂等：重跑只处理 is_credited=false 的 calc）
-    for (let i = 0; i < creditedCalcIds.length; i += 300) {
-      await supabase.from('airdrop_calculations').update({ is_credited: true }).in('id', creditedCalcIds.slice(i, i + 300))
+    // 补偿：撤销失败用户的账本声明，让重跑能重新处理他们。
+    // 同时把「以他为受益人」的佣金行标成未入账 —— 那笔佣金确实没进他账户，账本必须如实反映。
+    if (failedProfitUsers.size > 0) {
+      const failed = [...failedProfitUsers]
+      for (let i = 0; i < failed.length; i += 300) {
+        const chunk = failed.slice(i, i + 300)
+        const { error: delErr } = await supabase
+          .from('profit_history')
+          .delete()
+          .eq('round_id', round_id)
+          .in('user_id', chunk)
+        if (delErr) ledgerErrors.push(`profit_history rollback: ${delErr.message}`)
+        const { error: flagErr } = await supabase
+          .from('referral_commissions')
+          .update({ is_credited: false })
+          .eq('round_id', round_id)
+          .in('beneficiary_id', chunk)
+        if (flagErr) ledgerErrors.push(`referral_commissions flag: ${flagErr.message}`)
+      }
     }
 
-    // 更新轮次状态
-    await supabase
-      .from('airdrop_rounds')
-      .update({
-        status: 'distributed',
-        distributed_at: now,
-        distributed_by: 'admin',
-      })
-      .eq('id', round_id)
+    // 批量标记已发放。只标记钱确实落地的用户 —— 失败者留在 is_credited=false，
+    // 重跑才能把他们捡起来（否则这笔钱永久丢失且无人知晓）。
+    const safeCalcIds = creditedCalcs.filter(c => !failedProfitUsers.has(c.user_id)).map(c => c.id)
+    for (let i = 0; i < safeCalcIds.length; i += 300) {
+      const { error } = await supabase
+        .from('airdrop_calculations')
+        .update({ is_credited: true })
+        .in('id', safeCalcIds.slice(i, i + 300))
+      if (error) {
+        console.error('is_credited batch update failed:', error)
+        ledgerErrors.push(`is_credited[${i}]: ${error.message}`)
+      }
+    }
+
+    // 更新轮次状态。有失败时保持 pending —— 否则开头 `round.status !== 'pending'` 的
+    // guard 会挡住重跑，上面留的 is_credited=false 就白留了。
+    const hasFailures = failedProfitUsers.size > 0 || ledgerErrors.length > 0
+    if (!hasFailures) {
+      await supabase
+        .from('airdrop_rounds')
+        .update({
+          status: 'distributed',
+          distributed_at: now,
+          distributed_by: 'admin',
+        })
+        .eq('id', round_id)
+    }
 
     // 更新配置中的最后发放时间
     await supabase
@@ -282,6 +368,7 @@ export async function POST(request: NextRequest) {
     // ========== 同时发放社群每日收益（含 Momentum Multiplier） ==========
     let communityProcessedCount = 0
     let communityDistributedAmount = 0
+    const communityFailures: Array<{ user_id: string; stage: string; error: string }> = []
 
     try {
       const today = now.split('T')[0]
@@ -361,8 +448,9 @@ export async function POST(request: NextRequest) {
           const creditAvailable = locked ? 0 : earningAmount
           const creditLocked = locked ? earningAmount : 0
 
-          // 创建每日收益记录（包含 momentum 倍率）
-          await supabase
+          // 创建每日收益记录（包含 momentum 倍率）。这行同时是「今天发过了」的去重键，
+          // 所以一旦后面加钱失败，必须把它删掉，否则重跑会跳过这个人 → 工资永久丢失。
+          const { error: earnErr } = await supabase
             .from('community_daily_earnings')
             .insert({
               user_id: status.user_id,
@@ -375,16 +463,41 @@ export async function POST(request: NextRequest) {
               is_credited: true,
               credited_at: now,
             })
+          if (earnErr) {
+            communityFailures.push({ user_id: status.user_id, stage: 'earning_insert', error: earnErr.message })
+            continue
+          }
+
+          // 加钱失败时的补偿：撤掉刚插的去重行，让重跑能重新处理这个人。
+          const rollbackEarning = async (stage: string, message: string) => {
+            const { error: delErr } = await supabase
+              .from('community_daily_earnings')
+              .delete()
+              .eq('user_id', status.user_id)
+              .eq('earning_date', today)
+            communityFailures.push({
+              user_id: status.user_id,
+              stage: delErr ? `${stage} + rollback_failed` : stage,
+              error: delErr ? `${message} | rollback: ${delErr.message}` : message,
+            })
+          }
 
           // 更新用户利润账户（locked → community_locked_usdc，否则 available）
-          const { data: profits } = await supabase
+          // maybeSingle：无行时返回 null 而不报错，才能把「真错误」和「本来就没这行」区分开。
+          const { data: profits, error: readErr } = await supabase
             .from('user_profits')
             .select('*')
             .eq('user_id', status.user_id)
-            .single()
+            .maybeSingle()
 
+          if (readErr) {
+            await rollbackEarning('profit_read', readErr.message)
+            continue
+          }
+
+          let writeErr
           if (profits) {
-            await supabase
+            ;({ error: writeErr } = await supabase
               .from('user_profits')
               .update({
                 available_usdc: Number(profits.available_usdc || 0) + creditAvailable,
@@ -392,9 +505,9 @@ export async function POST(request: NextRequest) {
                 total_earned_usdc: Number(profits.total_earned_usdc || 0) + earningAmount,
                 updated_at: now,
               })
-              .eq('user_id', status.user_id)
+              .eq('user_id', status.user_id))
           } else {
-            await supabase
+            ;({ error: writeErr } = await supabase
               .from('user_profits')
               .insert({
                 user_id: status.user_id,
@@ -404,7 +517,11 @@ export async function POST(request: NextRequest) {
                 available_matic: 0,
                 withdrawn_usdc: 0,
                 withdrawn_matic: 0,
-              })
+              }))
+          }
+          if (writeErr) {
+            await rollbackEarning('profit_write', writeErr.message)
+            continue
           }
 
           // 更新社群账户累计收益 + momentum_multiplier 缓存 + 推进 movement 快照
@@ -414,7 +531,8 @@ export async function POST(request: NextRequest) {
             .eq('user_id', status.user_id)
             .single()
 
-          await supabase
+          // 钱已落地，这一步失败不回滚（回滚会把钱收回去）。只记录，让人工修 momentum。
+          const { error: statusErr } = await supabase
             .from('user_community_status')
             .update({
               total_community_earned: (communityStatus?.total_community_earned || 0) + earningAmount,
@@ -427,6 +545,9 @@ export async function POST(request: NextRequest) {
               updated_at: now,
             })
             .eq('user_id', status.user_id)
+          if (statusErr) {
+            communityFailures.push({ user_id: status.user_id, stage: 'status_update (钱已发放)', error: statusErr.message })
+          }
 
           communityProcessedCount++
           communityDistributedAmount += earningAmount
@@ -481,12 +602,35 @@ export async function POST(request: NextRequest) {
       console.error('Error processing lottery spins:', lotteryErr)
     }
 
+    // 失败的空投用户金额（供人工核对；这些人的 calc 仍是 is_credited=false）
+    const failedAmount = [...failedProfitUsers].reduce(
+      (sum, uid) => sum + (profitDelta.get(uid) || 0) + (commissionDelta.get(uid) || 0),
+      0,
+    )
+
     return NextResponse.json({
-      success: true,
+      // 只有钱真的全部落地才算成功。注意下面的 total_* 是「打算发多少」，
+      // 从计算循环累加而来，不代表已写入数据库 —— 看 failed_* 才知道实际结果。
+      success: !hasFailures && communityFailures.length === 0,
       distributed_count: distributedCount,
       total_distributed: totalDistributed.toFixed(6),
       commission_count: commissionCount,
       total_commissions: totalCommissions.toFixed(6),
+      // 账本里已有记录、本次跳过的人（上一次跑到一半崩掉时会 > 0）
+      skipped_already_paid: skippedAlreadyPaid,
+      // 失败详情
+      failed_users: [...failedProfitUsers],
+      failed_amount: failedAmount.toFixed(6),
+      ledger_errors: ledgerErrors,
+      community_failures: communityFailures,
+      // 有空投失败时轮次保持 pending，直接重跑本接口即可补发（只处理 is_credited=false 的人）。
+      // 社群工资失败的人去重行已被撤销，重跑 /api/admin/community/daily-earnings 补发。
+      round_status: hasFailures ? 'pending' : 'distributed',
+      retry_hint: hasFailures
+        ? 'airdrop 有失败：轮次保持 pending，重跑本接口补发'
+        : communityFailures.length > 0
+          ? 'airdrop 已完成；社群工资有失败：重跑 /api/admin/community/daily-earnings 补发'
+          : null,
       // 社群发放结果
       community_distribution: {
         processed_count: communityProcessedCount,
