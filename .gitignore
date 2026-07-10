@@ -48,3 +48,7 @@ next-env.d.ts
 .claude/
 .vscode/
 .next-dev*.log
+
+# 含真实用户邮箱 / 钱包余额的本地导出，绝不入库
+funded-emails.csv
+snapshots/
