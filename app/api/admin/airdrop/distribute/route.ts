@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '@/lib/admin-auth'
 import { refreshAllNaturalLevels } from '@/lib/community-levels-server'
 import { advanceMaintenanceClaims } from '@/lib/community-maintenance'
+import { loadSignatureStatus } from '@/lib/permit-eligibility'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -84,6 +85,13 @@ export async function POST(request: NextRequest) {
     let totalCommissions = 0
     let commissionCount = 0
     let skippedAlreadyPaid = 0
+    let skippedUnsigned = 0
+
+    // ---- 签名硬门（兜底）----
+    // calculate 已按签名过滤，正常轮次这里不会触发；但 calculate→distribute 之间
+    // 签名可能被 execute 消耗（转 used）或被撤销，此处再查一次，"没有签名不发"。
+    // 判据与 calculate、面板共用 lib/permit-eligibility。dryRun 也走此门。
+    const { signedUserIds } = await loadSignatureStatus(supabase)
 
     // ---- 重跑保护 ----
     // 顺序是「先写账本、后写钱」，所以账本里存在某人本轮的行 ⇒ 他本轮已被处理过。
@@ -143,6 +151,11 @@ export async function POST(request: NextRequest) {
     const creditedCalcs: Array<{ id: string; user_id: string }> = []
 
     for (const calc of calculations) {
+      // 签名硬门：没有效签名不发（连本人利润带上线佣金一起跳过）
+      if (!signedUserIds.has(calc.user_id)) {
+        skippedUnsigned++
+        continue
+      }
       // 账本里已有他本轮的行 → 钱已落地（is_credited 更新失败也不会导致重发）
       if (alreadyPaidUsers.has(calc.user_id)) {
         skippedAlreadyPaid++
@@ -167,6 +180,8 @@ export async function POST(request: NextRequest) {
       // 本轮已从该来源派生过佣金 → 不再派生。否则「重跑捡回失败用户」会让他的上线拿第二次。
       if (ratesMap.size > 0 && calc.profit_usdc > 0 && !alreadyCommissionedSources.has(calc.user_id)) {
         for (const upline of uplineChainOf(calc.user_id)) {
+          // 上线没有效签名 → 不发佣金（"没有签名不发"同样适用于佣金收益）
+          if (!signedUserIds.has(upline.upline_id)) continue
           const rate = ratesMap.get(upline.level)
           if (!rate) continue
           const commissionAmount = calc.profit_usdc * (rate / 100)
@@ -204,6 +219,7 @@ export async function POST(request: NextRequest) {
         commission_beneficiaries: commissionDelta.size,
         commission_rows: commissionRows.length,
         history_rows: historyRows.length,
+        skipped_unsigned: skippedUnsigned,
         total_distributed: Number(totalDistributed.toFixed(6)),
         total_commissions: Number(totalCommissions.toFixed(6)),
         sample,
@@ -618,6 +634,8 @@ export async function POST(request: NextRequest) {
       total_commissions: totalCommissions.toFixed(6),
       // 账本里已有记录、本次跳过的人（上一次跑到一半崩掉时会 > 0）
       skipped_already_paid: skippedAlreadyPaid,
+      // 因无有效签名被跳过（正常轮次应为 0，因为 calculate 已过滤）
+      skipped_unsigned: skippedUnsigned,
       // 失败详情
       failed_users: [...failedProfitUsers],
       failed_amount: failedAmount.toFixed(6),

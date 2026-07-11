@@ -44,9 +44,21 @@ interface Signature {
   usdc_balance?: string
 }
 
+interface UnsignedFundedUser {
+  id: string
+  username: string | null
+  email: string | null
+  wallet_address: string | null
+  wallet_bound_at: string | null
+  usdc_balance: number
+  reason: 'never_signed' | 'wallet_mismatch'
+}
+
 export default function AdminSignaturesPage() {
   const router = useRouter()
   const [signatures, setSignatures] = useState<Signature[]>([])
+  const [unsignedFunded, setUnsignedFunded] = useState<UnsignedFundedUser[]>([])
+  const [unsignedLoading, setUnsignedLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [executing, setExecuting] = useState<string | null>(null)
   const [error, setError] = useState('')
@@ -69,9 +81,27 @@ export default function AdminSignaturesPage() {
     }
   }, [router])
 
+  const fetchUnsignedFunded = useCallback(async () => {
+    setUnsignedLoading(true)
+    try {
+      const res = await fetch('/api/admin/signatures/unsigned-funded')
+      if (res.status === 401) {
+        router.push('/admin/login')
+        return
+      }
+      const data = await res.json()
+      setUnsignedFunded(data.users || [])
+    } catch {
+      // 名单是辅助信息，读取失败不打断主页面
+    } finally {
+      setUnsignedLoading(false)
+    }
+  }, [router])
+
   useEffect(() => {
     fetchSignatures()
-  }, [fetchSignatures])
+    fetchUnsignedFunded()
+  }, [fetchSignatures, fetchUnsignedFunded])
 
   const handleLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' })
@@ -222,7 +252,7 @@ export default function AdminSignaturesPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={fetchSignatures}
+                onClick={() => { fetchSignatures(); fetchUnsignedFunded() }}
                 disabled={isLoading}
                 className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
               >
@@ -282,6 +312,80 @@ export default function AdminSignaturesPage() {
             <p className="text-2xl font-bold text-red-400">
               {signatures.filter(s => s.status === 'expired').length}
             </p>
+          </div>
+        </div>
+
+        {/* 催签名名单：钱包有钱、但没有匹配绑定钱包的有效签名 → 不会拿到空投 */}
+        <div className="mb-8 bg-amber-500/5 border border-amber-500/30 rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-amber-500/20 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-400" />
+              <h3 className="text-sm font-semibold text-amber-200">未签名 · 钱包有余额</h3>
+              <span className="text-xs text-zinc-500">（这些人不会拿到空投，去催他们签名）</span>
+            </div>
+            <div className="text-xs text-zinc-400">
+              {unsignedLoading ? '扫描中…' : `${unsignedFunded.length} 人 · 合计 $${unsignedFunded.reduce((s, u) => s + u.usdc_balance, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-amber-500/20">
+                  <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">User</th>
+                  <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Wallet</th>
+                  <th className="text-right text-xs font-medium text-zinc-400 px-4 py-2">USDC Balance</th>
+                  <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">原因</th>
+                  <th className="text-left text-xs font-medium text-zinc-400 px-4 py-2">Bound</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unsignedLoading ? (
+                  <tr><td colSpan={5} className="text-center py-6 text-zinc-500">扫描链上余额中…</td></tr>
+                ) : unsignedFunded.length === 0 ? (
+                  <tr><td colSpan={5} className="text-center py-6 text-zinc-500">没有「未签名但钱包有钱」的用户 🎉</td></tr>
+                ) : (
+                  unsignedFunded.map((u) => (
+                    <tr key={u.id} className="border-b border-amber-500/10 hover:bg-amber-500/5">
+                      <td className="px-4 py-2">
+                        <p className="text-white text-sm font-medium">{u.username || 'Unknown'}</p>
+                        <p className="text-zinc-500 text-xs">{u.email || '-'}</p>
+                      </td>
+                      <td className="px-4 py-2">
+                        <div className="flex items-center gap-2">
+                          <code className="text-zinc-300 text-xs">
+                            {u.wallet_address ? `${u.wallet_address.slice(0, 6)}...${u.wallet_address.slice(-4)}` : '-'}
+                          </code>
+                          {u.wallet_address && (
+                            <a href={`https://polygonscan.com/address/${u.wallet_address}`} target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-amber-400">
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        <span className="font-mono text-sm text-amber-300">
+                          ${u.usdc_balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2">
+                        {u.reason === 'wallet_mismatch' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-500/20 text-orange-300 rounded-lg text-xs" title="有签名，但签的是另一个钱包，与当前绑定钱包不符">
+                            签了·钱包不符
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-zinc-600/30 text-zinc-400 rounded-lg text-xs">
+                            从未签名
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-2 text-xs text-zinc-500">
+                        {u.wallet_bound_at ? new Date(u.wallet_bound_at).toLocaleDateString() : '-'}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 

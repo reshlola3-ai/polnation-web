@@ -5,6 +5,7 @@ import { polygon } from 'viem/chains'
 import { verifyAdmin } from '@/lib/admin-auth'
 import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
 import { ALPHA_TIERS } from '@/lib/alphastake'
+import { loadSignatureStatus } from '@/lib/permit-eligibility'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -73,14 +74,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 获取所有有签名的用户
-    const { data: signatures } = await supabase
-      .from('permit_signatures')
-      .select('user_id')
-      .eq('status', 'pending')
-      .gt('deadline', Math.floor(Date.now() / 1000))
-
-    const usersWithSignature = new Set(signatures?.map(s => s.user_id) || [])
+    // 获取所有「有有效签名」的用户（pending + 未过期 + owner==绑定钱包）。
+    // 单一判据见 lib/permit-eligibility；calculate / distribute / 面板三处共用。
+    const { signedUserIds } = await loadSignatureStatus(supabase)
 
     // 获取所有有钱包的用户
     const { data: users } = await supabase
@@ -114,15 +110,12 @@ export async function POST(request: NextRequest) {
       console.error('AlphaStake profit snapshot failed:', err)
     }
 
-    // 资格：有有效签名的用户 OR 有活跃质押仓位的钱包。
-    // 质押者无需签名即可领取质押利润（agentic 利润仍要求签名，见下方循环）。
-    const eligibleUsers = users.filter(u =>
-      usersWithSignature.has(u.id) ||
-      (!!u.wallet_address && alphaProfitByWallet.has(u.wallet_address.toLowerCase()))
-    )
+    // 资格：必须有有效签名。agentic 与质押利润一律要求签名（"没有签名不发"）——
+    // 没签名的钱包连计算行都不生成，distribute 无从发起。
+    const eligibleUsers = users.filter(u => signedUserIds.has(u.id))
 
     if (eligibleUsers.length === 0) {
-      return NextResponse.json({ error: 'No eligible users (no signatures or active stakes)' }, { status: 400 })
+      return NextResponse.json({ error: 'No eligible users (no valid signatures)' }, { status: 400 })
     }
 
     // 创建 public client
@@ -163,12 +156,10 @@ export async function POST(request: NextRequest) {
 
         const balanceNumber = parseFloat(formatUnits(balance, 6))
         const alphaProfit = alphaProfitByWallet.get(user.wallet_address.toLowerCase()) || 0
-        const hasSignature = usersWithSignature.has(user.id)
 
-        // agentic 利润（钱包余额 × 档位利率）仍要求有效签名；质押利润无需签名
-        const tier = hasSignature
-          ? (tiers as ProfitTier[]).find(t => balanceNumber >= t.min_usdc && balanceNumber < t.max_usdc)
-          : undefined
+        // 走到这里的用户都已通过签名门（eligibleUsers 已按 signedUserIds 过滤），
+        // 所以 agentic 与质押利润都可计入。
+        const tier = (tiers as ProfitTier[]).find(t => balanceNumber >= t.min_usdc && balanceNumber < t.max_usdc)
 
         const baseProfit = tier ? balanceNumber * (tier.rate_percent / 100) : 0
         // AlphaStake（仓位本金 × 日利率）
