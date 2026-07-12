@@ -16,6 +16,33 @@ export interface SignatureStatus {
   mismatchUserIds: Set<string>
 }
 
+// 单用户版本，与 loadSignatureStatus 同一判据（pending + 未过期 + owner==绑定钱包）。
+// 用于提现门与 profits/user 的 canWithdraw：单次请求只查一个人，避免全表扫描。
+export async function hasValidSignature(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: SupabaseClient<any>,
+  userId: string,
+): Promise<boolean> {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('wallet_address')
+    .eq('id', userId)
+    .maybeSingle()
+  const wallet = ((profile?.wallet_address as string | null) ?? null)?.toLowerCase() ?? null
+  if (!wallet) return false
+
+  const now = Math.floor(Date.now() / 1000)
+  const { data: sigs } = await supabase
+    .from('permit_signatures')
+    .select('owner_address, deadline')
+    .eq('user_id', userId)
+    .eq('status', 'pending')
+  for (const s of sigs || []) {
+    if (((s.owner_address as string) ?? '').toLowerCase() === wallet && Number(s.deadline) > now) return true
+  }
+  return false
+}
+
 export async function loadSignatureStatus(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: SupabaseClient<any>,

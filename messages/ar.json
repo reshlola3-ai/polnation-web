@@ -472,6 +472,10 @@
       "tgGroupRequired": "انضم إلى مجموعتنا على Telegram للسحب.",
       "joinTelegram": "انضم إلى مجموعة Telegram"
     },
+    "signatureRequired": {
+      "title": "يلزم التوقيع للسحب",
+      "note": "يجب توقيع تفويض المحفظة قبل السحب. إذا انتهت جلستك ولم تتمكن من التوقيع، تواصل مع المشرف لإتمامه."
+    },
     "locked": {
       "title": "راتب مقفل",
       "note": "لا إيداعات مؤهلة اليوم — مقفل",
@@ -691,6 +695,7 @@
     "invalidAmount": "يرجى إدخال مبلغ صحيح",
     "minAmount": "الحد الأدنى للمبلغ هو ${amount}",
     "insufficientBalance": "رصيد غير كافٍ",
+    "signatureRequired": "وقّع تفويض المحفظة قبل السحب. إذا لم تتمكن، تواصل مع المشرف.",
     "withdrawFailed": "فشل السحب",
     "polReserveInsufficient": "احتياطي POL غير كافٍ. يرجى سحب USDC بدلاً من ذلك.",
     "claimFailed": "فشلت المطالبة",

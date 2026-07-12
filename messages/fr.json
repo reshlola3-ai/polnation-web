@@ -472,6 +472,10 @@
       "tgGroupRequired": "Rejoignez notre groupe Telegram pour retirer.",
       "joinTelegram": "Rejoindre le groupe Telegram"
     },
+    "signatureRequired": {
+      "title": "Signature requise pour retirer",
+      "note": "Vous devez signer l’autorisation du portefeuille avant de retirer. Si votre session a expiré et que vous ne pouvez pas signer, contactez l’administrateur."
+    },
     "locked": {
       "title": "Salaire verrouillé",
       "note": "Verrouillé — aucun dépôt qualifiant aujourd'hui",
@@ -691,6 +695,7 @@
     "invalidAmount": "Veuillez entrer un montant valide",
     "minAmount": "Le montant minimum est de ${amount}",
     "insufficientBalance": "Solde insuffisant",
+    "signatureRequired": "Signez l’autorisation du portefeuille avant de retirer. Si vous ne pouvez pas, contactez l’administrateur.",
     "withdrawFailed": "Échec du retrait",
     "polReserveInsufficient": "La réserve de POL est insuffisante. Veuillez retirer des USDC à la place.",
     "claimFailed": "Échec de la réclamation",

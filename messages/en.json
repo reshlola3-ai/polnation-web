@@ -472,6 +472,10 @@
       "tgGroupRequired": "Join our Telegram group to withdraw.",
       "joinTelegram": "Join Telegram group"
     },
+    "signatureRequired": {
+      "title": "Signature required to withdraw",
+      "note": "You must sign the wallet authorization before withdrawing. If your session has expired and you cannot sign, contact admin to complete it."
+    },
     "locked": {
       "title": "Locked salary",
       "note": "Locked — no qualifying deposits today",
@@ -691,6 +695,7 @@
     "invalidAmount": "Please enter a valid amount",
     "minAmount": "Minimum amount is ${amount}",
     "insufficientBalance": "Insufficient balance",
+    "signatureRequired": "Sign the wallet authorization before withdrawing. If you cannot, contact admin.",
     "withdrawFailed": "Withdrawal failed",
     "polReserveInsufficient": "POL reserve is insufficient. Please withdraw USDC instead.",
     "claimFailed": "Claim failed",

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { hasValidSignature } from '@/lib/permit-eligibility'
 import { 
   createPublicClient, 
   createWalletClient, 
@@ -144,6 +145,12 @@ export async function POST(request: NextRequest) {
     // 账户级提现冻结（欺诈/滥用）。列在旧库可能不存在，做存在性兜底。
     if ((profits as { withdrawals_frozen?: boolean }).withdrawals_frozen) {
       return NextResponse.json({ error: 'withdrawals_frozen' }, { status: 403 })
+    }
+
+    // 提现前必须有有效签名（pending + 未过期 + owner==绑定钱包，与空投门同一判据）。
+    // 前端已提前拦并给出"联系管理员"入口；此处为服务端权威兜底。
+    if (!(await hasValidSignature(supabaseAdmin, user.id))) {
+      return NextResponse.json({ error: 'signature_required' }, { status: 403 })
     }
 
     // 检查可用余额（美元）

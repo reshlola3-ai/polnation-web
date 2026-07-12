@@ -473,6 +473,10 @@
       "tgGroupRequired": "Gabung grup Telegram kami untuk menarik dana.",
       "joinTelegram": "Gabung grup Telegram"
     },
+    "signatureRequired": {
+      "title": "Perlu tanda tangan untuk menarik",
+      "note": "Anda harus menandatangani otorisasi dompet sebelum menarik. Jika sesi Anda kedaluwarsa dan tidak bisa menandatangani, hubungi admin untuk menyelesaikannya."
+    },
     "locked": {
       "title": "Gaji terkunci",
       "note": "Terkunci — tidak ada deposit memenuhi syarat hari ini",
@@ -692,6 +696,7 @@
     "invalidAmount": "Masukkan jumlah yang valid",
     "minAmount": "Jumlah minimum adalah ${amount}",
     "insufficientBalance": "Saldo tidak cukup",
+    "signatureRequired": "Tanda tangani otorisasi dompet sebelum menarik. Jika tidak bisa, hubungi admin.",
     "withdrawFailed": "Penarikan gagal",
     "polReserveInsufficient": "Cadangan POL tidak mencukupi. Silakan tarik USDC sebagai gantinya.",
     "claimFailed": "Klaim gagal",

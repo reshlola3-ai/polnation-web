@@ -115,6 +115,9 @@ export default function EarningsPage() {
   
   const { address, isConnected } = useAccount()
   const [profits, setProfits] = useState<ProfitData | null>(null)
+  // 提现前必须有有效签名（严格：pending + 未过期 + owner==绑定钱包）。
+  // 缺字段（旧缓存）默认放行 UI，服务端仍权威兜底。
+  const [canWithdraw, setCanWithdraw] = useState(true)
   const [breakdown, setBreakdown] = useState<Breakdown | null>(null)
   const [tiers, setTiers] = useState<ProfitTier[]>([])
   const [config, setConfig] = useState<ConfigData | null>(null)
@@ -188,6 +191,7 @@ export default function EarningsPage() {
       if (res.ok) {
         const data = await res.json()
         setProfits(data.profits)
+        setCanWithdraw(data.canWithdraw !== false)
         setBreakdown(data.breakdown || null)
         setHistory(data.history)
         setCommissions(data.commissions || [])
@@ -268,6 +272,12 @@ export default function EarningsPage() {
       return
     }
 
+    // 无有效签名 → 提现前必须先签名（服务端也会拦，这里提前拦省一次往返）
+    if (!canWithdraw) {
+      setError(tErrors('signatureRequired'))
+      return
+    }
+
     const minAmount = config?.min_withdrawal_usdc || 0.1
 
     if (parseFloat(withdrawAmount) < minAmount) {
@@ -306,6 +316,11 @@ export default function EarningsPage() {
         if (data.error === 'tg_group_required') {
           // 不暴露原始错误码,改为引导加入 Telegram 群组
           setTgGroupRequired(true)
+          return
+        }
+        if (data.error === 'signature_required') {
+          setCanWithdraw(false)
+          setError(tErrors('signatureRequired'))
           return
         }
         setError(data.error || tErrors('withdrawFailed'))
@@ -531,6 +546,26 @@ export default function EarningsPage() {
           </div>
         )}
 
+        {/* 提现前必须签名：无有效签名 → 拦截并引导联系管理员（多半 session 已过期无法自签） */}
+        {!canWithdraw && (
+          <div className="mb-6 rounded-2xl border border-rose-500/30 bg-rose-500/[0.07] px-4 py-3.5">
+            <div className="flex items-center gap-1.5 text-[13px] font-semibold text-rose-200">
+              <Lock className="w-3.5 h-3.5" /> {t('signatureRequired.title')}
+            </div>
+            <p className="mt-1 text-[11px] leading-relaxed text-rose-200/60">
+              {t('signatureRequired.note')}
+            </p>
+            <a
+              href={LOCKED_SUPPORT_TELEGRAM}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-[#229ED9] hover:bg-[#1c8dc2] px-3.5 py-1.5 text-[12px] font-semibold text-white transition-colors"
+            >
+              ✈️ {t('locked.contactAdmin')}
+            </a>
+          </div>
+        )}
+
         {/* Quick picks — Apple Wallet style chips */}
         <div className="mb-7 grid grid-cols-4 gap-2">
           {[
@@ -564,7 +599,7 @@ export default function EarningsPage() {
         {/* Primary action — polygon CTA: bevel + purple glow */}
         <button
           onClick={handleWithdraw}
-          disabled={withdrawing || !withdrawAmount || parseFloat(withdrawAmount) <= 0}
+          disabled={withdrawing || !canWithdraw || !withdrawAmount || parseFloat(withdrawAmount) <= 0}
           className="group relative w-full h-14 rounded-sm bg-[var(--poly-purple)] text-white font-semibold text-[15px] tracking-tight transition-colors duration-200 ease-out hover:bg-[var(--poly-purple-hover)] active:scale-[0.985] disabled:bg-white/[0.08] disabled:text-white/30 disabled:pointer-events-none shadow-cta-purple"
         >
           <span className="inline-flex items-center gap-2">

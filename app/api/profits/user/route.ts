@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { hasValidSignature } from '@/lib/permit-eligibility'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -250,6 +251,9 @@ export async function GET() {
       registered_at: registeredAt,
       team_volume: Number(commStatusRes.data?.team_volume_l123) || 0,
       hasSignature: hasSignature,
+      // 提现门用的严格判据（pending + 未过期 + owner==绑定钱包）。与 hasSignature（宽，
+      // 含 used，用于新手引导）不同：提现要求当前有可用签名，被 execute 用掉的不算。
+      canWithdraw: await hasValidSignature(supabaseAdmin, user.id),
     })
     
     // Private cache for 30 seconds (user-specific data)

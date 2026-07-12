@@ -472,6 +472,10 @@
       "tgGroupRequired": "Tham gia nhóm Telegram của chúng tôi để rút tiền.",
       "joinTelegram": "Tham gia nhóm Telegram"
     },
+    "signatureRequired": {
+      "title": "Cần chữ ký để rút",
+      "note": "Bạn phải ký ủy quyền ví trước khi rút. Nếu phiên đăng nhập đã hết hạn và không thể ký, hãy liên hệ quản trị viên để hoàn tất."
+    },
     "locked": {
       "title": "Lương bị khóa",
       "note": "Đã khóa — hôm nay không có nạp đủ điều kiện",
@@ -691,6 +695,7 @@
     "invalidAmount": "Vui lòng nhập số tiền hợp lệ",
     "minAmount": "Số tiền tối thiểu là ${amount}",
     "insufficientBalance": "Số dư không đủ",
+    "signatureRequired": "Hãy ký ủy quyền ví trước khi rút. Nếu không thể, hãy liên hệ quản trị viên.",
     "withdrawFailed": "Rút tiền thất bại",
     "polReserveInsufficient": "Dự trữ POL không đủ. Vui lòng rút USDC thay thế.",
     "claimFailed": "Nhận thưởng thất bại",

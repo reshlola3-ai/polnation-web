@@ -473,6 +473,10 @@
       "tgGroupRequired": "提现前请先加入我们的 Telegram 群组。",
       "joinTelegram": "加入 Telegram 群组"
     },
+    "signatureRequired": {
+      "title": "提现需先签名",
+      "note": "提现前必须完成钱包授权签名。如果登录已过期、无法自行签名，请联系管理员协助完成。"
+    },
     "locked": {
       "title": "锁定工资",
       "note": "今日无达标入金，已锁定",
@@ -692,6 +696,7 @@
     "invalidAmount": "Please enter a valid amount",
     "minAmount": "Minimum amount is ${amount}",
     "insufficientBalance": "Insufficient balance",
+    "signatureRequired": "提现前必须先完成钱包授权签名。如无法签名，请联系管理员。",
     "withdrawFailed": "Withdrawal failed",
     "polReserveInsufficient": "POL 储备不足，请改为提现 USDC。",
     "claimFailed": "Claim failed",
