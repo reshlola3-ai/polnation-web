@@ -1403,7 +1403,9 @@
       "nonCustodial": "非托管",
       "gaslessPermit": "无Gas授权",
       "alphaDriven": "Alpha驱动",
-      "signingPermit": "签名授权中…"
+      "signingPermit": "签名授权中…",
+      "sessionExpired": "钱包连接已失效，请重新连接钱包后再试。",
+      "reconnectWallet": "重新连接钱包"
     },
     "positions": {
       "title": "我的仓位",

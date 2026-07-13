@@ -1417,7 +1417,9 @@
       "nonCustodial": "غیر تحویلی",
       "gaslessPermit": "بغیر گیس اجازت",
       "alphaDriven": "Alpha سے چلتا ہے",
-      "signingPermit": "اجازت دستخط ہو رہی ہے…"
+      "signingPermit": "اجازت دستخط ہو رہی ہے…",
+      "sessionExpired": "والٹ کنکشن ختم ہو گیا۔ اپنا والٹ دوبارہ منسلک کریں اور دوبارہ کوشش کریں۔",
+      "reconnectWallet": "والٹ دوبارہ منسلک کریں"
     },
     "positions": {
       "title": "آپ کی پوزیشنز",

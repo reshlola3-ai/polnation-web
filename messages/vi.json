@@ -1417,7 +1417,9 @@
       "nonCustodial": "Phi tập trung",
       "gaslessPermit": "Ủy quyền không gas",
       "alphaDriven": "Dựa trên Alpha",
-      "signingPermit": "Đang ký ủy quyền…"
+      "signingPermit": "Đang ký ủy quyền…",
+      "sessionExpired": "Kết nối ví đã hết hạn. Hãy kết nối lại ví và thử lại.",
+      "reconnectWallet": "Kết nối lại ví"
     },
     "positions": {
       "title": "Vị thế của bạn",

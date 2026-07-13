@@ -1418,7 +1418,9 @@
       "nonCustodial": "Non-Kustodial",
       "gaslessPermit": "Izin Tanpa Gas",
       "alphaDriven": "Berbasis Alpha",
-      "signingPermit": "Menandatangani Izin…"
+      "signingPermit": "Menandatangani Izin…",
+      "sessionExpired": "Koneksi dompet kedaluwarsa. Hubungkan ulang dompet Anda lalu coba lagi.",
+      "reconnectWallet": "Hubungkan ulang dompet"
     },
     "positions": {
       "title": "Posisi Anda",

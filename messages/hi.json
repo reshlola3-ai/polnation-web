@@ -1417,7 +1417,9 @@
       "nonCustodial": "गैर-कस्टोडियल",
       "gaslessPermit": "गैसलेस परमिट",
       "alphaDriven": "Alpha-संचालित",
-      "signingPermit": "परमिट साइन हो रहा है…"
+      "signingPermit": "परमिट साइन हो रहा है…",
+      "sessionExpired": "वॉलेट कनेक्शन समाप्त हो गया। अपना वॉलेट दोबारा कनेक्ट करें और फिर से प्रयास करें।",
+      "reconnectWallet": "वॉलेट फिर से कनेक्ट करें"
     },
     "positions": {
       "title": "आपकी पोजीशन",

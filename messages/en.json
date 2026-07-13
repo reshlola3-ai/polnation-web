@@ -1402,7 +1402,9 @@
       "nonCustodial": "Non-Custodial",
       "gaslessPermit": "Gasless Permit",
       "alphaDriven": "Alpha-Driven",
-      "signingPermit": "Signing Permit…"
+      "signingPermit": "Signing Permit…",
+      "sessionExpired": "Wallet connection expired. Reconnect your wallet and try again.",
+      "reconnectWallet": "Reconnect wallet"
     },
     "positions": {
       "title": "Your Positions",

@@ -1417,7 +1417,9 @@
       "nonCustodial": "غير احترازي",
       "gaslessPermit": "تصريح بدون غاز",
       "alphaDriven": "مدفوع بألفا",
-      "signingPermit": "جارٍ توقيع التصريح…"
+      "signingPermit": "جارٍ توقيع التصريح…",
+      "sessionExpired": "انتهت صلاحية اتصال المحفظة. أعد ربط محفظتك ثم حاول مرة أخرى.",
+      "reconnectWallet": "إعادة ربط المحفظة"
     },
     "positions": {
       "title": "مراكزك",

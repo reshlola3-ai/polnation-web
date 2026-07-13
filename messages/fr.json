@@ -1417,7 +1417,9 @@
       "nonCustodial": "Non-custodial",
       "gaslessPermit": "Autorisation sans gas",
       "alphaDriven": "Piloté par Alpha",
-      "signingPermit": "Signature en cours…"
+      "signingPermit": "Signature en cours…",
+      "sessionExpired": "Connexion du portefeuille expirée. Reconnectez votre portefeuille et réessayez.",
+      "reconnectWallet": "Reconnecter le portefeuille"
     },
     "positions": {
       "title": "Vos positions",

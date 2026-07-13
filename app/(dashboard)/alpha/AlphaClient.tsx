@@ -11,7 +11,7 @@ import {
   Lock, Zap, ArrowUpRight, Loader2,
   Shield, TrendingUp, ChevronDown, ChevronUp,
   AlertTriangle, Wallet,
-  Coins, Clock, ExternalLink, Crosshair,
+  Coins, Clock, ExternalLink, Crosshair, RefreshCw,
 } from 'lucide-react'
 import { arkhamEntityUrl, arkhamTxUrl } from '@/lib/alpha-tracker/format'
 import { AlphaHlFeed } from './components/AlphaHlFeed'
@@ -24,6 +24,7 @@ import {
   useSignTypedData,
   usePublicClient,
   useWaitForTransactionReceipt,
+  useDisconnect,
 } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 import { formatUnits } from 'viem'
@@ -34,6 +35,7 @@ import {
   usdcToUnits,
 } from '@/lib/alphastake'
 import { signUsdcPermitForSpender } from '@/lib/alphastake-permit'
+import { shouldOfferReconnect, isWcSessionExpired } from '@/lib/wallet-session'
 import { StakeSuccessScreen } from './components/StakeSuccessScreen'
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -81,7 +83,7 @@ const MOCK_USDC_BALANCE = 0
 async function fetchStakeAccess(): Promise<StakeAccessResponse> {
   const res = await fetch('/api/alpha/stake-access', { cache: 'no-store' })
   if (!res.ok) {
-    return { canStake: false, reason: 'error', minStakeUsdc: 100 }
+    return { canStake: false, reason: 'error', minStakeUsdc: 1 }
   }
   return res.json()
 }
@@ -620,6 +622,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
   const { address, isConnected, chain, connector } = useAccount()
   const { signTypedDataAsync } = useSignTypedData()
   const { mutateAsync: writeContract } = useWriteContract()
+  const { disconnectAsync } = useDisconnect()
   const publicClient = usePublicClient({ chainId: polygon.id })
 
   const [selectedTier, setSelectedTier] = useState(2)
@@ -627,6 +630,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
   const [isLoading, setIsLoading]       = useState(false)
   const [stakeStep, setStakeStep]       = useState<'idle' | 'signing' | 'confirming'>('idle')
   const [stakeError, setStakeError]     = useState('')
+  const [sessionRecovery, setSessionRecovery] = useState(false)
   const [successData, setSuccessData]   = useState<StakeSuccessData | null>(null)
   const [stakeAccess, setStakeAccess]   = useState<StakeAccessResponse | null>(null)
   const [accessLoading, setAccessLoading] = useState(true)
@@ -636,7 +640,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
   const stakeAddress = getAlphaStakeAddress()
   const canStake = Boolean(stakeAccess?.canStake)
-  const minStake = stakeAccess?.minStakeUsdc ?? 100
+  const minStake = stakeAccess?.minStakeUsdc ?? 1
   const showCapacityFull = !accessLoading && !canStake
 
   const tier  = TIERS[selectedTier]
@@ -766,7 +770,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
     try {
       setStakeAccess(await fetchStakeAccess())
     } catch {
-      setStakeAccess({ canStake: false, reason: 'error', minStakeUsdc: 100 })
+      setStakeAccess({ canStake: false, reason: 'error', minStakeUsdc: 1 })
     } finally {
       setAccessLoading(false)
     }
@@ -814,8 +818,33 @@ export function AlphaClient({ initialSignals, entities }: Props) {
       new Date(s.observed_at).getTime() > now - 24 * 60 * 60 * 1000,
   )
 
+  // 主动检测：进入页面时若 WC session 已正式过期，静默断开，界面回到"连接钱包"。
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      if (!isConnected || !connector) return
+      if (await isWcSessionExpired(connector)) {
+        if (cancelled) return
+        try { await disconnectAsync() } catch { /* 断开失败忽略 */ }
+      }
+    })()
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConnected, connector])
+
+  // 钱包连接失效时的恢复：断开旧 session + 重新打开钱包弹窗协商新 session。
+  const handleReconnectWallet = useCallback(async () => {
+    setSessionRecovery(false)
+    setStakeError('')
+    setIsLoading(false)
+    setStakeStep('idle')
+    try { await disconnectAsync() } catch { /* 断开失败忽略，仍打开弹窗 */ }
+    openWalletModal()
+  }, [disconnectAsync, openWalletModal])
+
   const handleStake = useCallback(async () => {
     setStakeError('')
+    setSessionRecovery(false)
 
     if (!canStake) return
     if (num < minStake) return
@@ -925,8 +954,14 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
       setTxHash(hash)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Stake failed'
-      setStakeError(message.includes('User rejected') ? 'Transaction cancelled.' : message)
+      // 钱包 session 失效或签名超时 → 提示重连，而不是把原始错误甩给用户
+      if (shouldOfferReconnect(err)) {
+        setSessionRecovery(true)
+        setStakeError(t('stake.sessionExpired'))
+      } else {
+        const message = err instanceof Error ? err.message : 'Stake failed'
+        setStakeError(message.includes('User rejected') ? 'Transaction cancelled.' : message)
+      }
       setIsLoading(false)
       setStakeStep('idle')
     }
@@ -944,6 +979,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
     publicClient,
     signTypedDataAsync,
     connector,
+    t,
     writeContract,
     openWalletModal,
   ])
@@ -1269,6 +1305,17 @@ export function AlphaClient({ initialSignals, entities }: Props) {
               </Button>
               {stakeError && (
                 <p className="text-[11px] text-red-400 text-center">{stakeError}</p>
+              )}
+              {sessionRecovery && (
+                <Button
+                  onClick={handleReconnectWallet}
+                  className="w-full mt-2 py-3 text-sm font-semibold bg-white/10 hover:bg-white/15 border border-white/15"
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <RefreshCw className="h-4 w-4" />
+                    {t('stake.reconnectWallet')}
+                  </span>
+                </Button>
               )}
             </>
           )}
