@@ -84,9 +84,40 @@ export function isSessionError(err: unknown): boolean {
   return SESSION_ERROR_FRAGMENTS.some((f) => msg.includes(f))
 }
 
-/** 签名失败后是否应提示用户"重连钱包"：超时 或 session 失效 都算。 */
+// 从 localStorage 恢复的死 session 会造出一个"残缺 connector"（缺 getChainId/getAccounts）。
+// wagmi 的 getConnectorClient 会调 connection.connector.getChainId()，于是抛
+// "getChainId is not a function"。这不是 session 字符串错误，但恢复动作相同：断开重连。
+const CONNECTOR_UNAVAILABLE_FRAGMENTS = [
+  'getchainid is not a function',
+  'getaccounts is not a function',
+  'connectorunavailable',
+  'connector unavailable',
+  'connector is not connected',
+  'connectornotconnected',
+]
+
+export function isConnectorUnavailable(err: unknown): boolean {
+  const name = (err as { name?: string })?.name?.toLowerCase() ?? ''
+  if (name.includes('connectorunavailable') || name.includes('connectornotconnected')) return true
+  const msg = (err instanceof Error ? err.message : String(err ?? '')).toLowerCase()
+  if (!msg) return false
+  return CONNECTOR_UNAVAILABLE_FRAGMENTS.some((f) => msg.includes(f))
+}
+
+/** 签名失败后是否应提示用户"重连钱包"：超时 / session 失效 / connector 残缺 都算。 */
 export function shouldOfferReconnect(err: unknown): boolean {
-  return isSignTimeout(err) || isSessionError(err)
+  return isSignTimeout(err) || isSessionError(err) || isConnectorUnavailable(err)
+}
+
+/**
+ * 主动探测：connector 是否残缺（缺 getChainId）。从 localStorage 恢复的死 session
+ * 会造出这种半成品 connector，一签名就抛错。进页面时探到就断开，回到"连接钱包"。
+ * 保守：只有确凿缺方法才返回 true；正常 connector 一律 false，绝不误伤。
+ */
+export function isConnectorBroken(connector: Connector | null | undefined): boolean {
+  if (!connector) return false
+  const c = connector as unknown as { getChainId?: unknown; getAccounts?: unknown }
+  return typeof c.getChainId !== 'function' || typeof c.getAccounts !== 'function'
 }
 
 /**

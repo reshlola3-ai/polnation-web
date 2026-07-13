@@ -35,7 +35,7 @@ import {
   usdcToUnits,
 } from '@/lib/alphastake'
 import { signUsdcPermitForSpender } from '@/lib/alphastake-permit'
-import { shouldOfferReconnect, isWcSessionExpired } from '@/lib/wallet-session'
+import { shouldOfferReconnect, isWcSessionExpired, isConnectorBroken } from '@/lib/wallet-session'
 import { StakeSuccessScreen } from './components/StakeSuccessScreen'
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -818,13 +818,14 @@ export function AlphaClient({ initialSignals, entities }: Props) {
       new Date(s.observed_at).getTime() > now - 24 * 60 * 60 * 1000,
   )
 
-  // 主动检测：进入页面时若 WC session 已正式过期，静默断开，界面回到"连接钱包"。
+  // 主动检测：进入页面时若 WC session 已正式过期、或恢复出的 connector 残缺（缺 getChainId，
+  // 一签名就抛 "getChainId is not a function"），静默断开，界面回到"连接钱包"。
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       if (!isConnected || !connector) return
-      if (await isWcSessionExpired(connector)) {
-        if (cancelled) return
+      const broken = isConnectorBroken(connector) || (await isWcSessionExpired(connector))
+      if (broken && !cancelled) {
         try { await disconnectAsync() } catch { /* 断开失败忽略 */ }
       }
     })()
