@@ -640,7 +640,10 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
   const stakeAddress = getAlphaStakeAddress()
   const canStake = Boolean(stakeAccess?.canStake)
-  const minStake = stakeAccess?.minStakeUsdc ?? 1
+  const minStake = stakeAccess?.minStakeUsdc ?? 1 // 实际放行(测试期 stake-access 返回 1)
+  // 前端显示的最低额与实际放行解耦:真实用户看到 $100,但测试期实际放行 $1。
+  // 上线时把 stake-access 的 minStakeUsdc 改回 100,两者即一致。
+  const minStakeDisplay = 100
   const showCapacityFull = !accessLoading && !canStake
 
   const tier  = TIERS[selectedTier]
@@ -1190,7 +1193,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0"
-                min={String(minStake)}
+                min={String(minStakeDisplay)}
                 disabled={!canStake}
                 className="flex-1 bg-transparent text-3xl font-bold text-white placeholder:text-zinc-700 focus:outline-none stat-number disabled:opacity-50"
               />
@@ -1200,7 +1203,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
               </div>
             </div>
             {num > 0 && num < minStake && (
-              <p className="text-[11px] text-red-400 mt-1.5">{t('stake.minError', { min: minStake })}</p>
+              <p className="text-[11px] text-red-400 mt-1.5">{t('stake.minError', { min: minStakeDisplay })}</p>
             )}
             {canStake && isConnected && boundWallet && !walletMatches && (
               <p className="text-[11px] text-red-400 mt-1.5">
@@ -1292,7 +1295,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                     <Zap className="h-4 w-4" />
                     {num >= minStake
                       ? `Stake $${num.toLocaleString()} for ${tier.days} ${t('stake.days')}`
-                      : t('stake.enterMin', { min: minStake })}
+                      : t('stake.enterMin', { min: minStakeDisplay })}
                   </span>
                 )}
               </Button>
