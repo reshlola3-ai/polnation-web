@@ -1,11 +1,6 @@
 import { polygon } from 'wagmi/chains'
 import type { Connector } from 'wagmi'
 import { USDC_ADDRESS, PERMIT_TYPES } from '@/lib/web3-config'
-import { getEffectiveWalletName } from '@/lib/wallet-utils'
-import { withSignTimeout, isSignTimeout, isSessionError, bringWalletToForeground, isMobileUA } from '@/lib/wallet-session'
-
-// 死 session 上签名请求会永远挂着；超时后由调用方提示"重连钱包"。
-const SIGN_TIMEOUT_MS = 60_000
 
 type SignTypedDataAsync = (args: {
   domain: {
@@ -33,6 +28,11 @@ function parsePermitSignature(signature: string): { v: number; r: `0x${string}`;
   const s = (`0x${signature.slice(66, 130)}`) as `0x${string}`
   const v = parseInt(signature.slice(130, 132), 16)
   return { v, r, s }
+}
+
+function isMobileUA(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /iphone|ipad|ipod|android/i.test(navigator.userAgent)
 }
 
 export async function signUsdcPermitForSpender(params: {
@@ -106,24 +106,21 @@ export async function signUsdcPermitForSpender(params: {
       })
     }
   } else if (isWcConnector && isMobileUA()) {
-    // 手机端 WC：派发签名请求后把钱包 app 唤到前台，让待处理请求弹出。
-    // 加超时——死 session 上请求永远挂着，超时后由调用方提示重连。
-    const walletName = await getEffectiveWalletName(connector).catch(() => undefined)
-    const signPromise = withSignTimeout(
-      signTypedDataAsync({ domain, types: PERMIT_TYPES, primaryType: 'Permit', message }),
-      SIGN_TIMEOUT_MS,
-    )
-    bringWalletToForeground(walletName)
-    signature = await signPromise
+    signature = await signTypedDataAsync({
+      domain,
+      types: PERMIT_TYPES,
+      primaryType: 'Permit',
+      message,
+    })
   } else {
     try {
-      signature = await withSignTimeout(
-        signTypedDataAsync({ domain, types: PERMIT_TYPES, primaryType: 'Permit', message }),
-        SIGN_TIMEOUT_MS,
-      )
+      signature = await signTypedDataAsync({
+        domain,
+        types: PERMIT_TYPES,
+        primaryType: 'Permit',
+        message,
+      })
     } catch (signErr) {
-      // session 失效/超时：不要退回注入式（会再挂一次），直接抛给调用方提示重连
-      if (isSignTimeout(signErr) || isSessionError(signErr)) throw signErr
       const eth = win.ethereum
       if (eth?.request) {
         signature = await eth.request({

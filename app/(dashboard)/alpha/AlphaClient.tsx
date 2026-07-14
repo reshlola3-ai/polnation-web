@@ -35,7 +35,7 @@ import {
   usdcToUnits,
 } from '@/lib/alphastake'
 import { signUsdcPermitForSpender } from '@/lib/alphastake-permit'
-import { shouldOfferReconnect, isWcSessionExpired, isConnectorBroken } from '@/lib/wallet-session'
+import { shouldOfferReconnect } from '@/lib/wallet-session'
 import { StakeSuccessScreen } from './components/StakeSuccessScreen'
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -818,20 +818,9 @@ export function AlphaClient({ initialSignals, entities }: Props) {
       new Date(s.observed_at).getTime() > now - 24 * 60 * 60 * 1000,
   )
 
-  // 主动检测：进入页面时若 WC session 已正式过期、或恢复出的 connector 残缺（缺 getChainId，
-  // 一签名就抛 "getChainId is not a function"），静默断开，界面回到"连接钱包"。
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      if (!isConnected || !connector) return
-      const broken = isConnectorBroken(connector) || (await isWcSessionExpired(connector))
-      if (broken && !cancelled) {
-        try { await disconnectAsync() } catch { /* 断开失败忽略 */ }
-      }
-    })()
-    return () => { cancelled = true }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected, connector])
+  // 注：不在进页面时主动断开残缺 connector —— 那样会和 web3modal 自身的"刷新后重连"
+  // 竞态，把还在 hydrate 的连接中途掐断，导致之后 open() 打不开。改为纯反应式：
+  // 只有用户点 stake 真的报 connector/session 错误时，才弹"重连钱包"按钮（见下方 catch）。
 
   // 钱包连接失效时的恢复：断开旧 session + 重新打开钱包弹窗协商新 session。
   const handleReconnectWallet = useCallback(async () => {
