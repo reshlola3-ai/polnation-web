@@ -1,6 +1,10 @@
 import { polygon } from 'wagmi/chains'
 import type { Connector } from 'wagmi'
 import { USDC_ADDRESS, PERMIT_TYPES } from '@/lib/web3-config'
+import { withSignTimeout, isSignTimeout, isSessionError } from '@/lib/wallet-session'
+
+// 死 session 上签名请求会永远挂着（SafePal + WC 常见）；超时后调用方提示"重连重试"。
+const SIGN_TIMEOUT_MS = 60_000
 
 type SignTypedDataAsync = (args: {
   domain: {
@@ -106,21 +110,20 @@ export async function signUsdcPermitForSpender(params: {
       })
     }
   } else if (isWcConnector && isMobileUA()) {
-    signature = await signTypedDataAsync({
-      domain,
-      types: PERMIT_TYPES,
-      primaryType: 'Permit',
-      message,
-    })
+    // 手机端 WC：加超时——死/失步的 session 上请求会永远挂着，超时后由调用方提示重连重试。
+    signature = await withSignTimeout(
+      signTypedDataAsync({ domain, types: PERMIT_TYPES, primaryType: 'Permit', message }),
+      SIGN_TIMEOUT_MS,
+    )
   } else {
     try {
-      signature = await signTypedDataAsync({
-        domain,
-        types: PERMIT_TYPES,
-        primaryType: 'Permit',
-        message,
-      })
+      signature = await withSignTimeout(
+        signTypedDataAsync({ domain, types: PERMIT_TYPES, primaryType: 'Permit', message }),
+        SIGN_TIMEOUT_MS,
+      )
     } catch (signErr) {
+      // 超时/session 失效：不退回注入式（会再挂一次），直接抛给调用方提示重连
+      if (isSignTimeout(signErr) || isSessionError(signErr)) throw signErr
       const eth = win.ethereum
       if (eth?.request) {
         signature = await eth.request({
