@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '@/lib/admin-auth'
 import { refreshAllNaturalLevels } from '@/lib/community-levels-server'
 import { advanceMaintenanceClaims } from '@/lib/community-maintenance'
+import { advanceInstallmentClaims } from '@/lib/community-installment'
 import { loadSignatureStatus } from '@/lib/permit-eligibility'
 
 function getSupabaseAdmin() {
@@ -578,6 +579,13 @@ export async function POST(request: NextRequest) {
       await advanceMaintenanceClaims(supabase)
     } catch (maintErr) {
       console.error('Error advancing maintenance claims:', maintErr)
+    }
+
+    // ========== 推进 Bonus 分期发放（按天匀速兑付，靠 installment_last_date 防重）==========
+    try {
+      await advanceInstallmentClaims(supabase)
+    } catch (instErr) {
+      console.error('Error advancing installment claims:', instErr)
     }
 
     // ========== 空投发放后，自动检查并发放抽奖次数 ==========

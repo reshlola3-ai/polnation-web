@@ -354,6 +354,41 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Bonus 分期发放：若有分期中的 claim，附上进度（纯 DB，不读链）。
+    // 独立 try/catch：迁移未跑（列不存在）时降级为无卡片，不 500 整个状态接口。
+    type InstClaimRow = { level: number; amount: number; installment_total_days: number | null; installment_days_done: number | null; installment_released: number | null }
+    let instClaim: InstClaimRow | null = null
+    try {
+      const { data } = await supabaseAdmin
+        .from('community_pool_claims')
+        .select('level, amount, installment_total_days, installment_days_done, installment_released')
+        .eq('user_id', user.id)
+        .eq('status', 'installment')
+        .maybeSingle()
+      instClaim = (data as InstClaimRow | null) ?? null
+    } catch { /* 迁移未跑 → 无分期卡片 */ }
+
+    let installment: {
+      level: number; levelName: string; amount: number
+      totalDays: number; daysDone: number; released: number; remaining: number; dailyAmount: number
+    } | null = null
+    if (instClaim) {
+      const amount = Number(instClaim.amount)
+      const totalDays = Number(instClaim.installment_total_days || 0)
+      const releasedAmt = Number(instClaim.installment_released || 0)
+      const lvlInfo = levels?.find(l => l.level === instClaim.level)
+      installment = {
+        level: instClaim.level,
+        levelName: lvlInfo?.name || `L${instClaim.level}`,
+        amount,
+        totalDays,
+        daysDone: Number(instClaim.installment_days_done || 0),
+        released: Number(releasedAmt.toFixed(2)),
+        remaining: Number(Math.max(0, amount - releasedAmt).toFixed(2)),
+        dailyAmount: totalDays > 0 ? Number((amount / totalDays).toFixed(2)) : 0,
+      }
+    }
+
     const response = NextResponse.json({
       isLocked: false,
       status: {
@@ -383,6 +418,8 @@ export async function GET(request: NextRequest) {
       hasReachedThreshold: hasReachedCurrentThreshold,
       // Bonus 维持期进度（无则 null）
       maintenance,
+      // Bonus 分期发放进度（无则 null）
+      installment,
       // Momentum data
       momentum: {
         multiplier: momentumMultiplier,

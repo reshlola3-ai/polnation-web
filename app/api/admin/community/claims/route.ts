@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '@/lib/admin-auth'
 import { computeTeamStakingRatio, releaseMaintenanceClaim, DEFAULT_MAINTENANCE_DAYS } from '@/lib/community-maintenance'
+import { DEFAULT_INSTALLMENT_DAYS } from '@/lib/community-installment'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -211,10 +212,42 @@ export async function GET() {
       staking_ratio: maintRatios[i]?.ratio ?? null,
     }))
 
+    // 分期发放中的 claim（已批准、按天匀速兑付）
+    const { data: instRaw } = await supabase
+      .from('community_pool_claims')
+      .select('id, user_id, level, amount, installment_total_days, installment_days_done, installment_released, installment_started_at, profile:user_id(username, email)')
+      .eq('status', 'installment')
+      .order('installment_started_at', { ascending: true })
+    const instRows = (instRaw || []) as unknown as Array<{
+      id: string; user_id: string; level: number; amount: number
+      installment_total_days: number | null; installment_days_done: number | null
+      installment_released: number | null; installment_started_at: string | null
+      profile: { username: string | null; email: string | null } | null
+    }>
+    const installment = instRows.map((m) => {
+      const total = Number(m.amount)
+      const totalDays = Number(m.installment_total_days || 0)
+      return {
+        id: m.id,
+        user_id: m.user_id,
+        username: m.profile?.username || null,
+        email: m.profile?.email || null,
+        level: m.level,
+        level_name: levelName.get(m.level) || `L${m.level}`,
+        amount: total,
+        total_days: totalDays,
+        days_done: Number(m.installment_days_done || 0),
+        released: Number(m.installment_released || 0),
+        daily_amount: totalDays > 0 ? Math.round((total / totalDays) * 1e6) / 1e6 : 0,
+        started_at: m.installment_started_at,
+      }
+    })
+
     return NextResponse.json({
       pending: pendingWithRatio,
       recent: await decorate(recentRows),
       maintenance,
+      installment,
       unlockPending: mapUnlock(unlockPendingRows),
       unlockRecent: mapUnlock(unlockRecentRows),
     })
@@ -382,6 +415,58 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         message: `已进入维持期：需累计维持 ${reqDays} 天（或 staking≥50% 提前放行），$${Number(claim.amount)} 达标后自动发放`,
+      })
+    }
+
+    // ===== 批准 + 分期发放：立即升级，奖金按天匀速解锁（无条件时间 vesting）=====
+    if (action === 'approve_installment') {
+      if (!claim_id) return NextResponse.json({ error: 'claim_id required' }, { status: 400 })
+      const totalDays = Math.max(1, Math.min(365, Math.round(Number(days) || DEFAULT_INSTALLMENT_DAYS)))
+
+      const { data: claim } = await supabase
+        .from('community_pool_claims')
+        .select('*')
+        .eq('id', claim_id)
+        .single()
+      if (!claim) return NextResponse.json({ error: 'Claim not found' }, { status: 404 })
+      if (claim.status !== 'pending') {
+        return NextResponse.json({ error: 'Claim already reviewed' }, { status: 400 })
+      }
+
+      const { data: status } = await supabase
+        .from('user_community_status')
+        .select('is_admin_set')
+        .eq('user_id', claim.user_id)
+        .single()
+
+      // 立即升级（自然用户），admin-set 用户等级不动 —— 与 approve_maintenance 一致
+      const nextLevel = claim.level + 1
+      const statusUpdate: Record<string, unknown> = { updated_at: now }
+      if (!status?.is_admin_set) {
+        statusUpdate.current_level = nextLevel
+        statusUpdate.real_level = nextLevel
+      }
+      await supabase.from('user_community_status').update(statusUpdate).eq('user_id', claim.user_id)
+
+      // claim 转 installment，钱不动，由每日任务按天放行
+      await supabase
+        .from('community_pool_claims')
+        .update({
+          status: 'installment',
+          installment_total_days: totalDays,
+          installment_days_done: 0,
+          installment_released: 0,
+          installment_last_date: null,
+          installment_started_at: now,
+          reviewed_by: 'admin',
+          reviewed_at: now,
+        })
+        .eq('id', claim_id)
+
+      const perDay = Math.round((Number(claim.amount) / totalDays) * 1e6) / 1e6
+      return NextResponse.json({
+        success: true,
+        message: `已进入分期发放：$${Number(claim.amount)} 分 ${totalDays} 天，每天约 $${perDay} 到账`,
       })
     }
 

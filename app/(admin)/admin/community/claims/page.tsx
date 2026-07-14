@@ -47,6 +47,21 @@ interface MaintenanceItem {
   staking_ratio: number | null
 }
 
+interface InstallmentItem {
+  id: string
+  user_id: string
+  username: string | null
+  email: string | null
+  level: number
+  level_name: string
+  amount: number
+  total_days: number
+  days_done: number
+  released: number
+  daily_amount: number
+  started_at: string | null
+}
+
 interface UnlockItem {
   id: string
   user_id: string
@@ -68,6 +83,8 @@ export default function AdminClaimsPage() {
   const [recent, setRecent] = useState<ClaimItem[]>([])
   const [maintenance, setMaintenance] = useState<MaintenanceItem[]>([])
   const [maintDays, setMaintDays] = useState<Record<string, string>>({})
+  const [installment, setInstallment] = useState<InstallmentItem[]>([])
+  const [instDays, setInstDays] = useState<Record<string, string>>({})
   const [unlockAmt, setUnlockAmt] = useState<Record<string, string>>({})
   const [unlockPending, setUnlockPending] = useState<UnlockItem[]>([])
   const [unlockRecent, setUnlockRecent] = useState<UnlockItem[]>([])
@@ -86,6 +103,7 @@ export default function AdminClaimsPage() {
       setPending(data.pending || [])
       setRecent(data.recent || [])
       setMaintenance(data.maintenance || [])
+      setInstallment(data.installment || [])
       setUnlockPending(data.unlockPending || [])
       setUnlockRecent(data.unlockRecent || [])
     } catch {
@@ -125,6 +143,10 @@ export default function AdminClaimsPage() {
   const approveMaintenance = (c: ClaimItem) => {
     const d = Math.max(1, Math.round(Number(maintDays[c.id] || 15)))
     act({ action: 'approve_maintenance', claim_id: c.id, days: d }, c.id)
+  }
+  const approveInstallment = (c: ClaimItem) => {
+    const d = Math.max(1, Math.round(Number(instDays[c.id] || 10)))
+    act({ action: 'approve_installment', claim_id: c.id, days: d }, c.id)
   }
   const releaseMaintenance = (m: MaintenanceItem) =>
     act({ action: 'release_maintenance', claim_id: m.id }, 'release-' + m.id)
@@ -260,6 +282,19 @@ export default function AdminClaimsPage() {
                       <Lock className="w-4 h-4 mr-1" /> 批准+维持
                     </Button>
                   </div>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      min={1}
+                      value={instDays[c.id] ?? '10'}
+                      onChange={(e) => setInstDays((s) => ({ ...s, [c.id]: e.target.value }))}
+                      className="w-14 px-2 py-1.5 rounded bg-zinc-900 border border-zinc-600 text-white text-xs text-center"
+                    />
+                    <Button size="sm" variant="outline" onClick={() => approveInstallment(c)} disabled={processing === c.id}
+                      className="flex-1 border-emerald-500 text-emerald-300 hover:bg-emerald-500/20 whitespace-nowrap">
+                      <Unlock className="w-4 h-4 mr-1" /> 批准+分期
+                    </Button>
+                  </div>
                   <Button size="sm" variant="outline" onClick={() => reject(c)} disabled={processing === c.id}
                     className="border-red-500 text-red-400 hover:bg-red-500/20">
                     <XCircle className="w-4 h-4 mr-1" /> 驳回+冻结
@@ -308,6 +343,44 @@ export default function AdminClaimsPage() {
                     className="bg-emerald-500 hover:bg-emerald-600 flex-shrink-0">
                     {processing === 'release-' + m.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Unlock className="w-4 h-4 mr-1" /> 立即放行</>}
                   </Button>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Bonus 分期发放 */}
+        <h2 className="text-white font-semibold mb-3 flex items-center gap-2">
+          <Unlock className="w-4 h-4 text-emerald-400" /> 分期发放中 ({installment.length})
+        </h2>
+        {installment.length === 0 ? (
+          <p className="text-zinc-500 text-sm mb-8">没有分期发放中的奖励。</p>
+        ) : (
+          <div className="grid gap-3 mb-8">
+            {installment.map((m) => {
+              const pct = m.total_days > 0 ? Math.min(100, (m.days_done / m.total_days) * 100) : 0
+              return (
+                <div key={m.id} className="bg-zinc-800/50 border border-emerald-700/40 rounded-xl p-4 flex gap-4 items-center">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-white font-medium">{m.username || m.email || '—'}</span>
+                      <span className="text-[11px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">
+                        L{m.level} {m.level_name} · ${m.amount}
+                      </span>
+                      <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                        每天 ${m.daily_amount}
+                      </span>
+                    </div>
+                    <p className="text-zinc-400 text-sm mt-1">
+                      已发 <span className="text-white font-medium">{m.days_done} / {m.total_days}</span> 天 · 已到账 ${m.released.toFixed(2)} / ${m.amount}
+                    </p>
+                    <div className="h-1.5 bg-zinc-700 rounded-full overflow-hidden mt-1.5 max-w-xs">
+                      <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${pct}%` }} />
+                    </div>
+                    {m.started_at && (
+                      <p className="text-zinc-600 text-xs mt-1">进入分期 {new Date(m.started_at).toLocaleString()}</p>
+                    )}
+                  </div>
                 </div>
               )
             })}

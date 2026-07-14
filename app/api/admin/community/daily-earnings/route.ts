@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '@/lib/admin-auth'
 import { advanceMaintenanceClaims } from '@/lib/community-maintenance'
+import { advanceInstallmentClaims } from '@/lib/community-installment'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -247,6 +248,13 @@ export async function POST(request: NextRequest) {
       maintenanceReleased = r.released
     } catch (e) {
       console.error('advanceMaintenanceClaims failed:', e)
+    }
+
+    // 推进 Bonus 分期发放（按天匀速兑付）
+    try {
+      await advanceInstallmentClaims(supabaseAdmin)
+    } catch (e) {
+      console.error('advanceInstallmentClaims failed:', e)
     }
 
     return NextResponse.json({

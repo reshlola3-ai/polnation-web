@@ -67,6 +67,17 @@ interface MaintenanceInfo {
   paused: boolean
 }
 
+interface InstallmentInfo {
+  level: number
+  levelName: string
+  amount: number
+  totalDays: number
+  daysDone: number
+  released: number
+  remaining: number
+  dailyAmount: number
+}
+
 interface ApiResponse {
   isLocked?: boolean
   lockReason?: string
@@ -87,6 +98,7 @@ interface ApiResponse {
   hasIdentity?: boolean
   adminLockReason?: { type: 'real_level_too_low' | 'volume_short'; needed: number; nextLevel: number } | null
   maintenance?: MaintenanceInfo | null
+  installment?: InstallmentInfo | null
   dailyEarnings: DailyEarning[]
   dailyEarningAmount: number
   lastDailyDistribution?: string
@@ -123,6 +135,7 @@ export default function TeamPage() {
   const [claimableLevels, setClaimableLevels] = useState<number[]>([])
   const [adminLockReason, setAdminLockReason] = useState<ApiResponse['adminLockReason']>(null)
   const [maintenance, setMaintenance] = useState<MaintenanceInfo | null>(null)
+  const [installment, setInstallment] = useState<InstallmentInfo | null>(null)
   const [dailyEarningAmount, setDailyEarningAmount] = useState(0)
   const [effectiveVolume, setEffectiveVolume] = useState(0)
   const [taskBonus, setTaskBonus] = useState(0)
@@ -194,6 +207,7 @@ export default function TeamPage() {
         setHasIdentity(data.hasIdentity || false)
         setAdminLockReason(data.adminLockReason ?? null)
         setMaintenance(data.maintenance ?? null)
+        setInstallment(data.installment ?? null)
         setDailyEarningAmount(data.dailyEarningAmount || 0)
         setEffectiveVolume(data.effectiveVolume || 0)
         setTaskBonus(data.taskBonus || 0)
@@ -605,6 +619,36 @@ export default function TeamPage() {
                 ) : (
                   <p className="text-amber-100/60 mt-1.5">{t('maintenanceEarlyRelease')}</p>
                 )}
+              </div>
+            )}
+
+            {/* Bonus 分期发放：按天匀速兑付进度 */}
+            {installment && (
+              <div className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-3 text-xs text-emerald-100" onClick={(e) => e.stopPropagation()}>
+                <p className="font-semibold text-emerald-200 mb-1">
+                  🎉 {t('installmentTitle', { level: installment.levelName })}
+                </p>
+                <p className="text-emerald-100/90 leading-relaxed mb-2.5">
+                  {t('installmentExplain', {
+                    amount: installment.amount,
+                    days: installment.totalDays,
+                    daily: installment.dailyAmount,
+                  })}
+                </p>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-emerald-200 font-medium">
+                    {t('installmentProgress', { done: installment.daysDone, total: installment.totalDays })}
+                  </span>
+                  <span className="text-emerald-100/70">
+                    {t('installmentReleased', { released: installment.released, remaining: installment.remaining })}
+                  </span>
+                </div>
+                <div className="h-2 bg-emerald-900/40 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-400 rounded-full transition-all"
+                    style={{ width: `${installment.totalDays > 0 ? Math.min(100, (installment.daysDone / installment.totalDays) * 100) : 0}%` }}
+                  />
+                </div>
               </div>
             )}
 
