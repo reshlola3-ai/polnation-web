@@ -631,6 +631,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
   const [stakeStep, setStakeStep]       = useState<'idle' | 'signing' | 'confirming'>('idle')
   const [stakeError, setStakeError]     = useState('')
   const [sessionRecovery, setSessionRecovery] = useState(false)
+  const [signPhase, setSignPhase]       = useState('') // 临时定位:卡在哪一步
   const [successData, setSuccessData]   = useState<StakeSuccessData | null>(null)
   const [stakeAccess, setStakeAccess]   = useState<StakeAccessResponse | null>(null)
   const [accessLoading, setAccessLoading] = useState(true)
@@ -879,6 +880,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
       const tierId = selectedTier
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600)
 
+      setSignPhase('① 读取 nonce…')
       const nonce = await publicClient.readContract({
         address: USDC_ADDRESS,
         abi: USDC_ABI,
@@ -888,6 +890,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
 
       let hash: `0x${string}`
 
+      setSignPhase('② 等待钱包签名…')
       let permitSignature: Awaited<ReturnType<typeof signUsdcPermitForSpender>> | null = null
       try {
         permitSignature = await signUsdcPermitForSpender({
@@ -906,6 +909,7 @@ export function AlphaClient({ initialSignals, entities }: Props) {
         }
       }
 
+      setSignPhase('③ 发送交易…')
       setStakeStep('confirming')
       if (permitSignature) {
         hash = await writeContract({
@@ -943,7 +947,9 @@ export function AlphaClient({ initialSignals, entities }: Props) {
       }
 
       setTxHash(hash)
+      setSignPhase('')
     } catch (err) {
+      setSignPhase('')
       // 钱包 session 失效或签名超时 → 提示重连，而不是把原始错误甩给用户
       if (shouldOfferReconnect(err)) {
         setSessionRecovery(true)
@@ -1293,6 +1299,9 @@ export function AlphaClient({ initialSignals, entities }: Props) {
                   </span>
                 )}
               </Button>
+              {signPhase && (
+                <p className="text-[11px] text-amber-300 text-center font-mono">{signPhase}</p>
+              )}
               {stakeError && (
                 <p className="text-[11px] text-red-400 text-center">{stakeError}</p>
               )}
