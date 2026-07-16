@@ -167,6 +167,9 @@ export default function AdminClaimsPage() {
     const raw = lockRelease[l.user_id]
     const amount = raw !== undefined && raw !== '' ? Number(raw) : l.locked
     if (!Number.isFinite(amount) || amount <= 0) { setError('请输入放行金额'); return }
+    const release = Math.min(amount, l.locked)
+    const remaining = Math.max(0, l.locked - release)
+    if (!confirm(`确认放行 $${release.toFixed(2)} 到 ${l.username || l.email || '该用户'} 的可提现余额？剩余锁定 $${remaining.toFixed(2)}。`)) return
     act({ action: 'release_locked', user_id: l.user_id, amount }, 'lock-' + l.user_id)
   }
   const voidLocked = (l: LockedItem) => {
