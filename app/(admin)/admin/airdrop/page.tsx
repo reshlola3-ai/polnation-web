@@ -40,6 +40,7 @@ interface Config {
   min_withdrawal_matic: number
   distributor_contract: string | null
   last_distribution_at: string | null
+  commission_payout_pct?: number
 }
 
 interface Tier {
@@ -1222,6 +1223,29 @@ export default function AirdropPage() {
                   ) : (
                     <p className="text-white font-medium">{config?.min_withdrawal_matic || 0.1} MATIC</p>
                   )}
+                </div>
+
+                <div>
+                  <label className="text-zinc-400 text-xs">佣金发放比例 (%)</label>
+                  {editingConfig ? (
+                    <input
+                      type="number"
+                      step="1"
+                      min={0}
+                      max={100}
+                      value={tempConfig.commission_payout_pct ?? 100}
+                      onChange={(e) => setTempConfig({ ...tempConfig, commission_payout_pct: e.target.value === '' ? undefined : parseFloat(e.target.value) })}
+                      className="w-full mt-1 px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-white text-sm"
+                    />
+                  ) : (
+                    <p className="text-white font-medium">
+                      {config?.commission_payout_pct ?? 100}%
+                      {(config?.commission_payout_pct ?? 100) < 100 && (
+                        <span className="ml-2 text-xs text-amber-400">佣金打折发放中</span>
+                      )}
+                    </p>
+                  )}
+                  <p className="text-[10px] text-zinc-500 mt-0.5">推荐佣金按此比例发放（100=全额，50=五折，0=暂停）。不影响空投利润/社群日薪。</p>
                 </div>
               </div>
             </div>

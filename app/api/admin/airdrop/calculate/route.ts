@@ -236,6 +236,10 @@ export async function POST(request: NextRequest) {
       amount: number
     }> = []
 
+    // 佣金发放比例（与 distribute 一致的打折系数）：默认 100（全额）
+    const { data: payoutCfg } = await supabase.from('airdrop_config').select('*').limit(1).maybeSingle()
+    const commissionMultiplier = Math.max(0, Math.min(1, Number(payoutCfg?.commission_payout_pct ?? 100) / 100))
+
     if (commissionRates && commissionRates.length > 0) {
       const ratesMap = new Map<number, number>()
       commissionRates.forEach((r: { level: number; rate_percent: number }) => {
@@ -255,7 +259,7 @@ export async function POST(request: NextRequest) {
             const rate = ratesMap.get(upline.level)
             if (!rate) continue
 
-            const commissionAmount = calc.profit_usdc * (rate / 100)
+            const commissionAmount = calc.profit_usdc * (rate / 100) * commissionMultiplier
             if (commissionAmount <= 0) continue
 
             estimatedCommissions += commissionAmount

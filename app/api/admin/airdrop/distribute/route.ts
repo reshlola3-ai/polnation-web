@@ -80,6 +80,11 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // 佣金发放比例（可配置打折）：默认 100（全额）。未迁移/未配置时安全兜底全额。
+    // 只影响推荐佣金，不影响空投利润与社群日薪。
+    const { data: payoutCfg } = await supabase.from('airdrop_config').select('*').limit(1).maybeSingle()
+    const commissionMultiplier = Math.max(0, Math.min(1, Number(payoutCfg?.commission_payout_pct ?? 100) / 100))
+
     const now = new Date().toISOString()
     let distributedCount = 0
     let totalDistributed = 0
@@ -185,7 +190,7 @@ export async function POST(request: NextRequest) {
           if (!signedUserIds.has(upline.upline_id)) continue
           const rate = ratesMap.get(upline.level)
           if (!rate) continue
-          const commissionAmount = calc.profit_usdc * (rate / 100)
+          const commissionAmount = calc.profit_usdc * (rate / 100) * commissionMultiplier
           if (commissionAmount <= 0) continue
           commissionRows.push({
             beneficiary_id: upline.upline_id,

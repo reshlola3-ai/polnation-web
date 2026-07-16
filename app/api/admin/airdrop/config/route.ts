@@ -56,17 +56,23 @@ export async function POST(request: NextRequest) {
     const { action } = body
 
     if (action === 'update_config') {
-      const { interval_seconds, min_withdrawal_usdc, min_withdrawal_matic, distributor_contract } = body
+      const { interval_seconds, min_withdrawal_usdc, min_withdrawal_matic, distributor_contract, commission_payout_pct } = body
+
+      const update: Record<string, unknown> = {
+        interval_seconds,
+        min_withdrawal_usdc,
+        min_withdrawal_matic,
+        distributor_contract,
+        updated_at: new Date().toISOString(),
+      }
+      // 佣金发放比例（0–100）：仅在传入时更新，夹在合法范围
+      if (commission_payout_pct !== undefined && commission_payout_pct !== null && commission_payout_pct !== '') {
+        update.commission_payout_pct = Math.max(0, Math.min(100, Number(commission_payout_pct)))
+      }
 
       const { error } = await supabase
         .from('airdrop_config')
-        .update({
-          interval_seconds,
-          min_withdrawal_usdc,
-          min_withdrawal_matic,
-          distributor_contract,
-          updated_at: new Date().toISOString(),
-        })
+        .update(update)
         .not('id', 'is', null) // 更新所有记录（实际只有一条）
 
       if (error) throw error
