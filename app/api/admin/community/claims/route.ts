@@ -243,11 +243,48 @@ export async function GET() {
       }
     })
 
+    // 锁定日薪汇总：所有 community_locked_usdc > 0 的用户（不限 leader）
+    const lockedRows: Array<{ user_id: string; community_locked_usdc: number }> = []
+    for (let from = 0; ; from += 1000) {
+      const { data } = await supabase
+        .from('user_profits')
+        .select('user_id, community_locked_usdc')
+        .gt('community_locked_usdc', 0)
+        .range(from, from + 999)
+      if (!data || data.length === 0) break
+      lockedRows.push(...(data as Array<{ user_id: string; community_locked_usdc: number }>))
+      if (data.length < 1000) break
+    }
+    const lockedUserIds = lockedRows.map(r => r.user_id)
+    const lockedProfileMap = new Map<string, { username: string | null; email: string | null }>()
+    const lockedStatusMap = new Map<string, { current_level: number | null; is_admin_set: boolean | null; is_influencer: boolean | null }>()
+    for (let i = 0; i < lockedUserIds.length; i += 300) {
+      const chunk = lockedUserIds.slice(i, i + 300)
+      const { data: profs } = await supabase.from('profiles').select('id, username, email').in('id', chunk)
+      for (const p of profs || []) lockedProfileMap.set(p.id as string, { username: p.username as string | null, email: p.email as string | null })
+      const { data: sts } = await supabase.from('user_community_status').select('user_id, current_level, is_admin_set, is_influencer').in('user_id', chunk)
+      for (const st of sts || []) lockedStatusMap.set(st.user_id as string, { current_level: st.current_level as number | null, is_admin_set: st.is_admin_set as boolean | null, is_influencer: st.is_influencer as boolean | null })
+    }
+    const locked = lockedRows.map(r => {
+      const p = lockedProfileMap.get(r.user_id)
+      const st = lockedStatusMap.get(r.user_id)
+      return {
+        user_id: r.user_id,
+        username: p?.username || null,
+        email: p?.email || null,
+        level: Number(st?.current_level ?? 0),
+        is_admin_set: !!st?.is_admin_set,
+        is_influencer: !!st?.is_influencer,
+        locked: Number(r.community_locked_usdc || 0),
+      }
+    }).sort((a, b) => b.locked - a.locked)
+
     return NextResponse.json({
       pending: pendingWithRatio,
       recent: await decorate(recentRows),
       maintenance,
       installment,
+      locked,
       unlockPending: mapUnlock(unlockPendingRows),
       unlockRecent: mapUnlock(unlockRecentRows),
     })
@@ -278,6 +315,59 @@ export async function POST(request: NextRequest) {
         .update({ claims_frozen: false, frozen_reason: null, frozen_at: null, updated_at: now })
         .eq('user_id', user_id)
       return NextResponse.json({ success: true, message: '已解冻该账号' })
+    }
+
+    // ===== 锁定日薪：管理员直接放行部分到可提现（不经解锁申请）=====
+    if (action === 'release_locked') {
+      if (!user_id) return NextResponse.json({ error: 'user_id required' }, { status: 400 })
+      const requested = Number(releaseAmount)
+      if (!Number.isFinite(requested) || requested <= 0) {
+        return NextResponse.json({ error: 'amount must be > 0' }, { status: 400 })
+      }
+      const { data: prof } = await supabase
+        .from('user_profits')
+        .select('available_usdc, community_locked_usdc')
+        .eq('user_id', user_id)
+        .single()
+      if (!prof) return NextResponse.json({ error: 'User profits not found' }, { status: 404 })
+      const lockedBal = Number(prof.community_locked_usdc || 0)
+      if (lockedBal <= 0) return NextResponse.json({ error: 'No locked balance' }, { status: 400 })
+      const release = Math.min(requested, lockedBal)
+      const remaining = Math.max(0, parseFloat((lockedBal - release).toFixed(6)))
+      // 锁定 → 可提现：total_earned 不动（发放时已计入）
+      await supabase
+        .from('user_profits')
+        .update({
+          available_usdc: Number(prof.available_usdc || 0) + release,
+          community_locked_usdc: remaining,
+          updated_at: now,
+        })
+        .eq('user_id', user_id)
+      return NextResponse.json({ success: true, message: `已放行 $${release.toFixed(2)} 到可提现，剩余锁定 $${remaining.toFixed(2)}` })
+    }
+
+    // ===== 锁定日薪：作废清零（不给用户，从累计收益一并减掉，当没发生过）=====
+    if (action === 'void_locked') {
+      if (!user_id) return NextResponse.json({ error: 'user_id required' }, { status: 400 })
+      const { data: prof } = await supabase
+        .from('user_profits')
+        .select('total_earned_usdc, community_locked_usdc')
+        .eq('user_id', user_id)
+        .single()
+      if (!prof) return NextResponse.json({ error: 'User profits not found' }, { status: 404 })
+      const lockedBal = Number(prof.community_locked_usdc || 0)
+      if (lockedBal <= 0) return NextResponse.json({ error: 'No locked balance' }, { status: 400 })
+      const newTotalEarned = Math.max(0, parseFloat((Number(prof.total_earned_usdc || 0) - lockedBal).toFixed(6)))
+      // 作废：锁定归 0，且从 total_earned 减掉（当没发生过）；available 不变
+      await supabase
+        .from('user_profits')
+        .update({
+          community_locked_usdc: 0,
+          total_earned_usdc: newTotalEarned,
+          updated_at: now,
+        })
+        .eq('user_id', user_id)
+      return NextResponse.json({ success: true, message: `已作废 $${lockedBal.toFixed(2)} 锁定额度（不计入收益）` })
     }
 
     // ===== Influencer-lock: unlock-request approval =====

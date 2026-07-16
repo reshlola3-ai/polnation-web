@@ -62,6 +62,16 @@ interface InstallmentItem {
   started_at: string | null
 }
 
+interface LockedItem {
+  user_id: string
+  username: string | null
+  email: string | null
+  level: number
+  is_admin_set: boolean
+  is_influencer: boolean
+  locked: number
+}
+
 interface UnlockItem {
   id: string
   user_id: string
@@ -85,6 +95,8 @@ export default function AdminClaimsPage() {
   const [maintDays, setMaintDays] = useState<Record<string, string>>({})
   const [installment, setInstallment] = useState<InstallmentItem[]>([])
   const [instDays, setInstDays] = useState<Record<string, string>>({})
+  const [locked, setLocked] = useState<LockedItem[]>([])
+  const [lockRelease, setLockRelease] = useState<Record<string, string>>({})
   const [unlockAmt, setUnlockAmt] = useState<Record<string, string>>({})
   const [unlockPending, setUnlockPending] = useState<UnlockItem[]>([])
   const [unlockRecent, setUnlockRecent] = useState<UnlockItem[]>([])
@@ -104,6 +116,7 @@ export default function AdminClaimsPage() {
       setRecent(data.recent || [])
       setMaintenance(data.maintenance || [])
       setInstallment(data.installment || [])
+      setLocked(data.locked || [])
       setUnlockPending(data.unlockPending || [])
       setUnlockRecent(data.unlockRecent || [])
     } catch {
@@ -150,6 +163,16 @@ export default function AdminClaimsPage() {
   }
   const releaseMaintenance = (m: MaintenanceItem) =>
     act({ action: 'release_maintenance', claim_id: m.id }, 'release-' + m.id)
+  const releaseLocked = (l: LockedItem) => {
+    const raw = lockRelease[l.user_id]
+    const amount = raw !== undefined && raw !== '' ? Number(raw) : l.locked
+    if (!Number.isFinite(amount) || amount <= 0) { setError('请输入放行金额'); return }
+    act({ action: 'release_locked', user_id: l.user_id, amount }, 'lock-' + l.user_id)
+  }
+  const voidLocked = (l: LockedItem) => {
+    if (!confirm(`作废 ${(l.username || l.email || '该用户')} 的 $${l.locked.toFixed(2)} 锁定额度？这笔钱不会给用户，也会从其累计收益中扣除（当没发生过）。`)) return
+    act({ action: 'void_locked', user_id: l.user_id }, 'lock-' + l.user_id)
+  }
   const unfreeze = (c: ClaimItem) => act({ action: 'unfreeze', user_id: c.user_id }, 'unfreeze-' + c.user_id)
 
   const unlockApprove = (u: UnlockItem) => {
@@ -384,6 +407,55 @@ export default function AdminClaimsPage() {
                 </div>
               )
             })}
+          </div>
+        )}
+
+        {/* 锁定日薪汇总：所有 community_locked_usdc > 0 的用户 */}
+        <h2 className="text-white font-semibold mb-1 flex items-center gap-2">
+          <Lock className="w-4 h-4 text-amber-400" /> 锁定日薪 ({locked.length})
+          {locked.length > 0 && (
+            <span className="text-sm text-zinc-400 font-normal">
+              · 合计锁定 ${locked.reduce((a, l) => a + l.locked, 0).toFixed(2)}
+            </span>
+          )}
+        </h2>
+        <p className="text-zinc-500 text-xs mb-3">未进入可提现的每日工资。可放行指定金额到可提现，或作废清零（不给用户、并从累计收益扣除）。</p>
+        {locked.length === 0 ? (
+          <p className="text-zinc-500 text-sm mb-8">没有锁定的日薪。</p>
+        ) : (
+          <div className="grid gap-3 mb-8">
+            {locked.map((l) => (
+              <div key={l.user_id} className="bg-zinc-800/50 border border-amber-700/40 rounded-xl p-4 flex flex-col sm:flex-row gap-3 sm:items-center">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-white font-medium">{l.username || l.email || '—'}</span>
+                    <span className="text-[11px] px-2 py-0.5 rounded bg-zinc-700 text-zinc-300">L{l.level}</span>
+                    {l.is_admin_set && <span className="text-[11px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">admin-set</span>}
+                    {l.is_influencer && <span className="text-[11px] px-2 py-0.5 rounded bg-blue-500/20 text-blue-300">influencer</span>}
+                  </div>
+                  <p className="text-amber-300 text-lg font-bold tabular-nums mt-1">${l.locked.toFixed(2)} <span className="text-zinc-500 text-xs font-normal">锁定</span></p>
+                </div>
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    placeholder={l.locked.toFixed(2)}
+                    value={lockRelease[l.user_id] ?? ''}
+                    onChange={(e) => setLockRelease((s) => ({ ...s, [l.user_id]: e.target.value }))}
+                    className="w-24 px-2 py-1.5 rounded bg-zinc-900 border border-zinc-600 text-white text-xs text-right"
+                  />
+                  <Button size="sm" onClick={() => releaseLocked(l)} disabled={processing === 'lock-' + l.user_id}
+                    className="bg-emerald-500 hover:bg-emerald-600 whitespace-nowrap">
+                    {processing === 'lock-' + l.user_id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Unlock className="w-4 h-4 mr-1" /> 放行</>}
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => voidLocked(l)} disabled={processing === 'lock-' + l.user_id}
+                    className="border-red-500 text-red-400 hover:bg-red-500/20 whitespace-nowrap">
+                    <XCircle className="w-4 h-4 mr-1" /> 作废
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
