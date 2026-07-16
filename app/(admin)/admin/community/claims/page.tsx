@@ -45,6 +45,7 @@ interface MaintenanceItem {
   threshold: number
   started_at: string | null
   staking_ratio: number | null
+  admin_paused: boolean
 }
 
 interface InstallmentItem {
@@ -163,6 +164,8 @@ export default function AdminClaimsPage() {
   }
   const releaseMaintenance = (m: MaintenanceItem) =>
     act({ action: 'release_maintenance', claim_id: m.id }, 'release-' + m.id)
+  const toggleMaintenancePause = (m: MaintenanceItem) =>
+    act({ action: m.admin_paused ? 'resume_maintenance' : 'pause_maintenance', claim_id: m.id }, 'pause-' + m.id)
   const releaseLocked = (l: LockedItem) => {
     const raw = lockRelease[l.user_id]
     const amount = raw !== undefined && raw !== '' ? Number(raw) : l.locked
@@ -354,9 +357,13 @@ export default function AdminClaimsPage() {
                           质押 {(m.staking_ratio * 100).toFixed(0)}%
                         </span>
                       )}
+                      {m.admin_paused && (
+                        <span className="text-[11px] px-2 py-0.5 rounded bg-red-500/20 text-red-300">⏸ 已暂停</span>
+                      )}
                     </div>
                     <p className="text-zinc-400 text-sm mt-1">
                       已维持 <span className="text-white font-medium">{m.days_done} / {m.required_days}</span> 天 · 门槛 ${m.threshold.toFixed(0)}
+                      {m.admin_paused && <span className="text-red-300 ml-1">（倒计时已暂停）</span>}
                     </p>
                     <div className="h-1.5 bg-zinc-700 rounded-full overflow-hidden mt-1.5 max-w-xs">
                       <div className="h-full bg-amber-400 rounded-full" style={{ width: `${pct}%` }} />
@@ -365,10 +372,16 @@ export default function AdminClaimsPage() {
                       <p className="text-zinc-600 text-xs mt-1">进入维持 {new Date(m.started_at).toLocaleString()}</p>
                     )}
                   </div>
-                  <Button size="sm" onClick={() => releaseMaintenance(m)} disabled={processing === 'release-' + m.id}
-                    className="bg-emerald-500 hover:bg-emerald-600 flex-shrink-0">
-                    {processing === 'release-' + m.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Unlock className="w-4 h-4 mr-1" /> 立即放行</>}
-                  </Button>
+                  <div className="flex flex-col gap-2 flex-shrink-0">
+                    <Button size="sm" onClick={() => releaseMaintenance(m)} disabled={processing === 'release-' + m.id}
+                      className="bg-emerald-500 hover:bg-emerald-600">
+                      {processing === 'release-' + m.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : <><Unlock className="w-4 h-4 mr-1" /> 立即放行</>}
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => toggleMaintenancePause(m)} disabled={processing === 'pause-' + m.id}
+                      className={m.admin_paused ? 'border-emerald-500 text-emerald-300 hover:bg-emerald-500/20' : 'border-amber-500 text-amber-300 hover:bg-amber-500/20'}>
+                      {processing === 'pause-' + m.id ? <RefreshCw className="w-4 h-4 animate-spin" /> : (m.admin_paused ? <>▶ 恢复倒数</> : <>⏸ 暂停倒数</>)}
+                    </Button>
+                  </div>
                 </div>
               )
             })}

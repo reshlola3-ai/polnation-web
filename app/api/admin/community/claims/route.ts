@@ -181,14 +181,14 @@ export async function GET() {
       team_volume_live: pendingRatios[i]?.totalVolume ?? null,
     }))
 
-    // 维持中的 claim（已批准、资金冻结、等待达标 / staking≥50%）
+    // 维持中的 claim（含管理员手动暂停 maintenance_paused）
     const { data: maintRaw } = await supabase
       .from('community_pool_claims')
-      .select('id, user_id, level, amount, maintenance_required_days, maintenance_days_done, maintenance_threshold, maintenance_started_at, staking_ratio_at_approval, profile:user_id(username, email, wallet_address)')
-      .eq('status', 'maintenance')
+      .select('id, user_id, level, amount, status, maintenance_required_days, maintenance_days_done, maintenance_threshold, maintenance_started_at, staking_ratio_at_approval, profile:user_id(username, email, wallet_address)')
+      .in('status', ['maintenance', 'maintenance_paused'])
       .order('maintenance_started_at', { ascending: true })
     const maintRows = (maintRaw || []) as unknown as Array<{
-      id: string; user_id: string; level: number; amount: number
+      id: string; user_id: string; level: number; amount: number; status: string
       maintenance_required_days: number | null; maintenance_days_done: number | null
       maintenance_threshold: number | null; maintenance_started_at: string | null
       staking_ratio_at_approval: number | null
@@ -210,6 +210,7 @@ export async function GET() {
       threshold: Number(m.maintenance_threshold || 0),
       started_at: m.maintenance_started_at,
       staking_ratio: maintRatios[i]?.ratio ?? null,
+      admin_paused: m.status === 'maintenance_paused',
     }))
 
     // 分期发放中的 claim（已批准、按天匀速兑付）
@@ -573,7 +574,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // ===== 维持中的 claim：管理员手动立即放行 =====
+    // ===== 维持中的 claim：管理员手动立即放行（含已暂停的）=====
     if (action === 'release_maintenance') {
       if (!claim_id) return NextResponse.json({ error: 'claim_id required' }, { status: 400 })
       const { data: claim } = await supabase
@@ -582,11 +583,29 @@ export async function POST(request: NextRequest) {
         .eq('id', claim_id)
         .single()
       if (!claim) return NextResponse.json({ error: 'Claim not found' }, { status: 404 })
-      if (claim.status !== 'maintenance') {
+      if (claim.status !== 'maintenance' && claim.status !== 'maintenance_paused') {
         return NextResponse.json({ error: 'Claim not in maintenance' }, { status: 400 })
       }
       await releaseMaintenanceClaim(supabase, claim)
       return NextResponse.json({ success: true, message: `已立即放行：$${Number(claim.amount)} 已入账` })
+    }
+
+    // ===== 维持期倒计时：管理员手动暂停 / 恢复（冻结天数，不清零）=====
+    if (action === 'pause_maintenance' || action === 'resume_maintenance') {
+      if (!claim_id) return NextResponse.json({ error: 'claim_id required' }, { status: 400 })
+      const targetFrom = action === 'pause_maintenance' ? 'maintenance' : 'maintenance_paused'
+      const targetTo = action === 'pause_maintenance' ? 'maintenance_paused' : 'maintenance'
+      const { data: updated, error: upErr } = await supabase
+        .from('community_pool_claims')
+        .update({ status: targetTo })
+        .eq('id', claim_id)
+        .eq('status', targetFrom) // 乐观：状态被别处改过则不匹配
+        .select('id')
+      if (upErr) return NextResponse.json({ error: upErr.message }, { status: 500 })
+      if (!updated || updated.length === 0) {
+        return NextResponse.json({ error: action === 'pause_maintenance' ? '该 claim 不在维持中' : '该 claim 未处于暂停' }, { status: 400 })
+      }
+      return NextResponse.json({ success: true, message: action === 'pause_maintenance' ? '已暂停维持倒计时（天数冻结）' : '已恢复维持倒计时' })
     }
 
     if (!claim_id || !['approve', 'reject'].includes(action)) {

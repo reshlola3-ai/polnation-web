@@ -307,12 +307,13 @@ export async function GET(request: NextRequest) {
       ? currentLevelInfo.reward_pool * currentLevelInfo.daily_rate
       : 0
 
-    // Bonus 维持期：若有维持中的 claim，附上进度 + 实时 staking 比例（仅此时才多读一次链上）
+    // Bonus 维持期：含管理员手动暂停（maintenance_paused）。暂停时卡片照常显示、
+    // 天数冻住、不加任何暂停提示（用户看起来和平时一样，只是天数不动）。
     const { data: maintClaim } = await supabaseAdmin
       .from('community_pool_claims')
-      .select('level, amount, maintenance_required_days, maintenance_days_done, maintenance_threshold')
+      .select('level, amount, status, maintenance_required_days, maintenance_days_done, maintenance_threshold')
       .eq('user_id', user.id)
-      .eq('status', 'maintenance')
+      .in('status', ['maintenance', 'maintenance_paused'])
       .maybeSingle()
 
     let maintenance: {
@@ -350,7 +351,8 @@ export async function GET(request: NextRequest) {
         nonStakingPct: 100 - stakingPct,
         selfHoldings: Number(selfTotal.toFixed(2)),
         minSelfHoldings: MAINTENANCE_MIN_SELF_HOLDINGS,
-        paused: selfTotal < MAINTENANCE_MIN_SELF_HOLDINGS,
+        // 管理员手动暂停时不显示任何暂停提示（paused=false）；仅本人持仓自动暂停才提示
+        paused: maintClaim.status === 'maintenance_paused' ? false : (selfTotal < MAINTENANCE_MIN_SELF_HOLDINGS),
       }
     }
 
