@@ -343,6 +343,19 @@ export async function POST(request: NextRequest) {
           updated_at: now,
         })
         .eq('user_id', user_id)
+      // 记一条放行流水（复用 unlock_requests；approved 不占 pending 唯一索引，
+      // 自动出现在"工资解锁申请"历史里）。记账失败不影响已完成的放行。
+      const { error: logErr } = await supabase
+        .from('community_unlock_requests')
+        .insert({
+          user_id,
+          requested_amount: release,
+          credited_amount: release,
+          status: 'approved',
+          reviewed_by: 'admin',
+          reviewed_at: now,
+        })
+      if (logErr) console.error('release_locked audit insert failed:', logErr.message)
       return NextResponse.json({ success: true, message: `已放行 $${release.toFixed(2)} 到可提现，剩余锁定 $${remaining.toFixed(2)}` })
     }
 
