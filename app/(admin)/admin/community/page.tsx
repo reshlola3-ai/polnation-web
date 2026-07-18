@@ -38,9 +38,10 @@ interface CommunityUser {
   is_influencer: boolean
   team_volume_l123: number
   total_community_earned: number
-  momentum_live: number
-  momentum_days_to_decay: number | null // null=满档未计时, -1=已到底
-  momentum_last_qualified_at: string | null
+  momentum_live: number            // 存库真实倍率
+  momentum_next: number            // 下一轮倍率
+  momentum_qualifies: boolean      // 团队增长是否达标（下轮重置 1.0）
+  momentum_need_more: number       // 还需多少新增才达标
 }
 
 interface CommunityLevel {
@@ -130,8 +131,8 @@ export default function AdminCommunityPage() {
       if (fundsFilter === 'no_earned' && u.total_community_earned > 0) return false
       if (walletFilter === 'has_wallet' && !u.wallet_address) return false
       if (walletFilter === 'no_wallet' && u.wallet_address) return false
-      if (momentumFilter === 'decaying' && !(u.momentum_live < 1.0 && u.momentum_live > 0.2)) return false
-      if (momentumFilter === 'floor' && u.momentum_live > 0.2) return false
+      if (momentumFilter === 'decaying' && !(u.momentum_live < 1.0 && u.momentum_live > 0)) return false
+      if (momentumFilter === 'floor' && u.momentum_live > 0) return false
       if (momentumFilter === 'full' && u.momentum_live < 1.0) return false
       return true
     })
@@ -338,18 +339,18 @@ export default function AdminCommunityPage() {
     return l?.name || 'None'
   }
 
-  // Momentum 倍率颜色：满档绿、衰减中黄、到底红
+  // Momentum 倍率颜色：满档绿、衰减中黄、到底(0)红
   const getMomentumColor = (live: number) => {
     if (live >= 1.0) return 'text-green-400'
-    if (live <= 0.2) return 'text-red-400'
+    if (live <= 0) return 'text-red-400'
     return 'text-amber-400'
   }
 
-  // 距下次衰减的说明文案
-  const getDecayLabel = (daysToDecay: number | null) => {
-    if (daysToDecay === null) return '满档 · 未计时'
-    if (daysToDecay === -1) return '已到底 0.2x'
-    return `衰减还差 ${daysToDecay} 天`
+  // 下一轮预测（按团队增长，非时间）：达标→下轮回 1.0；否则 -0.2 到 0
+  const getDecayLabel = (u: CommunityUser) => {
+    if (u.momentum_qualifies) return `✓ 达标 · 下轮 ${u.momentum_next.toFixed(1)}x`
+    if (u.momentum_live <= 0) return '已到底 0x'
+    return `下轮 ${u.momentum_next.toFixed(1)}x · 需再涨 $${u.momentum_need_more.toFixed(2)}`
   }
 
   return (
@@ -769,7 +770,7 @@ export default function AdminCommunityPage() {
                             🔥 {user.momentum_live.toFixed(1)}x
                           </span>
                           <span className="text-[10px] text-zinc-500">
-                            {getDecayLabel(user.momentum_days_to_decay)}
+                            {getDecayLabel(user)}
                           </span>
                         </div>
                       </td>

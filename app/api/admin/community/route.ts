@@ -22,21 +22,29 @@ const USDC_ABI = parseAbi([
   'function balanceOf(address account) view returns (uint256)',
 ])
 
-// Momentum 实时状态（与 distribute/daily-earnings 的衰减公式完全一致：
-// 距上次达标每 3 天 -0.2x，底 0.2x；锚点为 null → 满档 1.0x 未计时）。
-// 返回当前倍率、距下次衰减天数（null=满档未计时，-1=已到底不再衰减）。
-function momentumInfo(lastRefAt: string | null): {
+// Momentum 实时状态。真实倍率 = 存库的 momentum_multiplier（发放真正用的）。
+// 下一轮预测与 distribute/daily-earnings 完全一致：团队较上次快照增长率 > 3% 且
+// 新增 >= $10 → 下轮重置 1.0；否则 -0.2，底 0。needMore = 还需多少新增才达标。
+function momentumInfo(status: {
+  momentum_multiplier?: number | null
+  team_volume_l123?: number | null
+  last_volume_snapshot?: number | null
+} | undefined): {
   live: number
-  daysToDecay: number | null
-  atFloor: boolean
+  next: number
+  qualifies: boolean
+  needMore: number
 } {
-  if (!lastRefAt) return { live: 1.0, daysToDecay: null, atFloor: false }
-  const DAY = 1000 * 60 * 60 * 24
-  const daysSince = Math.floor((Date.now() - new Date(lastRefAt).getTime()) / DAY)
-  const decaySteps = Math.floor(daysSince / 3)
-  const live = Math.max(0.2, parseFloat((1.0 - decaySteps * 0.2).toFixed(1)))
-  const atFloor = live <= 0.2
-  return { live, daysToDecay: atFloor ? -1 : 3 - (daysSince % 3), atFloor }
+  const live = Math.max(0, Number(status?.momentum_multiplier ?? 1.0))
+  const today = Number(status?.team_volume_l123 || 0)
+  const prev = status?.last_volume_snapshot != null ? Number(status.last_volume_snapshot) : today
+  const newDeposits = today - prev
+  const growthPct = prev > 0 ? newDeposits / prev : 0
+  const qualifies = growthPct > 0.03 && newDeposits >= 10
+  const next = qualifies ? 1.0 : Math.max(0, parseFloat((live - 0.2).toFixed(1)))
+  const needThreshold = Math.max(10, prev * 0.03)
+  const needMore = qualifies ? 0 : Math.max(0, parseFloat((needThreshold - newDeposits).toFixed(2)))
+  return { live, next, qualifies, needMore }
 }
 
 // 获取所有用户社群状态
@@ -85,7 +93,7 @@ export async function GET(request: NextRequest) {
     // 合并所有用户数据
     const allUsers = (profiles || []).map(p => {
       const status = statusMap.get(p.id)
-      const mom = momentumInfo(status?.momentum_last_referral_at ?? null)
+      const mom = momentumInfo(status)
       return {
         user_id: p.id,
         username: p.username,
@@ -97,10 +105,11 @@ export async function GET(request: NextRequest) {
         is_influencer: status?.is_influencer || false,
         team_volume_l123: status?.team_volume_l123 || 0,
         total_community_earned: status?.total_community_earned || 0,
-        // Momentum 实时衰减状态（现算，不用库里可能过期的缓存值）
-        momentum_live: mom.live,
-        momentum_days_to_decay: mom.daysToDecay, // null=满档未计时, -1=已到底
-        momentum_last_qualified_at: status?.momentum_last_referral_at ?? null,
+        // Momentum：真实倍率（存库） + 下一轮预测（按团队增长）
+        momentum_live: mom.live,               // 存库真实倍率，发放真正用的
+        momentum_next: mom.next,               // 下一轮倍率（达标→1.0，否则 -0.2 底 0）
+        momentum_qualifies: mom.qualifies,     // 当前团队增长是否达标（下轮重置 1.0）
+        momentum_need_more: mom.needMore,      // 还需多少新增才达标（0=已达标）
       }
     })
 
