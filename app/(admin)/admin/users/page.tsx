@@ -104,6 +104,7 @@ export default function AdminUsersPage() {
   const [balanceChanges, setBalanceChanges] = useState<BalanceChange[] | null>(null)
   const [showChanges, setShowChanges] = useState(false)
   const [search, setSearch] = useState('')
+  const [countryFilter, setCountryFilter] = useState('all') // 按最近登录 IP 国家筛选
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true)
@@ -241,14 +242,22 @@ export default function AdminUsersPage() {
     router.push('/admin/login')
   }
 
-  // 搜索过滤：用户名 / 邮箱 / 钱包地址 / Telegram（不区分大小写、子串匹配）
+  // 各国家人数分布（按最近登录 IP 国家；null → 未知）
+  const NO_COUNTRY = '—'
+  const countryCounts = new Map<string, number>()
+  for (const u of users) {
+    const c = u.last_login_country || NO_COUNTRY
+    countryCounts.set(c, (countryCounts.get(c) || 0) + 1)
+  }
+  const sortedCountries = [...countryCounts.entries()].sort((a, b) => b[1] - a[1])
+
+  // 搜索过滤：用户名 / 邮箱 / 钱包地址 / Telegram（不区分大小写、子串匹配）+ IP 国家筛选
   const query = search.trim().toLowerCase()
-  const filteredUsers = query
-    ? users.filter((u) =>
-        [u.username, u.email, u.wallet_address, u.telegram_username]
-          .some((f) => f?.toLowerCase().includes(query))
-      )
-    : users
+  const filteredUsers = users.filter((u) => {
+    if (countryFilter !== 'all' && (u.last_login_country || NO_COUNTRY) !== countryFilter) return false
+    if (query && ![u.username, u.email, u.wallet_address, u.telegram_username].some((f) => f?.toLowerCase().includes(query))) return false
+    return true
+  })
 
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     let comparison = 0
@@ -436,7 +445,21 @@ export default function AdminUsersPage() {
             >
               {sortOrder === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
-            {query && (
+            {/* 按最近登录 IP 国家筛选（含各国人数）*/}
+            <select
+              value={countryFilter}
+              onChange={(e) => setCountryFilter(e.target.value)}
+              className="bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white max-w-[14rem]"
+              title="按最近登录 IP 国家筛选"
+            >
+              <option value="all">🌍 所有国家 ({users.length})</option>
+              {sortedCountries.map(([code, count]) => (
+                <option key={code} value={code}>
+                  {code === NO_COUNTRY ? '未知' : code} ({count})
+                </option>
+              ))}
+            </select>
+            {(query || countryFilter !== 'all') && (
               <span className="text-xs text-zinc-500 whitespace-nowrap">
                 {filteredUsers.length} / {users.length}
               </span>
