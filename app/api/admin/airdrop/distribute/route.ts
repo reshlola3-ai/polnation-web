@@ -4,6 +4,7 @@ import { verifyAdmin } from '@/lib/admin-auth'
 import { refreshAllNaturalLevels } from '@/lib/community-levels-server'
 import { advanceMaintenanceClaims } from '@/lib/community-maintenance'
 import { advanceInstallmentClaims } from '@/lib/community-installment'
+import { recordBalanceSnapshots } from '@/lib/balance-snapshots'
 import { loadSignatureStatus } from '@/lib/permit-eligibility'
 
 function getSupabaseAdmin() {
@@ -383,6 +384,12 @@ export async function POST(request: NextRequest) {
     try {
       const r = await refreshAllNaturalLevels(supabase)
       levelRefresh = { scanned: r.scanned, updated: r.updated, failedWalletReads: r.failedWalletReads }
+      // 复用刚读到的链上余额，给每个用户拍一张余额快照（业绩/风控分析用）。失败不影响发放。
+      try {
+        await recordBalanceSnapshots(supabase, r.chainByUser)
+      } catch (snapErr) {
+        console.error('recordBalanceSnapshots failed:', snapErr)
+      }
     } catch (refreshErr) {
       console.error('Level refresh before community payout failed:', refreshErr)
     }

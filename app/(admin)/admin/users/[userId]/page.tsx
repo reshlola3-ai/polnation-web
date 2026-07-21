@@ -159,6 +159,21 @@ interface WalletAuditRecord {
   created_at: string
 }
 
+interface TeamGrowth {
+  hasData: boolean
+  from: string | null
+  to: string | null
+  memberCount: number
+  analyzed: number
+  newDeposits: number
+  withdrawals: number
+  naturalGrowth: number
+  netExternal: number
+  deltaTotal: number
+  trend: 'growing' | 'stagnant' | 'declining'
+  topMovers: Array<{ user_id: string; totalNow: number; deltaTotal: number; naturalGrowth: number; netExternal: number; kind: 'deposit' | 'withdraw' | 'natural' }>
+}
+
 interface DetailResponse {
   profile: ProfileData
   upline: UplineEntry[]
@@ -168,6 +183,7 @@ interface DetailResponse {
   login_events: LoginEvent[]
   profits: ProfitsData | null
   wallet_audit: WalletAuditRecord[]
+  team_growth: TeamGrowth | null
   community: {
     info: CommunityInfo | null
     levels: CommunityLevel[]
@@ -617,6 +633,85 @@ export default function AdminUserDetailPage({
                 )}
               </div>
             </section>
+
+            {/* Section: 团队业绩分析（真入金 vs 吃息 vs 撤资）*/}
+            {(() => {
+              const g = data?.team_growth
+              const trendMeta = {
+                growing: { label: '📈 增长', cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
+                declining: { label: '📉 减少', cls: 'bg-red-500/20 text-red-300 border-red-500/40' },
+                stagnant: { label: '➖ 停滞', cls: 'bg-zinc-600/30 text-zinc-300 border-zinc-600/50' },
+              } as const
+              const tm = g ? trendMeta[g.trend] : trendMeta.stagnant
+              return (
+                <section className="bg-zinc-800/50 border border-zinc-700 rounded-xl overflow-hidden">
+                  <header className="px-5 py-3 border-b border-zinc-700 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-emerald-400" />
+                      <h2 className="text-sm font-semibold text-white">团队业绩分析</h2>
+                      <span className="text-[11px] text-zinc-500">L1-3 · 最近两次发放</span>
+                    </div>
+                    {g?.hasData && (
+                      <span className={`text-xs px-2.5 py-1 rounded-lg border ${tm.cls}`}>{tm.label}</span>
+                    )}
+                  </header>
+                  {!g || !g.hasData || g.analyzed === 0 ? (
+                    <div className="px-5 py-4 text-sm text-zinc-500">
+                      暂无数据（至少需要两次发放快照，且下线要有可对比的快照）。
+                    </div>
+                  ) : (
+                    <div className="p-5">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                        <div className="bg-white/[0.03] border border-white/10 rounded-lg p-3">
+                          <p className="text-[11px] text-zinc-500">💵 新入金</p>
+                          <p className="text-lg font-bold text-emerald-400 tabular-nums">+${g.newDeposits.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-white/[0.03] border border-white/10 rounded-lg p-3">
+                          <p className="text-[11px] text-zinc-500">📉 撤资</p>
+                          <p className="text-lg font-bold text-red-400 tabular-nums">-${g.withdrawals.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-white/[0.03] border border-white/10 rounded-lg p-3">
+                          <p className="text-[11px] text-zinc-500">🌱 自然增长(息)</p>
+                          <p className="text-lg font-bold text-zinc-300 tabular-nums">+${g.naturalGrowth.toFixed(2)}</p>
+                        </div>
+                        <div className="bg-white/[0.03] border border-white/10 rounded-lg p-3">
+                          <p className="text-[11px] text-zinc-500">净外部流水</p>
+                          <p className={`text-lg font-bold tabular-nums ${g.netExternal >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                            {g.netExternal >= 0 ? '+' : ''}${g.netExternal.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-zinc-500 mb-3">
+                        团队总资产净变化 {g.deltaTotal >= 0 ? '+' : ''}${g.deltaTotal.toFixed(2)} · 已分析 {g.analyzed}/{g.memberCount} 名下线
+                        {g.from && g.to && <> · {new Date(g.from).toLocaleDateString()} → {new Date(g.to).toLocaleDateString()}</>}
+                      </p>
+                      {g.topMovers.length > 0 && (
+                        <div className="border-t border-white/5 pt-3">
+                          <p className="text-[11px] text-zinc-500 mb-2">主要变动成员</p>
+                          <div className="space-y-1.5">
+                            {g.topMovers.map((m) => {
+                              const dl = data?.downline.find((d) => d.id === m.user_id)
+                              const label = dl?.username || dl?.email || m.user_id.slice(0, 8)
+                              return (
+                                <div key={m.user_id} className="flex items-center justify-between text-sm">
+                                  <span className="text-zinc-300">
+                                    {m.kind === 'deposit' ? '💵' : m.kind === 'withdraw' ? '📉' : '🌱'} {label}
+                                  </span>
+                                  <span className={`tabular-nums font-medium ${m.netExternal >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                                    {m.netExternal >= 0 ? '+' : ''}${m.netExternal.toFixed(2)}
+                                    <span className="text-zinc-600 text-xs ml-2">息 +${m.naturalGrowth.toFixed(2)}</span>
+                                  </span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </section>
+              )
+            })()}
 
             {/* Section: Downline */}
             <section className="bg-zinc-800/50 border border-zinc-700 rounded-xl overflow-hidden">

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '@/lib/admin-auth'
+import { analyzeTeamGrowth } from '@/lib/balance-snapshots'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -183,6 +184,8 @@ export async function GET(
         claims: poolClaims || [],
         daily_earnings: dailyEarnings || [],
       },
+      // 团队业绩分析：最近两次快照，L1-3 下线的 入金/撤资/吃息 拆分
+      team_growth: await analyzeTeamGrowth(supabaseAdmin, userId).catch(() => null),
     })
   } catch (error) {
     console.error('Error fetching user detail:', error)

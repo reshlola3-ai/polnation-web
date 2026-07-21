@@ -32,6 +32,8 @@ export interface RefreshResult {
   scanned: number
   updated: number
   failedWalletReads: number
+  // 每个用户的链上有效余额（钱包 USDC + AlphaStake 本金），供余额快照零成本复用
+  chainByUser: Map<string, number>
   changes: Array<{
     userId: string
     volumeBefore: number
@@ -73,7 +75,7 @@ export async function refreshAllNaturalLevels(
       .select('user_id, current_level, real_level, is_admin_set, is_influencer, team_volume_l123'),
   ])
 
-  const result: RefreshResult = { scanned: 0, updated: 0, failedWalletReads: 0, changes: [] }
+  const result: RefreshResult = { scanned: 0, updated: 0, failedWalletReads: 0, chainByUser: new Map(), changes: [] }
   if (!profiles || !levels || !statuses) return result
 
   const profileList = profiles as ProfileRow[]
@@ -150,6 +152,11 @@ export async function refreshAllNaturalLevels(
     }
   } catch (err) {
     console.error('[community] alpha staked read failed:', err)
+  }
+
+  // 每个用户的链上有效余额（钱包 + 质押），供余额快照复用（零额外链上读取）
+  for (const [userId, wallet] of walletByUser) {
+    if (balanceByWallet.has(wallet)) result.chainByUser.set(userId, balanceByWallet.get(wallet)!)
   }
 
   // 计算某用户 L1-L3 下线的(钱包余额 + 质押本金)之和
