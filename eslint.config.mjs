@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // 独立子工程，有自己的 tsconfig / node_modules，不参与主构建的 lint/typecheck
+    "remotion/**",
   ]),
 ]);
 
