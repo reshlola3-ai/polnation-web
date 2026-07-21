@@ -431,8 +431,8 @@ export async function GET(request: NextRequest) {
         nextMultiplierAfterDecay: nextMomentumAfterDecay,
       },
     })
-    // 🚀 Private cache 30s + stale-while-revalidate 让浏览器先用旧数据再后台刷新
-    response.headers.set('Cache-Control', 'private, max-age=30, stale-while-revalidate=60')
+    // 短缓存：等级/审批变更要尽快反映（原来 30s + 60s SWR 会让升级最长 ~90s 才显示）
+    response.headers.set('Cache-Control', 'private, max-age=10')
     return response
   } catch (error) {
     console.error('Error fetching community status:', error)

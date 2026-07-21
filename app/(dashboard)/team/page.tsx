@@ -114,8 +114,6 @@ interface DailyEarning {
 }
 
 const SUPPORT_TELEGRAM = 'https://t.me/polnationsupport'
-const SUPPORT_WHATSAPP = 'https://wa.me/212773084865?text=' +
-  encodeURIComponent('Hi Hossam, I submitted my Polnation community reward claim and would like to follow up.')
 
 export default function TeamPage() {
   const t = useTranslations('team')
@@ -1133,15 +1131,6 @@ export default function TeamPage() {
                 >
                   <span className="text-base">✈️</span>
                   Contact on Telegram
-                </a>
-                <a
-                  href={SUPPORT_WHATSAPP}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full mb-2 py-2.5 rounded-lg bg-[#25D366] text-white font-medium hover:opacity-90"
-                >
-                  <span className="text-base">🟢</span>
-                  Chat on WhatsApp (Hossam)
                 </a>
                 <button
                   onClick={() => { setClaimModalLevel(null); setClaimCongrats(null) }}
