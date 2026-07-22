@@ -641,9 +641,9 @@ export function AlphaClient({ initialSignals, entities }: Props) {
   const stakeAddress = getAlphaStakeAddress()
   const canStake = Boolean(stakeAccess?.canStake)
   const minStake = stakeAccess?.minStakeUsdc ?? 1 // 实际放行(测试期 stake-access 返回 1)
-  // 前端显示的最低额与实际放行解耦:真实用户看到 $100,但测试期实际放行 $1。
-  // 上线时把 stake-access 的 minStakeUsdc 改回 100,两者即一致。
-  const minStakeDisplay = 100
+  // 前端显示的最低额与实际放行解耦:测试期显示 $10(方便小额试 stake/unstake),实际放行 $1。
+  // 上线时把这里和 stake-access 的 minStakeUsdc 一起改回 100,两者即一致。
+  const minStakeDisplay = 10
   const showCapacityFull = !accessLoading && !canStake
 
   const tier  = TIERS[selectedTier]
