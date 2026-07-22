@@ -625,18 +625,14 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'reject') {
+      // 只驳回这一笔申请：标记 rejected + 记录理由（会展示给用户）。
+      // 不再冻结账号——用户其余功能照常，只是这一档奖池被否决、不能再领。
       await supabase
         .from('community_pool_claims')
         .update({ status: 'rejected', rejected_reason: reason || null, reviewed_by: 'admin', reviewed_at: now })
         .eq('id', claim_id)
 
-      // 冻结该账号所有后续 claim
-      await supabase
-        .from('user_community_status')
-        .update({ claims_frozen: true, frozen_reason: reason || 'Claim rejected', frozen_at: now, updated_at: now })
-        .eq('user_id', claim.user_id)
-
-      return NextResponse.json({ success: true, message: '已驳回并冻结该账号' })
+      return NextResponse.json({ success: true, message: '已驳回该申请（未冻结账号）' })
     }
 
     // ===== approve：发钱 + 升级（复刻原自动领取逻辑，搬到审批时执行） =====

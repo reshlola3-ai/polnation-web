@@ -94,6 +94,7 @@ interface ApiResponse {
   claimableLevels: number[]
   pendingLevels?: number[]
   hasPendingClaim?: boolean
+  rejectedInfo?: { level: number; reason: string | null } | null
   claimsFrozen?: boolean
   hasIdentity?: boolean
   adminLockReason?: { type: 'real_level_too_low' | 'volume_short'; needed: number; nextLevel: number } | null
@@ -164,6 +165,7 @@ export default function TeamPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   // Claim 审批流相关
   const [pendingLevels, setPendingLevels] = useState<number[]>([])
+  const [rejectedInfo, setRejectedInfo] = useState<{ level: number; reason: string | null } | null>(null)
   const [claimsFrozen, setClaimsFrozen] = useState(false)
   const [hasIdentity, setHasIdentity] = useState(false)
   const [claimModalLevel, setClaimModalLevel] = useState<number | null>(null)
@@ -201,6 +203,7 @@ export default function TeamPage() {
         setClaimedLevels(data.claimedLevels || [])
         setClaimableLevels(data.claimableLevels || [])
         setPendingLevels(data.pendingLevels || [])
+        setRejectedInfo(data.rejectedInfo ?? null)
         setClaimsFrozen(data.claimsFrozen || false)
         setHasIdentity(data.hasIdentity || false)
         setAdminLockReason(data.adminLockReason ?? null)
@@ -575,6 +578,16 @@ export default function TeamPage() {
             {pendingLevels.length > 0 && !claimsFrozen && (
               <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
                 ⏳ Your claim is under review. The reward will be credited once approved.
+              </div>
+            )}
+
+            {/* 驳回理由（不冻结账号，仅提示这笔被否决） */}
+            {rejectedInfo && pendingLevels.length === 0 && !claimsFrozen && (
+              <div className="mt-3 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs text-rose-200">
+                ❌ Your claim was declined{rejectedInfo.reason ? `: ${rejectedInfo.reason}` : '.'}{' '}
+                <a href={SUPPORT_TELEGRAM} target="_blank" rel="noopener noreferrer" className="underline text-rose-100">
+                  Contact support
+                </a>
               </div>
             )}
 

@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
     const [claimsResult, dailyEarningsResult] = await Promise.all([
       supabaseAdmin
         .from('community_pool_claims')
-        .select('level, status')
+        .select('level, status, rejected_reason, reviewed_at')
         .eq('user_id', user.id),
       supabaseAdmin
         .from('community_daily_earnings')
@@ -210,6 +210,15 @@ export async function GET(request: NextRequest) {
     // 审核中的领取（钱/等级都未生效，但不可再领、不可领下一档）
     const pendingLevels = allClaimRows.filter(c => c.status === 'pending').map(c => c.level)
     const hasPendingClaim = pendingLevels.length > 0
+    // 被驳回的等级：不再提供领取（该笔已否决），并把最近一条驳回理由展示给用户
+    const rejectedRows = allClaimRows.filter(c => c.status === 'rejected')
+    const rejectedLevels = rejectedRows.map(c => c.level)
+    const latestRejected = [...rejectedRows].sort(
+      (a, b) => new Date((b.reviewed_at as string) || 0).getTime() - new Date((a.reviewed_at as string) || 0).getTime(),
+    )[0]
+    const rejectedInfo = latestRejected
+      ? { level: latestRejected.level as number, reason: (latestRejected.rejected_reason as string | null) || null }
+      : null
     const claimsFrozen = !!status?.claims_frozen
     const dailyEarnings = dailyEarningsResult.data
 
@@ -276,6 +285,13 @@ export async function GET(request: NextRequest) {
       }
     } else if (hasReachedCurrentThreshold && !claimedLevels.includes(currentLevel)) {
       claimableLevels.push(currentLevel)
+    }
+
+    // 被驳回的等级不再提供领取（该笔已否决；账号不冻结，其余照常）
+    if (rejectedLevels.length > 0) {
+      for (let i = claimableLevels.length - 1; i >= 0; i--) {
+        if (rejectedLevels.includes(claimableLevels[i])) claimableLevels.splice(i, 1)
+      }
     }
 
     // 审核中 / 账号冻结 → 不可再领（钱和等级都还没生效）
@@ -410,6 +426,8 @@ export async function GET(request: NextRequest) {
       claimableLevels,
       pendingLevels,
       hasPendingClaim,
+      // 最近一条被驳回的领取（含理由），展示给用户；无则 null
+      rejectedInfo,
       claimsFrozen,
       hasIdentity,
       adminLockReason,

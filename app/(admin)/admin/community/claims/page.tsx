@@ -151,7 +151,7 @@ export default function AdminClaimsPage() {
 
   const approve = (c: ClaimItem) => act({ action: 'approve', claim_id: c.id }, c.id)
   const reject = (c: ClaimItem) => {
-    const reason = prompt('驳回理由（可选，会冻结该账号所有 claim）：') ?? ''
+    const reason = prompt('驳回理由（会显示给用户，不冻结账号）：') ?? ''
     act({ action: 'reject', claim_id: c.id, reason }, c.id)
   }
   const approveMaintenance = (c: ClaimItem) => {
