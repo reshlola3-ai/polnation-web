@@ -185,18 +185,18 @@ export async function refreshAllNaturalLevels(
     const earnedBase = earnedBaseFor(volume, s.is_influencer, levelList)
     const newRealLevel = earnedBase + 1
 
-    // admin-set 用户：只更新 real_level（真实等级）与缓存业绩，current_level 保持管理员设定
+    // 只更新 real_level（体积真实等级）与缓存业绩。current_level 一律不动：
+    // 自然用户由「领取奖池 + 管理员审批」驱动，admin-set 用户由管理员设定。
+    // （历史上这里会用体积公式覆盖自然用户的 current_level，把领取升上来的等级
+    //  打回——尤其靠任务奖励凑门槛的人会被降级且回不来。已废弃该覆盖。）
     const update: Record<string, unknown> = {
       team_volume_l123: volume,
       team_volume_updated_at: now,
       real_level: newRealLevel,
       updated_at: now,
     }
-    if (!s.is_admin_set) update.current_level = newRealLevel
 
-    const levelChanged = s.is_admin_set
-      ? s.real_level !== newRealLevel
-      : s.current_level !== newRealLevel || s.real_level !== newRealLevel
+    const levelChanged = s.real_level !== newRealLevel
     const volumeChanged = Math.abs(Number(s.team_volume_l123) - volume) > 0.01
 
     if (!levelChanged && !volumeChanged) continue
@@ -212,7 +212,7 @@ export async function refreshAllNaturalLevels(
       userId: s.user_id,
       volumeBefore: Number(s.team_volume_l123),
       volumeAfter: volume,
-      levelBefore: s.is_admin_set ? s.real_level : s.current_level,
+      levelBefore: s.real_level,
       levelAfter: newRealLevel,
     })
   }
