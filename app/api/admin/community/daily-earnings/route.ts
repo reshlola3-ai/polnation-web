@@ -52,16 +52,9 @@ export async function POST(request: NextRequest) {
 
     const levelMap = new Map(levels?.map(l => [l.level, l]) || [])
 
-    // Influencer-lock tunables: admin-set users at >= minLevel have their daily
-    // earning gated by "movement" — L1-3 team volume must grow that day by more
-    // than naturalGrowthRate × yesterday's snapshot, else the earning is locked.
-    const { data: cfg } = await supabaseAdmin
-      .from('airdrop_config')
-      .select('influencer_lock_min_level')
-      .single()
-    // 工资放行门槛:L1-3 团队当期新增入金必须 > $20(绝对金额),否则锁定。
-    const MIN_TEAM_GROWTH_USD = 20
-    const lockMinLevel = Number(cfg?.influencer_lock_min_level ?? 3)
+    // 日薪锁定门槛：任何用户当日日薪 ≥ $1 一律锁进 community_locked_usdc，需用户申请
+    // 解锁 + 管理员审批；< $1 直接进可提现余额（仍照常 momentum 衰减）。
+    const DAILY_LOCK_THRESHOLD = 1
     // Momentum: 团队 L1-3 业绩需增长 > 3% 且当期新增 ≥ $10 才算新业绩;否则倍率衰减。
     // $10 绝对下限：防止团队近乎为零的人靠几分钱尘埃波动(高百分比)刷回满倍。
     const MOMENTUM_MIN_GROWTH_RATE = 0.03
@@ -117,11 +110,8 @@ export async function POST(request: NextRequest) {
       const baseEarning = levelInfo.reward_pool * levelInfo.daily_rate
       const earningAmount = baseEarning * momentum
 
-      // Movement gate: only admin-set users at >= lockMinLevel are subject to
-      // locking. Salary is withdrawable only if L1-3 team gained more than
-      // MIN_TEAM_GROWTH_USD ($20 new deposits) since last snapshot; else locked.
-      const isGated = !!status.is_admin_set && Number(status.current_level) >= lockMinLevel
-      const locked = isGated ? !(newDeposits > MIN_TEAM_GROWTH_USD) : false
+      // 日薪 ≥ $1 → 锁定（需申请解锁 + 审批）；< $1 → 直接可提现。对所有用户一致。
+      const locked = earningAmount >= DAILY_LOCK_THRESHOLD
 
       calculations.push({
         user_id: status.user_id,
