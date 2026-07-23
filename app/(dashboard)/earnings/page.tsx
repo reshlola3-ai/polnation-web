@@ -32,6 +32,7 @@ import { MonoStat } from '@/components/ui/poly/MonoStat'
 import { BevelCard } from '@/components/ui/poly/BevelCard'
 import { Collapsible } from '@/components/ui/poly/Collapsible'
 import { WithdrawSuccessScreen } from './components/WithdrawSuccessScreen'
+import { TIERS } from '../dashboard/_constants'
 
 interface ProfitTier {
   level: number
@@ -40,6 +41,17 @@ interface ProfitTier {
   max_usdc: number
   rate_percent: number
 }
+
+// 客户端展示用的静态档位表：与 dashboard 同一套写死的 TIERS
+// (app/(dashboard)/dashboard/_constants.ts)。后台调 profit_tiers 只影响实际发放，
+// 绝不改动这里展示给客户的利率表——客户永远看到这套固定数字。
+const DISPLAY_TIERS: ProfitTier[] = TIERS.map((t, i) => ({
+  level: i + 1,
+  name: t.name,
+  min_usdc: t.min,
+  max_usdc: t.max === Infinity ? 999_999_999 : t.max,
+  rate_percent: Number((t.rate * 100).toFixed(4)),
+}))
 
 interface Breakdown {
   last_round: { date: string | null; agentic: number; alpha: number; commission: number; community: number; total: number }
@@ -119,7 +131,8 @@ export default function EarningsPage() {
   // 缺字段（旧缓存）默认放行 UI，服务端仍权威兜底。
   const [canWithdraw, setCanWithdraw] = useState(true)
   const [breakdown, setBreakdown] = useState<Breakdown | null>(null)
-  const [tiers, setTiers] = useState<ProfitTier[]>([])
+  // 固定展示档位，不再从后台配置读取（后台改率不影响客户所见）
+  const [tiers] = useState<ProfitTier[]>(DISPLAY_TIERS)
   const [config, setConfig] = useState<ConfigData | null>(null)
   const [history, setHistory] = useState<HistoryItem[]>([])
   const [commissions, setCommissions] = useState<CommissionItem[]>([])
@@ -196,7 +209,6 @@ export default function EarningsPage() {
         setHistory(data.history)
         setCommissions(data.commissions || [])
         setWithdrawals(data.withdrawals)
-        setTiers(data.tiers)
         setConfig(data.config)
         setNextDistribution(data.next_distribution)
         setBoundWalletAddress(data.wallet_address || null)

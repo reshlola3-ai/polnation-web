@@ -44,7 +44,6 @@ export async function GET() {
     // 🚀 并行获取所有独立的数据查询（7个串行 → 1次并行，速度提升 ~5x）
     const [
       configResult,
-      tiersResult,
       profitsResult,
       historyResult,
       withdrawalsResult,
@@ -53,8 +52,8 @@ export async function GET() {
     ] = await Promise.all([
       // 获取配置
       supabaseAdmin.from('airdrop_config').select('*').single(),
-      // 获取利润等级
-      supabaseAdmin.from('profit_tiers').select('*').eq('is_active', true).order('level'),
+      // 利润档位利率(profit_tiers)不再下发给客户端：后台调率不应展示到客户前端。
+      // 前端展示用写死的静态档位(见 dashboard/_constants.ts)。
       // 获取用户利润
       supabaseAdmin.from('user_profits').select('*').eq('user_id', user.id).single(),
       // 获取利润历史（最近50条）
@@ -80,7 +79,6 @@ export async function GET() {
     ])
 
     const config = configResult.data
-    const tiers = tiersResult.data
     const profits = profitsResult.data
     const history = historyResult.data
     const withdrawals = withdrawalsResult.data
@@ -239,7 +237,6 @@ export async function GET() {
       history: history || [],
       commissions: commissions || [],
       withdrawals: withdrawals || [],
-      tiers: tiers || [],
       config: {
         interval_seconds: config?.interval_seconds || 86400,
         min_withdrawal_usdc: config?.min_withdrawal_usdc || 0.1,
