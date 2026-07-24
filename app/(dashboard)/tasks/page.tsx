@@ -134,6 +134,8 @@ export default function TasksPage() {
   const [checkinTask, setCheckinTask] = useState<Task | null>(null)
   const [progress, setProgress] = useState<Progress>({ total_task_bonus: 0, current_streak: 0, total_checkins: 0 })
   const [referralBonus, setReferralBonus] = useState<ReferralBonus>({ pending: 0, claimed: 0, count: 0 })
+  // 推荐奖励活动已下线（2026-07-24）：隐藏卡片 + 停止领取。临时恢复设 NEXT_PUBLIC_REFERRAL_BONUS=on。
+  const referralBonusEnabled = process.env.NEXT_PUBLIC_REFERRAL_BONUS === 'on'
   const [bonusBreakdown, setBonusBreakdown] = useState<BonusBreakdown>({})
   const [referralCount, setReferralCount] = useState(0)
   const [referralLink, setReferralLink] = useState('')
@@ -541,7 +543,8 @@ export default function TasksPage() {
         )
       })}
 
-      {/* Referral bonus card */}
+      {/* Referral bonus card — 活动已下线 2026-07-24（保留代码，设 NEXT_PUBLIC_REFERRAL_BONUS=on 可恢复）*/}
+      {referralBonusEnabled && (
       <div className="glass-card-solid rounded-2xl overflow-hidden">
         <div className="px-4 py-3.5 border-b border-white/[0.06] flex items-center gap-2">
           <Gift className="w-4 h-4 text-[#00e28a]" />
@@ -574,6 +577,7 @@ export default function TasksPage() {
           </Button>
         </div>
       </div>
+      )}
 
       {/* ── Share Modal ─────────────────────────────────────────────────── */}
       {showShareModal && (
