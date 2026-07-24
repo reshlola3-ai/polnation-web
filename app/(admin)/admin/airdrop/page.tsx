@@ -183,6 +183,8 @@ export default function AirdropPage() {
     community_earnings: {
       total_amount: string
       users_count: number
+      locked_amount?: string
+      locked_count?: number
       details: Array<{
         username: string
         level: number
@@ -190,6 +192,8 @@ export default function AirdropPage() {
         reward_pool: number
         daily_rate: number
         earning_amount: string
+        momentum_multiplier?: number
+        locked?: boolean
       }>
     }
   } | null>(null)
@@ -881,6 +885,14 @@ export default function AirdropPage() {
                           <span className="text-zinc-500 text-xs">受益用户</span>
                           <span className="text-zinc-300 text-sm">{previewResult.community_earnings.users_count} 人</span>
                         </div>
+                        {previewResult.community_earnings.locked_count != null && (
+                          <div className="flex items-center justify-between mt-1 pt-1 border-t border-zinc-700/50">
+                            <span className="text-amber-400/80 text-xs">🔒 其中锁定（≥$1，需用户申请+审批）</span>
+                            <span className="text-amber-300 text-sm font-mono">
+                              {previewResult.community_earnings.locked_count} 人 · ${parseFloat(previewResult.community_earnings.locked_amount || '0').toFixed(4)}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div className="max-h-40 overflow-y-auto">
                         <table className="w-full text-sm">
@@ -891,6 +903,7 @@ export default function AirdropPage() {
                               <th className="text-right py-2">奖池</th>
                               <th className="text-right py-2">日利率</th>
                               <th className="text-right py-2">收益</th>
+                              <th className="text-right py-2">状态</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -905,6 +918,13 @@ export default function AirdropPage() {
                                 <td className="text-right text-zinc-300">${comm.reward_pool}</td>
                                 <td className="text-right text-zinc-400">{(comm.daily_rate * 100).toFixed(1)}%</td>
                                 <td className="text-right text-purple-400 font-mono">+${comm.earning_amount}</td>
+                                <td className="text-right">
+                                  {comm.locked ? (
+                                    <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/15 text-amber-300 rounded whitespace-nowrap">🔒 锁定</span>
+                                  ) : (
+                                    <span className="text-[10px] px-1.5 py-0.5 bg-emerald-500/15 text-emerald-300 rounded whitespace-nowrap">直发</span>
+                                  )}
+                                </td>
                               </tr>
                             ))}
                           </tbody>
