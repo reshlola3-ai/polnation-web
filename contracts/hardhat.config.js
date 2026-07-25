@@ -3,7 +3,13 @@ require("dotenv").config({ path: "./.env" });             // contracts/.env (pri
 require("dotenv").config({ path: "../executor/.env" });   // fallback
 
 module.exports = {
-  solidity: "0.8.20",
+  solidity: {
+    version: "0.8.20",
+    settings: {
+      optimizer: { enabled: true, runs: 200 },
+      viaIR: true,
+    },
+  },
   paths: {
     sources: "./src",
     cache: "./cache",

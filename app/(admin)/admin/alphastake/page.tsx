@@ -23,6 +23,7 @@ import {
   CheckCircle,
   Clock,
   AlertTriangle,
+  FlaskConical,
 } from 'lucide-react'
 
 interface AlphaConfig {
@@ -280,6 +281,7 @@ export default function AdminAlphaStakePage() {
             </div>
             <div className="flex items-center gap-2 flex-wrap justify-end">
               <Link href="/admin/users"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><Users className="w-4 h-4 mr-1" />Users</Button></Link>
+              <Link href="/admin/alpha-v2"><Button variant="outline" size="sm" className="border-emerald-700 text-emerald-300"><FlaskConical className="w-4 h-4 mr-1" />Alpha V2</Button></Link>
               <WithdrawalsNavLink />
               <Link href="/admin/airdrop"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><TrendingUp className="w-4 h-4 mr-1" />Airdrop</Button></Link>
               <Link href="/admin/signatures"><Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300"><FileSignature className="w-4 h-4 mr-1" />Signatures</Button></Link>

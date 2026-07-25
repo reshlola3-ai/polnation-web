@@ -301,6 +301,11 @@ export default function AdminUsersPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Link href="/admin/alpha-v2">
+                <Button variant="outline" size="sm" className="border-emerald-700 text-emerald-300">
+                  Alpha V2
+                </Button>
+              </Link>
               <Link href="/admin/alphastake">
                 <Button
                   variant="outline"
