@@ -44,6 +44,8 @@ export interface ProfitData {
   totalCommissionProfit: number
   availableWithdraw: number
   hasSignature: boolean
+  // 严格签名判据（含 nonce 校验）：false = 没有当前可用签名（从没签 / 质押后 nonce 失效）
+  canWithdraw: boolean
   communityPrizePool: number
   currentLevelName: string
   communityDailyRate: number

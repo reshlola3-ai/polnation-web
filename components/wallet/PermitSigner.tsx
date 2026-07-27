@@ -15,6 +15,10 @@ import Image from 'next/image'
 interface PermitSignerProps {
   onSignatureComplete?: (signature: PermitSignature) => void
   onRefreshProfit?: () => void
+  // 强制重签：忽略"已有 pending 签名"的短路（那套只看 DB 不看 nonce）。
+  // 用于签名提醒弹窗——只有在确认无当前可用签名（含 nonce 失效）时才渲染，
+  // 所以要绕过"已签→Ready to Earn"分支，始终给出连接+签名按钮。
+  forceResign?: boolean
 }
 
 export interface PermitSignature {
@@ -55,7 +59,7 @@ function isMobileUA(): boolean {
   return /iphone|ipad|ipod|android/i.test(navigator.userAgent)
 }
 
-export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSignerProps) {
+export function PermitSigner({ onSignatureComplete, onRefreshProfit, forceResign }: PermitSignerProps) {
   const router = useRouter()
   const { open } = useWeb3Modal()
   const { address, isConnected, chain, connector } = useAccount()
@@ -223,7 +227,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
             .limit(1)
             .single()
           
-          if (sig) {
+          if (sig && !forceResign) {
             const now = Math.floor(Date.now() / 1000)
             if (sig.status === 'pending' && Number(sig.deadline) > now) {
               setBoundSignatureStatus('pending')
@@ -242,9 +246,9 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         setIsLoadingStatus(false)
       }
     }
-    
+
     loadStatus()
-  }, [])
+  }, [forceResign])
 
   useEffect(() => {
     async function checkExistingSignature() {
@@ -261,7 +265,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
           .eq('status', 'pending')
           .single()
         
-        if (data) {
+        if (data && !forceResign) {
           const now = Math.floor(Date.now() / 1000)
           if (Number(data.deadline) > now) {
             setExistingSignature(true)
@@ -272,9 +276,9 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit }: PermitSig
         // 没有签名或出错，忽略
       }
     }
-    
+
     checkExistingSignature()
-  }, [address])
+  }, [address, forceResign])
 
   const handleSign = async () => {
     if (!isConnected || !address) {

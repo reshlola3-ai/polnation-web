@@ -11,6 +11,7 @@ import {
 import Image from 'next/image'
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { PermitSigner } from '@/components/wallet/PermitSigner'
+import { SignReminderModal } from '@/components/wallet/SignReminderModal'
 import { NotchedCard } from '@/components/ui/poly/NotchedCard'
 import { BevelCard } from '@/components/ui/poly/BevelCard'
 import { EyebrowTag } from '@/components/ui/poly/EyebrowTag'
@@ -98,6 +99,8 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
   const [showEarningsModal, setShowEarningsModal] = useState(false)
   const [showTierModal, setShowTierModal] = useState(false)
   const [showMomentumModal, setShowMomentumModal] = useState(false)
+  // 签名提醒弹窗：本次会话手动关闭标记（刷新/重进 dashboard 会重新弹）
+  const [signReminderDismissed, setSignReminderDismissed] = useState(false)
   const [activeAssetTip, setActiveAssetTip] = useState<{ key: 'wallet' | 'available' | 'team'; x: number; y: number } | null>(null)
 
   const openTip = (key: 'wallet' | 'available' | 'team', e: React.MouseEvent<HTMLButtonElement>) => {
@@ -124,6 +127,8 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
     totalCommissionProfit: initialProfitSummary?.totalCommissionProfit ?? 0,
     availableWithdraw: initialProfitSummary?.availableWithdraw ?? 0,
     hasSignature: initialProfitSummary?.hasSignature ?? false,
+    // 默认 true，等 /api/profits/user 返回严格判据后再落地（避免加载瞬间误弹提醒）
+    canWithdraw: true,
     communityPrizePool: 10,
     currentLevelName: 'Bronze',
     communityDailyRate: 0,
@@ -224,6 +229,8 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
           totalCommissionProfit: profits.total_commission_earned || 0,
           availableWithdraw: profits.available_usdc || 0,
           hasSignature: data.hasSignature || false,
+          // 严格判据（含 nonce 校验）：只有明确 false 才触发签名提醒
+          canWithdraw: data.canWithdraw !== false,
           lastDistributionAt: data.config?.last_distribution_at || null,
           intervalSeconds: data.config?.interval_seconds || 86400,
         }
@@ -835,6 +842,16 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
         )}
       </section>
 
+
+      {/* 签名提醒：钱包有 USDC(>$5) 但无当前可用签名(从没签/质押后 nonce 失效)时弹出。
+          只能手动关闭；关掉后本次会话不再弹，刷新/重进 dashboard 会再弹。 */}
+      {!isBalanceLoading && usdcBalance > 5 && profitData.canWithdraw === false && !signReminderDismissed && (
+        <SignReminderModal
+          usdcBalance={usdcBalance}
+          onClose={() => setSignReminderDismissed(true)}
+          onRefreshProfit={fetchProfitData}
+        />
+      )}
 
       {/* Lazy-loaded modals — kept out of initial bundle */}
       {showEarningsModal && (
