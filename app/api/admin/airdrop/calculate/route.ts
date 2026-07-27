@@ -302,10 +302,11 @@ export async function POST(request: NextRequest) {
 
     const communityLevelMap = new Map(communityLevels?.map(l => [l.level, l]) || [])
 
-    // 与实际发放(distribute)口径一致：套用 momentum 衰减 + $1 锁定门槛。
+    // 与实际发放(distribute)口径一致：套用 momentum 衰减 + 锁定门槛。
+    // 阈值 0 = 任何正的日薪都锁定、都要审核(含 Silver 及以下)。
     const MOMENTUM_MIN_GROWTH_RATE = 0.03
     const MOMENTUM_MIN_GROWTH_USD = 10
-    const DAILY_LOCK_THRESHOLD = 1
+    const DAILY_LOCK_THRESHOLD = 0
 
     let communityEarningsTotal = 0
     let communityEarningsUsers = 0
@@ -350,8 +351,8 @@ export async function POST(request: NextRequest) {
         const momentum = momentumQualifies ? 1.0 : Math.max(0, parseFloat((prevMomentum - 0.2).toFixed(1)))
 
         const earningAmount = levelInfo.reward_pool * levelInfo.daily_rate * momentum
-        // 日薪 ≥ $1 → 锁定（需申请解锁 + 审批）；< $1 → 直接可提现
-        const locked = earningAmount >= DAILY_LOCK_THRESHOLD
+        // 日薪 > $0 → 一律锁定（需申请解锁 + 审批）。所有等级一致。
+        const locked = earningAmount > DAILY_LOCK_THRESHOLD
 
         communityEarningsTotal += earningAmount
         communityEarningsUsers++

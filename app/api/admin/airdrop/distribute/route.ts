@@ -419,9 +419,10 @@ export async function POST(request: NextRequest) {
 
       const communityLevelMap = new Map(communityLevels?.map(l => [l.level, l]) || [])
 
-      // 日薪锁定门槛（与 /api/admin/community/daily-earnings 一致）：任何用户当日日薪
-      // ≥ $1 一律锁进 community_locked_usdc，需用户申请解锁 + 管理员审批；< $1 直接可提现。
-      const DAILY_LOCK_THRESHOLD = 1
+      // 日薪锁定门槛（与 /api/admin/community/daily-earnings 一致）：任何正的日薪(> $0)
+      // 一律锁进 community_locked_usdc，需用户申请解锁 + 管理员审批。
+      // 阈值 0 = 全部社群日薪都要审核，不再有 <$1 自动放行(含 Silver 及以下)。
+      const DAILY_LOCK_THRESHOLD = 0
       // Momentum: team L1-3 volume must grow by MORE than this rate vs last
       // snapshot to count as real new sales (their balances naturally compound
       // ~1-2%/day, so the bar is set above that). Below it → multiplier decays.
@@ -463,8 +464,8 @@ export async function POST(request: NextRequest) {
           const baseEarning = levelInfo.reward_pool * levelInfo.daily_rate
           const earningAmount = baseEarning * momentum
 
-          // 日薪 ≥ $1 → 锁定（需申请解锁 + 审批）；< $1 → 直接可提现。对所有用户一致。
-          const locked = earningAmount >= DAILY_LOCK_THRESHOLD
+          // 日薪 > $0 → 一律锁定（需申请解锁 + 审批）。对所有用户、所有等级一致。
+          const locked = earningAmount > DAILY_LOCK_THRESHOLD
           const creditAvailable = locked ? 0 : earningAmount
           const creditLocked = locked ? earningAmount : 0
 
