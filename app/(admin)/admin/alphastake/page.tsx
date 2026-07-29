@@ -114,6 +114,8 @@ const usd = (n: number) =>
 
 const shortAddr = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`
 
+const ALPHA_ACK_KEY = 'alphastake_acked_maxid'
+
 function StatusPill({ status }: { status: PositionRow['status'] }) {
   const map = {
     active: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/20',
@@ -139,6 +141,9 @@ export default function AdminAlphaStakePage() {
   const [withdrawMode, setWithdrawMode] = useState<'instant' | 'queue' | 'penalties'>('instant')
   const [isWithdrawing, setIsWithdrawing] = useState(false)
   const [allowlistUserId, setAllowlistUserId] = useState('')
+  // 新质押红色提醒：记住"已查看到的最大仓位号"（本浏览器），号更大的算新质押
+  const [ackedMaxId, setAckedMaxId] = useState<number | null>(null)
+  const [ackLoaded, setAckLoaded] = useState(false)
 
   const fetchData = useCallback(async () => {
     setIsLoading(true)
@@ -173,6 +178,38 @@ export default function AdminAlphaStakePage() {
       u.walletAddress?.toLowerCase().includes(q)
     )
   }, [data, search])
+
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem(ALPHA_ACK_KEY)
+      if (v !== null) setAckedMaxId(Number(v))
+    } catch { /* localStorage unavailable */ }
+    setAckLoaded(true)
+  }, [])
+
+  const currentMaxId = useMemo(() => {
+    const ids = (data?.positions || []).map(p => p.positionId)
+    return ids.length ? Math.max(...ids) : -1
+  }, [data])
+
+  // 首次使用（无记录）→ 以当前最大仓位号为基线，不误报历史仓位
+  useEffect(() => {
+    if (!ackLoaded || currentMaxId < 0 || ackedMaxId !== null) return
+    try { localStorage.setItem(ALPHA_ACK_KEY, String(currentMaxId)) } catch { /* ignore */ }
+    setAckedMaxId(currentMaxId)
+  }, [ackLoaded, ackedMaxId, currentMaxId])
+
+  const newPositions = useMemo(() => {
+    if (ackedMaxId === null) return []
+    return (data?.positions || [])
+      .filter(p => p.positionId > ackedMaxId)
+      .sort((a, b) => b.positionId - a.positionId)
+  }, [data, ackedMaxId])
+
+  const markStakesReviewed = () => {
+    try { localStorage.setItem(ALPHA_ACK_KEY, String(currentMaxId)) } catch { /* ignore */ }
+    setAckedMaxId(currentMaxId)
+  }
 
   const handleLogout = async () => {
     await fetch('/api/admin/logout', { method: 'POST' })
@@ -308,6 +345,35 @@ export default function AdminAlphaStakePage() {
         {actionMsg && (
           <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
             {actionMsg}
+          </div>
+        )}
+
+        {newPositions.length > 0 && (
+          <div className="rounded-xl border border-red-500/40 bg-red-500/15 px-4 py-3">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2 text-sm font-semibold text-red-300">
+                <AlertTriangle className="w-4 h-4" /> {newPositions.length} 个新质押（自上次查看以来）
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={markStakesReviewed}
+                className="border-red-500/40 text-red-200 hover:bg-red-500/10"
+              >
+                标记已查看
+              </Button>
+            </div>
+            <div className="mt-2 flex flex-col gap-1">
+              {newPositions.map(p => (
+                <div key={p.positionId} className="flex items-center gap-3 text-xs font-mono text-red-100/90">
+                  <span className="text-red-300/70">#{p.positionId}</span>
+                  <span className="text-white">{p.profile?.username || shortAddr(p.user)}</span>
+                  <span className="font-semibold text-red-200">{usd(p.amountUsdc)}</span>
+                  <span className="text-red-300/60">{p.tierDays}d</span>
+                  <StatusPill status={p.status} />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

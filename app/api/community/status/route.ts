@@ -106,6 +106,23 @@ async function calculateTeamVolumeL123(userId: string, supabase: ReturnType<type
     }
   }
 
+  // 并入 L1-3 下线在 AlphaStake 的未平仓质押本金——与发放刷新 refreshAllNaturalLevels
+  // 的口径保持一致，否则已质押的下线会让团队业绩被少算（质押会清空钱包 USDC）。
+  try {
+    const alpha = await fetchOnChainAlphaSummary()
+    if (alpha.configured) {
+      const l123Wallets = new Set(
+        walletsToFetch.map((r: { wallet_address: string }) => r.wallet_address.toLowerCase()),
+      )
+      for (const pos of alpha.positions) {
+        if (pos.closed) continue
+        if (l123Wallets.has(pos.user.toLowerCase())) totalVolume += pos.amountUsdc
+      }
+    }
+  } catch (err) {
+    console.error('[community/status] alpha staked read failed:', err)
+  }
+
   return totalVolume
 }
 
