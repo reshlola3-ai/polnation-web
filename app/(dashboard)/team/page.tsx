@@ -22,7 +22,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import { SearchableSelect } from '@/components/ui/SearchableSelect'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase'
 import { getCountryByCode, countries } from '@/lib/countries'
 import { Referral } from '@/lib/types'
@@ -116,8 +116,79 @@ interface DailyEarning {
 
 const SUPPORT_TELEGRAM = 'https://t.me/polnationsupport'
 
+// 奖励暂停发放卡片文案（8 语言内置，按用户 locale 显示；不碰未提交的 messages/*.json）。
+// 措辞刻意模糊——只说"可能是以下原因之一"，不点破具体检测。
+const PAUSED_STRINGS: Record<string, { title: string; intro: string; r1: string; r2: string; r3: string; appeal: string }> = {
+  en: {
+    title: 'Payouts paused',
+    intro: 'Your payouts are on hold. This may be due to one of the following:',
+    r1: 'Unusual recent account activity flagged for a risk review.',
+    r2: 'Team performance and fund movements pending manual verification.',
+    r3: 'Account compliance confirmation required before payouts resume.',
+    appeal: 'Contact support to appeal →',
+  },
+  zh: {
+    title: '奖励暂停发放',
+    intro: '你的发放已暂停，可能是以下原因之一：',
+    r1: '系统检测到账户近期活动异常，已进入风控复核。',
+    r2: '团队业绩与资金流水待人工核实。',
+    r3: '需完成账户合规确认后，发放方可恢复。',
+    appeal: '联系客服申诉 →',
+  },
+  id: {
+    title: 'Pembayaran dijeda',
+    intro: 'Pembayaran Anda ditangguhkan. Kemungkinan karena salah satu alasan berikut:',
+    r1: 'Aktivitas akun terkini yang tidak biasa terdeteksi dan sedang ditinjau risiko.',
+    r2: 'Kinerja tim dan pergerakan dana menunggu verifikasi manual.',
+    r3: 'Konfirmasi kepatuhan akun diperlukan sebelum pembayaran dilanjutkan.',
+    appeal: 'Hubungi dukungan untuk mengajukan banding →',
+  },
+  vi: {
+    title: 'Tạm dừng chi trả',
+    intro: 'Khoản chi trả của bạn đang bị tạm giữ. Có thể do một trong các lý do sau:',
+    r1: 'Phát hiện hoạt động tài khoản gần đây bất thường, đang được xem xét rủi ro.',
+    r2: 'Thành tích nhóm và dòng tiền đang chờ xác minh thủ công.',
+    r3: 'Cần xác nhận tuân thủ tài khoản trước khi tiếp tục chi trả.',
+    appeal: 'Liên hệ hỗ trợ để khiếu nại →',
+  },
+  fr: {
+    title: 'Paiements suspendus',
+    intro: 'Vos paiements sont suspendus. Cela peut être dû à l’une des raisons suivantes :',
+    r1: 'Activité récente inhabituelle du compte signalée pour un contrôle des risques.',
+    r2: 'Performance de l’équipe et mouvements de fonds en attente de vérification manuelle.',
+    r3: 'Confirmation de conformité du compte requise avant la reprise des paiements.',
+    appeal: 'Contacter le support pour faire appel →',
+  },
+  hi: {
+    title: 'भुगतान रोका गया',
+    intro: 'आपके भुगतान रोक दिए गए हैं। यह निम्न में से किसी एक कारण से हो सकता है:',
+    r1: 'खाते की हाल की असामान्य गतिविधि जोखिम समीक्षा के लिए चिह्नित की गई है।',
+    r2: 'टीम प्रदर्शन और फंड मूवमेंट मैनुअल सत्यापन के लिए लंबित हैं।',
+    r3: 'भुगतान फिर से शुरू होने से पहले खाता अनुपालन पुष्टि आवश्यक है।',
+    appeal: 'अपील के लिए सहायता से संपर्क करें →',
+  },
+  ar: {
+    title: 'تم إيقاف المدفوعات',
+    intro: 'تم تعليق مدفوعاتك. قد يكون ذلك لأحد الأسباب التالية:',
+    r1: 'تم رصد نشاط غير معتاد على الحساب مؤخرًا وهو قيد مراجعة المخاطر.',
+    r2: 'أداء الفريق وحركة الأموال قيد التحقق اليدوي.',
+    r3: 'يلزم تأكيد امتثال الحساب قبل استئناف المدفوعات.',
+    appeal: 'تواصل مع الدعم لتقديم اعتراض →',
+  },
+  ur: {
+    title: 'ادائیگیاں روک دی گئیں',
+    intro: 'آپ کی ادائیگیاں روک دی گئی ہیں۔ یہ درج ذیل میں سے کسی ایک وجہ سے ہو سکتا ہے:',
+    r1: 'اکاؤنٹ کی حالیہ غیر معمولی سرگرمی کا پتا چلا اور رسک جائزے میں ہے۔',
+    r2: 'ٹیم کی کارکردگی اور فنڈز کی نقل و حرکت دستی تصدیق کے لیے زیر التوا ہے۔',
+    r3: 'ادائیگیاں دوبارہ شروع ہونے سے پہلے اکاؤنٹ کمپلائنس کی تصدیق درکار ہے۔',
+    appeal: 'اپیل کے لیے سپورٹ سے رابطہ کریں →',
+  },
+}
+const PAUSED_RTL = new Set(['ar', 'ur'])
+
 export default function TeamPage() {
   const t = useTranslations('team')
+  const locale = useLocale()
   const tCommon = useTranslations('common')
   const tErrors = useTranslations('errors')
   const supabase = createClient()
@@ -564,15 +635,30 @@ export default function TeamPage() {
               )}
             </div>
 
-            {/* 账号冻结提示 */}
-            {claimsFrozen && (
-              <div className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
-                🔒 Your claims are under manual review.{' '}
-                <a href={SUPPORT_TELEGRAM} target="_blank" rel="noopener noreferrer" className="underline text-red-200">
-                  Contact support
-                </a>
-              </div>
-            )}
+            {/* 奖励暂停发放：模糊 3 原因 + 申诉按钮（按用户语言显示） */}
+            {claimsFrozen && (() => {
+              const ps = PAUSED_STRINGS[locale] ?? PAUSED_STRINGS.en
+              const dir = PAUSED_RTL.has(locale) ? 'rtl' : 'ltr'
+              return (
+                <div dir={dir} className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-3 text-xs text-red-200">
+                  <p className="font-semibold text-red-100 mb-1">⏸ {ps.title}</p>
+                  <p className="text-red-300/90 mb-1.5">{ps.intro}</p>
+                  <ul className="space-y-1 mb-2.5 list-decimal ps-4">
+                    <li>{ps.r1}</li>
+                    <li>{ps.r2}</li>
+                    <li>{ps.r3}</li>
+                  </ul>
+                  <a
+                    href={SUPPORT_TELEGRAM}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-lg border border-red-400/40 bg-red-500/15 px-3 py-1.5 font-semibold text-red-100 hover:bg-red-500/25"
+                  >
+                    {ps.appeal}
+                  </a>
+                </div>
+              )
+            })()}
 
             {/* 审核中提示 */}
             {pendingLevels.length > 0 && !claimsFrozen && (

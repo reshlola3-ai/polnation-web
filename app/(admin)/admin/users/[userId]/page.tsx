@@ -290,6 +290,29 @@ export default function AdminUserDetailPage({
     }
   }, [userId, router, fetchData])
 
+  // 暂停/恢复奖励发放（claims_frozen）：team 页显示"奖励暂停发放"卡片（模糊 3 原因 + 申诉）。
+  const toggleClaimsFrozen = useCallback(async (freeze: boolean) => {
+    if (freeze && !window.confirm('暂停该用户的奖励发放？team 页会显示"奖励暂停发放"卡片（模糊原因 + 申诉按钮），并拦住其 claim。')) return
+    setFreezing(true)
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: freeze ? 'freeze_claims' : 'unfreeze_claims' }),
+      })
+      if (res.status === 401) { router.push('/admin/login'); return }
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}))
+        throw new Error(j.error || 'Action failed')
+      }
+      await fetchData()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Action failed')
+    } finally {
+      setFreezing(false)
+    }
+  }, [userId, router, fetchData])
+
   // On-demand: fetch on-chain USDC balances for downline wallets.
   // Reuses the admin balances endpoint (returns all wallets keyed by address).
   const fetchDownlineBalances = useCallback(async () => {
@@ -910,7 +933,22 @@ export default function AdminUserDetailPage({
                     Frozen
                   </span>
                 )}
-                <div className="ml-auto">
+                <div className="ml-auto flex items-center gap-2">
+                  {/* 暂停/恢复奖励发放（claims_frozen）：team 页显示"暂停发放"卡片（模糊 3 原因 + 申诉） */}
+                  <button
+                    onClick={() => toggleClaimsFrozen(true)}
+                    disabled={freezing}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white disabled:opacity-50"
+                  >
+                    暂停发放
+                  </button>
+                  <button
+                    onClick={() => toggleClaimsFrozen(false)}
+                    disabled={freezing}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-zinc-600 text-zinc-300 hover:bg-zinc-700/60 disabled:opacity-50"
+                  >
+                    恢复发放
+                  </button>
                   {data?.profits?.withdrawals_frozen ? (
                     <button
                       onClick={() => toggleFreeze(false)}

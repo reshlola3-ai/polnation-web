@@ -250,6 +250,25 @@ export async function POST(
       return NextResponse.json({ ok: true, withdrawals_frozen: false })
     }
 
+    if (action === 'freeze_claims' || action === 'unfreeze_claims') {
+      // 暂停/恢复奖励发放：置 claims_frozen。team 页会显示"奖励暂停发放"卡片（模糊 3 原因 + 申诉）。
+      const freeze = action === 'freeze_claims'
+      const { error } = await supabaseAdmin
+        .from('user_community_status')
+        .update({
+          claims_frozen: freeze,
+          frozen_reason: freeze ? (reason || 'rewards paused for review') : null,
+          frozen_at: freeze ? new Date().toISOString() : null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', userId)
+      if (error) {
+        console.error(`${action} failed:`, error)
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+      return NextResponse.json({ ok: true, claims_frozen: freeze })
+    }
+
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
   } catch (error) {
     console.error('Error in user POST action:', error)
