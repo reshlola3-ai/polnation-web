@@ -36,10 +36,24 @@ export async function advanceInstallmentClaims(
 
   if (!claims || claims.length === 0) return { processed: 0, released: 0, completed: 0 }
 
+  // 账号被冻结（claims_frozen）的用户：暂停其分期发放，不释放当日金额。
+  // 冻结前已批准的分期不因冻结自动停，需在这里显式跳过。
+  const userIds = [...new Set((claims as InstallmentClaim[]).map((c) => c.user_id))]
+  const frozen = new Set<string>()
+  for (let i = 0; i < userIds.length; i += 300) {
+    const { data } = await supabase
+      .from('user_community_status')
+      .select('user_id, claims_frozen')
+      .in('user_id', userIds.slice(i, i + 300))
+    for (const r of data || []) if (r.claims_frozen) frozen.add(r.user_id as string)
+  }
+
   let released = 0
   let completed = 0
   for (const claim of claims as InstallmentClaim[]) {
     try {
+      // 账号冻结 → 暂停分期（不推进、不发放）
+      if (frozen.has(claim.user_id)) continue
       // 当天已发过 → 跳过
       if (claim.installment_last_date === today) continue
 

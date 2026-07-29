@@ -225,6 +225,20 @@ export async function GET() {
       installment_released: number | null; installment_started_at: string | null
       profile: { username: string | null; email: string | null } | null
     }>
+    // 分期/维持项的冻结状态（claims_frozen）→ 前端显示"已暂停"；核心止付在 advance* 里已实现。
+    const imUserIds = [...new Set([
+      ...maintRows.map(r => r.user_id),
+      ...instRows.map(r => r.user_id),
+    ].filter(Boolean))] as string[]
+    const imFrozen = new Set<string>()
+    if (imUserIds.length) {
+      const { data: fz } = await supabase
+        .from('user_community_status')
+        .select('user_id, claims_frozen')
+        .in('user_id', imUserIds)
+      for (const r of fz || []) if (r.claims_frozen) imFrozen.add(r.user_id as string)
+    }
+
     const installment = instRows.map((m) => {
       const total = Number(m.amount)
       const totalDays = Number(m.installment_total_days || 0)
@@ -241,6 +255,7 @@ export async function GET() {
         released: Number(m.installment_released || 0),
         daily_amount: totalDays > 0 ? Math.round((total / totalDays) * 1e6) / 1e6 : 0,
         started_at: m.installment_started_at,
+        frozen: imFrozen.has(m.user_id),
       }
     })
 

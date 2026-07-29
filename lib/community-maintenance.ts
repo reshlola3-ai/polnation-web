@@ -239,6 +239,17 @@ export async function advanceMaintenanceClaims(
 
   if (!claims || claims.length === 0) return { processed: 0, released: 0, paused: 0 }
 
+  // 账号被冻结（claims_frozen）的用户：暂停其维持期推进与放行。
+  const frozenIds = [...new Set((claims as MaintenanceClaim[]).map((c) => c.user_id))]
+  const frozen = new Set<string>()
+  for (let i = 0; i < frozenIds.length; i += 300) {
+    const { data } = await supabase
+      .from('user_community_status')
+      .select('user_id, claims_frozen')
+      .in('user_id', frozenIds.slice(i, i + 300))
+    for (const r of data || []) if (r.claims_frozen) frozen.add(r.user_id as string)
+  }
+
   // 整批只读一次链上仓位，两个计算函数共用（否则每笔 claim 最多读两次）
   let alpha: AlphaSummary | undefined
   try {
@@ -251,6 +262,8 @@ export async function advanceMaintenanceClaims(
   let paused = 0
   for (const claim of claims as MaintenanceClaim[]) {
     try {
+      // 账号冻结 → 暂停维持期（不加天数、不放行）
+      if (frozen.has(claim.user_id)) { paused++; continue }
       // 本人不在场 → 天数不加，且两条放行通道（天数满 / 团队质押≥50%）全部关闭。
       // 提前返回还顺带省掉了下面 computeTeamStakingRatio 的那次链上读取。
       const self = await computeSelfHoldings(supabase, claim.user_id, alpha)

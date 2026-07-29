@@ -61,6 +61,7 @@ interface InstallmentItem {
   released: number
   daily_amount: number
   started_at: string | null
+  frozen?: boolean
 }
 
 interface LockedItem {
@@ -409,9 +410,13 @@ export default function AdminClaimsPage() {
                       <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
                         每天 ${m.daily_amount}
                       </span>
+                      {m.frozen && (
+                        <span className="text-[11px] px-2 py-0.5 rounded bg-red-500/20 text-red-300 font-medium">⏸ 已暂停（账号冻结）</span>
+                      )}
                     </div>
                     <p className="text-zinc-400 text-sm mt-1">
                       已发 <span className="text-white font-medium">{m.days_done} / {m.total_days}</span> 天 · 已到账 ${m.released.toFixed(2)} / ${m.amount}
+                      {m.frozen && <span className="text-red-400"> · 已停止发放</span>}
                     </p>
                     <div className="h-1.5 bg-zinc-700 rounded-full overflow-hidden mt-1.5 max-w-xs">
                       <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${pct}%` }} />
