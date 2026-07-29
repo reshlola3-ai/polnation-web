@@ -186,6 +186,18 @@ const PAUSED_STRINGS: Record<string, { title: string; intro: string; r1: string;
 }
 const PAUSED_RTL = new Set(['ar', 'ur'])
 
+// 领取 rank bonus 前的反女巫警告（8 语言，按用户 locale 显示）。
+const CLAIM_WARN_STRINGS: Record<string, string> = {
+  en: 'Your team members must be REAL, independent people. Do NOT create your own extra accounts or register fake downlines from the same device/IP to inflate your team and claim this reward. We verify device and IP fingerprints — fake downlines will get this reward withheld and your account frozen.',
+  zh: '你的团队成员必须是真实、独立的人。严禁用自己的小号、或用同一设备/IP 注册假下线来充团队、领取本奖励。我们会核查设备与 IP 指纹——一经发现假下线，本奖励将被扣发，账户将被冻结。',
+  id: 'Anggota tim Anda harus orang NYATA dan independen. DILARANG membuat akun tambahan sendiri atau mendaftarkan downline palsu dari perangkat/IP yang sama untuk menggelembungkan tim dan mengklaim hadiah ini. Kami memverifikasi sidik jari perangkat dan IP — downline palsu akan membuat hadiah ini ditahan dan akun Anda dibekukan.',
+  vi: 'Thành viên nhóm của bạn phải là người THẬT và độc lập. KHÔNG được tạo tài khoản phụ của riêng bạn hoặc đăng ký downline giả từ cùng thiết bị/IP để thổi phồng nhóm và nhận thưởng này. Chúng tôi xác minh dấu vân tay thiết bị và IP — downline giả sẽ khiến phần thưởng bị giữ lại và tài khoản của bạn bị đóng băng.',
+  fr: 'Les membres de votre équipe doivent être des personnes RÉELLES et indépendantes. Ne créez PAS de comptes supplémentaires ni de faux filleuls depuis le même appareil/IP pour gonfler votre équipe et réclamer cette récompense. Nous vérifions les empreintes d’appareil et d’IP — de faux filleuls entraîneront la retenue de cette récompense et le gel de votre compte.',
+  hi: 'आपके टीम सदस्य वास्तविक और स्वतंत्र लोग होने चाहिए। इस इनाम के लिए अपने अतिरिक्त खाते बनाना या एक ही डिवाइस/IP से नकली डाउनलाइन पंजीकृत करना सख्त मना है। हम डिवाइस और IP फ़िंगरप्रिंट जाँचते हैं — नकली डाउनलाइन मिलने पर यह इनाम रोक दिया जाएगा और आपका खाता फ़्रीज़ कर दिया जाएगा।',
+  ar: 'يجب أن يكون أعضاء فريقك أشخاصًا حقيقيين ومستقلين. يُمنع إنشاء حسابات إضافية خاصة بك أو تسجيل إحالات وهمية من نفس الجهاز/عنوان IP لتضخيم فريقك والمطالبة بهذه المكافأة. نتحقق من بصمات الجهاز وعنوان IP — الإحالات الوهمية ستؤدي إلى حجب هذه المكافأة وتجميد حسابك.',
+  ur: 'آپ کے ٹیم ممبرز حقیقی اور خودمختار افراد ہونے چاہئیں۔ اس انعام کے لیے اپنے اضافی اکاؤنٹس بنانا یا ایک ہی ڈیوائس/IP سے جعلی ڈاؤن لائن رجسٹر کرنا سختی سے منع ہے۔ ہم ڈیوائس اور IP فنگر پرنٹ کی جانچ کرتے ہیں — جعلی ڈاؤن لائن کی صورت میں یہ انعام روک دیا جائے گا اور آپ کا اکاؤنٹ منجمد کر دیا جائے گا۔',
+}
+
 export default function TeamPage() {
   const t = useTranslations('team')
   const locale = useLocale()
@@ -1302,6 +1314,15 @@ export default function TeamPage() {
                     </p>
                   </div>
                 )}
+
+                {/* 反女巫警告：下线必须真实，禁止小号/同设备同 IP 刷团队领奖 */}
+                <div
+                  dir={PAUSED_RTL.has(locale) ? 'rtl' : 'ltr'}
+                  className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2.5 text-[11px] leading-relaxed text-amber-200"
+                >
+                  <span className="font-semibold text-amber-100">⚠️ </span>
+                  {CLAIM_WARN_STRINGS[locale] ?? CLAIM_WARN_STRINGS.en}
+                </div>
 
                 <button
                   onClick={submitClaim}
