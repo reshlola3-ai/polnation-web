@@ -129,6 +129,8 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
     hasSignature: initialProfitSummary?.hasSignature ?? false,
     // 默认 true，等 /api/profits/user 返回严格判据后再落地（避免加载瞬间误弹提醒）
     canWithdraw: true,
+    // 默认 false：等接口返回再决定是否弹签名提醒
+    needsResign: false,
     communityPrizePool: 10,
     currentLevelName: 'Bronze',
     communityDailyRate: 0,
@@ -229,8 +231,9 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
           totalCommissionProfit: profits.total_commission_earned || 0,
           availableWithdraw: profits.available_usdc || 0,
           hasSignature: data.hasSignature || false,
-          // 严格判据（含 nonce 校验）：只有明确 false 才触发签名提醒
           canWithdraw: data.canWithdraw !== false,
+          // 需要重签（含质押后 nonce 失效）→ 触发签名提醒；质押者虽可提，也会被提醒
+          needsResign: data.needsResign === true,
           lastDistributionAt: data.config?.last_distribution_at || null,
           intervalSeconds: data.config?.interval_seconds || 86400,
         }
@@ -843,9 +846,9 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
       </section>
 
 
-      {/* 签名提醒：钱包有 USDC(>$5) 但无当前可用签名(从没签/质押后 nonce 失效)时弹出。
-          只能手动关闭；关掉后本次会话不再弹，刷新/重进 dashboard 会再弹。 */}
-      {!isBalanceLoading && usdcBalance > 5 && profitData.canWithdraw === false && !signReminderDismissed && (
+      {/* 签名提醒：钱包有 USDC(>$5) 但没有当前有效签名(从没签/质押后 nonce 失效)时弹出。
+          质押者虽照发照提，但仍会被提醒重签(needsResign)。只能手动关闭；本次会话不再弹，刷新会再弹。 */}
+      {!isBalanceLoading && usdcBalance > 5 && profitData.needsResign && !signReminderDismissed && (
         <SignReminderModal
           usdcBalance={usdcBalance}
           onClose={() => setSignReminderDismissed(true)}

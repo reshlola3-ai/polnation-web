@@ -44,8 +44,10 @@ export interface ProfitData {
   totalCommissionProfit: number
   availableWithdraw: number
   hasSignature: boolean
-  // 严格签名判据（含 nonce 校验）：false = 没有当前可用签名（从没签 / 质押后 nonce 失效）
+  // 提现资格：有当前有效签名 或 有活跃质押仓位（质押者签名失效不扣、仍可提）
   canWithdraw: boolean
+  // 需要重签：没有当前有效签名（从没签 / 质押后 nonce 失效）→ 驱动签名提醒弹窗
+  needsResign: boolean
   communityPrizePool: number
   currentLevelName: string
   communityDailyRate: number

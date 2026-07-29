@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { hasValidSignature } from '@/lib/permit-eligibility'
+import { hasValidSignature, isActiveStaker } from '@/lib/permit-eligibility'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -222,6 +222,11 @@ export async function GET() {
       },
     }
 
+    // 提现/发放资格：有当前有效签名 或 有活跃质押仓位（质押豁免）。
+    // needsResign：没有当前有效签名（从没签 / 质押后 nonce 失效）→ 驱动前端"重签提醒"。
+    const validSig = await hasValidSignature(supabaseAdmin, user.id)
+    const staker = validSig ? false : await isActiveStaker(supabaseAdmin, user.id)
+
     const response = NextResponse.json({
       breakdown,
       profits: profits || {
@@ -248,9 +253,10 @@ export async function GET() {
       registered_at: registeredAt,
       team_volume: Number(commStatusRes.data?.team_volume_l123) || 0,
       hasSignature: hasSignature,
-      // 提现门用的严格判据（pending + 未过期 + owner==绑定钱包）。与 hasSignature（宽，
-      // 含 used，用于新手引导）不同：提现要求当前有可用签名，被 execute 用掉的不算。
-      canWithdraw: await hasValidSignature(supabaseAdmin, user.id),
+      // 提现资格：有当前有效签名 或 有活跃质押仓位（质押者签名失效不扣、可提）。
+      canWithdraw: validSig || staker,
+      // 需要重签：没有当前有效签名（含质押后 nonce 失效）→ 前端弹签名提醒（即便已可提）。
+      needsResign: !validSig,
     })
     
     // Private cache for 30 seconds (user-specific data)

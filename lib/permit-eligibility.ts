@@ -18,6 +18,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { createPublicClient, http, parseAbi } from 'viem'
 import { polygon } from 'viem/chains'
+import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
 
 const RPC_URL = process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com'
 const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`
@@ -25,6 +26,35 @@ const NONCES_ABI = parseAbi(['function nonces(address owner) view returns (uint2
 
 function alphaPublicClient() {
   return createPublicClient({ chain: polygon, transport: http(RPC_URL) })
+}
+
+// 质押豁免：有活跃(未平仓)AlphaStake 仓位的钱包。参与质押的 stakeWithPermit 会用掉
+// permit、令旧空投签名 nonce 失效——不应因此扣他们的奖励。读链失败 → 空集(退回仅签名)。
+async function activeStakerWallets(): Promise<Set<string>> {
+  try {
+    const alpha = await fetchOnChainAlphaSummary()
+    if (!alpha.configured) return new Set()
+    return new Set(alpha.positions.filter((p) => !p.closed).map((p) => p.user.toLowerCase()))
+  } catch {
+    return new Set()
+  }
+}
+
+// 单用户：该用户当前是否有活跃质押仓位（用于提现门/发放的质押豁免）。
+export async function isActiveStaker(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: SupabaseClient<any>,
+  userId: string,
+): Promise<boolean> {
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('wallet_address')
+    .eq('id', userId)
+    .maybeSingle()
+  const wallet = ((profile?.wallet_address as string | null) ?? null)?.toLowerCase() ?? null
+  if (!wallet) return false
+  const stakers = await activeStakerWallets()
+  return stakers.has(wallet)
 }
 
 export interface SignatureStatus {
@@ -179,6 +209,24 @@ export async function loadSignatureStatus(
   const mismatchUserIds = new Set<string>()
   for (const uid of usersWithAnySig) {
     if (!signedUserIds.has(uid)) mismatchUserIds.add(uid)
+  }
+
+  // 质押豁免：有活跃质押仓位的用户，即使签名失效/未签也计入发放资格
+  // （质押已用掉 permit 使旧签名失效，不因此扣奖励；用户端仍会提醒重签）。
+  const stakerWallets = await activeStakerWallets()
+  if (stakerWallets.size > 0) {
+    const walletsArr = [...stakerWallets]
+    for (let i = 0; i < walletsArr.length; i += 300) {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, wallet_address')
+        .in('wallet_address', walletsArr.slice(i, i + 300))
+      for (const p of data || []) {
+        if (!p.wallet_address) continue
+        signedUserIds.add(p.id as string)
+        mismatchUserIds.delete(p.id as string)
+      }
+    }
   }
 
   return { signedUserIds, mismatchUserIds }
