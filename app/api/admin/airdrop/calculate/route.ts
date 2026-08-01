@@ -341,12 +341,10 @@ export async function POST(request: NextRequest) {
           if (existingEarning) continue
         }
 
-        // Momentum 衰减（与 distribute 一致）
+        // Momentum 衰减（与 distribute 一致）：基准为历史最高业绩(峰值)高水位线。
         const todayVol = Number(status.team_volume_l123) || 0
-        const prevVol = status.last_volume_snapshot != null ? Number(status.last_volume_snapshot) : todayVol
-        const newDeposits = todayVol - prevVol
-        const growthPct = prevVol > 0 ? newDeposits / prevVol : 0
-        const momentumQualifies = growthPct > MOMENTUM_MIN_GROWTH_RATE && newDeposits >= MOMENTUM_MIN_GROWTH_USD
+        const peakVol = Number(status.peak_volume_l123 ?? 0)
+        const momentumQualifies = todayVol > peakVol * (1 + MOMENTUM_MIN_GROWTH_RATE) && (todayVol - peakVol) >= MOMENTUM_MIN_GROWTH_USD
         const prevMomentum = Number(status.momentum_multiplier ?? 1.0)
         const momentum = momentumQualifies ? 1.0 : Math.max(0, parseFloat((prevMomentum - 0.2).toFixed(1)))
 

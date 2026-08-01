@@ -446,17 +446,15 @@ export async function POST(request: NextRequest) {
 
           if (existingEarning) continue
 
-          // L1-3 团队当期增长(相对上次快照),供 momentum 与锁定门控共用。
+          // L1-3 团队当期业绩(含下线质押)。momentum 基准为"历史最高业绩(峰值)"高水位线。
           const todayVol = Number(status.team_volume_l123) || 0
-          const prevVol = status.last_volume_snapshot != null
-            ? Number(status.last_volume_snapshot)
-            : todayVol // no baseline yet → delta 0
-          const newDeposits = todayVol - prevVol
-          const growthPct = prevVol > 0 ? newDeposits / prevVol : 0
+          const peakVol = Number(status.peak_volume_l123 ?? 0)
+          const overPeak = todayVol - peakVol
+          const newPeak = Math.max(peakVol, todayVol)
 
-          // ★ Momentum 倍率 ★：团队较上次快照增长 > 3% 且新增 ≥ $10 → 恢复 1.0;否则在上次
-          // 倍率基础上每次发放 -0.2(可归零停发)。从上次存的倍率递减，覆盖"从没达标过"的人。
-          const momentumQualifies = growthPct > MOMENTUM_MIN_GROWTH_RATE && newDeposits >= MOMENTUM_MIN_GROWTH_USD
+          // ★ Momentum 倍率 ★：团队业绩需超过历史最高(峰值)> 3% 且高出 ≥ $10 → 恢复 1.0;
+          // 否则每次发放 -0.2(可归零停发)。撤走再冲回旧水平不算——峰值只升不降。
+          const momentumQualifies = todayVol > peakVol * (1 + MOMENTUM_MIN_GROWTH_RATE) && overPeak >= MOMENTUM_MIN_GROWTH_USD
           const prevMomentum = Number(status.momentum_multiplier ?? 1.0)
           const momentum = momentumQualifies ? 1.0 : Math.max(0, parseFloat((prevMomentum - 0.2).toFixed(1)))
           const momentumRefAt = momentumQualifies ? now : (status.momentum_last_referral_at ?? null)
@@ -561,6 +559,7 @@ export async function POST(request: NextRequest) {
               momentum_multiplier: momentum,
               momentum_last_referral_at: momentumRefAt, // 仅在增长达标时被刷成 now
               momentum_updated_at: now,
+              peak_volume_l123: newPeak, // 峰值高水位线，只升不降
               last_volume_snapshot: todayVol,
               last_volume_snapshot_at: now,
               updated_at: now,
