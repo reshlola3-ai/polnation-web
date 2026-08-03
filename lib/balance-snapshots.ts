@@ -76,6 +76,158 @@ export interface TeamGrowthAnalysis {
 
 type Snap = { user_id: string; chain_usdc: number; available_usdc: number; total_earned_usdc: number }
 
+// ───────── 全站资金变动（供 /admin/balance-history 查阅）─────────
+
+export interface GlobalMover {
+  user_id: string
+  username: string | null
+  totalPrev: number
+  totalNow: number
+  deltaTotal: number
+  naturalGrowth: number // 吃息（Δ累计收益）
+  netExternal: number // 入金(>0) / 撤资(<0)
+  kind: 'deposit' | 'withdraw' | 'natural'
+}
+
+export interface AllGrowthResult {
+  hasData: boolean
+  from: string | null
+  to: string | null
+  analyzed: number
+  newDeposits: number
+  withdrawals: number
+  naturalGrowth: number
+  netExternal: number
+  movers: GlobalMover[] // |净外部流水| > 阈值的用户，按幅度降序
+}
+
+// 对比最近两次快照，算全站每个用户的资金增减（拆吃息 vs 入金/撤资）。
+export async function analyzeAllGrowth(supabase: SupabaseClient): Promise<AllGrowthResult> {
+  const empty: AllGrowthResult = {
+    hasData: false, from: null, to: null, analyzed: 0,
+    newDeposits: 0, withdrawals: 0, naturalGrowth: 0, netExternal: 0, movers: [],
+  }
+  const { data: times } = await supabase
+    .from('user_balance_snapshots')
+    .select('taken_at')
+    .order('taken_at', { ascending: false })
+    .limit(5000)
+  const distinct: string[] = []
+  for (const t of times || []) {
+    const v = t.taken_at as string
+    if (!distinct.includes(v)) distinct.push(v)
+    if (distinct.length >= 2) break
+  }
+  if (distinct.length < 2) return empty
+  const [toTs, fromTs] = distinct
+
+  const fetchAll = async (ts: string) => {
+    const map = new Map<string, Snap>()
+    for (let from = 0; ; from += 1000) {
+      const { data } = await supabase
+        .from('user_balance_snapshots')
+        .select('user_id, chain_usdc, available_usdc, total_earned_usdc')
+        .eq('taken_at', ts)
+        .range(from, from + 999)
+      if (!data || data.length === 0) break
+      for (const r of data) map.set(r.user_id as string, r as Snap)
+      if (data.length < 1000) break
+    }
+    return map
+  }
+  const [toMap, fromMap] = await Promise.all([fetchAll(toTs), fetchAll(fromTs)])
+
+  const movers: GlobalMover[] = []
+  let newDeposits = 0, withdrawals = 0, naturalGrowth = 0
+  for (const [uid, b] of toMap) {
+    const a = fromMap.get(uid)
+    if (!a) continue // 需两张都有才能算增量
+    const totalA = Number(a.chain_usdc) + Number(a.available_usdc)
+    const totalB = Number(b.chain_usdc) + Number(b.available_usdc)
+    const dTotal = totalB - totalA
+    const nat = Number(b.total_earned_usdc) - Number(a.total_earned_usdc)
+    const net = dTotal - nat
+    naturalGrowth += nat
+    if (net > 0) newDeposits += net
+    else if (net < 0) withdrawals += -net
+    if (Math.abs(net) <= STAGNANT_EPS) continue
+    movers.push({
+      user_id: uid, username: null,
+      totalPrev: totalA, totalNow: totalB, deltaTotal: dTotal,
+      naturalGrowth: nat, netExternal: net,
+      kind: net > STAGNANT_EPS ? 'deposit' : net < -STAGNANT_EPS ? 'withdraw' : 'natural',
+    })
+  }
+  movers.sort((x, y) => Math.abs(y.netExternal) - Math.abs(x.netExternal))
+
+  // 用户名
+  const ids = movers.map((m) => m.user_id)
+  for (let i = 0; i < ids.length; i += 300) {
+    const { data } = await supabase.from('profiles').select('id, username, email').in('id', ids.slice(i, i + 300))
+    const nameById = new Map((data || []).map((p) => [p.id as string, (p.username as string) || (p.email as string) || null]))
+    for (const m of movers) if (nameById.has(m.user_id)) m.username = nameById.get(m.user_id)!
+  }
+
+  const round = (n: number) => Number(n.toFixed(2))
+  return {
+    hasData: true, from: fromTs, to: toTs, analyzed: movers.length,
+    newDeposits: round(newDeposits), withdrawals: round(withdrawals),
+    naturalGrowth: round(naturalGrowth), netExternal: round(newDeposits - withdrawals),
+    movers: movers.map((m) => ({
+      ...m,
+      totalPrev: round(m.totalPrev), totalNow: round(m.totalNow),
+      deltaTotal: round(m.deltaTotal), naturalGrowth: round(m.naturalGrowth), netExternal: round(m.netExternal),
+    })),
+  }
+}
+
+export interface HistoryRow {
+  taken_at: string
+  chain: number
+  available: number
+  total: number
+  totalEarned: number
+  deltaTotal: number
+  naturalGrowth: number
+  netExternal: number
+  kind: 'deposit' | 'withdraw' | 'natural' | 'first'
+}
+
+// 单个用户的资金时间线：历次快照 + 每期相对上一次的增减（拆吃息 vs 外部流水）。
+export async function userBalanceHistory(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<{ username: string | null; rows: HistoryRow[] }> {
+  const { data: prof } = await supabase.from('profiles').select('username, email').eq('id', userId).maybeSingle()
+  const { data: snaps } = await supabase
+    .from('user_balance_snapshots')
+    .select('taken_at, chain_usdc, available_usdc, total_earned_usdc')
+    .eq('user_id', userId)
+    .order('taken_at', { ascending: true })
+    .limit(1000)
+
+  const rows: HistoryRow[] = []
+  let prev: { total: number; totalEarned: number } | null = null
+  for (const s of snaps || []) {
+    const chain = Number(s.chain_usdc || 0)
+    const available = Number(s.available_usdc || 0)
+    const totalEarned = Number(s.total_earned_usdc || 0)
+    const total = chain + available
+    if (prev === null) {
+      rows.push({ taken_at: s.taken_at as string, chain, available, total, totalEarned, deltaTotal: 0, naturalGrowth: 0, netExternal: 0, kind: 'first' })
+    } else {
+      const deltaTotal = total - prev.total
+      const naturalGrowth = totalEarned - prev.totalEarned
+      const netExternal = deltaTotal - naturalGrowth
+      const kind: HistoryRow['kind'] = netExternal > STAGNANT_EPS ? 'deposit' : netExternal < -STAGNANT_EPS ? 'withdraw' : 'natural'
+      rows.push({ taken_at: s.taken_at as string, chain, available, total, totalEarned, deltaTotal, naturalGrowth, netExternal, kind })
+    }
+    prev = { total, totalEarned }
+  }
+  rows.reverse() // 最近在前
+  return { username: (prof?.username as string) || (prof?.email as string) || null, rows }
+}
+
 // 团队长业绩分析：对比最近两次发放快照，把 L1-3 下线的资产变化拆成 入金/撤资/吃息。
 export async function analyzeTeamGrowth(
   supabase: SupabaseClient,

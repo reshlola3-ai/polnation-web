@@ -4,6 +4,7 @@ import { createPublicClient, http, parseAbi, formatUnits } from 'viem'
 import { verifyAdmin } from '@/lib/admin-auth'
 import { polygon } from 'viem/chains'
 import { refreshAllNaturalLevels } from '@/lib/community-levels-server'
+import { recordBalanceSnapshots } from '@/lib/balance-snapshots'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -140,6 +141,13 @@ export async function POST(request: NextRequest) {
     // 全局操作：按链上业绩重算所有自然用户等级（不需要 user_id）
     if (action === 'refresh_all_levels') {
       const r = await refreshAllNaturalLevels(supabaseAdmin)
+      // 每次"fetch business"记一张全员资金快照(时间+每人链上余额/可提现/累计收益)，
+      // 供 /admin/balance-history 查阅资金增减。best-effort，失败不影响刷新结果。
+      try {
+        await recordBalanceSnapshots(supabaseAdmin, r.chainByUser)
+      } catch (e) {
+        console.error('[refresh_all_levels] recordBalanceSnapshots failed:', e)
+      }
       return NextResponse.json({
         success: true,
         message: `已刷新 ${r.scanned} 个用户，${r.updated} 个等级变更` +
