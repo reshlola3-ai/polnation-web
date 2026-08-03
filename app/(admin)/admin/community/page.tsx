@@ -24,7 +24,8 @@ import {
   Calculator,
   Send,
   ClipboardList,
-  Megaphone
+  Megaphone,
+  History
 } from 'lucide-react'
 
 interface CommunityUser {
@@ -386,6 +387,12 @@ export default function AdminCommunityPage() {
                 <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                   <TrendingUp className="w-4 h-4 mr-2" />
                   Airdrop
+                </Button>
+              </Link>
+              <Link href="/admin/balance-history">
+                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                  <History className="w-4 h-4 mr-2" />
+                  资金变动
                 </Button>
               </Link>
               <Link href="/admin/signatures">

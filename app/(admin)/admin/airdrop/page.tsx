@@ -562,6 +562,12 @@ export default function AirdropPage() {
                   Community
                 </Button>
               </Link>
+              <Link href="/admin/balance-history">
+                <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
+                  <History className="w-4 h-4 mr-2" />
+                  资金变动
+                </Button>
+              </Link>
               <Link href="/admin/tasks">
                 <Button variant="outline" size="sm" className="border-zinc-700 text-zinc-300 hover:bg-zinc-800">
                   <ClipboardList className="w-4 h-4 mr-2" />
