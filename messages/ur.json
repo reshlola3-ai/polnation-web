@@ -220,7 +220,9 @@
     "step3Email": "ای میل اور پاس ورڈ ترتیب دیں",
     "step3EmailDesc": "ای میل اور پاس ورڈ سے اپنا اکاؤنٹ محفوظ کریں",
     "tapToComplete": "↓ مکمل کرنے کے لیے ٹیپ کریں →",
-    "assetStakedTitle": "Alpha اسٹیک"
+    "assetStakedTitle": "Alpha اسٹیک",
+    "webInviteLink": "ویب دعوت",
+    "telegramLotteryLink": "ٹیلیگرام لاٹری"
   },
   "tasks": {
     "title": "کام",
@@ -473,8 +475,8 @@
       "joinTelegram": "Telegram گروپ میں شامل ہوں"
     },
     "signatureRequired": {
-      "title": "نکالنے کے لیے دستخط ضروری",
-      "note": "نکالنے سے پہلے آپ کو والٹ اجازت نامے پر دستخط کرنا ہوگا۔ اگر آپ کا سیشن ختم ہو گیا ہے اور آپ دستخط نہیں کر سکتے تو ایڈمن سے رابطہ کریں۔"
+      "title": "والٹ کی ملکیت کی تصدیق کریں",
+      "note": "براہ کرم دستخط کر کے تصدیق کریں کہ یہ والٹ آپ کا ہے۔ دستخط ثابت کرتا ہے کہ نجی کلید آپ کے پاس ہے اور صرف مشاہدہ (observe) والٹ سے رقم نکالنے کو روکتا ہے۔ اگر آپ کا سیشن ختم ہو گیا ہے اور آپ دستخط نہیں کر سکتے تو ایڈمن سے رابطہ کریں۔"
     },
     "locked": {
       "title": "لاک شدہ تنخواہ",
@@ -665,7 +667,75 @@
     "phoneNumber": "فون نمبر",
     "phoneCountryCode": "ملک کوڈ",
     "saveChanges": "تبدیلیاں محفوظ کریں",
-    "saving": "محفوظ ہو رہا ہے..."
+    "saving": "محفوظ ہو رہا ہے...",
+    "eyebrow": "اکاؤنٹ",
+    "titleComplete": "اپنا پروفائل مکمل کریں",
+    "subtitleComplete": "کمائی شروع کرنے کے لیے اپنی تفصیلات درج کریں",
+    "completeProfile": "پروفائل مکمل کریں",
+    "requiredHint": "* والے خانے لازمی ہیں",
+    "referredBy": "ریفر کرنے والا",
+    "email": "ای میل",
+    "noEmailTelegram": "کوئی ای میل نہیں — Telegram اکاؤنٹ",
+    "noEmailWallet": "کوئی ای میل نہیں — والٹ اکاؤنٹ",
+    "usernamePlaceholder": "اپنا صارف نام درج کریں",
+    "usernameHint": "یہ آپ کا عوامی ظاہری نام ہے",
+    "optional": "(اختیاری)",
+    "phoneNumberPlaceholder": "فون نمبر",
+    "phoneCodeSearch": "ملک / کوڈ تلاش کریں",
+    "countrySearch": "ملک تلاش کریں",
+    "telegramUsernamePlaceholder": "@username",
+    "telegramUsernameHint": "کمیونٹی اطلاعات کے لیے استعمال ہوتا ہے",
+    "success": {
+      "updated": "پروفائل کامیابی سے اپڈیٹ ہو گیا!"
+    },
+    "errors": {
+      "usernameRequired": "صارف نام لازمی ہے",
+      "phoneRequired": "فون نمبر لازمی ہے",
+      "usernameTaken": "یہ صارف نام پہلے سے لیا جا چکا ہے",
+      "unexpected": "ایک غیر متوقع خرابی پیش آ گئی",
+      "walletAlreadyBound": "آپ کے اکاؤنٹ سے پہلے سے ایک والٹ منسلک ہے۔ والٹ تبدیل نہیں کیا جا سکتا۔",
+      "walletTaken": "یہ والٹ پہلے سے کسی اور اکاؤنٹ سے منسلک ہے"
+    },
+    "wallet": {
+      "title": "والٹ ایڈریس",
+      "connected": "والٹ منسلک ہے",
+      "binding": "والٹ منسلک ہو رہا ہے...",
+      "none": "کوئی والٹ منسلک نہیں",
+      "noneHint": "انعامات کمانا شروع کرنے کے لیے کنیکٹ کریں",
+      "connect": "کنیکٹ کریں",
+      "supported": "معاون والٹ"
+    },
+    "telegram": {
+      "title": "Telegram اکاؤنٹ",
+      "linked": "Telegram منسلک ہے",
+      "immutable": "فی پروفائل ایک ہی Telegram اکاؤنٹ — تبدیل نہیں کیا جا سکتا۔",
+      "none": "کوئی Telegram منسلک نہیں",
+      "noneHint": "Tasks انعامات تک رسائی کے لیے ضروری ہے",
+      "errorAlreadyBound": "یہ Telegram اکاؤنٹ پہلے سے کسی اور اکاؤنٹ سے منسلک ہے۔",
+      "errorGeneric": "Telegram منسلک کرنے میں ناکامی۔ دوبارہ کوشش کریں۔"
+    },
+    "emailBind": {
+      "titleTelegram": "ویب لاگ اِن سیٹ کریں",
+      "titleWallet": "ای میل ایڈریس منسلک کریں",
+      "descTelegram": "کسی بھی براؤزر سے polnation.com پر سائن اِن کریں۔ آپ کا Telegram لاگ اِن کام کرتا رہے گا۔",
+      "descWallet": "اکاؤنٹ بحالی کے لیے ای میل اور پاس ورڈ شامل کریں۔",
+      "success": "ویب لاگ اِن تیار ہے۔ {email} سے polnation.com پر سائن اِن کریں۔",
+      "emailPlaceholder": "you@example.com",
+      "passwordPlaceholder": "پاس ورڈ (6+ حروف)",
+      "passwordTooShort": "پاس ورڈ کم از کم 6 حروف کا ہونا چاہیے",
+      "failed": "ای میل منسلک کرنے میں ناکامی",
+      "submit": "محفوظ کریں"
+    },
+    "logout": {
+      "title": "لاگ آؤٹ",
+      "desc": "سائن آؤٹ کریں اور لاگ اِن اسکرین پر واپس جائیں۔",
+      "button": "لاگ آؤٹ",
+      "confirmTitle": "لاگ آؤٹ کی تصدیق کریں",
+      "confirmBody": "کیا آپ واقعی لاگ آؤٹ کرنا چاہتے ہیں؟ اکاؤنٹ تک رسائی کے لیے آپ کو دوبارہ سائن اِن کرنا ہوگا۔",
+      "cancel": "منسوخ کریں",
+      "confirm": "لاگ آؤٹ"
+    },
+    "statusActive": "فعال"
   },
   "wallet": {
     "connect": "والیٹ کنیکٹ کریں",

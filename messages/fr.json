@@ -220,7 +220,9 @@
     "step3Email": "Configurer E-mail & Mot de passe",
     "step3EmailDesc": "Sécurisez votre compte avec un e-mail et un mot de passe",
     "tapToComplete": "↓ Appuyez pour terminer →",
-    "assetStakedTitle": "Alpha Staké"
+    "assetStakedTitle": "Alpha Staké",
+    "webInviteLink": "Invitation web",
+    "telegramLotteryLink": "Loterie Telegram"
   },
   "tasks": {
     "title": "Tâches",
@@ -473,8 +475,8 @@
       "joinTelegram": "Rejoindre le groupe Telegram"
     },
     "signatureRequired": {
-      "title": "Signature requise pour retirer",
-      "note": "Vous devez signer l’autorisation du portefeuille avant de retirer. Si votre session a expiré et que vous ne pouvez pas signer, contactez l’administrateur."
+      "title": "Vérifiez la propriété du portefeuille",
+      "note": "Veuillez signer pour vérifier que ce portefeuille vous appartient. La signature prouve que vous détenez la clé privée et empêche les retraits depuis un portefeuille en lecture seule (observe). Si votre session a expiré et que vous ne pouvez pas signer, contactez l’administrateur."
     },
     "locked": {
       "title": "Salaire verrouillé",
@@ -665,7 +667,75 @@
     "phoneNumber": "Numéro de téléphone",
     "phoneCountryCode": "Indicatif pays",
     "saveChanges": "Enregistrer les modifications",
-    "saving": "Enregistrement..."
+    "saving": "Enregistrement...",
+    "eyebrow": "Compte",
+    "titleComplete": "Complétez votre profil",
+    "subtitleComplete": "Renseignez vos informations pour commencer à gagner",
+    "completeProfile": "Finaliser le profil",
+    "requiredHint": "Les champs marqués d'un * sont obligatoires",
+    "referredBy": "Parrainé par",
+    "email": "E-mail",
+    "noEmailTelegram": "Aucun e-mail — compte Telegram",
+    "noEmailWallet": "Aucun e-mail — compte wallet",
+    "usernamePlaceholder": "Saisissez votre nom d'utilisateur",
+    "usernameHint": "Ceci est votre nom d'affichage public",
+    "optional": "(facultatif)",
+    "phoneNumberPlaceholder": "Numéro de téléphone",
+    "phoneCodeSearch": "Rechercher un pays / un indicatif",
+    "countrySearch": "Rechercher un pays",
+    "telegramUsernamePlaceholder": "@username",
+    "telegramUsernameHint": "Utilisé pour les notifications de la communauté",
+    "success": {
+      "updated": "Profil mis à jour avec succès !"
+    },
+    "errors": {
+      "usernameRequired": "Le nom d'utilisateur est requis",
+      "phoneRequired": "Le numéro de téléphone est requis",
+      "usernameTaken": "Ce nom d'utilisateur est déjà pris",
+      "unexpected": "Une erreur inattendue s'est produite",
+      "walletAlreadyBound": "Un wallet est déjà lié à votre compte. Il ne peut pas être modifié.",
+      "walletTaken": "Ce wallet est déjà lié à un autre compte"
+    },
+    "wallet": {
+      "title": "Adresse du wallet",
+      "connected": "Wallet connecté",
+      "binding": "Liaison du wallet...",
+      "none": "Aucun wallet connecté",
+      "noneHint": "Connectez-vous pour commencer à gagner des récompenses",
+      "connect": "Connecter",
+      "supported": "Wallets pris en charge"
+    },
+    "telegram": {
+      "title": "Compte Telegram",
+      "linked": "Telegram lié",
+      "immutable": "Un seul compte Telegram par profil — impossible de le modifier.",
+      "none": "Aucun Telegram lié",
+      "noneHint": "Requis pour accéder aux récompenses de tâches",
+      "errorAlreadyBound": "Ce compte Telegram est déjà lié à un autre compte.",
+      "errorGeneric": "Échec de la liaison Telegram. Veuillez réessayer."
+    },
+    "emailBind": {
+      "titleTelegram": "Configurer la connexion web",
+      "titleWallet": "Lier une adresse e-mail",
+      "descTelegram": "Connectez-vous sur polnation.com depuis n'importe quel navigateur. Votre connexion Telegram continue de fonctionner.",
+      "descWallet": "Ajoutez un e-mail et un mot de passe pour récupérer votre compte.",
+      "success": "Connexion web prête. Connectez-vous sur polnation.com avec {email}.",
+      "emailPlaceholder": "you@example.com",
+      "passwordPlaceholder": "Mot de passe (6+ caractères)",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 6 caractères",
+      "failed": "Échec de la liaison de l'e-mail",
+      "submit": "Enregistrer"
+    },
+    "logout": {
+      "title": "Se déconnecter",
+      "desc": "Déconnectez-vous et revenez à l'écran de connexion.",
+      "button": "Se déconnecter",
+      "confirmTitle": "Confirmer la déconnexion",
+      "confirmBody": "Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder à votre compte.",
+      "cancel": "Annuler",
+      "confirm": "Se déconnecter"
+    },
+    "statusActive": "Actif"
   },
   "wallet": {
     "connect": "Connecter le portefeuille",

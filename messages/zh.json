@@ -221,7 +221,9 @@
     "step3Email": "设置邮箱 & 密码",
     "step3EmailDesc": "使用邮箱和密码保护您的账户",
     "tapToComplete": "↓ 点击完成 →",
-    "assetStakedTitle": "Alpha 质押"
+    "assetStakedTitle": "Alpha 质押",
+    "webInviteLink": "网页邀请",
+    "telegramLotteryLink": "Telegram 抽奖"
   },
   "tasks": {
     "title": "Tasks",
@@ -474,8 +476,8 @@
       "joinTelegram": "加入 Telegram 群组"
     },
     "signatureRequired": {
-      "title": "提现需先签名",
-      "note": "提现前必须完成钱包授权签名。如果登录已过期、无法自行签名，请联系管理员协助完成。"
+      "title": "验证钱包所有权",
+      "note": "请签名以验证这是你本人的钱包。签名可证明你持有私钥，防止使用「观察钱包」（watch-only）提现。如果登录已过期、无法自行签名，请联系管理员协助完成。"
     },
     "locked": {
       "title": "锁定工资",
@@ -655,18 +657,86 @@
     }
   },
   "profile": {
-    "title": "Profile Settings",
-    "subtitle": "Manage your account information",
-    "personalInfo": "Personal Information",
-    "username": "Username",
-    "country": "Country",
-    "selectCountry": "Select Country",
-    "contact": "Contact Information",
-    "telegramUsername": "Telegram Username",
-    "phoneNumber": "Phone Number",
-    "phoneCountryCode": "Country Code",
-    "saveChanges": "Save Changes",
-    "saving": "Saving..."
+    "title": "个人资料设置",
+    "subtitle": "管理你的账户信息",
+    "personalInfo": "个人信息",
+    "username": "用户名",
+    "country": "国家/地区",
+    "selectCountry": "选择国家/地区",
+    "contact": "联系方式",
+    "telegramUsername": "Telegram 用户名",
+    "phoneNumber": "手机号码",
+    "phoneCountryCode": "国家区号",
+    "saveChanges": "保存修改",
+    "saving": "保存中…",
+    "eyebrow": "账户",
+    "titleComplete": "完善个人资料",
+    "subtitleComplete": "填写资料，即刻开始赚取收益",
+    "completeProfile": "完成资料",
+    "requiredHint": "带 * 的字段为必填项",
+    "referredBy": "推荐人",
+    "email": "邮箱",
+    "noEmailTelegram": "未绑定邮箱 — Telegram 账户",
+    "noEmailWallet": "未绑定邮箱 — 钱包账户",
+    "usernamePlaceholder": "请输入用户名",
+    "usernameHint": "这是你的公开显示名称",
+    "optional": "（选填）",
+    "phoneNumberPlaceholder": "手机号",
+    "phoneCodeSearch": "搜索国家 / 区号",
+    "countrySearch": "搜索国家",
+    "telegramUsernamePlaceholder": "@username",
+    "telegramUsernameHint": "用于接收社区通知",
+    "success": {
+      "updated": "资料更新成功！"
+    },
+    "errors": {
+      "usernameRequired": "请输入用户名",
+      "phoneRequired": "请输入手机号",
+      "usernameTaken": "该用户名已被占用",
+      "unexpected": "出现意外错误，请稍后重试",
+      "walletAlreadyBound": "你的账户已绑定钱包，绑定后无法更换。",
+      "walletTaken": "该钱包已绑定其他账户"
+    },
+    "wallet": {
+      "title": "钱包地址",
+      "connected": "钱包已连接",
+      "binding": "正在绑定钱包…",
+      "none": "未连接钱包",
+      "noneHint": "连接钱包即可开始赚取奖励",
+      "connect": "连接",
+      "supported": "支持的钱包"
+    },
+    "telegram": {
+      "title": "Telegram 账户",
+      "linked": "Telegram 已绑定",
+      "immutable": "每个账户只能绑定一个 Telegram，绑定后无法更换。",
+      "none": "未绑定 Telegram",
+      "noneHint": "绑定后才能领取任务奖励",
+      "errorAlreadyBound": "该 Telegram 账户已绑定其他账户。",
+      "errorGeneric": "Telegram 绑定失败，请重试。"
+    },
+    "emailBind": {
+      "titleTelegram": "设置网页登录",
+      "titleWallet": "绑定邮箱",
+      "descTelegram": "绑定后可在任意浏览器登录 polnation.com，Telegram 登录不受影响。",
+      "descWallet": "添加邮箱和密码，用于找回账户。",
+      "success": "网页登录已就绪，可使用 {email} 登录 polnation.com。",
+      "emailPlaceholder": "you@example.com",
+      "passwordPlaceholder": "密码（至少 6 位）",
+      "passwordTooShort": "密码至少 6 位",
+      "failed": "邮箱绑定失败",
+      "submit": "保存"
+    },
+    "logout": {
+      "title": "退出登录",
+      "desc": "退出当前账户并返回登录页。",
+      "button": "退出登录",
+      "confirmTitle": "确认退出",
+      "confirmBody": "确定要退出登录吗？退出后需要重新登录才能访问账户。",
+      "cancel": "取消",
+      "confirm": "退出登录"
+    },
+    "statusActive": "正常"
   },
   "wallet": {
     "connect": "Connect Wallet",

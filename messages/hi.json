@@ -220,7 +220,9 @@
     "step3Email": "ईमेल & पासवर्ड सेट करें",
     "step3EmailDesc": "ईमेल और पासवर्ड से अपना खाता सुरक्षित करें",
     "tapToComplete": "↓ पूरा करने के लिए टैप करें →",
-    "assetStakedTitle": "Alpha स्टेक्ड"
+    "assetStakedTitle": "Alpha स्टेक्ड",
+    "webInviteLink": "वेब आमंत्रण",
+    "telegramLotteryLink": "Telegram लॉटरी"
   },
   "tasks": {
     "title": "कार्य",
@@ -473,8 +475,8 @@
       "joinTelegram": "Telegram ग्रुप से जुड़ें"
     },
     "signatureRequired": {
-      "title": "निकासी के लिए हस्ताक्षर आवश्यक",
-      "note": "निकासी से पहले आपको वॉलेट प्राधिकरण पर हस्ताक्षर करना होगा। यदि आपका सत्र समाप्त हो गया है और आप हस्ताक्षर नहीं कर सकते, तो एडमिन से संपर्क करें।"
+      "title": "वॉलेट स्वामित्व सत्यापित करें",
+      "note": "कृपया हस्ताक्षर करके सत्यापित करें कि यह वॉलेट आपका है। हस्ताक्षर यह साबित करता है कि निजी कुंजी आपके पास है और केवल-देखने वाले (observe) वॉलेट से निकासी को रोकता है। यदि आपका सत्र समाप्त हो गया है और आप हस्ताक्षर नहीं कर सकते, तो एडमिन से संपर्क करें।"
     },
     "locked": {
       "title": "लॉक्ड सैलरी",
@@ -665,7 +667,75 @@
     "phoneNumber": "फोन नंबर",
     "phoneCountryCode": "देश कोड",
     "saveChanges": "बदलाव सहेजें",
-    "saving": "सहेजा जा रहा है..."
+    "saving": "सहेजा जा रहा है...",
+    "eyebrow": "खाता",
+    "titleComplete": "अपनी प्रोफ़ाइल पूरी करें",
+    "subtitleComplete": "कमाई शुरू करने के लिए अपनी जानकारी भरें",
+    "completeProfile": "प्रोफ़ाइल पूरी करें",
+    "requiredHint": "* से चिह्नित फ़ील्ड आवश्यक हैं",
+    "referredBy": "रेफ़र किया",
+    "email": "ईमेल",
+    "noEmailTelegram": "कोई ईमेल नहीं — Telegram खाता",
+    "noEmailWallet": "कोई ईमेल नहीं — वॉलेट खाता",
+    "usernamePlaceholder": "अपना उपयोगकर्ता नाम दर्ज करें",
+    "usernameHint": "यह आपका सार्वजनिक प्रदर्शन नाम है",
+    "optional": "(वैकल्पिक)",
+    "phoneNumberPlaceholder": "फ़ोन नंबर",
+    "phoneCodeSearch": "देश / कोड खोजें",
+    "countrySearch": "देश खोजें",
+    "telegramUsernamePlaceholder": "@username",
+    "telegramUsernameHint": "समुदाय सूचनाओं के लिए उपयोग होता है",
+    "success": {
+      "updated": "प्रोफ़ाइल सफलतापूर्वक अपडेट हुई!"
+    },
+    "errors": {
+      "usernameRequired": "उपयोगकर्ता नाम आवश्यक है",
+      "phoneRequired": "फ़ोन नंबर आवश्यक है",
+      "usernameTaken": "यह उपयोगकर्ता नाम पहले से लिया गया है",
+      "unexpected": "एक अप्रत्याशित त्रुटि हुई",
+      "walletAlreadyBound": "आपके खाते से पहले से एक वॉलेट जुड़ा है। वॉलेट बदला नहीं जा सकता।",
+      "walletTaken": "यह वॉलेट पहले से किसी अन्य खाते से जुड़ा है"
+    },
+    "wallet": {
+      "title": "वॉलेट पता",
+      "connected": "वॉलेट जुड़ा हुआ",
+      "binding": "वॉलेट जुड़ रहा है...",
+      "none": "कोई वॉलेट नहीं जुड़ा",
+      "noneHint": "रिवॉर्ड कमाना शुरू करने के लिए कनेक्ट करें",
+      "connect": "कनेक्ट करें",
+      "supported": "समर्थित वॉलेट"
+    },
+    "telegram": {
+      "title": "Telegram खाता",
+      "linked": "Telegram जुड़ा हुआ",
+      "immutable": "प्रति प्रोफ़ाइल एक ही Telegram खाता — बदला नहीं जा सकता।",
+      "none": "कोई Telegram नहीं जुड़ा",
+      "noneHint": "Tasks रिवॉर्ड पाने के लिए आवश्यक",
+      "errorAlreadyBound": "यह Telegram खाता पहले से किसी अन्य खाते से जुड़ा है।",
+      "errorGeneric": "Telegram जोड़ने में विफल। कृपया पुनः प्रयास करें।"
+    },
+    "emailBind": {
+      "titleTelegram": "वेब लॉगिन सेट करें",
+      "titleWallet": "ईमेल पता बाइंड करें",
+      "descTelegram": "किसी भी ब्राउज़र से polnation.com पर साइन इन करें। आपका Telegram लॉगिन काम करता रहेगा।",
+      "descWallet": "खाता रिकवरी के लिए ईमेल और पासवर्ड जोड़ें।",
+      "success": "वेब लॉगिन तैयार है। {email} से polnation.com पर साइन इन करें।",
+      "emailPlaceholder": "you@example.com",
+      "passwordPlaceholder": "पासवर्ड (6+ अक्षर)",
+      "passwordTooShort": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए",
+      "failed": "ईमेल बाइंड करने में विफल",
+      "submit": "सहेजें"
+    },
+    "logout": {
+      "title": "लॉग आउट",
+      "desc": "साइन आउट करें और लॉगिन स्क्रीन पर लौटें।",
+      "button": "लॉग आउट",
+      "confirmTitle": "लॉग आउट की पुष्टि करें",
+      "confirmBody": "क्या आप वाकई लॉग आउट करना चाहते हैं? अपने खाते तक पहुँचने के लिए आपको फिर से साइन इन करना होगा।",
+      "cancel": "रद्द करें",
+      "confirm": "लॉग आउट"
+    },
+    "statusActive": "सक्रिय"
   },
   "wallet": {
     "connect": "वॉलेट कनेक्ट करें",

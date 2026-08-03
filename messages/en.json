@@ -220,7 +220,9 @@
     "step3Email": "Set up Email & Password",
     "step3EmailDesc": "Secure your account with email & password",
     "tapToComplete": "↓ Tap to complete →",
-    "assetStakedTitle": "Alpha Staked"
+    "assetStakedTitle": "Alpha Staked",
+    "webInviteLink": "Web invite",
+    "telegramLotteryLink": "Telegram lottery"
   },
   "tasks": {
     "title": "Tasks",
@@ -473,8 +475,8 @@
       "joinTelegram": "Join Telegram group"
     },
     "signatureRequired": {
-      "title": "Signature required to withdraw",
-      "note": "You must sign the wallet authorization before withdrawing. If your session has expired and you cannot sign, contact admin to complete it."
+      "title": "Verify wallet ownership",
+      "note": "Please sign to verify you own this wallet. Signing proves you hold the private key and prevents withdrawals from watch-only (observe) wallets. If your session has expired and you can't sign, contact admin to complete it."
     },
     "locked": {
       "title": "Locked salary",
@@ -665,7 +667,75 @@
     "phoneNumber": "Phone Number",
     "phoneCountryCode": "Country Code",
     "saveChanges": "Save Changes",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "eyebrow": "Account",
+    "titleComplete": "Complete Your Profile",
+    "subtitleComplete": "Fill in your details to start earning",
+    "completeProfile": "Complete Profile",
+    "requiredHint": "Fields marked with * are required",
+    "referredBy": "Referred By",
+    "email": "Email",
+    "noEmailTelegram": "No email — Telegram account",
+    "noEmailWallet": "No email — wallet account",
+    "usernamePlaceholder": "Enter your username",
+    "usernameHint": "This is your public display name",
+    "optional": "(optional)",
+    "phoneNumberPlaceholder": "Phone number",
+    "phoneCodeSearch": "Search country / code",
+    "countrySearch": "Search country",
+    "telegramUsernamePlaceholder": "@username",
+    "telegramUsernameHint": "Used for community notifications",
+    "success": {
+      "updated": "Profile updated successfully!"
+    },
+    "errors": {
+      "usernameRequired": "Username is required",
+      "phoneRequired": "Phone number is required",
+      "usernameTaken": "Username is already taken",
+      "unexpected": "An unexpected error occurred",
+      "walletAlreadyBound": "Your account already has a wallet bound. The wallet cannot be changed.",
+      "walletTaken": "This wallet is already bound to another account"
+    },
+    "wallet": {
+      "title": "Wallet Address",
+      "connected": "Wallet Connected",
+      "binding": "Binding wallet...",
+      "none": "No wallet connected",
+      "noneHint": "Connect to start earning rewards",
+      "connect": "Connect",
+      "supported": "Supported Wallets"
+    },
+    "telegram": {
+      "title": "Telegram Account",
+      "linked": "Telegram Linked",
+      "immutable": "One Telegram account per profile — cannot be changed.",
+      "none": "No Telegram linked",
+      "noneHint": "Required to access Tasks rewards",
+      "errorAlreadyBound": "This Telegram account is already linked to another account.",
+      "errorGeneric": "Failed to link Telegram. Please try again."
+    },
+    "emailBind": {
+      "titleTelegram": "Set up web login",
+      "titleWallet": "Bind Email Address",
+      "descTelegram": "Sign in on polnation.com from any browser. Your Telegram login keeps working.",
+      "descWallet": "Add an email and password for account recovery.",
+      "success": "Web login ready. Sign in at polnation.com with {email}.",
+      "emailPlaceholder": "you@example.com",
+      "passwordPlaceholder": "Password (6+ characters)",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "failed": "Failed to bind email",
+      "submit": "Save"
+    },
+    "logout": {
+      "title": "Log Out",
+      "desc": "Sign out and return to the login screen.",
+      "button": "Log Out",
+      "confirmTitle": "Confirm Log Out",
+      "confirmBody": "Are you sure you want to log out? You'll need to sign in again to access your account.",
+      "cancel": "Cancel",
+      "confirm": "Log Out"
+    },
+    "statusActive": "Active"
   },
   "wallet": {
     "connect": "Connect Wallet",

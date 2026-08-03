@@ -220,7 +220,9 @@
     "step3Email": "إعداد البريد الإلكتروني وكلمة المرور",
     "step3EmailDesc": "أمّن حسابك بالبريد الإلكتروني وكلمة المرور",
     "tapToComplete": "↓ اضغط للإكمال →",
-    "assetStakedTitle": "Alpha المربوط"
+    "assetStakedTitle": "Alpha المربوط",
+    "webInviteLink": "دعوة الويب",
+    "telegramLotteryLink": "يانصيب تيليجرام"
   },
   "tasks": {
     "title": "المهام",
@@ -473,8 +475,8 @@
       "joinTelegram": "انضم إلى مجموعة Telegram"
     },
     "signatureRequired": {
-      "title": "يلزم التوقيع للسحب",
-      "note": "يجب توقيع تفويض المحفظة قبل السحب. إذا انتهت جلستك ولم تتمكن من التوقيع، تواصل مع المشرف لإتمامه."
+      "title": "التحقق من ملكية المحفظة",
+      "note": "يرجى التوقيع للتحقق من أنك تملك هذه المحفظة. يثبت التوقيع أنك تحتفظ بالمفتاح الخاص ويمنع السحب من محافظ المراقبة فقط (observe). إذا انتهت جلستك ولم تتمكن من التوقيع، تواصل مع المشرف لإتمامه."
     },
     "locked": {
       "title": "راتب مقفل",
@@ -665,7 +667,75 @@
     "phoneNumber": "رقم الهاتف",
     "phoneCountryCode": "رمز البلد",
     "saveChanges": "حفظ التغييرات",
-    "saving": "جارٍ الحفظ..."
+    "saving": "جارٍ الحفظ...",
+    "eyebrow": "الحساب",
+    "titleComplete": "أكمل ملفك الشخصي",
+    "subtitleComplete": "املأ بياناتك لبدء الكسب",
+    "completeProfile": "إكمال الملف الشخصي",
+    "requiredHint": "الحقول المميزة بعلامة * مطلوبة",
+    "referredBy": "تمت إحالتك بواسطة",
+    "email": "البريد الإلكتروني",
+    "noEmailTelegram": "لا يوجد بريد إلكتروني — حساب Telegram",
+    "noEmailWallet": "لا يوجد بريد إلكتروني — حساب محفظة",
+    "usernamePlaceholder": "أدخل اسم المستخدم",
+    "usernameHint": "هذا هو اسم العرض العام الخاص بك",
+    "optional": "(اختياري)",
+    "phoneNumberPlaceholder": "رقم الهاتف",
+    "phoneCodeSearch": "ابحث عن الدولة / الرمز",
+    "countrySearch": "ابحث عن الدولة",
+    "telegramUsernamePlaceholder": "@username",
+    "telegramUsernameHint": "يُستخدم لإشعارات المجتمع",
+    "success": {
+      "updated": "تم تحديث الملف الشخصي بنجاح!"
+    },
+    "errors": {
+      "usernameRequired": "اسم المستخدم مطلوب",
+      "phoneRequired": "رقم الهاتف مطلوب",
+      "usernameTaken": "اسم المستخدم هذا مأخوذ بالفعل",
+      "unexpected": "حدث خطأ غير متوقع",
+      "walletAlreadyBound": "حسابك مرتبط بمحفظة بالفعل. لا يمكن تغيير المحفظة.",
+      "walletTaken": "هذه المحفظة مرتبطة بحساب آخر بالفعل"
+    },
+    "wallet": {
+      "title": "عنوان المحفظة",
+      "connected": "المحفظة متصلة",
+      "binding": "جارٍ ربط المحفظة...",
+      "none": "لا توجد محفظة متصلة",
+      "noneHint": "قم بالاتصال لبدء كسب المكافآت",
+      "connect": "اتصال",
+      "supported": "المحافظ المدعومة"
+    },
+    "telegram": {
+      "title": "حساب Telegram",
+      "linked": "Telegram مرتبط",
+      "immutable": "حساب Telegram واحد لكل ملف شخصي — لا يمكن تغييره.",
+      "none": "لا يوجد Telegram مرتبط",
+      "noneHint": "مطلوب للوصول إلى مكافآت المهام",
+      "errorAlreadyBound": "حساب Telegram هذا مرتبط بحساب آخر بالفعل.",
+      "errorGeneric": "فشل ربط Telegram. يُرجى المحاولة مرة أخرى."
+    },
+    "emailBind": {
+      "titleTelegram": "إعداد تسجيل الدخول عبر الويب",
+      "titleWallet": "ربط البريد الإلكتروني",
+      "descTelegram": "سجّل الدخول على polnation.com من أي متصفح. سيظل تسجيل الدخول عبر Telegram يعمل.",
+      "descWallet": "أضف بريدًا إلكترونيًا وكلمة مرور لاستعادة الحساب.",
+      "success": "تسجيل الدخول عبر الويب جاهز. سجّل الدخول على polnation.com باستخدام {email}.",
+      "emailPlaceholder": "you@example.com",
+      "passwordPlaceholder": "كلمة المرور (6+ أحرف)",
+      "passwordTooShort": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+      "failed": "فشل ربط البريد الإلكتروني",
+      "submit": "حفظ"
+    },
+    "logout": {
+      "title": "تسجيل الخروج",
+      "desc": "سجّل الخروج وعد إلى شاشة تسجيل الدخول.",
+      "button": "تسجيل الخروج",
+      "confirmTitle": "تأكيد تسجيل الخروج",
+      "confirmBody": "هل أنت متأكد أنك تريد تسجيل الخروج؟ ستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى حسابك.",
+      "cancel": "إلغاء",
+      "confirm": "تسجيل الخروج"
+    },
+    "statusActive": "نشط"
   },
   "wallet": {
     "connect": "توصيل المحفظة",

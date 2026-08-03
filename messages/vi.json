@@ -220,7 +220,9 @@
     "step3Email": "Thiết lập Email & Mật khẩu",
     "step3EmailDesc": "Bảo mật tài khoản bằng email và mật khẩu",
     "tapToComplete": "↓ Nhấn để hoàn thành →",
-    "assetStakedTitle": "Alpha Đã Stake"
+    "assetStakedTitle": "Alpha Đã Stake",
+    "webInviteLink": "Mời web",
+    "telegramLotteryLink": "Xổ số Telegram"
   },
   "tasks": {
     "title": "Nhiệm vụ",
@@ -473,8 +475,8 @@
       "joinTelegram": "Tham gia nhóm Telegram"
     },
     "signatureRequired": {
-      "title": "Cần chữ ký để rút",
-      "note": "Bạn phải ký ủy quyền ví trước khi rút. Nếu phiên đăng nhập đã hết hạn và không thể ký, hãy liên hệ quản trị viên để hoàn tất."
+      "title": "Xác minh quyền sở hữu ví",
+      "note": "Vui lòng ký để xác minh ví này là của bạn. Việc ký chứng minh bạn giữ khóa riêng tư và ngăn rút tiền từ ví chỉ theo dõi (observe). Nếu phiên đăng nhập đã hết hạn và bạn không thể ký, hãy liên hệ quản trị viên để hoàn tất."
     },
     "locked": {
       "title": "Lương bị khóa",
@@ -665,7 +667,75 @@
     "phoneNumber": "Số Điện thoại",
     "phoneCountryCode": "Mã Quốc gia",
     "saveChanges": "Lưu Thay đổi",
-    "saving": "Đang lưu..."
+    "saving": "Đang lưu...",
+    "eyebrow": "Tài khoản",
+    "titleComplete": "Hoàn thiện hồ sơ của bạn",
+    "subtitleComplete": "Điền thông tin của bạn để bắt đầu kiếm tiền",
+    "completeProfile": "Hoàn tất hồ sơ",
+    "requiredHint": "Các trường có dấu * là bắt buộc",
+    "referredBy": "Người giới thiệu",
+    "email": "Email",
+    "noEmailTelegram": "Chưa có email — tài khoản Telegram",
+    "noEmailWallet": "Chưa có email — tài khoản ví",
+    "usernamePlaceholder": "Nhập tên người dùng của bạn",
+    "usernameHint": "Đây là tên hiển thị công khai của bạn",
+    "optional": "(tùy chọn)",
+    "phoneNumberPlaceholder": "Số điện thoại",
+    "phoneCodeSearch": "Tìm quốc gia / mã",
+    "countrySearch": "Tìm quốc gia",
+    "telegramUsernamePlaceholder": "@username",
+    "telegramUsernameHint": "Dùng cho thông báo cộng đồng",
+    "success": {
+      "updated": "Cập nhật hồ sơ thành công!"
+    },
+    "errors": {
+      "usernameRequired": "Tên người dùng là bắt buộc",
+      "phoneRequired": "Số điện thoại là bắt buộc",
+      "usernameTaken": "Tên người dùng đã được sử dụng",
+      "unexpected": "Đã xảy ra lỗi không mong muốn",
+      "walletAlreadyBound": "Tài khoản của bạn đã liên kết ví. Không thể thay đổi ví.",
+      "walletTaken": "Ví này đã được liên kết với tài khoản khác"
+    },
+    "wallet": {
+      "title": "Địa chỉ ví",
+      "connected": "Ví đã kết nối",
+      "binding": "Đang liên kết ví...",
+      "none": "Chưa kết nối ví",
+      "noneHint": "Kết nối để bắt đầu nhận thưởng",
+      "connect": "Kết nối",
+      "supported": "Ví được hỗ trợ"
+    },
+    "telegram": {
+      "title": "Tài khoản Telegram",
+      "linked": "Đã liên kết Telegram",
+      "immutable": "Mỗi hồ sơ chỉ liên kết một tài khoản Telegram — không thể thay đổi.",
+      "none": "Chưa liên kết Telegram",
+      "noneHint": "Bắt buộc để nhận thưởng Tasks",
+      "errorAlreadyBound": "Tài khoản Telegram này đã liên kết với tài khoản khác.",
+      "errorGeneric": "Liên kết Telegram thất bại. Vui lòng thử lại."
+    },
+    "emailBind": {
+      "titleTelegram": "Thiết lập đăng nhập web",
+      "titleWallet": "Liên kết địa chỉ email",
+      "descTelegram": "Đăng nhập polnation.com từ bất kỳ trình duyệt nào. Đăng nhập Telegram vẫn hoạt động.",
+      "descWallet": "Thêm email và mật khẩu để khôi phục tài khoản.",
+      "success": "Đăng nhập web đã sẵn sàng. Đăng nhập polnation.com bằng {email}.",
+      "emailPlaceholder": "you@example.com",
+      "passwordPlaceholder": "Mật khẩu (6+ ký tự)",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
+      "failed": "Liên kết email thất bại",
+      "submit": "Lưu"
+    },
+    "logout": {
+      "title": "Đăng xuất",
+      "desc": "Đăng xuất và quay lại màn hình đăng nhập.",
+      "button": "Đăng xuất",
+      "confirmTitle": "Xác nhận đăng xuất",
+      "confirmBody": "Bạn có chắc muốn đăng xuất? Bạn sẽ cần đăng nhập lại để truy cập tài khoản.",
+      "cancel": "Hủy",
+      "confirm": "Đăng xuất"
+    },
+    "statusActive": "Hoạt động"
   },
   "wallet": {
     "connect": "Kết nối Ví",

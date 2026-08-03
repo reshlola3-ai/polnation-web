@@ -221,7 +221,9 @@
     "step3Email": "Siapkan Email & Kata Sandi",
     "step3EmailDesc": "Amankan akun Anda dengan email dan kata sandi",
     "tapToComplete": "↓ Ketuk untuk menyelesaikan →",
-    "assetStakedTitle": "Alpha Di-stake"
+    "assetStakedTitle": "Alpha Di-stake",
+    "webInviteLink": "Undangan web",
+    "telegramLotteryLink": "Lotere Telegram"
   },
   "tasks": {
     "title": "Tugas",
@@ -474,8 +476,8 @@
       "joinTelegram": "Gabung grup Telegram"
     },
     "signatureRequired": {
-      "title": "Perlu tanda tangan untuk menarik",
-      "note": "Anda harus menandatangani otorisasi dompet sebelum menarik. Jika sesi Anda kedaluwarsa dan tidak bisa menandatangani, hubungi admin untuk menyelesaikannya."
+      "title": "Verifikasi kepemilikan dompet",
+      "note": "Silakan tanda tangani untuk memverifikasi bahwa dompet ini milik Anda. Tanda tangan membuktikan Anda memegang kunci privat dan mencegah penarikan dari dompet watch-only (observe). Jika sesi Anda kedaluwarsa dan tidak bisa menandatangani, hubungi admin untuk menyelesaikannya."
     },
     "locked": {
       "title": "Gaji terkunci",
@@ -666,7 +668,75 @@
     "phoneNumber": "Nomor Telepon",
     "phoneCountryCode": "Kode Negara",
     "saveChanges": "Simpan Perubahan",
-    "saving": "Menyimpan..."
+    "saving": "Menyimpan...",
+    "eyebrow": "Akun",
+    "titleComplete": "Lengkapi Profil Anda",
+    "subtitleComplete": "Isi detail Anda untuk mulai menghasilkan",
+    "completeProfile": "Lengkapi Profil",
+    "requiredHint": "Kolom bertanda * wajib diisi",
+    "referredBy": "Diundang oleh",
+    "email": "Email",
+    "noEmailTelegram": "Tanpa email — akun Telegram",
+    "noEmailWallet": "Tanpa email — akun wallet",
+    "usernamePlaceholder": "Masukkan nama pengguna Anda",
+    "usernameHint": "Ini adalah nama tampilan publik Anda",
+    "optional": "(opsional)",
+    "phoneNumberPlaceholder": "Nomor telepon",
+    "phoneCodeSearch": "Cari negara / kode",
+    "countrySearch": "Cari negara",
+    "telegramUsernamePlaceholder": "@username",
+    "telegramUsernameHint": "Digunakan untuk notifikasi komunitas",
+    "success": {
+      "updated": "Profil berhasil diperbarui!"
+    },
+    "errors": {
+      "usernameRequired": "Nama pengguna wajib diisi",
+      "phoneRequired": "Nomor telepon wajib diisi",
+      "usernameTaken": "Nama pengguna sudah digunakan",
+      "unexpected": "Terjadi kesalahan tak terduga",
+      "walletAlreadyBound": "Akun Anda sudah terikat wallet. Wallet tidak dapat diubah.",
+      "walletTaken": "Wallet ini sudah terikat ke akun lain"
+    },
+    "wallet": {
+      "title": "Alamat Wallet",
+      "connected": "Wallet Terhubung",
+      "binding": "Mengikat wallet...",
+      "none": "Belum ada wallet terhubung",
+      "noneHint": "Hubungkan untuk mulai mendapatkan reward",
+      "connect": "Hubungkan",
+      "supported": "Wallet yang Didukung"
+    },
+    "telegram": {
+      "title": "Akun Telegram",
+      "linked": "Telegram Tertaut",
+      "immutable": "Satu akun Telegram per profil — tidak dapat diubah.",
+      "none": "Belum ada Telegram tertaut",
+      "noneHint": "Diperlukan untuk mengakses reward Tasks",
+      "errorAlreadyBound": "Akun Telegram ini sudah tertaut ke akun lain.",
+      "errorGeneric": "Gagal menautkan Telegram. Silakan coba lagi."
+    },
+    "emailBind": {
+      "titleTelegram": "Siapkan login web",
+      "titleWallet": "Tautkan Alamat Email",
+      "descTelegram": "Masuk ke polnation.com dari browser mana pun. Login Telegram Anda tetap berfungsi.",
+      "descWallet": "Tambahkan email dan kata sandi untuk pemulihan akun.",
+      "success": "Login web siap. Masuk ke polnation.com dengan {email}.",
+      "emailPlaceholder": "you@example.com",
+      "passwordPlaceholder": "Kata sandi (6+ karakter)",
+      "passwordTooShort": "Kata sandi minimal 6 karakter",
+      "failed": "Gagal menautkan email",
+      "submit": "Simpan"
+    },
+    "logout": {
+      "title": "Keluar",
+      "desc": "Keluar dan kembali ke layar login.",
+      "button": "Keluar",
+      "confirmTitle": "Konfirmasi Keluar",
+      "confirmBody": "Yakin ingin keluar? Anda perlu masuk lagi untuk mengakses akun Anda.",
+      "cancel": "Batal",
+      "confirm": "Keluar"
+    },
+    "statusActive": "Aktif"
   },
   "wallet": {
     "connect": "Hubungkan Wallet",
