@@ -124,8 +124,9 @@ export async function GET(request: NextRequest) {
       ...withWallet.map((r: { wallet_address: string; [key: string]: unknown }) => ({
         ...r,
         usdc_balance: (walletBalances[r.wallet_address] || 0) + (stakedByWallet[r.wallet_address.toLowerCase()] || 0),
+        staked: stakedByWallet[r.wallet_address.toLowerCase()] || 0,
       })),
-      ...withoutWallet,
+      ...withoutWallet.map((r: { [key: string]: unknown }) => ({ ...r, staked: 0 })),
     ]
 
     // 计算统计数据

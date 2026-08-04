@@ -21,7 +21,8 @@ export interface Profile {
 export interface Referral extends Profile {
   level: number
   team_count: number
-  usdc_balance?: number
+  usdc_balance?: number // 钱包 USDC + 未平仓质押本金 合计
+  staked?: number // 其中的未平仓 AlphaStake 质押本金
 }
 
 export interface Snapshot {

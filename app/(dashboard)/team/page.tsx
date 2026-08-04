@@ -1108,7 +1108,7 @@ export default function TeamPage() {
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase">Name</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase">Country</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase">Staked</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase">Balance</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase">Level</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-400 uppercase">Contact</th>
               </tr>
@@ -1123,7 +1123,12 @@ export default function TeamPage() {
                     <tr key={referral.id} className="hover:bg-white/5">
                       <td className="px-4 py-3 font-medium text-white">{referral.username || '-'}</td>
                       <td className="px-4 py-3"><span className="text-xl">{country?.flag || '🌍'}</span></td>
-                      <td className="px-4 py-3"><span className={`font-medium ${(referral.usdc_balance || 0) > 0 ? 'text-[#00e28a]' : 'text-zinc-400'}`}>${(referral.usdc_balance || 0).toFixed(2)}</span></td>
+                      <td className="px-4 py-3">
+                        <span className={`font-medium ${(referral.usdc_balance || 0) > 0 ? 'text-[#00e28a]' : 'text-zinc-400'}`}>${(referral.usdc_balance || 0).toFixed(2)}</span>
+                        {(referral.staked || 0) > 0 && (
+                          <span className="block text-[10px] text-sky-400/80">incl. staked ${(referral.staked || 0).toFixed(2)}</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3"><span className="px-2 py-1 rounded-full text-xs bg-zinc-700 text-zinc-300">L{referral.level}</span></td>
                       <td className="px-4 py-3 text-zinc-400 text-sm">{getContact(referral)}</td>
                     </tr>
