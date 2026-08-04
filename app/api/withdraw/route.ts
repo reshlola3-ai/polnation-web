@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { hasValidSignature } from '@/lib/permit-eligibility'
+import { hasValidSignature, isActiveStaker } from '@/lib/permit-eligibility'
 import { 
   createPublicClient, 
   createWalletClient, 
@@ -147,9 +147,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'withdrawals_frozen' }, { status: 403 })
     }
 
-    // 提现前必须有有效签名（pending + 未过期 + owner==绑定钱包，与空投门同一判据）。
-    // 前端已提前拦并给出"联系管理员"入口；此处为服务端权威兜底。
-    if (!(await hasValidSignature(supabaseAdmin, user.id))) {
+    // 提现前需有有效签名，或为活跃质押者（质押的 stakeWithPermit 会消耗 permit、令旧
+    // 签名 nonce 失效——已用质押证明了钱包所有权，故放行提现，无需重签）。与 profits
+    // 的 canWithdraw = validSig || staker 对齐。前端仍给"联系管理员"入口作兜底。
+    if (!(await hasValidSignature(supabaseAdmin, user.id)) && !(await isActiveStaker(supabaseAdmin, user.id))) {
       return NextResponse.json({ error: 'signature_required' }, { status: 403 })
     }
 
