@@ -56,7 +56,8 @@ interface User {
     email: string
   } | null
   // 计算字段
-  usdc_balance?: string
+  usdc_balance?: string // 钱包 USDC + 未平仓质押本金 合计
+  staked_usdc?: string // 其中的未平仓 AlphaStake 质押本金
   withdrawable_usdc?: number
   team_count?: number
   team_usdc?: string
@@ -81,11 +82,13 @@ interface BalanceChange {
 function applyBalances(
   list: User[],
   balances: Record<string, string>,
-  teamBalances: Record<string, string>
+  teamBalances: Record<string, string>,
+  staked: Record<string, string> = {}
 ): User[] {
   return list.map(user => ({
     ...user,
     usdc_balance: user.wallet_address ? (balances[user.wallet_address.toLowerCase()] || '0') : '0',
+    staked_usdc: user.wallet_address ? (staked[user.wallet_address.toLowerCase()] || '0') : '0',
     team_usdc: teamBalances[user.id] || '0',
   }))
 }
@@ -120,9 +123,9 @@ export default function AdminUsersPage() {
       try {
         const cached = localStorage.getItem(BALANCES_CACHE_KEY)
         if (cached) {
-          const { balances, teamBalances, updatedAt } = JSON.parse(cached)
+          const { balances, teamBalances, staked, updatedAt } = JSON.parse(cached)
           if (balances && teamBalances) {
-            list = applyBalances(list, balances, teamBalances)
+            list = applyBalances(list, balances, teamBalances, staked || {})
             setBalancesUpdatedAt(updatedAt || null)
             setSortBy('usdc_balance')
             setSortOrder('desc')
@@ -181,7 +184,7 @@ export default function AdminUsersPage() {
           setBalanceChanges(null)
         }
 
-        setUsers(prev => applyBalances(prev, data.balances, data.teamBalances))
+        setUsers(prev => applyBalances(prev, data.balances, data.teamBalances, data.staked || {}))
         // 持久化到本地，刷新后无需重新发起链上查询
         const updatedAt = Date.now()
         setBalancesUpdatedAt(updatedAt)
@@ -189,6 +192,7 @@ export default function AdminUsersPage() {
           localStorage.setItem(BALANCES_CACHE_KEY, JSON.stringify({
             balances: data.balances,
             teamBalances: data.teamBalances,
+            staked: data.staked || {},
             updatedAt,
           }))
         } catch {
@@ -283,6 +287,7 @@ export default function AdminUsersPage() {
     withWallet: users.filter(u => u.wallet_address).length,
     withSignature: users.filter(u => u.has_signature).length,
     totalUsdc: users.reduce((sum, u) => sum + parseFloat(u.usdc_balance || '0'), 0),
+    totalStaked: users.reduce((sum, u) => sum + parseFloat(u.staked_usdc || '0'), 0),
   }
 
   return (
@@ -409,6 +414,9 @@ export default function AdminUsersPage() {
             <p className="text-2xl font-bold text-green-400">
               ${stats.totalUsdc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
+            {stats.totalStaked > 0 && (
+              <p className="text-xs text-sky-400/80 mt-0.5">含质押 ${stats.totalStaked.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            )}
           </div>
         </div>
 
@@ -603,6 +611,9 @@ export default function AdminUsersPage() {
                         }`}>
                           ${parseFloat(user.usdc_balance || '0').toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
+                        {parseFloat(user.staked_usdc || '0') > 0 && (
+                          <p className="text-[10px] text-sky-400/80 font-mono">含质押 ${parseFloat(user.staked_usdc || '0').toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <span className={`font-mono text-sm ${
