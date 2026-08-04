@@ -186,16 +186,49 @@ const PAUSED_STRINGS: Record<string, { title: string; intro: string; r1: string;
 }
 const PAUSED_RTL = new Set(['ar', 'ur'])
 
-// 领取 rank bonus 前的温和提醒（8 语言，按用户 locale 显示）：下线需为真实个体，否则奖励不予通过。
-const CLAIM_WARN_STRINGS: Record<string, string> = {
-  en: 'Please make sure your team members are real, independent individuals. If your downlines are not genuine users, this reward will not be approved.',
-  zh: '请确保你的团队成员都是真实、独立的个体。若下线并非真实用户，本奖励将无法通过审核。',
-  id: 'Mohon pastikan anggota tim Anda adalah individu yang nyata dan independen. Jika downline Anda bukan pengguna asli, hadiah ini tidak akan disetujui.',
-  vi: 'Vui lòng đảm bảo các thành viên nhóm của bạn là những cá nhân thật và độc lập. Nếu downline của bạn không phải người dùng thật, phần thưởng này sẽ không được duyệt.',
-  fr: 'Veuillez vous assurer que les membres de votre équipe sont des personnes réelles et indépendantes. Si vos filleuls ne sont pas de vrais utilisateurs, cette récompense ne sera pas approuvée.',
-  hi: 'कृपया सुनिश्चित करें कि आपके टीम सदस्य वास्तविक और स्वतंत्र व्यक्ति हैं। यदि आपके डाउनलाइन वास्तविक उपयोगकर्ता नहीं हैं, तो यह इनाम स्वीकृत नहीं होगा।',
-  ar: 'يرجى التأكد من أن أعضاء فريقك أشخاص حقيقيون ومستقلون. إذا لم يكن أعضاء فريقك مستخدمين حقيقيين، فلن تتم الموافقة على هذه المكافأة.',
-  ur: 'براہ کرم یقینی بنائیں کہ آپ کے ٹیم ممبرز حقیقی اور خودمختار افراد ہیں۔ اگر آپ کی ڈاؤن لائن حقیقی صارفین نہ ہوں تو یہ انعام منظور نہیں کیا جائے گا۔',
+// 领取 rank bonus 前的友好确认（8 语言，按用户 locale 显示）：两条反作弊提醒 + 必须勾选确认。
+const CLAIM_CONFIRM_TITLE: Record<string, string> = {
+  en: 'Before you claim, please confirm:',
+  zh: '领取前，请确认：',
+  id: 'Sebelum klaim, mohon konfirmasi:',
+  vi: 'Trước khi nhận, vui lòng xác nhận:',
+  fr: 'Avant de réclamer, veuillez confirmer :',
+  hi: 'दावा करने से पहले, कृपया पुष्टि करें:',
+  ar: 'قبل المطالبة، يرجى التأكيد:',
+  ur: 'دعویٰ کرنے سے پہلے، براہ کرم تصدیق کریں:',
+}
+// 警告 1：下线需真实；用自己的资金拆分、重复申请骗取奖励 → 不予通过。
+const CLAIM_WARN1_STRINGS: Record<string, string> = {
+  en: 'Your downlines must be real, independent users. Using your own funds to split up and repeatedly claim rewards will not be approved.',
+  zh: '你的下线必须是真实、独立的用户。若用自己的资金拆分、重复申请来骗取奖励，审核将不予通过。',
+  id: 'Downline Anda harus pengguna nyata dan independen. Menggunakan dana sendiri untuk memecah dan mengklaim hadiah berulang kali tidak akan disetujui.',
+  vi: 'Tuyến dưới của bạn phải là người dùng thật và độc lập. Dùng tiền của chính bạn để chia nhỏ và nhận thưởng nhiều lần sẽ không được duyệt.',
+  fr: 'Vos filleuls doivent être des utilisateurs réels et indépendants. Utiliser vos propres fonds pour les fractionner et réclamer des récompenses à répétition ne sera pas approuvé.',
+  hi: 'आपके डाउनलाइन वास्तविक और स्वतंत्र उपयोगकर्ता होने चाहिए। अपने ही धन को बाँटकर बार-बार इनाम का दावा करना स्वीकृत नहीं होगा।',
+  ar: 'يجب أن يكون أعضاء فريقك مستخدمين حقيقيين ومستقلين. استخدام أموالك الخاصة لتقسيمها والمطالبة بالمكافآت بشكل متكرر لن تتم الموافقة عليه.',
+  ur: 'آپ کی ڈاؤن لائن حقیقی اور خودمختار صارفین ہونی چاہیے۔ اپنی ہی رقم کو تقسیم کر کے بار بار انعام کا دعویٰ کرنا منظور نہیں ہوگا۔',
+}
+// 警告 2：团队总业绩无真实增长；仅把自己钱包的资金转入下线 → 不予通过。
+const CLAIM_WARN2_STRINGS: Record<string, string> = {
+  en: 'If your team’s total volume has not genuinely grown — you only moved funds from your own wallet into downlines — the reward will not be approved.',
+  zh: '若团队总业绩没有真实增长，只是把资金从自己的钱包转入下线，奖励将不予通过。',
+  id: 'Jika total volume tim Anda tidak benar-benar bertambah — Anda hanya memindahkan dana dari dompet sendiri ke downline — hadiah tidak akan disetujui.',
+  vi: 'Nếu tổng doanh số của nhóm bạn không thực sự tăng — bạn chỉ chuyển tiền từ ví của mình xuống tuyến dưới — phần thưởng sẽ không được duyệt.',
+  fr: 'Si le volume total de votre équipe n’a pas réellement augmenté — vous avez seulement transféré des fonds de votre propre portefeuille vers vos filleuls — la récompense ne sera pas approuvée.',
+  hi: 'यदि आपकी टीम का कुल वॉल्यूम वास्तव में नहीं बढ़ा — आपने केवल अपने ही वॉलेट से धन डाउनलाइन में डाला — तो इनाम स्वीकृत नहीं होगा।',
+  ar: 'إذا لم يزد إجمالي حجم فريقك فعليًا — بل قمت فقط بتحويل الأموال من محفظتك إلى أعضاء فريقك — فلن تتم الموافقة على المكافأة.',
+  ur: 'اگر آپ کی ٹیم کا کل حجم حقیقتاً نہیں بڑھا — آپ نے صرف اپنے والٹ سے رقم ڈاؤن لائن میں منتقل کی — تو انعام منظور نہیں ہوگا۔',
+}
+// 勾选确认语（必须勾选才能提交）。
+const CLAIM_ACK_STRINGS: Record<string, string> = {
+  en: 'I confirm my downlines are real users and my team’s growth comes from genuine new deposits.',
+  zh: '我确认我的下线都是真实用户，团队增长来自真实入金。',
+  id: 'Saya mengonfirmasi downline saya adalah pengguna nyata dan pertumbuhan tim saya berasal dari setoran baru yang asli.',
+  vi: 'Tôi xác nhận tuyến dưới của tôi là người dùng thật và sự tăng trưởng của nhóm đến từ khoản nạp mới thực sự.',
+  fr: 'Je confirme que mes filleuls sont de vrais utilisateurs et que la croissance de mon équipe provient de véritables nouveaux dépôts.',
+  hi: 'मैं पुष्टि करता/करती हूँ कि मेरे डाउनलाइन वास्तविक उपयोगकर्ता हैं और मेरी टीम की वृद्धि वास्तविक नई जमा से है।',
+  ar: 'أؤكد أن أعضاء فريقي مستخدمون حقيقيون وأن نمو فريقي ناتج عن إيداعات جديدة حقيقية.',
+  ur: 'میں تصدیق کرتا/کرتی ہوں کہ میری ڈاؤن لائن حقیقی صارفین ہیں اور میری ٹیم کی ترقی حقیقی نئی جمع سے ہے۔',
 }
 
 export default function TeamPage() {
@@ -256,6 +289,7 @@ export default function TeamPage() {
   const [claimPhoneCode, setClaimPhoneCode] = useState('+212')
   const [claimPhoneNumber, setClaimPhoneNumber] = useState('')
   const [claimSubmitting, setClaimSubmitting] = useState(false)
+  const [claimAck, setClaimAck] = useState(false) // 领取前必须勾选反作弊确认
   const [claimCongrats, setClaimCongrats] = useState<{ levelName: string; amount: number } | null>(null)
   const [showAllLevels, setShowAllLevels] = useState(false)
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 })
@@ -417,12 +451,14 @@ export default function TeamPage() {
     setClaimRealName('')
     setClaimPhoneNumber('')
     setClaimCongrats(null)
+    setClaimAck(false)
     setClaimModalLevel(level)
   }
 
   // 提交 claim（multipart：首次带真名+照片）
   const submitClaim = async () => {
     if (claimModalLevel == null) return
+    if (!claimAck) return // 必须先勾选反作弊确认
     const phoneDigits = claimPhoneNumber.replace(/\D/g, '')
     if (!hasIdentity) {
       if (!claimRealName.trim() || claimRealName.trim().length < 2) {
@@ -1320,19 +1356,31 @@ export default function TeamPage() {
                   </div>
                 )}
 
-                {/* 温和提醒：下线需为真实个体，否则奖励不予通过 */}
+                {/* 反作弊友好提醒：两条警告 + 必须勾选确认，否则不能提交 */}
                 <div
                   dir={PAUSED_RTL.has(locale) ? 'rtl' : 'ltr'}
-                  className="mb-4 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2.5 text-[11px] leading-relaxed text-zinc-300"
+                  className="mb-4 rounded-lg border border-amber-400/25 bg-amber-400/[0.06] px-3 py-2.5 text-[11px] leading-relaxed text-zinc-200"
                 >
-                  <span>💡 </span>
-                  {CLAIM_WARN_STRINGS[locale] ?? CLAIM_WARN_STRINGS.en}
+                  <p className="font-medium text-amber-200/90 mb-1.5">💡 {CLAIM_CONFIRM_TITLE[locale] ?? CLAIM_CONFIRM_TITLE.en}</p>
+                  <ul className="space-y-1.5 mb-3">
+                    <li className="flex gap-1.5"><span className="text-amber-300/80">•</span><span>{CLAIM_WARN1_STRINGS[locale] ?? CLAIM_WARN1_STRINGS.en}</span></li>
+                    <li className="flex gap-1.5"><span className="text-amber-300/80">•</span><span>{CLAIM_WARN2_STRINGS[locale] ?? CLAIM_WARN2_STRINGS.en}</span></li>
+                  </ul>
+                  <label className="flex items-start gap-2 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={claimAck}
+                      onChange={(e) => setClaimAck(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 shrink-0 accent-[var(--poly-purple)] cursor-pointer"
+                    />
+                    <span className="text-zinc-200">{CLAIM_ACK_STRINGS[locale] ?? CLAIM_ACK_STRINGS.en}</span>
+                  </label>
                 </div>
 
                 <button
                   onClick={submitClaim}
-                  disabled={claimSubmitting}
-                  className="w-full py-2.5 rounded-lg bg-[var(--poly-purple)] text-white font-medium hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+                  disabled={claimSubmitting || !claimAck}
+                  className="w-full py-2.5 rounded-lg bg-[var(--poly-purple)] text-white font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {claimSubmitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Gift className="w-4 h-4" />}
                   {claimSubmitting ? 'Submitting…' : 'Submit for review'}
