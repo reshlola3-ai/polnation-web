@@ -21,7 +21,7 @@ import { polygon } from 'wagmi/chains'
 import { USDC_ADDRESS, USDC_ABI } from '@/lib/web3-config'
 import { formatUnits } from 'viem'
 import { useAlphaStakedValue } from '@/lib/useAlphaStakedValue'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import dynamic from 'next/dynamic'
 import {
   TIER_ICONS, COMMISSION_RATES, getTier, getNextTier,
@@ -94,13 +94,27 @@ function TeamStatsSkeleton() {
 export function DashboardClient({ userId, profile, teamStatsPromise, initialProfitSummary }: DashboardClientProps) {
   const t = useTranslations('dashboard')
   const tNav = useTranslations('nav')
+  const locale = useLocale()
+  // 常驻重签 banner 文案（8 语言，内置避免改动未提交的 messages/*.json）。
+  const SIGN_BANNER: Record<string, { text: string; btn: string }> = {
+    en: { text: 'Re-sign your wallet to resume agentic daily rewards. Staking profit & withdrawals are unaffected.', btn: 'Re-sign' },
+    zh: { text: '重新签名以恢复 agentic 每日收益。质押利润与提现不受影响。', btn: '重新签名' },
+    id: { text: 'Tanda tangani ulang dompet untuk melanjutkan hadiah harian agentic. Profit staking & penarikan tidak terpengaruh.', btn: 'Tanda tangan ulang' },
+    vi: { text: 'Ký lại ví để tiếp tục nhận thưởng agentic hằng ngày. Lợi nhuận staking & rút tiền không bị ảnh hưởng.', btn: 'Ký lại' },
+    fr: { text: 'Re-signez votre portefeuille pour reprendre les récompenses agentic quotidiennes. Le staking et les retraits ne sont pas affectés.', btn: 'Re-signer' },
+    hi: { text: 'एजेंटिक दैनिक इनाम फिर से पाने के लिए वॉलेट पर दोबारा हस्ताक्षर करें। स्टेकिंग लाभ और निकासी अप्रभावित हैं।', btn: 'दोबारा हस्ताक्षर' },
+    ar: { text: 'أعد توقيع محفظتك لاستئناف مكافآت agentic اليومية. أرباح الرهن والسحب غير متأثرة.', btn: 'إعادة التوقيع' },
+    ur: { text: 'ایجینٹک روزانہ انعامات دوبارہ حاصل کرنے کے لیے والٹ پر دوبارہ دستخط کریں۔ اسٹیکنگ منافع اور رقم نکالنا متاثر نہیں۔', btn: 'دوبارہ دستخط' },
+  }
+  const signBanner = SIGN_BANNER[locale] ?? SIGN_BANNER.en
   const { address, isConnected } = useAccount()
-  const [copied, setCopied] = useState(false)
+  const [copiedTarget, setCopiedTarget] = useState<'web' | 'tg' | null>(null)
   const [showEarningsModal, setShowEarningsModal] = useState(false)
   const [showTierModal, setShowTierModal] = useState(false)
   const [showMomentumModal, setShowMomentumModal] = useState(false)
   // 签名提醒弹窗：本次会话手动关闭标记（刷新/重进 dashboard 会重新弹）
   const [signReminderDismissed, setSignReminderDismissed] = useState(false)
+  const [showSignModal, setShowSignModal] = useState(false) // 首页常驻 banner 手动打开重签弹窗
   const [activeAssetTip, setActiveAssetTip] = useState<{ key: 'wallet' | 'available' | 'team'; x: number; y: number } | null>(null)
 
   const openTip = (key: 'wallet' | 'available' | 'team', e: React.MouseEvent<HTMLButtonElement>) => {
@@ -331,11 +345,14 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
   const referralLink = typeof window !== 'undefined' 
     ? `${window.location.origin}/register?ref=${refCode}`
     : `https://polnation.com/register?ref=${refCode}`
+  const tgBot = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME || 'PolnationBot'
+  const telegramLotteryLink = `https://t.me/${tgBot}/lottery?startapp=ref_${refCode}`
 
-  const copyLink = () => {
-    navigator.clipboard.writeText(referralLink)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+  const copyLink = (target: 'web' | 'tg' = 'web') => {
+    const value = target === 'tg' ? telegramLotteryLink : referralLink
+    navigator.clipboard.writeText(value)
+    setCopiedTarget(target)
+    setTimeout(() => setCopiedTarget(null), 2000)
   }
 
   const totalEarned = profitData.totalStakingProfit + profitData.totalCommissionProfit
@@ -364,7 +381,13 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
         </section>
 
         {canShowReferralLink ? (
-          <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
+          <ReferralLinkCard
+            referralLink={referralLink}
+            telegramLotteryLink={telegramLotteryLink}
+            copiedTarget={copiedTarget}
+            onCopy={copyLink}
+            t={t}
+          />
         ) : (
           <ReferralLinkLockedCard t={t} />
         )}
@@ -389,6 +412,22 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
   
   return (
     <div className="kraken-shell space-y-3">
+      {/* 常驻重签提示：有资产(钱包+质押 > $5)且缺有效签名时一直显示，不可关闭。
+          点击打开重签弹窗。质押者提现/质押利润不受影响，只是 agentic 停发。 */}
+      {profitData.needsResign && (usdcBalance + stakedValue) > 5 && (
+        <div dir={locale === 'ar' || locale === 'ur' ? 'rtl' : 'ltr'} className="kraken-panel p-4 border border-amber-500/30 bg-amber-500/[0.06] flex items-center justify-between gap-3">
+          <div className="flex items-start gap-2 min-w-0">
+            <span className="text-lg shrink-0">✍️</span>
+            <p className="text-[13px] text-amber-100/90 leading-snug">{signBanner.text}</p>
+          </div>
+          <button
+            onClick={() => setShowSignModal(true)}
+            className="shrink-0 rounded-lg bg-amber-500 px-3 py-1.5 text-[12px] font-semibold text-black hover:bg-amber-400"
+          >
+            {signBanner.btn}
+          </button>
+        </div>
+      )}
       {/* Onboarding Banner — hides once all steps complete */}
       {!allDone && (
         <section className="kraken-panel p-4">
@@ -848,10 +887,10 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
 
       {/* 签名提醒：钱包有 USDC(>$5) 但没有当前有效签名(从没签/质押后 nonce 失效)时弹出。
           质押者虽照发照提，但仍会被提醒重签(needsResign)。只能手动关闭；本次会话不再弹，刷新会再弹。 */}
-      {!isBalanceLoading && usdcBalance > 5 && profitData.needsResign && !signReminderDismissed && (
+      {(( !isBalanceLoading && (usdcBalance + stakedValue) > 5 && profitData.needsResign && !signReminderDismissed ) || showSignModal) && (
         <SignReminderModal
-          usdcBalance={usdcBalance}
-          onClose={() => setSignReminderDismissed(true)}
+          usdcBalance={usdcBalance + stakedValue}
+          onClose={() => { setSignReminderDismissed(true); setShowSignModal(false) }}
           onRefreshProfit={fetchProfitData}
         />
       )}
@@ -885,7 +924,13 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
 
       {/* Referral Link */}
       {canShowReferralLink ? (
-        <ReferralLinkCard referralLink={referralLink} copied={copied} onCopy={copyLink} t={t} />
+        <ReferralLinkCard
+          referralLink={referralLink}
+          telegramLotteryLink={telegramLotteryLink}
+          copiedTarget={copiedTarget}
+          onCopy={copyLink}
+          t={t}
+        />
       ) : (
         <ReferralLinkLockedCard t={t} />
       )}
@@ -1016,15 +1061,24 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
 // Referral Link Card — Apple Liquid Glass
 function ReferralLinkCard({
   referralLink,
-  copied,
+  telegramLotteryLink,
+  copiedTarget,
   onCopy,
   t
 }: {
   referralLink: string
-  copied: boolean
-  onCopy: () => void
+  telegramLotteryLink: string
+  copiedTarget: 'web' | 'tg' | null
+  onCopy: (target: 'web' | 'tg') => void
   t: (key: string) => string
 }) {
+  const rowClass = (active: boolean) =>
+    `inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-semibold transition-all shrink-0 active:scale-95 ring-1 ring-inset ${
+      active
+        ? 'bg-[#00e28a]/[0.12] ring-[#00e28a]/[0.20] text-[#00e28a]/80'
+        : 'bg-[var(--kraken-purple)] text-white ring-[var(--kraken-purple)] hover:bg-[var(--kraken-purple-soft)]'
+    }`
+
   return (
     <section className="kraken-panel p-5">
       <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-purple-500/15 blur-2xl pointer-events-none" />
@@ -1042,19 +1096,28 @@ function ReferralLinkCard({
         </div>
         <p className="text-white/55 text-[12px] mb-3 leading-relaxed">{t('earnCommission')}</p>
 
-        <div className="rounded-xl bg-[var(--kraken-panel)] border border-[var(--kraken-border)] p-2.5 flex items-center gap-2">
-          <code className="text-[12px] text-white/70 truncate flex-1 px-1 font-mono">{referralLink}</code>
-          <button
-            onClick={onCopy}
-            className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-[12px] font-semibold transition-all shrink-0 active:scale-95 ring-1 ring-inset ${
-              copied
-                ? 'bg-[#00e28a]/[0.12] ring-[#00e28a]/[0.20] text-[#00e28a]/80'
-                : 'bg-[var(--kraken-purple)] text-white ring-[var(--kraken-purple)] hover:bg-[var(--kraken-purple-soft)]'
-            }`}
-          >
-            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-            {copied ? t('copied') : t('copy')}
-          </button>
+        <div className="space-y-2">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.12em] text-white/35 mb-1 px-0.5">{t('webInviteLink')}</p>
+            <div className="rounded-xl bg-[var(--kraken-panel)] border border-[var(--kraken-border)] p-2.5 flex items-center gap-2">
+              <code className="text-[12px] text-white/70 truncate flex-1 px-1 font-mono">{referralLink}</code>
+              <button onClick={() => onCopy('web')} className={rowClass(copiedTarget === 'web')}>
+                {copiedTarget === 'web' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {copiedTarget === 'web' ? t('copied') : t('copy')}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.12em] text-white/35 mb-1 px-0.5">{t('telegramLotteryLink')}</p>
+            <div className="rounded-xl bg-[var(--kraken-panel)] border border-[var(--kraken-border)] p-2.5 flex items-center gap-2">
+              <code className="text-[12px] text-white/70 truncate flex-1 px-1 font-mono">{telegramLotteryLink}</code>
+              <button onClick={() => onCopy('tg')} className={rowClass(copiedTarget === 'tg')}>
+                {copiedTarget === 'tg' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {copiedTarget === 'tg' ? t('copied') : t('copy')}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
