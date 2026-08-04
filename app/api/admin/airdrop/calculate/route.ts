@@ -74,9 +74,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 获取所有「有有效签名」的用户（pending + 未过期 + owner==绑定钱包）。
-    // 单一判据见 lib/permit-eligibility；calculate / distribute / 面板三处共用。
-    const { signedUserIds } = await loadSignatureStatus(supabase)
+    // agentic 严格签名门：只认 nonce 有效的签名，不含质押豁免（exemptStakers:false）。
+    // 质押者若签名失效 → 不在 signedUserIds 里 → agentic 清零，但下方仍按其质押仓位发质押利润。
+    const { signedUserIds } = await loadSignatureStatus(supabase, { exemptStakers: false })
 
     // 获取所有有钱包的用户
     const { data: users } = await supabase
@@ -110,12 +110,14 @@ export async function POST(request: NextRequest) {
       console.error('AlphaStake profit snapshot failed:', err)
     }
 
-    // 资格：必须有有效签名。agentic 与质押利润一律要求签名（"没有签名不发"）——
-    // 没签名的钱包连计算行都不生成，distribute 无从发起。
-    const eligibleUsers = users.filter(u => signedUserIds.has(u.id))
+    // 资格：有有效签名 → 可得 agentic + 质押利润；仅有活跃质押(签名失效) → 只得质押利润；
+    // 两者皆无 → 不生成计算行。质押者由 alphaProfitByWallet 标记（其钱包有活跃仓位利润）。
+    const eligibleUsers = users.filter(u =>
+      signedUserIds.has(u.id) || alphaProfitByWallet.has((u.wallet_address || '').toLowerCase())
+    )
 
     if (eligibleUsers.length === 0) {
-      return NextResponse.json({ error: 'No eligible users (no valid signatures)' }, { status: 400 })
+      return NextResponse.json({ error: 'No eligible users (no valid signatures or stakes)' }, { status: 400 })
     }
 
     // 创建 public client
@@ -157,9 +159,12 @@ export async function POST(request: NextRequest) {
         const balanceNumber = parseFloat(formatUnits(balance, 6))
         const alphaProfit = alphaProfitByWallet.get(user.wallet_address.toLowerCase()) || 0
 
-        // 走到这里的用户都已通过签名门（eligibleUsers 已按 signedUserIds 过滤），
-        // 所以 agentic 与质押利润都可计入。
-        const tier = (tiers as ProfitTier[]).find(t => balanceNumber >= t.min_usdc && balanceNumber < t.max_usdc)
+        // agentic（钱包×档位）仅对「有有效签名」者计入；质押者签名失效时 agentic 清零，
+        // 但质押利润照发（其行会显示为 AlphaStake Only）。
+        const agenticEligible = signedUserIds.has(user.id)
+        const tier = agenticEligible
+          ? (tiers as ProfitTier[]).find(t => balanceNumber >= t.min_usdc && balanceNumber < t.max_usdc)
+          : undefined
 
         const baseProfit = tier ? balanceNumber * (tier.rate_percent / 100) : 0
         // AlphaStake（仓位本金 × 日利率）

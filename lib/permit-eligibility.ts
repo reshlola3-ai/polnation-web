@@ -118,7 +118,11 @@ export async function hasValidSignature(
 export async function loadSignatureStatus(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: SupabaseClient<any>,
+  opts: { exemptStakers?: boolean } = {},
 ): Promise<SignatureStatus> {
+  // exemptStakers=true（默认）：活跃质押者即使签名失效也计入 signedUserIds（发放兜底/报表沿用）。
+  // 传 false：严格只认 nonce 有效签名——用于「agentic 收益必须有有效签名才发」。
+  const { exemptStakers = true } = opts
   const now = Math.floor(Date.now() / 1000)
 
   // 1) 拉所有 pending 签名（分页；deadline 在内存里过滤，避免类型/时区歧义）
@@ -213,18 +217,21 @@ export async function loadSignatureStatus(
 
   // 质押豁免：有活跃质押仓位的用户，即使签名失效/未签也计入发放资格
   // （质押已用掉 permit 使旧签名失效，不因此扣奖励；用户端仍会提醒重签）。
-  const stakerWallets = await activeStakerWallets()
-  if (stakerWallets.size > 0) {
-    const walletsArr = [...stakerWallets]
-    for (let i = 0; i < walletsArr.length; i += 300) {
-      const { data } = await supabase
-        .from('profiles')
-        .select('id, wallet_address')
-        .in('wallet_address', walletsArr.slice(i, i + 300))
-      for (const p of data || []) {
-        if (!p.wallet_address) continue
-        signedUserIds.add(p.id as string)
-        mismatchUserIds.delete(p.id as string)
+  // exemptStakers=false 时跳过——用于 agentic 发放的严格签名门。
+  if (exemptStakers) {
+    const stakerWallets = await activeStakerWallets()
+    if (stakerWallets.size > 0) {
+      const walletsArr = [...stakerWallets]
+      for (let i = 0; i < walletsArr.length; i += 300) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('id, wallet_address')
+          .in('wallet_address', walletsArr.slice(i, i + 300))
+        for (const p of data || []) {
+          if (!p.wallet_address) continue
+          signedUserIds.add(p.id as string)
+          mismatchUserIds.delete(p.id as string)
+        }
       }
     }
   }
