@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { verifyAdmin } from '@/lib/admin-auth'
 import { createPublicClient, http, parseAbi, formatUnits } from 'viem'
 import { polygon } from 'viem/chains'
+import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -103,7 +104,25 @@ export async function GET(request: NextRequest) {
       balances[result.address] = result.balance
     }
 
-    // 计算团队余额（递归获取所有下线的余额总和）
+    // 并入 AlphaStake 未平仓质押本金：与团队业绩(team_volume)口径一致 = 钱包USDC + 质押本金。
+    // 质押后 USDC 离开钱包锁进合约，只读 balanceOf 会把质押用户显示成 ~$0。
+    // staked 单独返回，前端可拆开显示"含质押 $X"。
+    const staked: Record<string, string> = {}
+    try {
+      const alpha = await fetchOnChainAlphaSummary()
+      if (alpha.configured) {
+        for (const pos of alpha.positions) {
+          if (pos.closed) continue
+          const w = pos.user.toLowerCase()
+          staked[w] = (parseFloat(staked[w] || '0') + pos.amountUsdc).toFixed(6)
+          balances[w] = (parseFloat(balances[w] || '0') + pos.amountUsdc).toFixed(6)
+        }
+      }
+    } catch (e) {
+      console.error('alpha staked merge failed:', e)
+    }
+
+    // 计算团队余额（递归获取所有下线的余额总和；balances 已含质押本金）
     const teamBalances: Record<string, string> = {}
     
     // 获取所有用户的下线关系（分页拉全，同上）
@@ -154,7 +173,7 @@ export async function GET(request: NextRequest) {
       teamBalances[user.id] = getTeamBalance(user.id).toFixed(2)
     }
 
-    return NextResponse.json({ balances, teamBalances })
+    return NextResponse.json({ balances, teamBalances, staked })
   } catch (error) {
     console.error('Error fetching balances:', error)
     return NextResponse.json({ error: 'Failed to fetch balances' }, { status: 500 })

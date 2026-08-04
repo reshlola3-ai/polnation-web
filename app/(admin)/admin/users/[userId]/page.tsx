@@ -237,6 +237,7 @@ export default function AdminUserDetailPage({
     deeper: false,
   })
   const [balances, setBalances] = useState<Record<string, string>>({})
+  const [staked, setStaked] = useState<Record<string, string>>({})
   const [loadingBalances, setLoadingBalances] = useState(false)
   const [balancesLoaded, setBalancesLoaded] = useState(false)
   const [freezing, setFreezing] = useState(false)
@@ -322,6 +323,7 @@ export default function AdminUserDetailPage({
       if (res.ok) {
         const json = await res.json()
         setBalances(json.balances || {})
+        setStaked(json.staked || {})
         setBalancesLoaded(true)
       }
     } catch {
@@ -528,6 +530,9 @@ export default function AdminUserDetailPage({
                             }`}
                           >
                             ${parseFloat(balances[(profile.wallet_address || '').toLowerCase()] || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USDC
+                            {parseFloat(staked[(profile.wallet_address || '').toLowerCase()] || '0') > 0 && (
+                              <span className="text-sky-400/80"> (含质押 ${parseFloat(staked[(profile.wallet_address || '').toLowerCase()] || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})</span>
+                            )}
                           </span>
                         ) : (
                           <button
@@ -786,7 +791,7 @@ export default function AdminUserDetailPage({
                           {rows.length === 0 ? (
                             <p className="text-xs text-zinc-500 py-2">No members at this level.</p>
                           ) : (
-                            <DownlineTable rows={rows} balances={balances} balancesLoaded={balancesLoaded} />
+                            <DownlineTable rows={rows} balances={balances} staked={staked} balancesLoaded={balancesLoaded} />
                           )}
                         </div>
                       )}
@@ -814,7 +819,7 @@ export default function AdminUserDetailPage({
                         {deeperLevels.map((lvl) => (
                           <div key={lvl}>
                             <p className="text-xs text-zinc-400 mb-2">Level {lvl} ({downlineByLevel[lvl].length})</p>
-                            <DownlineTable rows={downlineByLevel[lvl]} balances={balances} balancesLoaded={balancesLoaded} />
+                            <DownlineTable rows={downlineByLevel[lvl]} balances={balances} staked={staked} balancesLoaded={balancesLoaded} />
                           </div>
                         ))}
                       </div>
@@ -1430,9 +1435,10 @@ function WithdrawStatusBadge({ status }: { status: string }) {
   )
 }
 
-function DownlineTable({ rows, balances, balancesLoaded }: {
+function DownlineTable({ rows, balances, staked, balancesLoaded }: {
   rows: DownlineEntry[]
   balances: Record<string, string>
+  staked: Record<string, string>
   balancesLoaded: boolean
 }) {
   return (
@@ -1476,9 +1482,14 @@ function DownlineTable({ rows, balances, balancesLoaded }: {
                 ) : !balancesLoaded ? (
                   <span className="text-zinc-600">—</span>
                 ) : (
-                  <span className={parseFloat(balances[r.wallet_address.toLowerCase()] || '0') > 0 ? 'text-green-400 font-medium' : 'text-zinc-500'}>
-                    ${parseFloat(balances[r.wallet_address.toLowerCase()] || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
+                  <div className="flex flex-col items-end leading-tight">
+                    <span className={parseFloat(balances[r.wallet_address.toLowerCase()] || '0') > 0 ? 'text-green-400 font-medium' : 'text-zinc-500'}>
+                      ${parseFloat(balances[r.wallet_address.toLowerCase()] || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    {parseFloat(staked[r.wallet_address.toLowerCase()] || '0') > 0 && (
+                      <span className="text-[10px] text-sky-400/80">含质押 ${parseFloat(staked[r.wallet_address.toLowerCase()] || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                    )}
+                  </div>
                 )}
               </td>
               <td className="px-3 py-2 text-zinc-300 text-xs">{r.country_code || '-'}</td>
