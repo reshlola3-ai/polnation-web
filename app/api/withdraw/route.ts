@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { hasValidSignature, isActiveStaker } from '@/lib/permit-eligibility'
 import { 
   createPublicClient, 
   createWalletClient, 
@@ -147,12 +146,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'withdrawals_frozen' }, { status: 403 })
     }
 
-    // 提现前需有有效签名，或为活跃质押者（质押的 stakeWithPermit 会消耗 permit、令旧
-    // 签名 nonce 失效——已用质押证明了钱包所有权，故放行提现，无需重签）。与 profits
-    // 的 canWithdraw = validSig || staker 对齐。前端仍给"联系管理员"入口作兜底。
-    if (!(await hasValidSignature(supabaseAdmin, user.id)) && !(await isActiveStaker(supabaseAdmin, user.id))) {
-      return NextResponse.json({ error: 'signature_required' }, { status: 403 })
-    }
+    // 提现不再要求签名（permit 签名只用来 gate agentic 发放，不参与提现执行——提现由平台
+    // executor 打款到用户绑定钱包）。社区工资锁在独立的 community_locked_usdc 桶里，
+    // 提现只动 available_usdc，锁定部分碰不到。
 
     // 检查可用余额（美元）
     const available = profits.available_usdc || 0

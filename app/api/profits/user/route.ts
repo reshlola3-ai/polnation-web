@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { hasValidSignature, isActiveStaker } from '@/lib/permit-eligibility'
+import { hasValidSignature } from '@/lib/permit-eligibility'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -222,10 +222,9 @@ export async function GET() {
       },
     }
 
-    // 提现/发放资格：有当前有效签名 或 有活跃质押仓位（质押豁免）。
-    // needsResign：没有当前有效签名（从没签 / 质押后 nonce 失效）→ 驱动前端"重签提醒"。
+    // 提现不再要求签名（见 /api/withdraw）。仍算 validSig 以驱动前端"签名拿 agentic"提醒：
+    // needsResign = 没有当前有效签名（从没签 / 质押后 nonce 失效）→ 首页 banner 催签名（只为 agentic）。
     const validSig = await hasValidSignature(supabaseAdmin, user.id)
-    const staker = validSig ? false : await isActiveStaker(supabaseAdmin, user.id)
 
     const response = NextResponse.json({
       breakdown,
@@ -253,8 +252,8 @@ export async function GET() {
       registered_at: registeredAt,
       team_volume: Number(commStatusRes.data?.team_volume_l123) || 0,
       hasSignature: hasSignature,
-      // 提现资格：有当前有效签名 或 有活跃质押仓位（质押者签名失效不扣、可提）。
-      canWithdraw: validSig || staker,
+      // 提现不再要求签名：任何登录用户都可提现（冻结/最低额/绑钱包/TG/余额门仍在 /api/withdraw 强制）。
+      canWithdraw: true,
       // 需要重签：没有当前有效签名（含质押后 nonce 失效）→ 前端弹签名提醒（即便已可提）。
       needsResign: !validSig,
     })

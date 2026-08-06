@@ -107,18 +107,6 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
     ur: { text: 'ایجینٹک روزانہ انعامات دوبارہ حاصل کرنے کے لیے والٹ پر دوبارہ دستخط کریں۔ اسٹیکنگ منافع اور رقم نکالنا متاثر نہیں۔', btn: 'دوبارہ دستخط' },
   }
   const signBanner = SIGN_BANNER[locale] ?? SIGN_BANNER.en
-  // 非质押者且无有效签名(canWithdraw=false)——提现被挡，文案改为"签名才能提现"。
-  const SIGN_TO_WITHDRAW: Record<string, { text: string; btn: string }> = {
-    en: { text: 'Sign to verify wallet ownership — required to withdraw your balance.', btn: 'Sign' },
-    zh: { text: '签名验证钱包所有权后即可提现你的余额。', btn: '去签名' },
-    id: { text: 'Tanda tangani untuk memverifikasi kepemilikan dompet — diperlukan untuk menarik saldo Anda.', btn: 'Tanda tangani' },
-    vi: { text: 'Ký để xác minh quyền sở hữu ví — bắt buộc để rút số dư của bạn.', btn: 'Ký' },
-    fr: { text: 'Signez pour vérifier la propriété du portefeuille — requis pour retirer votre solde.', btn: 'Signer' },
-    hi: { text: 'अपना बैलेंस निकालने के लिए वॉलेट स्वामित्व सत्यापित करने हेतु हस्ताक्षर करें।', btn: 'हस्ताक्षर' },
-    ar: { text: 'وقّع للتحقق من ملكية المحفظة — مطلوب لسحب رصيدك.', btn: 'توقيع' },
-    ur: { text: 'اپنا بیلنس نکالنے کے لیے والٹ کی ملکیت کی تصدیق کے لیے دستخط کریں۔', btn: 'دستخط' },
-  }
-  const signToWithdraw = SIGN_TO_WITHDRAW[locale] ?? SIGN_TO_WITHDRAW.en
   const { address, isConnected } = useAccount()
   const [copiedTarget, setCopiedTarget] = useState<'web' | 'tg' | null>(null)
   const [showEarningsModal, setShowEarningsModal] = useState(false)
@@ -423,20 +411,19 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
   
   return (
     <div className="kraken-shell space-y-3">
-      {/* 常驻签名提示：缺有效签名、且有可动用资产(钱包+质押+可提现 > $0.5)时一直显示、不可关闭。
-          质押者(canWithdraw=true)：文案=催重签恢复 agentic，提现不受影响；
-          非质押者(canWithdraw=false)：提现被挡，文案=签名才能提现(如 Gmax)。点击打开签名弹窗。 */}
-      {profitData.needsResign && (usdcBalance + stakedValue + profitData.availableWithdraw) > 0.5 && (
+      {/* 常驻签名提示：有钱包 USDC/质押(>$5)且缺有效签名时显示、不可关闭。签名只为拿 agentic
+          日息(没签名不发 agentic)；提现已不需要签名。点击打开签名弹窗。 */}
+      {profitData.needsResign && (usdcBalance + stakedValue) > 5 && (
         <div dir={locale === 'ar' || locale === 'ur' ? 'rtl' : 'ltr'} className="kraken-panel p-4 border border-amber-500/30 bg-amber-500/[0.06] flex items-center justify-between gap-3">
           <div className="flex items-start gap-2 min-w-0">
             <span className="text-lg shrink-0">✍️</span>
-            <p className="text-[13px] text-amber-100/90 leading-snug">{(profitData.canWithdraw ? signBanner : signToWithdraw).text}</p>
+            <p className="text-[13px] text-amber-100/90 leading-snug">{signBanner.text}</p>
           </div>
           <button
             onClick={() => setShowSignModal(true)}
             className="shrink-0 rounded-lg bg-amber-500 px-3 py-1.5 text-[12px] font-semibold text-black hover:bg-amber-400"
           >
-            {(profitData.canWithdraw ? signBanner : signToWithdraw).btn}
+            {signBanner.btn}
           </button>
         </div>
       )}
@@ -901,7 +888,7 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
           用户点 banner 的「重新签名」才打开这个弹窗。 */}
       {showSignModal && (
         <SignReminderModal
-          usdcBalance={usdcBalance + stakedValue + profitData.availableWithdraw}
+          usdcBalance={usdcBalance + stakedValue}
           onClose={() => setShowSignModal(false)}
           onRefreshProfit={fetchProfitData}
         />
