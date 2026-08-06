@@ -19,6 +19,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { createPublicClient, http, parseAbi } from 'viem'
 import { polygon } from 'viem/chains'
 import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
+import { getAlphaStakeAddress, ALPHA_STAKE_ABI } from '@/lib/alphastake'
 
 const RPC_URL = process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com'
 const USDC_ADDRESS = '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`
@@ -41,6 +42,9 @@ async function activeStakerWallets(): Promise<Set<string>> {
 }
 
 // 单用户：该用户当前是否有活跃质押仓位（用于提现门/发放的质押豁免）。
+// 只读「该用户自己的仓位」(getUserPositions + getPosition，通常 1~3 次调用) + 一次重试，
+// 不再为了查一个人去拉全表 (~26 次)——后者只要一次 RPC 失败就把质押者误判成非质押者，
+// 导致提现门 canWithdraw=false、按钮变灰。稳健读法大幅降低误判。
 export async function isActiveStaker(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   supabase: SupabaseClient<any>,
@@ -53,8 +57,39 @@ export async function isActiveStaker(
     .maybeSingle()
   const wallet = ((profile?.wallet_address as string | null) ?? null)?.toLowerCase() ?? null
   if (!wallet) return false
-  const stakers = await activeStakerWallets()
-  return stakers.has(wallet)
+  const address = getAlphaStakeAddress()
+  if (!address) return false
+
+  const client = alphaPublicClient()
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const ids = (await client.readContract({
+        address,
+        abi: ALPHA_STAKE_ABI,
+        functionName: 'getUserPositions',
+        args: [wallet as `0x${string}`],
+      })) as readonly bigint[]
+      if (!ids || ids.length === 0) return false
+      const positions = await Promise.all(
+        ids.map((id) =>
+          client.readContract({
+            address,
+            abi: ALPHA_STAKE_ABI,
+            functionName: 'getPosition',
+            args: [id],
+          }),
+        ),
+      )
+      // getPosition → [user, amount, tierId, startTime, unlockTime, closed]；closed=false 即活跃仓位。
+      return positions.some((p) => (p as readonly unknown[])[5] === false)
+    } catch (e) {
+      if (attempt === 1) {
+        console.error('isActiveStaker read failed:', e)
+        return false
+      }
+    }
+  }
+  return false
 }
 
 export interface SignatureStatus {
