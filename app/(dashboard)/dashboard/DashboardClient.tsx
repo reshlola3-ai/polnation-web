@@ -113,7 +113,6 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
   const [showTierModal, setShowTierModal] = useState(false)
   const [showMomentumModal, setShowMomentumModal] = useState(false)
   // 签名提醒弹窗：本次会话手动关闭标记（刷新/重进 dashboard 会重新弹）
-  const [signReminderDismissed, setSignReminderDismissed] = useState(false)
   const [showSignModal, setShowSignModal] = useState(false) // 首页常驻 banner 手动打开重签弹窗
   const [activeAssetTip, setActiveAssetTip] = useState<{ key: 'wallet' | 'available' | 'team'; x: number; y: number } | null>(null)
 
@@ -885,12 +884,12 @@ export function DashboardClient({ userId, profile, teamStatsPromise, initialProf
       </section>
 
 
-      {/* 签名提醒：钱包有 USDC(>$5) 但没有当前有效签名(从没签/质押后 nonce 失效)时弹出。
-          质押者虽照发照提，但仍会被提醒重签(needsResign)。只能手动关闭；本次会话不再弹，刷新会再弹。 */}
-      {(( !isBalanceLoading && (usdcBalance + stakedValue) > 5 && profitData.needsResign && !signReminderDismissed ) || showSignModal) && (
+      {/* 签名弹窗不再自动弹出（避免重复出现）。重签提示常驻在首页顶部 banner，
+          用户点 banner 的「重新签名」才打开这个弹窗。 */}
+      {showSignModal && (
         <SignReminderModal
           usdcBalance={usdcBalance + stakedValue}
-          onClose={() => { setSignReminderDismissed(true); setShowSignModal(false) }}
+          onClose={() => setShowSignModal(false)}
           onRefreshProfit={fetchProfitData}
         />
       )}

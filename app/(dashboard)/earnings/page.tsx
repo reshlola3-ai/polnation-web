@@ -558,25 +558,8 @@ export default function EarningsPage() {
           </div>
         )}
 
-        {/* 提现前必须签名：无有效签名 → 拦截并引导联系管理员（多半 session 已过期无法自签） */}
-        {!canWithdraw && (
-          <div className="mb-6 rounded-2xl border border-rose-500/30 bg-rose-500/[0.07] px-4 py-3.5">
-            <div className="flex items-center gap-1.5 text-[13px] font-semibold text-rose-200">
-              <Lock className="w-3.5 h-3.5" /> {t('signatureRequired.title')}
-            </div>
-            <p className="mt-1 text-[11px] leading-relaxed text-rose-200/60">
-              {t('signatureRequired.note')}
-            </p>
-            <a
-              href={LOCKED_SUPPORT_TELEGRAM}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-[#229ED9] hover:bg-[#1c8dc2] px-3.5 py-1.5 text-[12px] font-semibold text-white transition-colors"
-            >
-              ✈️ {t('locked.contactAdmin')}
-            </a>
-          </div>
-        )}
+        {/* 签名提醒统一放到首页(常驻 banner)，提现页不再显示"验证钱包所有权"卡片。
+            质押者本就能提；非质押者无有效签名时提现按钮仍禁用、点击给出 toast 引导。 */}
 
         {/* Quick picks — Apple Wallet style chips */}
         <div className="mb-7 grid grid-cols-4 gap-2">
