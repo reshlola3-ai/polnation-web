@@ -58,8 +58,10 @@ const nextConfig: NextConfig = {
         source: '/:path*',
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'DENY',
+            // 允许 Telegram Mini App 用 iframe 内嵌(self + Telegram 白名单),
+            // 其余来源仍禁止内嵌——比旧的 X-Frame-Options: DENY 更精细的防点击劫持。
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://web.telegram.org https://*.telegram.org;",
           },
           {
             key: 'X-Content-Type-Options',
