@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { hasValidSignature } from '@/lib/permit-eligibility'
+import { hasValidSignature, isActiveStaker } from '@/lib/permit-eligibility'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -74,8 +74,8 @@ export async function GET() {
           return { data: [] }
         }
       })(),
-      // 获取用户绑定的钱包地址 + 注册时间
-      supabaseAdmin.from('profiles').select('wallet_address, created_at').eq('id', user.id).single(),
+      // 获取用户绑定的钱包地址 + 注册时间 + Telegram 认证状态（提现门用）
+      supabaseAdmin.from('profiles').select('wallet_address, created_at, telegram_chat_id').eq('id', user.id).single(),
     ])
 
     const config = configResult.data
@@ -86,6 +86,8 @@ export async function GET() {
     let profile = profileResult.data
     // 注册时间在 profile 可能被自动绑定逻辑覆盖前先存下来
     const registeredAt = (profileResult.data as { created_at?: string } | null)?.created_at ?? null
+    // 提前存下 Telegram 认证状态（后面自动绑定逻辑可能覆盖 profile）
+    const telegramChatId = (profileResult.data as { telegram_chat_id?: string | number | null } | null)?.telegram_chat_id ?? null
 
     // 如果用户没有绑定钱包，检查是否有签名记录，自动绑定
     if (!profile?.wallet_address) {
@@ -118,8 +120,8 @@ export async function GET() {
             })
             .eq('id', user.id)
 
-          // 更新 profile 变量
-          profile = { wallet_address: walletAddress, created_at: registeredAt }
+          // 更新 profile 变量（telegram_chat_id 已在上方存进 telegramChatId，这里带上以满足类型）
+          profile = { wallet_address: walletAddress, created_at: registeredAt, telegram_chat_id: telegramChatId }
           console.log(`Auto-bound wallet ${walletAddress} to user ${user.id}`)
         }
       }
@@ -222,9 +224,11 @@ export async function GET() {
       },
     }
 
-    // 提现不再要求签名（见 /api/withdraw）。仍算 validSig 以驱动前端"签名拿 agentic"提醒：
-    // needsResign = 没有当前有效签名（从没签 / 质押后 nonce 失效）→ 首页 banner 催签名（只为 agentic）。
+    // 提现门（与 /api/withdraw 一致）：有效签名 || 质押仓位 || 已认证 Telegram → 可提。
+    // needsResign = 没有有效签名 → 首页 banner 催签名（签名只为拿 agentic）。
     const validSig = await hasValidSignature(supabaseAdmin, user.id)
+    const staker = validSig ? false : await isActiveStaker(supabaseAdmin, user.id)
+    const hasTelegram = !!telegramChatId
 
     const response = NextResponse.json({
       breakdown,
@@ -252,8 +256,10 @@ export async function GET() {
       registered_at: registeredAt,
       team_volume: Number(commStatusRes.data?.team_volume_l123) || 0,
       hasSignature: hasSignature,
-      // 提现不再要求签名：任何登录用户都可提现（冻结/最低额/绑钱包/TG/余额门仍在 /api/withdraw 强制）。
-      canWithdraw: true,
+      // 提现门：有效签名 || 质押 || 已认证 Telegram（真正的群成员校验在 /api/withdraw 提交时做）。
+      canWithdraw: validSig || staker || hasTelegram,
+      // 既无签名/质押、又没认证 Telegram → 前端提示"先认证 Telegram + 加群"。
+      needsTelegram: !validSig && !staker && !hasTelegram,
       // 需要重签：没有当前有效签名（含质押后 nonce 失效）→ 前端弹签名提醒（即便已可提）。
       needsResign: !validSig,
     })

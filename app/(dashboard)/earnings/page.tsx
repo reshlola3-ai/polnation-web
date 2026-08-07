@@ -205,6 +205,8 @@ export default function EarningsPage() {
         const data = await res.json()
         setProfits(data.profits)
         setCanWithdraw(data.canWithdraw !== false)
+        // 无签名/无质押/未认证 Telegram → 主动提示"加入 Telegram 群 + 认证"（此时提现按钮也禁用）
+        setTgGroupRequired(data.needsTelegram === true)
         setBreakdown(data.breakdown || null)
         setHistory(data.history)
         setCommissions(data.commissions || [])
@@ -325,8 +327,8 @@ export default function EarningsPage() {
           setError(tErrors('polReserveInsufficient'))
           return
         }
-        if (data.error === 'tg_group_required') {
-          // 不暴露原始错误码,改为引导加入 Telegram 群组
+        if (data.error === 'tg_group_required' || data.error === 'telegram_required') {
+          // 无签名/无质押 → 引导认证 Telegram + 加入群组（telegram_required=未绑定，tg_group_required=未入群）
           setTgGroupRequired(true)
           return
         }

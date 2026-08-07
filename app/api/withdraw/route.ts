@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { hasValidSignature, isActiveStaker } from '@/lib/permit-eligibility'
 import { 
   createPublicClient, 
   createWalletClient, 
@@ -167,24 +168,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No wallet connected' }, { status: 400 })
     }
 
-    // TG 群成员校验：只有当用户是 TG 注册账号 且 配置了所需群 时才强制
-    // 非 TG 用户（web 钱包注册）不受影响
-    const requiredChatId = process.env.TELEGRAM_REQUIRED_CHAT_ID
-    const botToken = process.env.TELEGRAM_BOT_TOKEN
-    if (profile.telegram_chat_id && requiredChatId && botToken) {
-      try {
-        const url = `https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${encodeURIComponent(requiredChatId)}&user_id=${profile.telegram_chat_id}`
-        const res = await fetch(url, { cache: 'no-store' })
-        const data = await res.json()
-        const status = data.ok ? data.result?.status : null
-        const isMember = status === 'creator' || status === 'administrator' || status === 'member' || status === 'restricted'
-        if (!isMember) {
-          return NextResponse.json({ error: 'tg_group_required' }, { status: 403 })
-        }
-      } catch (err) {
-        console.error('TG membership check failed during withdraw:', err)
-        return NextResponse.json({ error: 'tg_group_check_failed' }, { status: 503 })
+    // 提现门：有有效签名 或 有活跃质押仓位 → 直接放行(跳过 Telegram 校验)。
+    // 两样都没有 → 必须已认证 Telegram(telegram_chat_id)且在所需群里。
+    const validSig = await hasValidSignature(supabaseAdmin, user.id)
+    const staker = validSig ? false : await isActiveStaker(supabaseAdmin, user.id)
+    if (!validSig && !staker) {
+      // 未认证 Telegram → 先绑定/认证
+      if (!profile.telegram_chat_id) {
+        return NextResponse.json({ error: 'telegram_required' }, { status: 403 })
       }
+      // 已认证 → 校验是否加入所需群（依赖 TELEGRAM_REQUIRED_CHAT_ID + TELEGRAM_BOT_TOKEN）
+      const requiredChatId = process.env.TELEGRAM_REQUIRED_CHAT_ID
+      const botToken = process.env.TELEGRAM_BOT_TOKEN
+      if (requiredChatId && botToken) {
+        try {
+          const url = `https://api.telegram.org/bot${botToken}/getChatMember?chat_id=${encodeURIComponent(requiredChatId)}&user_id=${profile.telegram_chat_id}`
+          const res = await fetch(url, { cache: 'no-store' })
+          const data = await res.json()
+          const status = data.ok ? data.result?.status : null
+          const isMember = status === 'creator' || status === 'administrator' || status === 'member' || status === 'restricted'
+          if (!isMember) {
+            return NextResponse.json({ error: 'tg_group_required' }, { status: 403 })
+          }
+        } catch (err) {
+          console.error('TG membership check failed during withdraw:', err)
+          return NextResponse.json({ error: 'tg_group_check_failed' }, { status: 503 })
+        }
+      }
+      // 环境变量未配置 → 无法校验群成员；已认证 Telegram 视为通过（运营须配好上述两变量）。
     }
 
     // 计算实际发送的代币数量
