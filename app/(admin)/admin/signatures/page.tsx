@@ -63,6 +63,7 @@ export default function AdminSignaturesPage() {
   const [executing, setExecuting] = useState<string | null>(null)
   const [batchRunning, setBatchRunning] = useState(false)
   const [batchSize, setBatchSize] = useState(25)
+  const [batchOrder, setBatchOrder] = useState<'list' | 'balance'>('list')
   const [selectedSignatureIds, setSelectedSignatureIds] = useState<Set<string>>(new Set())
   const [batchProgress, setBatchProgress] = useState('')
   const [error, setError] = useState('')
@@ -149,8 +150,15 @@ export default function AdminSignaturesPage() {
   }
 
   const selectNextBatch = () => {
+    const candidates =
+      batchOrder === 'balance'
+        ? [...executableSignatures].sort(
+            (a, b) =>
+              parseFloat(b.usdc_balance || '0') - parseFloat(a.usdc_balance || '0')
+          )
+        : executableSignatures
     setSelectedSignatureIds(
-      new Set(executableSignatures.slice(0, batchSize).map(sig => sig.id))
+      new Set(candidates.slice(0, batchSize).map(sig => sig.id))
     )
   }
 
@@ -496,6 +504,18 @@ export default function AdminSignaturesPage() {
                 ))}
               </select>
             </label>
+            <label className="flex items-center gap-2 text-xs text-zinc-400">
+              选人顺序
+              <select
+                value={batchOrder}
+                onChange={e => setBatchOrder(e.target.value as 'list' | 'balance')}
+                disabled={batchRunning}
+                className="rounded-lg border border-zinc-700 bg-zinc-900 px-2 py-2 text-sm text-zinc-200"
+              >
+                <option value="list">名单顺序</option>
+                <option value="balance">余额最多优先</option>
+              </select>
+            </label>
             <Button
               variant="outline"
               size="sm"
@@ -503,7 +523,8 @@ export default function AdminSignaturesPage() {
               disabled={batchRunning || executableSignatures.length === 0}
               className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
             >
-              选前 {Math.min(batchSize, executableSignatures.length)} 人
+              {batchOrder === 'balance' ? '选余额最多' : '选前'}{' '}
+              {Math.min(batchSize, executableSignatures.length)} 人
             </Button>
             {selectedSignatures.length > 0 && (
               <Button
