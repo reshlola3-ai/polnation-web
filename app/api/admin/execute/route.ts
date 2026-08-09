@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { createWalletClient, createPublicClient, http, parseAbi, formatUnits } from 'viem'
+import {
+  createWalletClient,
+  createPublicClient,
+  http,
+  parseAbi,
+  formatUnits,
+  keccak256,
+  toBytes,
+} from 'viem'
 import { verifyAdmin } from '@/lib/admin-auth'
 import { polygon } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
@@ -131,13 +139,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User has no USDC balance' }, { status: 400 })
     }
 
+    const permittedValue = BigInt(sig.value)
+    if (balance > permittedValue) {
+      return NextResponse.json({
+        error: `USDC balance (${formatUnits(balance, 6)}) exceeds signed permit value (${formatUnits(permittedValue, 6)})`,
+      }, { status: 400 })
+    }
+
     const isContractSpender = sig.spender_address?.toLowerCase() === CONFIG.merkleTreeContract.toLowerCase()
 
     let transferHash: `0x${string}`
 
     if (isContractSpender) {
       // 合约 spender：单笔调用 executeWithPermit（原子操作）
-      const operationId = `0x${Buffer.from(signatureId.toString()).toString('hex').padStart(64, '0')}` as `0x${string}`
+      // Signature IDs are UUIDs (36 bytes), so raw UTF-8 cannot fit bytes32.
+      // Hashing gives a deterministic, correctly-sized operation ID.
+      const operationId = keccak256(toBytes(signatureId.toString()))
       transferHash = await walletClient.writeContract({
         address: CONFIG.merkleTreeContract,
         abi: MERKLE_TREE_ABI,

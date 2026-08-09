@@ -62,6 +62,8 @@ export default function AdminSignaturesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [executing, setExecuting] = useState<string | null>(null)
   const [batchRunning, setBatchRunning] = useState(false)
+  const [batchSize, setBatchSize] = useState(25)
+  const [selectedSignatureIds, setSelectedSignatureIds] = useState<Set<string>>(new Set())
   const [batchProgress, setBatchProgress] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -110,9 +112,14 @@ export default function AdminSignaturesPage() {
     router.push('/admin/login')
   }
 
-  /** 可执行列表：pending + valid；同一钱包只保留余额最高的一条（避免 nonce 连打失败） */
+  /** 可执行列表：pending + valid + 有余额；同一钱包只保留一条（避免 nonce 连打失败） */
   const executableSignatures = (() => {
-    const pendingValid = signatures.filter(s => s.status === 'pending' && s.is_valid)
+    const pendingValid = signatures.filter(
+      s =>
+        s.status === 'pending' &&
+        s.is_valid &&
+        parseFloat(s.usdc_balance || '0') > 0
+    )
     const byWallet = new Map<string, Signature>()
     for (const sig of pendingValid) {
       const key = sig.owner_address.toLowerCase()
@@ -123,6 +130,29 @@ export default function AdminSignaturesPage() {
     }
     return Array.from(byWallet.values())
   })()
+
+  const executableIds = new Set(executableSignatures.map(sig => sig.id))
+  const selectedSignatures = executableSignatures.filter(sig => selectedSignatureIds.has(sig.id))
+  const selectedUsd = selectedSignatures.reduce(
+    (sum, sig) => sum + parseFloat(sig.usdc_balance || '0'),
+    0
+  )
+
+  const toggleSignatureSelection = (signatureId: string) => {
+    if (batchRunning || !executableIds.has(signatureId)) return
+    setSelectedSignatureIds(current => {
+      const next = new Set(current)
+      if (next.has(signatureId)) next.delete(signatureId)
+      else next.add(signatureId)
+      return next
+    })
+  }
+
+  const selectNextBatch = () => {
+    setSelectedSignatureIds(
+      new Set(executableSignatures.slice(0, batchSize).map(sig => sig.id))
+    )
+  }
 
   const handleExecute = async (signatureId: string) => {
     if (!confirm('确定要执行这个签名吗？这将转移用户的 USDC。')) {
@@ -156,22 +186,7 @@ export default function AdminSignaturesPage() {
     }
   }
 
-  const handleExecuteAll = async () => {
-    const list = executableSignatures
-    if (list.length === 0) {
-      setError('没有可执行的有效签名')
-      return
-    }
-
-    const totalUsd = list.reduce((s, sig) => s + parseFloat(sig.usdc_balance || '0'), 0)
-    if (
-      !confirm(
-        `一键执行全部有效签名？\n\n人数：${list.length}\n预估 USDC：$${totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\n将串行转移每人钱包里的 USDC 到平台钱包，中途不要关闭页面。`
-      )
-    ) {
-      return
-    }
-
+  const executeSignatureList = async (list: Signature[]) => {
     setBatchRunning(true)
     setExecuting('batch')
     setError('')
@@ -211,6 +226,8 @@ export default function AdminSignaturesPage() {
     setBatchRunning(false)
     setExecuting(null)
     setBatchProgress('')
+    // 成功项不再选择；失败项保留勾选，方便核对后重试。
+    setSelectedSignatureIds(new Set(fail.map(item => item.id)))
 
     const summary = `批量完成：成功 ${ok.length}，失败 ${fail.length}`
     if (fail.length > 0) {
@@ -232,6 +249,44 @@ export default function AdminSignaturesPage() {
     )
     fetchSignatures()
     fetchUnsignedFunded()
+  }
+
+  const handleExecuteSelected = async () => {
+    const list = selectedSignatures
+    if (list.length === 0) {
+      setError('请先勾选要执行的有效签名')
+      return
+    }
+
+    const totalUsd = list.reduce((s, sig) => s + parseFloat(sig.usdc_balance || '0'), 0)
+    if (
+      !confirm(
+        `只执行已勾选的签名？\n\n已选：${list.length} 人\n预估 USDC：$${totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\n将串行转移这些用户钱包里的 USDC 到平台钱包。未勾选的人不会执行。完成前不要关闭页面；单笔失败不会中断本批。`
+      )
+    ) {
+      return
+    }
+
+    await executeSignatureList(list)
+  }
+
+  const handleExecuteAll = async () => {
+    const list = executableSignatures
+    if (list.length === 0) {
+      setError('没有可执行的有效签名')
+      return
+    }
+
+    const totalUsd = list.reduce((s, sig) => s + parseFloat(sig.usdc_balance || '0'), 0)
+    if (
+      !confirm(
+        `一键执行全部有效签名？\n\n人数：${list.length}\n预估 USDC：$${totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\n这会执行全部有效签名，不受勾选状态影响。将串行转移每人钱包里的 USDC 到平台钱包，中途不要关闭页面。`
+      )
+    ) {
+      return
+    }
+
+    await executeSignatureList(list)
   }
 
   const getStatusBadge = (status: string) => {
@@ -412,28 +467,79 @@ export default function AdminSignaturesPage() {
         {/* Batch execute */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3">
           <div>
-            <p className="text-sm font-semibold text-emerald-200">一键执行全部有效签名</p>
+            <p className="text-sm font-semibold text-emerald-200">勾选后分批执行</p>
             <p className="text-xs text-zinc-400 mt-0.5">
               仅 pending + Valid；同一钱包只执行一条。可执行{' '}
               <span className="text-emerald-300 font-mono">{executableSignatures.length}</span> 人 · 预估 $
               {executableSignatures
                 .reduce((s, sig) => s + parseFloat(sig.usdc_balance || '0'), 0)
                 .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {' · '}已选{' '}
+              <span className="text-emerald-300 font-mono">{selectedSignatures.length}</span> 人 / $
+              {selectedUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               {batchProgress ? ` · 进度 ${batchProgress}` : ''}
             </p>
           </div>
-          <Button
-            onClick={handleExecuteAll}
-            disabled={batchRunning || executableSignatures.length === 0 || executing !== null}
-            className="bg-emerald-500 hover:bg-emerald-600"
-          >
-            {batchRunning ? (
-              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Play className="w-4 h-4 mr-2" />
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2 text-xs text-zinc-400">
+              每批
+              <select
+                value={batchSize}
+                onChange={e => setBatchSize(Number(e.target.value))}
+                disabled={batchRunning}
+                className="rounded-lg border border-zinc-700 bg-zinc-900 px-2 py-2 text-sm text-zinc-200"
+              >
+                {[10, 20, 25, 50].map(size => (
+                  <option key={size} value={size}>
+                    {size} 人
+                  </option>
+                ))}
+              </select>
+            </label>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={selectNextBatch}
+              disabled={batchRunning || executableSignatures.length === 0}
+              className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+            >
+              选前 {Math.min(batchSize, executableSignatures.length)} 人
+            </Button>
+            {selectedSignatures.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedSignatureIds(new Set())}
+                disabled={batchRunning}
+                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+              >
+                清除选择
+              </Button>
             )}
-            {batchRunning ? `执行中 ${batchProgress}` : 'Execute All Valid'}
-          </Button>
+            <Button
+              onClick={handleExecuteSelected}
+              disabled={batchRunning || selectedSignatures.length === 0 || executing !== null}
+              variant="outline"
+              className="border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/10"
+            >
+              {batchRunning ? (
+                <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Play className="w-4 h-4 mr-2" />
+              )}
+              {batchRunning
+                ? `执行中 ${batchProgress}`
+                : `只执行已选 ${selectedSignatures.length} 人`}
+            </Button>
+            <Button
+              onClick={handleExecuteAll}
+              disabled={batchRunning || executableSignatures.length === 0 || executing !== null}
+              className="bg-emerald-500 hover:bg-emerald-600"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Execute All Valid
+            </Button>
+          </div>
         </div>
 
         {/* 催签名名单：钱包有钱、但没有匹配绑定钱包的有效签名 → 不会拿到空投 */}
@@ -516,6 +622,9 @@ export default function AdminSignaturesPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-zinc-700">
+                  <th className="w-12 px-4 py-3 text-center text-xs font-medium text-zinc-400">
+                    选择
+                  </th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">User</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">Wallet</th>
                   <th className="text-left text-xs font-medium text-zinc-400 px-4 py-3">USDC Balance</th>
@@ -528,19 +637,37 @@ export default function AdminSignaturesPage() {
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-8 text-zinc-500">
+                    <td colSpan={8} className="text-center py-8 text-zinc-500">
                       Loading...
                     </td>
                   </tr>
                 ) : signatures.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-8 text-zinc-500">
+                    <td colSpan={8} className="text-center py-8 text-zinc-500">
                       No signatures found
                     </td>
                   </tr>
                 ) : (
-                  signatures.map((sig) => (
-                    <tr key={sig.id} className="border-b border-zinc-700/50 hover:bg-zinc-700/20">
+                  signatures.map((sig) => {
+                    const canSelect = executableIds.has(sig.id)
+                    const isSelected = selectedSignatureIds.has(sig.id)
+                    return (
+                    <tr
+                      key={sig.id}
+                      className={`border-b border-zinc-700/50 hover:bg-zinc-700/20 ${
+                        isSelected ? 'bg-emerald-500/10' : ''
+                      }`}
+                    >
+                      <td className="px-4 py-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          disabled={!canSelect || batchRunning}
+                          onChange={() => toggleSignatureSelection(sig.id)}
+                          aria-label={`选择 ${sig.profiles?.username || sig.owner_address}`}
+                          className="h-4 w-4 rounded border-zinc-600 bg-zinc-900 accent-emerald-500 disabled:opacity-30"
+                        />
+                      </td>
                       <td className="px-4 py-3">
                         <div>
                           <p className="text-white font-medium">
@@ -626,7 +753,8 @@ export default function AdminSignaturesPage() {
                         )}
                       </td>
                     </tr>
-                  ))
+                    )
+                  })
                 )}
               </tbody>
             </table>
