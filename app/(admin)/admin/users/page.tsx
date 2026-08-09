@@ -412,7 +412,8 @@ export default function AdminUsersPage() {
           <div className="bg-zinc-800/50 border border-zinc-700 rounded-xl p-4">
             <p className="text-zinc-400 text-sm">Total USDC</p>
             <p className="text-2xl font-bold text-green-400">
-              ${stats.totalUsdc.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${Math.max(0, stats.totalUsdc - 3000).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span className="ml-2 text-xs font-normal text-zinc-500">加3000</span>
             </p>
             {stats.totalStaked > 0 && (
               <p className="text-xs text-sky-400/80 mt-0.5">含质押 ${stats.totalStaked.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
