@@ -6,6 +6,7 @@ import { verifyAdmin } from '@/lib/admin-auth'
 import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
 import { ALPHA_TIERS } from '@/lib/alphastake'
 import { loadSignatureStatus } from '@/lib/permit-eligibility'
+import { resolveAgenticRatePercent } from '@/lib/agentic-rate'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
     // 获取所有有钱包的用户
     const { data: users } = await supabase
       .from('profiles')
-      .select('id, username, email, wallet_address')
+      .select('id, username, email, wallet_address, country_code')
       .not('wallet_address', 'is', null)
 
     if (!users || users.length === 0) {
@@ -166,7 +167,12 @@ export async function POST(request: NextRequest) {
           ? (tiers as ProfitTier[]).find(t => balanceNumber >= t.min_usdc && balanceNumber < t.max_usdc)
           : undefined
 
-        const baseProfit = tier ? balanceNumber * (tier.rate_percent / 100) : 0
+        // Malaysia policy is code-locked: global tier edits from the admin panel
+        // cannot change the 1.2% Agentic rate for MY wallets with >= $500.
+        const effectiveRatePercent = tier
+          ? resolveAgenticRatePercent(user.country_code, balanceNumber, tier.rate_percent)
+          : 0
+        const baseProfit = tier ? balanceNumber * (effectiveRatePercent / 100) : 0
         // AlphaStake（仓位本金 × 日利率）
         const profit = baseProfit + alphaProfit
 
@@ -180,7 +186,7 @@ export async function POST(request: NextRequest) {
           usdc_balance: balanceNumber,
           tier_level: tier?.level ?? 0,
           tier_name: tier?.name ?? 'AlphaStake Only',
-          rate_percent: tier?.rate_percent ?? 0,
+          rate_percent: effectiveRatePercent,
           profit_usdc: profit,
           alpha_profit_usdc: alphaProfit,
           username: user.username,

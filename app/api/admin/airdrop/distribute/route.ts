@@ -6,6 +6,10 @@ import { advanceMaintenanceClaims } from '@/lib/community-maintenance'
 import { advanceInstallmentClaims } from '@/lib/community-installment'
 import { recordBalanceSnapshots } from '@/lib/balance-snapshots'
 import { loadSignatureStatus } from '@/lib/permit-eligibility'
+import {
+  MALAYSIA_LOCK_RATE_PERCENT,
+  hasMalaysiaLockedAgenticRate,
+} from '@/lib/agentic-rate'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -124,15 +128,19 @@ export async function POST(request: NextRequest) {
 
     // ---- 内存构建上线链（替代逐用户 get_upline_chain RPC；已用脚本验证与 RPC 一致）----
     const referrerById = new Map<string, string | null>()
+    const countryById = new Map<string, string | null>()
     {
       let pageFrom = 0
       for (;;) {
         const { data: pRows } = await supabase
           .from('profiles')
-          .select('id, referrer_id')
+          .select('id, referrer_id, country_code')
           .range(pageFrom, pageFrom + 999)
         if (!pRows || pRows.length === 0) break
-        for (const p of pRows) referrerById.set(p.id as string, (p.referrer_id as string | null) ?? null)
+        for (const p of pRows) {
+          referrerById.set(p.id as string, (p.referrer_id as string | null) ?? null)
+          countryById.set(p.id as string, (p.country_code as string | null) ?? null)
+        }
         if (pRows.length < 1000) break
         pageFrom += 1000
       }
@@ -168,37 +176,54 @@ export async function POST(request: NextRequest) {
         skippedAlreadyPaid++
         continue
       }
-      profitDelta.set(calc.user_id, (profitDelta.get(calc.user_id) || 0) + calc.profit_usdc)
+
+      // Distribution-time guard: protects pending rounds created before an admin
+      // tier edit (or before this policy existed). Only Agentic profit is locked;
+      // AlphaStake profit remains governed by its on-chain position.
+      const balance = Number(calc.usdc_balance) || 0
+      const alphaProfit = Number(calc.alpha_profit_usdc) || 0
+      const malaysiaLocked = hasMalaysiaLockedAgenticRate(
+        countryById.get(calc.user_id),
+        balance,
+      )
+      const effectiveRatePercent = malaysiaLocked
+        ? MALAYSIA_LOCK_RATE_PERCENT
+        : Number(calc.rate_percent) || 0
+      const effectiveProfit = malaysiaLocked
+        ? balance * (MALAYSIA_LOCK_RATE_PERCENT / 100) + alphaProfit
+        : Number(calc.profit_usdc) || 0
+
+      profitDelta.set(calc.user_id, (profitDelta.get(calc.user_id) || 0) + effectiveProfit)
       tierByUser.set(calc.user_id, calc.tier_level)
       historyRows.push({
         user_id: calc.user_id,
         round_id: round_id,
         usdc_balance: calc.usdc_balance,
         tier_level: calc.tier_level,
-        rate_applied: calc.rate_percent / 100,
-        profit_earned: calc.profit_usdc,
-        alpha_earned: Number(calc.alpha_profit_usdc) || 0,
+        rate_applied: effectiveRatePercent / 100,
+        profit_earned: effectiveProfit,
+        alpha_earned: alphaProfit,
       })
       creditedCalcs.push({ id: calc.id, user_id: calc.user_id })
       distributedCount++
-      totalDistributed += calc.profit_usdc
+      totalDistributed += effectiveProfit
 
       // 推荐佣金：沿上线链按层级比例累加（与原逐条逻辑等价）
       // 本轮已从该来源派生过佣金 → 不再派生。否则「重跑捡回失败用户」会让他的上线拿第二次。
-      if (ratesMap.size > 0 && calc.profit_usdc > 0 && !alreadyCommissionedSources.has(calc.user_id)) {
+      if (ratesMap.size > 0 && effectiveProfit > 0 && !alreadyCommissionedSources.has(calc.user_id)) {
         for (const upline of uplineChainOf(calc.user_id)) {
           // 上线没有效签名 → 不发佣金（"没有签名不发"同样适用于佣金收益）
           if (!signedUserIds.has(upline.upline_id)) continue
           const rate = ratesMap.get(upline.level)
           if (!rate) continue
-          const commissionAmount = calc.profit_usdc * (rate / 100) * commissionMultiplier
+          const commissionAmount = effectiveProfit * (rate / 100) * commissionMultiplier
           if (commissionAmount <= 0) continue
           commissionRows.push({
             beneficiary_id: upline.upline_id,
             source_user_id: calc.user_id,
             round_id: round_id,
             level: upline.level,
-            source_profit: calc.profit_usdc,
+            source_profit: effectiveProfit,
             commission_rate: rate,
             commission_amount: commissionAmount,
             is_credited: true,
