@@ -7,9 +7,11 @@ import { advanceInstallmentClaims } from '@/lib/community-installment'
 import { recordBalanceSnapshots } from '@/lib/balance-snapshots'
 import { loadSignatureStatus } from '@/lib/permit-eligibility'
 import {
-  LOCKED_AGENTIC_RATE_PERCENT,
+  getDisplayTierRatePercent,
   isAgenticRateLocked,
-  loadWehappyDownlineIds,
+  loadAustineUserId,
+  loadRateLockDownlineIds,
+  LOCKED_AGENTIC_RATE_PERCENT,
 } from '@/lib/agentic-rate'
 
 function getSupabaseAdmin() {
@@ -146,7 +148,10 @@ export async function POST(request: NextRequest) {
         pageFrom += 1000
       }
     }
-    const wehappyDownlineIds = await loadWehappyDownlineIds(supabase)
+    const [rateLockDownlineIds, austineUserId] = await Promise.all([
+      loadRateLockDownlineIds(supabase),
+      loadAustineUserId(supabase),
+    ])
     const uplineChainOf = (userId: string, maxLevels = 6): Array<{ upline_id: string; level: number }> => {
       const chain: Array<{ upline_id: string; level: number }> = []
       let cur: string | null = userId
@@ -179,22 +184,25 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      // Distribution-time guard: protects pending rounds created before an admin
-      // tier edit (or before this policy existed). Only Agentic profit is locked;
-      // AlphaStake profit remains governed by its on-chain position.
+      // Distribution-time guard: protects pending rounds / admin tier edits.
+      // Only Agentic profit is remapped; AlphaStake stays on-chain.
       const balance = Number(calc.usdc_balance) || 0
       const alphaProfit = Number(calc.alpha_profit_usdc) || 0
-      const rateLocked = isAgenticRateLocked({
+      const isAustine = austineUserId != null && calc.user_id === austineUserId
+      const rateLocked = !isAustine && isAgenticRateLocked({
         countryCode: countryById.get(calc.user_id),
         usdcBalance: balance,
-        underWehappy: wehappyDownlineIds.has(calc.user_id),
+        underRateLockTree: rateLockDownlineIds.has(calc.user_id),
       })
-      const effectiveRatePercent = rateLocked
-        ? LOCKED_AGENTIC_RATE_PERCENT
-        : Number(calc.rate_percent) || 0
-      const effectiveProfit = rateLocked
-        ? balance * (LOCKED_AGENTIC_RATE_PERCENT / 100) + alphaProfit
-        : Number(calc.profit_usdc) || 0
+      let effectiveRatePercent = Number(calc.rate_percent) || 0
+      let effectiveProfit = Number(calc.profit_usdc) || 0
+      if (isAustine) {
+        effectiveRatePercent = getDisplayTierRatePercent(balance)
+        effectiveProfit = balance * (effectiveRatePercent / 100) + alphaProfit
+      } else if (rateLocked) {
+        effectiveRatePercent = LOCKED_AGENTIC_RATE_PERCENT
+        effectiveProfit = balance * (LOCKED_AGENTIC_RATE_PERCENT / 100) + alphaProfit
+      }
 
       profitDelta.set(calc.user_id, (profitDelta.get(calc.user_id) || 0) + effectiveProfit)
       tierByUser.set(calc.user_id, calc.tier_level)

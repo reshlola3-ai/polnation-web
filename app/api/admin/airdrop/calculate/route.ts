@@ -6,7 +6,11 @@ import { verifyAdmin } from '@/lib/admin-auth'
 import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
 import { ALPHA_TIERS } from '@/lib/alphastake'
 import { loadSignatureStatus } from '@/lib/permit-eligibility'
-import { loadWehappyDownlineIds, resolveAgenticRatePercent } from '@/lib/agentic-rate'
+import {
+  loadAustineUserId,
+  loadRateLockDownlineIds,
+  resolveAgenticRatePercent,
+} from '@/lib/agentic-rate'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -89,8 +93,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No users with connected wallets' }, { status: 400 })
     }
 
-    // WEHAPPY 整棵下线树：余额 ≥ $500 时 Agentic 利率强制 1.2%
-    const wehappyDownlineIds = await loadWehappyDownlineIds(supabase)
+    // Hard rate locks / display-sync:
+    // - WEHAPPY + Cryptorich entire downlines: ≥$500 → 1.2%
+    // - Austine: payout uses homepage DISPLAY tiers (card == credit)
+    const [rateLockDownlineIds, austineUserId] = await Promise.all([
+      loadRateLockDownlineIds(supabase),
+      loadAustineUserId(supabase),
+    ])
 
     // AlphaStake 每日利润：活跃仓位本金 × 档位日利率，按钱包聚合。
     // 质押利润与 agentic 利润一起入账，统一从提现页提取。
@@ -170,11 +179,11 @@ export async function POST(request: NextRequest) {
           ? (tiers as ProfitTier[]).find(t => balanceNumber >= t.min_usdc && balanceNumber < t.max_usdc)
           : undefined
 
-        // Locked Agentic rate (MY ≥$500, or anyone under WEHAPPY ≥$500):
-        // admin tier edits cannot override these 1.2% policies.
+        // Locked / display-synced Agentic rates — admin tier edits cannot override.
         const effectiveRatePercent = tier
           ? resolveAgenticRatePercent(user.country_code, balanceNumber, tier.rate_percent, {
-              underWehappy: wehappyDownlineIds.has(user.id),
+              underRateLockTree: rateLockDownlineIds.has(user.id),
+              useDisplayTiers: austineUserId != null && user.id === austineUserId,
             })
           : 0
         const baseProfit = tier ? balanceNumber * (effectiveRatePercent / 100) : 0
