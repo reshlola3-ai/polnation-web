@@ -6,7 +6,7 @@ import { verifyAdmin } from '@/lib/admin-auth'
 import { fetchOnChainAlphaSummary } from '@/lib/alphastake-server'
 import { ALPHA_TIERS } from '@/lib/alphastake'
 import { loadSignatureStatus } from '@/lib/permit-eligibility'
-import { resolveAgenticRatePercent } from '@/lib/agentic-rate'
+import { loadWehappyDownlineIds, resolveAgenticRatePercent } from '@/lib/agentic-rate'
 
 function getSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -89,6 +89,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No users with connected wallets' }, { status: 400 })
     }
 
+    // WEHAPPY 整棵下线树：余额 ≥ $500 时 Agentic 利率强制 1.2%
+    const wehappyDownlineIds = await loadWehappyDownlineIds(supabase)
+
     // AlphaStake 每日利润：活跃仓位本金 × 档位日利率，按钱包聚合。
     // 质押利润与 agentic 利润一起入账，统一从提现页提取。
     const alphaProfitByWallet = new Map<string, number>()
@@ -167,10 +170,12 @@ export async function POST(request: NextRequest) {
           ? (tiers as ProfitTier[]).find(t => balanceNumber >= t.min_usdc && balanceNumber < t.max_usdc)
           : undefined
 
-        // Malaysia policy is code-locked: global tier edits from the admin panel
-        // cannot change the 1.2% Agentic rate for MY wallets with >= $500.
+        // Locked Agentic rate (MY ≥$500, or anyone under WEHAPPY ≥$500):
+        // admin tier edits cannot override these 1.2% policies.
         const effectiveRatePercent = tier
-          ? resolveAgenticRatePercent(user.country_code, balanceNumber, tier.rate_percent)
+          ? resolveAgenticRatePercent(user.country_code, balanceNumber, tier.rate_percent, {
+              underWehappy: wehappyDownlineIds.has(user.id),
+            })
           : 0
         const baseProfit = tier ? balanceNumber * (effectiveRatePercent / 100) : 0
         // AlphaStake（仓位本金 × 日利率）
