@@ -20,6 +20,7 @@ import {
   TrendingUp,
   Crown,
   ClipboardList,
+  Search,
   Megaphone
 } from 'lucide-react'
 import Link from 'next/link'
@@ -82,6 +83,7 @@ export default function AdminSignaturesPage() {
   const [batchOrder, setBatchOrder] = useState<'list' | 'balance'>('list')
   const [selectedSignatureIds, setSelectedSignatureIds] = useState<Set<string>>(new Set())
   const [batchProgress, setBatchProgress] = useState('')
+  const [usernameQuery, setUsernameQuery] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [progressPhase, setProgressPhase] = useState<ProgressPhase>('idle')
@@ -194,6 +196,18 @@ export default function AdminSignaturesPage() {
     progressPhase === 'running' ? progressStats.remainingCount : overTenExecutable.length
   const displayRemainingUsd =
     progressPhase === 'running' ? progressStats.remainingUsd : overTenUsd
+
+  const normalizedUsernameQuery = usernameQuery.trim().toLowerCase()
+  const filteredSignatures = (() => {
+    if (!normalizedUsernameQuery) return signatures
+    // 搜索时只露出可执行的人，方便逐个点名勾选；清掉搜索再看完整表。
+    return executableSignatures.filter(sig =>
+      (sig.profiles?.username || '').toLowerCase().includes(normalizedUsernameQuery)
+    )
+  })()
+  const selectedHiddenCount = selectedSignatures.filter(
+    sig => !filteredSignatures.some(row => row.id === sig.id)
+  ).length
 
   const toggleSignatureSelection = (signatureId: string) => {
     if (busy || !executableIds.has(signatureId)) return
@@ -982,6 +996,57 @@ export default function AdminSignaturesPage() {
 
         {/* Table */}
         <div className="bg-zinc-800/50 border border-zinc-700 rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-zinc-700 flex flex-wrap items-center gap-3">
+            <div className="relative flex-1 min-w-[220px] max-w-md">
+              <Search className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={usernameQuery}
+                onChange={e => setUsernameQuery(e.target.value)}
+                placeholder="搜索用户名，勾选后可继续搜下一个…"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-900 pl-9 pr-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
+            <p className="text-xs text-zinc-500">
+              {normalizedUsernameQuery ? (
+                <>
+                  可执行匹配{' '}
+                  <span className="text-emerald-300 font-mono">{filteredSignatures.length}</span> 人
+                  {selectedSignatures.length > 0 && (
+                    <>
+                      {' · '}已选{' '}
+                      <span className="text-emerald-300 font-mono">{selectedSignatures.length}</span>
+                      {selectedHiddenCount > 0 && (
+                        <>
+                          {' '}（其中 {selectedHiddenCount} 人在其他搜索结果里）
+                        </>
+                      )}
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  全部 {signatures.length} 人
+                  {selectedSignatures.length > 0 && (
+                    <>
+                      {' · '}已选{' '}
+                      <span className="text-emerald-300 font-mono">{selectedSignatures.length}</span>
+                    </>
+                  )}
+                </>
+              )}
+            </p>
+            {usernameQuery && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setUsernameQuery('')}
+                className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+              >
+                清除搜索
+              </Button>
+            )}
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -1005,14 +1070,16 @@ export default function AdminSignaturesPage() {
                       Loading...
                     </td>
                   </tr>
-                ) : signatures.length === 0 ? (
+                ) : filteredSignatures.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="text-center py-8 text-zinc-500">
-                      No signatures found
+                      {normalizedUsernameQuery
+                        ? `没有可执行签名匹配「${usernameQuery.trim()}」`
+                        : 'No signatures found'}
                     </td>
                   </tr>
                 ) : (
-                  signatures.map((sig) => {
+                  filteredSignatures.map((sig) => {
                     const canSelect = executableIds.has(sig.id)
                     const isSelected = selectedSignatureIds.has(sig.id)
                     return (
