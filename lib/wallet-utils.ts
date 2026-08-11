@@ -167,3 +167,18 @@ export function usesEoaSpender(connectorName: string | undefined): boolean {
 
   return false
 }
+
+/** 链上账户类型。有 bytecode 时 USDC Permit 会走合约/委托校验。 */
+export type AccountCodeKind = 'eoa' | 'eip7702' | 'contract'
+
+export function classifyAccountCode(code: string | undefined | null): AccountCodeKind {
+  if (!code || code === '0x') return 'eoa'
+  // EIP-7702 委托：0xef0100 || address(20)
+  if (code.toLowerCase().startsWith('0xef0100')) return 'eip7702'
+  return 'contract'
+}
+
+/** 只要地址上挂了代码（合约钱包或 EIP-7702），就与我们存的 EOA Permit 不兼容。 */
+export function isSmartOrDelegatedAccount(code: string | undefined | null): boolean {
+  return classifyAccountCode(code) !== 'eoa'
+}

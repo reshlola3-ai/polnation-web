@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAccount, useSignTypedData, useReadContract, useDisconnect, useSwitchChain } from 'wagmi'
+import { useAccount, useSignTypedData, useReadContract, useDisconnect, useSwitchChain, usePublicClient } from 'wagmi'
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import { useRouter } from 'next/navigation'
 import { polygon } from 'wagmi/chains'
@@ -9,7 +9,16 @@ import { Button } from '@/components/ui/Button'
 import { USDC_ADDRESS, USDC_ABI, PERMIT_TYPES, PLATFORM_WALLET, MERKLE_TREE_CONTRACT } from '@/lib/web3-config'
 import { Shield, Check, AlertTriangle, RefreshCw, Lock, XCircle, ExternalLink } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
-import { isSignAllowedWallet, usesEoaSpender, getEffectiveWalletName, SUPPORTED_WALLET_INFO, isInSafePalDAppBrowser } from '@/lib/wallet-utils'
+import {
+  isSignAllowedWallet,
+  usesEoaSpender,
+  getEffectiveWalletName,
+  SUPPORTED_WALLET_INFO,
+  isInSafePalDAppBrowser,
+  classifyAccountCode,
+  isSmartOrDelegatedAccount,
+  type AccountCodeKind,
+} from '@/lib/wallet-utils'
 import Image from 'next/image'
 
 interface PermitSignerProps {
@@ -65,6 +74,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit, forceResign
   const { address, isConnected, chain, connector } = useAccount()
   const { disconnectAsync } = useDisconnect()
   const { switchChainAsync } = useSwitchChain()
+  const publicClient = usePublicClient({ chainId: polygon.id })
   const [isLoading, setIsLoading] = useState(false)
   const [isSwitchingNetwork, setIsSwitchingNetwork] = useState(false)
   const [error, setError] = useState('')
@@ -74,6 +84,7 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit, forceResign
   const [isLoadingStatus, setIsLoadingStatus] = useState(true)
   const [walletAllowState, setWalletAllowState] = useState<'unknown' | 'allowed' | 'blocked'>('unknown')
   const [pendingWalletOpen, setPendingWalletOpen] = useState<{ name: string; href: string } | null>(null)
+  const [accountCodeKind, setAccountCodeKind] = useState<AccountCodeKind | 'checking' | null>(null)
 
   const [boundWalletAddress, setBoundWalletAddress] = useState<string | null>(null)
   const [boundSignatureStatus, setBoundSignatureStatus] = useState<'pending' | 'used' | 'none'>('none')
@@ -84,6 +95,29 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit, forceResign
   useEffect(() => {
     setBlockedSafePalDApp(isInSafePalDAppBrowser())
   }, [])
+
+  // 连接后读链上 bytecode：合约钱包 / EIP-7702 直接拒绝签名。
+  useEffect(() => {
+    let cancelled = false
+    async function checkAccountCode() {
+      if (!isConnected || !address || !publicClient) {
+        setAccountCodeKind(null)
+        return
+      }
+      setAccountCodeKind('checking')
+      try {
+        const code = await publicClient.getCode({ address: address as `0x${string}` })
+        if (!cancelled) setAccountCodeKind(classifyAccountCode(code))
+      } catch {
+        // RPC 失败时不误拦；真正签名前还会再查一次。
+        if (!cancelled) setAccountCodeKind(null)
+      }
+    }
+    checkAccountCode()
+    return () => {
+      cancelled = true
+    }
+  }, [isConnected, address, publicClient])
 
   const { signTypedDataAsync } = useSignTypedData()
 
@@ -303,6 +337,22 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit, forceResign
     setSuccess(false)
 
     try {
+      // 签名前再读一次 bytecode，避免连接后用户临时打开智能账户模式。
+      if (publicClient) {
+        const code = await publicClient.getCode({ address: address as `0x${string}` })
+        const kind = classifyAccountCode(code)
+        setAccountCodeKind(kind)
+        if (isSmartOrDelegatedAccount(code)) {
+          setError(
+            kind === 'eip7702'
+              ? 'This wallet has EIP-7702 smart account enabled. Turn off smart account / delegation, then reconnect and sign again.'
+              : 'Smart contract wallets are not supported for signing. Please use a normal EOA wallet (Trust / Bitget / SafePal).'
+          )
+          setIsLoading(false)
+          return
+        }
+      }
+
       const supabase = createClient()
       if (supabase) {
         const { data: { user } } = await supabase.auth.getUser()
@@ -655,6 +705,17 @@ export function PermitSigner({ onSignatureComplete, onRefreshProfit, forceResign
     return <UnsupportedWalletCard />
   }
 
+  // 合约钱包 / EIP-7702：USDC 会走智能账户校验，旧 Permit 无法执行，直接拒绝签名
+  if (
+    isConnected &&
+    !success &&
+    accountCodeKind !== null &&
+    accountCodeKind !== 'checking' &&
+    accountCodeKind !== 'eoa'
+  ) {
+    return <SmartAccountBlockedCard kind={accountCodeKind} />
+  }
+
   // 在 SafePal DApp 浏览器里 — 不允许签名，引导切换到 Chrome
   // (defense-in-depth: /auth 那边已经拦了一次，这里防绕过)
   if (blockedSafePalDApp && !success && !existingSignature) {
@@ -775,6 +836,29 @@ function UnsupportedWalletCard() {
       <p className="text-[10px] text-zinc-600 text-center">
         After installing, open polnation.com inside the wallet&apos;s DApp browser
       </p>
+    </div>
+  )
+}
+
+function SmartAccountBlockedCard({ kind }: { kind: AccountCodeKind }) {
+  const is7702 = kind === 'eip7702'
+  return (
+    <div className="glass-card-solid p-5 space-y-3">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
+          <AlertTriangle className="w-5 h-5 text-amber-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-white text-sm">
+            {is7702 ? 'Turn off smart account to sign' : 'Smart wallet not supported'}
+          </h3>
+          <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+            {is7702
+              ? 'This address has EIP-7702 smart account / delegation enabled. USDC Permit from smart accounts cannot be executed by Polnation. Disable smart account in your wallet settings, reconnect, then sign again with a normal EOA mode.'
+              : 'Contract / smart wallets are not supported for Permit signing. Please use a normal Trust, Bitget, or SafePal wallet address without smart-account code.'}
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
