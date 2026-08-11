@@ -279,6 +279,35 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    if (!allowanceRecovery) {
+      const ownerCode = await publicClient.getCode({
+        address: sig.owner_address as `0x${string}`,
+      })
+      if (ownerCode && ownerCode !== '0x') {
+        try {
+          await publicClient.simulateContract({
+            account,
+            address: CONFIG.usdcAddress,
+            abi: USDC_ABI,
+            functionName: 'permit',
+            args: [
+              sig.owner_address as `0x${string}`,
+              sig.spender_address as `0x${string}`,
+              BigInt(sig.value),
+              BigInt(sig.deadline),
+              sig.v,
+              sig.r as `0x${string}`,
+              sig.s as `0x${string}`,
+            ],
+          })
+        } catch {
+          return NextResponse.json({
+            error: 'Smart-account permit rejected by USDC on-chain validation',
+          }, { status: 400 })
+        }
+      }
+    }
+
     let transferHash: `0x${string}`
 
     if (isContractSpender) {

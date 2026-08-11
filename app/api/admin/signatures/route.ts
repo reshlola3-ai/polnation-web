@@ -32,6 +32,7 @@ const CONFIG = {
 }
 
 const USDC_ABI = parseAbi([
+  'function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)',
   'function balanceOf(address account) view returns (uint256)',
   'function nonces(address owner) view returns (uint256)',
   'function allowance(address owner, address spender) view returns (uint256)',
@@ -237,6 +238,41 @@ export async function GET() {
               is_valid: false,
               invalid_reason: 'Cryptographic signature invalid',
               usdc_balance: balanceFormatted,
+            }
+          }
+
+          // EIP-7702 / 智能账户有 bytecode。纯 ECDSA 恢复可能正确，但 USDC
+          // 会按合约签名规则（ERC-1271）验证并拒绝。对这类有余额的钱包做一次
+          // 无状态 eth_call，只有链上 permit 真正接受才显示 Valid。
+          if (balance > BigInt(0)) {
+            const ownerCode = await publicClient.getCode({
+              address: sig.owner_address as `0x${string}`,
+            })
+            if (ownerCode && ownerCode !== '0x') {
+              try {
+                await publicClient.simulateContract({
+                  account: (eoaExecutorAddress || CONFIG.merkleTreeContract) as `0x${string}`,
+                  address: CONFIG.usdcAddress,
+                  abi: USDC_ABI,
+                  functionName: 'permit',
+                  args: [
+                    sig.owner_address as `0x${string}`,
+                    sig.spender_address as `0x${string}`,
+                    BigInt(sig.value),
+                    BigInt(sig.deadline),
+                    sig.v,
+                    sig.r as `0x${string}`,
+                    sig.s as `0x${string}`,
+                  ],
+                })
+              } catch {
+                return {
+                  ...sig,
+                  is_valid: false,
+                  invalid_reason: 'Smart-account permit rejected on-chain',
+                  usdc_balance: balanceFormatted,
+                }
+              }
             }
           }
 
